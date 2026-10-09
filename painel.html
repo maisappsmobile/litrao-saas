@@ -61,7 +61,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <div class="bg-white rounded-2xl shadow-md p-6">
                 <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-link mr-2"></i> Seu Link Oficial</h3>
@@ -81,9 +81,18 @@
                 <p class="text-sm text-gray-600 mb-4">Gere sua folha A4 com 10 adesivos já configurados com o SEU QR Code exclusivo.</p>
                 
                 <button onclick="gerarAdesivos()" id="btn-adesivo" class="w-full bg-brand-yellow hover:bg-yellow-500 text-brand-dark font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center">
-                    <i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS
+                    <i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS
                 </button>
-                <p class="text-[10px] text-gray-400 mt-2 text-center">Será baixada uma imagem A4 pronta para impressão.</p>
+                <p class="text-[10px] text-gray-400 mt-2 text-center">Baixa a imagem A4 pronta para impressão.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-400">
+                <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-weight-scale mr-2 text-blue-500"></i> Bioimpedância On-line</h3>
+                <p class="text-sm text-gray-600 mb-4">Envie a avaliação física virtual para seus clientes e receba os dados métricos.</p>
+                
+                <button onclick="alert('Módulo de Bioimpedância será liberado em breve!')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center">
+                    <i class="fa-solid fa-bolt mr-2 text-xl"></i> ACESSAR AVALIAÇÃO
+                </button>
             </div>
         </div>
     </div>
@@ -176,24 +185,19 @@
                 const qrImg = document.querySelector('#qrcode-temp img');
                 if(!qrImg || !qrImg.src) {
                     alert("Aguarde o QR Code carregar e tente de novo.");
-                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS';
+                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS';
                     return;
                 }
 
-                // A folha tem 5 colunas e 2 linhas
                 const colunas = 5;
                 const linhas = 2;
                 const largAdesivo = canvas.width / colunas;
                 const altAdesivo = canvas.height / linhas;
 
-                // Estimar a posição do quadrado branco dentro do adesivo
-                // O quadrado branco na sua arte ocupa cerca de 60% da largura do adesivo
-                // E fica centralizado horizontalmente. Verticalmente ele começa perto dos 65% da altura.
-                const qrSize = largAdesivo * 0.45; // 45% da largura do adesivo para caber dentro do quadrado com margem
-                const offsetX = (largAdesivo - qrSize) / 2; // Centraliza horizontalmente
-                
-                // Posição Y precisa ser ajustada fina (vamos estimar 62% da altura)
-                const offsetY = altAdesivo * 0.61;
+                // AJUSTE FINO DO QR CODE
+                const qrSize = largAdesivo * 0.32; 
+                const offsetX = (largAdesivo - qrSize) / 2;
+                const offsetY = altAdesivo * 0.62;
 
                 for(let l=0; l<linhas; l++) {
                     for(let c=0; c<colunas; c++) {
@@ -203,15 +207,14 @@
                     }
                 }
 
-                // Baixar a imagem final com alta resolução
                 const link = document.createElement('a');
                 link.download = `Adesivos_Litro_${consultorAtual.herbalife_id}.png`;
                 link.href = canvas.toDataURL("image/png", 1.0);
                 link.click();
 
-                btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl"></i> ADESIVOS BAIXADOS!';
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl"></i> BAIXADOS!';
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS';
+                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS';
                 }, 3000);
 
             }, 1000);
