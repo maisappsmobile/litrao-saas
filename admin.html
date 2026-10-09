@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Super Admin - Litrão do Reset SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#1a361d',
+                        'brand-green': '#204624',
+                        'brand-light': '#82b434',
+                        'brand-yellow': '#ffa700',
+                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'], }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-gray-100">
+
+    <!-- Sidebar Lateral -->
+    <aside class="w-64 bg-brand-dark text-white flex flex-col hidden md:flex">
+        <div class="h-20 flex items-center justify-center border-b border-white/10 px-6">
+            <h1 class="text-2xl font-extrabold italic tracking-tighter">RESET<span class="text-brand-yellow text-sm block not-italic font-bold tracking-widest mt-0">SAAS ADMIN</span></h1>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="#" class="flex items-center px-4 py-3 bg-brand-green/50 text-brand-yellow rounded-lg font-semibold transition">
+                <i class="fa-solid fa-users mr-3"></i> Supervisores
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg font-medium transition">
+                <i class="fa-solid fa-chart-line mr-3"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-white/5 rounded-lg font-medium transition">
+                <i class="fa-solid fa-gear mr-3"></i> Configurações
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/10">
+            <a href="#" class="flex items-center px-4 py-2 text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-sign-out-alt mr-3"></i> Sair
+            </a>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Header Topo -->
+        <header class="h-20 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+            <div class="flex items-center text-xl font-bold text-gray-800">
+                <i class="fa-solid fa-users text-brand-light mr-3"></i> Gestão de Supervisores
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-sm font-bold text-gray-800">Administrador</p>
+                    <p class="text-xs text-gray-500">Master Level</p>
+                </div>
+                <div class="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Área de Conteúdo -->
+        <main class="flex-1 overflow-y-auto p-8">
+            
+            <!-- Cards de Resumo -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Ativos</p>
+                        <h3 id="total-ativos" class="text-3xl font-black text-brand-dark">0</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-green-50 text-brand-light rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between opacity-50">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Novos (Em Breve)</p>
+                        <h3 class="text-3xl font-black text-brand-dark">--</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between opacity-50">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Faturamento (Em Breve)</p>
+                        <h3 class="text-3xl font-black text-brand-dark">R$ 0,00</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-yellow-50 text-brand-yellow rounded-full flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela e Controles -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="relative w-full md:w-96">
+                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" placeholder="Buscar por nome, ID ou Link..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light transition">
+                    </div>
+                    <button onclick="abrirModal()" class="w-full md:w-auto bg-brand-light hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center">
+                        <i class="fa-solid fa-plus mr-2"></i> Novo Supervisor
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold">Consultor / Espaço</th>
+                                <th class="p-4 font-semibold">Link Personalizado</th>
+                                <th class="p-4 font-semibold">ID / Letras</th>
+                                <th class="p-4 font-semibold">WhatsApp</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-corpo" class="text-gray-700">
+                            <!-- Injetado via Javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Novo Supervisor -->
+    <div id="modal-novo" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl transform transition-all">
+            <h2 class="text-2xl font-bold mb-6 text-brand-dark flex items-center">
+                <i class="fa-solid fa-user-plus mr-3 text-brand-light"></i>
+                Cadastrar Supervisor
+            </h2>
+            <form id="form-novo" onsubmit="salvarSupervisor(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Nome do Consultor ou Espaço</label>
+                        <input type="text" id="input-nome" required placeholder="Ex: Maria Fit Nutrição" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light focus:bg-white outline-none transition">
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">ID Herbalife</label>
+                            <input type="text" id="input-id" required placeholder="Ex: 433005811" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light focus:bg-white outline-none transition">
+                        </div>
+                        <div class="w-24">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Letras</label>
+                            <input type="text" id="input-letras" required maxlength="3" placeholder="BRA" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light focus:bg-white outline-none uppercase transition font-bold text-center">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">WhatsApp (com DDD)</label>
+                        <input type="text" id="input-zap" required placeholder="5511999999999" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light focus:bg-white outline-none transition">
+                        <p class="text-xs text-gray-400 mt-1">Apenas números. Comece com 55.</p>
+                    </div>
+
+                    <!-- Endereço Separado -->
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <h3 class="text-sm font-bold text-brand-dark mb-3"><i class="fa-solid fa-map-location-dot mr-1"></i> Endereço do Espaço (Opcional)</h3>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">País</label>
+                                <select id="input-pais" onchange="mudarPais(this.value)" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                                    <option value="Brasil" selected>Brasil</option>
+                                    <option value="Outro">Outro País</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Estado</label>
+                                <!-- Select para Brasil -->
+                                <select id="select-estado" onchange="carregarCidades(this.value)" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                                    <option value="">Selecione...</option>
+                                    <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+                                </select>
+                                <!-- Input Livre para Outros Países -->
+                                <input type="text" id="input-estado-livre" placeholder="Digite o estado" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl hidden outline-none">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Cidade</label>
+                                <select id="select-cidade" disabled class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                                    <option value="">Aguardando Estado...</option>
+                                </select>
+                                <input type="text" id="input-cidade-livre" placeholder="Digite a cidade" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl hidden outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Rua, Av, Número</label>
+                                <input type="text" id="input-rua" placeholder="Rua X, 123" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Complemento / Bairro</label>
+                            <input type="text" id="input-comp" placeholder="Sala 2, Centro" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="fecharModal()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-3 bg-brand-light text-white font-bold rounded-xl hover:bg-green-600 transition shadow-md">
+                        Salvar e Gerar Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts de Lógica Supabase e IBGE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // CONEXÃO COM SEU BANCO DE DADOS
+        const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const tableBody = document.getElementById('tabela-corpo');
+        const modal = document.getElementById('modal-novo');
+        const form = document.getElementById('form-novo');
+
+        // LÓGICA DE ESTADOS E CIDADES (API IBGE)
+        function mudarPais(pais) {
+            const isBrasil = pais === 'Brasil';
+            document.getElementById('select-estado').classList.toggle('hidden', !isBrasil);
+            document.getElementById('select-cidade').classList.toggle('hidden', !isBrasil);
+            
+            document.getElementById('input-estado-livre').classList.toggle('hidden', isBrasil);
+            document.getElementById('input-cidade-livre').classList.toggle('hidden', isBrasil);
+        }
+
+        async function carregarCidades(uf) {
+            const selectCidade = document.getElementById('select-cidade');
+            if(!uf) {
+                selectCidade.innerHTML = '<option value="">Aguardando Estado...</option>';
+                selectCidade.disabled = true;
+                return;
+            }
+            
+            selectCidade.innerHTML = '<option value="">Carregando...</option>';
+            selectCidade.disabled = true;
+            
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                const cidades = await res.json();
+                
+                selectCidade.innerHTML = '<option value="">Selecione a Cidade...</option>';
+                cidades.forEach(cid => {
+                    selectCidade.innerHTML += `<option value="${cid.nome}">${cid.nome}</option>`;
+                });
+                selectCidade.disabled = false;
+            } catch (e) {
+                console.error("Erro ao puxar IBGE", e);
+                selectCidade.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        // FUNÇÃO: Carregar todos os consultores do banco
+        async function carregarDados() {
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando dados do servidor...</td></tr>';
+            
+            const { data, error } = await supabaseClient
+                .from('consultores')
+                .select('*')
+                .order('id', { ascending: false });
+            
+            if (error) {
+                console.error("Erro ao buscar:", error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-500 font-bold">Falha ao conectar com o banco de dados.</td></tr>';
+                return;
+            }
+
+            // Atualiza Card de Total
+            document.getElementById('total-ativos').innerText = data.length;
+
+            tableBody.innerHTML = '';
+            
+            if(data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">Nenhum consultor cadastrado ainda.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const link = `/${item.slug}`;
+                tableBody.innerHTML += `
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <p class="font-bold text-gray-900">${item.nome_espaco}</p>
+                            ${item.endereco ? `<p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot"></i> ${item.endereco}</p>` : ''}
+                        </td>
+                        <td class="p-4">
+                            <a href="index.html?ref=${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
+                                ${link} <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
+                            </a>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold">${item.herbalife_id}</p>
+                            <p class="text-xs text-gray-500 font-bold uppercase">${item.letras}</p>
+                        </td>
+                        <td class="p-4 text-sm font-medium">${item.whatsapp}</td>
+                        <td class="p-4">
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">${item.status || 'Ativo'}</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="deletar('${item.id}')" class="text-gray-400 hover:text-red-500 transition mx-1 bg-gray-100 p-2 rounded-lg" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // CONTROLE DO MODAL
+        function abrirModal() {
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModal() {
+            modal.classList.add('hidden');
+            form.reset();
+            mudarPais('Brasil'); // reseta os campos
+            document.getElementById('select-cidade').innerHTML = '<option value="">Aguardando Estado...</option>';
+            document.getElementById('select-cidade').disabled = true;
+        }
+
+        // FUNÇÃO: Salvar novo consultor no banco
+        async function salvarSupervisor(e) {
+            e.preventDefault(); 
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Criando Link...';
+            btn.disabled = true;
+
+            const nome = document.getElementById('input-nome').value;
+            const hId = document.getElementById('input-id').value;
+            const letras = document.getElementById('input-letras').value.toUpperCase();
+            
+            // Lógica do Endereço Completo Combinado
+            const pais = document.getElementById('input-pais').value;
+            let estado = pais === 'Brasil' ? document.getElementById('select-estado').value : document.getElementById('input-estado-livre').value;
+            let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
+            const rua = document.getElementById('input-rua').value;
+            const comp = document.getElementById('input-comp').value;
+            
+            let enderecoCompleto = "";
+            if (rua || cidade || estado) {
+                enderecoCompleto = `${rua}${comp ? ', ' + comp : ''}`;
+                if (cidade || estado) enderecoCompleto += ` - ${cidade}/${estado}`;
+                if (pais !== 'Brasil') enderecoCompleto += ` - ${pais}`;
+            }
+            
+            const zap = document.getElementById('input-zap').value.replace(/\D/g, '');
+            const slug = hId + letras.toLowerCase();
+
+            // Salva no Supabase
+            const { error } = await supabaseClient.from('consultores').insert([{
+                slug: slug,
+                herbalife_id: hId,
+                letras: letras,
+                whatsapp: zap,
+                nome_espaco: nome,
+                endereco: enderecoCompleto.trim(), // Salva tudo juntinho bonitinho
+                status: 'ativo'
+            }]);
+
+            if (error) {
+                alert("Ocorreu um erro! É possível que este ID/Link já esteja cadastrado no sistema.");
+                console.error(error);
+            } else {
+                fecharModal();
+                carregarDados(); // Recarrega a tabela para mostrar o novo consultor
+            }
+            
+            btn.innerText = 'Salvar e Gerar Link';
+            btn.disabled = false;
+        }
+
+        // FUNÇÃO: Deletar consultor
+        async function deletar(id) {
+            if(confirm("ATENÇÃO: Tem certeza que deseja excluir este consultor? O link dele sairá do ar imediatamente!")) {
+                await supabaseClient.from('consultores').delete().eq('id', id);
+                carregarDados();
+            }
+        }
+
+        // Executa a busca de dados assim que a tela abre
+        document.addEventListener('DOMContentLoaded', carregarDados);
+    </script>
+</body>
+</html>
