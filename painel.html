@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Consultor - Litrão do Reset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: { dark: '#1e3a24', light: '#26aa4b', yellow: '#fbb03b' } } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-brand-dark text-white p-4 shadow-md flex justify-between items-center">
+        <div class="font-black text-xl italic tracking-tighter">RESET <span class="text-brand-light">SaaS</span></div>
+        <div class="text-sm">Área do Consultor</div>
+    </header>
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="max-w-md mx-auto mt-20 p-6 bg-white rounded-2xl shadow-xl">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-user-lock text-white text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-black text-brand-dark">Acessar meu Painel</h2>
+            <p class="text-gray-500 text-sm mt-1">Digite seu ID para entrar</p>
+        </div>
+
+        <form onsubmit="fazerLogin(event)">
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
+                <div class="relative">
+                    <i class="fa-regular fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="login-id" required placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                </div>
+            </div>
+            <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition">
+                ENTRAR
+            </button>
+            <p id="login-erro" class="text-red-500 text-sm text-center mt-3 hidden">ID não encontrado. Verifique e tente novamente.</p>
+        </form>
+    </div>
+
+    <!-- PAINEL DO CONSULTOR -->
+    <div id="dashboard-screen" class="max-w-4xl mx-auto mt-10 p-4 hidden">
+        
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-6 flex flex-col md:flex-row justify-between items-center border-l-4 border-brand-light">
+            <div>
+                <h1 class="text-2xl font-black text-brand-dark" id="dash-nome">Olá, Consultor</h1>
+                <p class="text-gray-500 text-sm mt-1">ID: <span id="dash-id" class="font-bold">---</span> | Status: <span id="dash-status" class="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-bold uppercase">Ativo</span></p>
+            </div>
+            <div class="mt-4 md:mt-0 text-center">
+                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Vencimento</p>
+                <div id="dash-vencimento" class="text-xl font-black text-gray-800">00/00/0000</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="bg-white rounded-2xl shadow-md p-6">
+                <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-link mr-2"></i> Seu Link Oficial</h3>
+                <p class="text-sm text-gray-600 mb-4">Compartilhe este link no seu Instagram e WhatsApp para atrair clientes.</p>
+                
+                <div class="bg-gray-100 p-3 rounded-xl border border-gray-200 flex items-center justify-between">
+                    <a href="#" id="meu-link" target="_blank" class="text-blue-600 font-bold truncate mr-2">...</a>
+                    <button onclick="copiarLink()" class="bg-brand-light text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-600 transition flex-shrink-0">
+                        COPIAR
+                    </button>
+                </div>
+                <p id="msg-copiado" class="text-green-600 text-xs mt-2 hidden font-bold"><i class="fa-solid fa-check"></i> Link copiado!</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md p-6 border-2 border-brand-yellow">
+                <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-print mr-2 text-brand-yellow"></i> Imprimir Adesivos</h3>
+                <p class="text-sm text-gray-600 mb-4">Gere sua folha A4 com 10 adesivos já configurados com o SEU QR Code exclusivo.</p>
+                
+                <button onclick="gerarAdesivos()" id="btn-adesivo" class="w-full bg-brand-yellow hover:bg-yellow-500 text-brand-dark font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center">
+                    <i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS
+                </button>
+                <p class="text-[10px] text-gray-400 mt-2 text-center">Será baixada uma imagem A4 pronta para impressão.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS -->
+    <div style="display:none;">
+        <img id="img-base" src="adesivo-base.png" crossorigin="anonymous">
+        <canvas id="canvas-a4"></canvas>
+        <div id="qrcode-temp"></div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let consultorAtual = null;
+
+        async function fazerLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const erro = document.getElementById('login-erro');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            erro.classList.add('hidden');
+
+            const id = document.getElementById('login-id').value.trim();
+            const { data, error } = await supabaseClient.from('consultores').select('*').eq('herbalife_id', id);
+            
+            btn.innerHTML = 'ENTRAR';
+
+            if (data && data.length > 0) {
+                consultorAtual = data[0];
+                mostrarDashboard();
+            } else {
+                erro.classList.remove('hidden');
+            }
+        }
+
+        function mostrarDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+
+            document.getElementById('dash-nome').innerText = consultorAtual.nome_espaco || consultorAtual.herbalife_id;
+            document.getElementById('dash-id').innerText = consultorAtual.herbalife_id + " " + consultorAtual.letras;
+            
+            if(consultorAtual.vencimento) {
+                const partes = consultorAtual.vencimento.split('-');
+                document.getElementById('dash-vencimento').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            } else {
+                document.getElementById('dash-vencimento').innerText = "Vitalício";
+            }
+
+            const urlFull = window.location.origin + '/' + consultorAtual.slug;
+            document.getElementById('meu-link').innerText = urlFull;
+            document.getElementById('meu-link').href = urlFull;
+
+            // Gera o QR code invisível
+            document.getElementById('qrcode-temp').innerHTML = "";
+            new QRCode(document.getElementById('qrcode-temp'), {
+                text: urlFull,
+                width: 400,
+                height: 400,
+                colorDark : "#1e3a24",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function copiarLink() {
+            const link = document.getElementById('meu-link').href;
+            navigator.clipboard.writeText(link).then(() => {
+                document.getElementById('msg-copiado').classList.remove('hidden');
+                setTimeout(() => { document.getElementById('msg-copiado').classList.add('hidden'); }, 3000);
+            });
+        }
+
+        function gerarAdesivos() {
+            const btn = document.getElementById('btn-adesivo');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO...';
+            
+            setTimeout(() => {
+                const imgBase = document.getElementById('img-base');
+                const canvas = document.getElementById('canvas-a4');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = imgBase.width;
+                canvas.height = imgBase.height;
+                ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
+
+                const qrImg = document.querySelector('#qrcode-temp img');
+                if(!qrImg || !qrImg.src) {
+                    alert("Aguarde o QR Code carregar e tente de novo.");
+                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS';
+                    return;
+                }
+
+                // A folha tem 5 colunas e 2 linhas
+                const colunas = 5;
+                const linhas = 2;
+                const largAdesivo = canvas.width / colunas;
+                const altAdesivo = canvas.height / linhas;
+
+                // Estimar a posição do quadrado branco dentro do adesivo
+                // O quadrado branco na sua arte ocupa cerca de 60% da largura do adesivo
+                // E fica centralizado horizontalmente. Verticalmente ele começa perto dos 65% da altura.
+                const qrSize = largAdesivo * 0.45; // 45% da largura do adesivo para caber dentro do quadrado com margem
+                const offsetX = (largAdesivo - qrSize) / 2; // Centraliza horizontalmente
+                
+                // Posição Y precisa ser ajustada fina (vamos estimar 62% da altura)
+                const offsetY = altAdesivo * 0.61;
+
+                for(let l=0; l<linhas; l++) {
+                    for(let c=0; c<colunas; c++) {
+                        const x = (c * largAdesivo) + offsetX;
+                        const y = (l * altAdesivo) + offsetY;
+                        ctx.drawImage(qrImg, x, y, qrSize, qrSize);
+                    }
+                }
+
+                // Baixar a imagem final com alta resolução
+                const link = document.createElement('a');
+                link.download = `Adesivos_Litro_${consultorAtual.herbalife_id}.png`;
+                link.href = canvas.toDataURL("image/png", 1.0);
+                link.click();
+
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl"></i> ADESIVOS BAIXADOS!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR MEUS ADESIVOS';
+                }, 3000);
+
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
