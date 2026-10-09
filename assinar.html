@@ -60,6 +60,39 @@
                     </div>
                 </div>
 
+                <!-- ENDEREÇO (ESTADO E CIDADE) -->
+                <div class="bg-gray-50 p-4 border border-gray-200 rounded-xl space-y-4">
+                    <h3 class="text-sm font-bold text-brand-dark"><i class="fa-solid fa-map-location-dot mr-1"></i> Sua Localização</h3>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">País</label>
+                        <select id="input-pais" onchange="mudarPais(this.value)" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-brand-light outline-none text-sm">
+                            <option value="Brasil" selected>Brasil</option>
+                            <option value="Outro">Outro País</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Estado</label>
+                            <!-- Select para Brasil -->
+                            <select id="select-estado" onchange="carregarCidades(this.value)" required class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-brand-light outline-none text-sm">
+                                <option value="">Selecione...</option>
+                                <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+                            </select>
+                            <!-- Input Livre para Outros Países -->
+                            <input type="text" id="input-estado-livre" placeholder="Digite o estado" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg hidden outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Cidade</label>
+                            <select id="select-cidade" required disabled class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-brand-light outline-none text-sm">
+                                <option value="">Aguardando Estado...</option>
+                            </select>
+                            <input type="text" id="input-cidade-livre" placeholder="Digite a cidade" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg hidden outline-none text-sm">
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Seu WhatsApp</label>
                     <div class="relative">
@@ -100,6 +133,44 @@
         const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        // LÓGICA DE ESTADOS E CIDADES (API IBGE)
+        function mudarPais(pais) {
+            const isBrasil = pais === 'Brasil';
+            document.getElementById('select-estado').classList.toggle('hidden', !isBrasil);
+            document.getElementById('select-estado').required = isBrasil;
+            
+            document.getElementById('select-cidade').classList.toggle('hidden', !isBrasil);
+            document.getElementById('select-cidade').required = isBrasil;
+            
+            document.getElementById('input-estado-livre').classList.toggle('hidden', isBrasil);
+            document.getElementById('input-estado-livre').required = !isBrasil;
+            
+            document.getElementById('input-cidade-livre').classList.toggle('hidden', isBrasil);
+            document.getElementById('input-cidade-livre').required = !isBrasil;
+        }
+
+        async function carregarCidades(uf) {
+            const selectCidade = document.getElementById('select-cidade');
+            if(!uf) {
+                selectCidade.innerHTML = '<option value="">Aguardando Estado...</option>';
+                selectCidade.disabled = true;
+                return;
+            }
+            selectCidade.innerHTML = '<option value="">Carregando...</option>';
+            selectCidade.disabled = true;
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                const cidades = await res.json();
+                selectCidade.innerHTML = '<option value="">Selecione a Cidade...</option>';
+                cidades.forEach(cid => {
+                    selectCidade.innerHTML += `<option value="${cid.nome}">${cid.nome}</option>`;
+                });
+                selectCidade.disabled = false;
+            } catch (e) {
+                selectCidade.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
         async function registrar(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-submit');
@@ -111,11 +182,17 @@
             const letras = document.getElementById('letras').value.toUpperCase();
             const zap = document.getElementById('zap').value.replace(/\D/g, '');
             const slug = hid + letras.toLowerCase();
+            
+            // Pega os dados do Endereço
+            const pais = document.getElementById('input-pais').value;
+            let estado = pais === 'Brasil' ? document.getElementById('select-estado').value : document.getElementById('input-estado-livre').value;
+            let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
+            let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
             // Calcula data de hoje + 7 dias
             const hoje = new Date();
             hoje.setDate(hoje.getDate() + 7);
-            const vencimento = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            const vencimento = hoje.toISOString().split('T')[0];
 
             const { error } = await supabaseClient.from('consultores').insert([{
                 slug: slug,
@@ -123,6 +200,7 @@
                 letras: letras,
                 whatsapp: zap,
                 nome_espaco: nome,
+                endereco: enderecoFinal,
                 status: 'Ativo',
                 vencimento: vencimento
             }]);
