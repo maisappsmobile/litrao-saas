@@ -102,6 +102,14 @@
                     <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="fa-solid fa-info-circle"></i> Apenas números. Comece com 55.</p>
                 </div>
 
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Cupom de Desconto (Opcional)</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-ticket absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="cupom" placeholder="Digite aqui" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark">
+                    </div>
+                </div>
+
                 <button type="submit" id="btn-submit" class="w-full bg-brand-light hover:bg-green-600 text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 mt-4">
                     GERAR MEU LINK AGORA
                 </button>
@@ -114,7 +122,7 @@
                 <i class="fa-solid fa-check"></i>
             </div>
             <h2 class="text-2xl font-black text-brand-dark mb-2">Link Criado com Sucesso!</h2>
-            <p class="text-gray-600 mb-6">Você tem 7 dias grátis para testar! O seu funil já está no ar e pronto para uso.</p>
+            <p id="msg-sucesso" class="text-gray-600 mb-6">Você tem 7 dias grátis para testar! O seu funil já está no ar e pronto para uso.</p>
             
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
                 <p class="text-xs uppercase font-bold text-gray-400 mb-1">Seu Link Oficial:</p>
@@ -122,11 +130,19 @@
             </div>
 
             <!-- Caixa do PIX -->
-            <div class="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6 text-left shadow-sm">
+            <div id="pix-box" class="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6 text-left shadow-sm">
                 <h3 class="font-bold text-teal-900 mb-2 flex items-center">
-                    <i class="fa-brands fa-pix text-teal-600 mr-2 text-lg"></i> Garanta seu acesso definitivo
+                    <i class="fa-solid fa-lock-open text-teal-600 mr-2 text-lg"></i> Garanta sua Vaga Promocional
                 </h3>
-                <p class="text-xs text-teal-800 mb-3 leading-relaxed">Para renovar sua assinatura ou garantir o acesso sem bloqueios após os 7 dias, faça o pagamento para a chave PIX abaixo e envie o comprovante:</p>
+                
+                <p class="text-xs text-teal-800 mb-2 leading-relaxed">O valor oficial do sistema é <del class="text-red-500 font-bold">R$ 1.299,00</del>. Mas se você garantir <strong>dentro dos 7 dias e estiver entre os 50 primeiros</strong>, você pagará apenas:</p>
+                
+                <div class="bg-teal-600 text-white text-center rounded-lg py-2 mb-3 shadow-inner">
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-80">Valor Promocional</span>
+                    <div class="text-2xl font-black leading-none mt-1">R$ 199,00</div>
+                </div>
+
+                <p class="text-[11px] text-teal-800 mb-3 leading-relaxed">Faça o PIX para a chave abaixo e garanta o desconto antes que as 50 vagas acabem:</p>
                 
                 <div class="bg-white border border-teal-100 rounded-lg p-3">
                     <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Chave PIX (E-mail):</span>
@@ -154,37 +170,25 @@
             const isBrasil = pais === 'Brasil';
             document.getElementById('select-estado').classList.toggle('hidden', !isBrasil);
             document.getElementById('select-estado').required = isBrasil;
-            
             document.getElementById('select-cidade').classList.toggle('hidden', !isBrasil);
             document.getElementById('select-cidade').required = isBrasil;
-            
             document.getElementById('input-estado-livre').classList.toggle('hidden', isBrasil);
             document.getElementById('input-estado-livre').required = !isBrasil;
-            
             document.getElementById('input-cidade-livre').classList.toggle('hidden', isBrasil);
             document.getElementById('input-cidade-livre').required = !isBrasil;
         }
 
         async function carregarCidades(uf) {
             const selectCidade = document.getElementById('select-cidade');
-            if(!uf) {
-                selectCidade.innerHTML = '<option value="">Aguardando Estado...</option>';
-                selectCidade.disabled = true;
-                return;
-            }
-            selectCidade.innerHTML = '<option value="">Carregando...</option>';
-            selectCidade.disabled = true;
+            if(!uf) { selectCidade.innerHTML = '<option value="">Aguardando Estado...</option>'; selectCidade.disabled = true; return; }
+            selectCidade.innerHTML = '<option value="">Carregando...</option>'; selectCidade.disabled = true;
             try {
                 const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
                 const cidades = await res.json();
                 selectCidade.innerHTML = '<option value="">Selecione a Cidade...</option>';
-                cidades.forEach(cid => {
-                    selectCidade.innerHTML += `<option value="${cid.nome}">${cid.nome}</option>`;
-                });
+                cidades.forEach(cid => { selectCidade.innerHTML += `<option value="${cid.nome}">${cid.nome}</option>`; });
                 selectCidade.disabled = false;
-            } catch (e) {
-                selectCidade.innerHTML = '<option value="">Erro ao carregar</option>';
-            }
+            } catch (e) { selectCidade.innerHTML = '<option value="">Erro ao carregar</option>'; }
         }
 
         async function registrar(e) {
@@ -197,17 +201,24 @@
             const hid = document.getElementById('hid').value;
             const letras = document.getElementById('letras').value.toUpperCase();
             const zap = document.getElementById('zap').value.replace(/\D/g, '');
+            const cupom = document.getElementById('cupom').value.toUpperCase().trim();
             const slug = hid + letras.toLowerCase();
             
-            // Pega os dados do Endereço
             const pais = document.getElementById('input-pais').value;
             let estado = pais === 'Brasil' ? document.getElementById('select-estado').value : document.getElementById('input-estado-livre').value;
             let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
-            // Calcula data de hoje + 7 dias
+            // Lógica do Cupom Presidencial
+            let isPresidente = cupom === 'MEUPRESIDENTE';
+
+            // Data de vencimento (7 dias normal, ou 10 anos se for o presidente)
             const hoje = new Date();
-            hoje.setDate(hoje.getDate() + 7);
+            if (isPresidente) {
+                hoje.setFullYear(hoje.getFullYear() + 10);
+            } else {
+                hoje.setDate(hoje.getDate() + 7);
+            }
             const vencimento = hoje.toISOString().split('T')[0];
 
             const { error } = await supabaseClient.from('consultores').insert([{
@@ -229,6 +240,11 @@
                 document.getElementById('form-container').classList.add('hidden');
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
+                if (isPresidente) {
+                    document.getElementById('pix-box').classList.add('hidden');
+                    document.getElementById('msg-sucesso').innerHTML = '<span class="text-green-600 font-bold">CUPOM APLICADO!</span> Você ganhou 100% de desconto e tem acesso vitalício gratuito!';
+                }
+
                 const siteUrl = window.location.origin + '/' + slug;
                 document.getElementById('link-gerado').innerText = siteUrl;
                 document.getElementById('link-gerado').href = siteUrl;
