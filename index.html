@@ -207,8 +207,8 @@
 
         <div class="mt-10 max-w-3xl mx-auto">
             <!-- Link direto pro WhatsApp para quem quer consumir a bebida -->
-            <a href="https://wa.me/5566981411234?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20a%20bebida%20Litr%C3%A3o%20do%20Reset!" target="_blank" class="block bg-brand-dark-green text-white font-bold text-center py-4 px-6 rounded-3xl shadow-lg hover:bg-green-900 transition text-[16px] md:text-xl leading-snug hover:scale-[1.02] transform">
-                Quem você conhece que gostaria de mais energia, concentração e desintoxicar ESSA SEMANA?
+            <a id="whatsapp-link-beneficios" href="#" target="_blank" class="block bg-brand-dark-green text-white font-bold text-center py-4 px-6 rounded-3xl shadow-lg hover:bg-green-900 transition text-[16px] md:text-xl leading-snug hover:scale-[1.02] transform">
+                PEÇA SEU RESET EM <span id="cta-cidade" class="text-brand-yellow">SUA REGIÃO</span>
             </a>
         </div>
     </section>
@@ -439,6 +439,22 @@
 
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
+
+                // Extrair Cidade
+                let cidadeApresentacao = "SUA REGIÃO";
+                if(consultor.endereco) {
+                    const partes = consultor.endereco.split('/');
+                    if(partes.length > 0) {
+                        let antesDaBarra = partes[0].trim();
+                        if(antesDaBarra.includes('-')) {
+                            cidadeApresentacao = antesDaBarra.split('-').pop().trim();
+                        } else {
+                            cidadeApresentacao = antesDaBarra;
+                        }
+                    }
+                }
+                const spanCidade = document.getElementById('cta-cidade');
+                if(spanCidade) spanCidade.innerText = cidadeApresentacao.toUpperCase();
 
                 const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
                 const txtPassos = encodeURIComponent("Olá! Acabei de fazer meu cadastro na Herbalife com o seu ID e quero saber os próximos passos para começar.");
