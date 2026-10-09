@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crie sua Página - Litrão do Reset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#1a361d',
+                        'brand-light': '#82b434',
+                        'brand-yellow': '#ffa700',
+                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'], }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-brand-light relative">
+        <div class="bg-brand-dark p-8 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand-yellow rounded-full opacity-20"></div>
+            <h1 class="text-3xl font-black text-white italic tracking-tighter mb-2">RESET<span class="text-brand-yellow not-italic tracking-widest text-lg block mt-0">SAAS</span></h1>
+            <p class="text-brand-light font-bold text-lg">Crie seu link personalizado</p>
+        </div>
+
+        <div class="p-8" id="form-container">
+            <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-6 font-medium text-sm flex items-start">
+                <i class="fa-solid fa-gift text-green-500 text-xl mr-3 mt-0.5"></i>
+                <p>Cadastre-se agora e ganhe <strong>7 dias de acesso totalmente grátis</strong> ao seu funil de recrutamento automático!</p>
+            </div>
+
+            <form id="form-cadastro" onsubmit="registrar(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Seu Nome ou Nome do Espaço</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="nome" required placeholder="Ex: Maria Fit Nutrição" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
+                            <input type="text" id="hid" required placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-gray-700">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Letras</label>
+                        <input type="text" id="letras" required maxlength="3" placeholder="BRA" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase text-center font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Seu WhatsApp</label>
+                    <div class="relative">
+                        <i class="fa-brands fa-whatsapp absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="zap" required placeholder="5511999999999" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="fa-solid fa-info-circle"></i> Apenas números. Comece com 55.</p>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full bg-brand-light hover:bg-green-600 text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 mt-4">
+                    GERAR MEU LINK AGORA
+                </button>
+            </form>
+        </div>
+        
+        <!-- Tela de Sucesso Oculta -->
+        <div class="p-10 hidden text-center" id="sucesso-container">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-black text-brand-dark mb-2">Link Criado!</h2>
+            <p class="text-gray-600 mb-6">Seu funil já está no ar. Você tem 7 dias grátis para testar a ferramenta.</p>
+            
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
+                <p class="text-xs uppercase font-bold text-gray-400 mb-1">Seu Link Oficial:</p>
+                <a href="#" id="link-gerado" target="_blank" class="text-blue-600 font-bold text-lg break-all hover:underline">litraodoreset.com.br/</a>
+            </div>
+            
+            <a href="#" id="link-acessar" target="_blank" class="inline-block bg-brand-dark text-white font-bold py-3 px-8 rounded-full shadow-md hover:bg-black transition">
+                Acessar Minha Página
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function registrar(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Criando...';
+            btn.disabled = true;
+
+            const nome = document.getElementById('nome').value;
+            const hid = document.getElementById('hid').value;
+            const letras = document.getElementById('letras').value.toUpperCase();
+            const zap = document.getElementById('zap').value.replace(/\D/g, '');
+            const slug = hid + letras.toLowerCase();
+
+            // Calcula data de hoje + 7 dias
+            const hoje = new Date();
+            hoje.setDate(hoje.getDate() + 7);
+            const vencimento = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+            const { error } = await supabaseClient.from('consultores').insert([{
+                slug: slug,
+                herbalife_id: hid,
+                letras: letras,
+                whatsapp: zap,
+                nome_espaco: nome,
+                status: 'Ativo',
+                vencimento: vencimento
+            }]);
+
+            if (error) {
+                alert("Erro! O ID " + hid + " já está em uso.");
+                btn.innerHTML = 'GERAR MEU LINK AGORA';
+                btn.disabled = false;
+            } else {
+                document.getElementById('form-container').classList.add('hidden');
+                document.getElementById('sucesso-container').classList.remove('hidden');
+                
+                const siteUrl = window.location.origin + '/' + slug;
+                document.getElementById('link-gerado').innerText = siteUrl;
+                document.getElementById('link-gerado').href = siteUrl;
+                document.getElementById('link-acessar').href = siteUrl;
+            }
+        }
+    </script>
+</body>
+</html>
