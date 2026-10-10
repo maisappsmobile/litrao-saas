@@ -95,11 +95,49 @@
 
             <div class="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-400">
                 <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-weight-scale mr-2 text-blue-500"></i> Bioimpedância On-line</h3>
-                <p class="text-sm text-gray-600 mb-4">Envie a avaliação física virtual para seus clientes e receba os dados métricos.</p>
+                <p class="text-sm text-gray-600 mb-4">Gere tíquetes com códigos únicos para colocar na sacola dos clientes e veja as avaliações recebidas.</p>
                 
-                <button onclick="alert('Módulo de Bioimpedância será liberado em breve!')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center">
-                    <i class="fa-solid fa-bolt mr-2 text-xl"></i> ACESSAR AVALIAÇÃO
+                <div class="space-y-2">
+                    <button onclick="gerarTiquetes()" id="btn-tiquetes" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-ticket mr-2"></i> GERAR TÍQUETES P/ SACOLA (A4)
+                    </button>
+                    <button onclick="toggleSecaoAvaliacoes()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-2 rounded-xl border border-blue-200 transition text-xs flex items-center justify-center">
+                        <i class="fa-solid fa-list-check mr-2"></i> VER AVALIAÇÕES RECEBIDAS
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE AVALIAÇÕES RECEBIDAS (INICIALMENTE OCULTA) -->
+        <div id="secao-avaliacoes" class="mt-8 bg-white rounded-3xl shadow-md p-6 hidden border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black text-brand-dark flex items-center">
+                    <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Respostas dos Clientes
+                </h2>
+                <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-lg">
+                    <i class="fa-solid fa-rotate mr-1"></i> Atualizar
                 </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-600">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b">
+                        <tr>
+                            <th class="p-3">Data</th>
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">WhatsApp</th>
+                            <th class="p-3">Peso</th>
+                            <th class="p-3">Medidas (B/C/A/Q)</th>
+                            <th class="p-3">Foco</th>
+                            <th class="p-3">Código</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-avaliacoes-corpo" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-gray-400">Carregando avaliações...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -224,8 +262,174 @@
                     btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS';
                 }, 3000);
 
-            }, 1000);
+        function toggleSecaoAvaliacoes() {
+            const secao = document.getElementById('secao-avaliacoes');
+            if (secao.classList.contains('hidden')) {
+                secao.classList.remove('hidden');
+                carregarAvaliacoes();
+            } else {
+                secao.classList.add('hidden');
+            }
         }
-    </script>
+
+        async function carregarAvaliacoes() {
+            const corpo = document.getElementById('tabela-avaliacoes-corpo');
+            corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando avaliações...</td></tr>';
+
+            const { data, error } = await supabaseClient
+                .from('avaliacoes')
+                .select('*')
+                .eq('herbalife_id', consultorAtual.herbalife_id)
+                .order('criado_em', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">Nenhuma avaliação respondida ainda.</td></tr>';
+                return;
+            }
+
+            corpo.innerHTML = '';
+            data.forEach(item => {
+                const dataFmt = new Date(item.criado_em).toLocaleDateString('pt-BR');
+                const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-gray-500">${dataFmt}</td>
+                    <td class="p-3 font-bold text-gray-800">${item.nome_cliente}</td>
+                    <td class="p-3">
+                        <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-green-600 hover:text-green-700 font-bold flex items-center">
+                            <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> ${item.whatsapp_cliente}
+                        </a>
+                    </td>
+                    <td class="p-3 font-bold text-brand-dark">${item.peso || '-'} kg</td>
+                    <td class="p-3 text-gray-600">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</td>
+                    <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold">${item.foco || '-'} / 10</span></td>
+                    <td class="p-3 font-mono font-bold text-xs bg-gray-50">${item.codigo_acesso || '-'}</td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+
+        async function gerarTiquetes() {
+            const btn = document.getElementById('btn-tiquetes');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO CÓDIGOS...';
+
+            // 1. Gera 21 códigos únicos aleatórios
+            const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const cupons = [];
+            const cuponsPayload = [];
+
+            for (let i = 0; i < 21; i++) {
+                let cod = '';
+                for (let j = 0; j < 4; j++) {
+                    cod += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+                }
+                cupons.push(cod);
+                cuponsPayload.push({
+                    codigo: cod,
+                    herbalife_id: consultorAtual.herbalife_id,
+                    usado: false
+                });
+            }
+
+            // 2. Salva no Supabase
+            const { error } = await supabaseClient.from('cupons_avaliacao').insert(cuponsPayload);
+            if (error) {
+                console.error("Erro ao salvar cupons:", error);
+                alert("Erro ao salvar os códigos no banco de dados. Tente novamente.");
+                btn.innerHTML = '<i class="fa-solid fa-ticket mr-2"></i> GERAR TÍQUETES P/ SACOLA (A4)';
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> DESENHANDO FOLHA A4...';
+
+            // 3. Desenha os 21 tíquetes numa Folha A4 em Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 1240;
+            canvas.height = 1754;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const colunas = 3;
+            const linhas = 7;
+            const largCard = canvas.width / colunas;
+            const altCard = canvas.height / linhas;
+
+            const frases = [
+                "Você é mais forte do que imagina!",
+                "Constância gera resultados reais!",
+                "Pequenas escolhas mudam tudo!",
+                "Sinta sua melhor versão hoje!",
+                "Energia que transforma o seu dia!",
+                "O primeiro passo é o mais importante!",
+                "Seu corpo agradece seu cuidado!"
+            ];
+
+            let idx = 0;
+            for (let l = 0; l < linhas; l++) {
+                for (let c = 0; c < colunas; c++) {
+                    const x = c * largCard;
+                    const y = l * altCard;
+                    const cod = cupons[idx];
+                    const frase = frases[idx % frases.length];
+
+                    // Borda pontilhada para corte com tesoura
+                    ctx.setLineDash([6, 4]);
+                    ctx.strokeStyle = "#cccccc";
+                    ctx.strokeRect(x + 10, y + 10, largCard - 20, altCard - 20);
+
+                    // Cabeçalho do Cartão
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = "#1e3a24";
+                    ctx.font = "bold 20px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText("RESET METABÓLICO", x + (largCard / 2), y + 45);
+
+                    ctx.fillStyle = "#fbb03b";
+                    ctx.font = "bold 15px sans-serif";
+                    ctx.fillText("BÔNUS: AVALIAÇÃO T90", x + (largCard / 2), y + 70);
+
+                    // Frase motivacional
+                    ctx.fillStyle = "#555555";
+                    ctx.font = "italic 14px sans-serif";
+                    ctx.fillText(`"${frase}"`, x + (largCard / 2), y + 105);
+
+                    // Caixa do Código
+                    ctx.fillStyle = "#f4fdf6";
+                    ctx.fillRect(x + 40, y + 125, largCard - 80, 50);
+                    ctx.strokeStyle = "#26aa4b";
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(x + 40, y + 125, largCard - 80, 50);
+
+                    ctx.fillStyle = "#1e3a24";
+                    ctx.font = "bold 24px monospace";
+                    ctx.fillText(`CÓDIGO: ${cod}`, x + (largCard / 2), y + 158);
+
+                    // Instruções de Acesso
+                    ctx.fillStyle = "#777777";
+                    ctx.font = "12px sans-serif";
+                    ctx.fillText("Acesse seu questionário em:", x + (largCard / 2), y + 195);
+                    ctx.fillStyle = "#0066cc";
+                    ctx.font = "bold 13px sans-serif";
+                    ctx.fillText("litraodoreset.com.br/avaliacao.html", x + (largCard / 2), y + 215);
+
+                    idx++;
+                }
+            }
+
+            // 4. Baixar a Folha A4 de tíquetes
+            const link = document.createElement('a');
+            link.download = `Tiquetes_Sacola_${consultorAtual.herbalife_id}.png`;
+            link.href = canvas.toDataURL("image/png", 1.0);
+            link.click();
+
+            btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> TÍQUETES BAIXADOS!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-ticket mr-2"></i> GERAR TÍQUETES P/ SACOLA (A4)';
+            }, 3000);
+        }
 </body>
 </html>

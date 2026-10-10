@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação & Bioimpedância - Reset Metabólico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: { dark: '#1e3a24', light: '#26aa4b', yellow: '#fbb03b' } } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800 pb-16">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-white p-4 shadow-sm flex justify-center items-center border-b-4 border-brand-light">
+        <img src="reset-logo.png" alt="Reset Metabólico" class="h-14">
+    </header>
+
+    <div class="max-w-2xl mx-auto mt-6 px-4">
+        
+        <!-- INTRODUÇÃO -->
+        <div class="bg-white rounded-3xl shadow-md p-6 mb-6 border-t-8 border-brand-dark">
+            <h1 class="text-2xl md:text-3xl font-black text-brand-dark mb-2">Acompanhamento Método T90</h1>
+            <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                Preencha os dados abaixo com precisão para que possamos avaliar o seu progresso corporal e gerar o seu relatório métrico.
+            </p>
+            <div class="bg-yellow-50 border-l-4 border-brand-yellow p-4 rounded-xl text-xs md:text-sm text-yellow-800 font-bold flex items-center">
+                <i class="fa-solid fa-triangle-exclamation mr-3 text-lg text-brand-yellow"></i>
+                IMPORTANTE: Você deve SE PESAR LOGO AO ACORDAR (em jejum, após esvaziar a bexiga/intestino).
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <form id="form-avaliacao" onsubmit="enviarAvaliacao(event)" class="space-y-6">
+            
+            <!-- CÓDIGO BÔNUS -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                <label class="block text-sm font-black text-gray-800 mb-1">
+                    <i class="fa-solid fa-ticket text-brand-yellow mr-1"></i> Digite o Código do seu Tíquete Bônus *
+                </label>
+                <p class="text-xs text-gray-500 mb-3">O código de 4 ou 6 dígitos que você recebeu junto com o seu pedido.</p>
+                <input type="text" id="campo-codigo" required placeholder="Ex: X8K2" class="w-full uppercase font-bold tracking-widest text-lg p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+            </div>
+
+            <!-- DADOS BÁSICOS -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="font-bold text-base text-brand-dark border-b pb-2">Seus Dados</h3>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nome Completo *</label>
+                    <input type="text" id="campo-nome" required placeholder="Seu nome" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">WhatsApp (com DDD) *</label>
+                    <input type="tel" id="campo-whatsapp" required placeholder="Ex: 66999998888" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Peso Atual (em kg) *</label>
+                    <input type="text" id="campo-peso" required placeholder="Ex: 72.5" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                </div>
+            </div>
+
+            <!-- MEDIDAS CORPORAIS -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="font-bold text-base text-brand-dark border-b pb-2">Medidas Corporais (Fita Métrica em cm)</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Busto / Tórax (cm)</label>
+                        <input type="number" step="0.1" id="campo-busto" placeholder="Ex: 94" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Cintura (parte mais fina) (cm)</label>
+                        <input type="number" step="0.1" id="campo-cintura" placeholder="Ex: 78" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Abdômen (linha do umbigo) (cm)</label>
+                        <input type="number" step="0.1" id="campo-abdomen" placeholder="Ex: 85" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Quadril (parte mais larga) (cm)</label>
+                        <input type="number" step="0.1" id="campo-quadril" placeholder="Ex: 102" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROTINA E HÁBITOS -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="font-bold text-base text-brand-dark border-b pb-2">Rotina Semanal</h3>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-2">Seu Intestino está funcionando normalmente?</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center space-x-2 text-sm"><input type="radio" name="intestino" value="true" checked class="text-brand-light"> <span>Sim</span></label>
+                        <label class="flex items-center space-x-2 text-sm"><input type="radio" name="intestino" value="false" class="text-brand-light"> <span>Não</span></label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-2">Bateu a sua meta diária de água?</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center space-x-2 text-sm"><input type="radio" name="agua" value="true" checked class="text-brand-light"> <span>Sim, certinho</span></label>
+                        <label class="flex items-center space-x-2 text-sm"><input type="radio" name="agua" value="false" class="text-brand-light"> <span>Ainda não</span></label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">De 1 a 10, qual nota você dá para o seu FOCO nesta semana?</label>
+                    <input type="range" id="campo-foco" min="1" max="10" value="8" class="w-full accent-brand-light" oninput="document.getElementById('valor-foco').innerText = this.value">
+                    <div class="text-center font-black text-brand-dark text-lg" id="valor-foco">8</div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Como foi a sua semana? Teve alguma dificuldade?</label>
+                    <textarea id="campo-obs" rows="2" placeholder="Conte brevemente..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none"></textarea>
+                </div>
+            </div>
+
+            <!-- PRIMEIRA VEZ -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h3 class="font-bold text-base text-brand-dark">É sua primeira avaliação com a gente?</h3>
+                    <input type="checkbox" id="check-primeira-vez" onchange="togglePrimeiraVez()" class="w-5 h-5 accent-brand-light">
+                </div>
+
+                <div id="box-primeira-vez" class="hidden space-y-4 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Data de Nascimento</label>
+                            <input type="date" id="campo-nasc" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Altura (cm)</label>
+                            <input type="number" id="campo-altura" placeholder="Ex: 168" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Gênero</label>
+                            <select id="campo-genero" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-light focus:outline-none">
+                                <option value="Feminino">Feminino</option>
+                                <option value="Masculino">Masculino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-enviar" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 rounded-2xl shadow-xl transition transform hover:scale-[1.01] text-lg">
+                ENVIAR MINHA AVALIAÇÃO
+            </button>
+
+            <p id="msg-erro" class="text-red-500 font-bold text-center text-sm hidden"></p>
+        </form>
+
+        <!-- SUCESSO -->
+        <div id="tela-sucesso" class="hidden bg-white p-8 rounded-3xl shadow-xl text-center space-y-4">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600 text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-black text-brand-dark">Avaliação Enviada com Sucesso!</h2>
+            <p class="text-gray-600 text-sm">Seus dados já foram encaminhados para o seu consultor. Em breve você receberá o feedback e as métricas completas no seu WhatsApp!</p>
+        </div>
+
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function togglePrimeiraVez() {
+            const check = document.getElementById('check-primeira-vez');
+            const box = document.getElementById('box-primeira-vez');
+            if (check.checked) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
+        async function enviarAvaliacao(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-enviar');
+            const erro = document.getElementById('msg-erro');
+            erro.classList.add('hidden');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VALIDANDO CÓDIGO...';
+
+            const codigo = document.getElementById('campo-codigo').value.trim().toUpperCase();
+
+            // 1. Verifica se o cupom existe e não foi usado
+            const { data: cupomData, error: cupomError } = await supabaseClient
+                .from('cupons_avaliacao')
+                .select('*')
+                .eq('codigo', codigo)
+                .single();
+
+            if (cupomError || !cupomData) {
+                btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
+                erro.innerText = 'Código inválido! Verifique o tíquete que você recebeu na sua sacola.';
+                erro.classList.remove('hidden');
+                return;
+            }
+
+            if (cupomData.usado) {
+                btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
+                erro.innerText = 'Este código já foi utilizado anteriormente!';
+                erro.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> SALVANDO DADOS...';
+
+            // 2. Salva a avaliação
+            const payload = {
+                herbalife_id: cupomData.herbalife_id,
+                codigo_acesso: codigo,
+                nome_cliente: document.getElementById('campo-nome').value.trim(),
+                whatsapp_cliente: document.getElementById('campo-whatsapp').value.trim(),
+                peso: document.getElementById('campo-peso').value.trim(),
+                busto: document.getElementById('campo-busto').value.trim(),
+                cintura: document.getElementById('campo-cintura').value.trim(),
+                abdomen: document.getElementById('campo-abdomen').value.trim(),
+                quadril: document.getElementById('campo-quadril').value.trim(),
+                intestino: document.querySelector('input[name="intestino"]:checked').value === 'true',
+                agua: document.querySelector('input[name="agua"]:checked').value === 'true',
+                foco: parseInt(document.getElementById('campo-foco').value),
+                como_foi_semana: document.getElementById('campo-obs').value.trim(),
+                primeira_vez: document.getElementById('check-primeira-vez').checked,
+                data_nascimento: document.getElementById('campo-nasc').value,
+                altura: document.getElementById('campo-altura').value.trim(),
+                genero: document.getElementById('campo-genero').value
+            };
+
+            const { error: insertError } = await supabaseClient.from('avaliacoes').insert([payload]);
+
+            if (insertError) {
+                btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
+                erro.innerText = 'Erro ao salvar avaliação. Tente novamente.';
+                erro.classList.remove('hidden');
+                return;
+            }
+
+            // 3. Marca o cupom como usado
+            await supabaseClient.from('cupons_avaliacao').update({ usado: true }).eq('codigo', codigo);
+
+            // Exibe tela de sucesso
+            document.getElementById('form-avaliacao').classList.add('hidden');
+            document.getElementById('tela-sucesso').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
