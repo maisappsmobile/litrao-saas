@@ -222,13 +222,14 @@
             }
             const vencimento = hoje.toISOString().split('T')[0];
 
+            const nomeEspacoCompleto = (cidade && estado) ? `${nome} | ${cidade} - ${estado}` : nome;
+
             const { error } = await supabaseClient.from('consultores').insert([{
                 slug: slug,
                 herbalife_id: hid,
                 letras: letras,
                 whatsapp: zap,
-                nome_espaco: nome,
-                endereco: enderecoFinal,
+                nome_espaco: nomeEspacoCompleto,
                 status: 'Ativo',
                 vencimento: vencimento
             }]);

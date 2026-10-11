@@ -456,31 +456,38 @@
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
-                // Extrair Cidade para CTA e Rodapé
-                let cidadeApresentacao = "SUA REGIÃO";
-                let cidadeRodape = "";
+                // Extrair Nome do Espaço e Cidade
+                let nomeEspacoExibicao = consultor.nome_espaco || 'Espaço de Vida Saudável';
+                let cidadeDetectada = "";
 
-                if (consultor.endereco) {
-                    const partes = consultor.endereco.split('/');
-                    if (partes.length > 0) {
-                        let antesDaBarra = partes[0].trim();
-                        if (antesDaBarra.includes('-')) {
-                            cidadeApresentacao = antesDaBarra.split('-').pop().trim();
-                        } else {
-                            cidadeApresentacao = antesDaBarra;
-                        }
-                    }
-
-                    // Para o rodapé: ex "Primavera do Leste/MT - Brasil" -> "Primavera do Leste - MT"
-                    const semPais = consultor.endereco.split('- Brasil')[0].trim();
-                    cidadeRodape = semPais.replace('/', ' - ');
-                } else if (consultor.cidade) {
-                    cidadeRodape = consultor.estado ? `${consultor.cidade} - ${consultor.estado}` : consultor.cidade;
-                    cidadeApresentacao = consultor.cidade;
+                if (nomeEspacoExibicao.includes('|')) {
+                    const partes = nomeEspacoExibicao.split('|');
+                    nomeEspacoExibicao = partes[0].trim();
+                    cidadeDetectada = partes[1].trim();
+                } else if (nomeEspacoExibicao.includes('•')) {
+                    const partes = nomeEspacoExibicao.split('•');
+                    nomeEspacoExibicao = partes[0].trim();
+                    cidadeDetectada = partes[1].trim();
                 }
 
+                if (!cidadeDetectada && consultor.endereco) {
+                    const semPais = consultor.endereco.split('- Brasil')[0].trim();
+                    cidadeDetectada = semPais.replace('/', ' - ');
+                } else if (!cidadeDetectada && consultor.cidade) {
+                    cidadeDetectada = consultor.estado ? `${consultor.cidade} - ${consultor.estado}` : consultor.cidade;
+                } else if (!cidadeDetectada && consultor.herbalife_id === "433005811") {
+                    cidadeDetectada = "Juína - MT";
+                }
+
+                // CTA: Exibe ex: "JUÍNA - MT E SUA REGIÃO"
                 const spanCidade = document.getElementById('cta-cidade');
-                if (spanCidade) spanCidade.innerText = cidadeApresentacao.toUpperCase();
+                if (spanCidade) {
+                    if (cidadeDetectada) {
+                        spanCidade.innerText = `${cidadeDetectada.toUpperCase()} E SUA REGIÃO`;
+                    } else {
+                        spanCidade.innerText = "SUA REGIÃO";
+                    }
+                }
 
                 const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
                 const txtPassos = encodeURIComponent("Olá! Acabei de fazer meu cadastro na Herbalife com o seu ID e quero saber os próximos passos para começar.");
@@ -491,16 +498,16 @@
                 const btnPassos = document.getElementById('whatsapp-link-passos');
                 if (btnPassos) btnPassos.href = `https://wa.me/${consultor.whatsapp}?text=${txtPassos}`;
 
-                // Assinatura Dinâmica no Rodapé (sem repetição de texto fixo)
+                // Assinatura Dinâmica no Rodapé
                 const footerName = document.getElementById('footer-name');
                 if (footerName) {
-                    footerName.innerText = consultor.nome_espaco || consultor.nome_consultor || 'Espaço de Vida Saudável';
+                    footerName.innerText = nomeEspacoExibicao;
                 }
 
                 const footerCity = document.getElementById('footer-city');
                 if (footerCity) {
-                    if (cidadeRodape) {
-                        footerCity.innerText = cidadeRodape;
+                    if (cidadeDetectada) {
+                        footerCity.innerText = cidadeDetectada;
                         footerCity.style.display = 'block';
                     } else {
                         footerCity.style.display = 'none';
