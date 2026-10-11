@@ -124,18 +124,80 @@
             </div>
         </div>
 
+        <!-- BARRA DE GESTÃO E MÓDULOS RÁPIDOS (CLIENTES, ANIVERSÁRIOS, RELATÓRIOS) -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- MÓDULO 1: CLIENTES -->
+            <div onclick="abrirModuloClientes()" class="bg-gradient-to-br from-emerald-600 to-green-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-200">Módulo Gestão</span>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-users mr-2 text-xl text-yellow-300"></i> Clientes
+                    </h4>
+                    <p class="text-xs text-emerald-100 mt-1">
+                        <span id="badge-total-clientes" class="font-black text-white bg-white/20 px-2 py-0.5 rounded-full">0</span> clientes cadastrados
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- MÓDULO 2: ANIVERSÁRIOS -->
+            <div onclick="abrirModuloAniversarios()" class="bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-purple-200">Relacionamento VIP</span>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-cake-candles mr-2 text-xl text-yellow-300"></i> Aniversários
+                    </h4>
+                    <p class="text-xs text-purple-100 mt-1">
+                        <span id="badge-niver-hoje" class="font-black text-white bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-full">0 hoje</span>
+                        <span id="badge-niver-mes" class="ml-1 text-[11px] opacity-90">| 0 no mês</span>
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg relative z-10">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+            </div>
+
+            <!-- MÓDULO 3: RELATÓRIOS & EXPORTAÇÃO -->
+            <div onclick="abrirModuloRelatorios()" class="bg-gradient-to-br from-slate-700 to-gray-900 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-gray-300">Planilhas & Dados</span>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-file-excel mr-2 text-xl text-emerald-400"></i> Relatórios
+                    </h4>
+                    <p class="text-xs text-gray-300 mt-1">
+                        Exportação de Clientes & Avaliações (CSV)
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
+                    <i class="fa-solid fa-download"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- SEÇÃO DE AVALIAÇÕES RECEBIDAS (INICIALMENTE OCULTA) -->
         <div id="secao-avaliacoes" class="mt-8 bg-white rounded-3xl shadow-md p-6 hidden border border-gray-100">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-                <h2 class="text-xl font-black text-brand-dark flex items-center">
-                    <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Respostas dos Clientes
-                </h2>
-                <div class="flex items-center space-x-2">
+                <div>
+                    <h2 class="text-xl font-black text-brand-dark flex items-center">
+                        <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Gestão de Clientes & Avaliações
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Histórico consolidado por cliente com pesagens e medidas.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="busca-cliente-input" oninput="filtrarTabelaClientes(this.value)" placeholder="Buscar cliente ou whats..." class="pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light w-48 sm:w-56">
+                    </div>
                     <button onclick="abrirNovaAvaliacao()" class="text-xs bg-brand-light hover:bg-green-600 text-white font-black py-2 px-3.5 rounded-xl shadow transition flex items-center">
                         <i class="fa-solid fa-plus-circle mr-1.5 text-sm"></i> Nova Avaliação
                     </button>
-                    <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl transition flex items-center">
+                    <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl transition flex items-center" title="Recarregar">
                         <i class="fa-solid fa-rotate mr-1"></i> Atualizar
+                    </button>
+                    <button onclick="abrirModuloRelatorios()" class="text-xs bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl transition flex items-center" title="Exportar CSV">
+                        <i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i> Exportar
                     </button>
                 </div>
             </div>
@@ -421,6 +483,111 @@
                 <div id="modal-treinamento-conteudo"></div>
             </div>
         </div>
+
+        <!-- MODAL: ANIVERSÁRIOS -->
+        <div id="modal-aniversarios" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white max-w-2xl w-full rounded-3xl p-5 sm:p-7 shadow-2xl relative max-h-[92vh] flex flex-col">
+                <button onclick="fecharModuloAniversarios()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition z-10">
+                    ✕
+                </button>
+                
+                <div class="border-b pb-4 mb-4 pr-10">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl font-black">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-xl font-black text-brand-dark">Aniversariantes do Litrão</h3>
+                            <p class="text-xs text-gray-500">Parabenize seus clientes com 1 clique no WhatsApp e aumente sua fidelização!</p>
+                        </div>
+                    </div>
+                    
+                    <!-- ABAS DE FILTRO DE ANIVERSÁRIOS -->
+                    <div class="flex items-center space-x-2 mt-4">
+                        <button id="btn-tab-niver-hoje" onclick="filtrarAbaAniversarios('hoje')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-purple-700 text-white shadow-sm flex items-center">
+                            <i class="fa-solid fa-star text-yellow-300 mr-1.5"></i> Hoje / Próximos
+                        </button>
+                        <button id="btn-tab-niver-mes" onclick="filtrarAbaAniversarios('mes')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center">
+                            <i class="fa-regular fa-calendar mr-1.5"></i> Todos do Mês
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LISTA COM SCROLL -->
+                <div id="lista-aniversariantes" class="overflow-y-auto flex-1 space-y-2.5 pr-1">
+                    <div class="p-8 text-center text-gray-400">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-purple-600 block"></i>
+                        Carregando aniversariantes...
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-t text-center text-[11px] text-gray-400">
+                    Calculado automaticamente a partir das datas de nascimento cadastradas nas avaliações.
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: RELATÓRIOS E EXPORTAÇÃO CSV -->
+        <div id="modal-relatorios" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white max-w-xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+                <button onclick="fecharModuloRelatorios()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition">
+                    ✕
+                </button>
+                
+                <div class="border-b pb-4 mb-5 pr-8">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-black">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-xl font-black text-brand-dark">Exportação de Dados</h3>
+                            <p class="text-xs text-gray-500">Baixe planilhas em formato CSV compatíveis com Microsoft Excel e Google Planilhas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- CARD EXPORTAR CLIENTES -->
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 hover:border-emerald-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Clientes</span>
+                                <h4 class="font-black text-gray-800 text-sm">Planilha de Clientes Únicos</h4>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 leading-tight">
+                                Lista consolidada com Nome, WhatsApp, Data Nasc., Peso Inicial, Peso Atual, Altura e Total de Avaliações.
+                            </p>
+                        </div>
+                        <button onclick="exportarClientesCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center whitespace-nowrap">
+                            <i class="fa-solid fa-file-arrow-down mr-1.5 text-sm"></i> Baixar Clientes
+                        </button>
+                    </div>
+
+                    <!-- CARD EXPORTAR AVALIAÇÕES -->
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 hover:border-blue-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Avaliações</span>
+                                <h4 class="font-black text-gray-800 text-sm">Histórico Completo de Avaliações</h4>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 leading-tight">
+                                Todas as pesagens e medidas (Balança de Bioimpedância, Gordura, Músculo, TMB, Tórax, Cintura, Abdômen e Quadril).
+                            </p>
+                        </div>
+                        <button onclick="exportarAvaliacoesCSV()" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center whitespace-nowrap">
+                            <i class="fa-solid fa-file-arrow-down mr-1.5 text-sm"></i> Baixar Avaliações
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-3.5 bg-amber-50 rounded-2xl border border-amber-200 flex items-start space-x-2.5">
+                    <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
+                    <p class="text-[11px] text-amber-900 leading-relaxed">
+                        Os arquivos são gerados com codificação <strong>UTF-8 com BOM</strong> e delimitador ponto e vírgula (<code class="bg-amber-100 px-1 rounded">;</code>), abrindo com acentos perfeitos no Excel brasileiro.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS -->
@@ -497,6 +664,9 @@
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
+
+            // Carrega os dados silenciosamente para alimentar os contadores dos módulos (Clientes, Aniversários)
+            carregarAvaliacoes();
         }
 
         function copiarLink() {
@@ -625,11 +795,25 @@
             });
 
             // Ordena os grupos pela avaliação mais recente
-            const grupos = Array.from(gruposMap.entries()).map(([key, lista]) => {
+            let grupos = Array.from(gruposMap.entries()).map(([key, lista]) => {
                 // Ordena lista decrescente por criado_em
                 lista.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
                 return { key, itens: lista, maisRecente: lista[0], total: lista.length };
             }).sort((a, b) => new Date(b.maisRecente.criado_em).getTime() - new Date(a.maisRecente.criado_em).getTime());
+
+            // Aplica filtro de pesquisa se digitado
+            if (filtroBuscaCliente) {
+                grupos = grupos.filter(g => {
+                    const nome = (g.maisRecente.nome_cliente || '').toLowerCase();
+                    const whats = (g.maisRecente.whatsapp_cliente || '').toLowerCase();
+                    return nome.includes(filtroBuscaCliente) || whats.includes(filtroBuscaCliente);
+                });
+            }
+
+            if (grupos.length === 0) {
+                corpo.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-gray-400">Nenhum cliente encontrado com os critérios de busca.</td></tr>';
+                return;
+            }
 
             grupos.forEach(grupo => {
                 const item = grupo.maisRecente;
@@ -736,11 +920,425 @@
                     });
                 }
             });
+
+            // Atualiza o contador de clientes no Card do topo
+            const badgeTotalClientes = document.getElementById('badge-total-clientes');
+            if (badgeTotalClientes) {
+                badgeTotalClientes.innerText = gruposMap.size;
+            }
+            atualizarBadgesAniversarios();
+        }
+
+        let filtroBuscaCliente = '';
+        function filtrarTabelaClientes(termo) {
+            filtroBuscaCliente = (termo || '').toLowerCase().trim();
+            renderizarTabelaAgrupada();
         }
 
         // ==========================================
-        // MOTOR CLÍNICO DE BIOIMPEDÂNCIA DIGITAL
+        // MÓDULO 1: CLIENTES
         // ==========================================
+        function abrirModuloClientes() {
+            const secao = document.getElementById('secao-avaliacoes');
+            if (secao.classList.contains('hidden')) {
+                secao.classList.remove('hidden');
+                carregarAvaliacoes();
+            }
+            secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const inputBusca = document.getElementById('busca-cliente-input');
+            if (inputBusca) inputBusca.focus();
+        }
+
+        // ==========================================
+        // MÓDULO 2: ANIVERSÁRIOS
+        // ==========================================
+        let abaAniversariosAtual = 'hoje';
+
+        function extrairClientesUnicos() {
+            const mapa = new Map();
+            todasAvaliacoesCache.forEach(item => {
+                const key = normalizarChaveCliente(item);
+                if (!mapa.has(key)) {
+                    mapa.set(key, []);
+                }
+                mapa.get(key).push(item);
+            });
+
+            const listaClientes = [];
+            mapa.forEach((avaliacoes, key) => {
+                avaliacoes.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+                const maisRecente = avaliacoes[0];
+                const maisAntiga = avaliacoes[avaliacoes.length - 1];
+                
+                // Procura a data de nascimento mais recente preenchida
+                let dataNasc = null;
+                for (const av of avaliacoes) {
+                    if (av.data_nascimento) {
+                        dataNasc = av.data_nascimento;
+                        break;
+                    }
+                }
+
+                listaClientes.push({
+                    key,
+                    nome: maisRecente.nome_cliente || 'Sem Nome',
+                    whatsapp: maisRecente.whatsapp_cliente || '',
+                    data_nascimento: dataNasc,
+                    peso_atual: maisRecente.peso,
+                    peso_inicial: maisAntiga.peso,
+                    altura: maisRecente.altura,
+                    genero: maisRecente.genero || 'Feminino',
+                    total_avaliacoes: avaliacoes.length,
+                    ultima_avaliacao: maisRecente.criado_em,
+                    maisRecente
+                });
+            });
+
+            return listaClientes;
+        }
+
+        function calcularDadosAniversario(dataNascStr) {
+            if (!dataNascStr) return null;
+            const partes = dataNascStr.split('-');
+            if (partes.length < 3) return null;
+            const anoNasc = parseInt(partes[0], 10);
+            const mesNasc = parseInt(partes[1], 10); // 1-12
+            const diaNasc = parseInt(partes[2], 10);
+
+            const hoje = new Date();
+            const diaHoje = hoje.getDate();
+            const mesHoje = hoje.getMonth() + 1;
+            const anoHoje = hoje.getFullYear();
+
+            // Idade que completa no ano atual
+            let idade = anoHoje - anoNasc;
+
+            const isHoje = (diaNasc === diaHoje && mesNasc === mesHoje);
+            
+            // Calcula diferença em dias no ciclo do ano
+            const dataNiverAnoAtual = new Date(anoHoje, mesNasc - 1, diaNasc);
+            const dataHojeZerada = new Date(anoHoje, hoje.getMonth(), hoje.getDate());
+            const diffMs = dataNiverAnoAtual - dataHojeZerada;
+            const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            let statusTexto = '';
+            let badgeClass = '';
+
+            if (diffDias === 0) {
+                statusTexto = 'Hoje! 🎂';
+                badgeClass = 'bg-yellow-400 text-yellow-950 font-black';
+            } else if (diffDias === 1) {
+                statusTexto = 'Amanhã';
+                badgeClass = 'bg-purple-100 text-purple-800 font-bold';
+            } else if (diffDias > 1 && diffDias <= 7) {
+                statusTexto = `Em ${diffDias} dias`;
+                badgeClass = 'bg-indigo-100 text-indigo-800 font-bold';
+            } else if (diffDias === -1) {
+                statusTexto = 'Ontem';
+                badgeClass = 'bg-gray-100 text-gray-600 font-medium';
+            } else if (mesNasc === mesHoje) {
+                statusTexto = `Neste mês (dia ${String(diaNasc).padStart(2, '0')})`;
+                badgeClass = 'bg-gray-100 text-gray-700 font-medium';
+            } else {
+                statusTexto = `${String(diaNasc).padStart(2, '0')}/${String(mesNasc).padStart(2, '0')}`;
+                badgeClass = 'bg-gray-100 text-gray-600';
+            }
+
+            return {
+                dia: diaNasc,
+                mes: mesNasc,
+                ano: anoNasc,
+                idade,
+                isHoje,
+                isMesAtual: (mesNasc === mesHoje),
+                diffDias,
+                statusTexto,
+                badgeClass,
+                dataFmt: `${String(diaNasc).padStart(2, '0')}/${String(mesNasc).padStart(2, '0')}`
+            };
+        }
+
+        function atualizarBadgesAniversarios() {
+            const clientes = extrairClientesUnicos();
+            let countHoje = 0;
+            let countMes = 0;
+
+            clientes.forEach(c => {
+                if (c.data_nascimento) {
+                    const info = calcularDadosAniversario(c.data_nascimento);
+                    if (info) {
+                        if (info.isHoje) countHoje++;
+                        if (info.isMesAtual) countMes++;
+                    }
+                }
+            });
+
+            const bHoje = document.getElementById('badge-niver-hoje');
+            const bMes = document.getElementById('badge-niver-mes');
+            if (bHoje) bHoje.innerText = `${countHoje} hoje`;
+            if (bMes) bMes.innerText = `| ${countMes} no mês`;
+        }
+
+        async function abrirModuloAniversarios() {
+            if (todasAvaliacoesCache.length === 0) {
+                await carregarAvaliacoes();
+            }
+            document.getElementById('modal-aniversarios').classList.remove('hidden');
+            renderizarListaAniversarios();
+        }
+
+        function fecharModuloAniversarios() {
+            document.getElementById('modal-aniversarios').classList.add('hidden');
+        }
+
+        function filtrarAbaAniversarios(aba) {
+            abaAniversariosAtual = aba;
+            const btnHoje = document.getElementById('btn-tab-niver-hoje');
+            const btnMes = document.getElementById('btn-tab-niver-mes');
+
+            if (aba === 'hoje') {
+                btnHoje.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-purple-700 text-white shadow-sm flex items-center';
+                btnMes.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center';
+            } else {
+                btnMes.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-purple-700 text-white shadow-sm flex items-center';
+                btnHoje.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center';
+            }
+            renderizarListaAniversarios();
+        }
+
+        function renderizarListaAniversarios() {
+            const cont = document.getElementById('lista-aniversariantes');
+            const clientes = extrairClientesUnicos();
+
+            const comNiver = [];
+            clientes.forEach(c => {
+                if (c.data_nascimento) {
+                    const niver = calcularDadosAniversario(c.data_nascimento);
+                    if (niver) {
+                        comNiver.push({ ...c, niver });
+                    }
+                }
+            });
+
+            let filtrados = [];
+            if (abaAniversariosAtual === 'hoje') {
+                // Prioriza Hoje, Amanhã e próximos 15 dias
+                filtrados = comNiver.filter(c => c.niver.diffDias >= 0 && c.niver.diffDias <= 15)
+                    .sort((a, b) => a.niver.diffDias - b.niver.diffDias);
+            } else {
+                // Todos do mês atual
+                filtrados = comNiver.filter(c => c.niver.isMesAtual)
+                    .sort((a, b) => a.niver.dia - b.niver.dia);
+            }
+
+            if (filtrados.length === 0) {
+                cont.innerHTML = `
+                    <div class="py-12 text-center text-gray-400">
+                        <div class="w-14 h-14 bg-purple-50 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </div>
+                        <p class="font-bold text-gray-600 text-sm">Nenhum aniversariante encontrado ${abaAniversariosAtual === 'hoje' ? 'nos próximos 15 dias' : 'neste mês'}.</p>
+                        <p class="text-xs text-gray-400 mt-1">Lembre-se de preencher a data de nascimento nas avaliações dos clientes.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cont.innerHTML = filtrados.map(item => {
+                const whatsLimpo = (item.whatsapp || '').replace(/\D/g, '');
+                const msgNiver = encodeURIComponent(`Olá ${item.nome.split(' ')[0]}! 🎉 Parabéns pelo seu aniversário! Que seu novo ciclo seja repleto de saúde, energia e conquistas! Um abraço especial da sua equipe do Litrão do Reset! 🎂✨`);
+                const linkWhats = whatsLimpo ? `https://wa.me/55${whatsLimpo}?text=${msgNiver}` : '#';
+
+                return `
+                    <div class="p-3.5 bg-gray-50 hover:bg-purple-50/50 rounded-2xl border border-gray-200 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-11 h-11 rounded-2xl ${item.niver.isHoje ? 'bg-yellow-400 text-yellow-950 ring-2 ring-yellow-400' : 'bg-purple-100 text-purple-700'} flex items-center justify-center font-black text-lg flex-shrink-0">
+                                <i class="fa-solid fa-cake-candles"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-black text-gray-900 text-sm">${item.nome}</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full ${item.niver.badgeClass}">
+                                        ${item.niver.statusTexto}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    <span class="font-bold text-purple-900">${item.niver.dataFmt}</span> • Completa <strong>${item.niver.idade} anos</strong>
+                                    ${item.whatsapp ? ` • <span class="text-gray-400"><i class="fa-brands fa-whatsapp text-green-600"></i> ${item.whatsapp}</span>` : ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 self-end sm:self-center">
+                            <button onclick="verFichaCompleta(${item.maisRecente.id})" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold py-2 px-3 rounded-xl transition flex items-center">
+                                <i class="fa-solid fa-user mr-1 text-[11px]"></i> Ver Perfil
+                            </button>
+                            ${whatsLimpo ? `
+                                <a href="${linkWhats}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white text-xs font-black py-2 px-3.5 rounded-xl shadow-sm transition flex items-center">
+                                    <i class="fa-brands fa-whatsapp mr-1.5 text-sm"></i> Dar Parabéns
+                                </a>
+                            ` : `
+                                <span class="text-[10px] text-gray-400 italic">Sem WhatsApp</span>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // MÓDULO 3: RELATÓRIOS E EXPORTAÇÃO CSV
+        // ==========================================
+        async function abrirModuloRelatorios() {
+            if (todasAvaliacoesCache.length === 0) {
+                await carregarAvaliacoes();
+            }
+            document.getElementById('modal-relatorios').classList.remove('hidden');
+        }
+
+        function fecharModuloRelatorios() {
+            document.getElementById('modal-relatorios').classList.add('hidden');
+        }
+
+        function baixarArquivoCSV(nomeArquivo, conteudoCSV) {
+            // Adiciona BOM para UTF-8 (\uFEFF) para abrir no Excel sem problemas de acentuação
+            const blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nomeArquivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportarClientesCSV() {
+            const clientes = extrairClientesUnicos();
+            if (clientes.length === 0) {
+                alert("Nenhum cliente para exportar no momento.");
+                return;
+            }
+
+            const cabecalho = [
+                "ID_CLIENTE",
+                "NOME_CLIENTE",
+                "WHATSAPP",
+                "DATA_NASCIMENTO",
+                "GENERO",
+                "ALTURA_CM",
+                "PESO_INICIAL_KG",
+                "PESO_ATUAL_KG",
+                "DIFERENCA_KG",
+                "TOTAL_AVALIACOES",
+                "DATA_ULTIMA_AVALIACAO"
+            ];
+
+            const linhas = [cabecalho.join(";")];
+
+            clientes.forEach((c, idx) => {
+                const pesoIni = parseFloat(c.peso_inicial) || 0;
+                const pesoAtu = parseFloat(c.peso_atual) || 0;
+                const diff = (pesoAtu && pesoIni) ? (pesoAtu - pesoIni).toFixed(1) : "0.0";
+                const dataUltima = c.ultima_avaliacao ? new Date(c.ultima_avaliacao).toLocaleString('pt-BR') : "";
+
+                const row = [
+                    idx + 1,
+                    `"${(c.nome || '').replace(/"/g, '""')}"`,
+                    `"${(c.whatsapp || '').replace(/"/g, '""')}"`,
+                    c.data_nascimento || "",
+                    c.genero || "",
+                    c.altura || "",
+                    c.peso_inicial || "",
+                    c.peso_atual || "",
+                    diff,
+                    c.total_avaliacoes,
+                    `"${dataUltima}"`
+                ];
+                linhas.push(row.join(";"));
+            });
+
+            const dataHoje = new Date().toISOString().split('T')[0];
+            baixarArquivoCSV(`Clientes_Litrao_${consultorAtual.herbalife_id}_${dataHoje}.csv`, linhas.join("\r\n"));
+        }
+
+        function exportarAvaliacoesCSV() {
+            if (todasAvaliacoesCache.length === 0) {
+                alert("Nenhuma avaliação cadastrada para exportar.");
+                return;
+            }
+
+            const cabecalho = [
+                "ID_AVALIACAO",
+                "DATA_AVALIACAO",
+                "NOME_CLIENTE",
+                "WHATSAPP",
+                "GRUPO_TURMA",
+                "PESO_KG",
+                "ALTURA_CM",
+                "IMC",
+                "DATA_NASCIMENTO",
+                "GENERO",
+                "GORDURA_CORP_PCT",
+                "MUSCULO_PCT",
+                "GORDURA_VISCERAL",
+                "METABOLISMO_BASAL_KCAL",
+                "IDADE_CORPORAL",
+                "AGUA_CORP_PCT",
+                "TORAX_BUSTO_CM",
+                "CINTURA_CM",
+                "ABDOMEN_CM",
+                "QUADRIL_CM",
+                "BRACO_DIR_CM",
+                "BRACO_ESQ_CM",
+                "COXA_DIR_CM",
+                "COXA_ESQ_CM",
+                "FOCO_MOTIVACAO",
+                "CODIGO_ACESSO"
+            ];
+
+            const linhas = [cabecalho.join(";")];
+
+            todasAvaliacoesCache.forEach(item => {
+                const dataAv = item.criado_em ? new Date(item.criado_em).toLocaleString('pt-BR') : "";
+                const altM = (parseFloat(item.altura) || 0) / 100;
+                const peso = parseFloat(item.peso) || 0;
+                const imc = (altM > 0 && peso > 0) ? (peso / (altM * altM)).toFixed(1) : "";
+
+                const row = [
+                    item.id,
+                    `"${dataAv}"`,
+                    `"${(item.nome_cliente || '').replace(/"/g, '""')}"`,
+                    `"${(item.whatsapp_cliente || '').replace(/"/g, '""')}"`,
+                    `"${(item.grupo || '').replace(/"/g, '""')}"`,
+                    item.peso || "",
+                    item.altura || "",
+                    imc,
+                    item.data_nascimento || "",
+                    item.genero || "",
+                    item.gordura || "",
+                    item.musculo || "",
+                    item.visceral || "",
+                    item.tmb || "",
+                    item.idade_corporal || "",
+                    item.agua || "",
+                    item.busto || "",
+                    item.cintura || "",
+                    item.abdomen || "",
+                    item.quadril || "",
+                    item.braco_dir || "",
+                    item.braco_esq || "",
+                    item.coxa_dir || "",
+                    item.coxa_esq || "",
+                    item.foco || "",
+                    `"${item.codigo_acesso || ''}"`
+                ];
+                linhas.push(row.join(";"));
+            });
+
+            const dataHoje = new Date().toISOString().split('T')[0];
+            baixarArquivoCSV(`Avaliacoes_Litrao_${consultorAtual.herbalife_id}_${dataHoje}.csv`, linhas.join("\r\n"));
+        }
         function calcularBioimpedancia(item) {
             const peso = parseFloat(item.peso) || 0;
             const alturaCm = parseFloat(item.altura) || 0;
