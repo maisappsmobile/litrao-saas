@@ -126,13 +126,18 @@
 
         <!-- SEÇÃO DE AVALIAÇÕES RECEBIDAS (INICIALMENTE OCULTA) -->
         <div id="secao-avaliacoes" class="mt-8 bg-white rounded-3xl shadow-md p-6 hidden border border-gray-100">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
                 <h2 class="text-xl font-black text-brand-dark flex items-center">
                     <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Respostas dos Clientes
                 </h2>
-                <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-lg">
-                    <i class="fa-solid fa-rotate mr-1"></i> Atualizar
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="abrirNovaAvaliacao()" class="text-xs bg-brand-light hover:bg-green-600 text-white font-black py-2 px-3.5 rounded-xl shadow transition flex items-center">
+                        <i class="fa-solid fa-plus-circle mr-1.5 text-sm"></i> Nova Avaliação
+                    </button>
+                    <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-xl transition flex items-center">
+                        <i class="fa-solid fa-rotate mr-1"></i> Atualizar
+                    </button>
+                </div>
             </div>
             
             <div class="overflow-x-auto">
@@ -260,6 +265,40 @@
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-600 mb-1">Nota de Foco (1 a 10)</label>
                                 <input type="number" min="1" max="10" id="edit-foco" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                        </div>
+                    <div class="border-t pt-3 bg-emerald-50/60 p-3.5 rounded-2xl border border-emerald-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-black text-emerald-950 uppercase flex items-center">
+                                <i class="fa-solid fa-weight-scale text-emerald-600 mr-1.5"></i> Valores da Balança de Bioimpedância
+                            </span>
+                            <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded">Opcional</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-800 mb-3">Preencha se realizou a pesagem na balança de bioimpedância (ex: Omron):</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Gordura Corporal (%)</label>
+                                <input type="number" step="0.1" id="edit-bio-gordura" placeholder="Ex: 23.4" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Músculo Esq. (%)</label>
+                                <input type="number" step="0.1" id="edit-bio-musculo" placeholder="Ex: 45.3" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Gordura Visceral (Nível)</label>
+                                <input type="number" step="1" id="edit-bio-visceral" placeholder="Ex: 9" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Metabolismo Basal (Kcal)</label>
+                                <input type="number" step="1" id="edit-bio-tmb" placeholder="Ex: 1705" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div class="col-span-2 sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Idade Corporal (anos)</label>
+                                <input type="number" step="1" id="edit-bio-idade" placeholder="Ex: 50" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div class="col-span-2 sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-700 mb-1">Água Corporal (%)</label>
+                                <input type="number" step="0.1" id="edit-bio-agua" placeholder="Ex: 55.0" class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                             </div>
                         </div>
                     </div>
@@ -587,9 +626,20 @@
             else if (imc <= 29.9) { imcClass = 'Acima'; imcCor = 'bg-yellow-100 text-yellow-800 border-yellow-300'; }
             else { imcClass = 'Alto'; imcCor = 'bg-red-100 text-red-800 border-red-300'; }
 
-            // % Gordura Corporal (Deurenberg / NIH)
+            // Parse de possíveis valores diretos da balança (armazenados em como_foi_semana ou propriedades)
+            let bioDireta = {};
+            if (item.como_foi_semana && item.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                try {
+                    const match = item.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                    if (match && match[1]) {
+                        bioDireta = JSON.parse(match[1]);
+                    }
+                } catch(e) {}
+            }
+
+            // % Gordura Corporal (usa balança se informada, ou calcula por Deurenberg / NIH)
             const sexoNum = genero === 'm' ? 1 : 0;
-            let gorduraPct = (1.20 * imc) + (0.23 * idade) - (10.8 * sexoNum) - 5.4;
+            let gorduraPct = bioDireta.gordura ? parseFloat(bioDireta.gordura) : ((1.20 * imc) + (0.23 * idade) - (10.8 * sexoNum) - 5.4);
             gorduraPct = Math.max(5, Math.min(60, parseFloat(gorduraPct.toFixed(1))));
 
             // Referência de gordura: Masc 11.0% a 21.9% | Fem 20.0% a 32.9%
@@ -617,13 +667,13 @@
             const massaMagraKg = parseFloat((peso - massaGordaKg).toFixed(1));
             const massaMagraPct = parseFloat(((massaMagraKg / peso) * 100).toFixed(1));
 
-            // Músculo Esquelético estimado
-            // Masc: ~42-48% do peso | Fem: ~33-39% do peso
+            // Músculo Esquelético (usa balança se informada ou calcula)
             const musculoEsquelRefMin = genero === 'm' ? 33.1 : 24.1;
             const musculoEsquelRefMax = genero === 'm' ? 39.1 : 30.1;
-            // Para homens saudáveis/atléticos com bom tônus pode chegar a 45%+
-            const massaMuscularKg = parseFloat((massaMagraKg * 0.72).toFixed(1));
-            const massaMuscularPct = parseFloat(((massaMuscularKg / peso) * 100).toFixed(1));
+            
+            let massaMuscularPct = bioDireta.musculo ? parseFloat(bioDireta.musculo) : parseFloat((((massaMagraKg * 0.72) / peso) * 100).toFixed(1));
+            let massaMuscularKg = parseFloat(((peso * massaMuscularPct) / 100).toFixed(1));
+            
             let musculoAvaliacao = 'Excelente';
             let musculoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
             if (massaMuscularPct < musculoEsquelRefMin) {
@@ -637,9 +687,11 @@
                 musculoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
             }
 
-            // Taxa Metabólica Basal (TMB - Harris-Benedict)
+            // Taxa Metabólica Basal (TMB - usa balança se informada ou fórmula Harris-Benedict)
             let tmb = 0;
-            if (genero === 'm') {
+            if (bioDireta.tmb) {
+                tmb = Math.round(parseFloat(bioDireta.tmb));
+            } else if (genero === 'm') {
                 tmb = Math.round(88.362 + (13.397 * peso) + (4.799 * alturaCm) - (5.677 * idade));
             } else {
                 tmb = Math.round(447.593 + (9.247 * peso) + (3.098 * alturaCm) - (4.330 * idade));
@@ -647,10 +699,12 @@
             const tmbRefMin = Math.round(tmb * 0.85);
             const tmbRefMax = Math.round(tmb * 1.05);
 
-            // Gordura Visceral (Nível 1 a 9 é saudável, 10 a 14 alto, 15+ muito alto)
+            // Gordura Visceral (usa balança se informada ou calcula)
             let cintura = parseFloat(item.cintura) || 0;
             let visceral = 1;
-            if (cintura > 0) {
+            if (bioDireta.visceral) {
+                visceral = Math.round(parseFloat(bioDireta.visceral));
+            } else if (cintura > 0) {
                 const ratio = cintura / alturaCm;
                 visceral = Math.round((ratio * 18) + (idade * 0.08) - (genero === 'm' ? 2 : 4));
             } else {
@@ -660,9 +714,10 @@
             let visceralClass = visceral <= 9 ? 'Normal (1 ~ 9)' : 'Acima do Recomendado';
             let visceralCor = visceral <= 9 ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
 
-            // Idade Corporal / Metabólica
-            let diffIdade = Math.round((gorduraPct - (genero === 'm' ? 18 : 24)) * 0.5);
-            let idadeMetabolica = Math.max(18, Math.min(85, idade + diffIdade));
+            // Idade Corporal / Metabólica (usa balança se informada ou estima)
+            let idadeMetabolica = bioDireta.idade ? Math.round(parseFloat(bioDireta.idade)) : Math.round(idade + ((gorduraPct - (genero === 'm' ? 18 : 24)) * 0.5));
+            idadeMetabolica = Math.max(18, Math.min(85, idadeMetabolica));
+            let diffIdade = idadeMetabolica - idade;
             let diffIdadeTexto = diffIdade > 0 ? `+ ${diffIdade} ano(s)` : (diffIdade < 0 ? `${diffIdade} ano(s)` : 'Mesma idade');
             let idadeCor = diffIdade <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
 
@@ -1233,6 +1288,56 @@
             document.getElementById('edit-agua').value = item.agua ? 'true' : 'false';
             document.getElementById('edit-foco').value = item.foco || '8';
 
+            // Preenche campos de bioimpedância direta se existirem
+            document.getElementById('edit-bio-gordura').value = '';
+            document.getElementById('edit-bio-musculo').value = '';
+            document.getElementById('edit-bio-visceral').value = '';
+            document.getElementById('edit-bio-tmb').value = '';
+            document.getElementById('edit-bio-idade').value = '';
+            document.getElementById('edit-bio-agua').value = '';
+
+            if (item.como_foi_semana && item.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                try {
+                    const match = item.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                    if (match && match[1]) {
+                        const bio = JSON.parse(match[1]);
+                        document.getElementById('edit-bio-gordura').value = bio.gordura || '';
+                        document.getElementById('edit-bio-musculo').value = bio.musculo || '';
+                        document.getElementById('edit-bio-visceral').value = bio.visceral || '';
+                        document.getElementById('edit-bio-tmb').value = bio.tmb || '';
+                        document.getElementById('edit-bio-idade').value = bio.idade || '';
+                        document.getElementById('edit-bio-agua').value = bio.agua || '';
+                    }
+                } catch(e) {}
+            }
+
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function abrirNovaAvaliacao() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('editar-titulo-nome').innerText = 'Nova Avaliação (Lançamento Direto)';
+            document.getElementById('edit-nome').value = '';
+            document.getElementById('edit-whatsapp').value = '';
+            document.getElementById('edit-peso').value = '';
+            document.getElementById('edit-altura').value = '170';
+            document.getElementById('edit-nascimento').value = '1990-01-01';
+            document.getElementById('edit-genero').value = 'Feminino';
+            document.getElementById('edit-busto').value = '';
+            document.getElementById('edit-cintura').value = '';
+            document.getElementById('edit-abdomen').value = '';
+            document.getElementById('edit-quadril').value = '';
+            document.getElementById('edit-intestino').value = 'true';
+            document.getElementById('edit-agua').value = 'true';
+            document.getElementById('edit-foco').value = '9';
+
+            document.getElementById('edit-bio-gordura').value = '';
+            document.getElementById('edit-bio-musculo').value = '';
+            document.getElementById('edit-bio-visceral').value = '';
+            document.getElementById('edit-bio-tmb').value = '';
+            document.getElementById('edit-bio-idade').value = '';
+            document.getElementById('edit-bio-agua').value = '';
+
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
@@ -1247,7 +1352,38 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> SALVANDO...';
             btn.disabled = true;
 
+            // Extrai texto puro de observação anterior caso exista
+            let textoObsPuro = '';
+            if (id) {
+                const itemAnterior = todasAvaliacoesCache.find(a => a.id == id);
+                if (itemAnterior && itemAnterior.como_foi_semana) {
+                    textoObsPuro = itemAnterior.como_foi_semana.replace(/<!--BIO_DADOS:.*?-->/g, '').trim();
+                }
+            }
+
+            // Captura dados diretos da balança
+            const bioDireta = {};
+            const bgord = document.getElementById('edit-bio-gordura').value;
+            const bmusc = document.getElementById('edit-bio-musculo').value;
+            const bvisc = document.getElementById('edit-bio-visceral').value;
+            const btmb = document.getElementById('edit-bio-tmb').value;
+            const bidad = document.getElementById('edit-bio-idade').value;
+            const bagua = document.getElementById('edit-bio-agua').value;
+
+            if (bgord) bioDireta.gordura = bgord;
+            if (bmusc) bioDireta.musculo = bmusc;
+            if (bvisc) bioDireta.visceral = bvisc;
+            if (btmb) bioDireta.tmb = btmb;
+            if (bidad) bioDireta.idade = bidad;
+            if (bagua) bioDireta.agua = bagua;
+
+            let comoFoiSemanaFinal = textoObsPuro;
+            if (Object.keys(bioDireta).length > 0) {
+                comoFoiSemanaFinal = `${textoObsPuro} <!--BIO_DADOS:${JSON.stringify(bioDireta)}-->`.trim();
+            }
+
             const payload = {
+                herbalife_id: consultorAtual.herbalife_id,
                 nome_cliente: document.getElementById('edit-nome').value.trim(),
                 whatsapp_cliente: document.getElementById('edit-whatsapp').value.trim(),
                 peso: parseFloat(document.getElementById('edit-peso').value) || null,
@@ -1260,25 +1396,40 @@
                 quadril: parseFloat(document.getElementById('edit-quadril').value) || null,
                 intestino: document.getElementById('edit-intestino').value === 'true',
                 agua: document.getElementById('edit-agua').value === 'true',
-                foco: parseInt(document.getElementById('edit-foco').value) || null
+                foco: parseInt(document.getElementById('edit-foco').value) || null,
+                como_foi_semana: comoFoiSemanaFinal
             };
 
-            const { data, error } = await supabaseClient
-                .from('avaliacoes')
-                .update(payload)
-                .eq('id', id);
+            let resError = null;
+
+            if (id) {
+                // Atualiza avaliação existente
+                const { error } = await supabaseClient
+                    .from('avaliacoes')
+                    .update(payload)
+                    .eq('id', id);
+                resError = error;
+            } else {
+                // Insere nova avaliação lançada pelo consultor
+                payload.codigo_acesso = 'DIRETO';
+                payload.primeira_vez = true;
+                const { error } = await supabaseClient
+                    .from('avaliacoes')
+                    .insert([payload]);
+                resError = error;
+            }
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i> Salvar Alterações';
 
-            if (error) {
-                alert('Erro ao atualizar avaliação: ' + error.message);
+            if (resError) {
+                alert('Erro ao salvar avaliação: ' + resError.message);
                 return;
             }
 
             fecharEditar();
             await carregarAvaliacoes();
-            alert('Avaliação atualizada com sucesso!');
+            alert(id ? 'Avaliação atualizada com sucesso!' : 'Nova avaliação cadastrada com sucesso!');
         }
 
         // ==========================================
