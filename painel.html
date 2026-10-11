@@ -145,14 +145,25 @@
                             <th class="p-3">Medidas (B/C/A/Q)</th>
                             <th class="p-3">Foco</th>
                             <th class="p-3">Código</th>
+                            <th class="p-3 text-right">Ação</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-avaliacoes-corpo" class="divide-y divide-gray-100">
                         <tr>
-                            <td colspan="7" class="p-4 text-center text-gray-400">Carregando avaliações...</td>
+                            <td colspan="8" class="p-4 text-center text-gray-400">Carregando avaliações...</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- MODAL: FICHA COMPLETA DE BIOIMPEDÂNCIA -->
+        <div id="modal-ficha" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white max-w-2xl w-full rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+                <button onclick="fecharFicha()" class="absolute right-5 top-5 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition">
+                    ✕
+                </button>
+                <div id="modal-ficha-conteudo"></div>
             </div>
         </div>
 
@@ -359,9 +370,11 @@
             }
         }
 
+        let todasAvaliacoesCache = [];
+
         async function carregarAvaliacoes() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
-            corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando avaliações...</td></tr>';
+            corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando avaliações...</td></tr>';
 
             const { data, error } = await supabaseClient
                 .from('avaliacoes')
@@ -370,10 +383,11 @@
                 .order('criado_em', { ascending: false });
 
             if (error || !data || data.length === 0) {
-                corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">Nenhuma avaliação respondida ainda.</td></tr>';
+                corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">Nenhuma avaliação respondida ainda.</td></tr>';
                 return;
             }
 
+            todasAvaliacoesCache = data;
             corpo.innerHTML = '';
             data.forEach(item => {
                 const dataFmt = new Date(item.criado_em).toLocaleDateString('pt-BR');
@@ -393,9 +407,146 @@
                     <td class="p-3 text-gray-600">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</td>
                     <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold">${item.foco || '-'} / 10</span></td>
                     <td class="p-3 font-mono font-bold text-xs bg-gray-50">${item.codigo_acesso || '-'}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="verFichaCompleta(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
+                            <i class="fa-solid fa-file-waveform mr-1.5"></i> Ver Ficha
+                        </button>
+                    </td>
                 `;
                 corpo.appendChild(tr);
             });
+        }
+
+        function verFichaCompleta(id) {
+            const item = todasAvaliacoesCache.find(a => a.id == id);
+            if (!item) return;
+
+            const modal = document.getElementById('modal-ficha');
+            const cont = document.getElementById('modal-ficha-conteudo');
+            const dataFmt = new Date(item.criado_em).toLocaleString('pt-BR');
+            const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
+
+            let dataNascFmt = item.data_nascimento || 'Não informado';
+            if (item.data_nascimento && item.data_nascimento.includes('-')) {
+                const p = item.data_nascimento.split('-');
+                dataNascFmt = `${p[2]}/${p[1]}/${p[0]}`;
+            }
+
+            cont.innerHTML = `
+                <div class="border-b pb-4 mb-4">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-blue-100 text-blue-800 font-black text-xs px-3 py-1 rounded-full uppercase">
+                            Ficha de Bioimpedância
+                        </span>
+                        <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded font-bold text-gray-600">
+                            Código: ${item.codigo_acesso || '---'}
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-black text-brand-dark mt-2">${item.nome_cliente}</h3>
+                    <p class="text-xs text-gray-500">Enviado em: ${dataFmt}</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- DADOS PARA O FINESHAPE -->
+                    <div class="bg-blue-50/70 p-4 rounded-2xl border border-blue-100">
+                        <h4 class="font-black text-xs uppercase text-blue-900 mb-3 flex items-center">
+                            <i class="fa-solid fa-clipboard-check mr-2 text-blue-600"></i> Dados para Lançar no FineShape
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                                <span class="block text-[11px] text-gray-500 font-bold uppercase">Peso Atual</span>
+                                <span class="text-lg font-black text-brand-dark">${item.peso || '-'} kg</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                                <span class="block text-[11px] text-gray-500 font-bold uppercase">Altura</span>
+                                <span class="text-lg font-black text-brand-dark">${item.altura ? item.altura + ' cm' : '---'}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                                <span class="block text-[11px] text-gray-500 font-bold uppercase">Nascimento</span>
+                                <span class="text-sm font-bold text-gray-800 leading-7">${dataNascFmt}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                                <span class="block text-[11px] text-gray-500 font-bold uppercase">Gênero</span>
+                                <span class="text-sm font-bold text-gray-800 leading-7">${item.genero || '---'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MEDIDAS DA FITA MÉTRICA -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <h4 class="font-black text-xs uppercase text-gray-700 mb-3 flex items-center">
+                            <i class="fa-solid fa-ruler-combined mr-2 text-brand-yellow"></i> Circunferências Corporais (Fita Métrica)
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Busto / Tórax</span>
+                                <span class="text-base font-black text-gray-800">${item.busto ? item.busto + ' cm' : '---'}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Cintura</span>
+                                <span class="text-base font-black text-gray-800">${item.cintura ? item.cintura + ' cm' : '---'}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Abdômen (Umbigo)</span>
+                                <span class="text-base font-black text-gray-800">${item.abdomen ? item.abdomen + ' cm' : '---'}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Quadril</span>
+                                <span class="text-base font-black text-gray-800">${item.quadril ? item.quadril + ' cm' : '---'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HÁBITOS E ROTINA -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <h4 class="font-black text-xs uppercase text-gray-700 mb-3 flex items-center">
+                            <i class="fa-solid fa-heart-pulse mr-2 text-brand-light"></i> Rotina & Hábitos
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-3">
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="text-gray-600 font-bold">Intestino:</span>
+                                <span class="font-bold ${item.intestino ? 'text-green-600' : 'text-red-500'}">
+                                    ${item.intestino ? '✅ Normal' : '❌ Irregular'}
+                                </span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="text-gray-600 font-bold">Meta de Água:</span>
+                                <span class="font-bold ${item.agua ? 'text-green-600' : 'text-yellow-600'}">
+                                    ${item.agua ? '✅ Bateu a meta' : '⚠️ Não bateu'}
+                                </span>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="text-gray-600 font-bold">Nota de Foco:</span>
+                                <span class="bg-yellow-100 text-yellow-800 font-black px-2 py-0.5 rounded">
+                                    ${item.foco || '-'} / 10
+                                </span>
+                            </div>
+                        </div>
+
+                        ${item.como_foi_semana ? `
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 text-xs">
+                            <span class="block font-bold text-gray-600 mb-1">Como foi a semana / Observações do Cliente:</span>
+                            <p class="text-gray-800 italic">"${item.como_foi_semana}"</p>
+                        </div>` : ''}
+                    </div>
+
+                    <!-- AÇÕES -->
+                    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                        <a href="https://wa.me/55${whatsLimpo}?text=Ol%C3%A1%20${encodeURIComponent(item.nome_cliente)},%20recebi%20sua%20avalia%C3%A7%C3%A3o%20do%20Reset!%20Vamos%20ver%20seus%20resultados%3F" target="_blank" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
+                            <i class="fa-brands fa-whatsapp mr-2 text-lg"></i> Chamar no WhatsApp
+                        </a>
+                        <button onclick="fecharFicha()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3 rounded-xl text-sm transition">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharFicha() {
+            document.getElementById('modal-ficha').classList.add('hidden');
         }
 
         async function gerarTiquetes() {
