@@ -142,16 +142,16 @@
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
-                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b text-[11px]">
                         <tr>
-                            <th class="p-3">Data</th>
-                            <th class="p-3">Cliente</th>
+                            <th class="p-3">Cliente / Histórico</th>
                             <th class="p-3">WhatsApp</th>
-                            <th class="p-3">Peso</th>
+                            <th class="p-3">Última Avaliação</th>
+                            <th class="p-3">Peso Atual</th>
                             <th class="p-3">Medidas (B/C/A/Q)</th>
                             <th class="p-3">Foco</th>
-                            <th class="p-3">Código</th>
-                            <th class="p-3 text-right">Ação</th>
+                            <th class="p-3">Origem</th>
+                            <th class="p-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-avaliacoes-corpo" class="divide-y divide-gray-100">
@@ -190,7 +190,11 @@
                 <form id="form-editar-avaliacao" onsubmit="salvarEdicaoAvaliacao(event)" class="space-y-4">
                     <input type="hidden" id="edit-id">
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Data da Avaliação</label>
+                            <input type="datetime-local" id="edit-data-avaliacao" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Nome do Cliente</label>
                             <input type="text" id="edit-nome" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
@@ -201,7 +205,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Grupo / Turma <span class="text-[10px] text-gray-400 font-normal">(Opcional)</span></label>
-                            <input type="text" id="edit-grupo" placeholder="Ex: Desafio 15 Dias, EDW..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-brand-dark focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            <input type="text" id="edit-grupo" placeholder="Ex: RESET, EDW..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-brand-dark focus:ring-2 focus:ring-brand-light focus:outline-none">
                         </div>
                     </div>
 
@@ -561,6 +565,15 @@
 
         let todasAvaliacoesCache = [];
 
+        let clienteExpandidoKey = null;
+
+        function normalizarChaveCliente(item) {
+            const whats = (item.whatsapp_cliente || '').replace(/\D/g, '');
+            if (whats && whats.length >= 8) return 'wa_' + whats;
+            const nome = (item.nome_cliente || '').trim().toLowerCase().replace(/\s+/g, '_');
+            return 'nome_' + (nome || 'anonimo');
+        }
+
         async function carregarAvaliacoes() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
             corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando avaliações...</td></tr>';
@@ -577,25 +590,82 @@
             }
 
             todasAvaliacoesCache = data;
+            renderizarTabelaAgrupada();
+        }
+
+        function toggleExpandirCliente(chave) {
+            clienteExpandidoKey = (clienteExpandidoKey === chave) ? null : chave;
+            renderizarTabelaAgrupada();
+        }
+
+        function renderizarTabelaAgrupada() {
+            const corpo = document.getElementById('tabela-avaliacoes-corpo');
             corpo.innerHTML = '';
-            data.forEach(item => {
-                const dataFmt = new Date(item.criado_em).toLocaleDateString('pt-BR');
-                const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
-                
+
+            // Agrupa por cliente único
+            const gruposMap = new Map();
+            todasAvaliacoesCache.forEach(item => {
+                const key = normalizarChaveCliente(item);
+                if (!gruposMap.has(key)) {
+                    gruposMap.set(key, []);
+                }
+                gruposMap.get(key).push(item);
+            });
+
+            // Ordena os grupos pela avaliação mais recente
+            const grupos = Array.from(gruposMap.entries()).map(([key, lista]) => {
+                // Ordena lista decrescente por criado_em
+                lista.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+                return { key, itens: lista, maisRecente: lista[0], total: lista.length };
+            }).sort((a, b) => new Date(b.maisRecente.criado_em).getTime() - new Date(a.maisRecente.criado_em).getTime());
+
+            grupos.forEach(grupo => {
+                const item = grupo.maisRecente;
+                const total = grupo.total;
+                const dataFmt = new Date(item.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                const isExpandido = clienteExpandidoKey === grupo.key;
+
+                // Linha principal do cliente
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
+                tr.className = `hover:bg-amber-50/50 transition border-b border-gray-100 ${isExpandido ? 'bg-amber-50/30 font-medium' : ''}`;
+                
                 tr.innerHTML = `
-                    <td class="p-3 font-medium text-gray-500">${dataFmt}</td>
-                    <td class="p-3 font-bold text-gray-800">${item.nome_cliente}</td>
+                    <td class="p-3">
+                        <div class="flex items-center space-x-2">
+                            ${total > 1 ? `
+                                <button onclick="toggleExpandirCliente('${grupo.key}')" title="${isExpandido ? 'Recolher histórico' : 'Ver todas as ' + total + ' avaliações deste cliente'}" class="w-6 h-6 rounded-md bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold flex items-center justify-center text-xs transition">
+                                    <i class="fa-solid ${isExpandido ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
+                                </button>
+                            ` : `
+                                <span class="w-6 h-6 rounded-md bg-gray-100 text-gray-400 font-bold flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-user"></i>
+                                </span>
+                            `}
+                            <div>
+                                <span class="font-black text-gray-900 text-sm block leading-tight">${item.nome_cliente}</span>
+                                ${total > 1 ? `
+                                    <span class="inline-block mt-0.5 bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded-full cursor-pointer hover:bg-blue-200" onclick="toggleExpandirCliente('${grupo.key}')">
+                                        <i class="fa-solid fa-clock-rotate-left mr-1"></i> ${total} avaliações unificadas
+                                    </span>
+                                ` : `
+                                    <span class="text-[10px] text-gray-400">1 avaliação</span>
+                                `}
+                            </div>
+                        </div>
+                    </td>
                     <td class="p-3">
                         <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-green-600 hover:text-green-700 font-bold flex items-center">
-                            <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> ${item.whatsapp_cliente}
+                            <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> ${item.whatsapp_cliente || '-'}
                         </a>
                     </td>
-                    <td class="p-3 font-bold text-brand-dark">${item.peso || '-'} kg</td>
+                    <td class="p-3 font-medium text-gray-600">
+                        <span class="block font-bold text-gray-800">${dataFmt}</span>
+                    </td>
+                    <td class="p-3 font-black text-brand-dark">${item.peso || '-'} kg</td>
                     <td class="p-3 text-gray-600">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</td>
                     <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold">${item.foco || '-'} / 10</span></td>
-                    <td class="p-3 font-mono font-bold text-xs bg-gray-50">${item.codigo_acesso || '-'}</td>
+                    <td class="p-3 font-mono font-bold text-[11px] text-gray-500">${item.codigo_acesso || 'DIRETO'}</td>
                     <td class="p-3 text-right whitespace-nowrap">
                         <div class="inline-flex items-center space-x-1.5">
                             <button onclick="verFichaCompleta(${item.id})" title="Ver Relatório de Bioimpedância" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
@@ -611,6 +681,45 @@
                     </td>
                 `;
                 corpo.appendChild(tr);
+
+                // Se estiver expandido e tiver mais de 1 avaliação, renderiza as linhas de histórico
+                if (isExpandido && total > 1) {
+                    grupo.itens.forEach((sub, subIdx) => {
+                        const subData = new Date(sub.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                        const isPrimeiraOuUltima = subIdx === 0 ? 'Última' : (subIdx === total - 1 ? 'Inicial' : `Check-in ${total - subIdx}`);
+                        const subTr = document.createElement('tr');
+                        subTr.className = "bg-gray-50/80 hover:bg-blue-50/50 transition border-b border-gray-100 text-[11px]";
+                        subTr.innerHTML = `
+                            <td class="p-2.5 pl-11">
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-block w-2 h-2 rounded-full ${subIdx === 0 ? 'bg-blue-600' : 'bg-gray-400'}"></span>
+                                    <span class="font-bold text-gray-700">${isPrimeiraOuUltima}</span>
+                                    <span class="text-[10px] text-gray-400 font-mono">#${sub.id}</span>
+                                </div>
+                            </td>
+                            <td class="p-2.5 text-gray-500 font-medium">${sub.whatsapp_cliente || '-'}</td>
+                            <td class="p-2.5 font-bold text-gray-700">${subData}</td>
+                            <td class="p-2.5 font-black text-brand-dark">${sub.peso || '-'} kg</td>
+                            <td class="p-2.5 text-gray-600">${sub.busto || '-'} / ${sub.cintura || '-'} / ${sub.abdomen || '-'} / ${sub.quadril || '-'}</td>
+                            <td class="p-2.5"><span class="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-bold">${sub.foco || '-'} / 10</span></td>
+                            <td class="p-2.5 font-mono text-[10px] text-gray-500">${sub.codigo_acesso || 'DIRETO'}</td>
+                            <td class="p-2.5 text-right whitespace-nowrap">
+                                <div class="inline-flex items-center space-x-1">
+                                    <button onclick="verFichaCompleta(${sub.id})" title="Ver Ficha desta Data" class="bg-blue-600/90 hover:bg-blue-700 text-white font-bold px-2 py-1 rounded text-[11px] transition inline-flex items-center">
+                                        <i class="fa-solid fa-file-waveform mr-1 text-[10px]"></i> Ver
+                                    </button>
+                                    <button onclick="abrirEditarAvaliacao(${sub.id})" title="Editar Avaliação" class="bg-amber-500/90 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded text-[11px] transition inline-flex items-center">
+                                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                    </button>
+                                    <button onclick="excluirAvaliacao(${sub.id})" title="Excluir" class="bg-red-500/90 hover:bg-red-600 text-white font-bold px-2 py-1 rounded text-[11px] transition inline-flex items-center">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        corpo.appendChild(subTr);
+                    });
+                }
             });
         }
 
@@ -831,20 +940,16 @@
             avaliacaoSelecionadaAtual = item;
             const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
 
-            // Localiza avaliação anterior do mesmo cliente
-            // Critério: mesmo WhatsApp OU mesmo código de acesso inicial, criada ANTES desta
-            const dataAtual = new Date(item.criado_em).getTime();
-            const historico = todasAvaliacoesCache.filter(a => {
-                if (a.id === item.id) return false;
-                const mesmoWhats = a.whatsapp_cliente && a.whatsapp_cliente.replace(/\D/g, '') === whatsLimpo;
-                const mesmoCodigo = a.codigo_acesso && item.codigo_acesso && 
-                    a.codigo_acesso.replace(/[\[\]\s]/g, '').replace('FINAL', '').replace('INÍCIO', '') === 
-                    item.codigo_acesso.replace(/[\[\]\s]/g, '').replace('FINAL', '').replace('INÍCIO', '');
-                return (mesmoWhats || mesmoCodigo) && new Date(a.criado_em).getTime() < dataAtual;
-            });
+            const chaveCliente = normalizarChaveCliente(item);
+            const todasDoCliente = todasAvaliacoesCache.filter(a => normalizarChaveCliente(a) === chaveCliente)
+                .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
 
-            // Pega a mais recente antes da atual
-            avaliacaoAnteriorAtual = historico.length > 0 ? historico[0] : null;
+            // Localiza avaliação anterior do mesmo cliente criada ANTES desta
+            const dataAtual = new Date(item.criado_em).getTime();
+            const historicoAnteriores = todasDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
+
+            // Pega a mais recente antes da atual (ou se não houver anterior temporal, a próxima do histórico)
+            avaliacaoAnteriorAtual = historicoAnteriores.length > 0 ? historicoAnteriores[0] : (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id ? todasDoCliente[todasDoCliente.length - 1] : null);
 
             // Se a avaliação atual não tiver altura/nascimento preenchidos, herda da anterior caso exista
             if ((!item.altura || !item.data_nascimento) && avaliacaoAnteriorAtual) {
@@ -906,9 +1011,31 @@
                             <span class="text-sm font-black text-brand-light">${consultorAtual.nome_completo || 'Consultor Oficial'}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${dataFmt}</span>
                         </div>
+                    <!-- HISTÓRICO COMPLETO DO CLIENTE (SELETOR DE CHECK-INS) -->
+                    ${todasDoCliente.length > 1 ? `
+                    <div class="mb-4 bg-blue-50/70 border border-blue-200 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-black text-blue-900 uppercase">
+                                <i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico do Cliente (${todasDoCliente.length} avaliações cadastradas)
+                            </span>
+                            <span class="text-[10px] text-blue-700 font-bold">Selecione para alternar:</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${todasDoCliente.map((av, idx) => {
+                                const dt = new Date(av.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+                                const isAtiva = av.id === item.id;
+                                const rotulo = idx === 0 ? 'Última' : (idx === todasDoCliente.length - 1 ? 'Inicial' : `#${todasDoCliente.length - idx}`);
+                                return `
+                                    <button onclick="verFichaCompleta(${av.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${isAtiva ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-300' : 'bg-white hover:bg-blue-100 text-blue-800 border border-blue-200'}">
+                                        <span class="text-[10px] uppercase font-black opacity-80">${rotulo}:</span>
+                                        <span>${dt}</span>
+                                        <span class="font-black">(${av.peso || '-'}kg)</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
                     </div>
-
-                    <!-- RESUMO DAS AVALIAÇÕES (COMPARATIVO COM A ANTERIOR) -->
+                    ` : ''}
                     ${avaliacaoAnteriorAtual ? `
                     <div class="mb-5 overflow-hidden rounded-xl border border-emerald-300 shadow-sm">
                         <div class="bg-emerald-600 text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
@@ -1313,6 +1440,15 @@
             const item = todasAvaliacoesCache.find(a => a.id == id);
             if (!item) return;
 
+            // Formata data ISO para datetime-local (YYYY-MM-DDTHH:mm)
+            if (item.criado_em) {
+                const d = new Date(item.criado_em);
+                const pad = n => String(n).padStart(2, '0');
+                document.getElementById('edit-data-avaliacao').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            } else {
+                document.getElementById('edit-data-avaliacao').value = '';
+            }
+
             document.getElementById('edit-id').value = item.id;
             document.getElementById('editar-titulo-nome').innerText = `Editar: ${item.nome_cliente}`;
             document.getElementById('edit-nome').value = item.nome_cliente || '';
@@ -1375,10 +1511,15 @@
         }
 
         function abrirNovaAvaliacao() {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('edit-data-avaliacao').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
             document.getElementById('edit-id').value = '';
             document.getElementById('editar-titulo-nome').innerText = 'Nova Avaliação (Lançamento Direto)';
             document.getElementById('edit-nome').value = '';
             document.getElementById('edit-whatsapp').value = '';
+            document.getElementById('edit-grupo').value = '';
             document.getElementById('edit-peso').value = '';
             document.getElementById('edit-altura').value = '170';
             document.getElementById('edit-nascimento').value = '1990-01-01';
@@ -1488,6 +1629,11 @@
                 foco: parseInt(document.getElementById('edit-foco').value) || null,
                 como_foi_semana: comoFoiSemanaFinal
             };
+
+            const dataAvaliacaoInput = document.getElementById('edit-data-avaliacao').value;
+            if (dataAvaliacaoInput) {
+                payload.criado_em = new Date(dataAvaliacaoInput).toISOString();
+            }
 
             let resError = null;
 
