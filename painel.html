@@ -1585,25 +1585,47 @@
                         const rawAltura = (indexMap.altura >= 0 ? colunas[indexMap.altura] : '').replace(/^["']|["']$/g, '').replace(',', '.').trim();
                         
                         let dataNasc = (indexMap.dataNasc >= 0 ? colunas[indexMap.dataNasc] : '').replace(/^["']|["']$/g, '').trim();
-                        if (dataNasc.includes('/')) {
-                            const partesData = dataNasc.split('/');
-                            if (partesData.length === 3) {
-                                dataNasc = `${partesData[2]}-${partesData[1].padStart(2, '0')}-${partesData[0].padStart(2, '0')}`;
+                        if (dataNasc) {
+                            if (dataNasc.includes('/')) {
+                                const partesData = dataNasc.split(' ')[0].split('/');
+                                if (partesData.length === 3) {
+                                    const dia = partesData[0].padStart(2, '0');
+                                    const mes = partesData[1].padStart(2, '0');
+                                    const ano = partesData[2].length === 2 ? '20' + partesData[2] : partesData[2];
+                                    dataNasc = `${ano}-${mes}-${dia}`;
+                                }
                             }
+                        } else {
+                            dataNasc = null;
                         }
 
                         let criadoEm = new Date().toISOString();
                         const rawDataAv = (indexMap.dataAv >= 0 ? colunas[indexMap.dataAv] : '').replace(/^["']|["']$/g, '').trim();
                         if (rawDataAv) {
-                            if (rawDataAv.includes('/')) {
-                                const partesHora = rawDataAv.split(' ');
-                                const pData = partesHora[0].split('/');
-                                if (pData.length === 3) {
-                                    const horaStr = partesHora[1] ? `T${partesHora[1]}:00Z` : 'T12:00:00Z';
-                                    criadoEm = new Date(`${pData[2]}-${pData[1].padStart(2, '0')}-${pData[0].padStart(2, '0')}${horaStr}`).toISOString();
+                            try {
+                                if (rawDataAv.includes('/')) {
+                                    // Trata "11/10/2026", "11/10/2026 14:30" ou "11/10/2026, 14:30:00"
+                                    const partesGerais = rawDataAv.replace(',', '').split(/\s+/);
+                                    const pData = partesGerais[0].split('/');
+                                    if (pData.length === 3) {
+                                        const dia = pData[0].padStart(2, '0');
+                                        const mes = pData[1].padStart(2, '0');
+                                        const ano = pData[2].length === 2 ? '20' + pData[2] : pData[2];
+                                        const horaStr = partesGerais[1] ? (partesGerais[1].length === 5 ? partesGerais[1] + ':00' : partesGerais[1]) : '12:00:00';
+                                        const dObj = new Date(`${ano}-${mes}-${dia}T${horaStr}`);
+                                        if (!isNaN(dObj.getTime())) {
+                                            criadoEm = dObj.toISOString();
+                                        }
+                                    }
+                                } else {
+                                    const dObj = new Date(rawDataAv);
+                                    if (!isNaN(dObj.getTime())) {
+                                        criadoEm = dObj.toISOString();
+                                    }
                                 }
-                            } else if (!isNaN(Date.parse(rawDataAv))) {
-                                criadoEm = new Date(rawDataAv).toISOString();
+                            } catch (e) {
+                                // Se falhar qualquer formato de data, mantém a data atual
+                                criadoEm = new Date().toISOString();
                             }
                         }
 
