@@ -159,19 +159,19 @@
                 </div>
             </div>
 
-            <!-- MÓDULO 3: RELATÓRIOS & EXPORTAÇÃO -->
+            <!-- MÓDULO 3: RELATÓRIOS & DADOS (EXPORTAR / IMPORTAR) -->
             <div onclick="abrirModuloRelatorios()" class="bg-gradient-to-br from-slate-700 to-gray-900 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
                 <div>
                     <span class="text-[11px] uppercase tracking-wider font-bold text-gray-300">Planilhas & Dados</span>
                     <h4 class="text-lg font-black flex items-center mt-0.5">
-                        <i class="fa-solid fa-file-excel mr-2 text-xl text-emerald-400"></i> Relatórios
+                        <i class="fa-solid fa-file-excel mr-2 text-xl text-emerald-400"></i> Relatórios & Dados
                     </h4>
                     <p class="text-xs text-gray-300 mt-1">
-                        Exportação de Clientes & Avaliações (CSV)
+                        Exportar e Importar Planilhas (CSV / Excel)
                     </p>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
-                    <i class="fa-solid fa-download"></i>
+                    <i class="fa-solid fa-right-left"></i>
                 </div>
             </div>
         </div>
@@ -527,7 +527,7 @@
             </div>
         </div>
 
-        <!-- MODAL: RELATÓRIOS E EXPORTAÇÃO CSV -->
+        <!-- MODAL: RELATÓRIOS, EXPORTAÇÃO E IMPORTAÇÃO DE DADOS -->
         <div id="modal-relatorios" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
             <div class="bg-white max-w-xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
                 <button onclick="fecharModuloRelatorios()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition">
@@ -540,13 +540,24 @@
                             <i class="fa-solid fa-file-excel"></i>
                         </span>
                         <div>
-                            <h3 class="text-xl font-black text-brand-dark">Exportação de Dados</h3>
-                            <p class="text-xs text-gray-500">Baixe planilhas em formato CSV compatíveis com Microsoft Excel e Google Planilhas.</p>
+                            <h3 class="text-xl font-black text-brand-dark">Central de Dados & Planilhas</h3>
+                            <p class="text-xs text-gray-500">Exporte ou importe seus clientes e avaliações via planilhas CSV.</p>
                         </div>
+                    </div>
+
+                    <!-- ABAS EXPORTAR / IMPORTAR -->
+                    <div class="flex items-center space-x-2 mt-4">
+                        <button id="btn-tab-rel-exportar" onclick="alternarAbaRelatorios('exportar')" class="px-4 py-2 rounded-xl font-bold text-xs transition bg-slate-900 text-white shadow-sm flex items-center">
+                            <i class="fa-solid fa-download mr-1.5 text-emerald-400"></i> Exportar Dados
+                        </button>
+                        <button id="btn-tab-rel-importar" onclick="alternarAbaRelatorios('importar')" class="px-4 py-2 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center">
+                            <i class="fa-solid fa-upload mr-1.5 text-blue-600"></i> Importar Planilha
+                        </button>
                     </div>
                 </div>
 
-                <div class="space-y-4">
+                <!-- CONTEÚDO DA ABA 1: EXPORTAR -->
+                <div id="aba-rel-exportar" class="space-y-4">
                     <!-- CARD EXPORTAR CLIENTES -->
                     <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 hover:border-emerald-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
@@ -578,13 +589,55 @@
                             <i class="fa-solid fa-file-arrow-down mr-1.5 text-sm"></i> Baixar Avaliações
                         </button>
                     </div>
+
+                    <div class="mt-4 p-3.5 bg-amber-50 rounded-2xl border border-amber-200 flex items-start space-x-2.5">
+                        <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
+                        <p class="text-[11px] text-amber-900 leading-relaxed">
+                            Os arquivos são gerados com codificação <strong>UTF-8 com BOM</strong> e delimitador ponto e vírgula (<code class="bg-amber-100 px-1 rounded">;</code>), abrindo com acentos perfeitos no Excel brasileiro.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="mt-6 p-3.5 bg-amber-50 rounded-2xl border border-amber-200 flex items-start space-x-2.5">
-                    <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
-                    <p class="text-[11px] text-amber-900 leading-relaxed">
-                        Os arquivos são gerados com codificação <strong>UTF-8 com BOM</strong> e delimitador ponto e vírgula (<code class="bg-amber-100 px-1 rounded">;</code>), abrindo com acentos perfeitos no Excel brasileiro.
-                    </p>
+                <!-- CONTEÚDO DA ABA 2: IMPORTAR -->
+                <div id="aba-rel-importar" class="space-y-4 hidden">
+                    <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-200">
+                        <h4 class="font-black text-blue-950 text-sm flex items-center">
+                            <i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-600"></i> Importar Avaliações e Clientes
+                        </h4>
+                        <p class="text-xs text-blue-900 mt-1 leading-relaxed">
+                            Suba um arquivo <strong>.CSV</strong> contendo as avaliações e clientes já cadastrados. O sistema irá ler cada linha e salvar diretamente no seu painel.
+                        </p>
+                        <div class="mt-2.5 flex items-center space-x-2">
+                            <button onclick="baixarModeloExemploCSV()" class="text-[11px] font-bold text-blue-700 underline hover:text-blue-900">
+                                <i class="fa-solid fa-download mr-1"></i> Baixar Planilha Modelo de Exemplo (.CSV)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE DROP / SELEÇÃO DE ARQUIVO -->
+                    <div class="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition bg-gray-50 hover:bg-blue-50/30" onclick="document.getElementById('input-arquivo-csv').click()">
+                        <input type="file" id="input-arquivo-csv" accept=".csv,text/csv" class="hidden" onchange="selecionarArquivoCSV(event)">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-2 text-xl">
+                            <i class="fa-solid fa-file-csv"></i>
+                        </div>
+                        <p id="label-arquivo-nome" class="text-sm font-black text-gray-800">Clique para selecionar o arquivo CSV</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Suporta delimitador vírgula (,) ou ponto e vírgula (;)</p>
+                    </div>
+
+                    <!-- STATUS / PREVIEW DE IMPORTAÇÃO -->
+                    <div id="box-preview-importacao" class="hidden p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-gray-700">
+                            <span>Linhas identificadas: <strong id="preview-total-linhas" class="text-blue-600">0</strong></span>
+                            <span id="preview-colunas-status" class="text-green-600 font-bold"><i class="fa-solid fa-check"></i> Formato válido</span>
+                        </div>
+                        <div id="preview-primeiras-linhas" class="text-[11px] text-gray-600 font-mono bg-white p-2.5 rounded-xl border border-gray-200 max-h-32 overflow-y-auto"></div>
+
+                        <button id="btn-confirmar-importacao" onclick="executarImportacaoCSV()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow-lg transition flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-cloud-arrow-up mr-2"></i> CONFIRMAR E IMPORTAR DADOS
+                        </button>
+                    </div>
+
+                    <div id="msg-resultado-importacao" class="hidden p-3.5 rounded-2xl text-xs font-bold"></div>
                 </div>
             </div>
         </div>
@@ -1348,7 +1401,285 @@
             const dataHoje = new Date().toISOString().split('T')[0];
             baixarArquivoCSV(`Avaliacoes_Litrao_${consultorAtual.herbalife_id}_${dataHoje}.csv`, linhas.join("\r\n"));
         }
-        function calcularBioimpedancia(item) {
+
+        // ==========================================
+        // IMPORTAÇÃO DE PLANILHAS CSV
+        // ==========================================
+        let dadosCSVParaImportar = [];
+
+        function alternarAbaRelatorios(aba) {
+            const btnExp = document.getElementById('btn-tab-rel-exportar');
+            const btnImp = document.getElementById('btn-tab-rel-importar');
+            const contExp = document.getElementById('aba-rel-exportar');
+            const contImp = document.getElementById('aba-rel-importar');
+
+            if (aba === 'exportar') {
+                btnExp.className = 'px-4 py-2 rounded-xl font-bold text-xs transition bg-slate-900 text-white shadow-sm flex items-center';
+                btnImp.className = 'px-4 py-2 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center';
+                contExp.classList.remove('hidden');
+                contImp.classList.add('hidden');
+            } else {
+                btnImp.className = 'px-4 py-2 rounded-xl font-bold text-xs transition bg-blue-600 text-white shadow-sm flex items-center';
+                btnExp.className = 'px-4 py-2 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center';
+                contImp.classList.remove('hidden');
+                contExp.classList.add('hidden');
+            }
+        }
+
+        function baixarModeloExemploCSV() {
+            const cabecalho = [
+                "NOME_CLIENTE",
+                "WHATSAPP",
+                "DATA_AVALIACAO",
+                "PESO_KG",
+                "ALTURA_CM",
+                "DATA_NASCIMENTO",
+                "GENERO",
+                "GRUPO_TURMA",
+                "TORAX_BUSTO_CM",
+                "CINTURA_CM",
+                "ABDOMEN_CM",
+                "QUADRIL_CM",
+                "FOCO_MOTIVACAO"
+            ];
+
+            const linhaExemplo1 = [
+                '"Maria da Silva"',
+                '"11999998888"',
+                `"${new Date().toISOString().split('T')[0]}"`,
+                "72.5",
+                "165",
+                "1990-05-15",
+                "Feminino",
+                '"RESET"',
+                "96",
+                "82",
+                "90",
+                "104",
+                "10"
+            ];
+
+            const linhaExemplo2 = [
+                '"Carlos Eduardo"',
+                '"21988887777"',
+                `"${new Date().toISOString().split('T')[0]}"`,
+                "88.0",
+                "178",
+                "1985-11-20",
+                "Masculino",
+                '"DESAFIO 7 DIAS"',
+                "102",
+                "94",
+                "99",
+                "105",
+                "9"
+            ];
+
+            const conteudo = [cabecalho.join(";"), linhaExemplo1.join(";"), linhaExemplo2.join(";")].join("\r\n");
+            baixarArquivoCSV("Modelo_Importacao_Litrao.csv", conteudo);
+        }
+
+        function parseLinhaCSV(linha, delimitador) {
+            const resultado = [];
+            let campoAtual = '';
+            let dentroDeAspas = false;
+
+            for (let i = 0; i < linha.length; i++) {
+                const char = linha[i];
+                if (char === '"') {
+                    if (dentroDeAspas && linha[i + 1] === '"') {
+                        campoAtual += '"';
+                        i++;
+                    } else {
+                        dentroDeAspas = !dentroDeAspas;
+                    }
+                } else if (char === delimitador && !dentroDeAspas) {
+                    resultado.push(campoAtual.trim());
+                    campoAtual = '';
+                } else {
+                    campoAtual += char;
+                }
+            }
+            resultado.push(campoAtual.trim());
+            return resultado;
+        }
+
+        function selecionarArquivoCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('label-arquivo-nome').innerText = `Arquivo: ${file.name}`;
+            const boxPreview = document.getElementById('box-preview-importacao');
+            const totalLinhasSpan = document.getElementById('preview-total-linhas');
+            const previewDiv = document.getElementById('preview-primeiras-linhas');
+            const msgResultado = document.getElementById('msg-resultado-importacao');
+            msgResultado.classList.add('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let texto = e.target.result;
+                if (!texto) return;
+
+                // Remove BOM se presente
+                if (texto.charCodeAt(0) === 0xFEFF) {
+                    texto = texto.slice(1);
+                }
+
+                const linhasBrutas = texto.split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
+                if (linhasBrutas.length < 2) {
+                    alert("O arquivo precisa conter um cabeçalho e pelo menos 1 linha de dados.");
+                    return;
+                }
+
+                // Detecta delimitador (, ou ;)
+                const primeiraLinha = linhasBrutas[0];
+                const delimitador = (primeiraLinha.split(';').length >= primeiraLinha.split(',').length) ? ';' : ',';
+
+                const cabecalhos = parseLinhaCSV(linhasBrutas[0], delimitador).map(c => c.toUpperCase().replace(/\s+/g, '_'));
+                
+                // Mapeamento de colunas flexível
+                const indexMap = {
+                    nome: cabecalhos.findIndex(c => c.includes('NOME') || c.includes('CLIENTE')),
+                    whats: cabecalhos.findIndex(c => c.includes('WHATS') || c.includes('TEL') || c.includes('FONE')),
+                    dataAv: cabecalhos.findIndex(c => c.includes('DATA_AV') || c.includes('CRIADO') || c.includes('DATA')),
+                    peso: cabecalhos.findIndex(c => c.includes('PESO')),
+                    altura: cabecalhos.findIndex(c => c.includes('ALTURA')),
+                    dataNasc: cabecalhos.findIndex(c => c.includes('NASC') || c.includes('NIVER')),
+                    genero: cabecalhos.findIndex(c => c.includes('GENERO') || c.includes('SEXO')),
+                    grupo: cabecalhos.findIndex(c => c.includes('GRUPO') || c.includes('TURMA')),
+                    gordura: cabecalhos.findIndex(c => c.includes('GORDURA_CORP') || c.includes('GORDURA')),
+                    musculo: cabecalhos.findIndex(c => c.includes('MUSCULO')),
+                    visceral: cabecalhos.findIndex(c => c.includes('VISCERAL')),
+                    tmb: cabecalhos.findIndex(c => c.includes('TMB') || c.includes('METABOL') || c.includes('BASAL')),
+                    idadeCorp: cabecalhos.findIndex(c => c.includes('IDADE_CORP') || c.includes('IDADE_METAB')),
+                    agua: cabecalhos.findIndex(c => c.includes('AGUA')),
+                    busto: cabecalhos.findIndex(c => c.includes('BUSTO') || c.includes('TORAX')),
+                    cintura: cabecalhos.findIndex(c => c.includes('CINTURA')),
+                    abdomen: cabecalhos.findIndex(c => c.includes('ABDOMEN') || c.includes('BARRIGA')),
+                    quadril: cabecalhos.findIndex(c => c.includes('QUADRIL')),
+                    bracoDir: cabecalhos.findIndex(c => c.includes('BRACO_DIR')),
+                    bracoEsq: cabecalhos.findIndex(c => c.includes('BRACO_ESQ')),
+                    coxaDir: cabecalhos.findIndex(c => c.includes('COXA_DIR')),
+                    coxaEsq: cabecalhos.findIndex(c => c.includes('COXA_ESQ')),
+                    foco: cabecalhos.findIndex(c => c.includes('FOCO') || c.includes('MOTIVACAO')),
+                    codigo: cabecalhos.findIndex(c => c.includes('CODIGO'))
+                };
+
+                dadosCSVParaImportar = [];
+                for (let i = 1; i < linhasBrutas.length; i++) {
+                    const colunas = parseLinhaCSV(linhasBrutas[i], delimitador);
+                    const nome = (indexMap.nome >= 0 ? colunas[indexMap.nome] : '') || '';
+                    if (!nome || nome.trim() === '') continue; // Ignora linhas sem nome
+
+                    // Limpa peso e converte vírgula para ponto se necessário
+                    const pesoLimpo = (indexMap.peso >= 0 ? colunas[indexMap.peso] : '').replace(',', '.');
+                    const alturaLimpa = (indexMap.altura >= 0 ? colunas[indexMap.altura] : '').replace(',', '.');
+                    let dataNasc = (indexMap.dataNasc >= 0 ? colunas[indexMap.dataNasc] : '').trim();
+                    // Converte DD/MM/AAAA para AAAA-MM-DD se vier em formato brasileiro
+                    if (dataNasc.includes('/')) {
+                        const partesData = dataNasc.split('/');
+                        if (partesData.length === 3) {
+                            dataNasc = `${partesData[2]}-${partesData[1].padStart(2, '0')}-${partesData[0].padStart(2, '0')}`;
+                        }
+                    }
+
+                    let criadoEm = new Date().toISOString();
+                    const rawDataAv = (indexMap.dataAv >= 0 ? colunas[indexMap.dataAv] : '').trim();
+                    if (rawDataAv) {
+                        if (rawDataAv.includes('/')) {
+                            const pData = rawDataAv.split(' ')[0].split('/');
+                            if (pData.length === 3) {
+                                criadoEm = new Date(`${pData[2]}-${pData[1]}-${pData[0]}T12:00:00Z`).toISOString();
+                            }
+                        } else if (!isNaN(Date.parse(rawDataAv))) {
+                            criadoEm = new Date(rawDataAv).toISOString();
+                        }
+                    }
+
+                    dadosCSVParaImportar.push({
+                        herbalife_id: consultorAtual.herbalife_id,
+                        nome_cliente: nome.trim(),
+                        whatsapp_cliente: (indexMap.whats >= 0 ? colunas[indexMap.whats] : '').trim(),
+                        peso: pesoLimpo ? parseFloat(pesoLimpo) : null,
+                        altura: alturaLimpa ? parseFloat(alturaLimpa) : null,
+                        data_nascimento: dataNasc || null,
+                        genero: (indexMap.genero >= 0 ? colunas[indexMap.genero] : 'Feminino') || 'Feminino',
+                        grupo: (indexMap.grupo >= 0 ? colunas[indexMap.grupo] : '') || null,
+                        gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? parseFloat(colunas[indexMap.gordura].replace(',', '.')) : null,
+                        musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? parseFloat(colunas[indexMap.musculo].replace(',', '.')) : null,
+                        visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? parseInt(colunas[indexMap.visceral], 10) : null,
+                        tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? parseInt(colunas[indexMap.tmb], 10) : null,
+                        idade_corporal: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? parseInt(colunas[indexMap.idadeCorp], 10) : null,
+                        agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? parseFloat(colunas[indexMap.agua].replace(',', '.')) : null,
+                        busto: (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null,
+                        cintura: (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null,
+                        abdomen: (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null,
+                        quadril: (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null,
+                        braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? parseFloat(colunas[indexMap.bracoDir].replace(',', '.')) : null,
+                        braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? parseFloat(colunas[indexMap.bracoEsq].replace(',', '.')) : null,
+                        coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? parseFloat(colunas[indexMap.coxaDir].replace(',', '.')) : null,
+                        coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? parseFloat(colunas[indexMap.coxaEsq].replace(',', '.')) : null,
+                        foco: (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10,
+                        codigo_acesso: (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO',
+                        criado_em: criadoEm
+                    });
+                }
+
+                totalLinhasSpan.innerText = dadosCSVParaImportar.length;
+                previewDiv.innerHTML = dadosCSVParaImportar.slice(0, 5).map((d, i) => 
+                    `<div>#${i+1}: <strong>${d.nome_cliente}</strong> | Whats: ${d.whatsapp_cliente || '-'} | Peso: ${d.peso || '-'}kg</div>`
+                ).join('') + (dadosCSVParaImportar.length > 5 ? `<div class="text-gray-400 mt-1">... e mais ${dadosCSVParaImportar.length - 5} cliente(s)</div>` : '');
+
+                boxPreview.classList.remove('hidden');
+            };
+            reader.readAsText(file, 'ISO-8859-1'); // Lê com suporte amplo a caracteres
+        }
+
+        async function executarImportacaoCSV() {
+            if (!dadosCSVParaImportar || dadosCSVParaImportar.length === 0) {
+                alert("Nenhum dado válido para importar.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirmar-importacao');
+            const msgBox = document.getElementById('msg-resultado-importacao');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> IMPORTANDO DADOS...';
+            btn.disabled = true;
+
+            try {
+                // Inserção em lotes de 25 registros para estabilidade máxima
+                const chunkSize = 25;
+                let inseridos = 0;
+
+                for (let i = 0; i < dadosCSVParaImportar.length; i += chunkSize) {
+                    const lote = dadosCSVParaImportar.slice(i, i + chunkSize);
+                    const { error } = await supabaseClient.from('avaliacoes').insert(lote);
+                    if (error) throw error;
+                    inseridos += lote.length;
+                }
+
+                msgBox.className = 'p-3.5 rounded-2xl text-xs font-bold bg-green-100 text-green-900 border border-green-300 block';
+                msgBox.innerHTML = `<i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i> Sucesso! ${inseridos} registros importados com sucesso para o seu painel!`;
+
+                // Recarrega os dados do painel e atualiza os contadores
+                await carregarAvaliacoes();
+
+                setTimeout(() => {
+                    fecharModuloRelatorios();
+                    const secao = document.getElementById('secao-avaliacoes');
+                    if (secao.classList.contains('hidden')) secao.classList.remove('hidden');
+                    secao.scrollIntoView({ behavior: 'smooth' });
+                }, 2000);
+
+            } catch (err) {
+                console.error("Erro ao importar CSV:", err);
+                msgBox.className = 'p-3.5 rounded-2xl text-xs font-bold bg-red-100 text-red-900 border border-red-300 block';
+                msgBox.innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-600 mr-1.5"></i> Erro ao importar: ${err.message || 'Verifique o formato do arquivo'}`;
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> CONFIRMAR E IMPORTAR DADOS';
+                btn.disabled = false;
+            }
+        }
             const peso = parseFloat(item.peso) || 0;
             const alturaCm = parseFloat(item.altura) || 0;
             const genero = (item.genero || 'Feminino').toLowerCase().startsWith('m') ? 'm' : 'f';
