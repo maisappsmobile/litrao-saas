@@ -190,7 +190,7 @@
                 <form id="form-editar-avaliacao" onsubmit="salvarEdicaoAvaliacao(event)" class="space-y-4">
                     <input type="hidden" id="edit-id">
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Nome do Cliente</label>
                             <input type="text" id="edit-nome" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
@@ -198,6 +198,10 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">WhatsApp</label>
                             <input type="text" id="edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Grupo / Turma <span class="text-[10px] text-gray-400 font-normal">(Opcional)</span></label>
+                            <input type="text" id="edit-grupo" placeholder="Ex: Desafio 15 Dias, EDW..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-brand-dark focus:ring-2 focus:ring-brand-light focus:outline-none">
                         </div>
                     </div>
 
@@ -1313,6 +1317,7 @@
             document.getElementById('editar-titulo-nome').innerText = `Editar: ${item.nome_cliente}`;
             document.getElementById('edit-nome').value = item.nome_cliente || '';
             document.getElementById('edit-whatsapp').value = item.whatsapp_cliente || '';
+            document.getElementById('edit-grupo').value = '';
             document.getElementById('edit-peso').value = item.peso || '';
             document.getElementById('edit-altura').value = item.altura || '';
             document.getElementById('edit-nascimento').value = item.data_nascimento || '';
@@ -1361,6 +1366,7 @@
                         document.getElementById('edit-pant-esq').value = bio.pant_esq || '';
                         document.getElementById('edit-pa').value = bio.pa || '';
                         document.getElementById('edit-glicemia').value = bio.glicemia || '';
+                        document.getElementById('edit-grupo').value = bio.grupo || '';
                     }
                 } catch(e) {}
             }
@@ -1448,6 +1454,7 @@
             const pesq = document.getElementById('edit-pant-esq').value;
             const paVal = document.getElementById('edit-pa').value;
             const glicVal = document.getElementById('edit-glicemia').value;
+            const grupoVal = document.getElementById('edit-grupo').value.trim();
 
             if (bdir) bioDireta.braco_dir = bdir;
             if (besq) bioDireta.braco_esq = besq;
@@ -1457,11 +1464,7 @@
             if (pesq) bioDireta.pant_esq = pesq;
             if (paVal) bioDireta.pa = paVal;
             if (glicVal) bioDireta.glicemia = glicVal;
-            if (bmusc) bioDireta.musculo = bmusc;
-            if (bvisc) bioDireta.visceral = bvisc;
-            if (btmb) bioDireta.tmb = btmb;
-            if (bidad) bioDireta.idade = bidad;
-            if (bagua) bioDireta.agua = bagua;
+            if (grupoVal) bioDireta.grupo = grupoVal;
 
             let comoFoiSemanaFinal = textoObsPuro;
             if (Object.keys(bioDireta).length > 0) {
