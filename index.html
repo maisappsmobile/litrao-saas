@@ -352,10 +352,9 @@
             
             <!-- Assinatura Dinâmica -->
             <div class="mt-12 text-center text-gray-500 flex flex-col items-center justify-center">
-                <span id="footer-name" class="font-black text-xl tracking-wider text-gray-800">FORBOSS</span>
-                <span class="italic font-medium text-lg mb-1 text-gray-600">Espaço Fitness</span>
-                <span id="footer-address" class="text-xs text-gray-400 max-w-xs text-center mt-1 hidden"></span>
-                <span id="footer-phone" class="text-sm font-bold bg-gray-100 py-1 px-3 rounded-full mt-3">📞 (66) 98141-1234</span>
+                <span id="footer-name" class="font-black text-xl tracking-wider text-gray-800"></span>
+                <span id="footer-city" class="text-sm font-medium text-gray-500 mt-0.5"></span>
+                <span id="footer-phone" class="text-sm font-bold bg-gray-100 py-1.5 px-4 rounded-full mt-2 text-gray-700"></span>
             </div>
             
         </div>
@@ -434,56 +433,83 @@
 
                 let consultor = data;
 
+                function formatarTelefoneBrasil(num) {
+                    if (!num) return '';
+                    const digits = String(num).replace(/\D/g, '');
+                    const d = (digits.startsWith('55') && digits.length > 10) ? digits.slice(2) : digits;
+                    if (d.length === 11) return `📞 (${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+                    if (d.length === 10) return `📞 (${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+                    return `📞 ${digits}`;
+                }
+
                 if (error || !consultor) {
                     console.warn("Aviso: Link não encontrado ou erro no BD. Usando perfil padrão.", error);
                     consultor = {
                         herbalife_id: "433005811",
                         letras: "BRA",
                         whatsapp: "5566981411234",
-                        nome_espaco: "FORBOSS Espaço Fitness",
-                        telefone_formatado: "(66) 98141-1234",
-                        endereco: ""
+                        nome_espaco: "FORBOSS Espaço Vida Saudável",
+                        endereco: "Primavera do Leste/MT - Brasil"
                     };
-                } else {
-                    consultor.telefone_formatado = consultor.whatsapp; 
                 }
 
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
-                // Extrair Cidade
+                // Extrair Cidade para CTA e Rodapé
                 let cidadeApresentacao = "SUA REGIÃO";
-                if(consultor.endereco) {
+                let cidadeRodape = "";
+
+                if (consultor.endereco) {
                     const partes = consultor.endereco.split('/');
-                    if(partes.length > 0) {
+                    if (partes.length > 0) {
                         let antesDaBarra = partes[0].trim();
-                        if(antesDaBarra.includes('-')) {
+                        if (antesDaBarra.includes('-')) {
                             cidadeApresentacao = antesDaBarra.split('-').pop().trim();
                         } else {
                             cidadeApresentacao = antesDaBarra;
                         }
                     }
+
+                    // Para o rodapé: ex "Primavera do Leste/MT - Brasil" -> "Primavera do Leste - MT"
+                    const semPais = consultor.endereco.split('- Brasil')[0].trim();
+                    cidadeRodape = semPais.replace('/', ' - ');
+                } else if (consultor.cidade) {
+                    cidadeRodape = consultor.estado ? `${consultor.cidade} - ${consultor.estado}` : consultor.cidade;
+                    cidadeApresentacao = consultor.cidade;
                 }
+
                 const spanCidade = document.getElementById('cta-cidade');
-                if(spanCidade) spanCidade.innerText = cidadeApresentacao.toUpperCase();
+                if (spanCidade) spanCidade.innerText = cidadeApresentacao.toUpperCase();
 
                 const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
                 const txtPassos = encodeURIComponent("Olá! Acabei de fazer meu cadastro na Herbalife com o seu ID e quero saber os próximos passos para começar.");
 
                 const btnBeneficios = document.getElementById('whatsapp-link-beneficios');
-                if(btnBeneficios) btnBeneficios.href = `https://wa.me/${consultor.whatsapp}?text=${txtBeneficios}`;
+                if (btnBeneficios) btnBeneficios.href = `https://wa.me/${consultor.whatsapp}?text=${txtBeneficios}`;
                 
                 const btnPassos = document.getElementById('whatsapp-link-passos');
-                if(btnPassos) btnPassos.href = `https://wa.me/${consultor.whatsapp}?text=${txtPassos}`;
+                if (btnPassos) btnPassos.href = `https://wa.me/${consultor.whatsapp}?text=${txtPassos}`;
 
-                document.getElementById('footer-name').innerText = consultor.nome_espaco;
-                document.getElementById('footer-phone').innerText = `📞 ${consultor.telefone_formatado || consultor.whatsapp}`;
-                
-                // Exibe endereço se existir
-                const addr = document.getElementById('footer-address');
-                if(consultor.endereco && consultor.endereco.trim() !== '') {
-                    addr.innerText = consultor.endereco;
-                    addr.classList.remove('hidden');
+                // Assinatura Dinâmica no Rodapé (sem repetição de texto fixo)
+                const footerName = document.getElementById('footer-name');
+                if (footerName) {
+                    footerName.innerText = consultor.nome_espaco || consultor.nome_consultor || 'Espaço de Vida Saudável';
+                }
+
+                const footerCity = document.getElementById('footer-city');
+                if (footerCity) {
+                    if (cidadeRodape) {
+                        footerCity.innerText = cidadeRodape;
+                        footerCity.style.display = 'block';
+                    } else {
+                        footerCity.style.display = 'none';
+                    }
+                }
+
+                const footerPhone = document.getElementById('footer-phone');
+                if (footerPhone) {
+                    footerPhone.innerText = formatarTelefoneBrasil(consultor.whatsapp);
                 }
             } catch (err) {
                 console.error("Erro fatal na conexão com Supabase:", err);
