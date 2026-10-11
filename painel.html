@@ -44,9 +44,11 @@
                 <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
                 <div class="relative">
                     <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-senha" required placeholder="Ex: FIT" class="w-full uppercase pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    <input type="text" id="login-senha" required placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
                 </div>
-                <p class="text-[11px] text-gray-400 mt-1">Sua senha padrão são as 3 letras do seu cadastro Herbalife.</p>
+                <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
+                    <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (em MAIÚSCULAS).
+                </p>
             </div>
             <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition">
                 ENTRAR
@@ -181,12 +183,12 @@
                 const consultor = data[0];
                 const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
                 
-                // Aceita as 3 letras dele OU a palavra FIT como chave mestra
-                if (senha === letrasCadastradas || senha === 'FIT' || senha === 'BRA') {
+                // Valida com as 3 letras oficiais cadastradas no banco
+                if (senha === letrasCadastradas) {
                     consultorAtual = consultor;
                     mostrarDashboard();
                 } else {
-                    erro.innerText = 'Senha incorreta! Digite as 3 letras do seu cadastro.';
+                    erro.innerText = 'Senha incorreta! Digite as 3 letras do seu cadastro em MAIÚSCULAS.';
                     erro.classList.remove('hidden');
                 }
             } else {
