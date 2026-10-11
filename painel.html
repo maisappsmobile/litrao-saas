@@ -123,6 +123,39 @@
             </div>
         </div>
 
+        <!-- SEÇÃO DE AVALIAÇÕES RECEBIDAS (INICIALMENTE OCULTA) -->
+        <div id="secao-avaliacoes" class="mt-8 bg-white rounded-3xl shadow-md p-6 hidden border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black text-brand-dark flex items-center">
+                    <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Respostas dos Clientes
+                </h2>
+                <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-lg">
+                    <i class="fa-solid fa-rotate mr-1"></i> Atualizar
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-600">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b">
+                        <tr>
+                            <th class="p-3">Data</th>
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">WhatsApp</th>
+                            <th class="p-3">Peso</th>
+                            <th class="p-3">Medidas (B/C/A/Q)</th>
+                            <th class="p-3">Foco</th>
+                            <th class="p-3">Código</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-avaliacoes-corpo" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-gray-400">Carregando avaliações...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- SEÇÃO: MATERIAIS DE APOIO & COMO DIVULGAR -->
         <div class="mt-8 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
             <div class="relative z-10">
@@ -177,39 +210,6 @@
                     ✕
                 </button>
                 <div id="modal-treinamento-conteudo"></div>
-            </div>
-        </div>
-
-        <!-- SEÇÃO DE AVALIAÇÕES RECEBIDAS (INICIALMENTE OCULTA) -->
-        <div id="secao-avaliacoes" class="mt-8 bg-white rounded-3xl shadow-md p-6 hidden border border-gray-100">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black text-brand-dark flex items-center">
-                    <i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Respostas dos Clientes
-                </h2>
-                <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-lg">
-                    <i class="fa-solid fa-rotate mr-1"></i> Atualizar
-                </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-gray-600">
-                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b">
-                        <tr>
-                            <th class="p-3">Data</th>
-                            <th class="p-3">Cliente</th>
-                            <th class="p-3">WhatsApp</th>
-                            <th class="p-3">Peso</th>
-                            <th class="p-3">Medidas (B/C/A/Q)</th>
-                            <th class="p-3">Foco</th>
-                            <th class="p-3">Código</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-avaliacoes-corpo" class="divide-y divide-gray-100">
-                        <tr>
-                            <td colspan="7" class="p-4 text-center text-gray-400">Carregando avaliações...</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -353,6 +353,7 @@
             if (secao.classList.contains('hidden')) {
                 secao.classList.remove('hidden');
                 carregarAvaliacoes();
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
                 secao.classList.add('hidden');
             }

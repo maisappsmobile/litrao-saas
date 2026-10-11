@@ -188,6 +188,7 @@
             const erro = document.getElementById('msg-erro');
             erro.classList.add('hidden');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VALIDANDO CÓDIGO...';
+            btn.disabled = true;
 
             const codigo = document.getElementById('campo-codigo').value.trim().toUpperCase();
 
@@ -199,6 +200,7 @@
                 .single();
 
             if (cupomError || !cupomData) {
+                btn.disabled = false;
                 btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
                 erro.innerText = 'Código inválido! Verifique o tíquete que você recebeu na sua sacola.';
                 erro.classList.remove('hidden');
@@ -214,6 +216,7 @@
             const totalUsos = avaliacoesAnteriores ? avaliacoesAnteriores.length : 0;
 
             if (totalUsos >= 2) {
+                btn.disabled = false;
                 btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
                 erro.innerText = 'Este código já atingiu o limite de 2 usos (Início e Final do Reset)!';
                 erro.classList.remove('hidden');
@@ -248,6 +251,7 @@
             const { error: insertError } = await supabaseClient.from('avaliacoes').insert([payload]);
 
             if (insertError) {
+                btn.disabled = false;
                 btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
                 erro.innerText = 'Erro ao salvar avaliação. Tente novamente.';
                 erro.classList.remove('hidden');
