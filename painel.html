@@ -1517,122 +1517,143 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                let texto = e.target.result;
-                if (!texto) return;
-
-                // Remove BOM se presente
-                if (texto.charCodeAt(0) === 0xFEFF) {
-                    texto = texto.slice(1);
-                }
-
-                const linhasBrutas = texto.split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
-                if (linhasBrutas.length < 2) {
-                    alert("O arquivo precisa conter um cabeçalho e pelo menos 1 linha de dados.");
-                    return;
-                }
-
-                // Detecta delimitador (, ou ;)
-                const primeiraLinha = linhasBrutas[0];
-                const delimitador = (primeiraLinha.split(';').length >= primeiraLinha.split(',').length) ? ';' : ',';
-
-                const cabecalhos = parseLinhaCSV(linhasBrutas[0], delimitador).map(c => c.toUpperCase().replace(/\s+/g, '_'));
-                
-                // Mapeamento de colunas flexível
-                const indexMap = {
-                    nome: cabecalhos.findIndex(c => c.includes('NOME') || c.includes('CLIENTE')),
-                    whats: cabecalhos.findIndex(c => c.includes('WHATS') || c.includes('TEL') || c.includes('FONE')),
-                    dataAv: cabecalhos.findIndex(c => c.includes('DATA_AV') || c.includes('CRIADO') || c.includes('DATA')),
-                    peso: cabecalhos.findIndex(c => c.includes('PESO')),
-                    altura: cabecalhos.findIndex(c => c.includes('ALTURA')),
-                    dataNasc: cabecalhos.findIndex(c => c.includes('NASC') || c.includes('NIVER')),
-                    genero: cabecalhos.findIndex(c => c.includes('GENERO') || c.includes('SEXO')),
-                    grupo: cabecalhos.findIndex(c => c.includes('GRUPO') || c.includes('TURMA')),
-                    gordura: cabecalhos.findIndex(c => c.includes('GORDURA_CORP') || c.includes('GORDURA')),
-                    musculo: cabecalhos.findIndex(c => c.includes('MUSCULO')),
-                    visceral: cabecalhos.findIndex(c => c.includes('VISCERAL')),
-                    tmb: cabecalhos.findIndex(c => c.includes('TMB') || c.includes('METABOL') || c.includes('BASAL')),
-                    idadeCorp: cabecalhos.findIndex(c => c.includes('IDADE_CORP') || c.includes('IDADE_METAB')),
-                    agua: cabecalhos.findIndex(c => c.includes('AGUA')),
-                    busto: cabecalhos.findIndex(c => c.includes('BUSTO') || c.includes('TORAX')),
-                    cintura: cabecalhos.findIndex(c => c.includes('CINTURA')),
-                    abdomen: cabecalhos.findIndex(c => c.includes('ABDOMEN') || c.includes('BARRIGA')),
-                    quadril: cabecalhos.findIndex(c => c.includes('QUADRIL')),
-                    bracoDir: cabecalhos.findIndex(c => c.includes('BRACO_DIR')),
-                    bracoEsq: cabecalhos.findIndex(c => c.includes('BRACO_ESQ')),
-                    coxaDir: cabecalhos.findIndex(c => c.includes('COXA_DIR')),
-                    coxaEsq: cabecalhos.findIndex(c => c.includes('COXA_ESQ')),
-                    foco: cabecalhos.findIndex(c => c.includes('FOCO') || c.includes('MOTIVACAO')),
-                    codigo: cabecalhos.findIndex(c => c.includes('CODIGO'))
-                };
-
-                dadosCSVParaImportar = [];
-                for (let i = 1; i < linhasBrutas.length; i++) {
-                    const colunas = parseLinhaCSV(linhasBrutas[i], delimitador);
-                    const nome = (indexMap.nome >= 0 ? colunas[indexMap.nome] : '') || '';
-                    if (!nome || nome.trim() === '') continue; // Ignora linhas sem nome
-
-                    // Limpa peso e converte vírgula para ponto se necessário
-                    const pesoLimpo = (indexMap.peso >= 0 ? colunas[indexMap.peso] : '').replace(',', '.');
-                    const alturaLimpa = (indexMap.altura >= 0 ? colunas[indexMap.altura] : '').replace(',', '.');
-                    let dataNasc = (indexMap.dataNasc >= 0 ? colunas[indexMap.dataNasc] : '').trim();
-                    // Converte DD/MM/AAAA para AAAA-MM-DD se vier em formato brasileiro
-                    if (dataNasc.includes('/')) {
-                        const partesData = dataNasc.split('/');
-                        if (partesData.length === 3) {
-                            dataNasc = `${partesData[2]}-${partesData[1].padStart(2, '0')}-${partesData[0].padStart(2, '0')}`;
-                        }
+                try {
+                    let texto = e.target.result;
+                    if (!texto) {
+                        alert("O arquivo selecionado está vazio.");
+                        return;
                     }
 
-                    let criadoEm = new Date().toISOString();
-                    const rawDataAv = (indexMap.dataAv >= 0 ? colunas[indexMap.dataAv] : '').trim();
-                    if (rawDataAv) {
-                        if (rawDataAv.includes('/')) {
-                            const pData = rawDataAv.split(' ')[0].split('/');
-                            if (pData.length === 3) {
-                                criadoEm = new Date(`${pData[2]}-${pData[1]}-${pData[0]}T12:00:00Z`).toISOString();
+                    // Remove BOM se presente
+                    if (texto.charCodeAt(0) === 0xFEFF) {
+                        texto = texto.slice(1);
+                    }
+
+                    const linhasBrutas = texto.split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
+                    if (linhasBrutas.length < 2) {
+                        alert("O arquivo selecionado precisa conter uma linha de cabeçalho e pelo menos 1 registro.");
+                        return;
+                    }
+
+                    // Detecta delimitador (, ou ;)
+                    const primeiraLinha = linhasBrutas[0];
+                    const countPontoEVirgula = (primeiraLinha.match(/;/g) || []).length;
+                    const countVirgula = (primeiraLinha.match(/,/g) || []).length;
+                    const delimitador = (countPontoEVirgula >= countVirgula) ? ';' : ',';
+
+                    const cabecalhos = parseLinhaCSV(linhasBrutas[0], delimitador).map(c => 
+                        c.toUpperCase().trim().replace(/["']/g, '').replace(/\s+/g, '_')
+                    );
+                    
+                    // Mapeamento flexível de índices
+                    const indexMap = {
+                        nome: cabecalhos.findIndex(c => c.includes('NOME') || c.includes('CLIENTE')),
+                        whats: cabecalhos.findIndex(c => c.includes('WHATS') || c.includes('TEL') || c.includes('FONE') || c.includes('CEL')),
+                        dataAv: cabecalhos.findIndex(c => c.includes('DATA_AV') || c.includes('DATA_CRIACAO') || c.includes('CRIADO') || c.includes('DATA_ULTIMA') || c === 'DATA'),
+                        peso: cabecalhos.findIndex(c => c.includes('PESO_ATUAL') || c.includes('PESO_KG') || c === 'PESO'),
+                        altura: cabecalhos.findIndex(c => c.includes('ALTURA')),
+                        dataNasc: cabecalhos.findIndex(c => c.includes('NASC') || c.includes('NIVER')),
+                        genero: cabecalhos.findIndex(c => c.includes('GENERO') || c.includes('SEXO')),
+                        grupo: cabecalhos.findIndex(c => c.includes('GRUPO') || c.includes('TURMA')),
+                        gordura: cabecalhos.findIndex(c => c.includes('GORDURA_CORP') || c === 'GORDURA'),
+                        musculo: cabecalhos.findIndex(c => c.includes('MUSCULO')),
+                        visceral: cabecalhos.findIndex(c => c.includes('VISCERAL')),
+                        tmb: cabecalhos.findIndex(c => c.includes('TMB') || c.includes('METABOL') || c.includes('BASAL')),
+                        idadeCorp: cabecalhos.findIndex(c => c.includes('IDADE_CORP') || c.includes('IDADE_METAB')),
+                        agua: cabecalhos.findIndex(c => c.includes('AGUA')),
+                        busto: cabecalhos.findIndex(c => c.includes('BUSTO') || c.includes('TORAX')),
+                        cintura: cabecalhos.findIndex(c => c.includes('CINTURA')),
+                        abdomen: cabecalhos.findIndex(c => c.includes('ABDOMEN') || c.includes('BARRIGA')),
+                        quadril: cabecalhos.findIndex(c => c.includes('QUADRIL')),
+                        bracoDir: cabecalhos.findIndex(c => c.includes('BRACO_DIR')),
+                        bracoEsq: cabecalhos.findIndex(c => c.includes('BRACO_ESQ')),
+                        coxaDir: cabecalhos.findIndex(c => c.includes('COXA_DIR')),
+                        coxaEsq: cabecalhos.findIndex(c => c.includes('COXA_ESQ')),
+                        foco: cabecalhos.findIndex(c => c.includes('FOCO') || c.includes('MOTIVACAO')),
+                        codigo: cabecalhos.findIndex(c => c.includes('CODIGO'))
+                    };
+
+                    dadosCSVParaImportar = [];
+                    for (let i = 1; i < linhasBrutas.length; i++) {
+                        const colunas = parseLinhaCSV(linhasBrutas[i], delimitador);
+                        let nome = (indexMap.nome >= 0 ? colunas[indexMap.nome] : '') || '';
+                        nome = nome.replace(/^["']|["']$/g, '').trim();
+                        if (!nome) continue; // Pula linha vazia
+
+                        const whats = (indexMap.whats >= 0 ? colunas[indexMap.whats] : '').replace(/^["']|["']$/g, '').trim();
+                        const rawPeso = (indexMap.peso >= 0 ? colunas[indexMap.peso] : '').replace(/^["']|["']$/g, '').replace(',', '.').trim();
+                        const rawAltura = (indexMap.altura >= 0 ? colunas[indexMap.altura] : '').replace(/^["']|["']$/g, '').replace(',', '.').trim();
+                        
+                        let dataNasc = (indexMap.dataNasc >= 0 ? colunas[indexMap.dataNasc] : '').replace(/^["']|["']$/g, '').trim();
+                        if (dataNasc.includes('/')) {
+                            const partesData = dataNasc.split('/');
+                            if (partesData.length === 3) {
+                                dataNasc = `${partesData[2]}-${partesData[1].padStart(2, '0')}-${partesData[0].padStart(2, '0')}`;
                             }
-                        } else if (!isNaN(Date.parse(rawDataAv))) {
-                            criadoEm = new Date(rawDataAv).toISOString();
                         }
+
+                        let criadoEm = new Date().toISOString();
+                        const rawDataAv = (indexMap.dataAv >= 0 ? colunas[indexMap.dataAv] : '').replace(/^["']|["']$/g, '').trim();
+                        if (rawDataAv) {
+                            if (rawDataAv.includes('/')) {
+                                const partesHora = rawDataAv.split(' ');
+                                const pData = partesHora[0].split('/');
+                                if (pData.length === 3) {
+                                    const horaStr = partesHora[1] ? `T${partesHora[1]}:00Z` : 'T12:00:00Z';
+                                    criadoEm = new Date(`${pData[2]}-${pData[1].padStart(2, '0')}-${pData[0].padStart(2, '0')}${horaStr}`).toISOString();
+                                }
+                            } else if (!isNaN(Date.parse(rawDataAv))) {
+                                criadoEm = new Date(rawDataAv).toISOString();
+                            }
+                        }
+
+                        dadosCSVParaImportar.push({
+                            herbalife_id: consultorAtual.herbalife_id,
+                            nome_cliente: nome,
+                            whatsapp_cliente: whats || null,
+                            peso: rawPeso ? parseFloat(rawPeso) : null,
+                            altura: rawAltura ? parseFloat(rawAltura) : null,
+                            data_nascimento: dataNasc || null,
+                            genero: (indexMap.genero >= 0 ? colunas[indexMap.genero] : 'Feminino') || 'Feminino',
+                            grupo: (indexMap.grupo >= 0 ? colunas[indexMap.grupo] : '') || null,
+                            gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? parseFloat(colunas[indexMap.gordura].replace(',', '.')) : null,
+                            musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? parseFloat(colunas[indexMap.musculo].replace(',', '.')) : null,
+                            visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? parseInt(colunas[indexMap.visceral], 10) : null,
+                            tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? parseInt(colunas[indexMap.tmb], 10) : null,
+                            idade_corporal: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? parseInt(colunas[indexMap.idadeCorp], 10) : null,
+                            agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? parseFloat(colunas[indexMap.agua].replace(',', '.')) : null,
+                            busto: (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null,
+                            cintura: (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null,
+                            abdomen: (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null,
+                            quadril: (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null,
+                            braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? parseFloat(colunas[indexMap.bracoDir].replace(',', '.')) : null,
+                            braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? parseFloat(colunas[indexMap.bracoEsq].replace(',', '.')) : null,
+                            coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? parseFloat(colunas[indexMap.coxaDir].replace(',', '.')) : null,
+                            coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? parseFloat(colunas[indexMap.coxaEsq].replace(',', '.')) : null,
+                            foco: (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10,
+                            codigo_acesso: (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO',
+                            criado_em: criadoEm
+                        });
                     }
 
-                    dadosCSVParaImportar.push({
-                        herbalife_id: consultorAtual.herbalife_id,
-                        nome_cliente: nome.trim(),
-                        whatsapp_cliente: (indexMap.whats >= 0 ? colunas[indexMap.whats] : '').trim(),
-                        peso: pesoLimpo ? parseFloat(pesoLimpo) : null,
-                        altura: alturaLimpa ? parseFloat(alturaLimpa) : null,
-                        data_nascimento: dataNasc || null,
-                        genero: (indexMap.genero >= 0 ? colunas[indexMap.genero] : 'Feminino') || 'Feminino',
-                        grupo: (indexMap.grupo >= 0 ? colunas[indexMap.grupo] : '') || null,
-                        gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? parseFloat(colunas[indexMap.gordura].replace(',', '.')) : null,
-                        musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? parseFloat(colunas[indexMap.musculo].replace(',', '.')) : null,
-                        visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? parseInt(colunas[indexMap.visceral], 10) : null,
-                        tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? parseInt(colunas[indexMap.tmb], 10) : null,
-                        idade_corporal: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? parseInt(colunas[indexMap.idadeCorp], 10) : null,
-                        agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? parseFloat(colunas[indexMap.agua].replace(',', '.')) : null,
-                        busto: (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null,
-                        cintura: (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null,
-                        abdomen: (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null,
-                        quadril: (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null,
-                        braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? parseFloat(colunas[indexMap.bracoDir].replace(',', '.')) : null,
-                        braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? parseFloat(colunas[indexMap.bracoEsq].replace(',', '.')) : null,
-                        coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? parseFloat(colunas[indexMap.coxaDir].replace(',', '.')) : null,
-                        coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? parseFloat(colunas[indexMap.coxaEsq].replace(',', '.')) : null,
-                        foco: (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10,
-                        codigo_acesso: (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO',
-                        criado_em: criadoEm
-                    });
+                    if (dadosCSVParaImportar.length === 0) {
+                        alert("Nenhum cliente válido com nome preenchido foi encontrado no arquivo.");
+                        return;
+                    }
+
+                    totalLinhasSpan.innerText = dadosCSVParaImportar.length;
+                    previewDiv.innerHTML = dadosCSVParaImportar.slice(0, 5).map((d, i) => 
+                        `<div class="py-0.5 border-b border-gray-100 last:border-none">#${i+1}: <strong>${d.nome_cliente}</strong> | Whats: ${d.whatsapp_cliente || '-'} | Peso: ${d.peso || '-'}kg</div>`
+                    ).join('') + (dadosCSVParaImportar.length > 5 ? `<div class="text-gray-400 mt-1 font-sans">... e mais ${dadosCSVParaImportar.length - 5} registro(s)</div>` : '');
+
+                    boxPreview.classList.remove('hidden');
+                    boxPreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (err) {
+                    console.error("Erro ao ler CSV:", err);
+                    alert("Erro ao processar arquivo: " + err.message);
                 }
-
-                totalLinhasSpan.innerText = dadosCSVParaImportar.length;
-                previewDiv.innerHTML = dadosCSVParaImportar.slice(0, 5).map((d, i) => 
-                    `<div>#${i+1}: <strong>${d.nome_cliente}</strong> | Whats: ${d.whatsapp_cliente || '-'} | Peso: ${d.peso || '-'}kg</div>`
-                ).join('') + (dadosCSVParaImportar.length > 5 ? `<div class="text-gray-400 mt-1">... e mais ${dadosCSVParaImportar.length - 5} cliente(s)</div>` : '');
-
-                boxPreview.classList.remove('hidden');
             };
-            reader.readAsText(file, 'ISO-8859-1'); // Lê com suporte amplo a caracteres
+            reader.readAsText(file, 'utf-8');
         }
 
         async function executarImportacaoCSV() {
