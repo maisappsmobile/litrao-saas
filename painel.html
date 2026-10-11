@@ -21,7 +21,12 @@
     <!-- CABEÇALHO -->
     <header class="bg-white p-4 shadow-sm flex justify-between items-center border-b-4 border-brand-light">
         <img src="reset-logo.png" alt="Reset Metabólico" class="h-10">
-        <div class="text-xs font-bold text-gray-500 uppercase">Área do Consultor</div>
+        <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-gray-500 uppercase hidden sm:inline">Área do Consultor</span>
+            <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 px-3 py-1.5 rounded-lg transition border border-gray-200 hidden">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
+            </button>
+        </div>
     </header>
 
     <!-- TELA DE LOGIN -->
@@ -104,7 +109,7 @@
             </div>
 
             <div class="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-400">
-                <h3 class="font-bold text-lg mb-2 text-brand-dark"><i class="fa-solid fa-weight-scale mr-2 text-blue-500"></i> Bioimpedância On-line</h3>
+                <h3 class="font-bold text-base md:text-lg mb-2 text-brand-dark flex items-center whitespace-nowrap"><i class="fa-solid fa-weight-scale mr-2 text-blue-500"></i> Bioimpedância On-line</h3>
                 <p class="text-sm text-gray-600 mb-4">Gere tíquetes com códigos únicos para colocar na sacola dos clientes e veja as avaliações recebidas.</p>
                 
                 <div class="space-y-2">
@@ -115,6 +120,63 @@
                         <i class="fa-solid fa-list-check mr-2"></i> VER AVALIAÇÕES RECEBIDAS
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: MATERIAIS DE APOIO & COMO DIVULGAR -->
+        <div class="mt-8 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-block bg-brand-yellow text-brand-dark font-black text-xs px-3 py-1 rounded-full uppercase mb-3">
+                    Treinamento Oficial
+                </div>
+                <h2 class="text-2xl font-black mb-2 flex items-center">
+                    <i class="fa-solid fa-graduation-cap text-brand-yellow mr-2"></i> Materiais de Apoio & Como Divulgar
+                </h2>
+                <p class="text-gray-200 text-sm max-w-2xl mb-6">
+                    Aprenda a atrair clientes todos os dias usando seu link oficial, roteiros validados de WhatsApp e a estratégia da sacola com os tíquetes.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Card Treinamento 1 -->
+                    <div onclick="abrirTreinamento('whats')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-5 rounded-2xl cursor-pointer transition transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-2xl mb-3 text-white shadow">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h4 class="font-bold text-base mb-1">Roteiros de WhatsApp</h4>
+                        <p class="text-xs text-gray-300">Mensagens prontas para enviar para amigos, familiares e clientes inativos.</p>
+                        <span class="inline-block mt-3 text-xs font-bold text-brand-yellow hover:underline">Ver roteiros →</span>
+                    </div>
+
+                    <!-- Card Treinamento 2 -->
+                    <div onclick="abrirTreinamento('insta')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-5 rounded-2xl cursor-pointer transition transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-pink-600 rounded-xl flex items-center justify-center text-2xl mb-3 text-white shadow">
+                            <i class="fa-brands fa-instagram"></i>
+                        </div>
+                        <h4 class="font-bold text-base mb-1">Estratégia de Instagram</h4>
+                        <p class="text-xs text-gray-300">Como colocar seu link na Bio e postar Stories diários que despertam curiosidade.</p>
+                        <span class="inline-block mt-3 text-xs font-bold text-brand-yellow hover:underline">Ver passo a passo →</span>
+                    </div>
+
+                    <!-- Card Treinamento 3 -->
+                    <div onclick="abrirTreinamento('sacola')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-5 rounded-2xl cursor-pointer transition transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center text-2xl mb-3 text-brand-dark shadow">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <h4 class="font-bold text-base mb-1">A Tática da Sacola</h4>
+                        <p class="text-xs text-gray-300">Como usar os adesivos da garrafa e os tíquetes de bioimpedância para gerar recompras.</p>
+                        <span class="inline-block mt-3 text-xs font-bold text-brand-yellow hover:underline">Ver método →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE TREINAMENTO -->
+        <div id="modal-treinamento" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white max-w-xl w-full rounded-3xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                <button onclick="fecharTreinamento()" class="absolute right-5 top-5 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition">
+                    ✕
+                </button>
+                <div id="modal-treinamento-conteudo"></div>
             </div>
         </div>
 
@@ -200,6 +262,7 @@
         function mostrarDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
 
             document.getElementById('dash-nome').innerText = consultorAtual.nome_espaco || consultorAtual.herbalife_id;
             document.getElementById('dash-id').innerText = consultorAtual.herbalife_id + " " + consultorAtual.letras;
@@ -479,6 +542,110 @@
             setTimeout(() => {
                 btn.innerHTML = '<i class="fa-solid fa-ticket mr-2"></i> GERAR TÍQUETES P/ SACOLA (A4)';
             }, 3000);
+        }
+
+        function logout() {
+            consultorAtual = null;
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.add('hidden');
+            document.getElementById('login-senha').value = '';
+        }
+
+        function abrirTreinamento(tipo) {
+            const modal = document.getElementById('modal-treinamento');
+            const cont = document.getElementById('modal-treinamento-conteudo');
+            
+            if (tipo === 'whats') {
+                cont.innerHTML = `
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>
+                        <h3 class="text-xl font-black text-brand-dark">Roteiros Prontos de WhatsApp</h3>
+                        <p class="text-xs text-gray-500">Copie os textos abaixo e envie para sua lista de contatos</p>
+                    </div>
+
+                    <div class="space-y-4 text-sm">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-xs uppercase text-brand-dark">Roteiro 1: Amigos & Familiares</span>
+                                <button onclick="copiarRoteiro('rot1')" class="text-xs font-bold bg-brand-light text-white px-2.5 py-1 rounded-lg hover:bg-green-600 transition">Copiar</button>
+                            </div>
+                            <p id="rot1" class="text-gray-700 text-xs leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
+"Oii [Nome], tudo bem? Olha só, comecei um projeto novo de bebidas funcionais chamado Litrão do Reset, focado em dar mais energia, foco e desinchar o corpo nessa semana! Lembrei de você na hora. Dá uma olhadinha no meu link oficial: ${window.location.origin}/${consultorAtual.slug}"
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-xs uppercase text-brand-dark">Roteiro 2: A Pergunta de Ouro</span>
+                                <button onclick="copiarRoteiro('rot2')" class="text-xs font-bold bg-brand-light text-white px-2.5 py-1 rounded-lg hover:bg-green-600 transition">Copiar</button>
+                            </div>
+                            <p id="rot2" class="text-gray-700 text-xs leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
+"Quem você conhece aí perto de você que gostaria de eliminar o inchaço, ter mais disposição e fazer um Reset no corpo essa semana? Conhece esse projeto aqui: ${window.location.origin}/${consultorAtual.slug}"
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else if (tipo === 'insta') {
+                cont.innerHTML = `
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl"><i class="fa-brands fa-instagram"></i></div>
+                        <h3 class="text-xl font-black text-brand-dark">Estratégia de Instagram</h3>
+                        <p class="text-xs text-gray-500">Transforme seguidores em clientes do Litrão</p>
+                    </div>
+
+                    <div class="space-y-4 text-xs text-gray-700 leading-relaxed">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <h4 class="font-bold text-sm text-brand-dark mb-1">1. Link na Bio do Instagram</h4>
+                            <p class="mb-2">Edite seu perfil no Instagram e coloque o seu link oficial no campo 'Link':</p>
+                            <div class="bg-white p-2 rounded-lg border font-mono font-bold text-blue-600 text-[11px] truncate">${window.location.origin}/${consultorAtual.slug}</div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <h4 class="font-bold text-sm text-brand-dark mb-1">2. Sequência de Stories (O que postar)</h4>
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li><strong>Story 1:</strong> Foto segurando a garrafinha com o adesivo colado. Frase: <em>'Pronta para o meu Litrão do dia! Quem aí precisa de energia?'</em></li>
+                                <li><strong>Story 2:</strong> Enquete: <em>'Você tem sentido cansaço no meio da tarde? (Sim / Muito)'</em></li>
+                                <li><strong>Story 3:</strong> Figurinha de Link apontando pro seu link com a chamada: <em>'Peça seu Litrão do Reset aqui!'</em></li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else if (tipo === 'sacola') {
+                cont.innerHTML = `
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 bg-yellow-100 text-yellow-800 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl"><i class="fa-solid fa-gift"></i></div>
+                        <h3 class="text-xl font-black text-brand-dark">A Tática da Sacola</h3>
+                        <p class="text-xs text-gray-500">Como fidelizar o cliente usando os tíquetes de bioimpedância</p>
+                    </div>
+
+                    <div class="space-y-4 text-xs text-gray-700 leading-relaxed">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                            <h4 class="font-bold text-sm text-brand-dark mb-1">Passo a Passo:</h4>
+                            <ol class="list-decimal pl-4 space-y-2">
+                                <li>Clique no botão <strong>'GERAR TÍQUETES P/ SACOLA'</strong> no painel e imprima a folha A4.</li>
+                                <li>Recorte os 21 tíquetes nas linhas pontilhadas.</li>
+                                <li>Cada vez que um cliente comprar seu Litrão, coloque <strong>1 tíquete dentro da sacola</strong>.</li>
+                                <li>Diga para ele: <em>'Você ganhou de bônus VIP um acompanhamento de Bioimpedância! Escaneie o QR Code do seu tíquete antes de começar a tomar!'</em></li>
+                                <li>No 7º dia, mande mensagem para ele usar o MESMO código para fechar o ciclo e comparar o antes e depois!</li>
+                            </ol>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function fecharTreinamento() {
+            document.getElementById('modal-treinamento').classList.add('hidden');
+        }
+
+        function copiarRoteiro(id) {
+            const texto = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Roteiro copiado para a área de transferência!");
+            });
         }
     </script>
 </body>
