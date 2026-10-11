@@ -405,16 +405,32 @@
             }
 
             if (!path || path === "index.html" || path === "") {
-                path = "433005811bra";
+                path = "433005811f";
             }
 
             try {
                 // Busca no banco de dados REAL do Supabase
-                const { data, error } = await supabaseClient
+                let { data, error } = await supabaseClient
                     .from('consultores')
                     .select('*')
                     .eq('slug', path)
                     .single();
+
+                // Se não achar pelo slug exato, tenta achar apenas pelo número do ID
+                if (error || !data) {
+                    const apenasNumeros = path.replace(/\D/g, '');
+                    if (apenasNumeros.length >= 6) {
+                        const res = await supabaseClient
+                            .from('consultores')
+                            .select('*')
+                            .eq('herbalife_id', apenasNumeros)
+                            .single();
+                        if (res.data) {
+                            data = res.data;
+                            error = null;
+                        }
+                    }
+                }
 
                 let consultor = data;
 
