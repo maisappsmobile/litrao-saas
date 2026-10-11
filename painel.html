@@ -592,7 +592,7 @@
 
     <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS -->
     <div style="display:none;">
-        <img id="img-base" src="adesivo-base.png?v=3" crossorigin="anonymous">
+        <img id="img-base" src="adesivo-base.png?v=4" crossorigin="anonymous">
         <canvas id="canvas-a4"></canvas>
         <div id="qrcode-temp"></div>
     </div>
@@ -697,27 +697,36 @@
                     return;
                 }
 
-                const colunas = 5;
-                const linhas = 2;
-                const largAdesivo = canvas.width / colunas;
-                const altAdesivo = canvas.height / linhas;
+                // MAPEAMENTO GEOMÉTRICO EXATO DOS 10 ADESIVOS
+                // Coordenadas calibradas diretamente a partir do gabarito em alta resolução
+                const escalaX = canvas.width / 949.0;
+                const escalaY = canvas.height / 661.0;
 
-                // AJUSTE PRECISO DO QR CODE COM FUNDO BRANCO PERFEITO
-                const qrSize = largAdesivo * 0.36; // Cobre com nitidez a área do QR Code
-                const offsetX = (largAdesivo - qrSize) / 2;
-                const offsetY = altAdesivo * 0.685;
-                const paddingFundo = 4; // Margem branca para enquadramento limpo e leitura fácil pela câmera
+                // Centros X exatos de cada coluna (da imagem original de 949px):
+                // Col 0: 97.5 | Col 1: 289 | Col 2: 481 | Col 3: 673 | Col 4: 864.5
+                const centrosXOriginal = [97.5, 289.0, 481.0, 673.0, 864.5];
+                
+                // Centros Y exatos de cada linha (da imagem original de 661px):
+                // Linha 0: 262.5 | Linha 1: 595.5
+                const centrosYOriginal = [262.5, 595.5];
 
-                for(let l=0; l<linhas; l++) {
-                    for(let c=0; c<colunas; c++) {
-                        const x = (c * largAdesivo) + offsetX;
-                        const y = (l * altAdesivo) + offsetY;
+                // Tamanho nítido do QR Code: 76px escalado (com margem de segurança branca para leitura rápida)
+                const qrSize = Math.round(74 * escalaX);
+                const paddingFundo = 5; // Borda de respiro branco 100% limpo
 
-                        // Desenha fundo branco limpo para garantia de leitura perfeita
+                for(let l = 0; l < 2; l++) {
+                    const centerY = centrosYOriginal[l] * escalaY;
+                    const y = Math.round(centerY - (qrSize / 2));
+
+                    for(let c = 0; c < 5; c++) {
+                        const centerX = centrosXOriginal[c] * escalaX;
+                        const x = Math.round(centerX - (qrSize / 2));
+
+                        // 1. Fundo branco impecável para eliminar qualquer ruído e garantir leitura imediata
                         ctx.fillStyle = "#ffffff";
                         ctx.fillRect(x - paddingFundo, y - paddingFundo, qrSize + (paddingFundo * 2), qrSize + (paddingFundo * 2));
 
-                        // Desenha o QR Code personalizado do consultor perfeitamente enquadrado
+                        // 2. Desenha o QR Code exclusivo com alto contraste
                         ctx.drawImage(qrImg, x, y, qrSize, qrSize);
                     }
                 }
