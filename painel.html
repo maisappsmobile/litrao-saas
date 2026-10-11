@@ -532,15 +532,22 @@
                 const largAdesivo = canvas.width / colunas;
                 const altAdesivo = canvas.height / linhas;
 
-                // AJUSTE FINO DO QR CODE PARA GARRAFINHA
-                const qrSize = largAdesivo * 0.29; 
+                // AJUSTE PRECISO DO QR CODE COM FUNDO BRANCO PERFEITO
+                const qrSize = largAdesivo * 0.36; // Cobre com nitidez a área do QR Code
                 const offsetX = (largAdesivo - qrSize) / 2;
-                const offsetY = altAdesivo * 0.715;
+                const offsetY = altAdesivo * 0.685;
+                const paddingFundo = 4; // Margem branca para enquadramento limpo e leitura fácil pela câmera
 
                 for(let l=0; l<linhas; l++) {
                     for(let c=0; c<colunas; c++) {
                         const x = (c * largAdesivo) + offsetX;
                         const y = (l * altAdesivo) + offsetY;
+
+                        // Desenha fundo branco limpo para garantia de leitura perfeita
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(x - paddingFundo, y - paddingFundo, qrSize + (paddingFundo * 2), qrSize + (paddingFundo * 2));
+
+                        // Desenha o QR Code personalizado do consultor perfeitamente enquadrado
                         ctx.drawImage(qrImg, x, y, qrSize, qrSize);
                     }
                 }
