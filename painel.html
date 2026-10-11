@@ -1629,31 +1629,47 @@
                             }
                         }
 
+                        // Empacota bioimpedância e medidas extras no campo como_foi_semana (padrão oficial do Litrão)
+                        const bioExtras = {
+                            gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? colunas[indexMap.gordura].replace(',', '.').trim() : '',
+                            musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? colunas[indexMap.musculo].replace(',', '.').trim() : '',
+                            visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? colunas[indexMap.visceral].trim() : '',
+                            tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? colunas[indexMap.tmb].trim() : '',
+                            idade: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? colunas[indexMap.idadeCorp].trim() : '',
+                            agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? colunas[indexMap.agua].replace(',', '.').trim() : '',
+                            grupo: (indexMap.grupo >= 0 && colunas[indexMap.grupo]) ? colunas[indexMap.grupo].trim() : '',
+                            braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? colunas[indexMap.bracoDir].replace(',', '.').trim() : '',
+                            braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? colunas[indexMap.bracoEsq].replace(',', '.').trim() : '',
+                            coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? colunas[indexMap.coxaDir].replace(',', '.').trim() : '',
+                            coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? colunas[indexMap.coxaEsq].replace(',', '.').trim() : ''
+                        };
+
+                        const bustoVal = (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null;
+                        const cinturaVal = (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null;
+                        const abdomenVal = (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null;
+                        const quadrilVal = (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null;
+                        const focoVal = (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10;
+                        const codigoVal = (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO';
+
+                        // Objeto 100% alinhado com as colunas reais da tabela 'avaliacoes' no Supabase
                         dadosCSVParaImportar.push({
                             herbalife_id: consultorAtual.herbalife_id,
+                            codigo_acesso: codigoVal,
                             nome_cliente: nome,
                             whatsapp_cliente: whats || null,
-                            peso: rawPeso ? parseFloat(rawPeso) : null,
-                            altura: rawAltura ? parseFloat(rawAltura) : null,
+                            peso: rawPeso ? rawPeso : null,
+                            altura: rawAltura ? rawAltura : null,
                             data_nascimento: dataNasc || null,
                             genero: (indexMap.genero >= 0 ? colunas[indexMap.genero] : 'Feminino') || 'Feminino',
-                            grupo: (indexMap.grupo >= 0 ? colunas[indexMap.grupo] : '') || null,
-                            gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? parseFloat(colunas[indexMap.gordura].replace(',', '.')) : null,
-                            musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? parseFloat(colunas[indexMap.musculo].replace(',', '.')) : null,
-                            visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? parseInt(colunas[indexMap.visceral], 10) : null,
-                            tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? parseInt(colunas[indexMap.tmb], 10) : null,
-                            idade_corporal: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? parseInt(colunas[indexMap.idadeCorp], 10) : null,
-                            agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? parseFloat(colunas[indexMap.agua].replace(',', '.')) : null,
-                            busto: (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null,
-                            cintura: (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null,
-                            abdomen: (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null,
-                            quadril: (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null,
-                            braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? parseFloat(colunas[indexMap.bracoDir].replace(',', '.')) : null,
-                            braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? parseFloat(colunas[indexMap.bracoEsq].replace(',', '.')) : null,
-                            coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? parseFloat(colunas[indexMap.coxaDir].replace(',', '.')) : null,
-                            coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? parseFloat(colunas[indexMap.coxaEsq].replace(',', '.')) : null,
-                            foco: (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10,
-                            codigo_acesso: (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO',
+                            busto: bustoVal,
+                            cintura: cinturaVal,
+                            abdomen: abdomenVal,
+                            quadril: quadrilVal,
+                            intestino: true,
+                            agua: true,
+                            foco: isNaN(focoVal) ? 10 : focoVal,
+                            primeira_vez: true,
+                            como_foi_semana: `<!--BIO_DADOS:${JSON.stringify(bioExtras)}-->`,
                             criado_em: criadoEm
                         });
                     }
@@ -1690,12 +1706,15 @@
             btn.disabled = true;
 
             try {
-                // Inserção em lotes de 25 registros para estabilidade máxima
-                const chunkSize = 25;
+                // Inserção em lotes de 100 registros para velocidade com grande volume
+                const chunkSize = 100;
                 let inseridos = 0;
+                const total = dadosCSVParaImportar.length;
 
-                for (let i = 0; i < dadosCSVParaImportar.length; i += chunkSize) {
+                for (let i = 0; i < total; i += chunkSize) {
                     const lote = dadosCSVParaImportar.slice(i, i + chunkSize);
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> IMPORTANDO (${Math.min(inseridos + lote.length, total)}/${total})...`;
+                    
                     const { error } = await supabaseClient.from('avaliacoes').insert(lote);
                     if (error) throw error;
                     inseridos += lote.length;
