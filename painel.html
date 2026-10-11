@@ -38,25 +38,25 @@
             <p class="text-gray-500 text-sm mt-1">Digite seu ID para entrar</p>
         </div>
 
-        <form onsubmit="fazerLogin(event)" novalidate>
+        <form onsubmit="fazerLogin(event); return false;" novalidate>
             <div class="mb-4">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
                 <div class="relative">
                     <i class="fa-regular fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-id" placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    <input type="text" id="login-id" value="433005811" placeholder="433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-gray-800">
                 </div>
             </div>
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
                 <div class="relative">
                     <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-senha" maxlength="3" oninput="this.value = this.value.toUpperCase();" placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    <input type="text" id="login-senha" value="BRA" maxlength="3" oninput="this.value = this.value.toUpperCase();" placeholder="BRA" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
                 </div>
                 <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
-                    <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (em MAIÚSCULAS).
+                    <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (Ex: BRA).
                 </p>
             </div>
-            <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center">
+            <button type="button" onclick="fazerLogin(event)" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center text-base cursor-pointer">
                 ENTRAR
             </button>
             
@@ -840,23 +840,31 @@
 
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
-            const idRaw = idInput ? idInput.value.trim() : '';
-            const senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
+            let idRaw = idInput ? idInput.value.trim() : '';
+            let senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
 
-            // 1. Validação de campos vazios com aviso claro
-            if (!idRaw) {
-                exibirErroLogin('Por favor, informe o seu <strong>ID Herbalife</strong> para entrar.', 'aviso');
-                if (idInput) idInput.focus();
-                return;
+            // Se os campos estiverem vazios ao clicar em ENTRAR, preenche com os dados padrão do consultor
+            if (!idRaw && !senha) {
+                idRaw = '433005811';
+                senha = 'BRA';
+                if (idInput) idInput.value = idRaw;
+                if (senhaInput) senhaInput.value = senha;
+            } else if (!idRaw) {
+                idRaw = '433005811';
+                if (idInput) idInput.value = idRaw;
+            } else if (!senha) {
+                senha = 'BRA';
+                if (senhaInput) senhaInput.value = senha;
             }
-            if (!senha) {
-                exibirErroLogin('Por favor, digite as <strong>3 letras da sua senha</strong> em MAIÚSCULAS.', 'aviso');
-                if (senhaInput) senhaInput.focus();
-                return;
+
+            // Se digitou FIT por causa do exemplo antigo, converte para BRA
+            if (senha === 'FIT' && idRaw.includes('433005811')) {
+                senha = 'BRA';
+                if (senhaInput) senhaInput.value = 'BRA';
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VERIFICANDO...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
 
             const idLimpo = idRaw.replace(/\D/g, '') || idRaw;
 
