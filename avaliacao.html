@@ -165,7 +165,7 @@
                 <i class="fa-solid fa-check"></i>
             </div>
             <h2 class="text-2xl font-black text-brand-dark">Avaliação Enviada com Sucesso!</h2>
-            <p class="text-gray-600 text-sm">Seus dados já foram encaminhados para o seu consultor. Em breve você receberá o feedback e as métricas completas no seu WhatsApp!</p>
+            <p id="msg-sucesso-texto" class="text-gray-600 text-sm">Seus dados já foram encaminhados para o seu consultor. Em breve você receberá o feedback e as métricas completas no seu WhatsApp!</p>
         </div>
 
     </div>
@@ -191,7 +191,7 @@
 
             const codigo = document.getElementById('campo-codigo').value.trim().toUpperCase();
 
-            // 1. Verifica se o cupom existe e não foi usado
+            // 1. Verifica se o cupom existe
             const { data: cupomData, error: cupomError } = await supabaseClient
                 .from('cupons_avaliacao')
                 .select('*')
@@ -205,20 +205,30 @@
                 return;
             }
 
-            if (cupomData.usado) {
+            // 1.1 Conta quantas vezes este código já foi preenchido
+            const { data: avaliacoesAnteriores } = await supabaseClient
+                .from('avaliacoes')
+                .select('id')
+                .eq('codigo_acesso', codigo);
+
+            const totalUsos = avaliacoesAnteriores ? avaliacoesAnteriores.length : 0;
+
+            if (totalUsos >= 2) {
                 btn.innerHTML = 'ENVIAR MINHA AVALIAÇÃO';
-                erro.innerText = 'Este código já foi utilizado anteriormente!';
+                erro.innerText = 'Este código já atingiu o limite de 2 usos (Início e Final do Reset)!';
                 erro.classList.remove('hidden');
                 return;
             }
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> SALVANDO DADOS...';
 
+            const etapa = totalUsos === 0 ? "Início do Reset" : "Final do Reset";
+
             // 2. Salva a avaliação
             const payload = {
                 herbalife_id: cupomData.herbalife_id,
                 codigo_acesso: codigo,
-                nome_cliente: document.getElementById('campo-nome').value.trim(),
+                nome_cliente: document.getElementById('campo-nome').value.trim() + (totalUsos === 1 ? " [FINAL]" : " [INÍCIO]"),
                 whatsapp_cliente: document.getElementById('campo-whatsapp').value.trim(),
                 peso: document.getElementById('campo-peso').value.trim(),
                 busto: document.getElementById('campo-busto').value.trim(),
@@ -244,8 +254,13 @@
                 return;
             }
 
-            // 3. Marca o cupom como usado
-            await supabaseClient.from('cupons_avaliacao').update({ usado: true }).eq('codigo', codigo);
+            // 3. Marca como usado somente no 2º envio
+            if (totalUsos >= 1) {
+                await supabaseClient.from('cupons_avaliacao').update({ usado: true }).eq('codigo', codigo);
+                document.getElementById('msg-sucesso-texto').innerText = 'Parabéns! Sua 2ª avaliação (Final do Reset) foi concluída com sucesso! Seu consultor já está analisando seus resultados para comparar sua evolução!';
+            } else {
+                document.getElementById('msg-sucesso-texto').innerText = 'Parabéns! Sua 1ª avaliação (Início do Reset) foi registrada com sucesso! GUARDE este mesmo código para enviar sua 2ª avaliação no final da semana!';
+            }
 
             // Exibe tela de sucesso
             document.getElementById('form-avaliacao').classList.add('hidden');
