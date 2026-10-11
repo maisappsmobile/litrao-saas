@@ -158,7 +158,7 @@
             </div>
         </div>
 
-        <!-- MODAL: FICHA COMPLETA DE BIOIMPEDÂNCIA & RELATÓRIO FINESHAPE -->
+        <!-- MODAL: FICHA COMPLETA DE BIOIMPEDÂNCIA & RELATÓRIO DO RESET -->
         <div id="modal-ficha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
             <div class="bg-white max-w-3xl w-full rounded-3xl p-5 sm:p-8 shadow-2xl relative max-h-[95vh] overflow-y-auto">
                 <button onclick="fecharFicha()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition z-20">
@@ -419,7 +419,7 @@
         }
 
         // ==========================================
-        // MOTOR DE BIOIMPEDÂNCIA ESTILO FINESHAPE
+        // MOTOR CLÍNICO DE BIOIMPEDÂNCIA DIGITAL
         // ==========================================
         function calcularBioimpedancia(item) {
             const peso = parseFloat(item.peso) || 0;
@@ -442,39 +442,96 @@
             const alturaM = alturaCm / 100;
             const imc = parseFloat((peso / (alturaM * alturaM)).toFixed(1));
 
+            // Faixas de referência de peso ideal pela OMS (IMC 18.5 ~ 25.0)
+            const pesoMinIdeal = parseFloat((18.5 * alturaM * alturaM).toFixed(1));
+            const pesoMaxIdeal = parseFloat((24.9 * alturaM * alturaM).toFixed(1));
+            let pesoAvaliacao = 'Normal';
+            let pesoAvaliacaoCor = 'bg-green-100 text-green-800 border-green-300';
+            let pesoDiffIdeal = '';
+
+            if (peso < pesoMinIdeal) {
+                pesoAvaliacao = 'Abaixo';
+                pesoAvaliacaoCor = 'bg-blue-100 text-blue-800 border-blue-300';
+                pesoDiffIdeal = `-${(pesoMinIdeal - peso).toFixed(1)} kg`;
+            } else if (peso > pesoMaxIdeal) {
+                pesoAvaliacao = 'Acima';
+                pesoAvaliacaoCor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                pesoDiffIdeal = `+${(peso - pesoMaxIdeal).toFixed(1)} kg`;
+            } else {
+                pesoAvaliacao = 'Excelente';
+                pesoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                pesoDiffIdeal = 'No alvo';
+            }
+
             // Classificação IMC
             let imcClass = 'Normal';
-            let imcCor = 'text-green-600 bg-green-50 border-green-200';
-            if (imc < 18.5) { imcClass = 'Abaixo do Peso'; imcCor = 'text-blue-600 bg-blue-50 border-blue-200'; }
-            else if (imc < 25) { imcClass = 'Peso Ideal'; imcCor = 'text-green-600 bg-green-50 border-green-200'; }
-            else if (imc < 30) { imcClass = 'Sobrepeso'; imcCor = 'text-yellow-600 bg-yellow-50 border-yellow-200'; }
-            else { imcClass = 'Obesidade'; imcCor = 'text-red-600 bg-red-50 border-red-200'; }
+            let imcCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            if (imc < 18.5) { imcClass = 'Abaixo'; imcCor = 'bg-blue-100 text-blue-800 border-blue-300'; }
+            else if (imc <= 24.9) { imcClass = 'Normal'; imcCor = 'bg-emerald-100 text-emerald-800 border-emerald-300'; }
+            else if (imc <= 29.9) { imcClass = 'Acima'; imcCor = 'bg-yellow-100 text-yellow-800 border-yellow-300'; }
+            else { imcClass = 'Alto'; imcCor = 'bg-red-100 text-red-800 border-red-300'; }
 
-            // % Gordura Corporal (Equação clínica de Deurenberg amplamente adotada em apps de bioimpedância)
-            // % Gordura = (1.20 × IMC) + (0.23 × Idade) − (10.8 × sexo) − 5.4  (sexo: masc = 1, fem = 0)
+            // % Gordura Corporal (Deurenberg / NIH)
             const sexoNum = genero === 'm' ? 1 : 0;
             let gorduraPct = (1.20 * imc) + (0.23 * idade) - (10.8 * sexoNum) - 5.4;
             gorduraPct = Math.max(5, Math.min(60, parseFloat(gorduraPct.toFixed(1))));
 
+            // Referência de gordura: Masc 11.0% a 21.9% | Fem 20.0% a 32.9%
+            const gorduraRefMin = genero === 'm' ? 11.0 : 20.0;
+            const gorduraRefMax = genero === 'm' ? 21.9 : 32.9;
+            let gorduraAvaliacao = 'Normal';
+            let gorduraAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            let gorduraDiff = '';
+            if (gorduraPct < gorduraRefMin) {
+                gorduraAvaliacao = 'Baixo';
+                gorduraAvaliacaoCor = 'bg-blue-100 text-blue-800 border-blue-300';
+            } else if (gorduraPct > gorduraRefMax) {
+                gorduraAvaliacao = 'Acima';
+                gorduraAvaliacaoCor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                const kgExcesso = (((gorduraPct - gorduraRefMax) / 100) * peso).toFixed(1);
+                gorduraDiff = `+${kgExcesso} kg`;
+            } else {
+                gorduraAvaliacao = 'Excelente';
+                gorduraAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                gorduraDiff = 'Ideal';
+            }
+
             // Massa Gorda (kg) e Massa Magra (kg)
             const massaGordaKg = parseFloat(((peso * gorduraPct) / 100).toFixed(1));
             const massaMagraKg = parseFloat((peso - massaGordaKg).toFixed(1));
+            const massaMagraPct = parseFloat(((massaMagraKg / peso) * 100).toFixed(1));
 
-            // Massa Muscular Esquelética estimada (~70% a 75% da massa magra)
+            // Músculo Esquelético estimado
+            // Masc: ~42-48% do peso | Fem: ~33-39% do peso
+            const musculoEsquelRefMin = genero === 'm' ? 33.1 : 24.1;
+            const musculoEsquelRefMax = genero === 'm' ? 39.1 : 30.1;
+            // Para homens saudáveis/atléticos com bom tônus pode chegar a 45%+
             const massaMuscularKg = parseFloat((massaMagraKg * 0.72).toFixed(1));
             const massaMuscularPct = parseFloat(((massaMuscularKg / peso) * 100).toFixed(1));
+            let musculoAvaliacao = 'Excelente';
+            let musculoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            if (massaMuscularPct < musculoEsquelRefMin) {
+                musculoAvaliacao = 'Baixo';
+                musculoAvaliacaoCor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+            } else if (massaMuscularPct > musculoEsquelRefMax) {
+                musculoAvaliacao = 'Excelente';
+                musculoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            } else {
+                musculoAvaliacao = 'Normal';
+                musculoAvaliacaoCor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            }
 
-            // Taxa Metabólica Basal (TMB - Fórmula Harris-Benedict revisada)
-            // Masc: 88.362 + (13.397 × peso) + (4.799 × alturaCm) - (5.677 × idade)
-            // Fem:  447.593 + (9.247 × peso) + (3.098 × alturaCm) - (4.330 × idade)
+            // Taxa Metabólica Basal (TMB - Harris-Benedict)
             let tmb = 0;
             if (genero === 'm') {
                 tmb = Math.round(88.362 + (13.397 * peso) + (4.799 * alturaCm) - (5.677 * idade));
             } else {
                 tmb = Math.round(447.593 + (9.247 * peso) + (3.098 * alturaCm) - (4.330 * idade));
             }
+            const tmbRefMin = Math.round(tmb * 0.85);
+            const tmbRefMax = Math.round(tmb * 1.05);
 
-            // Gordura Visceral (Nível estimado de 1 a 30)
+            // Gordura Visceral (Nível 1 a 9 é saudável, 10 a 14 alto, 15+ muito alto)
             let cintura = parseFloat(item.cintura) || 0;
             let visceral = 1;
             if (cintura > 0) {
@@ -484,13 +541,26 @@
                 visceral = Math.round((imc * 0.45) - 3);
             }
             visceral = Math.max(1, Math.min(25, visceral));
+            let visceralClass = visceral <= 9 ? 'Normal (1 ~ 9)' : 'Acima do Recomendado';
+            let visceralCor = visceral <= 9 ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
 
-            // Idade Metabólica Estimada
-            let idadeMetabolica = Math.round(idade + ((gorduraPct - (genero === 'm' ? 18 : 24)) * 0.5));
-            idadeMetabolica = Math.max(18, Math.min(85, idadeMetabolica));
+            // Idade Corporal / Metabólica
+            let diffIdade = Math.round((gorduraPct - (genero === 'm' ? 18 : 24)) * 0.5);
+            let idadeMetabolica = Math.max(18, Math.min(85, idade + diffIdade));
+            let diffIdadeTexto = diffIdade > 0 ? `+ ${diffIdade} ano(s)` : (diffIdade < 0 ? `${diffIdade} ano(s)` : 'Mesma idade');
+            let idadeCor = diffIdade <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
 
-            // Água Corporal Total (TBW % ~ 50-65% em homens, 45-60% em mulheres)
-            const aguaCorporalPct = parseFloat(((massaMagraKg * 0.732 / peso) * 100).toFixed(1));
+            // Biótipo / Avatar (Abaixo, Normal, Acima 1, Acima 2, Acima 3, Alto 1, Alto 2, Alto 3)
+            let avatarIndex = 2; // Acima 1 padrão
+            let avatarNome = 'Acima 1';
+            if (imc < 18.5) { avatarIndex = 0; avatarNome = 'Abaixo'; }
+            else if (imc < 24.0) { avatarIndex = 1; avatarNome = 'Normal'; }
+            else if (imc < 26.5) { avatarIndex = 2; avatarNome = 'Acima 1'; }
+            else if (imc < 28.5) { avatarIndex = 3; avatarNome = 'Acima 2'; }
+            else if (imc < 30.0) { avatarIndex = 4; avatarNome = 'Acima 3'; }
+            else if (imc < 33.0) { avatarIndex = 5; avatarNome = 'Alto 1'; }
+            else if (imc < 36.0) { avatarIndex = 6; avatarNome = 'Alto 2'; }
+            else { avatarIndex = 7; avatarNome = 'Alto 3'; }
 
             return {
                 peso,
@@ -500,15 +570,37 @@
                 imc,
                 imcClass,
                 imcCor,
+                pesoMinIdeal,
+                pesoMaxIdeal,
+                pesoAvaliacao,
+                pesoAvaliacaoCor,
+                pesoDiffIdeal,
                 gorduraPct,
+                gorduraRefMin,
+                gorduraRefMax,
+                gorduraAvaliacao,
+                gorduraAvaliacaoCor,
+                gorduraDiff,
                 massaGordaKg,
                 massaMagraKg,
+                massaMagraPct,
                 massaMuscularKg,
                 massaMuscularPct,
+                musculoEsquelRefMin,
+                musculoEsquelRefMax,
+                musculoAvaliacao,
+                musculoAvaliacaoCor,
                 tmb,
+                tmbRefMin,
+                tmbRefMax,
                 visceral,
+                visceralClass,
+                visceralCor,
                 idadeMetabolica,
-                aguaCorporalPct
+                diffIdadeTexto,
+                idadeCor,
+                avatarIndex,
+                avatarNome
             };
         }
 
@@ -582,185 +674,301 @@
 
             cont.innerHTML = `
                 <!-- TOPO DO CARD DE RELATÓRIO (CAPTURA PARA IMAGEM) -->
-                <div id="card-fineshape-captura" class="bg-white rounded-2xl p-2 sm:p-4">
-                    <div class="border-b pb-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="bg-brand-dark text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+                <div id="card-relatorio-captura" class="bg-white rounded-2xl p-2 sm:p-5 font-sans">
+                    <!-- CABEÇALHO COM LOGO RESET -->
+                    <div class="border-b-2 border-brand-dark pb-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center space-x-3">
+                            <img src="reset-logo.png" alt="Reset Metabólico" class="h-10 mix-blend-multiply">
+                            <div>
+                                <span class="bg-brand-dark text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                                     Litrão do Reset
                                 </span>
-                                <span class="bg-blue-100 text-blue-800 font-black text-xs px-2.5 py-1 rounded-full uppercase">
-                                    Bioimpedância Digital
-                                </span>
+                                <h3 class="text-xl sm:text-2xl font-black text-brand-dark leading-tight">${item.nome_cliente}</h3>
+                                <p class="text-[11px] text-gray-500 font-medium">
+                                    ${item.genero || '---'} • Altura: <strong>${item.altura ? item.altura + ' cm' : '---'}</strong> • Idade: <strong>${bioCalculadaAtual ? bioCalculadaAtual.idade + ' anos' : '---'}</strong>
+                                </p>
                             </div>
-                            <h3 class="text-2xl font-black text-brand-dark mt-2">${item.nome_cliente}</h3>
-                            <p class="text-xs text-gray-500">
-                                Avaliação realizada em: <strong>${dataFmt}</strong>
-                                ${item.codigo_acesso ? ` • Cupom: <span class="font-mono font-bold">${item.codigo_acesso}</span>` : ''}
-                            </p>
                         </div>
-                        <div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
-                            <span class="text-xs text-gray-500 font-bold">Consultor(a) Responsável</span>
+                        <div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0">
+                            <span class="text-[11px] text-gray-500 font-bold uppercase">Consultor Responsável</span>
                             <span class="text-sm font-black text-brand-light">${consultorAtual.nome_completo || 'Consultor Oficial'}</span>
+                            <span class="text-[10px] text-gray-400 font-mono">${dataFmt}</span>
                         </div>
                     </div>
 
-                    <!-- BANNER COMPARATIVO SE HOUVER AVALIAÇÃO ANTERIOR -->
+                    <!-- RESUMO DAS AVALIAÇÕES (COMPARATIVO COM A ANTERIOR) -->
                     ${avaliacaoAnteriorAtual ? `
-                    <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-md mb-4 flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-0.5 rounded">
-                                ⭐ Comparativo de Evolução
-                            </span>
-                            <h4 class="font-black text-base sm:text-lg mt-1">Comparando com avaliação anterior!</h4>
-                            <p class="text-xs text-emerald-100">Avaliação anterior em: ${new Date(avaliacaoAnteriorAtual.criado_em).toLocaleDateString('pt-BR')}</p>
+                    <div class="mb-5 overflow-hidden rounded-xl border border-emerald-300 shadow-sm">
+                        <div class="bg-emerald-600 text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
+                            <span><i class="fa-solid fa-chart-line mr-2"></i> Resumo das Avaliações (Evolução)</span>
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded">Anterior: ${new Date(avaliacaoAnteriorAtual.criado_em).toLocaleDateString('pt-BR')}</span>
                         </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-black">${diffSpan(item.peso, avaliacaoAnteriorAtual.peso, 'kg', false).replace('text-green-600', 'text-white font-black text-xl').replace('text-red-500', 'text-yellow-200 font-black text-xl')}</div>
-                        </div>
-                    </div>
-                    ` : `
-                    <div class="bg-blue-50 border border-blue-200 text-blue-900 p-3 rounded-2xl text-xs font-bold mb-4 flex items-center">
-                        <i class="fa-solid fa-circle-info text-blue-600 mr-2 text-base"></i>
-                        Esta é a primeira avaliação registrada deste cliente. Os próximos check-ins mostrarão o comparativo automático de evolução!
-                    </div>
-                    `}
-
-                    <!-- RESULTADOS DE BIOIMPEDÂNCIA ESTILO FINESHAPE -->
-                    ${bioCalculadaAtual ? `
-                    <div class="bg-gradient-to-br from-slate-900 to-brand-dark text-white p-5 rounded-2xl shadow-lg mb-4">
-                        <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-chart-pie text-brand-yellow text-lg"></i>
-                                <h4 class="font-black text-sm uppercase tracking-wider text-white">Relatório de Composição Corporal (FineShape)</h4>
-                            </div>
-                            <span class="text-[10px] font-bold bg-white/10 px-2 py-1 rounded text-gray-300">Algoritmo Antropométrico Clínico</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                            <!-- IMC -->
-                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                                <span class="block text-[10px] text-gray-300 font-bold uppercase tracking-wider">IMC Corporal</span>
-                                <span class="text-2xl font-black text-white">${bioCalculadaAtual.imc}</span>
-                                <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${bioCalculadaAtual.imcCor}">
-                                    ${bioCalculadaAtual.imcClass}
-                                </span>
-                                ${bioCalculadaAnterior ? diffSpan(bioCalculadaAtual.imc, bioCalculadaAnterior.imc, '', false) : ''}
-                            </div>
-
-                            <!-- % GORDURA -->
-                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                                <span class="block text-[10px] text-gray-300 font-bold uppercase tracking-wider">% Gordura Corporal</span>
-                                <span class="text-2xl font-black text-brand-yellow">${bioCalculadaAtual.gorduraPct}%</span>
-                                <span class="text-[10px] text-gray-300 block font-bold mt-1">${bioCalculadaAtual.massaGordaKg} kg de gordura</span>
-                                ${bioCalculadaAnterior ? diffSpan(bioCalculadaAtual.gorduraPct, bioCalculadaAnterior.gorduraPct, '%', false) : ''}
-                            </div>
-
-                            <!-- MASSA MUSCULAR -->
-                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                                <span class="block text-[10px] text-gray-300 font-bold uppercase tracking-wider">Massa Muscular</span>
-                                <span class="text-2xl font-black text-emerald-400">${bioCalculadaAtual.massaMuscularKg} kg</span>
-                                <span class="text-[10px] text-gray-300 block font-bold mt-1">${bioCalculadaAtual.massaMuscularPct}% do corpo</span>
-                                ${bioCalculadaAnterior ? diffSpan(bioCalculadaAtual.massaMuscularKg, bioCalculadaAnterior.massaMuscularKg, 'kg', true) : ''}
-                            </div>
-
-                            <!-- TAXA METABÓLICA BASAL -->
-                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                                <span class="block text-[10px] text-gray-300 font-bold uppercase tracking-wider">Metabolismo Basal</span>
-                                <span class="text-2xl font-black text-white">${bioCalculadaAtual.tmb}</span>
-                                <span class="text-[10px] text-gray-300 block font-bold mt-1">kcal / dia</span>
-                            </div>
-                        </div>
-
-                        <!-- MÉTRICAS SECUNDÁRIAS -->
-                        <div class="grid grid-cols-3 gap-3 text-center mt-3 pt-3 border-t border-white/10">
-                            <div>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase block">Gordura Visceral</span>
-                                <span class="text-lg font-black text-brand-yellow">Nível ${bioCalculadaAtual.visceral}</span>
-                                <span class="text-[9px] text-gray-400 block">${bioCalculadaAtual.visceral <= 9 ? '✅ Nível Saudável' : '⚠️ Atenção'}</span>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase block">Idade Corporal</span>
-                                <span class="text-lg font-black text-white">${bioCalculadaAtual.idadeMetabolica} anos</span>
-                                <span class="text-[9px] text-gray-400 block">Cronológica: ${bioCalculadaAtual.idade} anos</span>
-                            </div>
-                            <div>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase block">Água Corporal</span>
-                                <span class="text-lg font-black text-blue-300">${bioCalculadaAtual.aguaCorporalPct}%</span>
-                                <span class="text-[9px] text-gray-400 block">Hidratação celular</span>
-                            </div>
-                        </div>
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-emerald-50 text-emerald-950 font-bold border-b border-emerald-200">
+                                <tr>
+                                    <th class="p-2.5">Indicador</th>
+                                    <th class="p-2.5 text-center">Início</th>
+                                    <th class="p-2.5 text-center">Atual</th>
+                                    <th class="p-2.5 text-right font-black">Evolução</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Peso Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${avaliacaoAnteriorAtual.peso} kg</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${item.peso} kg</td>
+                                    <td class="p-2.5 text-right font-black ${parseFloat(item.peso) <= parseFloat(avaliacaoAnteriorAtual.peso) ? 'text-green-600' : 'text-red-500'}">
+                                        ${(parseFloat(item.peso) - parseFloat(avaliacaoAnteriorAtual.peso)).toFixed(1)} kg
+                                    </td>
+                                </tr>
+                                ${bioCalculadaAnterior && bioCalculadaAtual ? `
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">% Gordura Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.gorduraPct}%</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.gorduraPct}%</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.gorduraPct <= bioCalculadaAnterior.gorduraPct ? 'text-green-600' : 'text-red-500'}">
+                                        ${(bioCalculadaAtual.gorduraPct - bioCalculadaAnterior.gorduraPct).toFixed(1)}%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Músculo Esquelético</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.massaMuscularKg} kg</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.massaMuscularKg} kg</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.massaMuscularKg >= bioCalculadaAnterior.massaMuscularKg ? 'text-green-600' : 'text-yellow-600'}">
+                                        ${(bioCalculadaAtual.massaMuscularKg - bioCalculadaAnterior.massaMuscularKg).toFixed(1)} kg
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Gordura Visceral</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.visceral}</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.visceral}</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.visceral <= bioCalculadaAnterior.visceral ? 'text-green-600' : 'text-red-500'}">
+                                        ${bioCalculadaAtual.visceral - bioCalculadaAnterior.visceral}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Idade Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.idadeMetabolica} anos</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.idadeMetabolica} anos</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.idadeMetabolica <= bioCalculadaAnterior.idadeMetabolica ? 'text-green-600' : 'text-red-500'}">
+                                        ${bioCalculadaAtual.idadeMetabolica - bioCalculadaAnterior.idadeMetabolica} anos
+                                    </td>
+                                </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
                     </div>
                     ` : ''}
 
-                    <!-- TABELA DE MEDIDAS E COMPARATIVO ANTERIOR -->
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-4">
-                        <h4 class="font-black text-xs uppercase text-gray-700 mb-3 flex items-center justify-between">
-                            <span><i class="fa-solid fa-ruler-combined mr-2 text-brand-yellow"></i> Medidas Antropométricas & Fita Métrica</span>
-                            ${avaliacaoAnteriorAtual ? '<span class="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">Com Comparativo</span>' : ''}
-                        </h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
-                            <!-- PESO -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Peso Atual</span>
-                                <span class="text-lg font-black text-brand-dark">${item.peso || '-'} kg</span>
-                                ${avaliacaoAnteriorAtual ? diffSpan(item.peso, avaliacaoAnteriorAtual.peso, 'kg') : ''}
-                            </div>
-                            <!-- BUSTO -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Busto / Tórax</span>
-                                <span class="text-lg font-black text-gray-800">${item.busto ? item.busto + ' cm' : '---'}</span>
+                    <!-- BIÓTIPO CORPORAL & AVATAR -->
+                    ${bioCalculadaAtual ? `
+                    <div class="mb-5 bg-gray-50 p-3.5 rounded-2xl border border-gray-200 text-center">
+                        <div class="text-xs font-black uppercase text-gray-700 tracking-wider mb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-person mr-1.5 text-brand-light"></i> Controle Corporal & Biótipo</span>
+                            <span class="bg-brand-yellow/30 text-brand-dark px-2 py-0.5 rounded font-black text-[11px]">${bioCalculadaAtual.avatarNome}</span>
+                        </div>
+                        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5 text-[10px] font-bold text-gray-600">
+                            ${['Abaixo', 'Normal', 'Acima 1', 'Acima 2', 'Acima 3', 'Alto 1', 'Alto 2', 'Alto 3'].map((nome, idx) => {
+                                const sel = idx === bioCalculadaAtual.avatarIndex;
+                                return `
+                                    <div class="p-2 rounded-xl border ${sel ? 'bg-amber-100 border-amber-400 text-amber-950 font-black shadow-sm ring-2 ring-amber-400/50' : 'bg-white border-gray-200 opacity-60'}">
+                                        <div class="text-lg ${sel ? 'scale-110' : ''}">${idx === 0 ? '🧍' : idx === 1 ? '🚶' : idx <= 4 ? '🚶‍♂️' : '🏃‍♂️'}</div>
+                                        <span class="block mt-1">${nome}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- TABELA 1: COMPOSIÇÃO CORPORAL -->
+                    <div class="mb-5 overflow-hidden rounded-xl border border-emerald-500 shadow-sm">
+                        <div class="bg-emerald-600 text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
+                            <span>Composição Corporal</span>
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded font-bold">Bioimpedância Tetrapolar OMS</span>
+                        </div>
+                        <table class="w-full text-xs">
+                            <thead class="bg-emerald-50 text-emerald-950 font-bold border-b border-emerald-200 text-left">
+                                <tr>
+                                    <th class="p-2.5">Descrição</th>
+                                    <th class="p-2.5 text-center">Resultado</th>
+                                    <th class="p-2.5 text-right">Avaliação</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Peso</span>
+                                        <span class="text-[10px] text-gray-400">Referência: ${bioCalculadaAtual.pesoMinIdeal} ~ ${bioCalculadaAtual.pesoMaxIdeal} kg</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">${bioCalculadaAtual.peso} kg</td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.pesoAvaliacaoCor}">
+                                            ${bioCalculadaAtual.pesoAvaliacao} ${bioCalculadaAtual.pesoDiffIdeal ? `(${bioCalculadaAtual.pesoDiffIdeal})` : ''}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Músculo Esquelético</span>
+                                        <span class="text-[10px] text-gray-400">Referência: ${bioCalculadaAtual.musculoEsquelRefMin}% ~ ${bioCalculadaAtual.musculoEsquelRefMax}%</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">
+                                        ${bioCalculadaAtual.massaMuscularPct}% <span class="text-[10px] text-gray-500 font-normal">(${bioCalculadaAtual.massaMuscularKg} kg)</span>
+                                    </td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.musculoAvaliacaoCor}">
+                                            ${bioCalculadaAtual.musculoAvaliacao}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Idade Corporal</span>
+                                        <span class="text-[10px] text-gray-400">Idade Cronológica: ${bioCalculadaAtual.idade} anos</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">${bioCalculadaAtual.idadeMetabolica} ano(s)</td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.idadeCor}">
+                                            ${bioCalculadaAtual.diffIdadeTexto}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TABELA 2: DIAGNÓSTICO DA OBESIDADE -->
+                    <div class="mb-5 overflow-hidden rounded-xl border border-emerald-500 shadow-sm">
+                        <div class="bg-emerald-600 text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
+                            <span>Diagnóstico da Composição & Metabolismo</span>
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded font-bold">Diretrizes OMS / Harris-Benedict</span>
+                        </div>
+                        <table class="w-full text-xs">
+                            <thead class="bg-emerald-50 text-emerald-950 font-bold border-b border-emerald-200 text-left">
+                                <tr>
+                                    <th class="p-2.5">Descrição</th>
+                                    <th class="p-2.5 text-center">Resultado</th>
+                                    <th class="p-2.5 text-right">Avaliação</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">IMC</span>
+                                        <span class="text-[10px] text-gray-400">Referência: 18,5 ~ 24,9 kg/m²</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">${bioCalculadaAtual.imc} kg/m²</td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.imcCor}">
+                                            ${bioCalculadaAtual.imcClass}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Gordura Corporal</span>
+                                        <span class="text-[10px] text-gray-400">Referência: ${bioCalculadaAtual.gorduraRefMin}% ~ ${bioCalculadaAtual.gorduraRefMax}%</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">
+                                        ${bioCalculadaAtual.gorduraPct}% <span class="text-[10px] text-gray-500 font-normal">(${bioCalculadaAtual.massaGordaKg} kg)</span>
+                                    </td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.gorduraAvaliacaoCor}">
+                                            ${bioCalculadaAtual.gorduraAvaliacao} ${bioCalculadaAtual.gorduraDiff ? `(${bioCalculadaAtual.gorduraDiff})` : ''}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Gordura Visceral</span>
+                                        <span class="text-[10px] text-gray-400">Referência: 1 ~ 9 (Saudável)</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">Nível ${bioCalculadaAtual.visceral}</td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs ${bioCalculadaAtual.visceralCor}">
+                                            ${bioCalculadaAtual.visceralClass}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-gray-800 block">Metabolismo Basal (TMB)</span>
+                                        <span class="text-[10px] text-gray-400">Gasto calórico em repouso</span>
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900 text-sm">${bioCalculadaAtual.tmb} Kcal</td>
+                                    <td class="p-2.5 text-right">
+                                        <span class="inline-block px-2.5 py-1 rounded font-bold text-xs bg-emerald-100 text-emerald-800">
+                                            Normal
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+
+                    <!-- MEDIDAS DE FITA MÉTRICA -->
+                    <div class="mb-4 bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-black uppercase text-gray-700 tracking-wider">
+                                <i class="fa-solid fa-ruler-combined mr-1 text-brand-yellow"></i> Circunferências Corporais (Fita Métrica)
+                            </span>
+                            ${item.codigo_acesso ? `<span class="text-[10px] font-mono bg-white border border-gray-200 px-2 py-0.5 rounded font-bold text-gray-600">Cupom: ${item.codigo_acesso}</span>` : ''}
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm">
+                                <span class="block text-[10px] text-gray-500 font-bold uppercase">Busto/Tórax</span>
+                                <span class="text-base font-black text-gray-800">${item.busto ? item.busto + ' cm' : '---'}</span>
                                 ${avaliacaoAnteriorAtual ? diffSpan(item.busto, avaliacaoAnteriorAtual.busto, 'cm') : ''}
                             </div>
-                            <!-- CINTURA -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm">
                                 <span class="block text-[10px] text-gray-500 font-bold uppercase">Cintura</span>
-                                <span class="text-lg font-black text-gray-800">${item.cintura ? item.cintura + ' cm' : '---'}</span>
+                                <span class="text-base font-black text-gray-800">${item.cintura ? item.cintura + ' cm' : '---'}</span>
                                 ${avaliacaoAnteriorAtual ? diffSpan(item.cintura, avaliacaoAnteriorAtual.cintura, 'cm') : ''}
                             </div>
-                            <!-- ABDÔMEN -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm">
                                 <span class="block text-[10px] text-gray-500 font-bold uppercase">Abdômen</span>
-                                <span class="text-lg font-black text-gray-800">${item.abdomen ? item.abdomen + ' cm' : '---'}</span>
+                                <span class="text-base font-black text-gray-800">${item.abdomen ? item.abdomen + ' cm' : '---'}</span>
                                 ${avaliacaoAnteriorAtual ? diffSpan(item.abdomen, avaliacaoAnteriorAtual.abdomen, 'cm') : ''}
                             </div>
-                            <!-- QUADRIL -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm col-span-2 sm:col-span-1">
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm">
                                 <span class="block text-[10px] text-gray-500 font-bold uppercase">Quadril</span>
-                                <span class="text-lg font-black text-gray-800">${item.quadril ? item.quadril + ' cm' : '---'}</span>
+                                <span class="text-base font-black text-gray-800">${item.quadril ? item.quadril + ' cm' : '---'}</span>
                                 ${avaliacaoAnteriorAtual ? diffSpan(item.quadril, avaliacaoAnteriorAtual.quadril, 'cm') : ''}
                             </div>
                         </div>
                     </div>
 
-                    <!-- ROTINA & HÁBITOS -->
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-2">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                                <span class="text-gray-600 font-bold">Intestino:</span>
+                    <!-- HÁBITOS & FOCO -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="font-bold text-gray-600">Intestino:</span>
                                 <span class="font-bold ${item.intestino ? 'text-green-600' : 'text-red-500'}">
                                     ${item.intestino ? '✅ Normal' : '❌ Irregular'}
                                 </span>
                             </div>
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                                <span class="text-gray-600 font-bold">Meta de Água:</span>
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="font-bold text-gray-600">Meta de Água:</span>
                                 <span class="font-bold ${item.agua ? 'text-green-600' : 'text-yellow-600'}">
                                     ${item.agua ? '✅ Bateu a meta' : '⚠️ Não bateu'}
                                 </span>
                             </div>
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                                <span class="text-gray-600 font-bold">Nota de Foco:</span>
+                            <div class="bg-white p-2.5 rounded-xl border border-gray-200 flex items-center justify-between">
+                                <span class="font-bold text-gray-600">Nota de Foco:</span>
                                 <span class="bg-yellow-100 text-yellow-800 font-black px-2 py-0.5 rounded">
                                     ${item.foco || '-'} / 10
                                 </span>
                             </div>
                         </div>
-
                         ${item.como_foi_semana ? `
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 text-xs mt-3">
-                            <span class="block font-bold text-gray-600 mb-1">Como foi a semana / Observações do Cliente:</span>
-                            <p class="text-gray-800 italic">"${item.como_foi_semana}"</p>
+                        <div class="bg-white p-2.5 rounded-xl border border-gray-200 mt-2 italic text-gray-700">
+                            <strong>Obs:</strong> "${item.como_foi_semana}"
                         </div>` : ''}
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-200 text-[10px] text-gray-400 text-center">
+                        * Referências clínicas baseadas nas diretrizes da OMS e método Harris-Benedict de taxa metabólica.
                     </div>
                 </div>
 
@@ -788,7 +996,7 @@
         // ==========================================
         function baixarCardBioimpedancia() {
             const btn = document.getElementById('btn-baixar-card');
-            const card = document.getElementById('card-fineshape-captura');
+            const card = document.getElementById('card-relatorio-captura');
             if (!card) return;
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO FOTO...';
@@ -853,15 +1061,15 @@
             }
 
             if (bio) {
-                texto += `📈 *COMPOSIÇÃO CORPORAL (PADRÃO FINESHAPE):*\n`;
-                texto += `• *Peso Atual:* ${bio.peso} kg\n`;
-                texto += `• *IMC:* ${bio.imc} (${bio.imcClass})\n`;
-                texto += `• *% Gordura Corporal:* ${bio.gorduraPct}%\n`;
-                texto += `• *Massa Muscular:* ${bio.massaMuscularKg} kg (${bio.massaMuscularPct}% do corpo)\n`;
-                texto += `• *Gordura Visceral:* Nível ${bio.visceral} ${bio.visceral <= 9 ? '✅' : '⚠️'}\n`;
-                texto += `• *Idade Corporal:* ${bio.idadeMetabolica} anos (Cronológica: ${bio.idade})\n`;
-                texto += `• *Taxa Metabólica Basal:* ${bio.tmb} kcal/dia\n`;
-                texto += `• *Água Corporal:* ${bio.aguaCorporalPct}%\n\n`;
+                texto += `📈 *COMPOSIÇÃO CORPORAL & BIOIMPEDÂNCIA:*\n`;
+                texto += `• *Peso Atual:* ${bio.peso} kg (${bio.pesoAvaliacao})\n`;
+                texto += `• *Biótipo / Controle:* ${bio.avatarNome}\n`;
+                texto += `• *IMC:* ${bio.imc} kg/m² (${bio.imcClass})\n`;
+                texto += `• *% Gordura Corporal:* ${bio.gorduraPct}% (${bio.massaGordaKg} kg - ${bio.gorduraAvaliacao})\n`;
+                texto += `• *Massa Muscular:* ${bio.massaMuscularKg} kg (${bio.massaMuscularPct}% do corpo - ${bio.musculoAvaliacao})\n`;
+                texto += `• *Gordura Visceral:* Nível ${bio.visceral} (${bio.visceralClass})\n`;
+                texto += `• *Idade Corporal:* ${bio.idadeMetabolica} anos (Cronológica: ${bio.idade} anos)\n`;
+                texto += `• *Taxa Metabólica Basal:* ${bio.tmb} Kcal/dia\n\n`;
             }
 
             texto += `📐 *CIRCUNFERÊNCIAS (FITA MÉTRICA):*\n`;
