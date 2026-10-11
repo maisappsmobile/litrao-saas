@@ -202,14 +202,51 @@
                 </div>
             </div>
             
+            <!-- BARRA DE CONTROLE DE ORDEM DE APRESENTAÇÃO -->
+            <div class="mb-3.5 pb-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-500 flex items-center">
+                        <i class="fa-solid fa-arrow-down-short-wide text-brand-light mr-1.5"></i> Ordenar por:
+                    </span>
+                    <select id="select-ordem-clientes" onchange="mudarOrdemApresentacao(this.value)" class="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-1.5 font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light cursor-pointer text-xs transition">
+                        <option value="data_desc">📅 Mais Recentes Primeiro (Padrão)</option>
+                        <option value="data_asc">📅 Mais Antigos Primeiro</option>
+                        <option value="nome_asc">🔤 Nome do Cliente (A → Z)</option>
+                        <option value="nome_desc">🔤 Nome do Cliente (Z → A)</option>
+                        <option value="peso_desc">⚖️ Maior Peso Atual</option>
+                        <option value="peso_asc">⚖️ Menor Peso Atual</option>
+                        <option value="avaliacoes_desc">📈 Mais Avaliações Realizadas</option>
+                    </select>
+                </div>
+                <div class="text-[11px] text-gray-400 font-medium">
+                    <span id="contador-filtrados-texto" class="font-bold text-gray-700"></span>
+                    <span class="hidden sm:inline">• Dica: você também pode clicar nos títulos da tabela para ordenar</span>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-600">
-                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b text-[11px]">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b text-[11px] select-none">
                         <tr>
-                            <th class="p-3">Cliente / Histórico</th>
+                            <th class="p-3 cursor-pointer hover:bg-gray-100 transition" onclick="alternarColunaOrdem('nome')" title="Clique para ordenar por Nome">
+                                <div class="flex items-center space-x-1">
+                                    <span>Cliente / Histórico</span>
+                                    <span id="icone-ordem-nome" class="text-gray-300 text-[10px]"><i class="fa-solid fa-sort"></i></span>
+                                </div>
+                            </th>
                             <th class="p-3">WhatsApp</th>
-                            <th class="p-3">Última Avaliação</th>
-                            <th class="p-3">Peso Atual</th>
+                            <th class="p-3 cursor-pointer hover:bg-gray-100 transition" onclick="alternarColunaOrdem('data')" title="Clique para ordenar por Data">
+                                <div class="flex items-center space-x-1">
+                                    <span>Última Avaliação</span>
+                                    <span id="icone-ordem-data" class="text-blue-600 text-[10px]"><i class="fa-solid fa-sort-down"></i></span>
+                                </div>
+                            </th>
+                            <th class="p-3 cursor-pointer hover:bg-gray-100 transition" onclick="alternarColunaOrdem('peso')" title="Clique para ordenar por Peso">
+                                <div class="flex items-center space-x-1">
+                                    <span>Peso Atual</span>
+                                    <span id="icone-ordem-peso" class="text-gray-300 text-[10px]"><i class="fa-solid fa-sort"></i></span>
+                                </div>
+                            </th>
                             <th class="p-3">Medidas (B/C/A/Q)</th>
                             <th class="p-3">Foco</th>
                             <th class="p-3">Origem</th>
@@ -808,8 +845,67 @@
         }
 
         let todasAvaliacoesCache = [];
-
         let clienteExpandidoKey = null;
+        let ordemClientesAtual = 'data_desc';
+
+        function mudarOrdemApresentacao(ordem) {
+            ordemClientesAtual = ordem;
+            const select = document.getElementById('select-ordem-clientes');
+            if (select && select.value !== ordem) {
+                select.value = ordem;
+            }
+            atualizarIconesOrdemCabecalho();
+            renderizarTabelaAgrupada();
+        }
+
+        function alternarColunaOrdem(coluna) {
+            if (coluna === 'nome') {
+                mudarOrdemApresentacao(ordemClientesAtual === 'nome_asc' ? 'nome_desc' : 'nome_asc');
+            } else if (coluna === 'data') {
+                mudarOrdemApresentacao(ordemClientesAtual === 'data_desc' ? 'data_asc' : 'data_desc');
+            } else if (coluna === 'peso') {
+                mudarOrdemApresentacao(ordemClientesAtual === 'peso_desc' ? 'peso_asc' : 'peso_desc');
+            }
+        }
+
+        function atualizarIconesOrdemCabecalho() {
+            const iconeNome = document.getElementById('icone-ordem-nome');
+            const iconeData = document.getElementById('icone-ordem-data');
+            const iconePeso = document.getElementById('icone-ordem-peso');
+
+            if (iconeNome) {
+                iconeNome.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                iconeNome.className = 'text-gray-300 text-[10px]';
+            }
+            if (iconeData) {
+                iconeData.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                iconeData.className = 'text-gray-300 text-[10px]';
+            }
+            if (iconePeso) {
+                iconePeso.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                iconePeso.className = 'text-gray-300 text-[10px]';
+            }
+
+            if (ordemClientesAtual === 'nome_asc' && iconeNome) {
+                iconeNome.innerHTML = '<i class="fa-solid fa-sort-up"></i>';
+                iconeNome.className = 'text-blue-600 text-[10px]';
+            } else if (ordemClientesAtual === 'nome_desc' && iconeNome) {
+                iconeNome.innerHTML = '<i class="fa-solid fa-sort-down"></i>';
+                iconeNome.className = 'text-blue-600 text-[10px]';
+            } else if (ordemClientesAtual === 'data_desc' && iconeData) {
+                iconeData.innerHTML = '<i class="fa-solid fa-sort-down"></i>';
+                iconeData.className = 'text-blue-600 text-[10px]';
+            } else if (ordemClientesAtual === 'data_asc' && iconeData) {
+                iconeData.innerHTML = '<i class="fa-solid fa-sort-up"></i>';
+                iconeData.className = 'text-blue-600 text-[10px]';
+            } else if (ordemClientesAtual === 'peso_desc' && iconePeso) {
+                iconePeso.innerHTML = '<i class="fa-solid fa-sort-down"></i>';
+                iconePeso.className = 'text-blue-600 text-[10px]';
+            } else if (ordemClientesAtual === 'peso_asc' && iconePeso) {
+                iconePeso.innerHTML = '<i class="fa-solid fa-sort-up"></i>';
+                iconePeso.className = 'text-blue-600 text-[10px]';
+            }
+        }
 
         function normalizarChaveCliente(item) {
             const whats = (item.whatsapp_cliente || '').replace(/\D/g, '');
@@ -820,20 +916,48 @@
 
         async function carregarAvaliacoes() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
-            corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando avaliações...</td></tr>';
+            corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando todas as avaliações...</td></tr>';
 
-            const { data, error } = await supabaseClient
-                .from('avaliacoes')
-                .select('*')
-                .eq('herbalife_id', consultorAtual.herbalife_id)
-                .order('criado_em', { ascending: false });
+            let todas = [];
+            let de = 0;
+            const tamanhoPagina = 1000;
+            let temMais = true;
 
-            if (error || !data || data.length === 0) {
+            try {
+                while (temMais) {
+                    const { data, error } = await supabaseClient
+                        .from('avaliacoes')
+                        .select('*')
+                        .eq('herbalife_id', consultorAtual.herbalife_id)
+                        .order('criado_em', { ascending: false })
+                        .range(de, de + tamanhoPagina - 1);
+
+                    if (error) {
+                        console.error("Erro ao carregar avaliações:", error);
+                        break;
+                    }
+
+                    if (data && data.length > 0) {
+                        todas = todas.concat(data);
+                        if (data.length < tamanhoPagina) {
+                            temMais = false;
+                        } else {
+                            de += tamanhoPagina;
+                        }
+                    } else {
+                        temMais = false;
+                    }
+                }
+            } catch (err) {
+                console.error("Erro no loop de paginação:", err);
+            }
+
+            if (todas.length === 0) {
                 corpo.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">Nenhuma avaliação respondida ainda.</td></tr>';
                 return;
             }
 
-            todasAvaliacoesCache = data;
+            todasAvaliacoesCache = todas;
             renderizarTabelaAgrupada();
         }
 
@@ -856,12 +980,36 @@
                 gruposMap.get(key).push(item);
             });
 
-            // Ordena os grupos pela avaliação mais recente
+            // Cria lista consolidada de grupos
             let grupos = Array.from(gruposMap.entries()).map(([key, lista]) => {
-                // Ordena lista decrescente por criado_em
+                // Ordena lista cronológica decrescente por criado_em para determinar a mais recente
                 lista.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
                 return { key, itens: lista, maisRecente: lista[0], total: lista.length };
-            }).sort((a, b) => new Date(b.maisRecente.criado_em).getTime() - new Date(a.maisRecente.criado_em).getTime());
+            });
+
+            // Aplica a ordem selecionada pelo usuário
+            grupos.sort((a, b) => {
+                if (ordemClientesAtual === 'nome_asc') {
+                    return (a.maisRecente.nome_cliente || '').localeCompare(b.maisRecente.nome_cliente || '', 'pt-BR', { sensitivity: 'base' });
+                }
+                if (ordemClientesAtual === 'nome_desc') {
+                    return (b.maisRecente.nome_cliente || '').localeCompare(a.maisRecente.nome_cliente || '', 'pt-BR', { sensitivity: 'base' });
+                }
+                if (ordemClientesAtual === 'peso_desc') {
+                    return (parseFloat(b.maisRecente.peso) || 0) - (parseFloat(a.maisRecente.peso) || 0);
+                }
+                if (ordemClientesAtual === 'peso_asc') {
+                    return (parseFloat(a.maisRecente.peso) || 0) - (parseFloat(b.maisRecente.peso) || 0);
+                }
+                if (ordemClientesAtual === 'avaliacoes_desc') {
+                    return b.total - a.total;
+                }
+                if (ordemClientesAtual === 'data_asc') {
+                    return new Date(a.maisRecente.criado_em).getTime() - new Date(b.maisRecente.criado_em).getTime();
+                }
+                // Padrão: data_desc (Mais recentes primeiro)
+                return new Date(b.maisRecente.criado_em).getTime() - new Date(a.maisRecente.criado_em).getTime();
+            });
 
             // Aplica filtro de pesquisa se digitado
             if (filtroBuscaCliente) {
@@ -870,6 +1018,12 @@
                     const whats = (g.maisRecente.whatsapp_cliente || '').toLowerCase();
                     return nome.includes(filtroBuscaCliente) || whats.includes(filtroBuscaCliente);
                 });
+            }
+
+            // Atualiza contador de registros exibidos
+            const contadorTexto = document.getElementById('contador-filtrados-texto');
+            if (contadorTexto) {
+                contadorTexto.innerText = `${grupos.length} cliente${grupos.length === 1 ? '' : 's'} exibido${grupos.length === 1 ? '' : 's'} (${todasAvaliacoesCache.length} avaliações)`;
             }
 
             if (grupos.length === 0) {
