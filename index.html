@@ -253,18 +253,39 @@
                 </div>
             </div>
 
-            <!-- Botão que leva para os 2 passos de cadastro -->
-            <a href="#passos" class="block bg-transparent border-2 border-white/30 hover:border-brand-yellow bg-white/5 text-white font-bold text-center py-4 px-6 rounded-3xl shadow-lg hover:bg-white/10 transition transform hover:scale-[1.02] text-[16px] md:text-xl w-full max-w-3xl leading-snug">
-                Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?
-            </a>
+            <!-- Botão que abre os 2 passos com gatilho -->
+            <button onclick="liberarPassoAPasso()" id="btn-abrir-passos" type="button" class="block bg-transparent border-2 border-white/40 hover:border-brand-yellow bg-white/10 hover:bg-white/20 text-white font-black text-center py-5 px-6 rounded-3xl shadow-xl transition transform hover:scale-[1.02] text-[16px] md:text-xl w-full max-w-3xl leading-snug cursor-pointer group">
+                <span class="block">Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?</span>
+                <span class="inline-flex items-center text-xs md:text-sm text-brand-yellow font-extrabold mt-2.5 uppercase tracking-wider group-hover:underline">
+                    👉 Toque aqui para ver o Passo a Passo de Renda Extra <i class="fa-solid fa-arrow-down ml-2 animate-bounce"></i>
+                </span>
+            </button>
 
         </div>
     </section>
 
-    <!-- NOVA SEÇÃO: 2 Passos para Cadastro -->
-    <section id="passos" class="py-16 px-4 bg-white relative overflow-hidden">
+    <!-- NOVA SEÇÃO: 2 Passos para Cadastro (Oculta por padrão, abre ao clicar com gatilhos) -->
+    <section id="passos" class="hidden py-16 px-4 bg-white relative overflow-hidden border-t-4 border-brand-yellow transition-all duration-500">
         <div class="max-w-3xl mx-auto">
             
+            <!-- Bloco de Gatilhos Mentais de Abertura -->
+            <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-green-50 border-2 border-brand-yellow p-6 md:p-8 rounded-3xl mb-12 shadow-lg text-center">
+                <span class="bg-red-600 text-white text-[11px] font-black px-3.5 py-1 rounded-full uppercase tracking-wider animate-pulse inline-block mb-3">
+                    🔥 OPORTUNIDADE EXCLUSIVA • VAGAS LIMITADAS NA EQUIPE
+                </span>
+                <h3 class="text-xl md:text-2xl font-black text-brand-dark-green mb-2">
+                    Acesso Liberado ao Plano de R$ 500/Semana!
+                </h3>
+                <p class="text-sm md:text-base text-gray-700 max-w-xl mx-auto leading-relaxed">
+                    Você terá <strong>treinamento prático</strong>, materiais prontos de divulgação e <strong>acompanhamento VIP direto</strong> para lucrar com o Litrão do Reset.
+                </p>
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs font-bold text-gray-600">
+                    <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Sem experiência prévia</span>
+                    <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Suporte 1 a 1 no WhatsApp</span>
+                    <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Método 100% validado</span>
+                </div>
+            </div>
+
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-brand-dark-green mb-4">Transforme-se em 2 passos.</h2>
                 <h3 class="text-2xl md:text-3xl font-bold text-brand-yellow bg-gray-50 py-2 px-6 inline-block rounded-full border border-gray-100 shadow-sm">Renda extra já!</h3>
@@ -350,19 +371,42 @@
 
             </div>
             
-            <!-- Assinatura Dinâmica -->
-            <div class="mt-12 text-center text-gray-500 flex flex-col items-center justify-center">
-                <span id="footer-name" class="font-black text-xl tracking-wider text-gray-800"></span>
-                <span id="footer-city" class="text-sm font-medium text-gray-500 mt-0.5"></span>
-                <span id="footer-phone" class="text-sm font-bold bg-gray-100 py-1.5 px-4 rounded-full mt-2 text-gray-700"></span>
-            </div>
-            
         </div>
     </section>
+
+    <!-- Rodapé Oficial com Assinatura Dinâmica (Sempre Visível) -->
+    <footer class="py-12 px-4 bg-gray-50 border-t border-gray-200 text-center">
+        <div class="max-w-md mx-auto flex flex-col items-center justify-center">
+            <span id="footer-name" class="font-black text-xl tracking-wider text-gray-800"></span>
+            <span id="footer-city" class="text-sm font-medium text-gray-500 mt-0.5"></span>
+            <span id="footer-phone" class="text-sm font-bold bg-white border border-gray-200 py-1.5 px-4 rounded-full mt-2.5 text-gray-700 shadow-sm"></span>
+        </div>
+    </footer>
 
     <!-- Scripts do Supabase e Lógica -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Função para liberar os 2 passos com gatilho
+        function liberarPassoAPasso() {
+            const secao = document.getElementById('passos');
+            const btn = document.getElementById('btn-abrir-passos');
+            if (secao) {
+                secao.classList.remove('hidden');
+                setTimeout(() => {
+                    secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+            if (btn) {
+                btn.classList.add('border-brand-yellow', 'bg-white/20');
+                btn.innerHTML = `
+                    <span class="block">Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?</span>
+                    <span class="inline-flex items-center text-xs md:text-sm text-yellow-300 font-extrabold mt-2.5 uppercase tracking-wider">
+                        ✅ Acesso Liberado Abaixo! Veja os 2 Passos <i class="fa-solid fa-check ml-1.5 text-green-400"></i>
+                    </span>
+                `;
+            }
+        }
+
         // Função do Acordeão (Interface)
         function toggleAccordion(contentId, iconId) {
             const content = document.getElementById(contentId);
