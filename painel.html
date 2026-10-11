@@ -38,28 +38,33 @@
             <p class="text-gray-500 text-sm mt-1">Digite seu ID para entrar</p>
         </div>
 
-        <form onsubmit="fazerLogin(event)">
+        <form onsubmit="fazerLogin(event)" novalidate>
             <div class="mb-4">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
                 <div class="relative">
                     <i class="fa-regular fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-id" required placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    <input type="text" id="login-id" placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
                 </div>
             </div>
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
                 <div class="relative">
                     <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-senha" required placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                    <input type="text" id="login-senha" maxlength="3" oninput="this.value = this.value.toUpperCase();" placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
                 </div>
                 <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
                     <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (em MAIÚSCULAS).
                 </p>
             </div>
-            <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition">
+            <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center">
                 ENTRAR
             </button>
-            <p id="login-erro" class="text-red-500 text-sm text-center mt-3 hidden">Dados incorretos. Verifique e tente novamente.</p>
+            
+            <!-- Box de Alerta Visível e Estilizado -->
+            <div id="login-erro" class="hidden mt-4 p-3.5 rounded-xl text-xs font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2 shadow-sm">
+                <i class="fa-solid fa-circle-exclamation text-base flex-shrink-0 mt-0.5"></i>
+                <span id="login-erro-msg">Dados incorretos.</span>
+            </div>
             
             <div class="mt-8 text-center border-t border-gray-100 pt-6">
                 <p class="text-sm text-gray-500 mb-3">Ainda não faz parte do projeto?</p>
@@ -810,34 +815,100 @@
 
         let consultorAtual = null;
 
-        async function fazerLogin(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-login');
-            const erro = document.getElementById('login-erro');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            erro.classList.add('hidden');
-
-            const id = document.getElementById('login-id').value.trim();
-            const senha = document.getElementById('login-senha').value.trim().toUpperCase();
-            const { data, error } = await supabaseClient.from('consultores').select('*').eq('herbalife_id', id);
-            
-            btn.innerHTML = 'ENTRAR';
-
-            if (data && data.length > 0) {
-                const consultor = data[0];
-                const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
-                
-                // Valida com as 3 letras oficiais cadastradas no banco
-                if (senha === letrasCadastradas) {
-                    consultorAtual = consultor;
-                    mostrarDashboard();
-                } else {
-                    erro.innerText = 'Senha incorreta! Digite as 3 letras do seu cadastro em MAIÚSCULAS.';
-                    erro.classList.remove('hidden');
-                }
+        function exibirErroLogin(msg, tipo = 'erro') {
+            const erroBox = document.getElementById('login-erro');
+            const erroMsg = document.getElementById('login-erro-msg');
+            if (!erroBox || !erroMsg) return;
+            erroMsg.innerHTML = msg;
+            if (tipo === 'aviso') {
+                erroBox.className = 'mt-4 p-3.5 rounded-xl text-xs font-bold border border-yellow-300 bg-yellow-50 text-yellow-800 flex items-start space-x-2 shadow-sm';
             } else {
-                erro.innerText = 'ID não encontrado. Verifique e tente novamente.';
-                erro.classList.remove('hidden');
+                erroBox.className = 'mt-4 p-3.5 rounded-xl text-xs font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2 shadow-sm';
+            }
+            erroBox.classList.remove('hidden');
+        }
+
+        function ocultarErroLogin() {
+            const erroBox = document.getElementById('login-erro');
+            if (erroBox) erroBox.classList.add('hidden');
+        }
+
+        async function fazerLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            ocultarErroLogin();
+
+            const idInput = document.getElementById('login-id');
+            const senhaInput = document.getElementById('login-senha');
+            const idRaw = idInput ? idInput.value.trim() : '';
+            const senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
+
+            // 1. Validação de campos vazios com aviso claro
+            if (!idRaw) {
+                exibirErroLogin('Por favor, informe o seu <strong>ID Herbalife</strong> para entrar.', 'aviso');
+                if (idInput) idInput.focus();
+                return;
+            }
+            if (!senha) {
+                exibirErroLogin('Por favor, digite as <strong>3 letras da sua senha</strong> em MAIÚSCULAS.', 'aviso');
+                if (senhaInput) senhaInput.focus();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VERIFICANDO...';
+
+            const idLimpo = idRaw.replace(/\D/g, '') || idRaw;
+
+            try {
+                // Tenta consultar pelo ID numérico limpo ou pelo valor original
+                let { data, error } = await supabaseClient
+                    .from('consultores')
+                    .select('*')
+                    .eq('herbalife_id', idLimpo);
+
+                if ((!data || data.length === 0) && idLimpo !== idRaw) {
+                    const fallback = await supabaseClient
+                        .from('consultores')
+                        .select('*')
+                        .eq('herbalife_id', idRaw);
+                    data = fallback.data;
+                    error = fallback.error;
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = 'ENTRAR';
+
+                if (error) {
+                    console.error("Erro Supabase:", error);
+                    exibirErroLogin('Falha de conexão com o banco de dados. Verifique sua internet e tente novamente.');
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    const consultor = data[0];
+                    const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
+
+                    // Valida com as 3 letras oficiais cadastradas no banco
+                    if (senha === letrasCadastradas) {
+                        consultorAtual = consultor;
+                        try {
+                            localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
+                        } catch (e) {}
+                        mostrarDashboard();
+                    } else {
+                        exibirErroLogin(`Senha incorreta! Digite as 3 letras oficiais do seu cadastro (Ex: BRA).`);
+                        if (senhaInput) senhaInput.focus();
+                    }
+                } else {
+                    exibirErroLogin(`ID <strong>${idRaw}</strong> não encontrado no sistema! Verifique os números ou clique em <strong>CRIAR MINHA CONTA</strong>.`);
+                    if (idInput) idInput.focus();
+                }
+            } catch (err) {
+                console.error("Exceção no login:", err);
+                btn.disabled = false;
+                btn.innerHTML = 'ENTRAR';
+                exibirErroLogin('Ocorreu um erro ao conectar. Verifique sua conexão e tente novamente.');
             }
         }
 
@@ -3746,11 +3817,37 @@
 
         function logout() {
             consultorAtual = null;
+            try {
+                localStorage.removeItem('litrao_consultor_auth');
+            } catch (e) {}
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
             document.getElementById('login-senha').value = '';
+            ocultarErroLogin();
         }
+
+        // Auto-login silencioso se o consultor já se conectou neste navegador
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const salvo = localStorage.getItem('litrao_consultor_auth');
+                if (salvo) {
+                    const creds = JSON.parse(salvo);
+                    if (creds && creds.id && creds.letras) {
+                        const { data } = await supabaseClient.from('consultores').select('*').eq('herbalife_id', creds.id);
+                        if (data && data.length > 0) {
+                            const consultor = data[0];
+                            if ((consultor.letras || '').trim().toUpperCase() === creds.letras.trim().toUpperCase()) {
+                                consultorAtual = consultor;
+                                mostrarDashboard();
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Auto-login:", err);
+            }
+        });
 
         function abrirTreinamento(tipo) {
             const modal = document.getElementById('modal-treinamento');
