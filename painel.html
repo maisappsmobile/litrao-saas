@@ -956,18 +956,31 @@
             const dataAtual = new Date(item.criado_em).getTime();
             const historicoAnteriores = todasDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
 
-            // Pega a mais recente antes da atual (ou se não houver anterior temporal, a próxima do histórico)
-            avaliacaoAnteriorAtual = historicoAnteriores.length > 0 ? historicoAnteriores[0] : (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id ? todasDoCliente[todasDoCliente.length - 1] : null);
+            // Determina as referências:
+            // 1. avaliacaoInicialCliente: a primeira avaliação cronológica da história do cliente
+            // 2. avaliacaoPenultimaCliente: a avaliação imediatamente anterior à selecionada
+            const avaliacaoInicialCliente = (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id) 
+                ? todasDoCliente[todasDoCliente.length - 1] 
+                : null;
 
-            // Se a avaliação atual não tiver altura/nascimento preenchidos, herda da anterior caso exista
-            if ((!item.altura || !item.data_nascimento) && avaliacaoAnteriorAtual) {
-                item.altura = item.altura || avaliacaoAnteriorAtual.altura;
-                item.data_nascimento = item.data_nascimento || avaliacaoAnteriorAtual.data_nascimento;
-                item.genero = item.genero || avaliacaoAnteriorAtual.genero;
+            // Penúltima imediatamente anterior à atual (no tempo)
+            const avaliacaoPenultimaCliente = historicoAnteriores.length > 0 ? historicoAnteriores[0] : null;
+
+            // Mantém avaliacaoAnteriorAtual como a imediatamente anterior para compatibilidade
+            avaliacaoAnteriorAtual = avaliacaoPenultimaCliente || avaliacaoInicialCliente;
+
+            // Se a avaliação atual não tiver altura/nascimento preenchidos, herda do cadastro do cliente
+            if ((!item.altura || !item.data_nascimento) && (avaliacaoPenultimaCliente || avaliacaoInicialCliente)) {
+                const refCad = avaliacaoPenultimaCliente || avaliacaoInicialCliente;
+                item.altura = item.altura || refCad.altura;
+                item.data_nascimento = item.data_nascimento || refCad.data_nascimento;
+                item.genero = item.genero || refCad.genero;
             }
 
             bioCalculadaAtual = calcularBioimpedancia(item);
-            bioCalculadaAnterior = avaliacaoAnteriorAtual ? calcularBioimpedancia(avaliacaoAnteriorAtual) : null;
+            const bioInicial = avaliacaoInicialCliente ? calcularBioimpedancia(avaliacaoInicialCliente) : null;
+            const bioPenultima = avaliacaoPenultimaCliente ? calcularBioimpedancia(avaliacaoPenultimaCliente) : null;
+            bioCalculadaAnterior = bioPenultima || bioInicial;
 
             const modal = document.getElementById('modal-ficha');
             const cont = document.getElementById('modal-ficha-conteudo');
@@ -988,13 +1001,91 @@
                 const dif = parseFloat((vAtual - vAnt).toFixed(1));
                 if (dif === 0) return `<span class="text-[11px] font-bold text-gray-400 block mt-0.5">Sem alteração</span>`;
                 
-                // Em perda de peso e medidas: negativo é bom (verde), positivo é ruim (vermelho)
-                // Se invertido (ex: massa muscular): positivo é bom (verde)
                 const isBom = invertido ? dif > 0 : dif < 0;
                 const cor = isBom ? 'text-green-600' : 'text-red-500';
                 const sinal = dif > 0 ? `+${dif}` : `${dif}`;
                 const icone = dif < 0 ? '↓' : '↑';
                 return `<span class="text-[11px] font-black ${cor} block mt-0.5">${icone} ${sinal} ${unidade}</span>`;
+            }
+
+            // Gera tabela de evolução comparativa com visual elegante
+            function renderTabelaEvolucao(titulo, subtitulo, iconeClass, corBg, antObj, bioAntObj, tagTipo) {
+                if (!antObj) return '';
+                const difPeso = parseFloat((parseFloat(item.peso) - parseFloat(antObj.peso)).toFixed(1));
+                const dtAntFmt = new Date(antObj.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+                return `
+                    <div class="mb-4 overflow-hidden rounded-xl border ${corBg === 'emerald' ? 'border-emerald-300' : 'border-blue-300'} shadow-sm">
+                        <div class="${corBg === 'emerald' ? 'bg-emerald-600' : 'bg-blue-600'} text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center"><i class="${iconeClass} mr-2"></i> ${titulo}</span>
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono">${subtitulo}: ${dtAntFmt}</span>
+                        </div>
+                        <table class="w-full text-xs text-left">
+                            <thead class="${corBg === 'emerald' ? 'bg-emerald-50 text-emerald-950 border-emerald-200' : 'bg-blue-50 text-blue-950 border-blue-200'} font-bold border-b">
+                                <tr>
+                                    <th class="p-2.5">Indicador</th>
+                                    <th class="p-2.5 text-center">${tagTipo}</th>
+                                    <th class="p-2.5 text-center">Atual</th>
+                                    <th class="p-2.5 text-right font-black">Evolução</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Peso Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${antObj.peso} kg</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${item.peso} kg</td>
+                                    <td class="p-2.5 text-right font-black ${difPeso <= 0 ? 'text-green-600' : 'text-red-500'}">
+                                        ${difPeso > 0 ? `+${difPeso}` : difPeso} kg
+                                    </td>
+                                </tr>
+                                ${bioAntObj && bioCalculadaAtual ? `
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">% Gordura Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioAntObj.gorduraPct}%</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.gorduraPct}%</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.gorduraPct <= bioAntObj.gorduraPct ? 'text-green-600' : 'text-red-500'}">
+                                        ${(bioCalculadaAtual.gorduraPct - bioAntObj.gorduraPct) > 0 ? '+' : ''}${(bioCalculadaAtual.gorduraPct - bioAntObj.gorduraPct).toFixed(1)}%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Músculo Esquelético</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioAntObj.massaMuscularKg} kg</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.massaMuscularKg} kg</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.massaMuscularKg >= bioAntObj.massaMuscularKg ? 'text-green-600' : 'text-yellow-600'}">
+                                        ${(bioCalculadaAtual.massaMuscularKg - bioAntObj.massaMuscularKg) > 0 ? '+' : ''}${(bioCalculadaAtual.massaMuscularKg - bioAntObj.massaMuscularKg).toFixed(1)} kg
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Gordura Visceral</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioAntObj.visceral}</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.visceral}</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.visceral <= bioAntObj.visceral ? 'text-green-600' : 'text-red-500'}">
+                                        ${(bioCalculadaAtual.visceral - bioAntObj.visceral) > 0 ? '+' : ''}${bioCalculadaAtual.visceral - bioAntObj.visceral}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Idade Corporal</td>
+                                    <td class="p-2.5 text-center text-gray-500">${bioAntObj.idadeMetabolica} anos</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.idadeMetabolica} anos</td>
+                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.idadeMetabolica <= bioAntObj.idadeMetabolica ? 'text-green-600' : 'text-red-500'}">
+                                        ${(bioCalculadaAtual.idadeMetabolica - bioAntObj.idadeMetabolica) > 0 ? '+' : ''}${bioCalculadaAtual.idadeMetabolica - bioAntObj.idadeMetabolica} anos
+                                    </td>
+                                </tr>
+                                ` : ''}
+                                ${(antObj.cintura && item.cintura) || (antObj.abdomen && item.abdomen) ? `
+                                <tr>
+                                    <td class="p-2.5 font-bold text-gray-700">Cintura / Abdômen</td>
+                                    <td class="p-2.5 text-center text-gray-500">${antObj.cintura || '-'} / ${antObj.abdomen || '-'} cm</td>
+                                    <td class="p-2.5 text-center font-bold text-gray-900">${item.cintura || '-'} / ${item.abdomen || '-'} cm</td>
+                                    <td class="p-2.5 text-right font-black text-gray-700">
+                                        ${antObj.abdomen && item.abdomen ? ((item.abdomen - antObj.abdomen) <= 0 ? `<span class="text-green-600">${(item.abdomen - antObj.abdomen).toFixed(1)} cm</span>` : `<span class="text-red-500">+${(item.abdomen - antObj.abdomen).toFixed(1)} cm</span>`) : '-'}
+                                    </td>
+                                </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
             }
 
             cont.innerHTML = `
@@ -1028,7 +1119,7 @@
                             <span class="text-xs font-black text-blue-900 uppercase">
                                 <i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico do Cliente (${todasDoCliente.length} avaliações cadastradas)
                             </span>
-                            <span class="text-[10px] text-blue-700 font-bold">Selecione para alternar:</span>
+                            <span class="text-[10px] text-blue-700 font-bold">Selecione a data para visualizar:</span>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
                             ${todasDoCliente.map((av, idx) => {
@@ -1046,68 +1137,18 @@
                         </div>
                     </div>
                     ` : ''}
-                    ${avaliacaoAnteriorAtual ? `
-                    <div class="mb-5 overflow-hidden rounded-xl border border-emerald-300 shadow-sm">
-                        <div class="bg-emerald-600 text-white font-black text-xs px-4 py-2 uppercase tracking-wider flex items-center justify-between">
-                            <span><i class="fa-solid fa-chart-line mr-2"></i> Resumo das Avaliações (Evolução)</span>
-                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded">Anterior: ${new Date(avaliacaoAnteriorAtual.criado_em).toLocaleDateString('pt-BR')}</span>
-                        </div>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-emerald-50 text-emerald-950 font-bold border-b border-emerald-200">
-                                <tr>
-                                    <th class="p-2.5">Indicador</th>
-                                    <th class="p-2.5 text-center">Início</th>
-                                    <th class="p-2.5 text-center">Atual</th>
-                                    <th class="p-2.5 text-right font-black">Evolução</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 bg-white">
-                                <tr>
-                                    <td class="p-2.5 font-bold text-gray-700">Peso Corporal</td>
-                                    <td class="p-2.5 text-center text-gray-500">${avaliacaoAnteriorAtual.peso} kg</td>
-                                    <td class="p-2.5 text-center font-bold text-gray-900">${item.peso} kg</td>
-                                    <td class="p-2.5 text-right font-black ${parseFloat(item.peso) <= parseFloat(avaliacaoAnteriorAtual.peso) ? 'text-green-600' : 'text-red-500'}">
-                                        ${(parseFloat(item.peso) - parseFloat(avaliacaoAnteriorAtual.peso)).toFixed(1)} kg
-                                    </td>
-                                </tr>
-                                ${bioCalculadaAnterior && bioCalculadaAtual ? `
-                                <tr>
-                                    <td class="p-2.5 font-bold text-gray-700">% Gordura Corporal</td>
-                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.gorduraPct}%</td>
-                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.gorduraPct}%</td>
-                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.gorduraPct <= bioCalculadaAnterior.gorduraPct ? 'text-green-600' : 'text-red-500'}">
-                                        ${(bioCalculadaAtual.gorduraPct - bioCalculadaAnterior.gorduraPct).toFixed(1)}%
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2.5 font-bold text-gray-700">Músculo Esquelético</td>
-                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.massaMuscularKg} kg</td>
-                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.massaMuscularKg} kg</td>
-                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.massaMuscularKg >= bioCalculadaAnterior.massaMuscularKg ? 'text-green-600' : 'text-yellow-600'}">
-                                        ${(bioCalculadaAtual.massaMuscularKg - bioCalculadaAnterior.massaMuscularKg).toFixed(1)} kg
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2.5 font-bold text-gray-700">Gordura Visceral</td>
-                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.visceral}</td>
-                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.visceral}</td>
-                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.visceral <= bioCalculadaAnterior.visceral ? 'text-green-600' : 'text-red-500'}">
-                                        ${bioCalculadaAtual.visceral - bioCalculadaAnterior.visceral}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2.5 font-bold text-gray-700">Idade Corporal</td>
-                                    <td class="p-2.5 text-center text-gray-500">${bioCalculadaAnterior.idadeMetabolica} anos</td>
-                                    <td class="p-2.5 text-center font-bold text-gray-900">${bioCalculadaAtual.idadeMetabolica} anos</td>
-                                    <td class="p-2.5 text-right font-black ${bioCalculadaAtual.idadeMetabolica <= bioCalculadaAnterior.idadeMetabolica ? 'text-green-600' : 'text-red-500'}">
-                                        ${bioCalculadaAtual.idadeMetabolica - bioCalculadaAnterior.idadeMetabolica} anos
-                                    </td>
-                                </tr>
-                                ` : ''}
-                            </tbody>
-                        </table>
-                    </div>
+
+                    <!-- 1. RESUMO: PENÚLTIMA VS ÚLTIMA (EVOLUÇÃO RECENTE) -->
+                    ${avaliacaoPenultimaCliente && avaliacaoPenultimaCliente.id !== avaliacaoInicialCliente?.id ? `
+                        ${renderTabelaEvolucao('Evolução Recente (Penúltima vs Atual)', 'Penúltima', 'fa-solid fa-arrow-trend-up', 'blue', avaliacaoPenultimaCliente, bioPenultima, 'Penúltima')}
                     ` : ''}
+
+                    <!-- 2. RESUMO: INÍCIO VS ATUAL (EVOLUÇÃO GERAL) -->
+                    ${avaliacaoInicialCliente ? `
+                        ${renderTabelaEvolucao('Evolução Geral (Início vs Atual)', 'Inicial', 'fa-solid fa-chart-line', 'emerald', avaliacaoInicialCliente, bioInicial, 'Início')}
+                    ` : (avaliacaoPenultimaCliente ? `
+                        ${renderTabelaEvolucao('Evolução Recente (Anterior vs Atual)', 'Anterior', 'fa-solid fa-chart-line', 'emerald', avaliacaoPenultimaCliente, bioPenultima, 'Anterior')}
+                    ` : '')}
 
                     <!-- BIÓTIPO CORPORAL & AVATAR -->
                     ${bioCalculadaAtual ? `
@@ -1385,26 +1426,70 @@
             let texto = `*📊 RESULTADO DA SUA BIOIMPEDÂNCIA - LITRÃO DO RESET* 🌿\n\n`;
             texto += `Olá, *${item.nome_cliente}*! Aqui está o seu relatório completo de composição corporal:\n\n`;
 
-            if (ant) {
-                texto += `⭐ *SUA EVOLUÇÃO (COMPARAÇÃO COM O INÍCIO):*\n`;
-                const difPeso = parseFloat((parseFloat(item.peso) - parseFloat(ant.peso)).toFixed(1));
+            // Mensagem com Comparativo duplo (Penúltima e Geral/Início)
+            const chaveCliente = normalizarChaveCliente(item);
+            const todasDoCliente = todasAvaliacoesCache.filter(a => normalizarChaveCliente(a) === chaveCliente)
+                .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+
+            const dataAtual = new Date(item.criado_em).getTime();
+            const historicoAnteriores = todasDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
+            
+            const avInicial = (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id) 
+                ? todasDoCliente[todasDoCliente.length - 1] 
+                : null;
+            const avPenultima = historicoAnteriores.length > 0 ? historicoAnteriores[0] : null;
+
+            if (avPenultima && avInicial && avPenultima.id !== avInicial.id) {
+                // Tem pelo menos 3 avaliações: mostra Penúltima vs Atual e Inicial vs Atual
+                const difPesoRecente = parseFloat((parseFloat(item.peso) - parseFloat(avPenultima.peso)).toFixed(1));
+                const dtPenult = new Date(avPenultima.criado_em).toLocaleDateString('pt-BR');
+                texto += `🔹 *EVOLUÇÃO RECENTE (DESDE ${dtPenult}):*\n`;
+                if (!isNaN(difPesoRecente)) {
+                    if (difPesoRecente < 0) texto += `⚖️ *Peso:* ${avPenultima.peso} kg ➔ *${item.peso} kg* (${difPesoRecente} kg 🔥)\n`;
+                    else if (difPesoRecente > 0) texto += `⚖️ *Peso:* ${avPenultima.peso} kg ➔ *${item.peso} kg* (+${difPesoRecente} kg)\n`;
+                    else texto += `⚖️ *Peso:* ${item.peso} kg (Estável)\n`;
+                }
+                texto += `\n`;
+
+                const difPesoGeral = parseFloat((parseFloat(item.peso) - parseFloat(avInicial.peso)).toFixed(1));
+                const dtIni = new Date(avInicial.criado_em).toLocaleDateString('pt-BR');
+                texto += `⭐ *EVOLUÇÃO GERAL NO PROGRAMA (DESDE ${dtIni}):*\n`;
+                if (!isNaN(difPesoGeral)) {
+                    if (difPesoGeral < 0) texto += `🏆 *Resultado Total:* Eliminação de *${Math.abs(difPesoGeral)} kg* (${avInicial.peso} kg ➔ *${item.peso} kg*)\n`;
+                    else if (difPesoGeral > 0) texto += `📈 *Resultado Total:* Ganho de *${difPesoGeral} kg* (${avInicial.peso} kg ➔ *${item.peso} kg*)\n`;
+                    else texto += `⚖️ *Peso Geral:* Mantido em ${item.peso} kg\n`;
+                }
+                if (item.cintura && avInicial.cintura) {
+                    const difCint = parseFloat((parseFloat(item.cintura) - parseFloat(avInicial.cintura)).toFixed(1));
+                    texto += `📏 *Cintura Total:* ${avInicial.cintura} cm ➔ *${item.cintura} cm* (${difCint <= 0 ? difCint : '+' + difCint} cm)\n`;
+                }
+                if (item.abdomen && avInicial.abdomen) {
+                    const difAbd = parseFloat((parseFloat(item.abdomen) - parseFloat(avInicial.abdomen)).toFixed(1));
+                    texto += `📏 *Abdômen Total:* ${avInicial.abdomen} cm ➔ *${item.abdomen} cm* (${difAbd <= 0 ? difAbd : '+' + difAbd} cm)\n`;
+                }
+                texto += `\n`;
+            } else if (avInicial || avPenultima) {
+                const ref = avInicial || avPenultima;
+                const dtRef = new Date(ref.criado_em).toLocaleDateString('pt-BR');
+                texto += `⭐ *SUA EVOLUÇÃO (COMPARAÇÃO COM ${dtRef}):*\n`;
+                const difPeso = parseFloat((parseFloat(item.peso) - parseFloat(ref.peso)).toFixed(1));
                 if (!isNaN(difPeso)) {
-                    if (difPeso < 0) texto += `⚖️ *Peso:* ${ant.peso} kg ➔ *${item.peso} kg* (${difPeso} kg 🔥 Parabéns!)\n`;
-                    else if (difPeso > 0) texto += `⚖️ *Peso:* ${ant.peso} kg ➔ *${item.peso} kg* (+${difPeso} kg)\n`;
+                    if (difPeso < 0) texto += `⚖️ *Peso:* ${ref.peso} kg ➔ *${item.peso} kg* (${difPeso} kg 🔥 Parabéns!)\n`;
+                    else if (difPeso > 0) texto += `⚖️ *Peso:* ${ref.peso} kg ➔ *${item.peso} kg* (+${difPeso} kg)\n`;
                     else texto += `⚖️ *Peso:* ${item.peso} kg (Estável)\n`;
                 }
 
-                if (item.cintura && ant.cintura) {
-                    const difCint = parseFloat((parseFloat(item.cintura) - parseFloat(ant.cintura)).toFixed(1));
-                    texto += `📏 *Cintura:* ${ant.cintura} cm ➔ *${item.cintura} cm* (${difCint <= 0 ? difCint : '+' + difCint} cm)\n`;
+                if (item.cintura && ref.cintura) {
+                    const difCint = parseFloat((parseFloat(item.cintura) - parseFloat(ref.cintura)).toFixed(1));
+                    texto += `📏 *Cintura:* ${ref.cintura} cm ➔ *${item.cintura} cm* (${difCint <= 0 ? difCint : '+' + difCint} cm)\n`;
                 }
-                if (item.abdomen && ant.abdomen) {
-                    const difAbd = parseFloat((parseFloat(item.abdomen) - parseFloat(ant.abdomen)).toFixed(1));
-                    texto += `📏 *Abdômen:* ${ant.abdomen} cm ➔ *${item.abdomen} cm* (${difAbd <= 0 ? difAbd : '+' + difAbd} cm)\n`;
+                if (item.abdomen && ref.abdomen) {
+                    const difAbd = parseFloat((parseFloat(item.abdomen) - parseFloat(ref.abdomen)).toFixed(1));
+                    texto += `📏 *Abdômen:* ${ref.abdomen} cm ➔ *${item.abdomen} cm* (${difAbd <= 0 ? difAbd : '+' + difAbd} cm)\n`;
                 }
-                if (item.quadril && ant.quadril) {
-                    const difQuad = parseFloat((parseFloat(item.quadril) - parseFloat(ant.quadril)).toFixed(1));
-                    texto += `📏 *Quadril:* ${ant.quadril} cm ➔ *${item.quadril} cm* (${difQuad <= 0 ? difQuad : '+' + difQuad} cm)\n`;
+                if (item.quadril && ref.quadril) {
+                    const difQuad = parseFloat((parseFloat(item.quadril) - parseFloat(ref.quadril)).toFixed(1));
+                    texto += `📏 *Quadril:* ${ref.quadril} cm ➔ *${item.quadril} cm* (${difQuad <= 0 ? difQuad : '+' + difQuad} cm)\n`;
                 }
                 texto += `\n`;
             }
