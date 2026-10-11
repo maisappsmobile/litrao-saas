@@ -1696,7 +1696,7 @@
                     const delimitador = (countPontoEVirgula >= countVirgula) ? ';' : ',';
 
                     const cabecalhos = parseLinhaCSV(linhasBrutas[0], delimitador).map(c => 
-                        c.toUpperCase().trim().replace(/["']/g, '').replace(/\s+/g, '_')
+                        String(c || '').toUpperCase().trim().replace(/["']/g, '').replace(/\s+/g, '_')
                     );
                     
                     // Mapeamento flexível de índices
@@ -1704,16 +1704,16 @@
                         nome: cabecalhos.findIndex(c => c.includes('NOME') || c.includes('CLIENTE')),
                         whats: cabecalhos.findIndex(c => c.includes('WHATS') || c.includes('TEL') || c.includes('FONE') || c.includes('CEL')),
                         dataAv: cabecalhos.findIndex(c => c.includes('DATA_AV') || c.includes('DATA_CRIACAO') || c.includes('CRIADO') || c.includes('DATA_ULTIMA') || c === 'DATA'),
-                        peso: cabecalhos.findIndex(c => c.includes('PESO_ATUAL') || c.includes('PESO_KG') || c === 'PESO'),
+                        peso: cabecalhos.findIndex(c => c.includes('PESO_ATUAL') || c.includes('PESO_KG') || c === 'PESO' || c.includes('PESO')),
                         altura: cabecalhos.findIndex(c => c.includes('ALTURA')),
                         dataNasc: cabecalhos.findIndex(c => c.includes('NASC') || c.includes('NIVER')),
                         genero: cabecalhos.findIndex(c => c.includes('GENERO') || c.includes('SEXO')),
                         grupo: cabecalhos.findIndex(c => c.includes('GRUPO') || c.includes('TURMA')),
-                        gordura: cabecalhos.findIndex(c => c.includes('GORDURA_CORP') || c === 'GORDURA'),
+                        gordura: cabecalhos.findIndex(c => c.includes('GORDURA_CORP') || c === 'GORDURA' || c.includes('GORDURA')),
                         musculo: cabecalhos.findIndex(c => c.includes('MUSCULO')),
                         visceral: cabecalhos.findIndex(c => c.includes('VISCERAL')),
                         tmb: cabecalhos.findIndex(c => c.includes('TMB') || c.includes('METABOL') || c.includes('BASAL')),
-                        idadeCorp: cabecalhos.findIndex(c => c.includes('IDADE_CORP') || c.includes('IDADE_METAB')),
+                        idadeCorp: cabecalhos.findIndex(c => c.includes('IDADE_CORP') || c.includes('IDADE_METAB') || c.includes('IDADE')),
                         agua: cabecalhos.findIndex(c => c.includes('AGUA')),
                         busto: cabecalhos.findIndex(c => c.includes('BUSTO') || c.includes('TORAX')),
                         cintura: cabecalhos.findIndex(c => c.includes('CINTURA')),
@@ -1727,18 +1727,24 @@
                         codigo: cabecalhos.findIndex(c => c.includes('CODIGO'))
                     };
 
+                    const getCol = (cols, idx) => {
+                        if (idx === undefined || idx === null || idx < 0 || !cols || idx >= cols.length) return '';
+                        const val = cols[idx];
+                        if (val === undefined || val === null) return '';
+                        return String(val).replace(/^["']|["']$/g, '').trim();
+                    };
+
                     dadosCSVParaImportar = [];
                     for (let i = 1; i < linhasBrutas.length; i++) {
                         const colunas = parseLinhaCSV(linhasBrutas[i], delimitador);
-                        let nome = (indexMap.nome >= 0 ? colunas[indexMap.nome] : '') || '';
-                        nome = nome.replace(/^["']|["']$/g, '').trim();
+                        let nome = getCol(colunas, indexMap.nome);
                         if (!nome) continue; // Pula linha vazia
 
-                        const whats = (indexMap.whats >= 0 ? colunas[indexMap.whats] : '').replace(/^["']|["']$/g, '').trim();
-                        const rawPeso = (indexMap.peso >= 0 ? colunas[indexMap.peso] : '').replace(/^["']|["']$/g, '').replace(',', '.').trim();
-                        const rawAltura = (indexMap.altura >= 0 ? colunas[indexMap.altura] : '').replace(/^["']|["']$/g, '').replace(',', '.').trim();
+                        const whats = getCol(colunas, indexMap.whats);
+                        const rawPeso = getCol(colunas, indexMap.peso).replace(',', '.');
+                        const rawAltura = getCol(colunas, indexMap.altura).replace(',', '.');
                         
-                        let dataNasc = (indexMap.dataNasc >= 0 ? colunas[indexMap.dataNasc] : '').replace(/^["']|["']$/g, '').trim();
+                        let dataNasc = getCol(colunas, indexMap.dataNasc);
                         if (dataNasc) {
                             if (dataNasc.includes('/')) {
                                 const partesData = dataNasc.split(' ')[0].split('/');
@@ -1754,7 +1760,7 @@
                         }
 
                         let criadoEm = new Date().toISOString();
-                        const rawDataAv = (indexMap.dataAv >= 0 ? colunas[indexMap.dataAv] : '').replace(/^["']|["']$/g, '').trim();
+                        const rawDataAv = getCol(colunas, indexMap.dataAv);
                         if (rawDataAv) {
                             try {
                                 if (rawDataAv.includes('/')) {
@@ -1785,25 +1791,36 @@
 
                         // Empacota bioimpedância e medidas extras no campo como_foi_semana (padrão oficial do Litrão)
                         const bioExtras = {
-                            gordura: (indexMap.gordura >= 0 && colunas[indexMap.gordura]) ? colunas[indexMap.gordura].replace(',', '.').trim() : '',
-                            musculo: (indexMap.musculo >= 0 && colunas[indexMap.musculo]) ? colunas[indexMap.musculo].replace(',', '.').trim() : '',
-                            visceral: (indexMap.visceral >= 0 && colunas[indexMap.visceral]) ? colunas[indexMap.visceral].trim() : '',
-                            tmb: (indexMap.tmb >= 0 && colunas[indexMap.tmb]) ? colunas[indexMap.tmb].trim() : '',
-                            idade: (indexMap.idadeCorp >= 0 && colunas[indexMap.idadeCorp]) ? colunas[indexMap.idadeCorp].trim() : '',
-                            agua: (indexMap.agua >= 0 && colunas[indexMap.agua]) ? colunas[indexMap.agua].replace(',', '.').trim() : '',
-                            grupo: (indexMap.grupo >= 0 && colunas[indexMap.grupo]) ? colunas[indexMap.grupo].trim() : '',
-                            braco_dir: (indexMap.bracoDir >= 0 && colunas[indexMap.bracoDir]) ? colunas[indexMap.bracoDir].replace(',', '.').trim() : '',
-                            braco_esq: (indexMap.bracoEsq >= 0 && colunas[indexMap.bracoEsq]) ? colunas[indexMap.bracoEsq].replace(',', '.').trim() : '',
-                            coxa_dir: (indexMap.coxaDir >= 0 && colunas[indexMap.coxaDir]) ? colunas[indexMap.coxaDir].replace(',', '.').trim() : '',
-                            coxa_esq: (indexMap.coxaEsq >= 0 && colunas[indexMap.coxaEsq]) ? colunas[indexMap.coxaEsq].replace(',', '.').trim() : ''
+                            gordura: getCol(colunas, indexMap.gordura).replace(',', '.'),
+                            musculo: getCol(colunas, indexMap.musculo).replace(',', '.'),
+                            visceral: getCol(colunas, indexMap.visceral),
+                            tmb: getCol(colunas, indexMap.tmb),
+                            idade: getCol(colunas, indexMap.idadeCorp),
+                            agua: getCol(colunas, indexMap.agua).replace(',', '.'),
+                            grupo: getCol(colunas, indexMap.grupo),
+                            braco_dir: getCol(colunas, indexMap.bracoDir).replace(',', '.'),
+                            braco_esq: getCol(colunas, indexMap.bracoEsq).replace(',', '.'),
+                            coxa_dir: getCol(colunas, indexMap.coxaDir).replace(',', '.'),
+                            coxa_esq: getCol(colunas, indexMap.coxaEsq).replace(',', '.')
                         };
 
-                        const bustoVal = (indexMap.busto >= 0 && colunas[indexMap.busto]) ? parseFloat(colunas[indexMap.busto].replace(',', '.')) : null;
-                        const cinturaVal = (indexMap.cintura >= 0 && colunas[indexMap.cintura]) ? parseFloat(colunas[indexMap.cintura].replace(',', '.')) : null;
-                        const abdomenVal = (indexMap.abdomen >= 0 && colunas[indexMap.abdomen]) ? parseFloat(colunas[indexMap.abdomen].replace(',', '.')) : null;
-                        const quadrilVal = (indexMap.quadril >= 0 && colunas[indexMap.quadril]) ? parseFloat(colunas[indexMap.quadril].replace(',', '.')) : null;
-                        const focoVal = (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10;
-                        const codigoVal = (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO';
+                        const bustoStr = getCol(colunas, indexMap.busto).replace(',', '.');
+                        const bustoVal = bustoStr ? parseFloat(bustoStr) : null;
+
+                        const cinturaStr = getCol(colunas, indexMap.cintura).replace(',', '.');
+                        const cinturaVal = cinturaStr ? parseFloat(cinturaStr) : null;
+
+                        const abdomenStr = getCol(colunas, indexMap.abdomen).replace(',', '.');
+                        const abdomenVal = abdomenStr ? parseFloat(abdomenStr) : null;
+
+                        const quadrilStr = getCol(colunas, indexMap.quadril).replace(',', '.');
+                        const quadrilVal = quadrilStr ? parseFloat(quadrilStr) : null;
+
+                        const focoStr = getCol(colunas, indexMap.foco);
+                        const focoVal = focoStr ? parseInt(focoStr, 10) : 10;
+
+                        const codigoVal = getCol(colunas, indexMap.codigo) || 'IMPORTADO';
+                        const generoVal = getCol(colunas, indexMap.genero) || 'Feminino';
 
                         // Se o WhatsApp estiver vazio no CSV, atribui um valor padrão não-nulo para respeitar a restrição NOT NULL do banco
                         const whatsVal = whats ? whats : (nome.replace(/\D/g, '').length >= 8 ? nome.replace(/\D/g, '') : 'Sem WhatsApp');
@@ -1817,11 +1834,11 @@
                             peso: rawPeso ? rawPeso : null,
                             altura: rawAltura ? rawAltura : null,
                             data_nascimento: dataNasc || null,
-                            genero: (indexMap.genero >= 0 ? colunas[indexMap.genero] : 'Feminino') || 'Feminino',
-                            busto: bustoVal,
-                            cintura: cinturaVal,
-                            abdomen: abdomenVal,
-                            quadril: quadrilVal,
+                            genero: generoVal,
+                            busto: isNaN(bustoVal) ? null : bustoVal,
+                            cintura: isNaN(cinturaVal) ? null : cinturaVal,
+                            abdomen: isNaN(abdomenVal) ? null : abdomenVal,
+                            quadril: isNaN(quadrilVal) ? null : quadrilVal,
                             intestino: true,
                             agua: true,
                             foco: isNaN(focoVal) ? 10 : focoVal,
