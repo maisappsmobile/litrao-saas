@@ -168,6 +168,114 @@
             </div>
         </div>
 
+        <!-- MODAL: EDITAR AVALIAÇÃO -->
+        <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white max-w-xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[95vh] overflow-y-auto">
+                <button onclick="fecharEditar()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition">
+                    ✕
+                </button>
+                <div class="border-b pb-3 mb-4">
+                    <span class="bg-amber-100 text-amber-800 font-black text-xs px-3 py-1 rounded-full uppercase">
+                        Editar Dados
+                    </span>
+                    <h3 class="text-xl font-black text-brand-dark mt-2" id="editar-titulo-nome">Editar Avaliação</h3>
+                    <p class="text-xs text-gray-500">Altere os dados desejados e clique em Salvar Alterações.</p>
+                </div>
+
+                <form id="form-editar-avaliacao" onsubmit="salvarEdicaoAvaliacao(event)" class="space-y-4">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Nome do Cliente</label>
+                            <input type="text" id="edit-nome" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">WhatsApp</label>
+                            <input type="text" id="edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Peso (kg)</label>
+                            <input type="number" step="0.1" id="edit-peso" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Altura (cm)</label>
+                            <input type="number" id="edit-altura" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Nascimento</label>
+                            <input type="date" id="edit-nascimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Gênero</label>
+                            <select id="edit-genero" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                                <option value="Feminino">Feminino</option>
+                                <option value="Masculino">Masculino</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-3">
+                        <span class="block text-xs font-bold text-gray-500 uppercase mb-2">Circunferências (cm)</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Busto / Tórax</label>
+                                <input type="number" step="0.5" id="edit-busto" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Cintura</label>
+                                <input type="number" step="0.5" id="edit-cintura" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Abdômen</label>
+                                <input type="number" step="0.5" id="edit-abdomen" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Quadril</label>
+                                <input type="number" step="0.5" id="edit-quadril" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-3">
+                        <span class="block text-xs font-bold text-gray-500 uppercase mb-2">Hábitos & Foco</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Intestino</label>
+                                <select id="edit-intestino" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                                    <option value="true">Normal (Sim)</option>
+                                    <option value="false">Irregular (Não)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Meta de Água</label>
+                                <select id="edit-agua" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                                    <option value="true">Bateu a meta (Sim)</option>
+                                    <option value="false">Não bateu (Não)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-1">Nota de Foco (1 a 10)</label>
+                                <input type="number" min="1" max="10" id="edit-foco" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex gap-3">
+                        <button type="submit" id="btn-salvar-edicao" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-xl transition shadow-md flex items-center justify-center">
+                            <i class="fa-solid fa-floppy-disk mr-2"></i> Salvar Alterações
+                        </button>
+                        <button type="button" onclick="fecharEditar()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3 rounded-xl transition">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- SEÇÃO: MATERIAIS DE APOIO & COMO DIVULGAR -->
         <div class="mt-8 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
             <div class="relative z-10">
@@ -408,10 +516,18 @@
                     <td class="p-3 text-gray-600">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</td>
                     <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold">${item.foco || '-'} / 10</span></td>
                     <td class="p-3 font-mono font-bold text-xs bg-gray-50">${item.codigo_acesso || '-'}</td>
-                    <td class="p-3 text-right">
-                        <button onclick="verFichaCompleta(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
-                            <i class="fa-solid fa-file-waveform mr-1.5"></i> Ver Ficha
-                        </button>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center space-x-1.5">
+                            <button onclick="verFichaCompleta(${item.id})" title="Ver Relatório de Bioimpedância" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
+                                <i class="fa-solid fa-file-waveform mr-1"></i> Ficha
+                            </button>
+                            <button onclick="abrirEditarAvaliacao(${item.id})" title="Editar Avaliação" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="excluirAvaliacao(${item.id})" title="Excluir Avaliação" class="bg-red-500 hover:bg-red-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition shadow-sm inline-flex items-center">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 corpo.appendChild(tr);
@@ -1092,6 +1208,102 @@
 
         function fecharFicha() {
             document.getElementById('modal-ficha').classList.add('hidden');
+        }
+
+        // ==========================================
+        // EDITAR AVALIAÇÃO
+        // ==========================================
+        function abrirEditarAvaliacao(id) {
+            const item = todasAvaliacoesCache.find(a => a.id == id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('editar-titulo-nome').innerText = `Editar: ${item.nome_cliente}`;
+            document.getElementById('edit-nome').value = item.nome_cliente || '';
+            document.getElementById('edit-whatsapp').value = item.whatsapp_cliente || '';
+            document.getElementById('edit-peso').value = item.peso || '';
+            document.getElementById('edit-altura').value = item.altura || '';
+            document.getElementById('edit-nascimento').value = item.data_nascimento || '';
+            document.getElementById('edit-genero').value = item.genero || 'Feminino';
+            document.getElementById('edit-busto').value = item.busto || '';
+            document.getElementById('edit-cintura').value = item.cintura || '';
+            document.getElementById('edit-abdomen').value = item.abdomen || '';
+            document.getElementById('edit-quadril').value = item.quadril || '';
+            document.getElementById('edit-intestino').value = item.intestino ? 'true' : 'false';
+            document.getElementById('edit-agua').value = item.agua ? 'true' : 'false';
+            document.getElementById('edit-foco').value = item.foco || '8';
+
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function fecharEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+        }
+
+        async function salvarEdicaoAvaliacao(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const btn = document.getElementById('btn-salvar-edicao');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> SALVANDO...';
+            btn.disabled = true;
+
+            const payload = {
+                nome_cliente: document.getElementById('edit-nome').value.trim(),
+                whatsapp_cliente: document.getElementById('edit-whatsapp').value.trim(),
+                peso: parseFloat(document.getElementById('edit-peso').value) || null,
+                altura: parseFloat(document.getElementById('edit-altura').value) || null,
+                data_nascimento: document.getElementById('edit-nascimento').value || null,
+                genero: document.getElementById('edit-genero').value,
+                busto: parseFloat(document.getElementById('edit-busto').value) || null,
+                cintura: parseFloat(document.getElementById('edit-cintura').value) || null,
+                abdomen: parseFloat(document.getElementById('edit-abdomen').value) || null,
+                quadril: parseFloat(document.getElementById('edit-quadril').value) || null,
+                intestino: document.getElementById('edit-intestino').value === 'true',
+                agua: document.getElementById('edit-agua').value === 'true',
+                foco: parseInt(document.getElementById('edit-foco').value) || null
+            };
+
+            const { data, error } = await supabaseClient
+                .from('avaliacoes')
+                .update(payload)
+                .eq('id', id);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i> Salvar Alterações';
+
+            if (error) {
+                alert('Erro ao atualizar avaliação: ' + error.message);
+                return;
+            }
+
+            fecharEditar();
+            await carregarAvaliacoes();
+            alert('Avaliação atualizada com sucesso!');
+        }
+
+        // ==========================================
+        // EXCLUIR AVALIAÇÃO
+        // ==========================================
+        async function excluirAvaliacao(id) {
+            const item = todasAvaliacoesCache.find(a => a.id == id);
+            const nome = item ? item.nome_cliente : 'esta avaliação';
+
+            if (!confirm(`Tem certeza que deseja excluir permanentemente a avaliação de "${nome}"?\n\nEsta ação não poderá ser desfeita.`)) {
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('avaliacoes')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('Erro ao excluir avaliação: ' + error.message);
+                return;
+            }
+
+            await carregarAvaliacoes();
+            alert('Avaliação excluída com sucesso!');
         }
 
         async function gerarTiquetes() {
