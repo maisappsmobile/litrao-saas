@@ -1168,15 +1168,19 @@
                     </div>
 
                     <!-- HISTÓRICO COMPLETO DO CLIENTE (SELETOR DE CHECK-INS) -->
-                    ${todasDoCliente.length > 1 ? `
                     <div class="mb-4 bg-blue-50/70 border border-blue-200 rounded-xl p-3">
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                             <span class="text-xs font-black text-blue-900 uppercase">
                                 <i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico do Cliente (${todasDoCliente.length} avaliações cadastradas)
                             </span>
-                            <span class="text-[10px] text-blue-700 font-bold">Selecione a data para visualizar:</span>
+                            <div class="flex flex-col sm:items-end">
+                                <span class="text-[10px] text-blue-700 font-bold mb-1">Selecione a data para visualizar:</span>
+                                <button onclick="abrirNovaAvaliacaoDoCliente(${item.id})" title="Registrar Nova Avaliação para este cliente" class="bg-green-600 hover:bg-green-700 text-white font-black px-3 py-1 rounded-lg text-xs shadow transition inline-flex items-center">
+                                    <i class="fa-solid fa-plus-circle mr-1.5 text-sm"></i> Nova Avaliação
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex flex-wrap gap-1.5">
+                        <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-blue-200/60">
                             ${todasDoCliente.map((av, idx) => {
                                 const dt = new Date(av.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
                                 const isAtiva = av.id === item.id;
@@ -1191,7 +1195,6 @@
                             }).join('')}
                         </div>
                     </div>
-                    ` : ''}
 
                     <!-- RESUMO DAS AVALIAÇÕES (EXATAMENTE COMO NO MODELO: INDICADOR | ÚLTIMO | GERAL) -->
                     ${renderResumoUnificado()}
