@@ -1651,12 +1651,15 @@
                         const focoVal = (indexMap.foco >= 0 && colunas[indexMap.foco]) ? parseInt(colunas[indexMap.foco], 10) : 10;
                         const codigoVal = (indexMap.codigo >= 0 ? colunas[indexMap.codigo] : '') || 'IMPORTADO';
 
+                        // Se o WhatsApp estiver vazio no CSV, atribui um valor padrão não-nulo para respeitar a restrição NOT NULL do banco
+                        const whatsVal = whats ? whats : (nome.replace(/\D/g, '').length >= 8 ? nome.replace(/\D/g, '') : 'Sem WhatsApp');
+
                         // Objeto 100% alinhado com as colunas reais da tabela 'avaliacoes' no Supabase
                         dadosCSVParaImportar.push({
                             herbalife_id: consultorAtual.herbalife_id,
                             codigo_acesso: codigoVal,
                             nome_cliente: nome,
-                            whatsapp_cliente: whats || null,
+                            whatsapp_cliente: whatsVal,
                             peso: rawPeso ? rawPeso : null,
                             altura: rawAltura ? rawAltura : null,
                             data_nascimento: dataNasc || null,
@@ -1702,8 +1705,12 @@
 
             const btn = document.getElementById('btn-confirmar-importacao');
             const msgBox = document.getElementById('msg-resultado-importacao');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> IMPORTANDO DADOS...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> PROCESSANDO IMPORTAÇÃO...';
             btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+            msgBox.className = 'p-3.5 rounded-2xl text-xs font-bold bg-blue-50 text-blue-900 border border-blue-200 block';
+            msgBox.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-blue-600 mr-2 animate-bounce"></i> Salvando avaliações no banco de dados... Por favor, aguarde a conclusão.';
 
             try {
                 // Inserção em lotes de 100 registros para velocidade com grande volume
@@ -1713,7 +1720,10 @@
 
                 for (let i = 0; i < total; i += chunkSize) {
                     const lote = dadosCSVParaImportar.slice(i, i + chunkSize);
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> IMPORTANDO (${Math.min(inseridos + lote.length, total)}/${total})...`;
+                    const progresso = Math.min(inseridos + lote.length, total);
+                    const pct = Math.round((progresso / total) * 100);
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> IMPORTANDO ${progresso} de ${total} (${pct}%)...`;
+                    msgBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-blue-600 mr-2"></i> Gravando registros no painel (${pct}% concluído). Por favor, não feche a janela...`;
                     
                     const { error } = await supabaseClient.from('avaliacoes').insert(lote);
                     if (error) throw error;
@@ -1721,7 +1731,8 @@
                 }
 
                 msgBox.className = 'p-3.5 rounded-2xl text-xs font-bold bg-green-100 text-green-900 border border-green-300 block';
-                msgBox.innerHTML = `<i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i> Sucesso! ${inseridos} registros importados com sucesso para o seu painel!`;
+                msgBox.innerHTML = `<i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i> Sucesso! Todos os ${inseridos} registros foram importados com sucesso!`;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> DADOS IMPORTADOS COM SUCESSO!';
 
                 // Recarrega os dados do painel e atualiza os contadores
                 await carregarAvaliacoes();
@@ -1737,9 +1748,9 @@
                 console.error("Erro ao importar CSV:", err);
                 msgBox.className = 'p-3.5 rounded-2xl text-xs font-bold bg-red-100 text-red-900 border border-red-300 block';
                 msgBox.innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-600 mr-1.5"></i> Erro ao importar: ${err.message || 'Verifique o formato do arquivo'}`;
-            } finally {
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> CONFIRMAR E IMPORTAR DADOS';
                 btn.disabled = false;
+                btn.classList.remove('opacity-60', 'cursor-not-allowed');
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> TENTAR NOVAMENTE';
             }
         }
 
