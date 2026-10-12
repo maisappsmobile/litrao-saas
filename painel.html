@@ -84,14 +84,57 @@
     <!-- PAINEL DO CONSULTOR -->
     <div id="dashboard-screen" class="max-w-4xl mx-auto mt-10 p-4 hidden">
         
+        <!-- BANNER DE PROMOÇÃO DOS 7 DIAS GRÁTIS (PISCANTE COM GATILHOS) -->
+        <div id="banner-promocao-trial" class="hidden mb-6 bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-600 rounded-3xl p-5 sm:p-6 text-white shadow-2xl relative overflow-hidden border-2 border-yellow-300 ring-4 ring-amber-300/30 animate-pulse">
+            <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div class="flex-1 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 bg-black/40 backdrop-blur-sm text-yellow-300 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 border border-yellow-300/40">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                        <span>🔥 OFERTA DE BOAS-VINDAS • 7 DIAS GRÁTIS ATIVOS 🔥</span>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black text-white leading-tight">
+                        Garanta seu Acesso Vitalício de <del class="opacity-75 text-red-200">R$ 1.299,00</del> por apenas <span class="text-yellow-300 underline decoration-wavy font-extrabold text-2xl sm:text-3xl">R$ 199,00</span>!
+                    </h3>
+                    <p class="text-xs sm:text-sm text-yellow-100 font-medium mt-1.5 max-w-2xl leading-relaxed">
+                        Você está aproveitando os <strong>7 dias grátis</strong> de degustação! Garanta sua vaga com <strong>85% de desconto</strong> no PIX antes que as vagas promocionais acabem ou seu teste expire.
+                    </p>
+                    <div class="mt-2.5 inline-flex items-center space-x-2 text-xs font-bold text-white bg-black/40 px-3.5 py-1.5 rounded-xl border border-white/10">
+                        <i class="fa-solid fa-stopwatch text-amber-300"></i>
+                        <span id="txt-contagem-banner">Calculando período grátis...</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row lg:flex-col items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                    <button onclick="abrirModalPromocao()" class="w-full sm:w-auto bg-yellow-300 hover:bg-yellow-400 text-brand-dark font-black py-3.5 px-6 rounded-2xl shadow-2xl transition transform hover:scale-105 flex items-center justify-center text-sm uppercase tracking-wide cursor-pointer border-2 border-white">
+                        <i class="fa-solid fa-bolt mr-2 text-amber-600 text-base"></i> QUERO PAGAR COM 85% OFF NO PIX
+                    </button>
+                    <span class="text-[11px] text-yellow-100 font-bold opacity-90 flex items-center">
+                        <i class="fa-solid fa-lock mr-1 text-[10px]"></i> Pagamento Único no PIX • Liberação Imediata
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-md p-6 mb-6 flex flex-col md:flex-row justify-between items-center border-l-4 border-brand-light">
             <div>
                 <h1 class="text-2xl font-black text-brand-dark" id="dash-nome">Olá, Consultor</h1>
-                <p class="text-gray-500 text-sm mt-1">ID: <span id="dash-id" class="font-bold">---</span> | Status: <span id="dash-status" class="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-bold uppercase">Ativo</span></p>
+                <p class="text-gray-500 text-sm mt-1 flex flex-wrap items-center gap-1.5">
+                    <span>ID: <strong id="dash-id" class="font-bold text-gray-700">---</strong></span>
+                    <span>|</span>
+                    <span>Status:</span>
+                    <span id="dash-status" class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold uppercase">Ativo</span>
+                    <button type="button" id="badge-trial-status" onclick="abrirModalPromocao()" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-md animate-pulse cursor-pointer hover:opacity-90 transition">
+                        <span class="w-2 h-2 rounded-full bg-red-600 animate-ping mr-1.5"></span>
+                        🎁 7 DIAS GRÁTIS (<span id="txt-dias-restantes-badge">7</span> DIAS RESTANTES)
+                    </button>
+                </p>
             </div>
             <div class="mt-4 md:mt-0 text-center">
                 <p class="text-xs text-gray-400 uppercase font-bold mb-1">Vencimento</p>
                 <div id="dash-vencimento" class="text-xl font-black text-gray-800">00/00/0000</div>
+                <div id="dash-vencimento-alerta" class="hidden text-[11px] font-black text-amber-600 animate-pulse mt-0.5">
+                    ⏰ Teste Grátis expira em breve!
+                </div>
             </div>
         </div>
 
@@ -872,6 +915,97 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL: PROMOÇÃO PIX 7 DIAS GRÁTIS -->
+        <div id="modal-promocao-pix" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white max-w-xl w-full rounded-3xl p-5 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto border-4 border-yellow-400">
+                <button onclick="fecharModalPromocao()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-black font-bold transition text-base cursor-pointer z-10">
+                    ✕
+                </button>
+
+                <div class="text-center pt-1 pb-4 border-b border-gray-100">
+                    <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-red-600 to-amber-600 text-white px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2.5 shadow-md animate-pulse">
+                        <span class="w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
+                        <span>🔥 OFERTA EXCLUSIVA DE DEGUSTAÇÃO</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-brand-dark leading-tight">
+                        Acesso Vitalício ao Litrão do Reset
+                    </h3>
+                    <div class="mt-2.5 inline-block bg-amber-50 border-2 border-amber-300 rounded-2xl px-5 py-2">
+                        <span class="text-xs font-bold text-gray-500 uppercase block">De <del class="text-red-500 font-extrabold">R$ 1.299,00</del> por apenas:</span>
+                        <div class="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight leading-none mt-1">
+                            R$ 199,00 <span class="text-xs sm:text-sm font-extrabold bg-emerald-600 text-white px-2 py-0.5 rounded-md align-middle ml-1">85% OFF</span>
+                        </div>
+                        <span class="text-[11px] font-bold text-amber-900 block mt-1">
+                            <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Pagamento Único no PIX • Sem mensalidades
+                        </span>
+                    </div>
+                </div>
+
+                <!-- BENEFÍCIOS -->
+                <div class="my-4 bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                    <h4 class="font-black text-xs text-gray-700 uppercase tracking-wider mb-2 flex items-center">
+                        <i class="fa-solid fa-gift text-yellow-500 mr-1.5 text-sm"></i> O que você garante com essa promoção:
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-gray-700">
+                        <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Acesso Vitalício sem mensalidades</div>
+                        <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Adesivos e Tíquetes Ilimitados</div>
+                        <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Relatórios em Foto para Clientes</div>
+                        <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Todas as atualizações futuras</div>
+                    </div>
+                </div>
+
+                <!-- ÁREA PIX -->
+                <div class="bg-gradient-to-b from-teal-50 to-emerald-50 border-2 border-teal-300 rounded-2xl p-4 sm:p-5 text-center">
+                    <p class="text-xs font-black text-teal-950 uppercase tracking-wider mb-3 flex items-center justify-center">
+                        <i class="fa-solid fa-qrcode mr-2 text-base text-teal-600"></i> Escaneie o QR Code no seu aplicativo do banco:
+                    </p>
+                    
+                    <div class="bg-white p-3 rounded-2xl border-2 border-teal-300 shadow-md inline-block mx-auto mb-3">
+                        <div id="modal-pix-qrcode" class="flex justify-center"></div>
+                    </div>
+
+                    <div class="space-y-3 text-left">
+                        <div>
+                            <label class="block text-[11px] font-black text-teal-900 uppercase tracking-wider mb-1">
+                                Código Pix Copia e Cola:
+                            </label>
+                            <div class="flex items-center space-x-1.5">
+                                <input type="text" id="modal-pix-payload-input" readonly value="00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3" class="w-full text-xs bg-white border border-teal-300 rounded-xl px-3 py-2.5 font-mono text-gray-700 select-all focus:outline-none">
+                                <button onclick="copiarPixModalPayload()" class="bg-teal-700 hover:bg-teal-800 text-white font-black text-xs px-3.5 py-2.5 rounded-xl transition flex items-center whitespace-nowrap cursor-pointer shadow-sm">
+                                    <i class="fa-regular fa-copy mr-1.5"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/80 p-3 rounded-xl border border-teal-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider">Chave PIX (E-mail):</span>
+                                <strong class="text-teal-950 text-xs sm:text-sm select-all">maisappsmobile@gmail.com</strong>
+                                <span class="block text-gray-500 text-[11px] font-medium mt-0.5">Favorecida: <strong>LUCIA SANTANA S. BRAGA</strong></span>
+                            </div>
+                            <button onclick="copiarPixModalEmail()" class="bg-white hover:bg-teal-100 text-teal-900 border border-teal-300 font-bold text-xs px-3 py-1.5 rounded-lg transition self-start sm:self-auto cursor-pointer">
+                                <i class="fa-regular fa-clone mr-1"></i> Copiar Chave
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="modal-msg-pix-copiado" class="hidden mt-3 p-2 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-black text-center">
+                        <i class="fa-solid fa-check mr-1 text-emerald-600"></i> Copiado para a área de transferência!
+                    </div>
+                </div>
+
+                <!-- BOTÃO ENVIAR COMPROVANTE WHATSAPP -->
+                <div class="mt-4 pt-3 flex flex-col gap-2.5">
+                    <button onclick="enviarComprovanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center text-sm cursor-pointer">
+                        <i class="fa-brands fa-whatsapp mr-2 text-xl text-emerald-200"></i> JÁ PAGUEI! ENVIAR COMPROVANTE VIA WHATSAPP
+                    </button>
+                    <button onclick="fecharModalPromocao()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition text-center cursor-pointer">
+                        Continuar navegando no painel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS -->
@@ -894,6 +1028,126 @@
         }
 
         let consultorAtual = null;
+
+        const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
+        let modalQrCodeInstancia = null;
+
+        function verificarTrialPromocao() {
+            if (!consultorAtual) return;
+
+            const banner = document.getElementById('banner-promocao-trial');
+            const badgeStatus = document.getElementById('badge-trial-status');
+            const alertaVenc = document.getElementById('dash-vencimento-alerta');
+            const txtContagemBanner = document.getElementById('txt-contagem-banner');
+            const txtDiasRestantesBadge = document.getElementById('txt-dias-restantes-badge');
+
+            if (!consultorAtual.vencimento) {
+                if (banner) banner.classList.add('hidden');
+                if (badgeStatus) badgeStatus.classList.add('hidden');
+                if (alertaVenc) alertaVenc.classList.add('hidden');
+                return;
+            }
+
+            const partes = consultorAtual.vencimento.split('-');
+            if (partes.length !== 3) return;
+            const ano = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            const dia = parseInt(partes[2], 10);
+            const dataVenc = new Date(ano, mes, dia, 23, 59, 59);
+            const agora = new Date();
+
+            const diffMs = dataVenc - agora;
+            const diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+            // Conta em período de degustação (ou vencendo em até 14 dias)
+            const isTrial = diffDias <= 14;
+
+            if (isTrial) {
+                if (banner) banner.classList.remove('hidden');
+                if (badgeStatus) badgeStatus.classList.remove('hidden');
+                if (alertaVenc) alertaVenc.classList.remove('hidden');
+
+                let textoDias = "";
+                if (diffDias > 1) {
+                    textoDias = `Restam ${diffDias} dias do seu período de teste grátis`;
+                } else if (diffDias === 1) {
+                    textoDias = `Último dia de teste grátis (expira hoje)!`;
+                } else if (diffDias === 0) {
+                    textoDias = `Seu teste grátis expira hoje!`;
+                } else {
+                    textoDias = `Seu teste de 7 dias encerrou!`;
+                }
+
+                if (txtContagemBanner) {
+                    txtContagemBanner.innerHTML = `⏳ <strong>${textoDias}</strong> • Garanta 85% OFF antes do bloqueio!`;
+                }
+                if (txtDiasRestantesBadge) {
+                    txtDiasRestantesBadge.innerText = Math.max(0, diffDias);
+                }
+            } else {
+                if (banner) banner.classList.add('hidden');
+                if (badgeStatus) badgeStatus.classList.add('hidden');
+                if (alertaVenc) alertaVenc.classList.add('hidden');
+            }
+        }
+        window.verificarTrialPromocao = verificarTrialPromocao;
+
+        function abrirModalPromocao() {
+            const modal = document.getElementById('modal-promocao-pix');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            const qrContainer = document.getElementById('modal-pix-qrcode');
+            if (qrContainer && typeof QRCode !== 'undefined' && !modalQrCodeInstancia) {
+                qrContainer.innerHTML = '';
+                modalQrCodeInstancia = new QRCode(qrContainer, {
+                    text: PIX_PROMO_PAYLOAD,
+                    width: 190,
+                    height: 190,
+                    colorDark: "#134e4a",
+                    colorLight: "#ffffff",
+                    correctLevel: (QRCode && QRCode.CorrectLevel) ? QRCode.CorrectLevel.M : 0
+                });
+            }
+        }
+        window.abrirModalPromocao = abrirModalPromocao;
+
+        function fecharModalPromocao() {
+            const modal = document.getElementById('modal-promocao-pix');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalPromocao = fecharModalPromocao;
+
+        function copiarPixModalPayload() {
+            navigator.clipboard.writeText(PIX_PROMO_PAYLOAD).then(() => {
+                mostrarAvisoModalPix("Código Pix Copia e Cola copiado com sucesso!");
+            });
+        }
+        window.copiarPixModalPayload = copiarPixModalPayload;
+
+        function copiarPixModalEmail() {
+            navigator.clipboard.writeText("maisappsmobile@gmail.com").then(() => {
+                mostrarAvisoModalPix("Chave E-mail (maisappsmobile@gmail.com) copiada com sucesso!");
+            });
+        }
+        window.copiarPixModalEmail = copiarPixModalEmail;
+
+        function mostrarAvisoModalPix(msg) {
+            const el = document.getElementById('modal-msg-pix-copiado');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-check mr-1 text-emerald-600"></i> ${msg}`;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 3500);
+            }
+        }
+
+        function enviarComprovanteWhatsApp() {
+            const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || "Consultor";
+            const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
+            const msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*). Acabei de realizar o PIX promocional de *R$ 199,00* dos 7 dias grátis para garantir meu acesso Vitalício ao Litrão do Reset! 🚀\n\nSegue o comprovante de pagamento em anexo para liberação permanente da minha conta:`;
+            window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.enviarComprovanteWhatsApp = enviarComprovanteWhatsApp;
 
         function alternarVisibilidadeSenha(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -1050,6 +1304,13 @@
                     } else {
                         dashVenc.innerText = "Vitalício";
                     }
+                }
+
+                // Atualiza contadores e exibição do período de degustação (7 dias grátis)
+                try {
+                    verificarTrialPromocao();
+                } catch (trErr) {
+                    console.warn("Erro ao verificar trial:", trErr);
                 }
 
                 const urlFull = window.location.origin + '/' + (consultorAtual.slug || consultorAtual.herbalife_id);
