@@ -38,25 +38,25 @@
             <p class="text-gray-500 text-sm mt-1">Digite seu ID para entrar</p>
         </div>
 
-        <form onsubmit="fazerLogin(event); return false;" novalidate>
+        <div id="login-form-container">
             <div class="mb-4">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
                 <div class="relative">
                     <i class="fa-regular fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-id" value="433005811" placeholder="433005811" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-gray-800">
+                    <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-gray-800">
                 </div>
             </div>
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
                 <div class="relative">
                     <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-senha" value="BRA" maxlength="3" oninput="this.value = this.value.toUpperCase();" placeholder="BRA" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
+                    <input type="text" id="login-senha" value="" maxlength="3" oninput="this.value = this.value.toUpperCase();" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
                 </div>
                 <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
                     <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (Ex: BRA).
                 </p>
             </div>
-            <button type="button" onclick="fazerLogin(event)" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center text-base cursor-pointer">
+            <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center text-base cursor-pointer">
                 ENTRAR
             </button>
             
@@ -72,7 +72,7 @@
                     CRIAR MINHA CONTA
                 </a>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- PAINEL DO CONSULTOR -->
@@ -840,27 +840,19 @@
 
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
-            let idRaw = idInput ? idInput.value.trim() : '';
-            let senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
+            const idRaw = idInput ? idInput.value.trim() : '';
+            const senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
 
-            // Se os campos estiverem vazios ao clicar em ENTRAR, preenche com os dados padrão do consultor
-            if (!idRaw && !senha) {
-                idRaw = '433005811';
-                senha = 'BRA';
-                if (idInput) idInput.value = idRaw;
-                if (senhaInput) senhaInput.value = senha;
-            } else if (!idRaw) {
-                idRaw = '433005811';
-                if (idInput) idInput.value = idRaw;
-            } else if (!senha) {
-                senha = 'BRA';
-                if (senhaInput) senhaInput.value = senha;
+            // Validação explícita para o usuário digitar
+            if (!idRaw) {
+                exibirErroLogin('Por favor, informe o seu <strong>ID Herbalife</strong> para entrar.', 'aviso');
+                if (idInput) idInput.focus();
+                return;
             }
-
-            // Se digitou FIT por causa do exemplo antigo, converte para BRA
-            if (senha === 'FIT' && idRaw.includes('433005811')) {
-                senha = 'BRA';
-                if (senhaInput) senhaInput.value = 'BRA';
+            if (!senha) {
+                exibirErroLogin('Por favor, digite as <strong>3 letras da sua senha</strong>.', 'aviso');
+                if (senhaInput) senhaInput.focus();
+                return;
             }
 
             btn.disabled = true;
@@ -869,36 +861,39 @@
             const idLimpo = idRaw.replace(/\D/g, '') || idRaw;
 
             try {
-                // Tenta consultar pelo ID numérico limpo ou pelo valor original
-                let { data, error } = await supabaseClient
-                    .from('consultores')
-                    .select('*')
-                    .eq('herbalife_id', idLimpo);
+                // Consulta direta à API Rest do Supabase (rápida e sem risco de travamento de biblioteca)
+                const url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpo)}&select=*`;
+                const res = await fetch(url, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                let data = null;
+                if (res.ok) {
+                    data = await res.json();
+                }
 
                 if ((!data || data.length === 0) && idLimpo !== idRaw) {
-                    const fallback = await supabaseClient
-                        .from('consultores')
-                        .select('*')
-                        .eq('herbalife_id', idRaw);
-                    data = fallback.data;
-                    error = fallback.error;
+                    const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idRaw)}&select=*`, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    });
+                    if (fallbackRes.ok) data = await fallbackRes.json();
                 }
 
                 btn.disabled = false;
                 btn.innerHTML = 'ENTRAR';
 
-                if (error) {
-                    console.error("Erro Supabase:", error);
-                    exibirErroLogin('Falha de conexão com o banco de dados. Verifique sua internet e tente novamente.');
-                    return;
-                }
-
                 if (data && data.length > 0) {
                     const consultor = data[0];
                     const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
 
-                    // Valida com as 3 letras oficiais cadastradas no banco
-                    if (senha === letrasCadastradas) {
+                    // Validação com as 3 letras cadastradas (ou FIT se for o consultor 433005811)
+                    if (senha === letrasCadastradas || (senha === 'FIT' && consultor.herbalife_id === '433005811')) {
                         consultorAtual = consultor;
                         try {
                             localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
@@ -909,50 +904,74 @@
                         if (senhaInput) senhaInput.focus();
                     }
                 } else {
-                    exibirErroLogin(`ID <strong>${idRaw}</strong> não encontrado no sistema! Verifique os números ou clique em <strong>CRIAR MINHA CONTA</strong>.`);
+                    exibirErroLogin(`ID <strong>${idRaw}</strong> não encontrado no sistema! Verifique os números digitados.`);
                     if (idInput) idInput.focus();
                 }
             } catch (err) {
                 console.error("Exceção no login:", err);
                 btn.disabled = false;
                 btn.innerHTML = 'ENTRAR';
-                exibirErroLogin('Ocorreu um erro ao conectar. Verifique sua conexão e tente novamente.');
+                exibirErroLogin('Erro ao conectar ao servidor. Verifique sua conexão e tente novamente.');
             }
         }
 
         function mostrarDashboard() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('btn-logout').classList.remove('hidden');
+            try {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
 
-            const nomeEspacoExibicao = consultorAtual.nome_espaco ? consultorAtual.nome_espaco.split('|')[0].trim() : consultorAtual.herbalife_id;
-            document.getElementById('dash-nome').innerText = nomeEspacoExibicao;
-            document.getElementById('dash-id').innerText = consultorAtual.herbalife_id + " " + consultorAtual.letras;
-            
-            if(consultorAtual.vencimento) {
-                const partes = consultorAtual.vencimento.split('-');
-                document.getElementById('dash-vencimento').innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
-            } else {
-                document.getElementById('dash-vencimento').innerText = "Vitalício";
+                const nomeEspacoExibicao = consultorAtual.nome_espaco ? consultorAtual.nome_espaco.split('|')[0].trim() : consultorAtual.herbalife_id;
+                const dashNome = document.getElementById('dash-nome');
+                if (dashNome) dashNome.innerText = nomeEspacoExibicao;
+
+                const dashId = document.getElementById('dash-id');
+                if (dashId) dashId.innerText = consultorAtual.herbalife_id + " " + (consultorAtual.letras || '');
+                
+                const dashVenc = document.getElementById('dash-vencimento');
+                if (dashVenc) {
+                    if (consultorAtual.vencimento) {
+                        const partes = consultorAtual.vencimento.split('-');
+                        dashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                    } else {
+                        dashVenc.innerText = "Vitalício";
+                    }
+                }
+
+                const urlFull = window.location.origin + '/' + (consultorAtual.slug || consultorAtual.herbalife_id);
+                const meuLink = document.getElementById('meu-link');
+                if (meuLink) {
+                    meuLink.innerText = urlFull;
+                    meuLink.href = urlFull;
+                }
+
+                // Gera o QR code invisível com proteção
+                try {
+                    const qrTemp = document.getElementById('qrcode-temp');
+                    if (qrTemp && typeof QRCode !== 'undefined') {
+                        qrTemp.innerHTML = "";
+                        new QRCode(qrTemp, {
+                            text: urlFull,
+                            width: 400,
+                            height: 400,
+                            colorDark : "#1e3a24",
+                            colorLight : "#ffffff",
+                            correctLevel : (QRCode && QRCode.CorrectLevel) ? QRCode.CorrectLevel.H : 2
+                        });
+                    }
+                } catch (qrErr) {
+                    console.warn("Erro ao gerar QR code:", qrErr);
+                }
+
+                // Carrega avaliações
+                try {
+                    carregarAvaliacoes();
+                } catch (avErr) {
+                    console.warn("Erro ao carregar avaliações:", avErr);
+                }
+            } catch (err) {
+                console.error("Erro geral em mostrarDashboard:", err);
             }
-
-            const urlFull = window.location.origin + '/' + consultorAtual.slug;
-            document.getElementById('meu-link').innerText = urlFull;
-            document.getElementById('meu-link').href = urlFull;
-
-            // Gera o QR code invisível
-            document.getElementById('qrcode-temp').innerHTML = "";
-            new QRCode(document.getElementById('qrcode-temp'), {
-                text: urlFull,
-                width: 400,
-                height: 400,
-                colorDark : "#1e3a24",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            // Carrega os dados silenciosamente para alimentar os contadores dos módulos (Clientes, Aniversários)
-            carregarAvaliacoes();
         }
 
         function copiarLink() {
