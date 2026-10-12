@@ -1713,6 +1713,17 @@
 
         function mostrarDashboard() {
             try {
+                // Reset preventivo para nunca misturar dados entre consultores diferentes
+                todasAvaliacoesCache = [];
+                clienteExpandidoKey = null;
+                if (clientesSelecionadosSet) clientesSelecionadosSet.clear();
+                const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
+                if (statCardTotalAvaliacoes) statCardTotalAvaliacoes.innerText = '0';
+                const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
+                if (statCardTotalClientes) statCardTotalClientes.innerText = '0';
+                const badgeTotalClientes = document.getElementById('badge-total-clientes');
+                if (badgeTotalClientes) badgeTotalClientes.innerText = '0';
+
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
@@ -2579,7 +2590,23 @@
             }
 
             if (todas.length === 0) {
-                corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">Nenhuma avaliação respondida ainda.</td></tr>';
+                todasAvaliacoesCache = [];
+                if (corpo) {
+                    corpo.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400 font-semibold"><i class="fa-solid fa-folder-open mr-2 text-gray-300"></i>Nenhuma avaliação respondida ainda para este consultor.</td></tr>';
+                }
+                const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
+                if (statCardTotalAvaliacoes) statCardTotalAvaliacoes.innerText = '0';
+                
+                const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
+                if (statCardTotalClientes) statCardTotalClientes.innerText = '0';
+
+                const badgeTotalClientes = document.getElementById('badge-total-clientes');
+                if (badgeTotalClientes) badgeTotalClientes.innerText = '0';
+
+                const contadorTexto = document.getElementById('contador-filtrados-texto');
+                if (contadorTexto) contadorTexto.innerText = '0 clientes exibidos (0 avaliações)';
+
+                atualizarBadgesAniversarios();
                 return;
             }
 
@@ -5343,9 +5370,24 @@
 
         function logout() {
             consultorAtual = null;
+            todasAvaliacoesCache = [];
+            clienteExpandidoKey = null;
+            if (clientesSelecionadosSet) clientesSelecionadosSet.clear();
             try {
                 localStorage.removeItem('litrao_consultor_auth');
             } catch (e) {}
+
+            const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
+            if (statCardTotalAvaliacoes) statCardTotalAvaliacoes.innerText = '0';
+            const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
+            if (statCardTotalClientes) statCardTotalClientes.innerText = '0';
+            const badgeTotalClientes = document.getElementById('badge-total-clientes');
+            if (badgeTotalClientes) badgeTotalClientes.innerText = '0';
+            const contadorTexto = document.getElementById('contador-filtrados-texto');
+            if (contadorTexto) contadorTexto.innerText = '';
+            const corpo = document.getElementById('tabela-avaliacoes-corpo');
+            if (corpo) corpo.innerHTML = '';
+
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
