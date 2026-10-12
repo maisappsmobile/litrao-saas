@@ -25,9 +25,12 @@
     <!-- CABEÇALHO -->
     <header class="bg-white p-4 shadow-sm flex justify-between items-center border-b-4 border-brand-light">
         <img src="reset-logo.png" alt="Reset Metabólico" class="h-10">
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 sm:space-x-3">
             <span class="text-xs font-bold text-gray-500 uppercase hidden sm:inline">Área do Consultor</span>
-            <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 px-3 py-1.5 rounded-lg transition border border-gray-200 hidden">
+            <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
+                <i class="fa-solid fa-key text-amber-600"></i> <span class="hidden sm:inline">Alterar Senha</span>
+            </button>
+            <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 px-3 py-1.5 rounded-lg transition border border-gray-200 hidden cursor-pointer">
                 <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
             </button>
         </div>
@@ -50,16 +53,16 @@
                 </div>
             </div>
             <div class="mb-5">
-                <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras ou Senha Criada)</label>
                 <div class="relative flex items-center">
                     <i class="fa-solid fa-lock absolute left-4 text-gray-400"></i>
-                    <input type="password" id="login-senha" value="" maxlength="3" oninput="this.value = this.value.toUpperCase();" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
+                    <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
                     <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-1.5 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
                         <i id="icone-olho-login" class="fa-solid fa-eye text-base"></i>
                     </button>
                 </div>
                 <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
-                    <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (Ex: FIT).
+                    <span class="text-brand-yellow mr-1">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
                 </p>
             </div>
             <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center text-base cursor-pointer">
@@ -240,6 +243,80 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE ALTERAÇÃO DE SENHA DO CONSULTOR -->
+        <div id="modal-alterar-senha" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-gray-200 relative animate-fade-in">
+                <button onclick="fecharModalAlterarSenha()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-xl shadow-xs">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900">Alterar Senha do Painel</h3>
+                        <p class="text-xs text-gray-500">Defina uma senha pessoal para acessar seu painel</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 mb-5 text-xs text-amber-900">
+                    <p class="font-bold flex items-center">
+                        <i class="fa-solid fa-shield-halved text-amber-600 mr-1.5 text-sm"></i> Dica de Segurança:
+                    </p>
+                    <p class="mt-1 text-amber-800">
+                        Sua senha padrão inicial são as <strong>3 letras do seu cadastro Herbalife</strong>. Aqui você pode criar sua senha exclusiva para manter seu painel seguro!
+                    </p>
+                </div>
+
+                <form id="form-alterar-senha" onsubmit="salvarNovaSenhaConsultor(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Senha Atual (3 letras ou senha anterior)</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-lock absolute left-3.5 text-gray-400 text-sm"></i>
+                            <input type="password" id="senha-atual-consultor" required placeholder="Digite sua senha atual" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <button type="button" onclick="alternarVisibilidadeSenha('senha-atual-consultor', 'icone-olho-atual')" class="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                <i id="icone-olho-atual" class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Nova Senha</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-key absolute left-3.5 text-gray-400 text-sm"></i>
+                            <input type="password" id="nova-senha-consultor" required minlength="3" placeholder="Digite sua nova senha" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <button type="button" onclick="alternarVisibilidadeSenha('nova-senha-consultor', 'icone-olho-nova')" class="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                <i id="icone-olho-nova" class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Confirmar Nova Senha</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-check-double absolute left-3.5 text-gray-400 text-sm"></i>
+                            <input type="password" id="confirmar-senha-consultor" required minlength="3" placeholder="Repita a nova senha" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <button type="button" onclick="alternarVisibilidadeSenha('confirmar-senha-consultor', 'icone-olho-conf')" class="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                <i id="icone-olho-conf" class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="msg-erro-alterar-senha" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 p-2.5 rounded-xl"></div>
+                    <div id="msg-sucesso-alterar-senha" class="hidden text-xs font-bold text-green-700 bg-green-50 border border-green-200 p-2.5 rounded-xl"></div>
+
+                    <div class="pt-2 flex items-center justify-end space-x-3">
+                        <button type="button" onclick="fecharModalAlterarSenha()" class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-salvar-senha" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk"></i> SALVAR NOVA SENHA
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1615,7 +1692,7 @@
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
             const idRaw = (idInput ? idInput.value : '').trim();
-            const senha = (senhaInput ? senhaInput.value : '').trim().toUpperCase();
+            const senha = (senhaInput ? senhaInput.value : '').trim();
 
             // Validação explícita para o usuário digitar
             if (!idRaw) {
@@ -1624,7 +1701,7 @@
                 return;
             }
             if (!senha) {
-                exibirErroLogin('Por favor, digite as <strong>3 letras da sua senha</strong>.', 'aviso');
+                exibirErroLogin('Por favor, digite a sua <strong>senha de acesso</strong>.', 'aviso');
                 if (senhaInput) senhaInput.focus();
                 return;
             }
@@ -1704,17 +1781,19 @@
 
                 if (data && data.length > 0) {
                     const consultor = data[0];
-                    const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
+                    const letrasCadastradas = (consultor.letras || '').trim();
 
-                    // Compara as 3 letras (ou se o consultor cadastrado tiver letras vazias, permite acesso)
-                    if (senha === letrasCadastradas || !letrasCadastradas) {
+                    // Compara senha: case-insensitive para comodidade (ex: 'fit' == 'FIT') ou match exato
+                    const senhaConfere = (senha.toUpperCase() === letrasCadastradas.toUpperCase()) || (senha === letrasCadastradas) || !letrasCadastradas;
+
+                    if (senhaConfere) {
                         consultorAtual = consultor;
                         try {
                             localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
                         } catch (e) {}
                         mostrarDashboard();
                     } else {
-                        exibirErroLogin(`Senha incorreta para o ID <strong>${consultor.herbalife_id}</strong>! Digite as 3 letras oficiais cadastradas.`);
+                        exibirErroLogin(`Senha incorreta para o ID <strong>${consultor.herbalife_id}</strong>! Digite as 3 letras cadastradas ou sua nova senha.`);
                         if (senhaInput) senhaInput.focus();
                     }
                 } else {
@@ -1748,6 +1827,8 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
+                const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
+                if (btnAlterarSenha) btnAlterarSenha.classList.remove('hidden');
 
                 let nomeParaDash = consultorAtual.herbalife_id;
                 if (consultorAtual.nome_espaco) {
@@ -5440,9 +5521,143 @@
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
+            const btnAltSenha = document.getElementById('btn-abrir-alterar-senha');
+            if (btnAltSenha) btnAltSenha.classList.add('hidden');
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
+
+        // ==========================================
+        // GESTÃO DE SENHA DO CONSULTOR
+        // ==========================================
+        function abrirModalAlterarSenha() {
+            const modal = document.getElementById('modal-alterar-senha');
+            if (!modal) return;
+            const inAtual = document.getElementById('senha-atual-consultor');
+            const inNova = document.getElementById('nova-senha-consultor');
+            const inConf = document.getElementById('confirmar-senha-consultor');
+            if (inAtual) inAtual.value = '';
+            if (inNova) inNova.value = '';
+            if (inConf) inConf.value = '';
+
+            const errBox = document.getElementById('msg-erro-alterar-senha');
+            if (errBox) { errBox.classList.add('hidden'); errBox.innerText = ''; }
+            const sucBox = document.getElementById('msg-sucesso-alterar-senha');
+            if (sucBox) { sucBox.classList.add('hidden'); sucBox.innerText = ''; }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                if (inAtual) inAtual.focus();
+            }, 100);
+        }
+        window.abrirModalAlterarSenha = abrirModalAlterarSenha;
+
+        function fecharModalAlterarSenha() {
+            const modal = document.getElementById('modal-alterar-senha');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalAlterarSenha = fecharModalAlterarSenha;
+
+        async function salvarNovaSenhaConsultor(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Sessão não identificada. Faça login novamente no painel.");
+                return;
+            }
+
+            const errBox = document.getElementById('msg-erro-alterar-senha');
+            const sucBox = document.getElementById('msg-sucesso-alterar-senha');
+            const btnSalvar = document.getElementById('btn-salvar-senha');
+
+            if (errBox) { errBox.classList.add('hidden'); errBox.innerText = ''; }
+            if (sucBox) { sucBox.classList.add('hidden'); sucBox.innerText = ''; }
+
+            const senhaAtual = (document.getElementById('senha-atual-consultor').value || '').trim();
+            const novaSenha = (document.getElementById('nova-senha-consultor').value || '').trim();
+            const confirmarSenha = (document.getElementById('confirmar-senha-consultor').value || '').trim();
+
+            const senhaCadastrada = (consultorAtual.letras || '').trim();
+
+            // Validação de senha atual
+            const confereAtual = !senhaCadastrada || (senhaAtual.toUpperCase() === senhaCadastrada.toUpperCase()) || (senhaAtual === senhaCadastrada);
+            if (!confereAtual) {
+                if (errBox) {
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A senha atual informada não confere com sua senha cadastrada.';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (!novaSenha || novaSenha.length < 3) {
+                if (errBox) {
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A nova senha deve conter no mínimo 3 caracteres.';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (novaSenha !== confirmarSenha) {
+                if (errBox) {
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A confirmação da nova senha não coincide.';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (btnSalvar) {
+                btnSalvar.disabled = true;
+                btnSalvar.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> SALVANDO...';
+            }
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ letras: novaSenha })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro HTTP ${res.status} ao salvar no Supabase`);
+                }
+
+                // Atualiza sessão em memória e armazenamento local
+                consultorAtual.letras = novaSenha;
+                try {
+                    localStorage.setItem('litrao_consultor_auth', JSON.stringify({
+                        id: consultorAtual.herbalife_id,
+                        letras: novaSenha
+                    }));
+                } catch (_) {}
+
+                if (sucBox) {
+                    sucBox.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5"></i> Senha alterada com sucesso! Guarde sua nova senha com segurança.';
+                    sucBox.classList.remove('hidden');
+                }
+
+                setTimeout(() => {
+                    fecharModalAlterarSenha();
+                }, 1600);
+
+            } catch (err) {
+                console.error("Erro ao alterar senha do consultor:", err);
+                if (errBox) {
+                    errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Falha ao atualizar: ${err.message || 'Verifique sua conexão'}`;
+                    errBox.classList.remove('hidden');
+                }
+            } finally {
+                if (btnSalvar) {
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> SALVAR NOVA SENHA';
+                }
+            }
+        }
+        window.salvarNovaSenhaConsultor = salvarNovaSenhaConsultor;
 
         // Inicialização e auto-login resiliente
         window.addEventListener('DOMContentLoaded', async () => {
@@ -5469,7 +5684,9 @@
                             const data = await res.json();
                             if (data && data.length > 0) {
                                 const consultor = data[0];
-                                if ((consultor.letras || '').trim().toUpperCase() === creds.letras.trim().toUpperCase()) {
+                                const letrasDb = (consultor.letras || '').trim();
+                                const letrasCred = (creds.letras || '').trim();
+                                if (letrasDb.toUpperCase() === letrasCred.toUpperCase() || letrasDb === letrasCred) {
                                     consultorAtual = consultor;
                                     mostrarDashboard();
                                 }
