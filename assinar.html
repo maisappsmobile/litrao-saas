@@ -117,6 +117,42 @@
                     <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="fa-solid fa-info-circle"></i> Apenas números. Comece com 55.</p>
                 </div>
 
+                <!-- REDES SOCIAIS DO CONSULTOR (OPCIONAIS) -->
+                <div class="bg-gray-50 p-4 border border-gray-200 rounded-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-brand-dark flex items-center">
+                            <i class="fa-solid fa-share-nodes text-brand-light mr-1.5"></i> Suas Redes Sociais
+                        </h3>
+                        <span class="text-[10px] font-bold bg-gray-200 text-gray-600 px-2 py-0.5 rounded">Opcional</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Aparecerão em destaque como botões oficiais no rodapé do seu link:</p>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Instagram (@usuario ou link)</label>
+                        <div class="relative">
+                            <i class="fa-brands fa-instagram absolute left-3.5 top-3 text-pink-500 text-sm"></i>
+                            <input type="text" id="social-instagram" placeholder="Ex: @meuespaco ou seu_perfil" class="w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-pink-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Facebook</label>
+                            <div class="relative">
+                                <i class="fa-brands fa-facebook absolute left-3.5 top-3 text-blue-600 text-sm"></i>
+                                <input type="text" id="social-facebook" placeholder="Ex: facebook.com/seuespaco" class="w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">TikTok</label>
+                            <div class="relative">
+                                <i class="fa-brands fa-tiktok absolute left-3.5 top-3 text-black text-sm"></i>
+                                <input type="text" id="social-tiktok" placeholder="Ex: @seutiktok" class="w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-black focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Cupom de Desconto (Opcional)</label>
                     <div class="relative">
@@ -320,9 +356,22 @@
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
             // Se não tiver espaço: "• Nome Consultor | Cidade - UF"
             const localizacao = (cidade && estado) ? `${cidade} - ${estado}` : (cidade || '');
-            const nomeEspacoCompleto = nomeEspaco 
+            let nomeEspacoCompleto = nomeEspaco 
                 ? `${nomeEspaco} • ${nomeConsultor} | ${localizacao}`
                 : `• ${nomeConsultor} | ${localizacao}`;
+
+            // Captura Redes Sociais
+            const igRaw = (document.getElementById('social-instagram')?.value || '').trim();
+            const fbRaw = (document.getElementById('social-facebook')?.value || '').trim();
+            const tkRaw = (document.getElementById('social-tiktok')?.value || '').trim();
+            const sociaisObj = {};
+            if (igRaw) sociaisObj.ig = igRaw;
+            if (fbRaw) sociaisObj.fb = fbRaw;
+            if (tkRaw) sociaisObj.tk = tkRaw;
+
+            if (Object.keys(sociaisObj).length > 0) {
+                nomeEspacoCompleto += ` <!--SOCIAIS:${JSON.stringify(sociaisObj)}-->`;
+            }
 
             const { error } = await supabaseClient.from('consultores').insert([{
                 slug: slug,

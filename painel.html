@@ -310,6 +310,27 @@
                         <input type="text" id="superadmin-edit-slug" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
 
+                    <!-- REDES SOCIAIS (SUPERADMIN) -->
+                    <div class="bg-purple-50/50 p-3.5 rounded-2xl border border-purple-200 space-y-2.5">
+                        <span class="block text-xs font-black text-purple-900 uppercase">
+                            <i class="fa-solid fa-share-nodes text-purple-600 mr-1.5"></i> Redes Sociais do Consultor
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Instagram</label>
+                                <input type="text" id="superadmin-edit-ig" placeholder="@usuario" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Facebook</label>
+                                <input type="text" id="superadmin-edit-fb" placeholder="facebook.com/..." class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">TikTok</label>
+                                <input type="text" id="superadmin-edit-tk" placeholder="@tiktok" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="superadmin-edit-alerta" class="hidden p-3 rounded-xl text-xs font-bold"></div>
 
                     <div class="pt-3 flex gap-2">
@@ -2191,7 +2212,22 @@
 
             document.getElementById('superadmin-edit-id').value = consultor.id || '';
             document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • ${consultor.letras || ''}`;
-            document.getElementById('superadmin-edit-nome-espaco').value = consultor.nome_espaco || '';
+            
+            // Extrai dados limpos de nome_espaco e redes sociais
+            let textoEspacoLimpo = (consultor.nome_espaco || '').replace(/<!--SOCIAIS:.*?-->/g, '').trim();
+            document.getElementById('superadmin-edit-nome-espaco').value = textoEspacoLimpo;
+
+            let sociaisObj = {};
+            if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--SOCIAIS:')) {
+                try {
+                    const matchSoc = consultor.nome_espaco.match(/<!--SOCIAIS:(.*?)-->/);
+                    if (matchSoc && matchSoc[1]) sociaisObj = JSON.parse(matchSoc[1]) || {};
+                } catch(e) {}
+            }
+            document.getElementById('superadmin-edit-ig').value = sociaisObj.ig || '';
+            document.getElementById('superadmin-edit-fb').value = sociaisObj.fb || '';
+            document.getElementById('superadmin-edit-tk').value = sociaisObj.tk || '';
+
             document.getElementById('superadmin-edit-herbalife-id').value = consultor.herbalife_id || '';
             document.getElementById('superadmin-edit-letras').value = (consultor.letras || '').toUpperCase();
             document.getElementById('superadmin-edit-whatsapp').value = consultor.whatsapp || '';
@@ -2225,8 +2261,21 @@
             const alerta = document.getElementById('superadmin-edit-alerta');
             const id = document.getElementById('superadmin-edit-id').value;
 
+            let nomeEspacoBase = document.getElementById('superadmin-edit-nome-espaco').value.trim();
+            const ig = document.getElementById('superadmin-edit-ig').value.trim();
+            const fb = document.getElementById('superadmin-edit-fb').value.trim();
+            const tk = document.getElementById('superadmin-edit-tk').value.trim();
+            const soc = {};
+            if (ig) soc.ig = ig;
+            if (fb) soc.fb = fb;
+            if (tk) soc.tk = tk;
+
+            if (Object.keys(soc).length > 0) {
+                nomeEspacoBase += ` <!--SOCIAIS:${JSON.stringify(soc)}-->`;
+            }
+
             const payload = {
-                nome_espaco: document.getElementById('superadmin-edit-nome-espaco').value.trim(),
+                nome_espaco: nomeEspacoBase,
                 herbalife_id: document.getElementById('superadmin-edit-herbalife-id').value.trim(),
                 letras: document.getElementById('superadmin-edit-letras').value.trim().toUpperCase(),
                 whatsapp: document.getElementById('superadmin-edit-whatsapp').value.trim(),

@@ -460,7 +460,15 @@
         <div class="max-w-md mx-auto flex flex-col items-center justify-center">
             <span id="footer-name" class="font-black text-xl tracking-wider text-gray-800"></span>
             <span id="footer-city" class="text-sm font-medium text-gray-500 mt-0.5"></span>
-            <span id="footer-phone" class="text-sm font-bold bg-white border border-gray-200 py-1.5 px-4 rounded-full mt-2.5 text-gray-700 shadow-sm"></span>
+            
+            <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+                <a id="footer-phone-link" href="#" class="inline-flex items-center text-sm font-bold bg-white border border-gray-200 py-1.5 px-4 rounded-full text-gray-700 shadow-sm hover:bg-gray-100 transition">
+                    <span id="footer-phone"></span>
+                </a>
+            </div>
+
+            <!-- Botões das Redes Sociais do Consultor -->
+            <div id="footer-socials" class="hidden mt-3.5 flex flex-wrap items-center justify-center gap-2.5"></div>
 
             <!-- Links Rápidos de Acesso no Rodapé -->
             <div class="mt-8 pt-6 border-t border-gray-200/80 w-full flex flex-wrap justify-center items-center gap-4 text-xs font-bold text-gray-500">
@@ -600,7 +608,7 @@
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
                 // Extrair Nome do Espaço, Nome do Consultor e Cidade
-                let rawEspaco = consultor.nome_espaco || '';
+                let rawEspaco = (consultor.nome_espaco || '').replace(/<!--SOCIAIS:.*?-->/g, '').trim();
                 let nomeEspacoFinal = "";
                 let nomeConsultor = "";
                 let cidadeDetectada = "";
@@ -676,9 +684,76 @@
                     }
                 }
 
+                // Extração de Redes Sociais do Consultor
+                let sociaisConsultor = {};
+                if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--SOCIAIS:')) {
+                    try {
+                        const matchSoc = consultor.nome_espaco.match(/<!--SOCIAIS:(.*?)-->/);
+                        if (matchSoc && matchSoc[1]) {
+                            sociaisConsultor = JSON.parse(matchSoc[1]) || {};
+                        }
+                    } catch(eSoc) {}
+                }
+
+                // Renderiza Botão de Telefone com link para o WhatsApp
                 const footerPhone = document.getElementById('footer-phone');
+                const footerPhoneLink = document.getElementById('footer-phone-link');
                 if (footerPhone) {
                     footerPhone.innerText = formatarTelefoneBrasil(consultor.whatsapp);
+                }
+                if (footerPhoneLink && consultor.whatsapp) {
+                    footerPhoneLink.href = `https://wa.me/${consultor.whatsapp}?text=${encodeURIComponent("Olá! Vi o seu site do Litrão do Reset.")}`;
+                    footerPhoneLink.target = "_blank";
+                }
+
+                // Renderiza Botões Oficiais das Redes Sociais (Instagram, Facebook, TikTok)
+                const footerSocials = document.getElementById('footer-socials');
+                if (footerSocials) {
+                    let botoesHtml = '';
+
+                    // Instagram
+                    if (sociaisConsultor.ig) {
+                        let igUser = sociaisConsultor.ig.trim().replace(/^@/, '');
+                        let igUrl = igUser.startsWith('http') ? igUser : `https://instagram.com/${igUser}`;
+                        let igLabel = igUser.startsWith('http') ? '@instagram' : `@${igUser}`;
+                        botoesHtml += `
+                            <a href="${igUrl}" target="_blank" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:opacity-90 text-white font-black text-xs py-1.5 px-3.5 rounded-full shadow-sm transition transform hover:scale-105">
+                                <i class="fa-brands fa-instagram text-sm"></i>
+                                <span>${igLabel}</span>
+                            </a>
+                        `;
+                    }
+
+                    // Facebook
+                    if (sociaisConsultor.fb) {
+                        let fbUser = sociaisConsultor.fb.trim();
+                        let fbUrl = fbUser.startsWith('http') ? fbUser : `https://facebook.com/${fbUser.replace(/^@/, '')}`;
+                        botoesHtml += `
+                            <a href="${fbUrl}" target="_blank" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-1.5 px-3.5 rounded-full shadow-sm transition transform hover:scale-105">
+                                <i class="fa-brands fa-facebook-f text-sm"></i>
+                                <span>Facebook</span>
+                            </a>
+                        `;
+                    }
+
+                    // TikTok
+                    if (sociaisConsultor.tk) {
+                        let tkUser = sociaisConsultor.tk.trim();
+                        let tkUrl = tkUser.startsWith('http') ? tkUser : `https://tiktok.com/@${tkUser.replace(/^@/, '')}`;
+                        botoesHtml += `
+                            <a href="${tkUrl}" target="_blank" class="inline-flex items-center gap-1.5 bg-black hover:bg-gray-800 text-white font-black text-xs py-1.5 px-3.5 rounded-full shadow-sm transition transform hover:scale-105">
+                                <i class="fa-brands fa-tiktok text-sm"></i>
+                                <span>TikTok</span>
+                            </a>
+                        `;
+                    }
+
+                    if (botoesHtml) {
+                        footerSocials.innerHTML = botoesHtml;
+                        footerSocials.classList.remove('hidden');
+                    } else {
+                        footerSocials.classList.add('hidden');
+                    }
                 }
             } catch (err) {
                 console.error("Erro fatal na conexão com Supabase:", err);
