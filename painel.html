@@ -154,6 +154,176 @@
             </div>
         </div>
 
+        <!-- CARD SUPERADMIN EXCLUSIVO (APENAS ID 433005811) -->
+        <div id="card-superadmin-container" class="hidden mb-6">
+            <div class="w-full bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden border-2 border-purple-500/40 ring-1 ring-purple-400/20 group">
+                <div class="absolute -right-12 -top-12 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-600/25 transition duration-500"></div>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 text-white flex items-center justify-center text-2xl sm:text-3xl shadow-lg shadow-purple-500/30 flex-shrink-0 group-hover:scale-105 transition transform">
+                            <i class="fa-solid fa-crown text-amber-300"></i>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                <span class="bg-purple-500/30 text-purple-200 border border-purple-400/30 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+                                    PAINEL MASTER
+                                </span>
+                                <span class="bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
+                                    SUPERADMIN ATIVO
+                                </span>
+                            </div>
+                            <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                                Gestão Geral de Consultores
+                            </h3>
+                            <p class="text-xs sm:text-sm text-purple-200 font-medium mt-1 max-w-xl">
+                                Visualize, pesquise, edite status, controle datas de vencimento ou libere acesso vitalício para todos os consultores que se cadastraram.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
+                        <div class="bg-slate-900/90 border border-purple-400/20 rounded-2xl px-5 py-2.5 text-center shadow-lg">
+                            <span class="block text-[10px] uppercase tracking-widest font-extrabold text-purple-200/80">TOTAL CONSULTORES</span>
+                            <span id="superadmin-total-badge" class="text-2xl font-black text-amber-300 block leading-tight">...</span>
+                        </div>
+                        <button onclick="toggleSecaoSuperadmin()" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm cursor-pointer border border-white/20 whitespace-nowrap">
+                            <i class="fa-solid fa-users-gear text-lg text-amber-300"></i>
+                            <span id="superadmin-btn-label">ABRIR GESTÃO DE CONSULTORES</span>
+                            <i id="superadmin-btn-icone" class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABELA / GESTÃO COMPLETA DE CONSULTORES (EXPANSÍVEL) -->
+            <div id="secao-superadmin-conteudo" class="hidden mt-4 bg-white rounded-3xl shadow-xl p-5 sm:p-7 border border-purple-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-gray-100 pb-4">
+                    <div>
+                        <h4 class="text-xl sm:text-2xl font-black text-gray-900 flex items-center">
+                            <i class="fa-solid fa-id-card-clip text-purple-600 mr-2.5"></i> Lista de Todos os Consultores Cadastrados
+                        </h4>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-0.5">Gerencie os acessos, status e planos de cada consultor no Supabase.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
+                            <input type="text" id="busca-consultores-superadmin" oninput="filtrarConsultoresSuperadmin(this.value)" placeholder="Buscar por nome, ID, whats..." class="pl-9 pr-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 w-56 sm:w-64">
+                        </div>
+                        <button onclick="carregarConsultoresSuperadmin()" class="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer" title="Atualizar Lista">
+                            <i class="fa-solid fa-rotate"></i> Atualizar
+                        </button>
+                        <a href="assinar.html" target="_blank" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i> Novo Cadastro
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tabela Responsiva de Consultores -->
+                <div class="overflow-x-auto rounded-2xl border border-gray-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-purple-50/70 border-b border-purple-100 text-[11px] sm:text-xs uppercase font-black text-purple-900">
+                                <th class="p-3 sm:p-4">Consultor / Espaço</th>
+                                <th class="p-3 sm:p-4">ID Herbalife</th>
+                                <th class="p-3 sm:p-4">WhatsApp</th>
+                                <th class="p-3 sm:p-4">Status</th>
+                                <th class="p-3 sm:p-4">Vencimento</th>
+                                <th class="p-3 sm:p-4">Link Oficial</th>
+                                <th class="p-3 sm:p-4 text-right">Ações Rápidas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-superadmin-corpo" class="divide-y divide-gray-100 text-xs sm:text-sm">
+                            <tr>
+                                <td colspan="7" class="p-6 text-center text-gray-400">
+                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando consultores...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE EDIÇÃO DE CONSULTOR (SUPERADMIN) -->
+        <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-200 relative">
+                <button onclick="fecharModalEditarConsultor()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-lg">
+                        <i class="fa-solid fa-user-pen"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900">Editar Consultor</h3>
+                        <p class="text-xs text-gray-500" id="superadmin-edit-subtitulo">ID: ---</p>
+                    </div>
+                </div>
+
+                <form id="form-editar-consultor-superadmin" onsubmit="salvarEdicaoConsultorSuperadmin(event)" class="space-y-4">
+                    <input type="hidden" id="superadmin-edit-id">
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Nome / Espaço</label>
+                        <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">ID Herbalife</label>
+                            <input type="text" id="superadmin-edit-herbalife-id" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Letras / Senha</label>
+                            <input type="text" id="superadmin-edit-letras" maxlength="5" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (DDD + Número)</label>
+                            <input type="text" id="superadmin-edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Status</label>
+                            <select id="superadmin-edit-status" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Pendente">Pendente</option>
+                                <option value="Bloqueado">Bloqueado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Data de Vencimento</label>
+                            <input type="date" id="superadmin-edit-vencimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div class="flex flex-col justify-end">
+                            <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-infinity"></i> Tornar Vitalício
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Slug / Link Personalizado</label>
+                        <input type="text" id="superadmin-edit-slug" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <div id="superadmin-edit-alerta" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+                    <div class="pt-3 flex gap-2">
+                        <button type="submit" id="btn-salvar-superadmin" class="flex-1 bg-purple-700 hover:bg-purple-800 text-white font-black py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Consultor
+                        </button>
+                        <button type="button" onclick="fecharModalEditarConsultor()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- CARD BIOIMPEDÂNCIA ON-LINE (NÍVEL VALE DO SILÍCIO / LARGURA TOTAL DOS 2 BLOCOS) -->
         <div id="card-bioimpedancia-topo" class="w-full bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden border border-blue-500/30 ring-1 ring-white/10 group mb-6">
             <!-- Efeitos Glow de Fundo -->
@@ -1425,6 +1595,13 @@
                     console.warn("Erro ao gerar QR code:", qrErr);
                 }
 
+                // Verifica se o usuário logado é o SuperAdmin (433005811)
+                try {
+                    verificarSuperAdmin();
+                } catch (saErr) {
+                    console.warn("Erro ao verificar SuperAdmin:", saErr);
+                }
+
                 // Carrega avaliações
                 try {
                     carregarAvaliacoes();
@@ -1612,6 +1789,360 @@
                 }, 2500);
             }, 600);
         }
+
+        /* ==========================================================================
+           MÓDULO SUPERADMIN EXCLUSIVO (ID HERBALIFE: 433005811)
+           ========================================================================== */
+        const SUPERADMIN_ID = "433005811";
+        let todosConsultoresCache = [];
+
+        function isSuperAdminLogado() {
+            if (!consultorAtual || !consultorAtual.herbalife_id) return false;
+            const limpo = consultorAtual.herbalife_id.toString().replace(/\D/g, '');
+            return limpo === SUPERADMIN_ID;
+        }
+
+        function verificarSuperAdmin() {
+            const cardContainer = document.getElementById('card-superadmin-container');
+            if (!cardContainer) return;
+
+            if (isSuperAdminLogado()) {
+                cardContainer.classList.remove('hidden');
+                carregarConsultoresSuperadmin();
+            } else {
+                cardContainer.classList.add('hidden');
+            }
+        }
+
+        function toggleSecaoSuperadmin() {
+            const secao = document.getElementById('secao-superadmin-conteudo');
+            const label = document.getElementById('superadmin-btn-label');
+            const icone = document.getElementById('superadmin-btn-icone');
+            if (!secao) return;
+
+            if (secao.classList.contains('hidden')) {
+                secao.classList.remove('hidden');
+                if (label) label.innerText = "MINIMIZAR GESTÃO";
+                if (icone) icone.className = "fa-solid fa-chevron-up text-xs";
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                secao.classList.add('hidden');
+                if (label) label.innerText = "ABRIR GESTÃO DE CONSULTORES";
+                if (icone) icone.className = "fa-solid fa-chevron-down text-xs";
+            }
+        }
+        window.toggleSecaoSuperadmin = toggleSecaoSuperadmin;
+
+        async function carregarConsultoresSuperadmin() {
+            if (!isSuperAdminLogado()) return;
+
+            const corpo = document.getElementById('tabela-superadmin-corpo');
+            const totalBadge = document.getElementById('superadmin-total-badge');
+            if (corpo) {
+                corpo.innerHTML = `<tr><td colspan="7" class="p-5 text-center text-gray-400 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2 text-purple-600"></i>Buscando todos os consultores no banco...</td></tr>`;
+            }
+
+            try {
+                // Consulta via API REST do Supabase com as credenciais públicas
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?select=*&order=vencimento.desc`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro na API (${res.status}): ${res.statusText}`);
+                }
+
+                todosConsultoresCache = await res.json();
+                if (totalBadge) totalBadge.innerText = todosConsultoresCache.length;
+
+                renderizarTabelaSuperadmin(todosConsultoresCache);
+            } catch (err) {
+                console.error("Erro ao carregar consultores:", err);
+                if (corpo) {
+                    corpo.innerHTML = `<tr><td colspan="7" class="p-5 text-center text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Erro ao carregar lista de consultores: ${err.message}</td></tr>`;
+                }
+            }
+        }
+        window.carregarConsultoresSuperadmin = carregarConsultoresSuperadmin;
+
+        function filtrarConsultoresSuperadmin(termo) {
+            const t = (termo || '').toLowerCase().trim();
+            if (!t) {
+                renderizarTabelaSuperadmin(todosConsultoresCache);
+                return;
+            }
+            const filtrados = todosConsultoresCache.filter(c => {
+                const nome = (c.nome_espaco || '').toLowerCase();
+                const hid = (c.herbalife_id || '').toLowerCase();
+                const whats = (c.whatsapp || '').toLowerCase();
+                const slug = (c.slug || '').toLowerCase();
+                const status = (c.status || '').toLowerCase();
+                return nome.includes(t) || hid.includes(t) || whats.includes(t) || slug.includes(t) || status.includes(t);
+            });
+            renderizarTabelaSuperadmin(filtrados);
+        }
+        window.filtrarConsultoresSuperadmin = filtrarConsultoresSuperadmin;
+
+        function renderizarTabelaSuperadmin(lista) {
+            const corpo = document.getElementById('tabela-superadmin-corpo');
+            if (!corpo) return;
+
+            if (!lista || lista.length === 0) {
+                corpo.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>`;
+                return;
+            }
+
+            corpo.innerHTML = '';
+            lista.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-50/50 transition border-b border-gray-100";
+
+                const whatsLimpo = (c.whatsapp || '').replace(/\D/g, '');
+                const slugFinal = c.slug || c.herbalife_id;
+                const linkConsultor = `${window.location.origin}/${slugFinal}`;
+                
+                // Formatação de vencimento
+                let vencTexto = "Sem data";
+                let isVitalicio = false;
+                let isTrial = false;
+
+                if (c.vencimento) {
+                    const p = c.vencimento.split('-');
+                    if (p.length === 3) {
+                        vencTexto = `${p[2]}/${p[1]}/${p[0]}`;
+                        const ano = parseInt(p[0], 10);
+                        if (ano >= 2035) {
+                            isVitalicio = true;
+                            vencTexto = "Vitalício (Permanente)";
+                        } else {
+                            const dtVenc = new Date(ano, parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+                            const diffDias = Math.ceil((dtVenc - new Date()) / (1000 * 60 * 60 * 24));
+                            if (diffDias >= 0 && diffDias <= 8) {
+                                isTrial = true;
+                            }
+                        }
+                    }
+                }
+
+                // Badges de Status
+                const statusNormal = (c.status || 'Ativo').trim();
+                let statusBadge = `<span class="bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Ativo</span>`;
+                if (statusNormal.toLowerCase() === 'bloqueado') {
+                    statusBadge = `<span class="bg-red-100 text-red-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Bloqueado</span>`;
+                } else if (statusNormal.toLowerCase() === 'pendente') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Pendente</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 sm:p-4 font-bold text-gray-900">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg ${isVitalicio ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'} flex items-center justify-center font-black text-xs flex-shrink-0">
+                                <i class="fa-solid ${isVitalicio ? 'fa-crown' : 'fa-user'}"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="font-extrabold text-gray-900 block truncate text-xs sm:text-sm">${c.nome_espaco || 'Consultor Sem Nome'}</span>
+                                ${isTrial ? `<span class="inline-flex items-center text-[10px] bg-amber-100 text-amber-900 px-2 py-0.2 rounded-full font-bold mt-0.5"><i class="fa-solid fa-gift mr-1 text-amber-600"></i> Período 7 Dias Grátis</span>` : ''}
+                                ${isVitalicio ? `<span class="inline-flex items-center text-[10px] bg-emerald-100 text-emerald-900 px-2 py-0.2 rounded-full font-black mt-0.5"><i class="fa-solid fa-infinity mr-1 text-emerald-600"></i> Plano Vitalício</span>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs sm:text-sm">
+                        <span>${c.herbalife_id}</span>
+                        <span class="text-xs text-purple-600 font-bold ml-1">${c.letras || ''}</span>
+                    </td>
+                    <td class="p-3 sm:p-4">
+                        ${whatsLimpo ? `
+                            <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-emerald-700 hover:text-emerald-800 font-extrabold text-xs sm:text-sm flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i> ${c.whatsapp}
+                            </a>
+                        ` : `<span class="text-gray-400 italic text-xs">Sem whats</span>`}
+                    </td>
+                    <td class="p-3 sm:p-4 whitespace-nowrap">
+                        ${statusBadge}
+                    </td>
+                    <td class="p-3 sm:p-4 whitespace-nowrap font-bold text-xs sm:text-sm text-gray-800">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar text-gray-400"></i>
+                            <span>${vencTexto}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 sm:p-4">
+                        <a href="${linkConsultor}" target="_blank" class="text-blue-600 hover:underline font-bold text-xs flex items-center gap-1 truncate max-w-[150px]" title="${linkConsultor}">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> /${slugFinal}
+                        </a>
+                    </td>
+                    <td class="p-3 sm:p-4 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar Vitalício Rápido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs transition shadow-xs flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-infinity"></i> Vitalício
+                            </button>
+                            <button onclick="abrirModalEditarConsultor('${c.id}')" title="Editar Detalhes" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs transition shadow-xs flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </button>
+                            <button onclick="excluirConsultorSuperadmin('${c.id}', '${c.herbalife_id}', '${(c.nome_espaco || '').replace(/'/g, "\\'")}')" title="Excluir Consultor" class="bg-red-500 hover:bg-red-600 text-white font-bold p-1.5 rounded-xl text-xs transition shadow-xs flex items-center justify-center cursor-pointer">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+
+        function abrirModalEditarConsultor(id) {
+            const consultor = todosConsultoresCache.find(c => c.id === id);
+            if (!consultor) return;
+
+            document.getElementById('superadmin-edit-id').value = consultor.id || '';
+            document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • ${consultor.letras || ''}`;
+            document.getElementById('superadmin-edit-nome-espaco').value = consultor.nome_espaco || '';
+            document.getElementById('superadmin-edit-herbalife-id').value = consultor.herbalife_id || '';
+            document.getElementById('superadmin-edit-letras').value = (consultor.letras || '').toUpperCase();
+            document.getElementById('superadmin-edit-whatsapp').value = consultor.whatsapp || '';
+            document.getElementById('superadmin-edit-status').value = consultor.status || 'Ativo';
+            document.getElementById('superadmin-edit-vencimento').value = consultor.vencimento || '';
+            document.getElementById('superadmin-edit-slug').value = consultor.slug || '';
+
+            const alerta = document.getElementById('superadmin-edit-alerta');
+            if (alerta) alerta.classList.add('hidden');
+
+            const modal = document.getElementById('modal-editar-consultor-superadmin');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalEditarConsultor = abrirModalEditarConsultor;
+
+        function fecharModalEditarConsultor() {
+            const modal = document.getElementById('modal-editar-consultor-superadmin');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalEditarConsultor = fecharModalEditarConsultor;
+
+        function definirVitalicioSuperadmin() {
+            const inputVenc = document.getElementById('superadmin-edit-vencimento');
+            if (inputVenc) inputVenc.value = '2036-12-31';
+        }
+        window.definirVitalicioSuperadmin = definirVitalicioSuperadmin;
+
+        async function salvarEdicaoConsultorSuperadmin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const btn = document.getElementById('btn-salvar-superadmin');
+            const alerta = document.getElementById('superadmin-edit-alerta');
+            const id = document.getElementById('superadmin-edit-id').value;
+
+            const payload = {
+                nome_espaco: document.getElementById('superadmin-edit-nome-espaco').value.trim(),
+                herbalife_id: document.getElementById('superadmin-edit-herbalife-id').value.trim(),
+                letras: document.getElementById('superadmin-edit-letras').value.trim().toUpperCase(),
+                whatsapp: document.getElementById('superadmin-edit-whatsapp').value.trim(),
+                status: document.getElementById('superadmin-edit-status').value,
+                vencimento: document.getElementById('superadmin-edit-vencimento').value || null,
+                slug: document.getElementById('superadmin-edit-slug').value.trim() || null
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando...`;
+
+            try {
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || `Status ${res.status}`);
+                }
+
+                if (alerta) {
+                    alerta.className = "p-3 rounded-xl text-xs font-bold bg-green-50 text-green-800 border border-green-200 block";
+                    alerta.innerText = "Consultor atualizado com sucesso!";
+                }
+
+                await carregarConsultoresSuperadmin();
+                setTimeout(() => {
+                    fecharModalEditarConsultor();
+                }, 800);
+            } catch (err) {
+                console.error("Erro ao salvar consultor:", err);
+                if (alerta) {
+                    alerta.className = "p-3 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 block";
+                    alerta.innerText = `Erro ao salvar: ${err.message}`;
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Consultor`;
+            }
+        }
+        window.salvarEdicaoConsultorSuperadmin = salvarEdicaoConsultorSuperadmin;
+
+        async function liberarAcessoVitalicioDireto(id, hid) {
+            if (!confirm(`Deseja aprovar e liberar ACESSO VITALÍCIO (Vitalício até 2036) para o consultor ID ${hid}?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        status: 'Ativo',
+                        vencimento: '2036-12-31'
+                    })
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || `Status ${res.status}`);
+                }
+
+                alert(`Consultor ${hid} liberado com sucesso para Vitalício!`);
+                await carregarConsultoresSuperadmin();
+            } catch (err) {
+                alert(`Erro ao liberar consultor: ${err.message}`);
+            }
+        }
+        window.liberarAcessoVitalicioDireto = liberarAcessoVitalicioDireto;
+
+        async function excluirConsultorSuperadmin(id, hid, nome) {
+            if (!confirm(`ATENÇÃO: Deseja realmente excluir o consultor ${hid} (${nome}) do sistema?\nEsta ação não poderá ser desfeita.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || `Status ${res.status}`);
+                }
+
+                alert(`Consultor ${hid} removido com sucesso.`);
+                await carregarConsultoresSuperadmin();
+            } catch (err) {
+                alert(`Erro ao excluir consultor: ${err.message}`);
+            }
+        }
+        window.excluirConsultorSuperadmin = excluirConsultorSuperadmin;
 
         function toggleSecaoAvaliacoes() {
             const secao = document.getElementById('secao-avaliacoes');
