@@ -892,8 +892,8 @@
                     const consultor = data[0];
                     const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
 
-                    // Validação com as 3 letras cadastradas (ou FIT se for o consultor 433005811)
-                    if (senha === letrasCadastradas || (senha === 'FIT' && consultor.herbalife_id === '433005811')) {
+                    // Validação estrita: cada consultor deve digitar exatamente as suas 3 letras cadastradas no banco
+                    if (senha === letrasCadastradas) {
                         consultorAtual = consultor;
                         try {
                             localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
