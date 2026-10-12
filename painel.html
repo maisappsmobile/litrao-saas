@@ -2982,8 +2982,37 @@
             }
 
             cont.innerHTML = `
-                <!-- TOPO DO CARD DE RELATÓRIO (CAPTURA PARA IMAGEM) -->
-                <div id="card-relatorio-captura" class="bg-white rounded-2xl p-2 sm:p-5 font-sans">
+                <!-- HISTÓRICO COMPLETO DO CLIENTE (SELETOR DE CHECK-INS - APENAS PARA NAVEGAÇÃO DO CONSULTOR NO PAINEL) -->
+                <div data-html2canvas-ignore="true" class="mb-4 bg-blue-50/70 border border-blue-200 rounded-xl p-3 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <span class="text-xs font-black text-blue-900 uppercase">
+                            <i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico do Cliente (${todasDoCliente.length} avaliações cadastradas)
+                        </span>
+                        <div class="flex flex-col sm:items-end">
+                            <span class="text-[10px] text-blue-700 font-bold mb-1">Selecione a data para visualizar:</span>
+                            <button onclick="abrirNovaAvaliacaoDoCliente(${item.id})" title="Registrar Nova Avaliação para este cliente" class="bg-green-600 hover:bg-green-700 text-white font-black px-3 py-1 rounded-lg text-xs shadow transition inline-flex items-center">
+                                <i class="fa-solid fa-plus-circle mr-1.5 text-sm"></i> Nova Avaliação
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-blue-200/60">
+                        ${todasDoCliente.map((av, idx) => {
+                            const dt = new Date(av.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+                            const isAtiva = av.id === item.id;
+                            const rotulo = idx === 0 ? 'Última' : (idx === todasDoCliente.length - 1 ? 'Inicial' : `#${todasDoCliente.length - idx}`);
+                            return `
+                                <button onclick="verFichaCompleta(${av.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${isAtiva ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-300' : 'bg-white hover:bg-blue-100 text-blue-800 border border-blue-200'}">
+                                    <span class="text-[10px] uppercase font-black opacity-80">${rotulo}:</span>
+                                    <span>${dt}</span>
+                                    <span class="font-black">(${av.peso || '-'}kg)</span>
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- TOPO DO CARD DE RELATÓRIO DO CLIENTE (CAPTURA PARA IMAGEM / WHATSAPP - PADRÃO OFICIAL LIMPO) -->
+                <div id="card-relatorio-captura" class="bg-white rounded-2xl p-2 sm:p-5 font-sans border border-gray-100 shadow-sm">
                     <!-- CABEÇALHO COM LOGO RESET -->
                     <div class="border-b-2 border-brand-dark pb-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="flex items-center space-x-3">
@@ -3002,35 +3031,6 @@
                             <span class="text-[11px] text-gray-500 font-bold uppercase">Consultor Responsável</span>
                             <span class="text-sm font-black text-brand-light">${consultorAtual.nome_completo || 'Consultor Oficial'}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${dataFmt}</span>
-                        </div>
-                    </div>
-
-                    <!-- HISTÓRICO COMPLETO DO CLIENTE (SELETOR DE CHECK-INS) -->
-                    <div class="mb-4 bg-blue-50/70 border border-blue-200 rounded-xl p-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                            <span class="text-xs font-black text-blue-900 uppercase">
-                                <i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico do Cliente (${todasDoCliente.length} avaliações cadastradas)
-                            </span>
-                            <div class="flex flex-col sm:items-end">
-                                <span class="text-[10px] text-blue-700 font-bold mb-1">Selecione a data para visualizar:</span>
-                                <button onclick="abrirNovaAvaliacaoDoCliente(${item.id})" title="Registrar Nova Avaliação para este cliente" class="bg-green-600 hover:bg-green-700 text-white font-black px-3 py-1 rounded-lg text-xs shadow transition inline-flex items-center">
-                                    <i class="fa-solid fa-plus-circle mr-1.5 text-sm"></i> Nova Avaliação
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-blue-200/60">
-                            ${todasDoCliente.map((av, idx) => {
-                                const dt = new Date(av.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
-                                const isAtiva = av.id === item.id;
-                                const rotulo = idx === 0 ? 'Última' : (idx === todasDoCliente.length - 1 ? 'Inicial' : `#${todasDoCliente.length - idx}`);
-                                return `
-                                    <button onclick="verFichaCompleta(${av.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${isAtiva ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-300' : 'bg-white hover:bg-blue-100 text-blue-800 border border-blue-200'}">
-                                        <span class="text-[10px] uppercase font-black opacity-80">${rotulo}:</span>
-                                        <span>${dt}</span>
-                                        <span class="font-black">(${av.peso || '-'}kg)</span>
-                                    </button>
-                                `;
-                            }).join('')}
                         </div>
                     </div>
 
@@ -3244,6 +3244,21 @@
                         </div>` : ''}
                     </div>
 
+                    <!-- MENSAGEM MOTIVACIONAL E GATILHOS DE RESULTADO -->
+                    <div class="mt-4 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-700 text-white p-4 rounded-xl text-center shadow-md">
+                        <div class="flex items-center justify-center space-x-2 mb-1 text-emerald-100 text-xs font-black uppercase tracking-wider">
+                            <i class="fa-solid fa-fire text-amber-300"></i>
+                            <span>Foco, Constância & Transformação</span>
+                            <i class="fa-solid fa-fire text-amber-300"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm font-bold leading-snug">
+                            "O sucesso é a soma de pequenos esforços diários! Cada gole do seu Litrão e cada escolha saudável te aproximam da sua melhor versão."
+                        </p>
+                        <p class="text-[11px] font-black text-emerald-200 mt-1 uppercase tracking-wide">
+                            ✨ Constância vence o cansaço. Estamos juntos rumo à sua meta!
+                        </p>
+                    </div>
+
                     <div class="mt-4 pt-3 border-t border-gray-200 text-[10px] text-gray-400 text-center">
                         * Referências clínicas baseadas nas diretrizes da OMS e método Harris-Benedict de taxa metabólica.
                     </div>
@@ -3252,11 +3267,15 @@
                 <!-- BOTÕES DE AÇÃO: EXPORTAR IMAGEM & WHATSAPP -->
                 <div class="pt-4 border-t mt-4 flex flex-col sm:flex-row gap-3">
                     <button onclick="enviarRelatorioWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
-                        <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Enviar no WhatsApp (Texto Formatado)
+                        <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Enviar WhatsApp (Texto + Gatilhos)
                     </button>
                     
-                    <button id="btn-baixar-card" onclick="baixarCardBioimpedancia()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
-                        <i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Relatório (Foto / Card)
+                    <button id="btn-compartilhar-card" onclick="compartilharCardBioimpedancia()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-share-nodes mr-2 text-lg"></i> Compartilhar Card (Foto Limpa)
+                    </button>
+
+                    <button id="btn-baixar-card" onclick="baixarCardBioimpedancia()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto
                     </button>
 
                     <button onclick="fecharFicha()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3.5 rounded-xl text-sm transition">
@@ -3269,8 +3288,47 @@
         }
 
         // ==========================================
-        // BAIXAR RELATÓRIO COMO IMAGEM (HTML2CANVAS)
+        // BAIXAR / COMPARTILHAR RELATÓRIO COMO IMAGEM (HTML2CANVAS)
         // ==========================================
+        async function compartilharCardBioimpedancia() {
+            const btn = document.getElementById('btn-compartilhar-card');
+            const card = document.getElementById('card-relatorio-captura');
+            if (!card) return;
+
+            const txtOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> PREPARANDO FOTO...';
+
+            try {
+                const canvas = await html2canvas(card, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true
+                });
+
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+                const nomeLimpo = (avaliacaoSelecionadaAtual.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
+                const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: `Bioimpedância - ${avaliacaoSelecionadaAtual.nome_cliente}`,
+                        text: `Olá, ${avaliacaoSelecionadaAtual.nome_cliente}! Segue o seu relatório oficial de Bioimpedância do Litrão do Reset! 🔥`,
+                        files: [file]
+                    });
+                } else {
+                    baixarCardBioimpedancia();
+                    alert("A imagem do relatório foi gerada e baixada com sucesso! Você já pode enviá-la ao cliente pelo WhatsApp.");
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    baixarCardBioimpedancia();
+                }
+            } finally {
+                btn.innerHTML = txtOriginal;
+            }
+        }
+
         function baixarCardBioimpedancia() {
             const btn = document.getElementById('btn-baixar-card');
             const card = document.getElementById('card-relatorio-captura');
@@ -3291,12 +3349,12 @@
 
                 btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> FOTO BAIXADA!';
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Relatório (Foto / Card)';
+                    btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto';
                 }, 3000);
             }).catch(err => {
                 console.error(err);
                 alert("Erro ao gerar imagem. Você pode tirar print da tela ou enviar o texto formatado no WhatsApp.");
-                btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Relatório (Foto / Card)';
+                btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto';
             });
         }
 
@@ -3404,8 +3462,18 @@
             texto += `• Meta de Água: ${item.agua ? 'Batida com sucesso ✅' : 'Precisa reforçar ⚠️'}\n`;
             texto += `• Nota de Foco: ${item.foco || '-'}/10 🎯\n\n`;
 
-            texto += `Qualquer dúvida ou para mantermos seu plano ajustado, conte 100% comigo!\n`;
-            texto += `_${consultorAtual.nome_completo || 'Seu Consultor'} - Litrão do Reset_`;
+            // MENSAGEM MOTIVACIONAL E GATILHOS MENTAIS (RECONHECIMENTO, CONSTÂNCIA, PARCERIA E COMPROMISSO)
+            texto += `═══════════════════════\n`;
+            texto += `🔥 *MENSAGEM DO SEU CONSULTOR:* 🔥\n`;
+            texto += `_"O sucesso não acontece por acaso, ele é a soma de pequenos esforços repetidos dia após dia! Cada gole do seu Litrão e cada escolha saudável te aproximam da sua melhor versão."_\n\n`;
+
+            texto += `🎯 *SEU PLANO DE AÇÃO PARA ESTA SEMANA:* \n`;
+            texto += `1️⃣ *Litrão do Reset:* Manter a garrafinha cheia e ativa logo cedo 💧\n`;
+            texto += `2️⃣ *Constância:* Seguir firme no plano sem pular etapas 🥗\n`;
+            texto += `3️⃣ *Parceria Total:* Me mande foto do seu Litrão preparado amanhã! 📸\n\n`;
+
+            texto += `💪 *Constância vence o cansaço! Eu estou 100% comprometido(a) com a sua transformação e vamos juntos alcançar sua meta mais rápido!* 🚀\n\n`;
+            texto += `_${consultorAtual.nome_completo || 'Seu Consultor Oficial'} • Litrão do Reset_`;
 
             const url = `https://wa.me/55${whatsLimpo}?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
