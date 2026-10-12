@@ -615,8 +615,8 @@
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
-                // Extrair Nome do Espaço, Nome do Consultor e Cidade
-                let rawEspaco = (consultor.nome_espaco || '').replace(/<!--SOCIAIS:.*?-->/g, '').trim();
+                // Extrair Nome do Espaço, Nome do Consultor e Cidade (removendo qualquer tag de sistema/comentário HTML)
+                let rawEspaco = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
                 let nomeEspacoFinal = "";
                 let nomeConsultor = "";
                 let cidadeDetectada = "";
@@ -625,21 +625,21 @@
                 // Ou sem espaço: "• Nome Consultor | Cidade - UF"
                 if (rawEspaco.includes('|')) {
                     const partesPipe = rawEspaco.split('|');
-                    cidadeDetectada = partesPipe[1].trim();
-                    const antesPipe = partesPipe[0].trim();
+                    cidadeDetectada = partesPipe[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+                    const antesPipe = partesPipe[0].replace(/<!--[\s\S]*?-->/g, '').trim();
                     if (antesPipe.includes('•')) {
                         const partesBullet = antesPipe.split('•');
-                        nomeEspacoFinal = partesBullet[0].trim();
-                        nomeConsultor = partesBullet[1].trim();
+                        nomeEspacoFinal = partesBullet[0].replace(/<!--[\s\S]*?-->/g, '').trim();
+                        nomeConsultor = partesBullet[1].replace(/<!--[\s\S]*?-->/g, '').trim();
                     } else {
                         nomeEspacoFinal = antesPipe;
                     }
                 } else if (rawEspaco.includes('•')) {
                     const partesBullet = rawEspaco.split('•');
-                    nomeEspacoFinal = partesBullet[0].trim();
-                    nomeConsultor = partesBullet[1].trim();
+                    nomeEspacoFinal = partesBullet[0].replace(/<!--[\s\S]*?-->/g, '').trim();
+                    nomeConsultor = partesBullet[1].replace(/<!--[\s\S]*?-->/g, '').trim();
                 } else {
-                    nomeEspacoFinal = rawEspaco.trim();
+                    nomeEspacoFinal = rawEspaco.replace(/<!--[\s\S]*?-->/g, '').trim();
                 }
 
                 if (!cidadeDetectada && consultor.endereco) {
@@ -650,6 +650,8 @@
                 } else if (!cidadeDetectada && consultor.herbalife_id === "433005811") {
                     cidadeDetectada = "Juína - MT";
                 }
+
+                cidadeDetectada = (cidadeDetectada || '').replace(/<!--[\s\S]*?-->/g, '').trim();
 
                 // CTA: Exibe ex: "JUÍNA - MT E SUA REGIÃO"
                 const spanCidade = document.getElementById('cta-cidade');
@@ -673,8 +675,9 @@
                 // Assinatura Dinâmica no Rodapé (APENAS Nome do Espaço; se não tiver, fica em branco)
                 const footerName = document.getElementById('footer-name');
                 if (footerName) {
-                    if (nomeEspacoFinal && nomeEspacoFinal.trim() !== '' && nomeEspacoFinal !== 'SEM_ESPACO') {
-                        footerName.innerText = nomeEspacoFinal;
+                    const nomeEspLimpo = (nomeEspacoFinal || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+                    if (nomeEspLimpo && nomeEspLimpo !== 'SEM_ESPACO') {
+                        footerName.innerText = nomeEspLimpo;
                         footerName.style.display = 'block';
                     } else {
                         footerName.innerText = '';
@@ -684,8 +687,9 @@
 
                 const footerCity = document.getElementById('footer-city');
                 if (footerCity) {
-                    if (cidadeDetectada) {
-                        footerCity.innerText = cidadeDetectada;
+                    const cidLimpa = (cidadeDetectada || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+                    if (cidLimpa) {
+                        footerCity.innerText = cidLimpa;
                         footerCity.style.display = 'block';
                     } else {
                         footerCity.style.display = 'none';
