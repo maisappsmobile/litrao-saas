@@ -496,7 +496,7 @@
                                     <span id="icone-ordem-peso" class="text-gray-400 text-xs"><i class="fa-solid fa-sort"></i></span>
                                 </div>
                             </th>
-                            <th class="p-3.5 hidden sm:table-cell">Medidas</th>
+                            <th class="p-3.5 hidden sm:table-cell">Bioimpedância & Medidas</th>
                             <th class="p-3.5 text-right">Ações</th>
                         </tr>
                     </thead>
@@ -2526,6 +2526,18 @@
             return nomeLimpo || 'cliente_sem_nome';
         }
 
+        function extrairBioDiretaObjeto(item) {
+            if (!item || !item.como_foi_semana) return {};
+            if (!item.como_foi_semana.includes('<!--BIO_DADOS:')) return {};
+            try {
+                const match = item.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                if (match && match[1]) {
+                    return JSON.parse(match[1]) || {};
+                }
+            } catch(e) {}
+            return {};
+        }
+
         async function carregarAvaliacoes() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
             if (corpo) {
@@ -2677,6 +2689,32 @@
                 const tr = document.createElement('tr');
                 tr.className = `hover:bg-amber-50/60 transition border-b border-gray-200 ${isChecked ? 'bg-blue-50/50' : (isExpandido ? 'bg-amber-50/40 font-medium' : '')}`;
                 
+                const bioObj = extrairBioDiretaObjeto(item);
+                const temMedidas = item.busto || item.cintura || item.abdomen || item.quadril;
+                const temBio = bioObj.gordura || bioObj.musculo || bioObj.visceral;
+
+                let blocoMedidasHtml = '';
+                if (temBio && !temMedidas) {
+                    blocoMedidasHtml = `
+                        <div class="flex flex-col">
+                            <span class="text-xs sm:text-sm font-black text-emerald-800">
+                                <i class="fa-solid fa-weight-scale text-emerald-600 mr-1 text-[11px]"></i>
+                                G: ${bioObj.gordura || '-'}% • M: ${bioObj.musculo || '-'}%
+                            </span>
+                            <span class="text-[10px] text-emerald-700 font-bold">
+                                Visc: ${bioObj.visceral || '-'} ${bioObj.idade ? '• Idade: ' + bioObj.idade + 'a' : ''}
+                            </span>
+                        </div>
+                    `;
+                } else if (temMedidas) {
+                    blocoMedidasHtml = `
+                        <span class="text-xs sm:text-sm font-bold text-gray-800 block">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</span>
+                        <span class="text-[10px] text-gray-400 font-medium block">Tórax • Cint • Abd • Quad</span>
+                    `;
+                } else {
+                    blocoMedidasHtml = `<span class="text-xs text-gray-400 italic font-medium">Sem bio/medidas</span>`;
+                }
+
                 tr.innerHTML = `
                     <td class="p-3 sm:p-4 w-12 text-center">
                         <input type="checkbox" class="chk-cliente w-4 h-4 rounded text-brand-light focus:ring-brand-light cursor-pointer" data-key="${grupo.key}" ${isChecked ? 'checked' : ''} onchange="toggleClienteSelecionado('${grupo.key}', this.checked)">
@@ -2722,8 +2760,7 @@
                         <span class="text-base sm:text-xl font-black text-brand-dark">${item.peso ? item.peso + ' kg' : '- kg'}</span>
                     </td>
                     <td class="p-3 sm:p-4 hidden sm:table-cell">
-                        <span class="text-xs sm:text-sm font-bold text-gray-800 block">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</span>
-                        <span class="text-[10px] text-gray-400 font-medium block">Tórax • Cint • Abd • Quad</span>
+                        ${blocoMedidasHtml}
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center space-x-1.5">
@@ -2749,6 +2786,28 @@
                     grupo.itens.forEach((sub, subIdx) => {
                         const subData = new Date(sub.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
                         const isPrimeiraOuUltima = subIdx === 0 ? 'Última' : (subIdx === total - 1 ? 'Inicial' : `Check-in ${total - subIdx}`);
+                        const subBio = extrairBioDiretaObjeto(sub);
+                        const subTemMedidas = sub.busto || sub.cintura || sub.abdomen || sub.quadril;
+                        const subTemBio = subBio.gordura || subBio.musculo || subBio.visceral;
+
+                        let subMedidasHtml = '';
+                        if (subTemBio && !subTemMedidas) {
+                            subMedidasHtml = `
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-black text-emerald-800">
+                                        G: ${subBio.gordura || '-'}% • M: ${subBio.musculo || '-'}%
+                                    </span>
+                                    <span class="text-[10px] text-emerald-700 font-bold">
+                                        Visc: ${subBio.visceral || '-'}
+                                    </span>
+                                </div>
+                            `;
+                        } else if (subTemMedidas) {
+                            subMedidasHtml = `<span class="text-xs font-semibold text-gray-700">${sub.busto || '-'} / ${sub.cintura || '-'} / ${sub.abdomen || '-'} / ${sub.quadril || '-'}</span>`;
+                        } else {
+                            subMedidasHtml = `<span class="text-xs text-gray-400 italic">-</span>`;
+                        }
+
                         const subTr = document.createElement('tr');
                         subTr.className = "bg-gray-50/90 hover:bg-blue-50/60 transition border-b border-gray-200 text-xs sm:text-sm";
                         subTr.innerHTML = `
@@ -2763,7 +2822,7 @@
                             <td class="p-2.5 sm:p-3 text-gray-700 font-semibold text-xs sm:text-sm">${sub.whatsapp_cliente || '-'}</td>
                             <td class="p-2.5 sm:p-3 font-bold text-gray-800 text-xs sm:text-sm">${subData}</td>
                             <td class="p-2.5 sm:p-3 font-black text-brand-dark text-sm sm:text-base">${sub.peso ? sub.peso + ' kg' : '- kg'}</td>
-                            <td class="p-2.5 sm:p-3 text-gray-700 hidden sm:table-cell text-xs sm:text-sm font-semibold">${sub.busto || '-'} / ${sub.cintura || '-'} / ${sub.abdomen || '-'} / ${sub.quadril || '-'}</td>
+                            <td class="p-2.5 sm:p-3 text-gray-700 hidden sm:table-cell text-xs sm:text-sm font-semibold">${subMedidasHtml}</td>
                             <td class="p-2.5 sm:p-3 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center space-x-1.5">
                                     <button onclick="verFichaCompleta(${sub.id})" title="Ver Ficha desta Data" class="bg-blue-600/90 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
