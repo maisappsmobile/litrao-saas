@@ -4212,32 +4212,65 @@
                     blocoMedidasHtml = `<span class="text-xs text-gray-400 italic font-medium">Sem bio/medidas</span>`;
                 }
 
+                // Detecção de Pedido Litrão
+                const isPedido = (item.codigo_acesso === 'PEDIDO') || (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+                let dadosPedidoObj = null;
+                if (isPedido && item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:')) {
+                    try {
+                        const m = item.como_foi_semana.match(/<!--DADOS_PEDIDO:(.*?)-->/);
+                        if (m && m[1]) dadosPedidoObj = JSON.parse(m[1]);
+                    } catch(e) {}
+                }
+
+                let nomeClienteLimpo = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente Sem Nome';
+
+                let colunaNomeHtml = `
+                    <div class="flex items-center space-x-2.5">
+                        ${isPedido ? `
+                            <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-xs ring-1 ring-emerald-500/30">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </span>
+                        ` : (total > 1 ? `
+                            <button onclick="toggleExpandirCliente('${grupo.key}')" title="${isExpandido ? 'Recolher histórico' : 'Ver todas as ' + total + ' avaliações deste cliente'}" class="w-7 h-7 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 font-black flex items-center justify-center text-sm transition flex-shrink-0 cursor-pointer shadow-xs">
+                                <i class="fa-solid ${isExpandido ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
+                            </button>
+                        ` : `
+                            <span class="w-7 h-7 rounded-lg bg-gray-100 text-gray-400 font-bold flex items-center justify-center text-xs flex-shrink-0">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                        `)}
+                        <div>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-black text-gray-900 text-base sm:text-lg block leading-snug">${nomeClienteLimpo}</span>
+                                ${isPedido ? `
+                                    <span class="inline-flex items-center bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                                        🛍️ PEDIDO LITRÃO
+                                    </span>
+                                ` : ''}
+                            </div>
+                            ${isPedido && dadosPedidoObj ? `
+                                <div class="mt-1 text-xs text-emerald-900 font-extrabold flex flex-wrap items-center gap-2">
+                                    <span class="bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"><i class="fa-solid fa-bottle-droplet text-emerald-600 mr-1"></i>${dadosPedidoObj.produto} (${dadosPedidoObj.quantidade}x)</span>
+                                    <span class="bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-700 font-black">${dadosPedidoObj.valor_total}</span>
+                                    <span class="bg-gray-100 px-2 py-0.5 rounded-md text-gray-700">${dadosPedidoObj.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada'}</span>
+                                </div>
+                            ` : (total > 1 ? `
+                                <span class="inline-flex items-center mt-1 bg-blue-100 text-blue-900 text-xs font-black px-2.5 py-0.5 rounded-full cursor-pointer hover:bg-blue-200 transition shadow-2xs" onclick="toggleExpandirCliente('${grupo.key}')">
+                                    <i class="fa-solid fa-clock-rotate-left mr-1 text-xs text-blue-600"></i> ${total} avaliações unificadas
+                                </span>
+                            ` : `
+                                <span class="text-xs text-gray-400 font-semibold">1 avaliação cadastrada</span>
+                            `)}
+                        </div>
+                    </div>
+                `;
+
                 tr.innerHTML = `
                     <td class="p-3 sm:p-4 w-12 text-center">
                         <input type="checkbox" class="chk-cliente w-4 h-4 rounded text-brand-light focus:ring-brand-light cursor-pointer" data-key="${grupo.key}" ${isChecked ? 'checked' : ''} onchange="toggleClienteSelecionado('${grupo.key}', this.checked)">
                     </td>
                     <td class="p-3 sm:p-4">
-                        <div class="flex items-center space-x-2.5">
-                            ${total > 1 ? `
-                                <button onclick="toggleExpandirCliente('${grupo.key}')" title="${isExpandido ? 'Recolher histórico' : 'Ver todas as ' + total + ' avaliações deste cliente'}" class="w-7 h-7 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 font-black flex items-center justify-center text-sm transition flex-shrink-0 cursor-pointer shadow-xs">
-                                    <i class="fa-solid ${isExpandido ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
-                                </button>
-                            ` : `
-                                <span class="w-7 h-7 rounded-lg bg-gray-100 text-gray-400 font-bold flex items-center justify-center text-xs flex-shrink-0">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                            `}
-                            <div>
-                                <span class="font-black text-gray-900 text-base sm:text-lg block leading-snug">${item.nome_cliente}</span>
-                                ${total > 1 ? `
-                                    <span class="inline-flex items-center mt-1 bg-blue-100 text-blue-900 text-xs font-black px-2.5 py-0.5 rounded-full cursor-pointer hover:bg-blue-200 transition shadow-2xs" onclick="toggleExpandirCliente('${grupo.key}')">
-                                        <i class="fa-solid fa-clock-rotate-left mr-1 text-xs text-blue-600"></i> ${total} avaliações unificadas
-                                    </span>
-                                ` : `
-                                    <span class="text-xs text-gray-400 font-semibold">1 avaliação cadastrada</span>
-                                `}
-                            </div>
-                        </div>
+                        ${colunaNomeHtml}
                     </td>
                     <td class="p-3 sm:p-4">
                         ${whatsLimpo && !item.whatsapp_cliente.toLowerCase().includes('sem whats') ? `
@@ -4254,23 +4287,35 @@
                         <span class="block font-black text-gray-900 text-sm sm:text-base">${dataFmt}</span>
                     </td>
                     <td class="p-3 sm:p-4">
-                        <span class="text-base sm:text-xl font-black text-brand-dark">${item.peso ? item.peso + ' kg' : '- kg'}</span>
+                        ${isPedido && dadosPedidoObj ? `
+                            <span class="text-base sm:text-lg font-black text-emerald-800">${dadosPedidoObj.valor_total}</span>
+                            <span class="block text-[10px] text-gray-500 font-semibold">${dadosPedidoObj.forma_pagamento}</span>
+                        ` : `
+                            <span class="text-base sm:text-xl font-black text-brand-dark">${item.peso ? item.peso + ' kg' : '- kg'}</span>
+                        `}
                     </td>
                     <td class="p-3 sm:p-4 hidden sm:table-cell">
-                        ${blocoMedidasHtml}
+                        ${isPedido ? `
+                            <div class="text-xs text-gray-700 font-medium">
+                                <span class="font-bold text-gray-900 block">${dadosPedidoObj?.modalidade === 'ENTREGA' ? 'Entrega: ' + (dadosPedidoObj?.endereco || '-') : 'Retirada no Espaço'}</span>
+                                ${dadosPedidoObj?.observacoes && dadosPedidoObj.observacoes !== 'Nenhuma' ? `<span class="text-gray-500 text-[11px] italic">"${dadosPedidoObj.observacoes}"</span>` : ''}
+                            </div>
+                        ` : blocoMedidasHtml}
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center space-x-1.5">
-                            <button onclick="abrirNovaAvaliacaoDoCliente(${item.id})" title="Nova Avaliação deste Cliente" class="bg-green-600 hover:bg-green-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
-                                <i class="fa-solid fa-plus-circle mr-1 text-sm"></i> Nova
-                            </button>
-                            <button onclick="verFichaCompleta(${item.id})" title="Ver Ficha / Bioimpedância" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
+                            ${whatsLimpo ? `
+                                <a href="https://wa.me/55${whatsLimpo}" target="_blank" title="Chamar Cliente no WhatsApp" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
+                                    <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Whats
+                                </a>
+                            ` : ''}
+                            <button onclick="verFichaCompleta(${item.id})" title="Ver Detalhes / Ficha" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
                                 <i class="fa-solid fa-file-waveform mr-1 text-sm"></i> Ficha
                             </button>
-                            <button onclick="abrirEditarAvaliacao(${item.id})" title="Editar Avaliação" class="bg-amber-500 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
+                            <button onclick="abrirEditarAvaliacao(${item.id})" title="Editar Registro" class="bg-amber-500 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
                                 <i class="fa-solid fa-pen-to-square text-sm"></i>
                             </button>
-                            <button onclick="excluirAvaliacao(${item.id})" title="Excluir Avaliação" class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
+                            <button onclick="excluirAvaliacao(${item.id})" title="Excluir Registro" class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
