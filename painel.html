@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Painel do Consultor - Litrão do Reset</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -811,7 +814,14 @@
     <script>
         const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
         const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
-        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let supabaseClient = null;
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+            }
+        } catch (e) {
+            console.warn("Supabase init aviso:", e);
+        }
 
         let consultorAtual = null;
 
@@ -909,11 +919,14 @@
                 }
             } catch (err) {
                 console.error("Exceção no login:", err);
-                btn.disabled = false;
-                btn.innerHTML = 'ENTRAR';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'ENTRAR';
+                }
                 exibirErroLogin('Erro ao conectar ao servidor. Verifique sua conexão e tente novamente.');
             }
         }
+        window.fazerLogin = fazerLogin;
 
         function mostrarDashboard() {
             try {
@@ -3866,19 +3879,33 @@
             ocultarErroLogin();
         }
 
-        // Auto-login silencioso se o consultor já se conectou neste navegador
+        // Inicialização e auto-login resiliente
         window.addEventListener('DOMContentLoaded', async () => {
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.addEventListener('click', fazerLogin);
+            }
+
             try {
                 const salvo = localStorage.getItem('litrao_consultor_auth');
                 if (salvo) {
                     const creds = JSON.parse(salvo);
                     if (creds && creds.id && creds.letras) {
-                        const { data } = await supabaseClient.from('consultores').select('*').eq('herbalife_id', creds.id);
-                        if (data && data.length > 0) {
-                            const consultor = data[0];
-                            if ((consultor.letras || '').trim().toUpperCase() === creds.letras.trim().toUpperCase()) {
-                                consultorAtual = consultor;
-                                mostrarDashboard();
+                        const url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(creds.id)}&select=*`;
+                        const res = await fetch(url, {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.length > 0) {
+                                const consultor = data[0];
+                                if ((consultor.letras || '').trim().toUpperCase() === creds.letras.trim().toUpperCase()) {
+                                    consultorAtual = consultor;
+                                    mostrarDashboard();
+                                }
                             }
                         }
                     }
