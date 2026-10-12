@@ -3265,22 +3265,55 @@
                 </div>
 
                 <!-- BOTÕES DE AÇÃO: EXPORTAR IMAGEM & WHATSAPP -->
-                <div class="pt-4 border-t mt-4 flex flex-col sm:flex-row gap-3">
+                <div class="pt-4 border-t mt-4 flex flex-col sm:flex-row gap-2.5">
                     <button onclick="enviarRelatorioWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
-                        <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Enviar WhatsApp (Texto + Gatilhos)
+                        <i class="fa-brands fa-whatsapp mr-2 text-xl"></i> Enviar no WhatsApp (Texto Formatado)
                     </button>
                     
-                    <button id="btn-compartilhar-card" onclick="compartilharCardBioimpedancia()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
-                        <i class="fa-solid fa-share-nodes mr-2 text-lg"></i> Compartilhar Card (Foto Limpa)
-                    </button>
-
-                    <button id="btn-baixar-card" onclick="baixarCardBioimpedancia()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
-                        <i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto
+                    <button id="btn-gerar-foto" onclick="gerarRelatorioEmFoto()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-xl text-center text-sm transition flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-camera mr-2 text-lg"></i> GERAR RELATÓRIO EM FOTO (PNG)
                     </button>
 
                     <button onclick="fecharFicha()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3.5 rounded-xl text-sm transition">
                         Fechar
                     </button>
+                </div>
+
+                <!-- PRÉVIA DA FOTO DO RELATÓRIO (APARECE ABAIXO APÓS CLICAR EM GERAR RELATÓRIO EM FOTO) -->
+                <div id="preview-box-relatorio" class="hidden mt-4 pt-4 border-t-2 border-dashed border-blue-300 bg-blue-50/50 p-4 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs sm:text-sm font-black text-blue-900 flex items-center">
+                            <i class="fa-solid fa-eye text-blue-600 mr-2 text-base"></i> Visualização da Foto (PNG):
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] text-gray-500 font-medium">Relatório Oficial Limpo</span>
+                            <button type="button" onclick="toggleMinimizarPreview('relatorio')" id="btn-toggle-preview-relatorio" class="text-[11px] bg-blue-100 hover:bg-blue-200 text-blue-900 px-2.5 py-1 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs" title="Minimizar / Expandir">
+                                <i id="icone-toggle-preview-relatorio" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-relatorio">Minimizar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="conteudo-preview-relatorio">
+                        <!-- IMAGEM PARA VISUALIZAR -->
+                        <div class="relative bg-white border-2 border-blue-200 rounded-xl overflow-hidden p-2 shadow-md max-h-[520px] flex items-center justify-center">
+                            <img id="img-preview-relatorio" src="" alt="Foto do Relatório de Bioimpedância" class="w-full h-auto max-h-[500px] object-contain rounded-lg">
+                        </div>
+
+                        <!-- BOTÕES DE AÇÃO DA FOTO: BAIXAR, WHATSAPP, TELEGRAM COM MENSAGEM MOTIVACIONAL E GATILHOS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3.5">
+                            <button onclick="baixarFotoRelatorioGerada()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black py-3 px-3 rounded-xl transition flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-download mr-2 text-base"></i> Baixar Foto (PNG)
+                            </button>
+
+                            <button onclick="compartilharFotoRelatorioWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-black py-3 px-3 rounded-xl transition flex items-center justify-center shadow-md">
+                                <i class="fa-brands fa-whatsapp mr-2 text-lg"></i> Compartilhar WhatsApp
+                            </button>
+
+                            <button onclick="compartilharFotoRelatorioTelegram()" class="bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-black py-3 px-3 rounded-xl transition flex items-center justify-center shadow-md">
+                                <i class="fa-brands fa-telegram mr-2 text-lg"></i> Compartilhar Telegram
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
 
@@ -3288,15 +3321,34 @@
         }
 
         // ==========================================
-        // BAIXAR / COMPARTILHAR RELATÓRIO COMO IMAGEM (HTML2CANVAS)
+        // GERAR / VISUALIZAR / BAIXAR / COMPARTILHAR RELATÓRIO EM FOTO (PNG)
         // ==========================================
-        async function compartilharCardBioimpedancia() {
-            const btn = document.getElementById('btn-compartilhar-card');
+        let dadosDataURLRelatorio = null;
+
+        function obterTextoMotivacionalRelatorio() {
+            if (!avaliacaoSelecionadaAtual) return '';
+            const item = avaliacaoSelecionadaAtual;
+            let msg = `🔥 *MENSAGEM ESPECIAL DO SEU CONSULTOR - LITRÃO DO RESET* 🌿\n\n`;
+            msg += `Olá, *${item.nome_cliente}*! Aqui está a sua avaliação oficial de Bioimpedância em foto!\n\n`;
+            msg += `_"O sucesso não acontece por acaso, ele é a soma de pequenos esforços repetidos dia após dia! Cada gole do seu Litrão e cada escolha saudável te aproximam da sua melhor versão."_\n\n`;
+            msg += `🎯 *SEU PLANO DE AÇÃO PARA ESTA SEMANA:* \n`;
+            msg += `1️⃣ *Litrão do Reset:* Manter a garrafinha cheia e ativa logo cedo 💧\n`;
+            msg += `2️⃣ *Constância:* Seguir firme no plano sem pular etapas 🥗\n`;
+            msg += `3️⃣ *Parceria Total:* Me mande foto do seu Litrão preparado amanhã! 📸\n\n`;
+            msg += `💪 *Constância vence o cansaço! Eu estou 100% comprometido(a) com a sua transformação e vamos juntos alcançar sua meta mais rápido!* 🚀\n\n`;
+            msg += `_${consultorAtual.nome_completo || 'Seu Consultor Oficial'} • Litrão do Reset_`;
+            return msg;
+        }
+
+        async function gerarRelatorioEmFoto() {
+            const btn = document.getElementById('btn-gerar-foto');
             const card = document.getElementById('card-relatorio-captura');
+            const previewBox = document.getElementById('preview-box-relatorio');
+            const imgPreview = document.getElementById('img-preview-relatorio');
             if (!card) return;
 
             const txtOriginal = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> PREPARANDO FOTO...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO FOTO (PNG)...';
 
             try {
                 const canvas = await html2canvas(card, {
@@ -3305,57 +3357,106 @@
                     useCORS: true
                 });
 
-                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-                const nomeLimpo = (avaliacaoSelecionadaAtual.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
-                const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
+                dadosDataURLRelatorio = canvas.toDataURL('image/png');
+                if (imgPreview) {
+                    imgPreview.src = dadosDataURLRelatorio;
+                }
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const cont = document.getElementById('conteudo-preview-relatorio');
+                    if (cont) cont.classList.remove('hidden');
+                    const label = document.getElementById('label-toggle-preview-relatorio');
+                    if (label) label.innerText = 'Minimizar';
+                    const icone = document.getElementById('icone-toggle-preview-relatorio');
+                    if (icone) icone.className = 'fa-solid fa-chevron-up mr-1 text-[10px]';
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: `Bioimpedância - ${avaliacaoSelecionadaAtual.nome_cliente}`,
-                        text: `Olá, ${avaliacaoSelecionadaAtual.nome_cliente}! Segue o seu relatório oficial de Bioimpedância do Litrão do Reset! 🔥`,
-                        files: [file]
-                    });
-                } else {
-                    baixarCardBioimpedancia();
-                    alert("A imagem do relatório foi gerada e baixada com sucesso! Você já pode enviá-la ao cliente pelo WhatsApp.");
+                    previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
+
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> FOTO GERADA!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-camera mr-2 text-lg"></i> GERAR RELATÓRIO EM FOTO (PNG)';
+                }, 3000);
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    baixarCardBioimpedancia();
-                }
-            } finally {
+                console.error(err);
+                alert("Erro ao gerar foto do relatório. Tente novamente.");
                 btn.innerHTML = txtOriginal;
             }
         }
 
-        function baixarCardBioimpedancia() {
-            const btn = document.getElementById('btn-baixar-card');
-            const card = document.getElementById('card-relatorio-captura');
-            if (!card) return;
+        function baixarFotoRelatorioGerada() {
+            if (!dadosDataURLRelatorio) {
+                gerarRelatorioEmFoto();
+                return;
+            }
+            const link = document.createElement('a');
+            const nomeLimpo = (avaliacaoSelecionadaAtual.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
+            link.download = `Bioimpedancia_${nomeLimpo}.png`;
+            link.href = dadosDataURLRelatorio;
+            link.click();
+        }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO FOTO...';
+        async function compartilharFotoRelatorioWhatsApp() {
+            if (!avaliacaoSelecionadaAtual) return;
+            const item = avaliacaoSelecionadaAtual;
+            const msg = obterTextoMotivacionalRelatorio();
+            const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
 
-            html2canvas(card, {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                useCORS: true
-            }).then(canvas => {
-                const link = document.createElement('a');
-                const nomeLimpo = (avaliacaoSelecionadaAtual.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
-                link.download = `Bioimpedancia_${nomeLimpo}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+            if (dadosDataURLRelatorio) {
+                try {
+                    const res = await fetch(dadosDataURLRelatorio);
+                    const blob = await res.blob();
+                    const nomeLimpo = (item.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
+                    const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
 
-                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> FOTO BAIXADA!';
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto';
-                }, 3000);
-            }).catch(err => {
-                console.error(err);
-                alert("Erro ao gerar imagem. Você pode tirar print da tela ou enviar o texto formatado no WhatsApp.");
-                btn.innerHTML = '<i class="fa-solid fa-file-image mr-2 text-lg"></i> Baixar Foto';
-            });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Bioimpedância - ${item.nome_cliente}`,
+                            text: msg,
+                            files: [file]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Fallback link WhatsApp:', e);
+                }
+            }
+
+            baixarFotoRelatorioGerada();
+            const url = whatsLimpo 
+                ? `https://wa.me/55${whatsLimpo}?text=${encodeURIComponent(msg)}`
+                : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        async function compartilharFotoRelatorioTelegram() {
+            if (!avaliacaoSelecionadaAtual) return;
+            const item = avaliacaoSelecionadaAtual;
+            const msg = obterTextoMotivacionalRelatorio();
+
+            if (dadosDataURLRelatorio) {
+                try {
+                    const res = await fetch(dadosDataURLRelatorio);
+                    const blob = await res.blob();
+                    const nomeLimpo = (item.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
+                    const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Bioimpedância - ${item.nome_cliente}`,
+                            text: msg,
+                            files: [file]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Fallback Telegram:', e);
+                }
+            }
+
+            baixarFotoRelatorioGerada();
+            const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
         }
 
         // ==========================================
