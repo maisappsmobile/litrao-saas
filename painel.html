@@ -51,9 +51,12 @@
             </div>
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras)</label>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-senha" value="" maxlength="3" oninput="this.value = this.value.toUpperCase();" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-lock absolute left-4 text-gray-400"></i>
+                    <input type="password" id="login-senha" value="" maxlength="3" oninput="this.value = this.value.toUpperCase();" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: FIT" class="w-full uppercase font-bold tracking-widest pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
+                    <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-1.5 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
+                        <i id="icone-olho-login" class="fa-solid fa-eye text-base"></i>
+                    </button>
                 </div>
                 <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
                     <span class="text-brand-yellow mr-1">⚠️</span> Digite as 3 letras do seu cadastro (Ex: FIT).
@@ -824,6 +827,26 @@
         }
 
         let consultorAtual = null;
+
+        function alternarVisibilidadeSenha(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+        window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
 
         function exibirErroLogin(msg, tipo = 'erro') {
             const erroBox = document.getElementById('login-erro');

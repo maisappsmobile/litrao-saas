@@ -65,8 +65,13 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Letras</label>
-                        <input type="text" id="letras" required maxlength="3" placeholder="FIT" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase text-center font-bold">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Senha (3 Letras)</label>
+                        <div class="relative flex items-center">
+                            <input type="password" id="letras" required maxlength="3" placeholder="FIT" class="w-full px-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase text-center font-bold">
+                            <button type="button" onclick="alternarVisibilidadeSenha('letras', 'icone-olho-assinar')" class="absolute right-2.5 text-gray-400 hover:text-gray-700 p-1 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
+                                <i id="icone-olho-assinar" class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -205,6 +210,26 @@
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const PIX_COPIA_E_COLA = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
+
+        function alternarVisibilidadeSenha(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+        window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
 
         function copiarPixPayload() {
             navigator.clipboard.writeText(PIX_COPIA_E_COLA).then(() => {
