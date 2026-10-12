@@ -160,24 +160,27 @@
             </div>
         </div>
 
-        <!-- CARD EXCLUSIVO MASTER VIP: INDIQUE UM CONSULTOR (CUPOM 15% OFF) -->
-        <div id="card-vip-indique-container" class="hidden mb-6">
-            <div class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-purple-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- CARD MASTER VIP: INDIQUE UM CONSULTOR (CUPOM 15% OFF) -->
+        <div id="card-vip-indique-container" class="mb-6">
+            <div id="card-vip-box" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-purple-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center space-x-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-purple-950 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0">
+                    <div id="card-vip-icone" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-purple-950 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0">
                         <i class="fa-solid fa-crown"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-0.5">
-                            <span class="bg-purple-500/40 text-purple-200 border border-purple-300/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                            <span id="badge-vip-status" class="bg-purple-500/40 text-purple-200 border border-purple-300/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
                                 Benefício Master VIP
+                            </span>
+                            <span id="badge-vip-bloqueado" class="hidden bg-amber-500 text-gray-950 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-lock mr-1"></i> Bloqueado no seu plano
                             </span>
                         </div>
                         <h4 class="text-lg font-black text-white leading-tight">Indique um Consultor (15% OFF)</h4>
-                        <p class="text-xs text-purple-200 font-medium">Gere cupons oficiais de 15% de desconto para cadastrar seus novos consultores.</p>
+                        <p id="txt-vip-desc" class="text-xs text-purple-200 font-medium">Gere cupons oficiais de 15% de desconto para cadastrar seus novos consultores.</p>
                     </div>
                 </div>
-                <button onclick="abrirModalCupomVip()" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-purple-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                <button id="btn-abrir-cupom-vip" onclick="abrirModalCupomVip()" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-purple-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer whitespace-nowrap">
                     <i class="fa-solid fa-ticket text-sm"></i> CRIAR CUPOM DE 15%
                 </button>
             </div>
@@ -1771,6 +1774,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL: RECURSO BLOQUEADO POR PLANO (UPGRADE) -->
+        <div id="modal-recurso-bloqueado" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border-2 border-amber-400 relative text-center">
+                <button onclick="fecharModalRecursoBloqueado()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm border border-amber-300">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <span id="bloqueio-tag-plano" class="inline-block bg-amber-100 text-amber-900 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
+                    Recurso Bloqueado
+                </span>
+                <h3 id="bloqueio-titulo" class="text-xl font-black text-gray-900 leading-tight mb-2">
+                    Disponível em Outro Plano
+                </h3>
+                <p id="bloqueio-mensagem" class="text-xs text-gray-600 leading-relaxed mb-5">
+                    Este recurso é exclusivo para consultores com plano superior. Durante os 7 dias grátis, este recurso encontra-se restrito ou seu plano atual não o contempla.
+                </p>
+                <div class="space-y-2.5">
+                    <button onclick="fecharModalRecursoBloqueado(); abrirModalPromocao();" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-brand-dark font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                        <i class="fa-solid fa-crown text-sm"></i> CONHECER PLANOS & FAZER UPGRADE
+                    </button>
+                    <button onclick="fecharModalRecursoBloqueado()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
+                        Entendi, continuar no painel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS -->
@@ -3060,28 +3092,167 @@
         window.excluirConsultorSuperadmin = excluirConsultorSuperadmin;
 
         /* ==========================================================================
-           MÓDULO DE GESTÃO DE CUPONS (MASTER VIP 15% & SUPERADMIN QUALQUER %)
+           MÓDULO DE GESTÃO DE PLANOS & PERMISSÕES (7 DIAS GRÁTIS + REGRAS POR PLANO)
            ========================================================================== */
-        function isConsultorMasterVip() {
-            if (isSuperAdminLogado()) return true;
-            if (!consultorAtual || !consultorAtual.nome_espaco) return false;
-            const espaco = consultorAtual.nome_espaco;
-            return espaco.includes('PLANO:plano3') || espaco.includes('MASTER_VIP') || espaco.includes('VIP_MASTER') || isPlanoVipAtivo();
+        function isConsultorSuperAdmin() {
+            return isSuperAdminLogado();
         }
 
-        function isPlanoVipAtivo() {
-            if (!consultorAtual) return false;
-            const espaco = (consultorAtual.nome_espaco || '').toLowerCase();
-            return espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3');
+        function isConsultorEmTrial() {
+            if (isConsultorSuperAdmin()) return false;
+            if (!consultorAtual || !consultorAtual.vencimento) return false;
+            const partes = consultorAtual.vencimento.split('-');
+            if (partes.length !== 3) return false;
+            const ano = parseInt(partes[0], 10);
+            if (ano >= 2035) return false; // Vitalício
+            const mes = parseInt(partes[1], 10) - 1;
+            const dia = parseInt(partes[2], 10);
+            const dataVenc = new Date(ano, mes, dia, 23, 59, 59);
+            const agora = new Date();
+            const diffDias = Math.ceil((dataVenc - agora) / (1000 * 60 * 60 * 24));
+            // Considera período de degustação/trial
+            return diffDias >= 0 && diffDias <= 14;
         }
+
+        function obterPlanoAtualConsultor() {
+            if (isConsultorSuperAdmin()) return 'superadmin';
+            if (!consultorAtual) return 'plano1';
+            const espaco = (consultorAtual.nome_espaco || '').toLowerCase();
+            const venc = consultorAtual.vencimento || '';
+
+            if (espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3') || espaco.includes('master_vip')) {
+                return 'plano3';
+            }
+            if (espaco.includes('plano 2') || espaco.includes('vitalicio') || espaco.includes('vitalício') || espaco.includes('plano:plano2') || (venc && parseInt(venc.split('-')[0], 10) >= 2035)) {
+                return 'plano2';
+            }
+            return 'plano1';
+        }
+
+        function isConsultorMasterVip() {
+            if (isConsultorSuperAdmin()) return true;
+            return obterPlanoAtualConsultor() === 'plano3';
+        }
+
+        function isConsultorVitalicioSmart() {
+            if (isConsultorSuperAdmin()) return true;
+            const p = obterPlanoAtualConsultor();
+            return p === 'plano2' || p === 'plano3';
+        }
+
+        function podeGerarCuponsDesconto() {
+            if (isConsultorSuperAdmin()) return true;
+            // No tempo de 7 dias grátis, cupons de desconto ficam bloqueados
+            if (isConsultorEmTrial()) return false;
+            // Somente Master VIP (Plano 3) pode gerar cupons
+            return isConsultorMasterVip();
+        }
+
+        function podeImportarDados() {
+            if (isConsultorSuperAdmin()) return true;
+            // No tempo de 7 dias grátis, importar dados em geral fica bloqueado
+            if (isConsultorEmTrial()) return false;
+            // Disponível no Plano 3 (Master VIP)
+            return isConsultorMasterVip();
+        }
+
+        function podeExportarExcelBackup() {
+            if (isConsultorSuperAdmin()) return true;
+            // Nos 7 dias grátis fica 100% liberado!
+            if (isConsultorEmTrial()) return true;
+            // Nos planos pagos, disponível no Plano 2 (Vitalício Smart) e Plano 3 (Master VIP)
+            return isConsultorVitalicioSmart();
+        }
+
+        function obterLimiteAvaliacoesMes() {
+            if (isConsultorSuperAdmin()) return 999999;
+            if (isConsultorEmTrial()) return 999999; // 100% liberado nos 7 dias grátis
+            const p = obterPlanoAtualConsultor();
+            if (p === 'plano1') return 30; // Plano 1: até 30 avaliações/mês
+            return 999999; // Planos 2 e 3: ilimitado
+        }
+
+        function obterLimiteTiquetesMes() {
+            if (isConsultorSuperAdmin()) return 999999;
+            if (isConsultorEmTrial()) return 999999; // 100% liberado nos 7 dias grátis
+            const p = obterPlanoAtualConsultor();
+            if (p === 'plano1') return 15; // Plano 1: 15 tíquetes/mês
+            return 999999; // Planos 2 e 3: ilimitado
+        }
+
+        function exibirAvisoBloqueioRecurso(titulo, mensagem, tagPlano = "Plano Superior Requerido") {
+            const modal = document.getElementById('modal-recurso-bloqueado');
+            if (!modal) {
+                alert(`${titulo}\n\n${mensagem}`);
+                abrirModalPromocao();
+                return;
+            }
+            const elTit = document.getElementById('bloqueio-titulo');
+            const elMsg = document.getElementById('bloqueio-mensagem');
+            const elTag = document.getElementById('bloqueio-tag-plano');
+            if (elTit) elTit.innerText = titulo;
+            if (elMsg) elMsg.innerText = mensagem;
+            if (elTag) elTag.innerText = tagPlano;
+            modal.classList.remove('hidden');
+        }
+        window.exibirAvisoBloqueioRecurso = exibirAvisoBloqueioRecurso;
+
+        function fecharModalRecursoBloqueado() {
+            const modal = document.getElementById('modal-recurso-bloqueado');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalRecursoBloqueado = fecharModalRecursoBloqueado;
 
         function verificarAcessoMasterVip() {
             const cardVip = document.getElementById('card-vip-indique-container');
+            const boxVip = document.getElementById('card-vip-box');
+            const iconeVip = document.getElementById('card-vip-icone');
+            const badgeBloq = document.getElementById('badge-vip-bloqueado');
+            const descVip = document.getElementById('txt-vip-desc');
+            const btnVip = document.getElementById('btn-abrir-cupom-vip');
+
             if (!cardVip) return;
-            if (isConsultorMasterVip() || isSuperAdminLogado()) {
-                cardVip.classList.remove('hidden');
+
+            // O Card SEMPRE aparece para todos os consultores (para verem o que o sistema oferece)
+            cardVip.classList.remove('hidden');
+
+            const temPermissao = podeGerarCuponsDesconto();
+
+            if (temPermissao) {
+                if (badgeBloq) badgeBloq.classList.add('hidden');
+                if (boxVip) {
+                    boxVip.className = "w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-purple-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4";
+                }
+                if (iconeVip) {
+                    iconeVip.className = "w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-purple-950 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0";
+                }
+                if (descVip) {
+                    descVip.innerText = "Gere cupons oficiais de 15% de desconto para cadastrar seus novos consultores na sua equipe.";
+                }
+                if (btnVip) {
+                    btnVip.innerHTML = '<i class="fa-solid fa-ticket text-sm"></i> CRIAR CUPOM DE 15%';
+                    btnVip.className = "w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-purple-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer whitespace-nowrap";
+                }
             } else {
-                cardVip.classList.add('hidden');
+                // Bloqueado conforme plano ou durante os 7 dias grátis
+                if (badgeBloq) badgeBloq.classList.remove('hidden');
+                if (boxVip) {
+                    boxVip.className = "w-full bg-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-amber-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4";
+                }
+                if (iconeVip) {
+                    iconeVip.className = "w-12 h-12 rounded-2xl bg-gray-800 text-amber-400 border border-amber-400/30 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0";
+                }
+                if (descVip) {
+                    if (isConsultorEmTrial()) {
+                        descVip.innerHTML = "<span class='text-amber-300 font-bold'>🔒 Bloqueado no período de 7 dias grátis.</span> Faça o upgrade para o <strong>Plano Master VIP</strong> para criar cupons de 15%!";
+                    } else {
+                        descVip.innerHTML = "<span class='text-amber-300 font-bold'>🔒 Recurso Exclusivo Master VIP.</span> Contrate o Plano Master VIP para criar cupons de indicação!";
+                    }
+                }
+                if (btnVip) {
+                    btnVip.innerHTML = '<i class="fa-solid fa-lock text-sm"></i> LIBERAR NO MASTER VIP';
+                    btnVip.className = "w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-gray-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer whitespace-nowrap";
+                }
             }
         }
         window.verificarAcessoMasterVip = verificarAcessoMasterVip;
@@ -3097,6 +3268,23 @@
         window.gerarCodigoCupomVipAleatorio = gerarCodigoCupomVipAleatorio;
 
         function abrirModalCupomVip() {
+            if (!podeGerarCuponsDesconto()) {
+                if (isConsultorEmTrial()) {
+                    exibirAvisoBloqueioRecurso(
+                        "Geração de Cupons Bloqueada no Teste Grátis",
+                        "Durante o período de 7 dias de degustação grátis, a geração de cupons de desconto fica restrita. Para liberar esta função imediatamente, faça o upgrade para o Plano Master VIP!",
+                        "Restrito no Teste Grátis"
+                    );
+                } else {
+                    exibirAvisoBloqueioRecurso(
+                        "Recurso Exclusivo Master VIP (Plano 3)",
+                        "A criação de cupons oficiais de 15% para cadastrar novos consultores é um benefício exclusivo dos consultores Master VIP. Faça o upgrade agora para ativar!",
+                        "Disponível no Plano 3"
+                    );
+                }
+                return;
+            }
+
             const modal = document.getElementById('modal-cupom-vip');
             if (!modal) return;
             gerarCodigoCupomVipAleatorio();
@@ -4212,6 +4400,15 @@
         }
 
         function exportarClientesCSV() {
+            if (!podeExportarExcelBackup()) {
+                exibirAvisoBloqueioRecurso(
+                    "Exportação para Excel Bloqueada",
+                    "A exportação consolidada de clientes em formato Excel (.CSV) é exclusiva a partir do Plano 2 (Vitalício Smart) e no Plano 3 (Master VIP). Faça o upgrade para baixar planilhas!",
+                    "Disponível nos Planos 2 e 3"
+                );
+                return;
+            }
+
             const clientes = extrairClientesUnicos();
             if (clientes.length === 0) {
                 alert("Nenhum cliente para exportar no momento.");
@@ -4261,6 +4458,15 @@
         }
 
         function exportarAvaliacoesCSV() {
+            if (!podeExportarExcelBackup()) {
+                exibirAvisoBloqueioRecurso(
+                    "Exportação de Avaliações Bloqueada",
+                    "A exportação de histórico completo de avaliações e bioimpedância em formato Excel (.CSV) é exclusiva a partir do Plano 2 (Vitalício Smart) e no Plano 3 (Master VIP). Faça o upgrade para baixar planilhas!",
+                    "Disponível nos Planos 2 e 3"
+                );
+                return;
+            }
+
             if (todasAvaliacoesCache.length === 0) {
                 alert("Nenhuma avaliação cadastrada para exportar.");
                 return;
@@ -4351,6 +4557,43 @@
             const contImp = document.getElementById('aba-rel-importar');
             const contBkp = document.getElementById('aba-rel-backup');
 
+            if (aba === 'importar') {
+                if (!podeImportarDados()) {
+                    if (isConsultorEmTrial()) {
+                        exibirAvisoBloqueioRecurso(
+                            "Importação Bloqueada no Teste Grátis",
+                            "Durante o período de 7 dias de degustação grátis, a importação de dados e planilhas fica restrita. Para liberar importação de dados e cadastros em massa, contrate o Plano Master VIP!",
+                            "Restrito no Teste Grátis"
+                        );
+                    } else {
+                        exibirAvisoBloqueioRecurso(
+                            "Recurso Exclusivo Master VIP (Plano 3)",
+                            "A importação de planilhas CSV e dados externos é um benefício exclusivo dos consultores Master VIP. Faça o upgrade agora para desbloquear!",
+                            "Disponível no Plano 3"
+                        );
+                    }
+                    return;
+                }
+            } else if (aba === 'backup') {
+                if (!podeExportarExcelBackup()) {
+                    exibirAvisoBloqueioRecurso(
+                        "Backup Geral Disponível a Partir do Plano 2",
+                        "A Central de Backup Completo e segurança de dados está disponível a partir do Plano 2 (Vitalício Smart) e no Plano 3 (Master VIP). Faça o upgrade para ativar!",
+                        "Disponível nos Planos 2 e 3"
+                    );
+                    return;
+                }
+            } else if (aba === 'exportar') {
+                if (!podeExportarExcelBackup()) {
+                    exibirAvisoBloqueioRecurso(
+                        "Exportação Disponível a Partir do Plano 2",
+                        "A exportação de planilhas de clientes e avaliações para Excel está disponível no Plano 2 (Vitalício Smart) e no Plano 3 (Master VIP). Faça o upgrade para baixar planilhas!",
+                        "Disponível nos Planos 2 e 3"
+                    );
+                    return;
+                }
+            }
+
             [btnExp, btnImp, btnBkp].forEach(b => {
                 if (b) b.className = 'px-3.5 py-2 rounded-xl font-bold text-xs transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center';
             });
@@ -4374,6 +4617,15 @@
         // MÓDULO 4: BACKUP COMPLETO DO SISTEMA
         // ==========================================
         function gerarBackupCompleto() {
+            if (!podeExportarExcelBackup()) {
+                exibirAvisoBloqueioRecurso(
+                    "Backup Completo Exclusivo",
+                    "A geração de backup completo está disponível a partir do Plano 2 (Vitalício Smart). Faça o upgrade para baixar sua cópia de segurança!",
+                    "Disponível nos Planos 2 e 3"
+                );
+                return;
+            }
+
             if (todasAvaliacoesCache.length === 0) {
                 alert("Nenhuma avaliação carregada para gerar backup no momento.");
                 return;
@@ -4404,6 +4656,23 @@
         }
 
         async function restaurarBackupCompleto(event) {
+            if (!podeImportarDados()) {
+                if (isConsultorEmTrial()) {
+                    exibirAvisoBloqueioRecurso(
+                        "Restauração Bloqueada no Teste Grátis",
+                        "A importação e restauração de dados em massa fica restrita durante os 7 dias grátis. Para restaurar backups, contrate o Plano Master VIP!",
+                        "Restrito no Teste Grátis"
+                    );
+                } else {
+                    exibirAvisoBloqueioRecurso(
+                        "Recurso Exclusivo Master VIP (Plano 3)",
+                        "A restauração de backup de dados externos é exclusiva para consultores Master VIP. Faça o upgrade agora para restaurar!",
+                        "Disponível no Plano 3"
+                    );
+                }
+                event.target.value = '';
+                return;
+            }
             const file = event.target.files[0];
             if (!file) return;
 
@@ -4528,6 +4797,24 @@
         }
 
         function selecionarArquivoCSV(event) {
+            if (!podeImportarDados()) {
+                if (isConsultorEmTrial()) {
+                    exibirAvisoBloqueioRecurso(
+                        "Importação Bloqueada no Teste Grátis",
+                        "Durante o período de 7 dias de degustação grátis, a importação de dados e planilhas externas fica restrita. Para importar planilhas e clientes em lote, faça upgrade para o Plano Master VIP!",
+                        "Restrito no Teste Grátis"
+                    );
+                } else {
+                    exibirAvisoBloqueioRecurso(
+                        "Recurso Exclusivo Master VIP (Plano 3)",
+                        "A importação de planilhas CSV com clientes e avaliações é um benefício exclusivo dos consultores Master VIP. Faça o upgrade agora para ativar!",
+                        "Disponível no Plano 3"
+                    );
+                }
+                event.target.value = '';
+                return;
+            }
+
             const file = event.target.files[0];
             if (!file) return;
 
@@ -6178,6 +6465,33 @@
                     .eq('id', id);
                 resError = error;
             } else {
+                // Validação de Limite de Avaliações / Mês (Plano 1: 30 avaliações/mês; 7 Dias Grátis: Liberado)
+                const limiteAv = obterLimiteAvaliacoesMes();
+                if (limiteAv < 999999) {
+                    try {
+                        const agoraD = new Date();
+                        const primeiroDiaMes = new Date(agoraD.getFullYear(), agoraD.getMonth(), 1).toISOString();
+                        const { data: avsMes } = await supabaseClient
+                            .from('avaliacoes')
+                            .select('id')
+                            .eq('herbalife_id', consultorAtual.herbalife_id)
+                            .gte('criado_em', primeiroDiaMes);
+                        
+                        if (avsMes && avsMes.length >= limiteAv) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i> Salvar Alterações';
+                            exibirAvisoBloqueioRecurso(
+                                "Limite de Avaliações Mensais Atingido",
+                                `Seu plano atual (Start Pro) permite até ${limiteAv} avaliações por mês. Para avaliações ilimitadas e sem mensalidade, faça o upgrade para o Plano Vitalício Smart ou Master VIP!`,
+                                "Limite do Plano 1 (30/mês)"
+                            );
+                            return;
+                        }
+                    } catch(eLimAv) {
+                        console.warn("Validação limite avaliações:", eLimAv);
+                    }
+                }
+
                 // Insere nova avaliação lançada pelo consultor
                 payload.codigo_acesso = 'DIRETO';
                 payload.primeira_vez = true;
@@ -6226,6 +6540,31 @@
         }
 
         async function gerarTiquetes() {
+            // Validação de Limite de Tíquetes / Mês (Plano 1: 15 tíquetes/mês que geram 30 avaliações; 7 Dias Grátis: Liberado)
+            const limiteTiq = obterLimiteTiquetesMes();
+            if (limiteTiq < 999999) {
+                try {
+                    const agoraT = new Date();
+                    const primeiroDiaMes = new Date(agoraT.getFullYear(), agoraT.getMonth(), 1).toISOString();
+                    const { data: tiqsMes } = await supabaseClient
+                        .from('cupons_avaliacao')
+                        .select('id')
+                        .eq('herbalife_id', consultorAtual.herbalife_id)
+                        .gte('criado_em', primeiroDiaMes);
+
+                    if (tiqsMes && tiqsMes.length >= limiteTiq) {
+                        exibirAvisoBloqueioRecurso(
+                            "Limite de Tíquetes Mensais Atingido",
+                            `Seu plano atual (Start Pro) permite gerar até ${limiteTiq} tíquetes bônus por mês (equivalente a 30 avaliações/mês). Para tíquetes e avaliações ilimitadas, faça o upgrade para o Plano Vitalício Smart ou Master VIP!`,
+                            "Limite do Plano 1 (15 tíquetes/mês)"
+                        );
+                        return;
+                    }
+                } catch(eLimT) {
+                    console.warn("Validação limite tíquetes:", eLimT);
+                }
+            }
+
             const btn = document.getElementById('btn-tiquetes');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO CÓDIGOS...';
 
