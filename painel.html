@@ -153,47 +153,88 @@
                 <p id="msg-copiado" class="text-green-600 text-xs mt-2 hidden font-bold"><i class="fa-solid fa-check"></i> Link copiado!</p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-md p-6 border-2 border-blue-400">
-                <h3 class="font-bold text-base md:text-lg mb-2 text-brand-dark flex items-center whitespace-nowrap"><i class="fa-solid fa-weight-scale mr-2 text-blue-500"></i> Bioimpedância On-line</h3>
-                <p class="text-sm text-gray-600 mb-4">Gere tíquetes com códigos únicos para colocar na sacola dos clientes e veja as avaliações recebidas.</p>
-                
-                <div class="space-y-2">
-                    <button onclick="gerarTiquetes()" id="btn-tiquetes" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow transition flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-ticket mr-2"></i> GERAR TÍQUETES P/ SACOLA (A4)
-                    </button>
-                    <button onclick="toggleSecaoAvaliacoes()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-2 rounded-xl border border-blue-200 transition text-xs flex items-center justify-center">
-                        <i class="fa-solid fa-list-check mr-2"></i> VER AVALIAÇÕES RECEBIDAS
-                    </button>
-                </div>
+            <!-- CARD BIOIMPEDÂNCIA ON-LINE (NÍVEL VALE DO SILÍCIO / HIGH TECH SAAS) -->
+            <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden border border-blue-500/30 ring-1 ring-white/10 group flex flex-col justify-between">
+                <!-- Efeitos Glow de Fundo -->
+                <div class="absolute -right-16 -top-16 w-52 h-52 bg-blue-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/25 transition duration-500"></div>
+                <div class="absolute -left-16 -bottom-16 w-52 h-52 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-                <!-- PRÉVIA DOS TÍQUETES (VISUALIZAÇÃO, IMPRIMIR, BAIXAR E COMPARTILHAR) -->
-                <div id="preview-box-tiquetes" class="hidden mt-4 pt-4 border-t border-blue-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-black text-brand-dark flex items-center">
-                            <i class="fa-solid fa-eye text-blue-500 mr-1"></i> Visualização:
-                        </span>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="text-[10px] text-gray-400">21 Tíquetes</span>
-                            <button type="button" onclick="toggleMinimizarPreview('tiquetes')" id="btn-toggle-preview-tiquetes" class="text-[11px] bg-blue-100 hover:bg-blue-200 text-blue-900 px-2 py-0.5 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs" title="Minimizar / Expandir">
-                                <i id="icone-toggle-preview-tiquetes" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-tiquetes">Minimizar</span>
-                            </button>
+                <div class="relative z-10">
+                    <!-- Header do Card com Status Silicon Valley -->
+                    <div class="flex items-center justify-between mb-3.5">
+                        <div class="inline-flex items-center space-x-1.5 bg-blue-500/20 text-cyan-300 border border-cyan-400/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-sm shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                            <span>IA & BIOIMPEDÂNCIA 2.0</span>
+                        </div>
+                        <div class="flex items-center space-x-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>Online & Ativo</span>
                         </div>
                     </div>
-                    <div id="conteudo-preview-tiquetes">
-                        <div class="relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-1 shadow-inner max-h-48 flex items-center justify-center">
-                            <img id="img-preview-tiquetes" src="" alt="Tíquetes Sacola" class="w-full h-auto max-h-44 object-contain rounded-lg">
+
+                    <!-- Título e Ícone Premium -->
+                    <div class="flex items-start space-x-3.5 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white flex items-center justify-center text-xl shadow-lg shadow-blue-500/30 flex-shrink-0 group-hover:scale-105 transition transform">
+                            <i class="fa-solid fa-weight-scale"></i>
                         </div>
-                        <div class="grid grid-cols-3 gap-1.5 mt-3">
-                            <button onclick="imprimirArquivoGerado('tiquetes')" class="bg-gray-800 hover:bg-black text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                <i class="fa-solid fa-print mr-1 text-[11px] text-yellow-300"></i> Imprimir
-                            </button>
-                            <button onclick="baixarArquivoGerado('tiquetes')" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                <i class="fa-solid fa-download mr-1 text-[11px]"></i> Baixar
-                            </button>
-                            <button onclick="compartilharArquivoGerado('tiquetes')" class="bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                <i class="fa-solid fa-share-nodes mr-1 text-[11px]"></i> Enviar
-                            </button>
+                        <div>
+                            <h3 class="text-xl font-black text-white tracking-tight leading-tight flex items-center">
+                                Bioimpedância On-line
+                            </h3>
+                            <p class="text-xs text-blue-100/80 leading-relaxed mt-1">
+                                Diagnósticos corporais, evolução e fichas completas de bioimpedância dos seus clientes.
+                            </p>
                         </div>
+                    </div>
+
+                    <!-- Mini KPI Dashboard (Nível Vale do Silício) -->
+                    <div class="grid grid-cols-3 gap-2 mb-4 bg-white/5 border border-white/10 rounded-2xl p-2.5 backdrop-blur-sm">
+                        <div class="text-center p-1.5 rounded-xl bg-white/5">
+                            <span class="block text-[9px] uppercase tracking-wider font-extrabold text-blue-200/70">Avaliações</span>
+                            <span id="stat-card-total-avaliacoes" class="text-base sm:text-lg font-black text-white">0</span>
+                        </div>
+                        <div class="text-center p-1.5 rounded-xl bg-white/5">
+                            <span class="block text-[9px] uppercase tracking-wider font-extrabold text-blue-200/70">Clientes</span>
+                            <span id="stat-card-total-clientes" class="text-base sm:text-lg font-black text-cyan-300">0</span>
+                        </div>
+                        <div class="text-center p-1.5 rounded-xl bg-white/5">
+                            <span class="block text-[9px] uppercase tracking-wider font-extrabold text-blue-200/70">Relatório</span>
+                            <span class="text-xs sm:text-sm font-black text-emerald-400 flex items-center justify-center mt-0.5">
+                                <i class="fa-solid fa-image mr-1 text-[10px]"></i> Foto PNG
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative z-10 space-y-2 mt-1">
+                    <!-- Botão Principal CTA -->
+                    <button onclick="toggleSecaoAvaliacoes()" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black py-3.5 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-between text-sm cursor-pointer border border-white/20 group/btn">
+                        <span class="flex items-center font-black">
+                            <i class="fa-solid fa-chart-line mr-2 text-cyan-200 text-base"></i> ABRIR GESTÃO DE AVALIAÇÕES
+                        </span>
+                        <span class="bg-white/20 px-2 py-0.5 rounded-lg text-xs font-bold flex items-center group-hover/btn:translate-x-1 transition">
+                            Abrir <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                        </span>
+                    </button>
+
+                    <!-- Ações Rápidas Secundárias -->
+                    <div class="flex items-center gap-2">
+                        <button onclick="abrirNovaAvaliacao()" class="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/15 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-xs cursor-pointer">
+                            <i class="fa-solid fa-plus-circle text-cyan-300 mr-1.5"></i> Nova Avaliação
+                        </button>
+                        <button onclick="abrirModuloRelatorios()" class="bg-white/10 hover:bg-white/20 text-white border border-white/15 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-xs cursor-pointer" title="Exportar Planilhas">
+                            <i class="fa-solid fa-file-excel text-emerald-400 mr-1.5"></i> Planilhas
+                        </button>
+                    </div>
+
+                    <!-- Atalho para os Tíquetes da Sacola nos Materiais de Apoio -->
+                    <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-blue-200/70">
+                        <span class="flex items-center">
+                            <i class="fa-solid fa-ticket text-yellow-300 mr-1.5"></i> Tíquetes p/ Sacola:
+                        </span>
+                        <button type="button" onclick="abrirMateriaisComTiquetes(event)" class="text-yellow-300 hover:text-yellow-200 font-bold underline cursor-pointer flex items-center">
+                            Gerar em Materiais de Apoio <i class="fa-solid fa-arrow-down ml-1 text-[9px]"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -631,52 +672,111 @@
                         </div>
                     </div>
 
-                    <!-- FERRAMENTA OFICIAL: IMPRIMIR ADESIVOS (PRINT 1) DENTRO DE MATERIAIS DE APOIO -->
-                    <div class="mt-6 bg-white rounded-2xl shadow-lg p-6 border-2 border-brand-yellow text-gray-800">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                            <div>
-                                <h3 class="font-bold text-lg text-brand-dark flex items-center">
-                                    <i class="fa-solid fa-print mr-2 text-brand-yellow"></i> Imprimir Adesivos
-                                </h3>
-                                <p class="text-sm text-gray-600">Gere sua folha A4 com 10 adesivos já configurados com o SEU QR Code exclusivo.</p>
-                            </div>
-                        </div>
+                    <!-- GRID DE FERRAMENTAS OFICIAIS DE IMPRESSÃO (ADESIVOS + TÍQUETES P/ SACOLA) -->
+                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 text-gray-800">
                         
-                        <button onclick="gerarAdesivos()" id="btn-adesivo" class="w-full bg-brand-yellow hover:bg-yellow-500 text-brand-dark font-black py-4 rounded-xl shadow-lg transition flex items-center justify-center">
-                            <i class="fa-solid fa-qrcode mr-2 text-xl"></i> ATUALIZAR ADESIVOS
-                        </button>
-                        <p class="text-[10px] text-gray-400 mt-2 text-center">Gera a folha A4 com pré-visualização e opções abaixo.</p>
+                        <!-- FERRAMENTA 1: IMPRIMIR ADESIVOS (PRINT 1) -->
+                        <div id="box-ferramenta-adesivos" class="bg-white rounded-2xl shadow-lg p-5 sm:p-6 border-2 border-brand-yellow flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2.5 mb-2">
+                                    <span class="w-9 h-9 rounded-xl bg-yellow-100 text-yellow-800 flex items-center justify-center font-black text-base shadow-xs">
+                                        <i class="fa-solid fa-print"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="font-bold text-base sm:text-lg text-brand-dark leading-tight">Imprimir Adesivos</h3>
+                                        <p class="text-xs text-gray-500">10 adesivos por folha A4 com seu QR Code exclusivo.</p>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="gerarAdesivos()" id="btn-adesivo" class="w-full bg-brand-yellow hover:bg-yellow-500 text-brand-dark font-black py-3.5 rounded-xl shadow transition flex items-center justify-center cursor-pointer mt-3">
+                                    <i class="fa-solid fa-qrcode mr-2 text-lg"></i> ATUALIZAR ADESIVOS (A4)
+                                </button>
+                                <p class="text-[10px] text-gray-400 mt-1.5 text-center">Gera a folha A4 com pré-visualização abaixo.</p>
 
-                        <!-- PRÉVIA DOS ADESIVOS (VISUALIZAÇÃO, IMPRIMIR, BAIXAR E COMPARTILHAR) -->
-                        <div id="preview-box-adesivos" class="hidden mt-4 pt-4 border-t border-yellow-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-black text-brand-dark flex items-center">
-                                    <i class="fa-solid fa-eye text-brand-yellow mr-1"></i> Visualização:
-                                </span>
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="text-[10px] text-gray-400">10 Adesivos</span>
-                                    <button type="button" onclick="toggleMinimizarPreview('adesivos')" id="btn-toggle-preview-adesivos" class="text-[11px] bg-yellow-100 hover:bg-yellow-200 text-yellow-900 px-2 py-0.5 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs" title="Minimizar / Expandir">
-                                        <i id="icone-toggle-preview-adesivos" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-adesivos">Minimizar</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="conteudo-preview-adesivos">
-                                <div class="relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-1 shadow-inner max-h-48 flex items-center justify-center">
-                                    <img id="img-preview-adesivos" src="" alt="Adesivos" class="w-full h-auto max-h-44 object-contain rounded-lg">
-                                </div>
-                                <div class="grid grid-cols-3 gap-1.5 mt-3">
-                                    <button onclick="imprimirArquivoGerado('adesivos')" class="bg-gray-800 hover:bg-black text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                        <i class="fa-solid fa-print mr-1 text-[11px] text-yellow-300"></i> Imprimir
-                                    </button>
-                                    <button onclick="baixarArquivoGerado('adesivos')" class="bg-brand-yellow hover:bg-yellow-500 text-brand-dark text-[11px] font-black py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                        <i class="fa-solid fa-download mr-1 text-[11px]"></i> Baixar
-                                    </button>
-                                    <button onclick="compartilharArquivoGerado('adesivos')" class="bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
-                                        <i class="fa-solid fa-share-nodes mr-1 text-[11px]"></i> Enviar
-                                    </button>
+                                <!-- PRÉVIA DOS ADESIVOS (VISUALIZAÇÃO, IMPRIMIR, BAIXAR E COMPARTILHAR) -->
+                                <div id="preview-box-adesivos" class="hidden mt-3 pt-3 border-t border-yellow-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-black text-brand-dark flex items-center">
+                                            <i class="fa-solid fa-eye text-brand-yellow mr-1"></i> Visualização:
+                                        </span>
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="text-[10px] text-gray-400">10 Adesivos</span>
+                                            <button type="button" onclick="toggleMinimizarPreview('adesivos')" id="btn-toggle-preview-adesivos" class="text-[11px] bg-yellow-100 hover:bg-yellow-200 text-yellow-900 px-2 py-0.5 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs" title="Minimizar / Expandir">
+                                                <i id="icone-toggle-preview-adesivos" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-adesivos">Minimizar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="conteudo-preview-adesivos">
+                                        <div class="relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-1 shadow-inner max-h-48 flex items-center justify-center">
+                                            <img id="img-preview-adesivos" src="" alt="Adesivos" class="w-full h-auto max-h-44 object-contain rounded-lg">
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-1.5 mt-3">
+                                            <button onclick="imprimirArquivoGerado('adesivos')" class="bg-gray-800 hover:bg-black text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-print mr-1 text-[11px] text-yellow-300"></i> Imprimir
+                                            </button>
+                                            <button onclick="baixarArquivoGerado('adesivos')" class="bg-brand-yellow hover:bg-yellow-500 text-brand-dark text-[11px] font-black py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-download mr-1 text-[11px]"></i> Baixar
+                                            </button>
+                                            <button onclick="compartilharArquivoGerado('adesivos')" class="bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-share-nodes mr-1 text-[11px]"></i> Enviar
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- FERRAMENTA 2: TÍQUETES PARA SACOLA (A4) -->
+                        <div id="box-ferramenta-tiquetes" class="bg-white rounded-2xl shadow-lg p-5 sm:p-6 border-2 border-blue-500 flex flex-col justify-between transition-all duration-300">
+                            <div>
+                                <div class="flex items-center space-x-2.5 mb-2">
+                                    <span class="w-9 h-9 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black text-base shadow-xs">
+                                        <i class="fa-solid fa-ticket"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="font-bold text-base sm:text-lg text-brand-dark leading-tight">Tíquetes para Sacola (A4)</h3>
+                                        <p class="text-xs text-gray-500">21 tíquetes com códigos únicos de bioimpedância para clientes.</p>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="gerarTiquetes()" id="btn-tiquetes" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-xl shadow transition flex items-center justify-center cursor-pointer mt-3">
+                                    <i class="fa-solid fa-ticket mr-2 text-lg"></i> GERAR TÍQUETES P/ SACOLA (A4)
+                                </button>
+                                <p class="text-[10px] text-gray-400 mt-1.5 text-center">Gera a folha A4 com pré-visualização abaixo.</p>
+
+                                <!-- PRÉVIA DOS TÍQUETES (VISUALIZAÇÃO, IMPRIMIR, BAIXAR E COMPARTILHAR) -->
+                                <div id="preview-box-tiquetes" class="hidden mt-3 pt-3 border-t border-blue-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-black text-brand-dark flex items-center">
+                                            <i class="fa-solid fa-eye text-blue-500 mr-1"></i> Visualização:
+                                        </span>
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="text-[10px] text-gray-400">21 Tíquetes</span>
+                                            <button type="button" onclick="toggleMinimizarPreview('tiquetes')" id="btn-toggle-preview-tiquetes" class="text-[11px] bg-blue-100 hover:bg-blue-200 text-blue-900 px-2 py-0.5 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs" title="Minimizar / Expandir">
+                                                <i id="icone-toggle-preview-tiquetes" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-tiquetes">Minimizar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="conteudo-preview-tiquetes">
+                                        <div class="relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-1 shadow-inner max-h-48 flex items-center justify-center">
+                                            <img id="img-preview-tiquetes" src="" alt="Tíquetes Sacola" class="w-full h-auto max-h-44 object-contain rounded-lg">
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-1.5 mt-3">
+                                            <button onclick="imprimirArquivoGerado('tiquetes')" class="bg-gray-800 hover:bg-black text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-print mr-1 text-[11px] text-yellow-300"></i> Imprimir
+                                            </button>
+                                            <button onclick="baixarArquivoGerado('tiquetes')" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-download mr-1 text-[11px]"></i> Baixar
+                                            </button>
+                                            <button onclick="compartilharArquivoGerado('tiquetes')" class="bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold py-2 px-1 rounded-xl transition flex items-center justify-center shadow-sm">
+                                                <i class="fa-solid fa-share-nodes mr-1 text-[11px]"></i> Enviar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- BOTÃO INFERIOR DE MINIMIZAR -->
@@ -1975,10 +2075,18 @@
                 }
             });
 
-            // Atualiza o contador de clientes no Card do topo
+            // Atualiza os contadores nos Cards do topo
             const badgeTotalClientes = document.getElementById('badge-total-clientes');
             if (badgeTotalClientes) {
                 badgeTotalClientes.innerText = gruposMap.size;
+            }
+            const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
+            if (statCardTotalClientes) {
+                statCardTotalClientes.innerText = gruposMap.size;
+            }
+            const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
+            if (statCardTotalAvaliacoes) {
+                statCardTotalAvaliacoes.innerText = (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) ? todasAvaliacoesCache.length : grupos.reduce((acc, g) => acc + g.total, 0);
             }
             atualizarBadgesAniversarios();
         }
@@ -4665,6 +4773,27 @@
                 if (icone) icone.className = 'fa-solid fa-chevron-down text-xs transition-transform duration-200';
             }
         }
+        window.toggleMateriaisApoio = toggleMateriaisApoio;
+
+        function abrirMateriaisComTiquetes(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
+            const cont = document.getElementById('conteudo-materiais-apoio');
+            const label = document.getElementById('label-toggle-materiais');
+            const icone = document.getElementById('icone-toggle-materiais');
+            if (cont && cont.classList.contains('hidden')) {
+                cont.classList.remove('hidden');
+                if (label) label.innerText = 'Minimizar';
+                if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
+            }
+            const tiquetesBox = document.getElementById('box-ferramenta-tiquetes');
+            if (tiquetesBox) {
+                tiquetesBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                tiquetesBox.classList.add('ring-4', 'ring-blue-400');
+                setTimeout(() => tiquetesBox.classList.remove('ring-4', 'ring-blue-400'), 2500);
+            }
+        }
+        window.abrirMateriaisComTiquetes = abrirMateriaisComTiquetes;
 
         function copiarRoteiro(id) {
             const texto = document.getElementById(id).innerText;
