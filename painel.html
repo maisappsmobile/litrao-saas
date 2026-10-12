@@ -2830,11 +2830,31 @@
             function formatarTempoDecorrido(dias) {
                 if (dias <= 0) return 'Mesmo dia';
                 if (dias < 30) return `${dias} dia${dias > 1 ? 's' : ''}`;
-                const meses = Math.floor(dias / 30);
-                const restoDias = dias % 30;
-                if (meses === 1 && restoDias === 0) return '1 mês';
-                if (restoDias === 0) return `${meses} meses`;
-                return `${meses} m e ${restoDias} d`;
+
+                const anos = Math.floor(dias / 365);
+                const diasRestAnos = dias % 365;
+                const meses = Math.floor(diasRestAnos / 30);
+                const restoDias = diasRestAnos % 30;
+
+                const partes = [];
+                if (anos > 0) partes.push(`${anos} a`);
+                if (meses > 0) partes.push(`${meses} m`);
+                if (restoDias > 0) partes.push(`${restoDias} d`);
+
+                if (partes.length === 1) {
+                    if (anos === 1 && meses === 0 && restoDias === 0) return '1 ano';
+                    if (anos > 1 && meses === 0 && restoDias === 0) return `${anos} anos`;
+                    if (meses === 1 && anos === 0 && restoDias === 0) return '1 mês';
+                    if (meses > 1 && anos === 0 && restoDias === 0) return `${meses} meses`;
+                    return partes[0];
+                }
+                if (partes.length === 2) {
+                    return `${partes[0]} e ${partes[1]}`;
+                }
+                if (partes.length === 3) {
+                    return `${partes[0]}, ${partes[1]} e ${partes[2]}`;
+                }
+                return `${dias} dias`;
             }
 
             function calcDiffIndicador(atual, ant, unidade = '', invertido = false, formatPctKg = null) {
