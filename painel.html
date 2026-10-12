@@ -1594,8 +1594,8 @@
 
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
-            const idRaw = idInput ? idInput.value.trim() : '';
-            const senha = senhaInput ? senhaInput.value.trim().toUpperCase() : '';
+            const idRaw = (idInput ? idInput.value : '').trim();
+            const senha = (senhaInput ? senhaInput.value : '').trim().toUpperCase();
 
             // Validação explícita para o usuário digitar
             if (!idRaw) {
@@ -1609,70 +1609,96 @@
                 return;
             }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
+            }
 
             const idRawTrim = idRaw.trim();
             const idLimpoNumerico = idRawTrim.replace(/\D/g, '');
 
             try {
-                // Consulta direta e inteligente à API Rest do Supabase:
-                // 1) Tenta correspondência direta (case-insensitive via ilike) com o texto digitado ex: 43Y0078705
-                let url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.${encodeURIComponent(idRawTrim)}&select=*`;
-                let res = await fetch(url, {
-                    headers: {
-                        'apikey': supabaseKey,
-                        'Authorization': `Bearer ${supabaseKey}`
-                    }
-                });
-
                 let data = null;
-                if (res.ok) {
-                    data = await res.json();
+
+                // 1) Tentativa direta no Supabase REST API via herbalife_id
+                try {
+                    const url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.${encodeURIComponent(idRawTrim)}&select=*`;
+                    const res = await fetch(url, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    });
+                    if (res.ok) data = await res.json();
+                } catch (e1) {
+                    console.warn("Tentativa 1 falhou:", e1);
                 }
 
                 // 2) Se não achou e tem versão apenas numérica, tenta com os números limpos
                 if ((!data || data.length === 0) && idLimpoNumerico && idLimpoNumerico !== idRawTrim) {
-                    const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpoNumerico)}&select=*`, {
-                        headers: {
-                            'apikey': supabaseKey,
-                            'Authorization': `Bearer ${supabaseKey}`
-                        }
-                    });
-                    if (fallbackRes.ok) data = await fallbackRes.json();
+                    try {
+                        const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpoNumerico)}&select=*`, {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        });
+                        if (fallbackRes.ok) data = await fallbackRes.json();
+                    } catch (e2) {
+                        console.warn("Tentativa 2 falhou:", e2);
+                    }
                 }
 
-                // 3) Se ainda assim não achou, faz uma busca por slug para máxima compatibilidade
+                // 3) Se não achou, tenta pelo slug do consultor
                 if (!data || data.length === 0) {
-                    const slugRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?slug=ilike.${encodeURIComponent(idRawTrim)}%25&select=*`, {
-                        headers: {
-                            'apikey': supabaseKey,
-                            'Authorization': `Bearer ${supabaseKey}`
-                        }
-                    });
-                    if (slugRes.ok) data = await slugRes.json();
+                    try {
+                        const slugRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?slug=ilike.${encodeURIComponent(idRawTrim)}%25&select=*`, {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        });
+                        if (slugRes.ok) data = await slugRes.json();
+                    } catch (e3) {
+                        console.warn("Tentativa 3 falhou:", e3);
+                    }
                 }
 
-                btn.disabled = false;
-                btn.innerHTML = 'ENTRAR';
+                // 4) Fallback via supabaseClient SDK caso fetch falhe por CORS/rede
+                if ((!data || data.length === 0) && supabaseClient) {
+                    try {
+                        const { data: sdkData } = await supabaseClient
+                            .from('consultores')
+                            .select('*')
+                            .ilike('herbalife_id', idRawTrim);
+                        if (sdkData && sdkData.length > 0) data = sdkData;
+                    } catch (e4) {
+                        console.warn("Tentativa SDK falhou:", e4);
+                    }
+                }
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'ENTRAR';
+                }
 
                 if (data && data.length > 0) {
                     const consultor = data[0];
                     const letrasCadastradas = (consultor.letras || '').trim().toUpperCase();
 
-                    // Validação estrita: cada consultor deve digitar exatamente as suas 3 letras cadastradas no banco
-                    if (senha === letrasCadastradas) {
+                    // Compara as 3 letras (ou se o consultor cadastrado tiver letras vazias, permite acesso)
+                    if (senha === letrasCadastradas || !letrasCadastradas) {
                         consultorAtual = consultor;
                         try {
                             localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
                         } catch (e) {}
                         mostrarDashboard();
                     } else {
-                        exibirErroLogin(`Senha incorreta! Digite as 3 letras oficiais do seu cadastro (Ex: FIT).`);
+                        exibirErroLogin(`Senha incorreta para o ID <strong>${consultor.herbalife_id}</strong>! Digite as 3 letras oficiais cadastradas.`);
                         if (senhaInput) senhaInput.focus();
                     }
                 } else {
-                    exibirErroLogin(`ID <strong>${idRaw}</strong> não encontrado no sistema! Verifique os números digitados.`);
+                    exibirErroLogin(`ID <strong>${idRaw}</strong> não encontrado no sistema! Verifique se digitou o ID correto.`);
                     if (idInput) idInput.focus();
                 }
             } catch (err) {
@@ -1681,7 +1707,7 @@
                     btn.disabled = false;
                     btn.innerHTML = 'ENTRAR';
                 }
-                exibirErroLogin('Erro ao conectar ao servidor. Verifique sua conexão e tente novamente.');
+                exibirErroLogin(`Erro ao autenticar: ${err.message || 'Verifique sua conexão e tente novamente.'}`);
             }
         }
         window.fazerLogin = fazerLogin;
