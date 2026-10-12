@@ -4277,7 +4277,7 @@
         }
 
         function normalizarChaveCliente(item) {
-            const rawNome = (item.nome_cliente || '').trim();
+            const rawNome = (item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '').trim();
             // Normaliza o nome do cliente removendo acentos e pontuações para unificar registros idênticos
             const nomeLimpo = rawNome
                 .toLowerCase()
@@ -4327,13 +4327,15 @@
                         break;
                     }
 
-                    if (data && data.length > 0) {
-                        todas = todas.concat(data);
-                        if (data.length < tamanhoPagina) {
-                            temMais = false;
+                        if (data && data.length > 0) {
+                            todas = todas.concat(data);
+                            if (data.length < tamanhoPagina) {
+                                temMais = false;
+                            } else {
+                                de += tamanhoPagina;
+                            }
                         } else {
-                            de += tamanhoPagina;
-                        }
+                            temMais = false;
                         }
                     }
                 }
@@ -4461,6 +4463,7 @@
                 const total = grupo.total;
                 const dataFmt = new Date(item.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
                 const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                const whatsHref = whatsLimpo ? (whatsLimpo.startsWith('55') ? whatsLimpo : '55' + whatsLimpo) : '';
                 const isExpandido = clienteExpandidoKey === grupo.key;
                 const isChecked = clientesSelecionadosSet.has(grupo.key);
 
@@ -4556,7 +4559,7 @@
                     </td>
                     <td class="p-3 sm:p-4">
                         ${whatsLimpo && !item.whatsapp_cliente.toLowerCase().includes('sem whats') ? `
-                            <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-green-700 hover:text-green-800 font-extrabold text-sm sm:text-base flex items-center">
+                            <a href="https://wa.me/${whatsHref}" target="_blank" class="text-green-700 hover:text-green-800 font-extrabold text-sm sm:text-base flex items-center">
                                 <i class="fa-brands fa-whatsapp mr-1.5 text-lg text-green-600"></i> ${item.whatsapp_cliente}
                             </a>
                         ` : `
@@ -4586,8 +4589,8 @@
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center space-x-1.5">
-                            ${whatsLimpo ? `
-                                <a href="https://wa.me/55${whatsLimpo}" target="_blank" title="Chamar Cliente no WhatsApp" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
+                            ${whatsHref ? `
+                                <a href="https://wa.me/${whatsHref}" target="_blank" title="Chamar Cliente no WhatsApp" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
                                     <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Whats
                                 </a>
                             ` : ''}
@@ -5898,7 +5901,15 @@
             if (!item) return;
 
             avaliacaoSelecionadaAtual = item;
-            const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
+            const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
+            const isPedido = (item.codigo_acesso === 'PEDIDO') || (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+            let dadosPedidoObj = null;
+            if (isPedido && item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:')) {
+                try {
+                    const m = item.como_foi_semana.match(/<!--DADOS_PEDIDO:(.*?)-->/);
+                    if (m && m[1]) dadosPedidoObj = JSON.parse(m[1]);
+                } catch(e) {}
+            }
 
             const chaveCliente = normalizarChaveCliente(item);
             const todasDoCliente = todasAvaliacoesCache.filter(a => normalizarChaveCliente(a) === chaveCliente)
@@ -6155,7 +6166,7 @@
                                 <span class="bg-brand-dark text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                                     Litrão do Reset
                                 </span>
-                                <h3 class="text-xl sm:text-2xl font-black text-brand-dark leading-tight">${item.nome_cliente}</h3>
+                                 <h3 class="text-xl sm:text-2xl font-black text-brand-dark leading-tight">${(item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '')}</h3>
                                 <p class="text-[11px] text-gray-500 font-medium">
                                     ${item.genero || '---'} • Altura: <strong>${item.altura ? item.altura + ' cm' : '---'}</strong> • Idade: <strong>${bioCalculadaAtual ? bioCalculadaAtual.idade + ' anos' : '---'}</strong>
                                 </p>
@@ -6167,6 +6178,43 @@
                             <span class="text-[10px] text-gray-400 font-mono">${dataFmt}</span>
                         </div>
                     </div>
+
+                    <!-- BLOCO DE PEDIDO LITRÃO SE HOUVER -->
+                    ${isPedido ? `
+                    <div class="mb-5 bg-emerald-50 border-2 border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xs text-gray-800">
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-200">
+                            <span class="inline-flex items-center gap-1.5 bg-emerald-700 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                                <i class="fa-solid fa-cart-shopping"></i> Reserva / Pedido Litrão
+                            </span>
+                            <span class="text-sm font-black text-emerald-900">${dadosPedidoObj?.valor_total || ''}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <span class="text-gray-500 font-bold block text-[11px]">Pacote Selecionado:</span>
+                                <strong class="text-emerald-950 font-black text-sm">${dadosPedidoObj?.produto || 'Litrão do Reset'} (${dadosPedidoObj?.quantidade || 1}x de ${dadosPedidoObj?.valor_unitario || ''})</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 font-bold block text-[11px]">Forma de Pagamento:</span>
+                                <strong class="text-gray-900 font-black text-sm">${dadosPedidoObj?.forma_pagamento || 'PIX'}</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 font-bold block text-[11px]">Modalidade:</span>
+                                <strong class="text-gray-900 font-black">${dadosPedidoObj?.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada no Espaço'}</strong>
+                                ${dadosPedidoObj?.modalidade === 'ENTREGA' && dadosPedidoObj?.endereco ? `<p class="text-xs text-gray-700 font-semibold mt-0.5">${dadosPedidoObj.endereco}</p>` : ''}
+                            </div>
+                            <div>
+                                <span class="text-gray-500 font-bold block text-[11px]">WhatsApp do Cliente:</span>
+                                <strong class="text-emerald-800 font-black text-sm">${item.whatsapp_cliente}</strong>
+                            </div>
+                        </div>
+                        ${dadosPedidoObj?.observacoes && dadosPedidoObj.observacoes !== 'Nenhuma' ? `
+                            <div class="mt-3 pt-3 border-t border-emerald-200/60 text-xs">
+                                <span class="text-gray-500 font-bold block text-[11px]">Observações / Sabor:</span>
+                                <p class="text-gray-800 font-semibold italic mt-0.5">"${dadosPedidoObj.observacoes}"</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
 
                     <!-- RESUMO DAS AVALIAÇÕES (EXATAMENTE COMO NO MODELO: INDICADOR | ÚLTIMO | GERAL) -->
                     ${renderResumoUnificado()}
@@ -6372,9 +6420,9 @@
                                 </span>
                             </div>
                         </div>
-                        ${item.como_foi_semana ? `
+                        ${(item.como_foi_semana && !isPedido) ? `
                         <div class="bg-white p-2.5 rounded-xl border border-gray-200 mt-2 italic text-gray-700">
-                            <strong>Obs:</strong> "${item.como_foi_semana}"
+                            <strong>Obs:</strong> "${item.como_foi_semana.replace(/<!--[\s\S]*?-->/g, '').trim()}"
                         </div>` : ''}
                     </div>
 

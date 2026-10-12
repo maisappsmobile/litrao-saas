@@ -819,43 +819,62 @@
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener("DOMContentLoaded", async () => {
-            // Captura a rota da URL (ex: /433005811bra)
-            let path = window.location.pathname.replace('/', '').toLowerCase();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.has('ref')) {
-                path = urlParams.get('ref').toLowerCase();
+            let consultor = null;
+
+            // Captura a rota da URL (ex: /433002993r ou /433005811bra)
+            let path = window.location.pathname.replace(/^\/+|\/+$/g, '').trim().toLowerCase();
+            if (path === "index.html" || path === "") {
+                path = "";
             }
 
-            if (!path || path === "index.html" || path === "") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramConsultor = urlParams.get('ref') || urlParams.get('c') || urlParams.get('consultor') || urlParams.get('id');
+            if (paramConsultor) {
+                path = paramConsultor.trim().toLowerCase();
+            }
+
+            if (!path) {
                 path = "433005811f";
             }
 
             try {
-                // Busca no banco de dados REAL do Supabase
+                // 1. Busca no banco de dados REAL do Supabase por slug exato
                 let { data, error } = await supabaseClient
                     .from('consultores')
                     .select('*')
                     .eq('slug', path)
-                    .single();
+                    .maybeSingle();
 
-                // Se não achar pelo slug exato, tenta achar apenas pelo número do ID
-                if (error || !data) {
+                // 2. Se não achar, tenta buscar com ilike no slug
+                if (!data) {
+                    const resSlug = await supabaseClient
+                        .from('consultores')
+                        .select('*')
+                        .ilike('slug', path)
+                        .maybeSingle();
+                    if (resSlug && resSlug.data) {
+                        data = resSlug.data;
+                        error = null;
+                    }
+                }
+
+                // 3. Se ainda não achar, tenta achar apenas pelo número do ID
+                if (!data) {
                     const apenasNumeros = path.replace(/\D/g, '');
                     if (apenasNumeros.length >= 6) {
                         const res = await supabaseClient
                             .from('consultores')
                             .select('*')
                             .eq('herbalife_id', apenasNumeros)
-                            .single();
-                        if (res.data) {
+                            .maybeSingle();
+                        if (res && res.data) {
                             data = res.data;
                             error = null;
                         }
                     }
                 }
 
-                let consultor = data;
+                consultor = data;
 
                 function formatarTelefoneBrasil(num) {
                     if (!num) return '';
@@ -866,8 +885,8 @@
                     return `📞 ${digits}`;
                 }
 
-                if (error || !consultor) {
-                    console.warn("Aviso: Link não encontrado ou erro no BD. Usando perfil padrão.", error);
+                if (!consultor) {
+                    console.warn("Aviso: Link não encontrado no BD. Usando perfil padrão.", error);
                     consultor = {
                         herbalife_id: "433005811",
                         letras: "BRA",
@@ -875,6 +894,16 @@
                         nome_espaco: "FORBOSS Espaço Vida Saudável",
                         endereco: "Primavera do Leste/MT - Brasil"
                     };
+                }
+
+                // Vincula imediatamente ao escopo global do Carrinho
+                window.consultorAtual = consultor;
+
+                // Atualiza atendente no modal do carrinho imediatamente
+                const consultorNomeExibicaoInit = (consultor.nome_espaco || 'Consultor Oficial').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].trim();
+                const consultorAtendenteElInit = document.getElementById('carrinho-consultor-atendente');
+                if (consultorAtendenteElInit) {
+                    consultorAtendenteElInit.innerText = `Atendimento direto com: ${consultorNomeExibicaoInit}`;
                 }
 
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
@@ -1047,11 +1076,13 @@
             }
 
             // Expor consultor para uso global do Carrinho
-            window.consultorAtual = consultor;
-            const consultorNomeExibicao = (consultor.nome_espaco || 'Consultor Oficial').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].trim();
-            const consultorAtendenteEl = document.getElementById('carrinho-consultor-atendente');
-            if (consultorAtendenteEl) {
-                consultorAtendenteEl.innerText = `Atendimento por: ${consultorNomeExibicao}`;
+            if (consultor) {
+                window.consultorAtual = consultor;
+                const consultorNomeExibicao = (consultor.nome_espaco || 'Consultor Oficial').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].trim();
+                const consultorAtendenteEl = document.getElementById('carrinho-consultor-atendente');
+                if (consultorAtendenteEl) {
+                    consultorAtendenteEl.innerText = `Atendimento direto com: ${consultorNomeExibicao}`;
+                }
             }
         });
 
@@ -1225,19 +1256,21 @@
                         nome_cliente: `[PEDIDO] ${nomeCliente}`,
                         whatsapp_cliente: whatsCliente,
                         como_foi_semana: obsCompleta,
-                        primeira_vez: 'Sim',
+                        primeira_vez: true,
                         criado_em: new Date().toISOString()
                     }]);
 
                 if (insertError) {
-                    console.warn("Aviso ao salvar pedido na tabela de avaliações:", insertError);
+                    console.error("Erro ao salvar pedido na tabela de avaliações:", insertError);
+                } else {
+                    console.log("Pedido salvo com sucesso no Supabase para consultor:", hidConsultor);
                 }
             } catch (dbErr) {
-                console.warn("Erro ao registrar pedido no Supabase:", dbErr);
+                console.error("Erro fatal ao registrar pedido no Supabase:", dbErr);
             }
 
             // 2. Prepara mensagem do WhatsApp para o consultor
-            let whatsConsultorLimpo = (consultor.whatsapp || '5566981411234').replace(/\D/g, '');
+            let whatsConsultorLimpo = String(consultor.whatsapp || '5566981411234').replace(/\D/g, '');
             if (!whatsConsultorLimpo.startsWith('55') && whatsConsultorLimpo.length <= 11) {
                 whatsConsultorLimpo = '55' + whatsConsultorLimpo;
             }
