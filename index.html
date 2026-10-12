@@ -500,18 +500,31 @@
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
-                // Extrair Nome do Espaço e Cidade
-                let nomeEspacoExibicao = consultor.nome_espaco || 'Espaço de Vida Saudável';
+                // Extrair Nome do Espaço, Nome do Consultor e Cidade
+                let rawEspaco = consultor.nome_espaco || '';
+                let nomeEspacoFinal = "";
+                let nomeConsultor = "";
                 let cidadeDetectada = "";
 
-                if (nomeEspacoExibicao.includes('|')) {
-                    const partes = nomeEspacoExibicao.split('|');
-                    nomeEspacoExibicao = partes[0].trim();
-                    cidadeDetectada = partes[1].trim();
-                } else if (nomeEspacoExibicao.includes('•')) {
-                    const partes = nomeEspacoExibicao.split('•');
-                    nomeEspacoExibicao = partes[0].trim();
-                    cidadeDetectada = partes[1].trim();
+                // Formato padrão: "Nome do Espaço • Nome Consultor | Cidade - UF"
+                // Ou sem espaço: "• Nome Consultor | Cidade - UF"
+                if (rawEspaco.includes('|')) {
+                    const partesPipe = rawEspaco.split('|');
+                    cidadeDetectada = partesPipe[1].trim();
+                    const antesPipe = partesPipe[0].trim();
+                    if (antesPipe.includes('•')) {
+                        const partesBullet = antesPipe.split('•');
+                        nomeEspacoFinal = partesBullet[0].trim();
+                        nomeConsultor = partesBullet[1].trim();
+                    } else {
+                        nomeEspacoFinal = antesPipe;
+                    }
+                } else if (rawEspaco.includes('•')) {
+                    const partesBullet = rawEspaco.split('•');
+                    nomeEspacoFinal = partesBullet[0].trim();
+                    nomeConsultor = partesBullet[1].trim();
+                } else {
+                    nomeEspacoFinal = rawEspaco.trim();
                 }
 
                 if (!cidadeDetectada && consultor.endereco) {
@@ -542,10 +555,16 @@
                 const btnPassos = document.getElementById('whatsapp-link-passos');
                 if (btnPassos) btnPassos.href = `https://wa.me/${consultor.whatsapp}?text=${txtPassos}`;
 
-                // Assinatura Dinâmica no Rodapé
+                // Assinatura Dinâmica no Rodapé (APENAS Nome do Espaço; se não tiver, fica em branco)
                 const footerName = document.getElementById('footer-name');
                 if (footerName) {
-                    footerName.innerText = nomeEspacoExibicao;
+                    if (nomeEspacoFinal && nomeEspacoFinal.trim() !== '' && nomeEspacoFinal !== 'SEM_ESPACO') {
+                        footerName.innerText = nomeEspacoFinal;
+                        footerName.style.display = 'block';
+                    } else {
+                        footerName.innerText = '';
+                        footerName.style.display = 'none';
+                    }
                 }
 
                 const footerCity = document.getElementById('footer-city');

@@ -921,9 +921,20 @@
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
 
-                const nomeEspacoExibicao = consultorAtual.nome_espaco ? consultorAtual.nome_espaco.split('|')[0].trim() : consultorAtual.herbalife_id;
+                let nomeParaDash = consultorAtual.herbalife_id;
+                if (consultorAtual.nome_espaco) {
+                    const partesPipe = consultorAtual.nome_espaco.split('|')[0].trim();
+                    if (partesPipe.includes('•')) {
+                        const partesBullet = partesPipe.split('•');
+                        const espaco = partesBullet[0].trim();
+                        const consultor = partesBullet[1].trim();
+                        nomeParaDash = espaco || consultor || consultorAtual.herbalife_id;
+                    } else {
+                        nomeParaDash = partesPipe;
+                    }
+                }
                 const dashNome = document.getElementById('dash-nome');
-                if (dashNome) dashNome.innerText = nomeEspacoExibicao;
+                if (dashNome) dashNome.innerText = nomeParaDash;
 
                 const dashId = document.getElementById('dash-id');
                 if (dashId) dashId.innerText = consultorAtual.herbalife_id + " " + (consultorAtual.letras || '');

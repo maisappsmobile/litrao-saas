@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crie sua Página - Litrão do Reset</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,11 +40,20 @@
 
             <form id="form-cadastro" onsubmit="registrar(event)" class="space-y-5">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Seu Nome ou Nome do Espaço</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Seu Nome Completo (Consultor)</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="text" id="nome" required placeholder="Ex: Manu Fit Nutrição" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <input type="text" id="nome-consultor" required placeholder="Ex: Rosimary Santos" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-medium text-gray-800">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nome do seu Espaço Vida Saudável <span class="text-xs font-normal text-gray-400">(Opcional)</span></label>
+                    <div class="relative">
+                        <i class="fa-solid fa-store absolute left-4 top-3.5 text-gray-400"></i>
+                        <input type="text" id="nome-espaco" placeholder="Ex: FORBOSS Espaço Vida Saudável" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-medium text-gray-800">
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="fa-solid fa-circle-info mr-1"></i> Se você não tem espaço físico, deixe em branco. No rodapé aparecerá apenas a cidade e o seu telefone.</p>
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
@@ -151,11 +161,33 @@
                     <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mt-3 mb-1">Nome do Recebedor:</span>
                     <span class="text-gray-700 font-bold text-sm">LUCIA SANTANA S. BRAGA</span>
                 </div>
+
+                <!-- QR Code do PIX -->
+                <div class="mt-4 pt-4 border-t border-teal-200 flex flex-col items-center">
+                    <p class="text-xs font-black text-teal-900 mb-2.5 flex items-center">
+                        <i class="fa-solid fa-qrcode mr-1.5 text-base text-teal-600"></i> Pague Escaneando o QR Code do PIX:
+                    </p>
+                    <div class="bg-white p-3 rounded-2xl border-2 border-teal-300 shadow-md flex items-center justify-center">
+                        <div id="pix-qrcode" class="flex justify-center"></div>
+                    </div>
+                    
+                    <div class="mt-3.5 flex flex-col sm:flex-row gap-2 w-full">
+                        <button type="button" onclick="copiarPixPayload()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-sm cursor-pointer">
+                            <i class="fa-regular fa-copy mr-1.5"></i> Copiar Pix Copia e Cola
+                        </button>
+                        <button type="button" onclick="copiarChaveEmail()" class="flex-1 bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-sm cursor-pointer">
+                            <i class="fa-regular fa-clone mr-1.5"></i> Copiar Chave E-mail
+                        </button>
+                    </div>
+                    <p id="msg-pix-copiado" class="text-green-700 font-bold text-xs mt-2 hidden text-center bg-green-50 py-1 px-3 rounded-lg border border-green-200">
+                        <i class="fa-solid fa-check mr-1"></i> Chave PIX copiada com sucesso!
+                    </p>
+                </div>
             </div>
             
-            <a href="#" id="link-acessar" target="_blank" class="inline-block bg-brand-dark text-white font-bold py-3 px-8 rounded-full shadow-md hover:bg-black transition w-full">
-                Acessar Minha Página
-            </a>
+            <button type="button" onclick="irParaPainel()" id="link-acessar" class="inline-block bg-brand-dark hover:bg-black text-white font-black py-4 px-8 rounded-full shadow-lg transition w-full text-center text-base cursor-pointer">
+                <i class="fa-solid fa-gauge-high mr-2 text-brand-yellow"></i> Acessar Meu Painel
+            </button>
         </div>
     </div>
 
@@ -164,6 +196,33 @@
         const supabaseUrl = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
         const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const PIX_COPIA_E_COLA = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
+
+        function copiarPixPayload() {
+            navigator.clipboard.writeText(PIX_COPIA_E_COLA).then(() => {
+                mostrarAvisoPixCopiado("Código Pix Copia e Cola copiado!");
+            });
+        }
+
+        function copiarChaveEmail() {
+            navigator.clipboard.writeText("maisappsmobile@gmail.com").then(() => {
+                mostrarAvisoPixCopiado("Chave E-mail (maisappsmobile@gmail.com) copiada!");
+            });
+        }
+
+        function mostrarAvisoPixCopiado(msg) {
+            const el = document.getElementById('msg-pix-copiado');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-check mr-1 text-green-600"></i> ${msg}`;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 3500);
+            }
+        }
+
+        function irParaPainel() {
+            window.location.href = 'painel.html';
+        }
 
         // LÓGICA DE ESTADOS E CIDADES (API IBGE)
         function mudarPais(pais) {
@@ -197,12 +256,15 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Criando...';
             btn.disabled = true;
 
-            const nome = document.getElementById('nome').value;
-            const hid = document.getElementById('hid').value;
-            const letras = document.getElementById('letras').value.toUpperCase();
+            const nomeConsultor = document.getElementById('nome-consultor').value.trim();
+            const nomeEspaco = document.getElementById('nome-espaco').value.trim();
+            const hid = document.getElementById('hid').value.trim();
+            const letras = document.getElementById('letras').value.toUpperCase().trim();
             const zap = document.getElementById('zap').value.replace(/\D/g, '');
             const cupom = document.getElementById('cupom').value.toUpperCase().trim();
-            const primeiraLetra = (nome.trim().charAt(0) || 'c').toLowerCase();
+            
+            // Slug baseado no ID e primeira letra do consultor
+            const primeiraLetra = (nomeConsultor.charAt(0) || 'c').toLowerCase();
             const slug = hid + primeiraLetra;
             
             const pais = document.getElementById('input-pais').value;
@@ -222,7 +284,13 @@
             }
             const vencimento = hoje.toISOString().split('T')[0];
 
-            const nomeEspacoCompleto = (cidade && estado) ? `${nome} | ${cidade} - ${estado}` : nome;
+            // Formatação do Espaço e Consultor
+            // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
+            // Se não tiver espaço: "• Nome Consultor | Cidade - UF"
+            const localizacao = (cidade && estado) ? `${cidade} - ${estado}` : (cidade || '');
+            const nomeEspacoCompleto = nomeEspaco 
+                ? `${nomeEspaco} • ${nomeConsultor} | ${localizacao}`
+                : `• ${nomeConsultor} | ${localizacao}`;
 
             const { error } = await supabaseClient.from('consultores').insert([{
                 slug: slug,
@@ -239,18 +307,40 @@
                 btn.innerHTML = 'GERAR MEU LINK AGORA';
                 btn.disabled = false;
             } else {
+                // Salva a sessão no localStorage para logar direto no painel
+                try {
+                    localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: hid, letras: letras }));
+                } catch (e) {}
+
                 document.getElementById('form-container').classList.add('hidden');
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
                 if (isPresidente) {
                     document.getElementById('pix-box').classList.add('hidden');
                     document.getElementById('msg-sucesso').innerHTML = '<span class="text-green-600 font-bold">CUPOM APLICADO!</span> Você ganhou 100% de desconto e tem acesso vitalício gratuito!';
+                } else {
+                    // Gera o QR Code oficial do Pix
+                    try {
+                        const qrcodeContainer = document.getElementById('pix-qrcode');
+                        if (qrcodeContainer) {
+                            qrcodeContainer.innerHTML = "";
+                            new QRCode(qrcodeContainer, {
+                                text: PIX_COPIA_E_COLA,
+                                width: 180,
+                                height: 180,
+                                colorDark: "#1a361d",
+                                colorLight: "#ffffff",
+                                correctLevel: QRCode.CorrectLevel.M
+                            });
+                        }
+                    } catch (errQr) {
+                        console.warn("Erro ao gerar QR Code Pix:", errQr);
+                    }
                 }
 
                 const siteUrl = window.location.origin + '/' + slug;
                 document.getElementById('link-gerado').innerText = siteUrl;
                 document.getElementById('link-gerado').href = siteUrl;
-                document.getElementById('link-acessar').href = siteUrl;
             }
         }
     </script>
