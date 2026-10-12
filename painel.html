@@ -1445,7 +1445,6 @@
         };
 
         let planoSelecionadoAtual = 'plano1'; // Padrão: Plano 1 (Vitalício R$ 497 + R$ 25/mês)
-        let modalQrCodeInstancia = null;
 
         function selecionarPlano(planoKey) {
             if (!DADOS_PLANOS[planoKey]) return;
@@ -2529,7 +2528,9 @@
 
         async function carregarAvaliacoes() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
-            corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando todas as avaliações...</td></tr>';
+            if (corpo) {
+                corpo.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Buscando todas as avaliações...</td></tr>';
+            }
 
             let todas = [];
             let de = 0;
@@ -2537,11 +2538,12 @@
             let temMais = true;
 
             try {
-                while (temMais) {
-                    const { data, error } = await supabaseClient
-                        .from('avaliacoes')
-                        .select('*')
-                        .eq('herbalife_id', consultorAtual.herbalife_id)
+                if (supabaseClient && typeof supabaseClient.from === 'function') {
+                    while (temMais) {
+                        const { data, error } = await supabaseClient
+                            .from('avaliacoes')
+                            .select('*')
+                            .eq('herbalife_id', consultorAtual.herbalife_id)
                         .order('criado_em', { ascending: false })
                         .range(de, de + tamanhoPagina - 1);
 
@@ -2557,8 +2559,7 @@
                         } else {
                             de += tamanhoPagina;
                         }
-                    } else {
-                        temMais = false;
+                        }
                     }
                 }
             } catch (err) {
