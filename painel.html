@@ -27,6 +27,9 @@
         <img src="reset-logo.png" alt="Reset Metabólico" class="h-10">
         <div class="flex items-center space-x-2 sm:space-x-3">
             <span class="text-xs font-bold text-gray-500 uppercase hidden sm:inline">Área do Consultor</span>
+            <button id="btn-abrir-perfil" onclick="abrirModalPerfil()" class="text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Editar Meu Perfil">
+                <i class="fa-solid fa-user-gear text-emerald-600"></i> <span class="hidden sm:inline">Meu Perfil</span>
+            </button>
             <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
                 <i class="fa-solid fa-key text-amber-600"></i> <span class="hidden sm:inline">Alterar Senha</span>
             </button>
@@ -243,6 +246,162 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- MODAL COMPLETO DE EDIÇÃO DO PERFIL DO CONSULTOR -->
+        <div id="modal-perfil-consultor" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-gray-200 relative animate-fade-in max-h-[92vh] overflow-y-auto">
+                <button onclick="fecharModalPerfil()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- Cabeçalho -->
+                <div class="flex items-center space-x-3 mb-5 border-b border-gray-100 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-2xl shadow-xs flex-shrink-0">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Meu Perfil & Informações</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Altere seus dados cadastrais, telefones, endereço, redes sociais e senha</p>
+                    </div>
+                </div>
+
+                <!-- Banner Informativo com ID Herbalife -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-3.5 mb-5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div>
+                        <span class="block text-[10px] font-extrabold uppercase tracking-wider text-emerald-800">Seu ID Herbalife Oficial:</span>
+                        <strong id="perfil-info-id" class="text-sm font-black text-brand-dark">---</strong>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-extrabold uppercase tracking-wider text-emerald-800">Seu Link Oficial:</span>
+                        <a href="#" id="perfil-info-link" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">---</a>
+                    </div>
+                </div>
+
+                <form id="form-perfil-consultor" onsubmit="salvarPerfilConsultor(event)" class="space-y-4">
+                    
+                    <!-- BLOCO 1: NOMES -->
+                    <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                            <i class="fa-solid fa-id-card text-emerald-600 mr-1.5"></i> Identificação e Nomes
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Nome Completo (Consultor) <span class="text-red-500">*</span></label>
+                                <input type="text" id="perfil-nome-consultor" required placeholder="Seu nome completo" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Espaço Vida Saudável <span class="text-[10px] text-gray-400 font-normal">(Opcional)</span></label>
+                                <input type="text" id="perfil-nome-espaco" placeholder="Ex: FORBOSS Espaço Vida Saudável" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO 2: CONTATO & ENDEREÇO -->
+                    <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                            <i class="fa-solid fa-location-dot text-emerald-600 mr-1.5"></i> Contato & Localização (Endereço)
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-1">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (com DDD) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i class="fa-brands fa-whatsapp absolute left-3 top-2.5 text-green-600 text-sm"></i>
+                                    <input type="tel" id="perfil-whatsapp" required placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Cidade</label>
+                                <input type="text" id="perfil-cidade" placeholder="Ex: Juína" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            </div>
+                            <div class="sm:col-span-1">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Estado (UF)</label>
+                                <select id="perfil-estado" class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                    <option value="">Selecione...</option>
+                                    <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO 3: REDES SOCIAIS -->
+                    <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                            <i class="fa-solid fa-share-nodes text-emerald-600 mr-1.5"></i> Redes Sociais Oficiais
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Instagram</label>
+                                <div class="relative">
+                                    <i class="fa-brands fa-instagram absolute left-3 top-2.5 text-pink-600 text-sm"></i>
+                                    <input type="text" id="perfil-instagram" placeholder="@seuespaco" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Facebook</label>
+                                <div class="relative">
+                                    <i class="fa-brands fa-facebook absolute left-3 top-2.5 text-blue-600 text-sm"></i>
+                                    <input type="text" id="perfil-facebook" placeholder="facebook.com/seuespaco" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">TikTok</label>
+                                <div class="relative">
+                                    <i class="fa-brands fa-tiktok absolute left-3 top-2.5 text-black text-sm"></i>
+                                    <input type="text" id="perfil-tiktok" placeholder="@seutiktok" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO 4: ALTERAÇÃO DE SENHA (OPCIONAL) -->
+                    <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-amber-900 flex items-center">
+                                <i class="fa-solid fa-key text-amber-600 mr-1.5"></i> Alterar Senha do Painel
+                            </h4>
+                            <span class="text-[10px] text-amber-700 font-bold">Opcional</span>
+                        </div>
+                        <p class="text-[11px] text-amber-800">
+                            Deixe estes campos em branco caso deseje manter sua senha atual.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Nova Senha</label>
+                                <div class="relative flex items-center">
+                                    <i class="fa-solid fa-lock absolute left-3 text-gray-400 text-xs"></i>
+                                    <input type="password" id="perfil-nova-senha" minlength="3" placeholder="Digite apenas para alterar" class="w-full pl-8 pr-9 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <button type="button" onclick="alternarVisibilidadeSenha('perfil-nova-senha', 'icone-olho-perfil-1')" class="absolute right-2.5 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                        <i id="icone-olho-perfil-1" class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Confirmar Nova Senha</label>
+                                <div class="relative flex items-center">
+                                    <i class="fa-solid fa-check-double absolute left-3 text-gray-400 text-xs"></i>
+                                    <input type="password" id="perfil-confirmar-senha" minlength="3" placeholder="Repita a nova senha" class="w-full pl-8 pr-9 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <button type="button" onclick="alternarVisibilidadeSenha('perfil-confirmar-senha', 'icone-olho-perfil-2')" class="absolute right-2.5 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                        <i id="icone-olho-perfil-2" class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="msg-erro-perfil" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl"></div>
+                    <div id="msg-sucesso-perfil" class="hidden text-xs font-bold text-green-700 bg-green-50 border border-green-200 p-3 rounded-xl"></div>
+
+                    <div class="pt-2 flex items-center justify-end space-x-3">
+                        <button type="button" onclick="fecharModalPerfil()" class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-salvar-perfil" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer transform hover:scale-[1.01]">
+                            <i class="fa-solid fa-floppy-disk"></i> SALVAR ALTERAÇÕES DO PERFIL
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1985,6 +2144,8 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
+                const btnPerfil = document.getElementById('btn-abrir-perfil');
+                if (btnPerfil) btnPerfil.classList.remove('hidden');
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
                 if (btnAlterarSenha) btnAlterarSenha.classList.remove('hidden');
 
@@ -5679,11 +5840,293 @@
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
+            const btnPerfil = document.getElementById('btn-abrir-perfil');
+            if (btnPerfil) btnPerfil.classList.add('hidden');
             const btnAltSenha = document.getElementById('btn-abrir-alterar-senha');
             if (btnAltSenha) btnAltSenha.classList.add('hidden');
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
+
+        // ==========================================
+        // GESTÃO COMPLETA DO PERFIL DO CONSULTOR
+        // ==========================================
+        function extrairDadosPerfilConsultor(consultor) {
+            let raw = (consultor && consultor.nome_espaco) ? consultor.nome_espaco : '';
+            
+            // 1. Redes Sociais
+            let sociais = {};
+            const matchSoc = raw.match(/<!--SOCIAIS:(.*?)-->/);
+            if (matchSoc && matchSoc[1]) {
+                try { sociais = JSON.parse(matchSoc[1]) || {}; } catch(_) {}
+            }
+
+            // 2. Limpa tags HTML
+            let textoLimpo = raw.replace(/<!--.*?-->/g, '').trim();
+
+            // Formato: "Espaço • Consultor | Cidade - Estado" ou "• Consultor | Cidade - Estado"
+            let partesPipe = textoLimpo.split('|');
+            let blocoNomes = (partesPipe[0] || '').trim();
+            let blocoEndereco = (partesPipe[1] || '').trim();
+
+            let nomeEspaco = '';
+            let nomeConsultor = '';
+
+            if (blocoNomes.includes('•')) {
+                let partesBullet = blocoNomes.split('•');
+                nomeEspaco = (partesBullet[0] || '').trim();
+                nomeConsultor = (partesBullet[1] || '').trim();
+            } else {
+                nomeConsultor = blocoNomes || (consultor ? consultor.herbalife_id : '');
+            }
+
+            let cidade = '';
+            let estado = '';
+
+            if (blocoEndereco) {
+                if (blocoEndereco.includes(' - ')) {
+                    let partesEnd = blocoEndereco.split(' - ');
+                    cidade = (partesEnd[0] || '').trim();
+                    let resto = (partesEnd[1] || '').trim();
+                    if (resto.includes('/')) {
+                        estado = resto.split('/')[0].trim();
+                    } else {
+                        estado = resto.trim();
+                    }
+                } else if (blocoEndereco.includes('/')) {
+                    let partesSlash = blocoEndereco.split('/');
+                    cidade = (partesSlash[0] || '').trim();
+                    estado = (partesSlash[1] || '').trim();
+                } else {
+                    cidade = blocoEndereco.trim();
+                }
+            }
+
+            return {
+                nomeConsultor,
+                nomeEspaco,
+                cidade,
+                estado,
+                sociais
+            };
+        }
+
+        function abrirModalPerfil() {
+            if (!consultorAtual) return;
+            const modal = document.getElementById('modal-perfil-consultor');
+            if (!modal) return;
+
+            const dados = extrairDadosPerfilConsultor(consultorAtual);
+
+            // Popula cabeçalho informativo
+            const infoId = document.getElementById('perfil-info-id');
+            if (infoId) infoId.innerText = consultorAtual.herbalife_id;
+
+            const infoLink = document.getElementById('perfil-info-link');
+            if (infoLink) {
+                const linkUrl = `${window.location.origin}/${consultorAtual.slug || consultorAtual.herbalife_id}`;
+                infoLink.innerText = linkUrl;
+                infoLink.href = linkUrl;
+            }
+
+            // Popula campos
+            const inNome = document.getElementById('perfil-nome-consultor');
+            if (inNome) inNome.value = dados.nomeConsultor;
+
+            const inEspaco = document.getElementById('perfil-nome-espaco');
+            if (inEspaco) inEspaco.value = dados.nomeEspaco;
+
+            const inWhats = document.getElementById('perfil-whatsapp');
+            if (inWhats) inWhats.value = formatarTelefoneBrasil(consultorAtual.whatsapp || '');
+
+            const inCidade = document.getElementById('perfil-cidade');
+            if (inCidade) inCidade.value = dados.cidade;
+
+            const inEstado = document.getElementById('perfil-estado');
+            if (inEstado) inEstado.value = dados.estado;
+
+            const inIg = document.getElementById('perfil-instagram');
+            if (inIg) inIg.value = dados.sociais.ig || '';
+
+            const inFb = document.getElementById('perfil-facebook');
+            if (inFb) inFb.value = dados.sociais.fb || '';
+
+            const inTk = document.getElementById('perfil-tiktok');
+            if (inTk) inTk.value = dados.sociais.tk || '';
+
+            // Limpa campos de senha
+            const inNovaSenha = document.getElementById('perfil-nova-senha');
+            if (inNovaSenha) inNovaSenha.value = '';
+            const inConfSenha = document.getElementById('perfil-confirmar-senha');
+            if (inConfSenha) inConfSenha.value = '';
+
+            // Limpa mensagens
+            const errBox = document.getElementById('msg-erro-perfil');
+            if (errBox) { errBox.classList.add('hidden'); errBox.innerText = ''; }
+            const sucBox = document.getElementById('msg-sucesso-perfil');
+            if (sucBox) { sucBox.classList.add('hidden'); sucBox.innerText = ''; }
+
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalPerfil = abrirModalPerfil;
+
+        function fecharModalPerfil() {
+            const modal = document.getElementById('modal-perfil-consultor');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalPerfil = fecharModalPerfil;
+
+        async function salvarPerfilConsultor(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Sessão não identificada. Faça login novamente no painel.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-salvar-perfil');
+            const errBox = document.getElementById('msg-erro-perfil');
+            const sucBox = document.getElementById('msg-sucesso-perfil');
+
+            if (errBox) { errBox.classList.add('hidden'); errBox.innerText = ''; }
+            if (sucBox) { sucBox.classList.add('hidden'); sucBox.innerText = ''; }
+
+            const nomeConsultor = (document.getElementById('perfil-nome-consultor').value || '').trim();
+            const nomeEspaco = (document.getElementById('perfil-nome-espaco').value || '').trim();
+            const zap = (document.getElementById('perfil-whatsapp').value || '').replace(/\D/g, '');
+            const cidade = (document.getElementById('perfil-cidade').value || '').trim();
+            const estado = (document.getElementById('perfil-estado').value || '').trim();
+
+            const ig = (document.getElementById('perfil-instagram').value || '').trim();
+            const fb = (document.getElementById('perfil-facebook').value || '').trim();
+            const tk = (document.getElementById('perfil-tiktok').value || '').trim();
+
+            const novaSenha = (document.getElementById('perfil-nova-senha').value || '').trim();
+            const confSenha = (document.getElementById('perfil-confirmar-senha').value || '').trim();
+
+            if (!nomeConsultor) {
+                if (errBox) {
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> O nome do consultor é obrigatório.';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (!zap || zap.length < 10) {
+                if (errBox) {
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Por favor, informe um WhatsApp válido com DDD.';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (novaSenha) {
+                if (novaSenha.length < 3) {
+                    if (errBox) {
+                        errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A nova senha deve ter no mínimo 3 caracteres.';
+                        errBox.classList.remove('hidden');
+                    }
+                    return;
+                }
+                if (novaSenha !== confSenha) {
+                    if (errBox) {
+                        errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A confirmação da nova senha não coincide.';
+                        errBox.classList.remove('hidden');
+                    }
+                    return;
+                }
+            }
+
+            // Monta nome_espaco completo
+            const localizacao = (cidade && estado) ? `${cidade} - ${estado}` : (cidade || '');
+            let nomeEspacoCompleto = nomeEspaco 
+                ? `${nomeEspaco} • ${nomeConsultor} | ${localizacao}`
+                : `• ${nomeConsultor} | ${localizacao}`;
+
+            // Redes sociais
+            const sociaisObj = {};
+            if (ig) sociaisObj.ig = ig;
+            if (fb) sociaisObj.fb = fb;
+            if (tk) sociaisObj.tk = tk;
+            if (Object.keys(sociaisObj).length > 0) {
+                nomeEspacoCompleto += ` <!--SOCIAIS:${JSON.stringify(sociaisObj)}-->`;
+            }
+
+            // Preserva tags extras existentes (como cupons, etc.)
+            const rawAntigo = consultorAtual.nome_espaco || '';
+            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:).*?-->/g);
+            if (matchComentarios) {
+                nomeEspacoCompleto += ' ' + matchComentarios.join(' ');
+            }
+
+            const payloadAtualizacao = {
+                nome_espaco: nomeEspacoCompleto,
+                whatsapp: zap
+            };
+            if (novaSenha) {
+                payloadAtualizacao.letras = novaSenha;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> SALVANDO...';
+            }
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payloadAtualizacao)
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro HTTP ${res.status} ao salvar no Supabase`);
+                }
+
+                // Atualiza sessão em memória
+                consultorAtual.nome_espaco = nomeEspacoCompleto;
+                consultorAtual.whatsapp = zap;
+                if (novaSenha) {
+                    consultorAtual.letras = novaSenha;
+                    try {
+                        localStorage.setItem('litrao_consultor_auth', JSON.stringify({
+                            id: consultorAtual.herbalife_id,
+                            letras: novaSenha
+                        }));
+                    } catch (_) {}
+                }
+
+                // Atualiza cabeçalho do dashboard com novos dados
+                mostrarDashboard();
+
+                if (sucBox) {
+                    sucBox.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5"></i> Perfil e dados cadastrais atualizados com sucesso!';
+                    sucBox.classList.remove('hidden');
+                }
+
+                setTimeout(() => {
+                    fecharModalPerfil();
+                }, 1400);
+
+            } catch (err) {
+                console.error("Erro ao salvar perfil:", err);
+                if (errBox) {
+                    errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Erro ao atualizar: ${err.message || 'Verifique sua conexão'}`;
+                    errBox.classList.remove('hidden');
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i> SALVAR ALTERAÇÕES DO PERFIL';
+                }
+            }
+        }
+        window.salvarPerfilConsultor = salvarPerfilConsultor;
 
         // ==========================================
         // GESTÃO DE SENHA DO CONSULTOR
