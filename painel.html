@@ -1612,12 +1612,14 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
 
-            const idLimpo = idRaw.replace(/\D/g, '') || idRaw;
+            const idRawTrim = idRaw.trim();
+            const idLimpoNumerico = idRawTrim.replace(/\D/g, '');
 
             try {
-                // Consulta direta à API Rest do Supabase (rápida e sem risco de travamento de biblioteca)
-                const url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpo)}&select=*`;
-                const res = await fetch(url, {
+                // Consulta direta e inteligente à API Rest do Supabase:
+                // 1) Tenta correspondência direta (case-insensitive via ilike) com o texto digitado ex: 43Y0078705
+                let url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.${encodeURIComponent(idRawTrim)}&select=*`;
+                let res = await fetch(url, {
                     headers: {
                         'apikey': supabaseKey,
                         'Authorization': `Bearer ${supabaseKey}`
@@ -1629,14 +1631,26 @@
                     data = await res.json();
                 }
 
-                if ((!data || data.length === 0) && idLimpo !== idRaw) {
-                    const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idRaw)}&select=*`, {
+                // 2) Se não achou e tem versão apenas numérica, tenta com os números limpos
+                if ((!data || data.length === 0) && idLimpoNumerico && idLimpoNumerico !== idRawTrim) {
+                    const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpoNumerico)}&select=*`, {
                         headers: {
                             'apikey': supabaseKey,
                             'Authorization': `Bearer ${supabaseKey}`
                         }
                     });
                     if (fallbackRes.ok) data = await fallbackRes.json();
+                }
+
+                // 3) Se ainda assim não achou, faz uma busca por slug para máxima compatibilidade
+                if (!data || data.length === 0) {
+                    const slugRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?slug=ilike.${encodeURIComponent(idRawTrim)}%25&select=*`, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    });
+                    if (slugRes.ok) data = await slugRes.json();
                 }
 
                 btn.disabled = false;
