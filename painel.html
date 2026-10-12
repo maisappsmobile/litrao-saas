@@ -1369,10 +1369,10 @@
                                         <span>Flyer de Alta Conversão</span>
                                     </div>
                                     <h3 class="font-black text-lg sm:text-2xl text-brand-dark leading-tight">
-                                        Flyer Promocional com Seu WhatsApp
+                                        Flyer Promocional com Seu WhatsApp & Cidade
                                     </h3>
                                     <p class="text-xs text-gray-500 mt-0.5">
-                                        Gera a arte oficial com os 3 pacotes e o <strong>seu número de WhatsApp escrito na cor branca</strong> no espaço verde!
+                                        Gera a arte oficial com os 3 pacotes e o <strong>seu WhatsApp + Cidade na cor branca</strong> no espaço verde!
                                     </p>
                                 </div>
                             </div>
@@ -1380,6 +1380,22 @@
                             <button onclick="gerarFlyerPersonalizado()" id="btn-gerar-flyer" class="bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg transition transform hover:scale-102 flex items-center justify-center cursor-pointer whitespace-nowrap text-sm">
                                 <i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> GERAR FLYER COM MEU WHATSAPP
                             </button>
+                        </div>
+
+                        <!-- CAMPOS PERSONALIZÁVEIS DE WHATSAPP E CIDADE -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
+                            <div>
+                                <label class="block text-xs font-black text-emerald-950 mb-1">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para o Flyer:
+                                </label>
+                                <input type="text" id="flyer-input-whatsapp" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-emerald-950 mb-1">
+                                    <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Aparecerá abaixo do número):
+                                </label>
+                                <input type="text" id="flyer-input-cidade" placeholder="Ex: Primavera do Leste - MT" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            </div>
                         </div>
 
                         <!-- PRÉVIA DO FLYER (VISUALIZAÇÃO, IMPRIMIR, BAIXAR E COMPARTILHAR) -->
@@ -2725,6 +2741,7 @@
                     verificarSuperAdmin();
                     verificarAcessoMasterVip();
                     atualizarKitMateriaisApoioVip();
+                    preencherCamposFlyer();
                 } catch (saErr) {
                     console.warn("Erro ao verificar SuperAdmin ou VIP:", saErr);
                 }
@@ -2869,7 +2886,7 @@
         window.compartilharArquivoGerado = compartilharArquivoGerado;
 
         /* ==========================================================================
-           GERADOR DO FLYER PROMOCIONAL COM WHATSAPP NA COR BRANCA NO ESPAÇO VERDE
+           GERADOR DO FLYER PROMOCIONAL COM WHATSAPP & CIDADE NA COR BRANCA NO ESPAÇO VERDE
            ========================================================================== */
         function formatarWhatsParaExibicao(num) {
             if (!num) return '';
@@ -2884,12 +2901,41 @@
             return num;
         }
 
+        function extrairCidadeConsultor(consultor) {
+            if (!consultor) return '';
+            let rawEspaco = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+            if (rawEspaco.includes('|')) {
+                return rawEspaco.split('|')[1].trim();
+            }
+            if (consultor.endereco) {
+                let end = consultor.endereco.split('-')[0].replace('/MT', ' - MT').replace('/', ' - ').trim();
+                return end;
+            }
+            return '';
+        }
+
+        function preencherCamposFlyer() {
+            if (!consultorAtual) return;
+            const inWhats = document.getElementById('flyer-input-whatsapp');
+            const inCidade = document.getElementById('flyer-input-cidade');
+            if (inWhats && !inWhats.value) {
+                inWhats.value = formatarWhatsParaExibicao(consultorAtual.whatsapp || '');
+            }
+            if (inCidade && !inCidade.value) {
+                const cidDetectada = extrairCidadeConsultor(consultorAtual);
+                inCidade.value = cidDetectada || "Primavera do Leste - MT";
+            }
+        }
+        window.preencherCamposFlyer = preencherCamposFlyer;
+
         function gerarFlyerPersonalizado() {
             const btn = document.getElementById('btn-gerar-flyer');
             if (btn) {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2 text-yellow-300"></i> GERANDO SEU FLYER...';
             }
+
+            preencherCamposFlyer();
 
             setTimeout(() => {
                 try {
@@ -2904,39 +2950,68 @@
                     // 1. Desenha o flyer base de alta resolução
                     ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
 
-                    // 2. Extrai o WhatsApp do consultor atual
-                    let numWhats = (consultorAtual && consultorAtual.whatsapp) ? consultorAtual.whatsapp : "66981411234";
+                    // 2. Extrai dados dos campos com fallback para o consultor atual
+                    const inWhats = document.getElementById('flyer-input-whatsapp');
+                    const inCidade = document.getElementById('flyer-input-cidade');
+
+                    let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (consultorAtual?.whatsapp || "66992822020");
                     let whatsTexto = formatarWhatsParaExibicao(numWhats);
 
-                    // 3. Posição calibrada para a pílula verde ao lado do ícone de WhatsApp
+                    let cidadeTexto = (inCidade && inCidade.value.trim()) ? inCidade.value.trim() : extrairCidadeConsultor(consultorAtual);
+
+                    // 3. Posição perfeitamente calibrada para a pílula verde ao lado do ícone de WhatsApp
                     // Dimensões do flyer original: 682 x 1024
-                    // A pílula verde está na base esquerda: X ~ 160 até 430, Y ~ 900 até 965
+                    // A área útil interna verde: X de 120 até 430 (largura 310), Y de 924 até 992 (altura 68)
+                    // Centro exato X: 275 px
                     const escalaX = canvas.width / 682;
                     const escalaY = canvas.height / 1024;
+                    const centroX = 275 * escalaX;
 
-                    // Centro horizontal e vertical do espaço verde
-                    const centroX = 295 * escalaX;
-                    const centroY = 932 * escalaY;
-
-                    // 4. Configuração tipográfica: COR BRANCA COM PESO EXTRA E RESPIRO
-                    const tamanhoFonte = Math.round(26 * escalaX);
                     ctx.save();
-                    ctx.font = `900 ${tamanhoFonte}px "Montserrat", "Segoe UI", Arial, sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
 
-                    // Sombra sutil para máxima legibilidade
-                    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
-                    ctx.shadowBlur = 4 * escalaX;
-                    ctx.shadowOffsetX = 1 * escalaX;
-                    ctx.shadowOffsetY = 1 * escalaY;
+                    if (cidadeTexto) {
+                        // LAYOUT DUPLO: WhatsApp em cima + Cidade embaixo
+                        
+                        // Linha 1: WhatsApp (cor branca, negrito)
+                        const tamanhoWhats = Math.round(21 * escalaX);
+                        const centroYWhats = 944 * escalaY;
+                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+                        ctx.shadowBlur = 3 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(whatsTexto, centroX, centroYWhats);
 
-                    // Preenchimento na COR BRANCA SOLICITADA
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillText(whatsTexto, centroX, centroY);
+                        // Linha 2: Cidade / Região (cor branca, clean)
+                        const tamanhoCidade = Math.round(12.5 * escalaX);
+                        const centroYCidade = 970 * escalaY;
+                        ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+                        ctx.shadowBlur = 2 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
+
+                    } else {
+                        // LAYOUT ÚNICO: Apenas o WhatsApp centralizado verticalmente
+                        const tamanhoWhats = Math.round(26 * escalaX);
+                        const centroYUnico = 958 * escalaY;
+                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+                        ctx.shadowBlur = 4 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(whatsTexto, centroX, centroYUnico);
+                    }
+
                     ctx.restore();
 
-                    // 5. Salva imagem em alta qualidade
+                    // 5. Salva imagem em alta qualidade JPG
                     dadosDataURLFlyer = canvas.toDataURL("image/jpeg", 0.95);
 
                     // 6. Atualiza prévia na tela
@@ -7969,6 +8044,7 @@
                 cont.classList.remove('hidden');
                 if (label) label.innerText = 'Minimizar';
                 if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
+                try { preencherCamposFlyer(); } catch(e) {}
             } else {
                 cont.classList.add('hidden');
                 if (label) label.innerText = 'Abrir Materiais';
