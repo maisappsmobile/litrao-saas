@@ -160,6 +160,29 @@
             </div>
         </div>
 
+        <!-- CARD EXCLUSIVO MASTER VIP: INDIQUE UM CONSULTOR (CUPOM 15% OFF) -->
+        <div id="card-vip-indique-container" class="hidden mb-6">
+            <div class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-purple-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-purple-950 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="bg-purple-500/40 text-purple-200 border border-purple-300/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                                Benefício Master VIP
+                            </span>
+                        </div>
+                        <h4 class="text-lg font-black text-white leading-tight">Indique um Consultor (15% OFF)</h4>
+                        <p class="text-xs text-purple-200 font-medium">Gere cupons oficiais de 15% de desconto para cadastrar seus novos consultores.</p>
+                    </div>
+                </div>
+                <button onclick="abrirModalCupomVip()" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-purple-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                    <i class="fa-solid fa-ticket text-sm"></i> CRIAR CUPOM DE 15%
+                </button>
+            </div>
+        </div>
+
         <!-- CARD SUPERADMIN EXCLUSIVO (APENAS ID 433005811) -->
         <div id="card-superadmin-container" class="hidden mb-6">
             <div class="w-full bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden border-2 border-purple-500/40 ring-1 ring-purple-400/20 group">
@@ -179,7 +202,7 @@
                                 </span>
                             </div>
                             <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                                Gestão Geral de Consultores
+                                Gestão Geral de Consultores & Cupons
                             </h3>
                             <p class="text-xs sm:text-sm text-purple-200 font-medium mt-1 max-w-xl">
                                 Visualize, pesquise, edite status, controle datas de vencimento ou libere acesso vitalício para todos os consultores que se cadastraram.
@@ -191,6 +214,10 @@
                             <span class="block text-[10px] uppercase tracking-widest font-extrabold text-purple-200/80">TOTAL CONSULTORES</span>
                             <span id="superadmin-total-badge" class="text-2xl font-black text-amber-300 block leading-tight">...</span>
                         </div>
+                        <button onclick="abrirModalSuperadminCupons()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-purple-950 font-black py-3.5 px-5 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-ticket text-base"></i>
+                            <span>CRIAR QUALQUER CUPOM (%)</span>
+                        </button>
                         <button onclick="toggleSecaoSuperadmin()" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm cursor-pointer border border-white/20 whitespace-nowrap">
                             <i class="fa-solid fa-users-gear text-lg text-amber-300"></i>
                             <span id="superadmin-btn-label">ABRIR GESTÃO DE CONSULTORES</span>
@@ -1466,6 +1493,17 @@
                                     + R$ 99,00/mês
                                 </span>
                             </div>
+
+                            <!-- ITENS INCLUSOS NO PLANO 1 -->
+                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-emerald-200/80 pt-2.5">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Página Exclusiva & Link Próprio</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Até 30 Avaliações / mês</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> 15 Tíquetes Bônus (Sacola A4) / mês</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Relatório Visual em Foto (PNG)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Central de Aniversariantes Básica</li>
+                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem exportação Excel / CSV</li>
+                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem cupons de indicação</li>
+                            </ul>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-emerald-200 text-center">
                             <span id="badge-selecionado-plano1" class="text-xs font-black text-emerald-700 flex items-center justify-center">
@@ -1490,6 +1528,18 @@
                                     + R$ 25,00/mês
                                 </span>
                             </div>
+
+                            <!-- ITENS INCLUSOS NO PLANO 2 -->
+                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-gray-100 pt-2.5">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> <strong>Adesão Vitalícia da Plataforma</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> <strong>Avaliações ILIMITADAS</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> <strong>Tíquetes ILIMITADOS (Sacola A4)</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Relatório Visual em Foto (PNG) Completo</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Central de Aniversariantes Completa</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Exportação para Planilha Excel (CSV)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Backup Geral dos Seus Dados</li>
+                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem cupons de indicação</li>
+                            </ul>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-gray-100 text-center">
                             <span id="badge-selecionado-plano2" class="text-xs font-bold text-gray-400 flex items-center justify-center">
@@ -1514,6 +1564,17 @@
                                     + R$ 49,00/mês
                                 </span>
                             </div>
+
+                            <!-- ITENS INCLUSOS NO PLANO 3 -->
+                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-gray-100 pt-2.5">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-crown text-purple-600 text-xs"></i> <strong>Acesso Master VIP Ilimitado</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> <strong>Avaliações e Tíquetes Ilimitados</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> 🎟️ <strong>Criar Cupons 15% OFF p/ Novos Consultores</strong></li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Exportação e Importação em Massa (CSV)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Backup Completo & Restauração de Dados</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Relatório Visual em Foto (Alta Resolução)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Central de Aniversariantes VIP</li>
+                            </ul>
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-gray-100 text-center">
                             <span id="badge-selecionado-plano3" class="text-xs font-bold text-gray-400 flex items-center justify-center">
@@ -1598,6 +1659,115 @@
                     <button onclick="fecharModalPromocao()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition text-center cursor-pointer">
                         Continuar navegando no painel
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EXCLUSIVO: CRIAR CUPOM DE 15% (MASTER VIP) -->
+        <div id="modal-cupom-vip" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border-2 border-purple-500 relative animate-fade-in">
+                <button onclick="fecharModalCupomVip()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md">
+                        <i class="fa-solid fa-crown text-amber-300"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">Exclusivo Master VIP</span>
+                        <h3 class="text-xl font-black text-gray-900 leading-tight">Criar Cupom de Indicação</h3>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-600 mb-4 leading-relaxed">
+                    Como <strong>Master VIP</strong>, você pode gerar cupons com <strong>15% de desconto</strong> para novos consultores que você trouxer para a sua equipe no Litrão do Reset!
+                </p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Código do Cupom</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="cupom-vip-codigo" readonly class="flex-1 p-3 bg-gray-100 border border-purple-300 rounded-xl font-mono font-black text-purple-900 text-base tracking-wider uppercase">
+                            <button type="button" onclick="gerarCodigoCupomVipAleatorio()" class="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition" title="Gerar outro código">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-purple-50 border border-purple-200 rounded-2xl flex items-center justify-between text-xs font-bold text-purple-950">
+                        <span>Desconto Aplicado:</span>
+                        <span class="bg-purple-700 text-white px-2.5 py-1 rounded-lg text-xs font-black">15% OFF NA ADESÃO</span>
+                    </div>
+                    <button type="button" onclick="salvarCupomVip()" id="btn-salvar-cupom-vip" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <i class="fa-solid fa-check"></i> ATIVAR E COPIAR CUPOM
+                    </button>
+                    <div id="msg-feedback-cupom-vip" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL SUPERADMIN: CRIADOR UNIVERSAL DE CUPONS (QUALQUER %) -->
+        <div id="modal-superadmin-cupons" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border-4 border-amber-400 relative max-h-[92vh] overflow-y-auto animate-fade-in">
+                <button onclick="fecharModalSuperadminCupons()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-2xl shadow-md border border-amber-400/40">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">SuperAdmin Exclusivo</span>
+                        <h3 class="text-xl font-black text-gray-900 leading-tight">Criador Universal de Cupons</h3>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-600 mb-4 leading-relaxed">
+                    Você tem liberdade total para criar qualquer cupom promocional com o percentual, quantidade de usos e condições que desejar.
+                </p>
+                <form id="form-superadmin-cupom" onsubmit="salvarCupomSuperadmin(event)" class="space-y-3.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Código do Cupom *</label>
+                            <input type="text" id="sa-cupom-codigo" required placeholder="Ex: PROMO20, VIP50" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-mono font-black text-sm uppercase focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Desconto na Adesão (%) *</label>
+                            <input type="number" id="sa-cupom-desconto" min="1" max="100" required value="15" placeholder="Ex: 15, 20, 50, 100" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-bold text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Limite de Utilizações</label>
+                            <select id="sa-cupom-limite" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                                <option value="1">1 Uso Único (Esgota após usar)</option>
+                                <option value="ilimitado">Ilimitado (Vários consultores)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Carência Mensalidade (Dias)</label>
+                            <input type="number" id="sa-cupom-carencia" min="0" value="0" placeholder="Ex: 0, 30, 60" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] text-amber-950">
+                        <i class="fa-solid fa-circle-info text-amber-600 mr-1"></i>
+                        O cupom gerado poderá ser utilizado na tela de contratação de planos pelos consultores e também na tela oficial de cadastro.
+                    </div>
+                    <button type="submit" id="btn-sa-criar-cupom" class="w-full bg-slate-900 hover:bg-black text-amber-300 font-black py-3.5 px-4 rounded-xl shadow-xl transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer">
+                        <i class="fa-solid fa-plus-circle text-base"></i> ATIVAR E GRAVAR CUPOM NO SISTEMA
+                    </button>
+                    <div id="sa-cupom-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+                </form>
+
+                <!-- LISTA DE CUPONS CRIADOS RECENTEMENTE -->
+                <div class="mt-5 pt-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-tags text-purple-600"></i> Cupons Ativos no Sistema
+                        </span>
+                        <button type="button" onclick="carregarListaCuponsAtivos()" class="text-xs text-purple-700 hover:underline font-bold">
+                            <i class="fa-solid fa-rotate mr-1"></i>Atualizar
+                        </button>
+                    </div>
+                    <div id="lista-cupons-ativos-container" class="space-y-2 max-h-48 overflow-y-auto">
+                        <p class="text-xs text-gray-400 text-center py-2">Carregando cupons...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1718,6 +1888,35 @@
         let planoSelecionadoAtual = 'plano1'; // Padrão: Plano 1 (Start Pro R$ 199 + R$ 99/mês)
         let cupomAtivoModal = null; // Armazena dados do cupom { codigo, mensalidade, carenciaDias, dataFormatada, dataIso }
 
+        // Função utilitária para gerar payload Pix Copia e Cola EMV com CRC16
+        function gerarPixPayloadDinamico(valor, txid) {
+            function crc16Pix(data) {
+                let poly = 0x1021;
+                let crc = 0xFFFF;
+                for (let i = 0; i < data.length; i++) {
+                    crc ^= (data.charCodeAt(i) << 8);
+                    for (let j = 0; j < 8; j++) {
+                        if (crc & 0x8000) {
+                            crc = ((crc << 1) ^ poly) & 0xFFFF;
+                        } else {
+                            crc = (crc << 1) & 0xFFFF;
+                        }
+                    }
+                }
+                return crc.toString(16).toUpperCase().padStart(4, '0');
+            }
+            function fld(id, val) {
+                const idStr = String(id).padStart(2, '0');
+                const lenStr = String(val.length).padStart(2, '0');
+                return idStr + lenStr + val;
+            }
+            const chave = 'maisappsmobile@gmail.com';
+            const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
+            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, 'LUCIA SANTANA S BRAGA') + fld(60, 'JUINA') + fld(62, fld(5, txid));
+            res += '6304';
+            return res + crc16Pix(res);
+        }
+
         async function aplicarCupomPlano() {
             const input = document.getElementById('cupom-modal-plano');
             const feedback = document.getElementById('cupom-modal-feedback');
@@ -1730,88 +1929,122 @@
                 return;
             }
 
-            if (codigo !== 'MEUPRESIDENTE') {
-                feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
-                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark mr-1"></i> Cupom inválido ou não encontrado.';
-                return;
-            }
-
             feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-blue-800 bg-blue-100 border border-blue-300 block";
-            feedback.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Validando exclusividade do cupom MEUPRESIDENTE...';
+            feedback.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Validando cupom ${codigo}...`;
 
             try {
-                // Validação de USO ÚNICO (com apenas 1 validade no sistema)
-                const urlVerif = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:MEUPRESIDENTE*&select=id,herbalife_id,nome_espaco`;
-                const resVerif = await fetch(urlVerif, {
+                // Caso 1: Cupom MEUPRESIDENTE
+                if (codigo === 'MEUPRESIDENTE') {
+                    const urlVerif = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:MEUPRESIDENTE*&select=id,herbalife_id,nome_espaco`;
+                    const resVerif = await fetch(urlVerif, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    });
+
+                    if (resVerif.ok) {
+                        const dataVerif = await resVerif.json();
+                        const idAtual = consultorAtual ? consultorAtual.id : null;
+                        const jaUsadoPorOutro = dataVerif.some(c => c.id !== idAtual);
+                        if (jaUsadoPorOutro) {
+                            feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                            feedback.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> <strong>CUPOM ESGOTADO!</strong> O cupom <code>MEUPRESIDENTE</code> possui limite de 1 utilização e já foi resgatado.';
+                            return;
+                        }
+                    }
+
+                    const dataCarencia = new Date();
+                    dataCarencia.setDate(dataCarencia.getDate() + 60);
+                    const dataFormatada = dataCarencia.toLocaleDateString('pt-BR');
+                    const dataIso = dataCarencia.toISOString().split('T')[0];
+
+                    cupomAtivoModal = {
+                        tipo: 'presidente',
+                        codigo: 'MEUPRESIDENTE',
+                        mensalidade: 'R$ 20,00/mês',
+                        carenciaDias: 60,
+                        dataPrimeiraMensalidade: dataFormatada,
+                        dataIso: dataIso,
+                        descontoPorcentagem: 0
+                    };
+
+                    feedback.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-emerald-900 bg-emerald-100 border-2 border-emerald-400 block animate-fade-in";
+                    feedback.innerHTML = `
+                        <div class="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-800">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM MEUPRESIDENTE APLICADO COM SUCESSO!
+                        </div>
+                        <p class="mt-1 text-emerald-950 font-semibold text-[11px]">
+                            🎉 Benefício Ativado no Plano Escolhido: <strong>Mensalidade de R$ 20,00/mês</strong> com <strong>60 DIAS DE CARÊNCIA</strong> (Primeira mensalidade em <strong>${dataFormatada}</strong>)!
+                        </p>
+                    `;
+
+                    selecionarPlano(planoSelecionadoAtual);
+                    return;
+                }
+
+                // Caso 2: Cupons de Desconto em Porcentagem (VIP 15% ou SuperAdmin livre)
+                const resCup = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*${encodeURIComponent(codigo)}*&select=id,herbalife_id,nome_espaco`, {
                     headers: {
                         'apikey': supabaseKey,
                         'Authorization': `Bearer ${supabaseKey}`
                     }
                 });
 
-                if (resVerif.ok) {
-                    const dataVerif = await resVerif.json();
-                    const idAtual = consultorAtual ? consultorAtual.id : null;
-                    const jaUsadoPorOutro = dataVerif.some(c => c.id !== idAtual);
-                    if (jaUsadoPorOutro) {
-                        feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
-                        feedback.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> <strong>CUPOM ESGOTADO!</strong> O cupom <code>MEUPRESIDENTE</code> possui limite de 1 utilização e já foi resgatado.';
-                        return;
+                let cupomEncontrado = null;
+                if (resCup.ok) {
+                    const dados = await resCup.json();
+                    for (const c of dados) {
+                        const matches = (c.nome_espaco || '').matchAll(/<!--CUPOM_DESCONTO:(.*?)-->/g);
+                        for (const m of matches) {
+                            try {
+                                const obj = JSON.parse(m[1]);
+                                if (obj && obj.codigo === codigo) {
+                                    cupomEncontrado = obj;
+                                    break;
+                                }
+                            } catch(e) {}
+                        }
+                        if (cupomEncontrado) break;
                     }
                 }
 
-                // Calcula os 60 dias de carência
-                const dataCarencia = new Date();
-                dataCarencia.setDate(dataCarencia.getDate() + 60);
-                const dataFormatada = dataCarencia.toLocaleDateString('pt-BR');
-                const dataIso = dataCarencia.toISOString().split('T')[0];
+                // Fallback local se o código começa com VIP15-
+                if (!cupomEncontrado && codigo.startsWith('VIP15-')) {
+                    cupomEncontrado = { codigo: codigo, desconto: 15, limite: '1', carenciaDias: 0 };
+                }
+
+                if (!cupomEncontrado) {
+                    feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Cupom "<code>${codigo}</code>" não encontrado ou inválido.`;
+                    return;
+                }
+
+                const perc = parseInt(cupomEncontrado.desconto, 10) || 15;
+                const carencia = parseInt(cupomEncontrado.carenciaDias, 10) || 0;
+                let dataFormatada = '';
+                if (carencia > 0) {
+                    const dt = new Date();
+                    dt.setDate(dt.getDate() + carencia);
+                    dataFormatada = dt.toLocaleDateString('pt-BR');
+                }
 
                 cupomAtivoModal = {
-                    codigo: 'MEUPRESIDENTE',
-                    mensalidade: 'R$ 20,00/mês',
-                    carenciaDias: 60,
-                    dataPrimeiraMensalidade: dataFormatada,
-                    dataIso: dataIso
+                    tipo: 'porcentagem',
+                    codigo: codigo,
+                    descontoPorcentagem: perc,
+                    carenciaDias: carencia,
+                    dataPrimeiraMensalidade: dataFormatada
                 };
-
-                // Registra o cupom no Supabase para o consultor atual
-                if (consultorAtual && consultorAtual.id) {
-                    try {
-                        let espacoComCupom = consultorAtual.nome_espaco || '';
-                        if (!espacoComCupom.includes('<!--CUPOM:MEUPRESIDENTE')) {
-                            espacoComCupom += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
-                        }
-                        await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'apikey': supabaseKey,
-                                'Authorization': `Bearer ${supabaseKey}`,
-                                'Content-Type': 'application/json',
-                                'Prefer': 'return=minimal'
-                            },
-                            body: JSON.stringify({
-                                nome_espaco: espacoComCupom,
-                                vencimento: dataIso
-                            })
-                        });
-                        consultorAtual.nome_espaco = espacoComCupom;
-                        consultorAtual.vencimento = dataIso;
-
-                        // Atualiza a exibição de vencimento no cabeçalho do painel
-                        const dashVenc = document.getElementById('dash-vencimento');
-                        if (dashVenc) dashVenc.innerText = dataFormatada;
-                    } catch (errDb) {
-                        console.warn("Aviso ao salvar benefício no banco:", errDb);
-                    }
-                }
 
                 feedback.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-emerald-900 bg-emerald-100 border-2 border-emerald-400 block animate-fade-in";
                 feedback.innerHTML = `
                     <div class="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-800">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM MEUPRESIDENTE APLICADO COM SUCESSO!
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM "${codigo}" APLICADO: ${perc}% DE DESCONTO!
                     </div>
                     <p class="mt-1 text-emerald-950 font-semibold text-[11px]">
-                        🎉 Benefício Ativado no Plano Escolhido: <strong>Mensalidade de R$ 20,00/mês</strong> com <strong>60 DIAS DE CARÊNCIA</strong> (Primeira mensalidade apenas em <strong>${dataFormatada}</strong>)!
+                        🎉 O valor da taxa de adesão foi reduzido em <strong>${perc}%</strong> no seu plano escolhido!
+                        ${carencia > 0 ? ` + <strong>${carencia} DIAS DE CARÊNCIA</strong> na mensalidade!` : ''}
                     </p>
                 `;
 
@@ -1857,15 +2090,46 @@
                 }
             });
 
-            // Atualiza resumo
+            // Atualiza resumo de valor e payload PIX
             const txtValor = document.getElementById('txt-plano-valor-selecionado');
             const txtMensalidade = document.getElementById('txt-plano-mensalidade-selecionada');
             const inputPayload = document.getElementById('modal-pix-payload-input');
 
-            if (txtValor) txtValor.innerText = p.adesao;
+            // Preço base numérico
+            const precosBase = {
+                plano1: 199.00,
+                plano2: 497.00,
+                plano3: 1299.00
+            };
+            const valorBase = precosBase[planoKey] || 199.00;
+
+            let valorFinal = valorBase;
+            let payloadPixFinal = p.payloadPix;
+
+            if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+                const descontoValor = (valorBase * cupomAtivoModal.descontoPorcentagem) / 100;
+                valorFinal = Math.max(1, valorBase - descontoValor);
+                payloadPixFinal = gerarPixPayloadDinamico(valorFinal, `RESET${Math.round(valorFinal)}`);
+
+                if (txtValor) {
+                    txtValor.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs text-red-500 line-through font-bold">${p.adesao}</span>
+                            <span class="text-2xl sm:text-3xl font-black text-emerald-700 leading-tight">
+                                R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            <span class="text-[10px] font-black uppercase bg-emerald-600 text-white px-2 py-0.5 rounded-full mt-0.5">
+                                ${cupomAtivoModal.descontoPorcentagem}% OFF APLICADO
+                            </span>
+                        </div>
+                    `;
+                }
+            } else {
+                if (txtValor) txtValor.innerText = p.adesao;
+            }
             
             if (txtMensalidade) {
-                if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'presidente') {
                     txtMensalidade.innerHTML = `
                         <div class="inline-flex flex-col items-center mt-1">
                             <span class="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs animate-pulse">
@@ -1876,15 +2140,23 @@
                             </span>
                         </div>
                     `;
+                } else if (cupomAtivoModal && cupomAtivoModal.carenciaDias > 0) {
+                    txtMensalidade.innerHTML = `
+                        <div class="inline-flex flex-col items-center mt-1">
+                            <span class="text-emerald-900 font-extrabold text-[11px]">
+                                ⏰ ${cupomAtivoModal.carenciaDias} DIAS DE CARÊNCIA GRÁTIS (Primeiro pagamento em ${cupomAtivoModal.dataPrimeiraMensalidade})
+                            </span>
+                        </div>
+                    `;
                 } else {
                     txtMensalidade.innerText = p.descricaoMensalidade;
                 }
             }
 
-            if (inputPayload) inputPayload.value = p.payloadPix;
+            if (inputPayload) inputPayload.value = payloadPixFinal;
 
-            // Renderiza QR Code do plano
-            renderizarQrCodePlano(p.payloadPix);
+            // Renderiza QR Code do plano com o valor atualizado
+            renderizarQrCodePlano(payloadPixFinal);
         }
         window.selecionarPlano = selecionarPlano;
 
@@ -2212,8 +2484,9 @@
                 // Verifica se o usuário logado é o SuperAdmin (433005811)
                 try {
                     verificarSuperAdmin();
+                    verificarAcessoMasterVip();
                 } catch (saErr) {
-                    console.warn("Erro ao verificar SuperAdmin:", saErr);
+                    console.warn("Erro ao verificar SuperAdmin ou VIP:", saErr);
                 }
 
                 // Carrega avaliações
@@ -2785,6 +3058,300 @@
             }
         }
         window.excluirConsultorSuperadmin = excluirConsultorSuperadmin;
+
+        /* ==========================================================================
+           MÓDULO DE GESTÃO DE CUPONS (MASTER VIP 15% & SUPERADMIN QUALQUER %)
+           ========================================================================== */
+        function isConsultorMasterVip() {
+            if (isSuperAdminLogado()) return true;
+            if (!consultorAtual || !consultorAtual.nome_espaco) return false;
+            const espaco = consultorAtual.nome_espaco;
+            return espaco.includes('PLANO:plano3') || espaco.includes('MASTER_VIP') || espaco.includes('VIP_MASTER') || isPlanoVipAtivo();
+        }
+
+        function isPlanoVipAtivo() {
+            if (!consultorAtual) return false;
+            const espaco = (consultorAtual.nome_espaco || '').toLowerCase();
+            return espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3');
+        }
+
+        function verificarAcessoMasterVip() {
+            const cardVip = document.getElementById('card-vip-indique-container');
+            if (!cardVip) return;
+            if (isConsultorMasterVip() || isSuperAdminLogado()) {
+                cardVip.classList.remove('hidden');
+            } else {
+                cardVip.classList.add('hidden');
+            }
+        }
+        window.verificarAcessoMasterVip = verificarAcessoMasterVip;
+
+        function gerarCodigoCupomVipAleatorio() {
+            const sufixo = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const idCurto = (consultorAtual && consultorAtual.herbalife_id) ? consultorAtual.herbalife_id.slice(-4) : 'VIP';
+            const codigo = `VIP15-${idCurto}${sufixo}`;
+            const inCod = document.getElementById('cupom-vip-codigo');
+            if (inCod) inCod.value = codigo;
+            return codigo;
+        }
+        window.gerarCodigoCupomVipAleatorio = gerarCodigoCupomVipAleatorio;
+
+        function abrirModalCupomVip() {
+            const modal = document.getElementById('modal-cupom-vip');
+            if (!modal) return;
+            gerarCodigoCupomVipAleatorio();
+            const feed = document.getElementById('msg-feedback-cupom-vip');
+            if (feed) { feed.className = 'hidden'; feed.innerHTML = ''; }
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalCupomVip = abrirModalCupomVip;
+
+        function fecharModalCupomVip() {
+            const modal = document.getElementById('modal-cupom-vip');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalCupomVip = fecharModalCupomVip;
+
+        async function salvarCupomVip() {
+            const inCod = document.getElementById('cupom-vip-codigo');
+            const feed = document.getElementById('msg-feedback-cupom-vip');
+            const btn = document.getElementById('btn-salvar-cupom-vip');
+            if (!inCod || !btn) return;
+
+            const codigo = inCod.value.trim().toUpperCase();
+            if (!codigo) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Gravando Cupom...`;
+
+            try {
+                // Registra o cupom no sistema anexando na tabela consultores do dono ou SuperAdmin
+                const donoId = consultorAtual ? consultorAtual.id : null;
+                const hid = consultorAtual ? consultorAtual.herbalife_id : 'VIP';
+
+                const cupomPayload = {
+                    codigo: codigo,
+                    desconto: 15,
+                    limite: '1',
+                    carenciaDias: 0,
+                    criador: hid,
+                    criadoEm: new Date().toISOString()
+                };
+
+                const tagCupom = `<!--CUPOM_DESCONTO:${JSON.stringify(cupomPayload)}-->`;
+
+                // Salva no registro do consultor atual
+                if (donoId && consultorAtual) {
+                    let novoEspaco = consultorAtual.nome_espaco || '';
+                    novoEspaco += ` ${tagCupom}`;
+                    await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(donoId)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ nome_espaco: novoEspaco })
+                    });
+                    consultorAtual.nome_espaco = novoEspaco;
+                }
+
+                // Copia automaticamente o código
+                try {
+                    await navigator.clipboard.writeText(codigo);
+                } catch(e) {}
+
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 block animate-fade-in";
+                    feed.innerHTML = `
+                        <div class="flex items-center justify-center gap-1.5 text-emerald-800 font-black">
+                            <i class="fa-solid fa-circle-check text-base"></i> CUPOM <code>${codigo}</code> ATIVADO E COPIADO!
+                        </div>
+                        <p class="mt-1 text-[11px] text-emerald-950 font-medium">Envie este código para o novo consultor usar no cadastro ou na adesão de planos e ganhar <strong>15% de desconto</strong>!</p>
+                    `;
+                }
+
+                btn.innerHTML = `<i class="fa-solid fa-copy mr-1"></i> COPIADO COM SUCESSO!`;
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> ATIVAR E COPIAR OUTRO CUPOM`;
+                }, 2500);
+
+            } catch (err) {
+                console.error("Erro ao salvar cupom VIP:", err);
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-red-100 text-red-800 border border-red-300 block";
+                    feed.innerText = `Erro ao salvar cupom: ${err.message}`;
+                }
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> TENTAR NOVAMENTE`;
+            }
+        }
+        window.salvarCupomVip = salvarCupomVip;
+
+        // Modais SuperAdmin de Cupons
+        function abrirModalSuperadminCupons() {
+            const modal = document.getElementById('modal-superadmin-cupons');
+            if (!modal) return;
+            const inCod = document.getElementById('sa-cupom-codigo');
+            if (inCod) inCod.value = `PROMO${Math.floor(1000 + Math.random() * 9000)}`;
+            const feed = document.getElementById('sa-cupom-feedback');
+            if (feed) { feed.className = 'hidden'; feed.innerHTML = ''; }
+            modal.classList.remove('hidden');
+            carregarListaCuponsAtivos();
+        }
+        window.abrirModalSuperadminCupons = abrirModalSuperadminCupons;
+
+        function fecharModalSuperadminCupons() {
+            const modal = document.getElementById('modal-superadmin-cupons');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalSuperadminCupons = fecharModalSuperadminCupons;
+
+        async function salvarCupomSuperadmin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const btn = document.getElementById('btn-sa-criar-cupom');
+            const feed = document.getElementById('sa-cupom-feedback');
+            const inCod = document.getElementById('sa-cupom-codigo');
+            const inDesc = document.getElementById('sa-cupom-desconto');
+            const inLim = document.getElementById('sa-cupom-limite');
+            const inCar = document.getElementById('sa-cupom-carencia');
+
+            if (!inCod || !inDesc) return;
+            const codigo = inCod.value.trim().toUpperCase();
+            const desconto = parseInt(inDesc.value, 10) || 15;
+            const limite = inLim ? inLim.value : '1';
+            const carencia = inCar ? (parseInt(inCar.value, 10) || 0) : 0;
+
+            if (!codigo) {
+                alert("Digite o código do cupom!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Gravando no Sistema...`;
+
+            try {
+                const cupomObj = {
+                    codigo: codigo,
+                    desconto: desconto,
+                    limite: limite,
+                    carenciaDias: carencia,
+                    criador: 'SUPERADMIN',
+                    criadoEm: new Date().toISOString()
+                };
+
+                const tagCupom = `<!--CUPOM_DESCONTO:${JSON.stringify(cupomObj)}-->`;
+
+                // Salva no registro do próprio consultor SuperAdmin
+                if (consultorAtual && consultorAtual.id) {
+                    let novoEspaco = consultorAtual.nome_espaco || '';
+                    novoEspaco += ` ${tagCupom}`;
+                    await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(consultorAtual.id)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ nome_espaco: novoEspaco })
+                    });
+                    consultorAtual.nome_espaco = novoEspaco;
+                }
+
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border-2 border-emerald-400 block animate-fade-in";
+                    feed.innerHTML = `
+                        <div class="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-800">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM "${codigo}" CRIADO COM ${desconto}% OFF!
+                        </div>
+                        <p class="mt-1 text-emerald-950 font-semibold text-[11px]">Válido para adesão de planos e novos cadastros.</p>
+                    `;
+                }
+
+                inCod.value = `PROMO${Math.floor(1000 + Math.random() * 9000)}`;
+                await carregarListaCuponsAtivos();
+
+            } catch (err) {
+                console.error("Erro ao criar cupom superadmin:", err);
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-red-100 text-red-800 border border-red-300 block";
+                    feed.innerText = `Erro: ${err.message}`;
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-plus-circle text-base"></i> ATIVAR E GRAVAR OUTRO CUPOM`;
+            }
+        }
+        window.salvarCupomSuperadmin = salvarCupomSuperadmin;
+
+        async function carregarListaCuponsAtivos() {
+            const container = document.getElementById('lista-cupons-ativos-container');
+            if (!container) return;
+
+            try {
+                // Busca cupons em todos os consultores que possuem a tag <!--CUPOM_DESCONTO:
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM_DESCONTO:*&select=id,herbalife_id,nome_espaco`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (!res.ok) throw new Error("Erro na consulta");
+                const consultores = await res.json();
+
+                const cuponsEncontrados = [];
+                // Inclui sempre o cupom nativo MEUPRESIDENTE
+                cuponsEncontrados.push({
+                    codigo: 'MEUPRESIDENTE',
+                    desconto: 'Mensalidade R$ 20 + 60 Dias Carência',
+                    limite: '1 uso único',
+                    criador: 'SISTEMA'
+                });
+
+                consultores.forEach(c => {
+                    const raw = c.nome_espaco || '';
+                    const matches = raw.matchAll(/<!--CUPOM_DESCONTO:(.*?)-->/g);
+                    for (const m of matches) {
+                        try {
+                            const cup = JSON.parse(m[1]);
+                            if (cup && cup.codigo && !cuponsEncontrados.some(x => x.codigo === cup.codigo)) {
+                                cuponsEncontrados.push(cup);
+                            }
+                        } catch(e) {}
+                    }
+                });
+
+                if (cuponsEncontrados.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-gray-400 text-center py-2">Nenhum cupom ativo no momento.</p>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                cuponsEncontrados.forEach(cup => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs hover:border-purple-300 transition";
+                    const descTxt = typeof cup.desconto === 'number' ? `${cup.desconto}% OFF` : cup.desconto;
+                    div.innerHTML = `
+                        <div>
+                            <span class="font-mono font-black text-purple-900 block text-xs">${cup.codigo}</span>
+                            <span class="text-[10px] text-gray-500">${descTxt} • Limite: ${cup.limite || '1'} • Criado por: ${cup.criador || '---'}</span>
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${cup.codigo}'); alert('Código ${cup.codigo} copiado!');" class="bg-purple-100 hover:bg-purple-200 text-purple-900 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    `;
+                    container.appendChild(div);
+                });
+
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-red-500 text-center py-2">Erro ao carregar cupons: ${err.message}</p>`;
+            }
+        }
+        window.carregarListaCuponsAtivos = carregarListaCuponsAtivos;
 
         function toggleSecaoAvaliacoes() {
             const secao = document.getElementById('secao-avaliacoes');

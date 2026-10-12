@@ -246,6 +246,35 @@
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const PIX_COPIA_E_COLA = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
+        let pixPayloadAtivo = PIX_COPIA_E_COLA;
+
+        function gerarPixPayloadDinamico(valor, txid) {
+            function crc16Pix(data) {
+                let poly = 0x1021;
+                let crc = 0xFFFF;
+                for (let i = 0; i < data.length; i++) {
+                    crc ^= (data.charCodeAt(i) << 8);
+                    for (let j = 0; j < 8; j++) {
+                        if (crc & 0x8000) {
+                            crc = ((crc << 1) ^ poly) & 0xFFFF;
+                        } else {
+                            crc = (crc << 1) & 0xFFFF;
+                        }
+                    }
+                }
+                return crc.toString(16).toUpperCase().padStart(4, '0');
+            }
+            function fld(id, val) {
+                const idStr = String(id).padStart(2, '0');
+                const lenStr = String(val.length).padStart(2, '0');
+                return idStr + lenStr + val;
+            }
+            const chave = 'maisappsmobile@gmail.com';
+            const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
+            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, 'LUCIA SANTANA S BRAGA') + fld(60, 'JUINA') + fld(62, fld(5, txid));
+            res += '6304';
+            return res + crc16Pix(res);
+        }
 
         function alternarVisibilidadeSenha(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -268,7 +297,7 @@
         window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
 
         function copiarPixPayload() {
-            navigator.clipboard.writeText(PIX_COPIA_E_COLA).then(() => {
+            navigator.clipboard.writeText(pixPayloadAtivo).then(() => {
                 mostrarAvisoPixCopiado("Código Pix Copia e Cola copiado!");
             });
         }
@@ -342,6 +371,7 @@
 
             // Lógica do Cupom MEUPRESIDENTE (Validade de 1 uso, Mensalidade R$ 20,00 e 60 dias de carência)
             let isPresidente = cupom === 'MEUPRESIDENTE';
+            let cupomPorcentagemObj = null;
 
             if (isPresidente) {
                 try {
@@ -358,15 +388,45 @@
                 } catch (eCup) {
                     console.warn("Validação cupom:", eCup);
                 }
+            } else if (cupom) {
+                // Validação de cupons em porcentagem (VIP15-* ou cupons personalizados criados pelo SuperAdmin)
+                try {
+                    const { data: cuponsDb } = await supabaseClient
+                        .from('consultores')
+                        .select('nome_espaco')
+                        .ilike('nome_espaco', `%${cupom}%`);
+                    if (cuponsDb && cuponsDb.length > 0) {
+                        for (const row of cuponsDb) {
+                            const matches = (row.nome_espaco || '').matchAll(/<!--CUPOM_DESCONTO:(.*?)-->/g);
+                            for (const m of matches) {
+                                try {
+                                    const obj = JSON.parse(m[1]);
+                                    if (obj && obj.codigo === cupom) {
+                                        cupomPorcentagemObj = obj;
+                                        break;
+                                    }
+                                } catch(_) {}
+                            }
+                            if (cupomPorcentagemObj) break;
+                        }
+                    }
+                    if (!cupomPorcentagemObj && cupom.startsWith('VIP15-')) {
+                        cupomPorcentagemObj = { codigo: cupom, desconto: 15, limite: '1', carenciaDias: 0 };
+                    }
+                } catch (eCupPorc) {
+                    console.warn("Erro ao buscar cupom percentual:", eCupPorc);
+                }
             }
 
-            // Data de vencimento (7 dias normal, ou 60 dias de carência se for o cupom MEUPRESIDENTE)
+            // Data de vencimento (7 dias normal, 60 dias de carência se MEUPRESIDENTE, ou carência do cupom)
             const hoje = new Date();
+            let diasCarenciaAplicados = 7;
             if (isPresidente) {
-                hoje.setDate(hoje.getDate() + 60);
-            } else {
-                hoje.setDate(hoje.getDate() + 7);
+                diasCarenciaAplicados = 60;
+            } else if (cupomPorcentagemObj && cupomPorcentagemObj.carenciaDias > 0) {
+                diasCarenciaAplicados = parseInt(cupomPorcentagemObj.carenciaDias, 10);
             }
+            hoje.setDate(hoje.getDate() + diasCarenciaAplicados);
             const vencimento = hoje.toISOString().split('T')[0];
             const vencimentoFormatado = hoje.toLocaleDateString('pt-BR');
 
@@ -393,6 +453,8 @@
 
             if (isPresidente) {
                 nomeEspacoCompleto += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
+            } else if (cupomPorcentagemObj) {
+                nomeEspacoCompleto += ` <!--CUPOM_UTILIZADO:${JSON.stringify(cupomPorcentagemObj)}-->`;
             }
 
             const { error } = await supabaseClient.from('consultores').insert([{
@@ -432,24 +494,49 @@
                             </p>
                         </div>
                     `;
-                } else {
-                    // Gera o QR Code oficial do Pix
-                    try {
-                        const qrcodeContainer = document.getElementById('pix-qrcode');
-                        if (qrcodeContainer) {
-                            qrcodeContainer.innerHTML = "";
-                            new QRCode(qrcodeContainer, {
-                                text: PIX_COPIA_E_COLA,
-                                width: 180,
-                                height: 180,
-                                colorDark: "#1a361d",
-                                colorLight: "#ffffff",
-                                correctLevel: QRCode.CorrectLevel.M
-                            });
-                        }
-                    } catch (errQr) {
-                        console.warn("Erro ao gerar QR Code Pix:", errQr);
+                } else if (cupomPorcentagemObj) {
+                    const descPerc = parseInt(cupomPorcentagemObj.desconto, 10) || 15;
+                    const valorOriginal = 199.00;
+                    const descontoReais = (valorOriginal * descPerc) / 100;
+                    const valorComDesconto = Math.max(1, valorOriginal - descontoReais);
+                    
+                    pixPayloadAtivo = gerarPixPayloadDinamico(valorComDesconto, `RESET${Math.round(valorComDesconto)}`);
+
+                    document.getElementById('msg-sucesso').innerHTML = `
+                        <div class="bg-emerald-50 border-2 border-emerald-400 p-4 rounded-2xl mb-4 text-left shadow-xs">
+                            <span class="text-emerald-800 font-black text-base flex items-center">
+                                <i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-lg"></i> CUPOM "${cupomPorcentagemObj.codigo}" APLICADO (${descPerc}% OFF)!
+                            </span>
+                            <p class="text-emerald-950 font-bold text-xs mt-1.5 leading-relaxed">
+                                Parabéns! Você ativou <strong>${descPerc}% de desconto</strong> na taxa promocional: de <del class="text-red-500 font-bold">R$ 199,00</del> por apenas <strong>R$ ${valorComDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>!
+                            </p>
+                            ${cupomPorcentagemObj.carenciaDias > 0 ? `<p class="text-emerald-800 text-xs mt-1">Sua primeira mensalidade vencerá em <strong>${vencimentoFormatado}</strong> (${cupomPorcentagemObj.carenciaDias} dias de carência).</p>` : ''}
+                        </div>
+                    `;
+
+                    // Atualiza exibição de valor no box do Pix
+                    const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
+                    if (valorPixBox) {
+                        valorPixBox.innerHTML = `R$ ${valorComDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                     }
+                }
+
+                // Gera o QR Code oficial do Pix (com valor normal ou recalculado com desconto)
+                try {
+                    const qrcodeContainer = document.getElementById('pix-qrcode');
+                    if (qrcodeContainer) {
+                        qrcodeContainer.innerHTML = "";
+                        new QRCode(qrcodeContainer, {
+                            text: pixPayloadAtivo,
+                            width: 180,
+                            height: 180,
+                            colorDark: "#1a361d",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                    }
+                } catch (errQr) {
+                    console.warn("Erro ao gerar QR Code Pix:", errQr);
                 }
 
                 const siteUrl = window.location.origin + '/' + slug;
