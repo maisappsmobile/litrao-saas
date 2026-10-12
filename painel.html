@@ -1365,6 +1365,20 @@
 
                 </div>
 
+                <!-- CAMPO DE CUPOM PROMOCIONAL EXCLUSIVO -->
+                <div class="my-4 bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-2xl p-4 shadow-2xs text-left">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-ticket absolute left-3.5 top-3 text-amber-500 text-sm"></i>
+                            <input type="text" id="cupom-modal-plano" placeholder="Tem cupom? Digite aqui (Ex: MEUPRESIDENTE)" class="w-full pl-10 pr-3 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-800">
+                        </div>
+                        <button type="button" onclick="aplicarCupomPlano()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-brand-dark font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-tag text-xs"></i> APLICAR CUPOM
+                        </button>
+                    </div>
+                    <div id="cupom-modal-feedback" class="hidden mt-2.5 text-xs font-bold p-2.5 rounded-xl text-center"></div>
+                </div>
+
                 <!-- BOX DETALHES DO PLANO SELECIONADO & ÁREA PIX -->
                 <div class="bg-gradient-to-b from-teal-50 to-emerald-50 border-2 border-teal-300 rounded-2xl p-4 sm:p-5 text-center">
                     
@@ -1543,6 +1557,114 @@
         };
 
         let planoSelecionadoAtual = 'plano1'; // Padrão: Plano 1 (Vitalício R$ 497 + R$ 25/mês)
+        let cupomAtivoModal = null; // Armazena dados do cupom { codigo, mensalidade, carenciaDias, dataFormatada, dataIso }
+
+        async function aplicarCupomPlano() {
+            const input = document.getElementById('cupom-modal-plano');
+            const feedback = document.getElementById('cupom-modal-feedback');
+            if (!input || !feedback) return;
+
+            const codigo = input.value.trim().toUpperCase();
+            if (!codigo) {
+                feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-amber-900 bg-amber-100 border border-amber-300 block";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Por favor, digite o código do cupom.';
+                return;
+            }
+
+            if (codigo !== 'MEUPRESIDENTE') {
+                feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark mr-1"></i> Cupom inválido ou não encontrado.';
+                return;
+            }
+
+            feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-blue-800 bg-blue-100 border border-blue-300 block";
+            feedback.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Validando exclusividade do cupom MEUPRESIDENTE...';
+
+            try {
+                // Validação de USO ÚNICO (com apenas 1 validade no sistema)
+                const urlVerif = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:MEUPRESIDENTE*&select=id,herbalife_id,nome_espaco`;
+                const resVerif = await fetch(urlVerif, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (resVerif.ok) {
+                    const dataVerif = await resVerif.json();
+                    const idAtual = consultorAtual ? consultorAtual.id : null;
+                    const jaUsadoPorOutro = dataVerif.some(c => c.id !== idAtual);
+                    if (jaUsadoPorOutro) {
+                        feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                        feedback.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> <strong>CUPOM ESGOTADO!</strong> O cupom <code>MEUPRESIDENTE</code> possui limite de 1 utilização e já foi resgatado.';
+                        return;
+                    }
+                }
+
+                // Calcula os 60 dias de carência
+                const dataCarencia = new Date();
+                dataCarencia.setDate(dataCarencia.getDate() + 60);
+                const dataFormatada = dataCarencia.toLocaleDateString('pt-BR');
+                const dataIso = dataCarencia.toISOString().split('T')[0];
+
+                cupomAtivoModal = {
+                    codigo: 'MEUPRESIDENTE',
+                    mensalidade: 'R$ 20,00/mês',
+                    carenciaDias: 60,
+                    dataPrimeiraMensalidade: dataFormatada,
+                    dataIso: dataIso
+                };
+
+                // Registra o cupom no Supabase para o consultor atual
+                if (consultorAtual && consultorAtual.id) {
+                    try {
+                        let espacoComCupom = consultorAtual.nome_espaco || '';
+                        if (!espacoComCupom.includes('<!--CUPOM:MEUPRESIDENTE')) {
+                            espacoComCupom += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
+                        }
+                        await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify({
+                                nome_espaco: espacoComCupom,
+                                vencimento: dataIso
+                            })
+                        });
+                        consultorAtual.nome_espaco = espacoComCupom;
+                        consultorAtual.vencimento = dataIso;
+
+                        // Atualiza a exibição de vencimento no cabeçalho do painel
+                        const dashVenc = document.getElementById('dash-vencimento');
+                        if (dashVenc) dashVenc.innerText = dataFormatada;
+                    } catch (errDb) {
+                        console.warn("Aviso ao salvar benefício no banco:", errDb);
+                    }
+                }
+
+                feedback.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-emerald-900 bg-emerald-100 border-2 border-emerald-400 block animate-fade-in";
+                feedback.innerHTML = `
+                    <div class="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-800">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM MEUPRESIDENTE APLICADO COM SUCESSO!
+                    </div>
+                    <p class="mt-1 text-emerald-950 font-semibold text-[11px]">
+                        🎉 Benefício Ativado no Plano Escolhido: <strong>Mensalidade de R$ 20,00/mês</strong> com <strong>60 DIAS DE CARÊNCIA</strong> (Primeira mensalidade apenas em <strong>${dataFormatada}</strong>)!
+                    </p>
+                `;
+
+                selecionarPlano(planoSelecionadoAtual);
+
+            } catch (err) {
+                console.error("Erro ao validar cupom:", err);
+                feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro ao validar cupom: ${err.message || 'Tente novamente'}`;
+            }
+        }
+        window.aplicarCupomPlano = aplicarCupomPlano;
 
         function selecionarPlano(planoKey) {
             if (!DADOS_PLANOS[planoKey]) return;
@@ -1572,7 +1694,24 @@
             const inputPayload = document.getElementById('modal-pix-payload-input');
 
             if (txtValor) txtValor.innerText = p.adesao;
-            if (txtMensalidade) txtMensalidade.innerText = p.descricaoMensalidade;
+            
+            if (txtMensalidade) {
+                if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
+                    txtMensalidade.innerHTML = `
+                        <div class="inline-flex flex-col items-center mt-1">
+                            <span class="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs animate-pulse">
+                                🎟️ CUPOM ATIVO: Mensalidade de R$ 20,00/mês
+                            </span>
+                            <span class="text-emerald-900 font-extrabold text-[11px] mt-1">
+                                ⏰ 60 DIAS DE CARÊNCIA GRÁTIS (Primeiro pagamento em ${cupomAtivoModal.dataPrimeiraMensalidade})
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    txtMensalidade.innerText = p.descricaoMensalidade;
+                }
+            }
+
             if (inputPayload) inputPayload.value = p.payloadPix;
 
             // Renderiza QR Code do plano
@@ -1641,7 +1780,16 @@
             const p = DADOS_PLANOS[planoSelecionadoAtual] || DADOS_PLANOS.plano1;
             const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || "Consultor";
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
-            const msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\nAcabei de realizar o PIX de adesão no valor de *${p.adesao}* referente ao *${p.nome}* (+ ${p.mensalidade}) no Litrão do Reset! 🚀\n\nSegue o comprovante de pagamento em anexo para liberação imediata da minha conta:`;
+            
+            let msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\nAcabei de realizar o PIX de adesão no valor de *${p.adesao}* referente ao *${p.nome}* no Litrão do Reset! 🚀\n`;
+            
+            if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
+                msg += `\n🎟️ *CUPOM APLICADO:* MEUPRESIDENTE\n⭐ *BENEFÍCIO ATIVADO:* Mensalidade promocional de *R$ 20,00/mês* com *60 DIAS DE CARÊNCIA* (1ª mensalidade apenas em ${cupomAtivoModal.dataPrimeiraMensalidade})!\n`;
+            } else {
+                msg += `\nPlano com mensalidade de *${p.mensalidade}*.\n`;
+            }
+            
+            msg += `\nSegue o comprovante de pagamento em anexo para liberação imediata da minha conta:`;
             window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
         }
         window.enviarComprovanteWhatsApp = enviarComprovanteWhatsApp;

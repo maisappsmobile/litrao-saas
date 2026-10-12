@@ -340,17 +340,35 @@
             let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
-            // Lógica do Cupom Presidencial
+            // Lógica do Cupom MEUPRESIDENTE (Validade de 1 uso, Mensalidade R$ 20,00 e 60 dias de carência)
             let isPresidente = cupom === 'MEUPRESIDENTE';
 
-            // Data de vencimento (7 dias normal, ou 10 anos se for o presidente)
+            if (isPresidente) {
+                try {
+                    const { data: jaUsados } = await supabaseClient
+                        .from('consultores')
+                        .select('id')
+                        .ilike('nome_espaco', '%CUPOM:MEUPRESIDENTE%');
+                    if (jaUsados && jaUsados.length > 0) {
+                        alert("O cupom MEUPRESIDENTE possui validade de apenas 1 utilização e já foi resgatado!");
+                        btn.innerHTML = 'GERAR MEU LINK AGORA';
+                        btn.disabled = false;
+                        return;
+                    }
+                } catch (eCup) {
+                    console.warn("Validação cupom:", eCup);
+                }
+            }
+
+            // Data de vencimento (7 dias normal, ou 60 dias de carência se for o cupom MEUPRESIDENTE)
             const hoje = new Date();
             if (isPresidente) {
-                hoje.setFullYear(hoje.getFullYear() + 10);
+                hoje.setDate(hoje.getDate() + 60);
             } else {
                 hoje.setDate(hoje.getDate() + 7);
             }
             const vencimento = hoje.toISOString().split('T')[0];
+            const vencimentoFormatado = hoje.toLocaleDateString('pt-BR');
 
             // Formatação do Espaço e Consultor
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
@@ -371,6 +389,10 @@
 
             if (Object.keys(sociaisObj).length > 0) {
                 nomeEspacoCompleto += ` <!--SOCIAIS:${JSON.stringify(sociaisObj)}-->`;
+            }
+
+            if (isPresidente) {
+                nomeEspacoCompleto += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
             }
 
             const { error } = await supabaseClient.from('consultores').insert([{
@@ -397,8 +419,19 @@
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
                 if (isPresidente) {
-                    document.getElementById('pix-box').classList.add('hidden');
-                    document.getElementById('msg-sucesso').innerHTML = '<span class="text-green-600 font-bold">CUPOM APLICADO!</span> Você ganhou 100% de desconto e tem acesso vitalício gratuito!';
+                    document.getElementById('msg-sucesso').innerHTML = `
+                        <div class="bg-emerald-50 border-2 border-emerald-400 p-4 rounded-2xl mb-4 text-left shadow-xs">
+                            <span class="text-emerald-800 font-black text-base flex items-center">
+                                <i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-lg"></i> CUPOM MEUPRESIDENTE APLICADO!
+                            </span>
+                            <p class="text-emerald-950 font-bold text-xs mt-1.5 leading-relaxed">
+                                Parabéns! Você ativou a mensalidade promocional de <strong>R$ 20,00/mês</strong> com <strong>60 DIAS DE CARÊNCIA GRÁTIS</strong>!
+                            </p>
+                            <p class="text-emerald-800 text-xs mt-1">
+                                Sua primeira mensalidade só vencerá em <strong>${vencimentoFormatado}</strong>.
+                            </p>
+                        </div>
+                    `;
                 } else {
                     // Gera o QR Code oficial do Pix
                     try {
