@@ -2406,65 +2406,6 @@
                         });
                     }
 
-                        // Empacota bioimpedância e medidas extras no campo como_foi_semana (padrão oficial do Litrão)
-                        const bioExtras = {
-                            gordura: getCol(colunas, indexMap.gordura).replace(',', '.'),
-                            musculo: getCol(colunas, indexMap.musculo).replace(',', '.'),
-                            visceral: getCol(colunas, indexMap.visceral),
-                            tmb: getCol(colunas, indexMap.tmb),
-                            idade: getCol(colunas, indexMap.idadeCorp),
-                            agua: getCol(colunas, indexMap.agua).replace(',', '.'),
-                            grupo: getCol(colunas, indexMap.grupo),
-                            braco_dir: getCol(colunas, indexMap.bracoDir).replace(',', '.'),
-                            braco_esq: getCol(colunas, indexMap.bracoEsq).replace(',', '.'),
-                            coxa_dir: getCol(colunas, indexMap.coxaDir).replace(',', '.'),
-                            coxa_esq: getCol(colunas, indexMap.coxaEsq).replace(',', '.')
-                        };
-
-                        const bustoStr = getCol(colunas, indexMap.busto).replace(',', '.');
-                        const bustoVal = bustoStr ? parseFloat(bustoStr) : null;
-
-                        const cinturaStr = getCol(colunas, indexMap.cintura).replace(',', '.');
-                        const cinturaVal = cinturaStr ? parseFloat(cinturaStr) : null;
-
-                        const abdomenStr = getCol(colunas, indexMap.abdomen).replace(',', '.');
-                        const abdomenVal = abdomenStr ? parseFloat(abdomenStr) : null;
-
-                        const quadrilStr = getCol(colunas, indexMap.quadril).replace(',', '.');
-                        const quadrilVal = quadrilStr ? parseFloat(quadrilStr) : null;
-
-                        const focoStr = getCol(colunas, indexMap.foco);
-                        const focoVal = focoStr ? parseInt(focoStr, 10) : 10;
-
-                        const codigoVal = getCol(colunas, indexMap.codigo) || 'IMPORTADO';
-                        const generoVal = getCol(colunas, indexMap.genero) || 'Feminino';
-
-                        // Se o WhatsApp estiver vazio no CSV, atribui um valor padrão não-nulo para respeitar a restrição NOT NULL do banco
-                        const whatsVal = whats ? whats : (nome.replace(/\D/g, '').length >= 8 ? nome.replace(/\D/g, '') : 'Sem WhatsApp');
-
-                        // Objeto 100% alinhado com as colunas reais da tabela 'avaliacoes' no Supabase
-                        dadosCSVParaImportar.push({
-                            herbalife_id: consultorAtual.herbalife_id,
-                            codigo_acesso: codigoVal,
-                            nome_cliente: nome,
-                            whatsapp_cliente: whatsVal,
-                            peso: rawPeso ? rawPeso : null,
-                            altura: rawAltura ? rawAltura : null,
-                            data_nascimento: dataNasc || null,
-                            genero: generoVal,
-                            busto: isNaN(bustoVal) ? null : bustoVal,
-                            cintura: isNaN(cinturaVal) ? null : cinturaVal,
-                            abdomen: isNaN(abdomenVal) ? null : abdomenVal,
-                            quadril: isNaN(quadrilVal) ? null : quadrilVal,
-                            intestino: true,
-                            agua: true,
-                            foco: isNaN(focoVal) ? 10 : focoVal,
-                            primeira_vez: true,
-                            como_foi_semana: `<!--BIO_DADOS:${JSON.stringify(bioExtras)}-->`,
-                            criado_em: criadoEm
-                        });
-                    }
-
                     if (dadosCSVParaImportar.length === 0) {
                         alert("Nenhum cliente válido com nome preenchido foi encontrado no arquivo.");
                         return;
