@@ -934,6 +934,16 @@
             </div>
         </div>
 
+        <!-- MODAL EXCLUSIVO: COMANDA TÉRMICA DO PEDIDO (PRINT 4 COM IMPRIMIR | COMPARTILHAR) -->
+        <div id="modal-comanda-pedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white max-w-sm w-full rounded-3xl p-5 shadow-2xl relative max-h-[95vh] overflow-y-auto animate-fade-in border-2 border-gray-800">
+                <button onclick="fecharModalComandaPedido()" class="absolute right-4 top-4 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition z-20 cursor-pointer">
+                    ✕
+                </button>
+                <div id="modal-comanda-pedido-conteudo"></div>
+            </div>
+        </div>
+
         <!-- MODAL: EDITAR AVALIAÇÃO -->
         <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
             <div class="bg-white max-w-2xl xl:max-w-3xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[95vh] overflow-y-auto">
@@ -4995,7 +5005,7 @@
                     </td>
                     <td class="p-3 sm:p-4">
                         ${isPedido && dadosPedidoObj ? `
-                            <div class="cursor-pointer" onclick="abrirDetalhesPedido(${item.id})">
+                            <div class="cursor-pointer" onclick="abrirComandaPedido(${item.id})">
                                 <span class="text-base sm:text-lg font-black text-emerald-800">${dadosPedidoObj.valor_total}</span>
                                 <span class="block text-[10px] text-gray-500 font-semibold">${dadosPedidoObj.forma_pagamento}</span>
                             </div>
@@ -5005,7 +5015,7 @@
                     </td>
                     <td class="p-3 sm:p-4 hidden sm:table-cell">
                         ${isPedido ? `
-                            <div class="text-xs text-gray-700 font-medium cursor-pointer" onclick="abrirDetalhesPedido(${item.id})">
+                            <div class="text-xs text-gray-700 font-medium cursor-pointer" onclick="abrirComandaPedido(${item.id})">
                                 <span class="font-bold text-gray-900 block">${dadosPedidoObj?.modalidade === 'ENTREGA' ? 'Entrega: ' + (dadosPedidoObj?.endereco || '-') : 'Retirada no Espaço'}</span>
                                 ${dadosPedidoObj?.observacoes && dadosPedidoObj.observacoes !== 'Nenhuma' ? `<span class="text-gray-500 text-[11px] italic">"${dadosPedidoObj.observacoes}"</span>` : ''}
                             </div>
@@ -5019,7 +5029,7 @@
                                 </a>
                             ` : ''}
                             ${isPedido ? `
-                                <button onclick="abrirDetalhesPedido(${item.id})" title="Acessar Detalhes do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer">
+                                <button onclick="abrirComandaPedido(${item.id})" title="Ver e Imprimir Comanda do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer">
                                     <i class="fa-solid fa-cart-shopping text-sm"></i> Pedido
                                 </button>
                                 <button onclick="abrirDetalhesPedido(${item.id})" title="Gerenciar / Editar Status do Pedido" class="bg-amber-500 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
@@ -5087,7 +5097,7 @@
                             <td class="p-2.5 sm:p-3 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center space-x-1.5">
                                     ${isSubPedido ? `
-                                        <button onclick="abrirDetalhesPedido(${sub.id})" title="Acessar Detalhes do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center gap-1 cursor-pointer">
+                                        <button onclick="abrirComandaPedido(${sub.id})" title="Ver e Imprimir Comanda do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center gap-1 cursor-pointer">
                                             <i class="fa-solid fa-cart-shopping text-xs"></i> Pedido
                                         </button>
                                     ` : `
@@ -7200,7 +7210,7 @@
                         <button onclick="notificarClienteStatusWhatsApp(${item.id})" class="bg-green-600 hover:bg-green-700 text-white font-black text-xs sm:text-sm py-3 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
                             <i class="fa-brands fa-whatsapp text-lg"></i> Notificar no WhatsApp
                         </button>
-                        <button onclick="imprimirComandaPedido(${item.id})" class="bg-gray-800 hover:bg-gray-900 text-white font-black text-xs sm:text-sm py-3 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                        <button onclick="abrirComandaPedido(${item.id})" class="bg-gray-800 hover:bg-gray-900 text-white font-black text-xs sm:text-sm py-3 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
                             <i class="fa-solid fa-print text-base"></i> Imprimir Comanda
                         </button>
                     </div>
@@ -7315,87 +7325,344 @@
         }
         window.notificarClienteStatusWhatsApp = notificarClienteStatusWhatsApp;
 
-        function imprimirComandaPedido(id) {
+        /* ==========================================================================
+           COMANDA TÉRMICA DO PEDIDO COM OPÇÃO DE IMPRIMIR & COMPARTILHAR (PRINT 4)
+           ========================================================================== */
+        function montarTextoComandaWhatsApp(item, dados, nomeCliente, dataFormatada) {
+            let txt = `🌿 *LITRÃO DO RESET - COMANDA DE PEDIDO* 🌿\n`;
+            txt += `📋 *Pedido:* #${item.id}\n`;
+            txt += `📅 *Data:* ${dataFormatada}\n`;
+            txt += `---------------------------------\n`;
+            txt += `👤 *CLIENTE:* ${nomeCliente}\n`;
+            if (item.whatsapp_cliente) {
+                txt += `📱 *WhatsApp:* ${item.whatsapp_cliente}\n`;
+            }
+            txt += `---------------------------------\n`;
+            txt += `🛵 *ENTREGA / RETIRADA:*\n`;
+            txt += `*Modalidade:* ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}\n`;
+            if (dados.modalidade === 'ENTREGA' && dados.endereco) {
+                txt += `🏠 *Endereço:* ${dados.endereco}\n`;
+            }
+            txt += `---------------------------------\n`;
+            txt += `🥤 *ITENS DO PEDIDO:*\n`;
+            txt += `• ${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'} (${dados.valor_total || ''})\n`;
+            if (dados.subtitulo) {
+                txt += `  _(${dados.subtitulo})_\n`;
+            }
+            txt += `---------------------------------\n`;
+            txt += `💰 *TOTAL A PAGAR:* ${dados.valor_total || ''}\n`;
+            txt += `💳 *Forma de Pagamento:* ${dados.forma_pagamento || 'PIX'}\n`;
+            if (dados.observacoes && dados.observacoes !== 'Nenhuma') {
+                txt += `---------------------------------\n`;
+                txt += `📝 *Observações:* "${dados.observacoes}"\n`;
+            }
+            txt += `---------------------------------\n`;
+            const nomeConsultor = consultorAtual?.nome_completo || consultorAtual?.nome_espaco || 'Litrão do Reset';
+            txt += `Consultor: ${nomeConsultor}\n`;
+            txt += `Obrigado pela preferência! 💧`;
+            return txt;
+        }
+        window.montarTextoComandaWhatsApp = montarTextoComandaWhatsApp;
+
+        function fecharModalComandaPedido() {
+            const modal = document.getElementById('modal-comanda-pedido');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalComandaPedido = fecharModalComandaPedido;
+
+        function abrirModalComandaInPage(item, dados, nomeCliente, dataFormatada, textoComandaWhatsApp, whatsClienteLimpo) {
+            const modal = document.getElementById('modal-comanda-pedido');
+            const cont = document.getElementById('modal-comanda-pedido-conteudo');
+            if (!modal || !cont) return;
+
+            cont.innerHTML = `
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-200">
+                    <button onclick="window.print()" class="flex-1 bg-gray-900 hover:bg-black text-white font-black text-xs py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-print"></i> IMPRIMIR
+                    </button>
+                    <button onclick="compartilharComandaInPage('${whatsClienteLimpo}', ${JSON.stringify(textoComandaWhatsApp).replace(/"/g, '&quot;')})" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black text-xs py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <i class="fa-brands fa-whatsapp"></i> COMPARTILHAR
+                    </button>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-gray-300 font-mono text-xs leading-relaxed text-gray-900 shadow-inner">
+                    <div class="text-center font-black text-sm">🌿 LITRÃO DO RESET 🌿</div>
+                    <div class="text-center font-bold text-[11px] mt-0.5">COMANDA DE PEDIDO</div>
+                    <div class="text-center text-[10px] text-gray-600">Pedido #${item.id} • ${dataFormatada}</div>
+                    <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+
+                    <div class="font-bold">CLIENTE:</div>
+                    <div class="font-black text-sm">${nomeCliente}</div>
+                    <div>WhatsApp: ${item.whatsapp_cliente || 'Não informado'}</div>
+
+                    <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                    <div class="font-bold">ENTREGA / RETIRADA:</div>
+                    <div><b>Modalidade:</b> ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}</div>
+                    ${dados.modalidade === 'ENTREGA' ? `<div><b>Endereço:</b> ${dados.endereco || '-'}</div>` : ''}
+
+                    <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                    <div class="font-bold">ITENS DO PEDIDO:</div>
+                    <div class="flex justify-between font-bold">
+                        <span>${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'}</span>
+                        <span>${dados.valor_total || ''}</span>
+                    </div>
+                    ${dados.subtitulo ? `<div class="text-[10px] text-gray-600">(${dados.subtitulo})</div>` : ''}
+
+                    <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                    <div class="flex justify-between font-black text-sm">
+                        <span>TOTAL A PAGAR:</span>
+                        <span>${dados.valor_total || ''}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Forma de Pagamento:</span>
+                        <span><b>${dados.forma_pagamento || 'PIX'}</b></span>
+                    </div>
+
+                    ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
+                        <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                        <div class="font-bold">OBSERVAÇÕES:</div>
+                        <div class="italic text-gray-700">"${dados.observacoes}"</div>
+                    ` : ''}
+
+                    <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                    <div class="text-center text-[10px] text-gray-600 mt-2">
+                        Consultor: ${consultorAtual?.nome_completo || consultorAtual?.nome_espaco || 'Litrão do Reset'}<br>
+                        Obrigado pela preferência! 💧
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalComandaInPage = abrirModalComandaInPage;
+
+        async function compartilharComandaInPage(whatsClienteLimpo, textoComanda) {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Comanda Pedido - Litrão do Reset',
+                        text: textoComanda
+                    });
+                    return;
+                } catch(e) {}
+            }
+            const destino = whatsClienteLimpo ? `https://wa.me/${whatsClienteLimpo}?text=${encodeURIComponent(textoComanda)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(textoComanda)}`;
+            window.open(destino, '_blank');
+        }
+        window.compartilharComandaInPage = compartilharComandaInPage;
+
+        function abrirComandaPedido(id) {
             const item = todasAvaliacoesCache.find(a => a.id == id);
             if (!item) return;
             const dados = extrairDadosPedidoItem(item);
             const nomeCliente = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente';
             const dataFormatada = item.criado_em ? new Date(item.criado_em).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
 
-            const janelaImpr = window.open('', '_blank', 'width=450,height=650');
-            if (!janelaImpr) {
-                alert('Por favor, permita pop-ups no seu navegador para imprimir a comanda.');
+            let whatsClienteLimpo = String(item.whatsapp_cliente || '').replace(/\D/g, '');
+            if (whatsClienteLimpo && !whatsClienteLimpo.startsWith('55') && whatsClienteLimpo.length <= 11) {
+                whatsClienteLimpo = '55' + whatsClienteLimpo;
+            }
+
+            const textoComandaWhatsApp = montarTextoComandaWhatsApp(item, dados, nomeCliente, dataFormatada);
+
+            let janelaImpr = null;
+            try {
+                janelaImpr = window.open('', '_blank', 'width=460,height=700,menubar=no,toolbar=no,location=no,status=no');
+            } catch (e) {
+                janelaImpr = null;
+            }
+
+            if (!janelaImpr || janelaImpr.closed || typeof janelaImpr.closed === 'undefined') {
+                abrirModalComandaInPage(item, dados, nomeCliente, dataFormatada, textoComandaWhatsApp, whatsClienteLimpo);
                 return;
             }
+
+            const nomeConsultor = consultorAtual?.nome_completo || consultorAtual?.nome_espaco || 'Litrão do Reset';
 
             janelaImpr.document.write(`
                 <!DOCTYPE html>
                 <html lang="pt-BR">
                 <head>
                     <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Comanda - Pedido #${item.id}</title>
                     <style>
-                        body { font-family: monospace, sans-serif; padding: 15px; color: #000; font-size: 13px; line-height: 1.4; max-width: 380px; margin: 0 auto; }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body {
+                            font-family: monospace, 'Courier New', Courier, sans-serif;
+                            background-color: #f3f4f6;
+                            color: #000;
+                            padding: 16px;
+                            font-size: 13px;
+                            line-height: 1.45;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: flex-start;
+                            min-height: 100vh;
+                        }
+                        .barra-opcoes {
+                            width: 100%;
+                            max-width: 380px;
+                            background: #ffffff;
+                            border-radius: 16px;
+                            padding: 10px 12px;
+                            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+                            margin-bottom: 15px;
+                            display: flex;
+                            gap: 8px;
+                            justify-content: space-between;
+                            font-family: system-ui, -apple-system, sans-serif;
+                        }
+                        .btn-acao {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 6px;
+                            padding: 10px 14px;
+                            border-radius: 12px;
+                            font-size: 13px;
+                            font-weight: 800;
+                            cursor: pointer;
+                            border: none;
+                            transition: transform 0.1s, opacity 0.15s;
+                            flex: 1;
+                            text-align: center;
+                            white-space: nowrap;
+                        }
+                        .btn-acao:active { transform: scale(0.97); }
+                        .btn-imprimir {
+                            background: #111827;
+                            color: #ffffff;
+                        }
+                        .btn-imprimir:hover { background: #000000; }
+                        .btn-compartilhar {
+                            background: #25D366;
+                            color: #ffffff;
+                        }
+                        .btn-compartilhar:hover { background: #1ebd5a; }
+                        .btn-fechar {
+                            background: #e5e7eb;
+                            color: #374151;
+                            flex: 0 0 auto;
+                            padding: 10px 12px;
+                        }
+                        .btn-fechar:hover { background: #d1d5db; }
+
+                        .cupom-termico {
+                            width: 100%;
+                            max-width: 380px;
+                            background: #ffffff;
+                            padding: 22px 20px;
+                            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+                            border: 1px solid #e5e7eb;
+                            border-radius: 8px;
+                        }
                         .text-center { text-align: center; }
                         .bold { font-weight: bold; }
-                        .divisor { border-top: 1px dashed #000; margin: 10px 0; }
-                        .titulo { font-size: 16px; font-weight: bold; text-align: center; }
+                        .divisor { border-top: 1px dashed #444; margin: 10px 0; }
+                        .titulo { font-size: 16px; font-weight: 900; text-align: center; }
                         .linha-info { display: flex; justify-content: space-between; margin: 4px 0; }
+
                         @media print {
+                            body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+                            .no-print { display: none !important; }
+                            .cupom-termico {
+                                box-shadow: none !important;
+                                border: none !important;
+                                border-radius: 0 !important;
+                                padding: 0 !important;
+                                max-width: 100% !important;
+                                width: 100% !important;
+                            }
                             @page { margin: 5mm; }
                         }
                     </style>
                 </head>
-                <body onload="window.print();">
-                    <div class="titulo">🌿 LITRÃO DO RESET 🌿</div>
-                    <div class="text-center bold" style="font-size: 12px;">COMANDA DE PEDIDO</div>
-                    <div class="text-center" style="font-size: 11px;">Pedido #${item.id} • ${dataFormatada}</div>
-                    <div class="divisor"></div>
-
-                    <div class="bold">CLIENTE:</div>
-                    <div>${nomeCliente}</div>
-                    <div>WhatsApp: ${item.whatsapp_cliente || 'Não informado'}</div>
-
-                    <div class="divisor"></div>
-                    <div class="bold">ENTREGA / RETIRADA:</div>
-                    <div><b>Modalidade:</b> ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}</div>
-                    ${dados.modalidade === 'ENTREGA' ? `<div><b>Endereço:</b> ${dados.endereco || '-'}</div>` : ''}
-
-                    <div class="divisor"></div>
-                    <div class="bold">ITENS DO PEDIDO:</div>
-                    <div class="linha-info">
-                        <span>${dados.quantidade || 1}x ${dados.produto || 'Litrão do Reset'}</span>
-                        <span>${dados.valor_total || ''}</span>
-                    </div>
-                    ${dados.subtitulo ? `<div style="font-size: 11px; color: #333;">(${dados.subtitulo})</div>` : ''}
-
-                    <div class="divisor"></div>
-                    <div class="linha-info bold" style="font-size: 14px;">
-                        <span>TOTAL A PAGAR:</span>
-                        <span>${dados.valor_total || ''}</span>
-                    </div>
-                    <div class="linha-info">
-                        <span>Forma de Pagamento:</span>
-                        <span><b>${dados.forma_pagamento || 'PIX'}</b></span>
+                <body>
+                    <div class="barra-opcoes no-print">
+                        <button onclick="window.print()" class="btn-acao btn-imprimir" title="Imprimir Comanda">
+                            🖨️ IMPRIMIR
+                        </button>
+                        <button onclick="compartilhar()" class="btn-acao btn-compartilhar" title="Compartilhar no WhatsApp">
+                            📲 COMPARTILHAR
+                        </button>
+                        <button onclick="window.close()" title="Fechar Janela" class="btn-acao btn-fechar">
+                            ✕
+                        </button>
                     </div>
 
-                    ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
+                    <div class="cupom-termico">
+                        <div class="titulo">🌿 LITRÃO DO RESET 🌿</div>
+                        <div class="text-center bold" style="font-size: 12px; margin-top: 2px;">COMANDA DE PEDIDO</div>
+                        <div class="text-center" style="font-size: 11px; margin-top: 2px; color: #333;">Pedido #${item.id} • ${dataFormatada}</div>
                         <div class="divisor"></div>
-                        <div><b>OBSERVAÇÕES:</b></div>
-                        <div style="font-style: italic;">"${dados.observacoes}"</div>
-                    ` : ''}
 
-                    <div class="divisor"></div>
-                    <div class="text-center" style="font-size: 11px;">
-                        Consultor: ${consultorAtual?.nome_completo || 'Litrão do Reset'}<br>
-                        Obrigado pela preferência! 💧
+                        <div class="bold">CLIENTE:</div>
+                        <div class="bold" style="font-size: 14px;">${nomeCliente}</div>
+                        <div>WhatsApp: ${item.whatsapp_cliente || 'Não informado'}</div>
+
+                        <div class="divisor"></div>
+                        <div class="bold">ENTREGA / RETIRADA:</div>
+                        <div><b>Modalidade:</b> ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}</div>
+                        ${dados.modalidade === 'ENTREGA' ? `<div><b>Endereço:</b> ${dados.endereco || '-'}</div>` : ''}
+
+                        <div class="divisor"></div>
+                        <div class="bold">ITENS DO PEDIDO:</div>
+                        <div class="linha-info">
+                            <span class="bold">${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'}</span>
+                            <span class="bold">${dados.valor_total || ''}</span>
+                        </div>
+                        ${dados.subtitulo ? `<div style="font-size: 11px; color: #444;">(${dados.subtitulo})</div>` : ''}
+
+                        <div class="divisor"></div>
+                        <div class="linha-info bold" style="font-size: 14px;">
+                            <span>TOTAL A PAGAR:</span>
+                            <span>${dados.valor_total || ''}</span>
+                        </div>
+                        <div class="linha-info">
+                            <span>Forma de Pagamento:</span>
+                            <span><b>${dados.forma_pagamento || 'PIX'}</b></span>
+                        </div>
+
+                        ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
+                            <div class="divisor"></div>
+                            <div><b>OBSERVAÇÕES:</b></div>
+                            <div style="font-style: italic; color: #222;">"${dados.observacoes}"</div>
+                        ` : ''}
+
+                        <div class="divisor"></div>
+                        <div class="text-center" style="font-size: 11px; color: #333; margin-top: 5px;">
+                            Consultor: ${nomeConsultor}<br>
+                            Obrigado pela preferência! 💧
+                        </div>
                     </div>
+
+                    <script>
+                        const textoComanda = ${JSON.stringify(textoComandaWhatsApp)};
+                        const whatsCliente = ${JSON.stringify(whatsClienteLimpo)};
+
+                        async function compartilhar() {
+                            if (navigator.share) {
+                                try {
+                                    await navigator.share({
+                                        title: 'Comanda Pedido #${item.id}',
+                                        text: textoComanda
+                                    });
+                                    return;
+                                } catch(e) {}
+                            }
+                            const link = whatsCliente ? ('https://wa.me/' + whatsCliente + '?text=' + encodeURIComponent(textoComanda)) : ('https://api.whatsapp.com/send?text=' + encodeURIComponent(textoComanda));
+                            window.open(link, '_blank');
+                        }
+                    <\/script>
                 </body>
                 </html>
             `);
             janelaImpr.document.close();
         }
-        window.imprimirComandaPedido = imprimirComandaPedido;
+        window.abrirComandaPedido = abrirComandaPedido;
+        window.imprimirComandaPedido = abrirComandaPedido;
 
         // ==========================================
         // GESTÃO E CENTRAL DE PEDIDOS & ENTREGAS (MOVIMENTAÇÃO EM TEMPO REAL)
@@ -7690,7 +7957,7 @@
                                 <button onclick="notificarClienteStatusWhatsApp(${pedido.id})" title="Enviar WhatsApp com status atual" class="flex-1 xl:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
                                     <i class="fa-brands fa-whatsapp text-sm"></i> Whats
                                 </button>
-                                <button onclick="imprimirComandaPedido(${pedido.id})" title="Imprimir comanda do pedido" class="flex-1 xl:flex-initial bg-gray-800 hover:bg-gray-900 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <button onclick="abrirComandaPedido(${pedido.id})" title="Imprimir comanda do pedido" class="flex-1 xl:flex-initial bg-gray-800 hover:bg-gray-900 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
                                     <i class="fa-solid fa-print"></i> Comanda
                                 </button>
                                 <button onclick="abrirDetalhesPedido(${pedido.id})" title="Ver detalhes completos" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black p-2 rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center">
