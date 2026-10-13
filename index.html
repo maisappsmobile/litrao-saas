@@ -314,7 +314,7 @@
                     🥤 Escolha seu Pacote Oficial
                 </span>
                 <h2 class="text-3xl md:text-4xl font-black text-brand-dark-green leading-tight">
-                    Peça o Seu Litrão do Reset
+                    Peça o Seu Reset 5 dias
                 </h2>
                 <p class="text-gray-600 text-sm md:text-base max-w-xl mx-auto mt-2 font-medium">
                     Selecione o plano ideal para a sua transformação. Reserve agora pelo carrinho e receba atendimento exclusivo com o consultor!
@@ -373,7 +373,7 @@
                         </div>
 
                         <ul class="text-left text-xs font-semibold text-gray-600 space-y-2 mt-4 pt-3 border-t border-gray-100">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Garrafa oficial de 500ml com ativos extra</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Garrafa oficial de 1 Litrão com ativos extra</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Potencializa queima e energia física</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Saciedade prolongada e foco mental</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Avaliação de Bioimpedância inclusa</li>
@@ -405,7 +405,7 @@
                         </div>
 
                         <ul class="text-left text-xs font-semibold text-gray-600 space-y-2 mt-4 pt-3 border-t border-gray-100">
-                            <li class="flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> Garrafa oficial de 500ml Concentração Turbo</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> Garrafa oficial de 1 Litrão Concentração Turbo</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> Acelera o metabolismo no limite</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> Relatório Completo de Bioimpedância VIP</li>
                             <li class="flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> Suporte Prioritário 1 a 1 do Consultor</li>
@@ -668,7 +668,7 @@
 
                 <!-- Seletor de Quantidade -->
                 <div class="mt-3 pt-3 border-t border-emerald-200/60 flex items-center justify-between">
-                    <span class="text-xs font-black text-emerald-900">Quantidade de Garrafas (500ml):</span>
+                    <span class="text-xs font-black text-emerald-900" id="carrinho-qtd-label">Quantidade (Garrafa 500ml):</span>
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="alterarQtdCarrinho(-1)" class="w-8 h-8 rounded-xl bg-white border border-emerald-300 text-emerald-800 font-black flex items-center justify-center hover:bg-emerald-100 transition cursor-pointer">
                             <i class="fa-solid fa-minus text-xs"></i>
@@ -703,11 +703,45 @@
                     </div>
                     <div>
                         <label class="block text-xs font-black text-gray-700 mb-1">Forma de Pagamento *</label>
-                        <select id="carrinho-pagamento" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                            <option value="PIX">PIX (Imediato)</option>
+                        <select id="carrinho-pagamento" onchange="togglePagamentoPix(this.value === 'PIX')" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            <option value="PIX" selected>PIX (Imediato)</option>
                             <option value="CARTAO">Cartão de Crédito/Débito</option>
                             <option value="DINHEIRO">Dinheiro no Espaço</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Box de Pagamento PIX com Chave e Copiar -->
+                <div id="carrinho-box-pix" class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl p-3.5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                            <i class="fa-brands fa-pix text-emerald-600 text-base"></i> Pagar via PIX Imediato
+                        </span>
+                        <span class="text-[10px] bg-emerald-200 text-emerald-900 font-black px-2 py-0.5 rounded-full uppercase">
+                            Liberação Rápida
+                        </span>
+                    </div>
+
+                    <!-- Conteúdo com chave cadastrada -->
+                    <div id="carrinho-pix-com-dados" class="space-y-2">
+                        <div class="bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 shadow-xs">
+                            <div class="min-w-0 flex-1">
+                                <span class="block text-[10px] font-bold text-gray-500 uppercase" id="carrinho-pix-tipo">Chave PIX:</span>
+                                <span class="block text-xs sm:text-sm font-mono font-black text-gray-900 truncate select-all" id="carrinho-pix-chave">---</span>
+                                <span class="block text-[10px] font-semibold text-gray-600 truncate mt-0.5" id="carrinho-pix-titular"></span>
+                            </div>
+                            <button type="button" onclick="copiarChavePix('carrinho-pix-chave', this)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition cursor-pointer shadow-sm">
+                                <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-emerald-900 font-medium leading-snug">
+                            💡 <strong>Dica:</strong> Copie a chave acima, faça o PIX pelo seu app bancário e clique abaixo para enviar o pedido com o comprovante no WhatsApp!
+                        </p>
+                    </div>
+
+                    <!-- Mensagem caso o consultor ainda não tenha cadastrado chave -->
+                    <div id="carrinho-pix-sem-dados" class="hidden text-[11px] text-emerald-900 font-semibold bg-white p-2.5 rounded-xl border border-emerald-200">
+                        ℹ️ Ao confirmar o pedido, o consultor enviará a chave PIX diretamente na sua conversa do WhatsApp.
                     </div>
                 </div>
 
@@ -746,14 +780,37 @@
 
     <!-- MODAL DE SUCESSO DO PEDIDO -->
     <div id="modal-pedido-sucesso" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl text-center animate-fade-in relative">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl text-center animate-fade-in relative max-h-[92vh] overflow-y-auto">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <h3 class="text-2xl font-black text-gray-900 mb-1">Pedido Registrado com Sucesso!</h3>
-            <p class="text-xs text-gray-600 mb-5 font-medium leading-relaxed">
+            <p class="text-xs text-gray-600 mb-4 font-medium leading-relaxed">
                 Sua reserva foi gravada no sistema e o WhatsApp do consultor já está pronto para atendimento imediato.
             </p>
+
+            <!-- Box do PIX no Sucesso -->
+            <div id="sucesso-box-pix" class="hidden bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3.5 mb-4 text-left">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                        <i class="fa-brands fa-pix text-emerald-600"></i> Pagamento via PIX
+                    </span>
+                    <span class="text-xs font-black text-emerald-800" id="sucesso-pix-total"></span>
+                </div>
+                <div class="bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 shadow-xs">
+                    <div class="min-w-0 flex-1">
+                        <span class="block text-[10px] font-bold text-gray-500 uppercase" id="sucesso-pix-tipo">Chave PIX:</span>
+                        <span class="block text-xs sm:text-sm font-mono font-black text-gray-900 truncate select-all" id="sucesso-pix-chave">---</span>
+                        <span class="block text-[10px] font-semibold text-gray-600 truncate mt-0.5" id="sucesso-pix-titular"></span>
+                    </div>
+                    <button type="button" onclick="copiarChavePix('sucesso-pix-chave', this)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition cursor-pointer shadow-sm">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                    </button>
+                </div>
+                <p class="text-[10px] text-emerald-800 font-medium mt-1.5 text-center">
+                    Envie o comprovante na conversa do WhatsApp para liberação imediata do preparo!
+                </p>
+            </div>
 
             <a id="link-whatsapp-sucesso" href="#" target="_blank" class="block w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black py-3.5 px-4 rounded-2xl shadow-lg transition transform active:scale-95 text-base mb-3 flex items-center justify-center gap-2">
                 <i class="fa-brands fa-whatsapp text-2xl"></i> ABRIR NO WHATSAPP AGORA
@@ -1083,6 +1140,7 @@
                 if (consultorAtendenteEl) {
                     consultorAtendenteEl.innerText = `Atendimento direto com: ${consultorNomeExibicao}`;
                 }
+                atualizarDadosPixCarrinho();
             }
         });
 
@@ -1096,6 +1154,112 @@
             qtd: 1
         };
 
+        function extrairPixConsultor(consultor) {
+            if (!consultor) return null;
+            const raw = consultor.nome_espaco || '';
+            const match = raw.match(/<!--PIX:(.*?)-->/);
+            if (match && match[1]) {
+                try {
+                    const parsed = JSON.parse(match[1]);
+                    if (parsed && parsed.chave && parsed.chave.trim()) {
+                        return parsed;
+                    }
+                } catch (_) {}
+            }
+            return null;
+        }
+        window.extrairPixConsultor = extrairPixConsultor;
+
+        function atualizarDadosPixCarrinho() {
+            const consultor = window.consultorAtual;
+            const pix = extrairPixConsultor(consultor);
+            const boxPix = document.getElementById('carrinho-box-pix');
+            const comDados = document.getElementById('carrinho-pix-com-dados');
+            const semDados = document.getElementById('carrinho-pix-sem-dados');
+
+            const selectPagamento = document.getElementById('carrinho-pagamento');
+            const isPix = (!selectPagamento || selectPagamento.value === 'PIX');
+
+            if (boxPix) {
+                if (isPix) {
+                    boxPix.classList.remove('hidden');
+                } else {
+                    boxPix.classList.add('hidden');
+                }
+            }
+
+            if (pix && pix.chave) {
+                if (comDados) comDados.classList.remove('hidden');
+                if (semDados) semDados.classList.add('hidden');
+
+                const tipoEl = document.getElementById('carrinho-pix-tipo');
+                const chaveEl = document.getElementById('carrinho-pix-chave');
+                const titularEl = document.getElementById('carrinho-pix-titular');
+
+                if (tipoEl) tipoEl.innerText = `Chave PIX (${pix.tipo || 'Geral'}):`;
+                if (chaveEl) {
+                    chaveEl.innerText = pix.chave;
+                    chaveEl.setAttribute('data-chave', pix.chave);
+                }
+                if (titularEl) {
+                    if (pix.titular) {
+                        titularEl.innerText = `Titular / Banco: ${pix.titular}`;
+                        titularEl.classList.remove('hidden');
+                    } else {
+                        titularEl.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (comDados) comDados.classList.add('hidden');
+                if (semDados) semDados.classList.remove('hidden');
+            }
+        }
+        window.atualizarDadosPixCarrinho = atualizarDadosPixCarrinho;
+
+        function togglePagamentoPix(isPix) {
+            const boxPix = document.getElementById('carrinho-box-pix');
+            if (boxPix) {
+                if (isPix) {
+                    boxPix.classList.remove('hidden');
+                    atualizarDadosPixCarrinho();
+                } else {
+                    boxPix.classList.add('hidden');
+                }
+            }
+        }
+        window.togglePagamentoPix = togglePagamentoPix;
+
+        function copiarChavePix(elementId, btnElement) {
+            const el = document.getElementById(elementId);
+            let texto = '';
+            if (el) {
+                texto = el.getAttribute('data-chave') || el.innerText || '';
+            }
+            if (!texto || texto === '---') {
+                const consultor = window.consultorAtual;
+                const pix = extrairPixConsultor(consultor);
+                if (pix && pix.chave) texto = pix.chave;
+            }
+
+            if (texto && texto !== '---') {
+                navigator.clipboard.writeText(texto).then(() => {
+                    if (btnElement) {
+                        const htmlAntigo = btnElement.innerHTML;
+                        btnElement.innerHTML = `<i class="fa-solid fa-check text-green-300"></i> Copiado!`;
+                        btnElement.classList.add('bg-green-700');
+                        setTimeout(() => {
+                            btnElement.innerHTML = htmlAntigo;
+                            btnElement.classList.remove('bg-green-700');
+                        }, 2000);
+                    }
+                }).catch(err => {
+                    console.warn("Falha ao copiar:", err);
+                    prompt("Copie a chave PIX abaixo:", texto);
+                });
+            }
+        }
+        window.copiarChavePix = copiarChavePix;
+
         function atualizarDisplayCarrinho() {
             const nomeEl = document.getElementById('carrinho-item-nome');
             const subEl = document.getElementById('carrinho-item-sub');
@@ -1104,11 +1268,20 @@
             const totalEl = document.getElementById('carrinho-valor-total');
             const badgeQtd = document.getElementById('badge-qtd-carrinho');
             const badgeQtdMob = document.getElementById('badge-qtd-carrinho-mob');
+            const qtdLabelEl = document.getElementById('carrinho-qtd-label');
 
             if (nomeEl) nomeEl.innerText = carrinhoAtual.item;
             if (subEl) subEl.innerText = carrinhoAtual.sub;
             if (precoEl) precoEl.innerText = `R$ ${carrinhoAtual.preco.toFixed(2).replace('.', ',')}`;
             if (qtdEl) qtdEl.innerText = carrinhoAtual.qtd;
+
+            if (qtdLabelEl) {
+                if (carrinhoAtual.item === 'RESET 5 DIAS') {
+                    qtdLabelEl.innerText = 'Quantidade (Garrafa 500ml):';
+                } else {
+                    qtdLabelEl.innerText = 'Quantidade (Garrafa 1 Litrão):';
+                }
+            }
 
             const total = carrinhoAtual.preco * carrinhoAtual.qtd;
             if (totalEl) totalEl.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
@@ -1120,6 +1293,8 @@
             if (badgeQtdMob) {
                 badgeQtdMob.innerText = `CARRINHO (${carrinhoAtual.qtd})`;
             }
+
+            atualizarDadosPixCarrinho();
         }
 
         function abrirCarrinho(item, preco, sub) {
@@ -1275,17 +1450,29 @@
                 whatsConsultorLimpo = '55' + whatsConsultorLimpo;
             }
 
+            const unidadeTexto = carrinhoAtual.item === 'RESET 5 DIAS' ? 'garrafa(s) de 500ml' : 'garrafa(s) de 1 Litrão';
+            const pix = extrairPixConsultor(consultor);
+
+            let pagamentoWhats = `💳 *Pagamento:* ${formaPagamento}`;
+            if (formaPagamento === 'PIX') {
+                if (pix && pix.chave) {
+                    pagamentoWhats = `💳 *Pagamento:* PIX (Chave do consultor copiada no site)\n🧾 *Comprovante:* Enviando o comprovante a seguir...`;
+                } else {
+                    pagamentoWhats = `💳 *Pagamento:* PIX (Aguardando chave para transferência)`;
+                }
+            }
+
             const textoMsg = `Olá! Acabei de fazer um pedido pelo site do *Litrão do Reset*:\n\n` +
                              `🥤 *Pacote:* ${carrinhoAtual.item} (${carrinhoAtual.sub})\n` +
-                             `🔢 *Quantidade:* ${carrinhoAtual.qtd} garrafa(s) de 500ml\n` +
+                             `🔢 *Quantidade:* ${carrinhoAtual.qtd} ${unidadeTexto}\n` +
                              `💰 *Valor Total:* ${totalFormatado}\n\n` +
                              `👤 *Cliente:* ${nomeCliente}\n` +
                              `📱 *WhatsApp:* ${whatsCliente}\n` +
                              `📍 *Modalidade:* ${modalidade === 'ENTREGA' ? 'Delivery' : 'Retirada no Espaço'}\n` +
                              (modalidade === 'ENTREGA' ? `🏠 *Endereço:* ${endereco}\n` : '') +
-                             `💳 *Pagamento:* ${formaPagamento}\n` +
+                             `${pagamentoWhats}\n` +
                              (observacoes ? `📝 *Observação:* ${observacoes}\n` : '') +
-                             `\nPoderia confirmar a disponibilidade e os detalhes do pagamento? Obrigado!`;
+                             `\nPoderia confirmar o pedido e a disponibilidade? Obrigado!`;
 
             const linkWhatsUrl = `https://wa.me/${whatsConsultorLimpo}?text=${encodeURIComponent(textoMsg)}`;
 
@@ -1293,6 +1480,42 @@
             const linkSucessoEl = document.getElementById('link-whatsapp-sucesso');
             if (linkSucessoEl) {
                 linkSucessoEl.href = linkWhatsUrl;
+            }
+
+            // Popula box de PIX no modal de sucesso se for pagamento PIX
+            const boxPixSucesso = document.getElementById('sucesso-box-pix');
+            if (formaPagamento === 'PIX' && boxPixSucesso) {
+                boxPixSucesso.classList.remove('hidden');
+                const totalPixSucesso = document.getElementById('sucesso-pix-total');
+                const chavePixSucesso = document.getElementById('sucesso-pix-chave');
+                const tipoPixSucesso = document.getElementById('sucesso-pix-tipo');
+                const titularPixSucesso = document.getElementById('sucesso-pix-titular');
+
+                if (totalPixSucesso) totalPixSucesso.innerText = `Total: ${totalFormatado}`;
+                if (pix && pix.chave) {
+                    if (tipoPixSucesso) tipoPixSucesso.innerText = `Chave PIX (${pix.tipo || 'Geral'}):`;
+                    if (chavePixSucesso) {
+                        chavePixSucesso.innerText = pix.chave;
+                        chavePixSucesso.setAttribute('data-chave', pix.chave);
+                    }
+                    if (titularPixSucesso) {
+                        if (pix.titular) {
+                            titularPixSucesso.innerText = `Titular / Banco: ${pix.titular}`;
+                            titularPixSucesso.classList.remove('hidden');
+                        } else {
+                            titularPixSucesso.classList.add('hidden');
+                        }
+                    }
+                } else {
+                    if (tipoPixSucesso) tipoPixSucesso.innerText = 'Chave PIX:';
+                    if (chavePixSucesso) {
+                        chavePixSucesso.innerText = 'Solicite no WhatsApp ao consultor';
+                        chavePixSucesso.removeAttribute('data-chave');
+                    }
+                    if (titularPixSucesso) titularPixSucesso.classList.add('hidden');
+                }
+            } else if (boxPixSucesso) {
+                boxPixSucesso.classList.add('hidden');
             }
 
             fecharCarrinho();

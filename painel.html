@@ -385,6 +385,42 @@
                         </div>
                     </div>
 
+                    <!-- BLOCO: RECEBIMENTO PIX -->
+                    <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-emerald-900 flex items-center">
+                                <i class="fa-brands fa-pix text-emerald-600 mr-1.5 text-sm"></i> Chave PIX para Recebimento de Pedidos
+                            </h4>
+                            <span class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">Exibição Automática no Carrinho</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-800 leading-snug">
+                            Cadastre sua chave PIX para que seus clientes vejam e copiem diretamente no carrinho e no pedido ao escolherem pagamento via PIX.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Tipo de Chave PIX</label>
+                                <select id="perfil-pix-tipo" class="w-full px-3 py-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="Celular / WhatsApp">Celular / WhatsApp</option>
+                                    <option value="CPF">CPF</option>
+                                    <option value="CNPJ">CNPJ</option>
+                                    <option value="E-mail">E-mail</option>
+                                    <option value="Chave Aleatória">Chave Aleatória</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Sua Chave PIX</label>
+                                <div class="relative">
+                                    <i class="fa-brands fa-pix absolute left-3 top-2.5 text-emerald-600 text-sm"></i>
+                                    <input type="text" id="perfil-pix-chave" placeholder="Ex: (66) 99999-9999 ou seu@email.com" class="w-full pl-9 pr-3 py-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Titular / Banco <span class="text-[10px] text-gray-400 font-normal">(Ajuda o cliente a confirmar quem está recebendo)</span></label>
+                            <input type="text" id="perfil-pix-titular" placeholder="Ex: Carlos Silva - Nubank" class="w-full px-3.5 py-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
                     <!-- BLOCO 4: ALTERAÇÃO DE SENHA (OPCIONAL) -->
                     <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-3">
                         <div class="flex items-center justify-between">
@@ -7573,6 +7609,16 @@
                 try { sociais = JSON.parse(matchSoc[1]) || {}; } catch(_) {}
             }
 
+            // 1.1 Dados PIX
+            let pix = { tipo: 'Celular / WhatsApp', chave: '', titular: '' };
+            const matchPix = raw.match(/<!--PIX:(.*?)-->/);
+            if (matchPix && matchPix[1]) {
+                try {
+                    const parsedPix = JSON.parse(matchPix[1]);
+                    if (parsedPix) pix = Object.assign(pix, parsedPix);
+                } catch(_) {}
+            }
+
             // 2. Limpa tags HTML
             let textoLimpo = raw.replace(/<!--.*?-->/g, '').trim();
 
@@ -7619,7 +7665,8 @@
                 nomeEspaco,
                 cidade,
                 estado,
-                sociais
+                sociais,
+                pix
             };
         }
 
@@ -7670,6 +7717,16 @@
 
                 const inTk = document.getElementById('perfil-tiktok');
                 if (inTk) inTk.value = (dados.sociais && dados.sociais.tk) ? dados.sociais.tk : '';
+
+                // Popula campos de PIX
+                const inPixTipo = document.getElementById('perfil-pix-tipo');
+                if (inPixTipo) inPixTipo.value = (dados.pix && dados.pix.tipo) ? dados.pix.tipo : 'Celular / WhatsApp';
+
+                const inPixChave = document.getElementById('perfil-pix-chave');
+                if (inPixChave) inPixChave.value = (dados.pix && dados.pix.chave) ? dados.pix.chave : '';
+
+                const inPixTitular = document.getElementById('perfil-pix-titular');
+                if (inPixTitular) inPixTitular.value = (dados.pix && dados.pix.titular) ? dados.pix.titular : '';
 
                 // Limpa campos de senha
                 const inNovaSenha = document.getElementById('perfil-nova-senha');
@@ -7723,6 +7780,10 @@
             const fb = (document.getElementById('perfil-facebook').value || '').trim();
             const tk = (document.getElementById('perfil-tiktok').value || '').trim();
 
+            const pixTipo = (document.getElementById('perfil-pix-tipo')?.value || 'Celular / WhatsApp').trim();
+            const pixChave = (document.getElementById('perfil-pix-chave')?.value || '').trim();
+            const pixTitular = (document.getElementById('perfil-pix-titular')?.value || '').trim();
+
             const novaSenha = (document.getElementById('perfil-nova-senha').value || '').trim();
             const confSenha = (document.getElementById('perfil-confirmar-senha').value || '').trim();
 
@@ -7774,9 +7835,15 @@
                 nomeEspacoCompleto += ` <!--SOCIAIS:${JSON.stringify(sociaisObj)}-->`;
             }
 
-            // Preserva tags extras existentes (como cupons, etc.)
+            // Chave PIX e dados de recebimento
+            if (pixChave) {
+                const pixObj = { tipo: pixTipo, chave: pixChave, titular: pixTitular };
+                nomeEspacoCompleto += ` <!--PIX:${JSON.stringify(pixObj)}-->`;
+            }
+
+            // Preserva outras tags extras existentes (como cupons, etc.), ignorando SOCIAIS e PIX para não duplicar
             const rawAntigo = consultorAtual.nome_espaco || '';
-            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:).*?-->/g);
+            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:).*?-->/g);
             if (matchComentarios) {
                 nomeEspacoCompleto += ' ' + matchComentarios.join(' ');
             }
