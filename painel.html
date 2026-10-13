@@ -4703,18 +4703,87 @@
             }
         }
 
-        function normalizarChaveCliente(item) {
-            const rawNome = (item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '').trim();
-            // Normaliza o nome do cliente removendo acentos e pontuações para unificar registros idênticos
-            const nomeLimpo = rawNome
+        function extrairWhatsappPadrao(item) {
+            if (!item || !item.whatsapp_cliente) return '';
+            let w = String(item.whatsapp_cliente).replace(/\D/g, '');
+            if (w.startsWith('55') && (w.length === 12 || w.length === 13)) {
+                w = w.substring(2);
+            }
+            return (w.length >= 8) ? w : '';
+        }
+
+        function normalizarNomeCliente(nome) {
+            const rawNome = (nome || '').replace(/^\[PEDIDO\]\s*/i, '').trim();
+            return rawNome
                 .toLowerCase()
                 .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
                 .replace(/[^a-z0-9]/g, '_')
                 .replace(/_+/g, '_')
-                .replace(/^_|_$/g, '');
-            
-            return nomeLimpo || 'cliente_sem_nome';
+                .replace(/^_|_$/g, '') || 'cliente_sem_nome';
         }
+
+        function isItemPedido(item) {
+            if (!item) return false;
+            return (item.codigo_acesso === 'PEDIDO') || 
+                   (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || 
+                   (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+        }
+
+        const mapaIdParaChaveCliente = new Map();
+
+        function normalizarChaveCliente(item) {
+            if (!item) return 'cliente_sem_nome';
+            if (item.id && mapaIdParaChaveCliente.has(item.id)) {
+                return mapaIdParaChaveCliente.get(item.id);
+            }
+            const w = extrairWhatsappPadrao(item);
+            if (w) return `w_${w}`;
+            const n = normalizarNomeCliente(item.nome_cliente);
+            return `n_${n}`;
+        }
+
+        function abrirCentralPedidosCliente(whats, nome) {
+            const secao = document.getElementById('secao-central-pedidos');
+            const label = document.getElementById('label-toggle-pedidos');
+            const icone = document.getElementById('icone-toggle-pedidos');
+            if (secao && secao.classList.contains('hidden')) {
+                secao.classList.remove('hidden');
+                if (label) label.innerText = 'Minimizar Pedidos';
+                if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
+            }
+            const whatsDigitos = (whats || '').replace(/\D/g, '');
+            const termo = (whatsDigitos.length >= 8) 
+                ? whatsDigitos.slice(-8)
+                : (nome ? nome.trim().split(' ')[0] : '');
+            
+            const campo = document.getElementById('busca-pedidos-central');
+            if (campo) {
+                campo.value = termo;
+            }
+            if (typeof filtrarCentralPedidos === 'function') {
+                filtrarCentralPedidos(termo);
+            }
+            if (secao) {
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        window.abrirCentralPedidosCliente = abrirCentralPedidosCliente;
+
+        function abrirNovaAvaliacaoParaCliente(whats, nome) {
+            if (typeof abrirModalNovaAvaliacao === 'function') {
+                abrirModalNovaAvaliacao();
+            } else {
+                const modal = document.getElementById('modal-nova-avaliacao');
+                if (modal) modal.classList.remove('hidden');
+            }
+            setTimeout(() => {
+                const inpNome = document.getElementById('campo-novo-nome') || document.getElementById('nova-avaliacao-nome') || document.querySelector('input[name="nome_cliente"]');
+                if (inpNome && nome) inpNome.value = nome;
+                const inpWhats = document.getElementById('campo-novo-whats') || document.getElementById('nova-avaliacao-whatsapp') || document.querySelector('input[name="whatsapp_cliente"]');
+                if (inpWhats && whats) inpWhats.value = whats;
+            }, 100);
+        }
+        window.abrirNovaAvaliacaoParaCliente = abrirNovaAvaliacaoParaCliente;
 
         function extrairBioDiretaObjeto(item) {
             if (!item || !item.como_foi_semana) return {};
@@ -4802,20 +4871,63 @@
 
         function renderizarTabelaAgrupada() {
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
+            if (!corpo) return;
             corpo.innerHTML = '';
 
-            // Agrupa por cliente único
-            const gruposMap = new Map();
+            // 1. Constroi Union-Find para unificar clientes com mesmo WhatsApp ou Nome
+            mapaIdParaChaveCliente.clear();
+
+            const parent = new Map();
+            function find(i) {
+                if (!parent.has(i)) parent.set(i, i);
+                if (parent.get(i) === i) return i;
+                const root = find(parent.get(i));
+                parent.set(i, root);
+                return root;
+            }
+            function union(i, j) {
+                const rootI = find(i);
+                const rootJ = find(j);
+                if (rootI !== rootJ) parent.set(rootI, rootJ);
+            }
+
+            const whatsToKey = new Map();
+            const nomeToKey = new Map();
+
             todasAvaliacoesCache.forEach(item => {
-                const key = normalizarChaveCliente(item);
-                if (!gruposMap.has(key)) {
-                    gruposMap.set(key, []);
+                const baseKey = 'item_' + item.id;
+                find(baseKey);
+                const w = extrairWhatsappPadrao(item);
+                const n = normalizarNomeCliente(item.nome_cliente);
+
+                if (w) {
+                    const wKey = 'w_' + w;
+                    find(wKey);
+                    union(baseKey, wKey);
+                    if (!whatsToKey.has(w)) whatsToKey.set(w, wKey);
+                    else union(wKey, whatsToKey.get(w));
                 }
-                gruposMap.get(key).push(item);
+                if (n && n !== 'cliente_sem_nome') {
+                    const nKey = 'n_' + n;
+                    find(nKey);
+                    if (!nomeToKey.has(n)) nomeToKey.set(n, nKey);
+                    else union(nKey, nomeToKey.get(n));
+                    union(baseKey, nKey);
+                }
             });
 
-            // UNIFICAÇÃO INTELIGENTE (PROIBIR DUPLICAÇÃO):
-            // Se algum registro do cliente tiver WhatsApp válido, propaga para todas as avaliações do mesmo cliente
+            // 2. Mapeia cada avaliação para o grupo canônico
+            const gruposMap = new Map();
+            todasAvaliacoesCache.forEach(item => {
+                const canonical = find('item_' + item.id);
+                mapaIdParaChaveCliente.set(item.id, canonical);
+                if (!gruposMap.has(canonical)) {
+                    gruposMap.set(canonical, []);
+                }
+                gruposMap.get(canonical).push(item);
+            });
+
+            // 3. Propagação de WhatsApp válido no grupo
             gruposMap.forEach((lista) => {
                 let whatsValido = '';
                 for (const av of lista) {
@@ -4834,50 +4946,93 @@
                 }
             });
 
-            // Cria lista consolidada de grupos
+            // 4. Cria lista consolidada separando Bioimpedâncias e Pedidos
             let grupos = Array.from(gruposMap.entries()).map(([key, lista]) => {
-                // Ordena lista cronológica decrescente por criado_em para determinar a mais recente
-                lista.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
-                return { key, itens: lista, maisRecente: lista[0], total: lista.length };
+                const itensBio = lista.filter(it => !isItemPedido(it));
+                const itensPedidos = lista.filter(it => isItemPedido(it));
+
+                itensBio.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+                itensPedidos.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+
+                const temBio = itensBio.length > 0;
+                const itemPrincipal = temBio ? itensBio[0] : itensPedidos[0];
+
+                let nomeExibicao = '';
+                if (temBio && itensBio[0].nome_cliente) {
+                    nomeExibicao = itensBio[0].nome_cliente.replace(/^\[PEDIDO\]\s*/i, '').trim();
+                } else if (itensPedidos.length > 0 && itensPedidos[0].nome_cliente) {
+                    nomeExibicao = itensPedidos[0].nome_cliente.replace(/^\[PEDIDO\]\s*/i, '').trim();
+                } else {
+                    nomeExibicao = 'Cliente Sem Nome';
+                }
+
+                let whatsExibicao = '';
+                for (const it of lista) {
+                    const w = (it.whatsapp_cliente || '').replace(/\D/g, '');
+                    if (w && w.length >= 8 && !it.whatsapp_cliente.toLowerCase().includes('sem whats')) {
+                        whatsExibicao = it.whatsapp_cliente;
+                        break;
+                    }
+                }
+                if (!whatsExibicao) whatsExibicao = itemPrincipal.whatsapp_cliente || '';
+
+                return {
+                    key,
+                    itens: lista,
+                    itensBio,
+                    itensPedidos,
+                    temBio,
+                    itemPrincipal,
+                    nomeExibicao,
+                    whatsExibicao,
+                    total: lista.length,
+                    totalBio: itensBio.length,
+                    totalPedidos: itensPedidos.length,
+                    dataReferencia: new Date(itemPrincipal.criado_em).getTime()
+                };
             });
 
             // Aplica a ordem selecionada pelo usuário
             grupos.sort((a, b) => {
                 if (ordemClientesAtual === 'nome_asc') {
-                    return (a.maisRecente.nome_cliente || '').localeCompare(b.maisRecente.nome_cliente || '', 'pt-BR', { sensitivity: 'base' });
+                    return a.nomeExibicao.localeCompare(b.nomeExibicao, 'pt-BR', { sensitivity: 'base' });
                 }
                 if (ordemClientesAtual === 'nome_desc') {
-                    return (b.maisRecente.nome_cliente || '').localeCompare(a.maisRecente.nome_cliente || '', 'pt-BR', { sensitivity: 'base' });
+                    return b.nomeExibicao.localeCompare(a.nomeExibicao, 'pt-BR', { sensitivity: 'base' });
                 }
                 if (ordemClientesAtual === 'peso_desc') {
-                    return (parseFloat(b.maisRecente.peso) || 0) - (parseFloat(a.maisRecente.peso) || 0);
+                    const pA = a.temBio ? (parseFloat(a.itemPrincipal.peso) || 0) : 0;
+                    const pB = b.temBio ? (parseFloat(b.itemPrincipal.peso) || 0) : 0;
+                    return pB - pA;
                 }
                 if (ordemClientesAtual === 'peso_asc') {
-                    return (parseFloat(a.maisRecente.peso) || 0) - (parseFloat(b.maisRecente.peso) || 0);
+                    const pA = a.temBio ? (parseFloat(a.itemPrincipal.peso) || 0) : 0;
+                    const pB = b.temBio ? (parseFloat(b.itemPrincipal.peso) || 0) : 0;
+                    return pA - pB;
                 }
                 if (ordemClientesAtual === 'avaliacoes_desc') {
-                    return b.total - a.total;
+                    return b.totalBio - a.totalBio;
                 }
                 if (ordemClientesAtual === 'data_asc') {
-                    return new Date(a.maisRecente.criado_em).getTime() - new Date(b.maisRecente.criado_em).getTime();
+                    return a.dataReferencia - b.dataReferencia;
                 }
                 // Padrão: data_desc (Mais recentes primeiro)
-                return new Date(b.maisRecente.criado_em).getTime() - new Date(a.maisRecente.criado_em).getTime();
+                return b.dataReferencia - a.dataReferencia;
             });
 
             // Aplica filtro de pesquisa se digitado
             if (filtroBuscaCliente) {
                 grupos = grupos.filter(g => {
-                    const nome = (g.maisRecente.nome_cliente || '').toLowerCase();
-                    const whats = (g.maisRecente.whatsapp_cliente || '').toLowerCase();
+                    const nome = (g.nomeExibicao || '').toLowerCase();
+                    const whats = (g.whatsExibicao || '').toLowerCase();
                     return nome.includes(filtroBuscaCliente) || whats.includes(filtroBuscaCliente);
                 });
             }
 
-            // Atualiza contador de registros exibidos
+            const totalBiosTotal = todasAvaliacoesCache.filter(x => !isItemPedido(x)).length;
             const contadorTexto = document.getElementById('contador-filtrados-texto');
             if (contadorTexto) {
-                contadorTexto.innerText = `${grupos.length} cliente${grupos.length === 1 ? '' : 's'} exibido${grupos.length === 1 ? '' : 's'} (${todasAvaliacoesCache.length} avaliações)`;
+                contadorTexto.innerText = `${grupos.length} cliente${grupos.length === 1 ? '' : 's'} exibido${grupos.length === 1 ? '' : 's'} (${totalBiosTotal} avaliações)`;
             }
 
             if (grupos.length === 0) {
@@ -4886,10 +5041,9 @@
             }
 
             grupos.forEach(grupo => {
-                const item = grupo.maisRecente;
-                const total = grupo.total;
+                const item = grupo.itemPrincipal;
                 const dataFmt = new Date(item.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-                const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                const whatsLimpo = (grupo.whatsExibicao || '').replace(/\D/g, '');
                 const whatsHref = whatsLimpo ? (whatsLimpo.startsWith('55') ? whatsLimpo : '55' + whatsLimpo) : '';
                 const isExpandido = clienteExpandidoKey === grupo.key;
                 const isChecked = clientesSelecionadosSet.has(grupo.key);
@@ -4903,81 +5057,82 @@
                 const temBio = bioObj.gordura || bioObj.musculo || bioObj.visceral;
 
                 let blocoMedidasHtml = '';
-                if (temBio && !temMedidas) {
-                    blocoMedidasHtml = `
-                        <div class="flex flex-col">
-                            <span class="text-xs sm:text-sm font-black text-emerald-800">
-                                <i class="fa-solid fa-weight-scale text-emerald-600 mr-1 text-[11px]"></i>
-                                G: ${bioObj.gordura || '-'}% • M: ${bioObj.musculo || '-'}%
-                            </span>
-                            <span class="text-[10px] text-emerald-700 font-bold">
-                                Visc: ${bioObj.visceral || '-'} ${bioObj.idade ? '• Idade: ' + bioObj.idade + 'a' : ''}
-                            </span>
-                        </div>
-                    `;
-                } else if (temMedidas) {
-                    blocoMedidasHtml = `
-                        <span class="text-xs sm:text-sm font-bold text-gray-800 block">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</span>
-                        <span class="text-[10px] text-gray-400 font-medium block">Tórax • Cint • Abd • Quad</span>
-                    `;
+                if (grupo.temBio) {
+                    if (temBio && !temMedidas) {
+                        blocoMedidasHtml = `
+                            <div class="flex flex-col">
+                                <span class="text-xs sm:text-sm font-black text-emerald-800">
+                                    <i class="fa-solid fa-weight-scale text-emerald-600 mr-1 text-[11px]"></i>
+                                    G: ${bioObj.gordura || '-'}% • M: ${bioObj.musculo || '-'}%
+                                </span>
+                                <span class="text-[10px] text-emerald-700 font-bold">
+                                    Visc: ${bioObj.visceral || '-'} ${bioObj.idade ? '• Idade: ' + bioObj.idade + 'a' : ''}
+                                </span>
+                            </div>
+                        `;
+                    } else if (temMedidas) {
+                        blocoMedidasHtml = `
+                            <span class="text-xs sm:text-sm font-bold text-gray-800 block">${item.busto || '-'} / ${item.cintura || '-'} / ${item.abdomen || '-'} / ${item.quadril || '-'}</span>
+                            <span class="text-[10px] text-gray-400 font-medium block">Tórax • Cint • Abd • Quad</span>
+                        `;
+                    } else {
+                        blocoMedidasHtml = `<span class="text-xs text-gray-400 italic font-medium">Sem bio/medidas</span>`;
+                    }
                 } else {
-                    blocoMedidasHtml = `<span class="text-xs text-gray-400 italic font-medium">Sem bio/medidas</span>`;
+                    blocoMedidasHtml = `
+                        <button type="button" onclick="abrirNovaAvaliacaoParaCliente('${whatsLimpo}', '${grupo.nomeExibicao}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg text-xs font-black inline-flex items-center gap-1 cursor-pointer transition">
+                            <i class="fa-solid fa-plus-circle text-blue-600"></i> Criar 1ª Bio
+                        </button>
+                    `;
                 }
 
-                // Detecção de Pedido Litrão
-                const isPedido = (item.codigo_acesso === 'PEDIDO') || (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
-                let dadosPedidoObj = null;
-                if (isPedido && item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:')) {
-                    try {
-                        const m = item.como_foi_semana.match(/<!--DADOS_PEDIDO:(.*?)-->/);
-                        if (m && m[1]) dadosPedidoObj = JSON.parse(m[1]);
-                    } catch(e) {}
+                // Badge de pedidos registrado no cadastro do cliente (quantidade e datas)
+                let badgePedidosClienteHtml = '';
+                if (grupo.totalPedidos > 0) {
+                    const ultPed = grupo.itensPedidos[0];
+                    const dtUltPed = new Date(ultPed.criado_em).toLocaleDateString('pt-BR');
+                    badgePedidosClienteHtml = `
+                        <button type="button" onclick="abrirCentralPedidosCliente('${whatsLimpo}', '${grupo.nomeExibicao}')" title="Ver ${grupo.totalPedidos} pedido(s) deste cliente no Card PEDIDOS (Central de Entregas)" class="inline-flex items-center gap-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 text-xs font-black px-2.5 py-0.5 rounded-full cursor-pointer transition shadow-2xs group">
+                            <i class="fa-solid fa-cart-shopping text-emerald-700 group-hover:scale-110 transition-transform"></i>
+                            <span>${grupo.totalPedidos} pedido${grupo.totalPedidos > 1 ? 's' : ''} Litrão</span>
+                            <span class="text-emerald-800 font-bold text-[11px]">• ${grupo.totalPedidos === 1 ? 'Data: ' + dtUltPed : 'Último: ' + dtUltPed}</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-emerald-600 opacity-70 group-hover:opacity-100 ml-0.5"></i>
+                        </button>
+                    `;
                 }
 
-                let nomeClienteLimpo = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente Sem Nome';
+                const temMaisDeUmRegistro = (grupo.totalBio > 1) || (grupo.totalPedidos > 0);
 
                 let colunaNomeHtml = `
                     <div class="flex items-center space-x-2.5">
-                        ${isPedido ? `
-                            <button type="button" onclick="abrirDetalhesPedido(${item.id})" title="Acessar Detalhes do Pedido" class="w-8 h-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center text-sm flex-shrink-0 shadow-xs ring-1 ring-emerald-500/30 cursor-pointer transition transform hover:scale-105">
-                                <i class="fa-solid fa-cart-shopping"></i>
-                            </button>
-                        ` : (total > 1 ? `
-                            <button onclick="toggleExpandirCliente('${grupo.key}')" title="${isExpandido ? 'Recolher histórico' : 'Ver todas as ' + total + ' avaliações deste cliente'}" class="w-7 h-7 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 font-black flex items-center justify-center text-sm transition flex-shrink-0 cursor-pointer shadow-xs">
+                        ${temMaisDeUmRegistro ? `
+                            <button onclick="toggleExpandirCliente('${grupo.key}')" title="${isExpandido ? 'Recolher histórico' : 'Ver histórico completo deste cliente (' + grupo.totalBio + ' bio, ' + grupo.totalPedidos + ' pedidos)'}" class="w-7 h-7 rounded-lg ${grupo.temBio ? 'bg-blue-100 hover:bg-blue-200 text-blue-700' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'} font-black flex items-center justify-center text-sm transition flex-shrink-0 cursor-pointer shadow-xs">
                                 <i class="fa-solid ${isExpandido ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
                             </button>
                         ` : `
                             <span class="w-7 h-7 rounded-lg bg-gray-100 text-gray-400 font-bold flex items-center justify-center text-xs flex-shrink-0">
                                 <i class="fa-solid fa-user"></i>
                             </span>
-                        `)}
+                        `}
                         <div>
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                ${isPedido ? `
-                                    <button type="button" onclick="abrirDetalhesPedido(${item.id})" class="text-left font-black text-gray-900 hover:text-emerald-700 text-base sm:text-lg block leading-snug cursor-pointer transition">
-                                        ${nomeClienteLimpo}
-                                    </button>
-                                    <button type="button" onclick="abrirDetalhesPedido(${item.id})" class="inline-flex items-center bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs cursor-pointer transition">
-                                        🛍️ PEDIDO LITRÃO
-                                    </button>
-                                ` : `
-                                    <span class="font-black text-gray-900 text-base sm:text-lg block leading-snug">${nomeClienteLimpo}</span>
-                                `}
+                                <span class="font-black text-gray-900 text-base sm:text-lg block leading-snug">${grupo.nomeExibicao}</span>
+                                ${!grupo.temBio ? `
+                                    <span class="inline-flex items-center bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                                        🛍️ CLIENTE LITRÃO
+                                    </span>
+                                ` : ''}
                             </div>
-                            ${isPedido && dadosPedidoObj ? `
-                                <div class="mt-1 text-xs text-emerald-900 font-extrabold flex flex-wrap items-center gap-2 cursor-pointer" onclick="abrirDetalhesPedido(${item.id})">
-                                    <span class="bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200 transition"><i class="fa-solid fa-bottle-droplet text-emerald-600 mr-1"></i>${dadosPedidoObj.produto} (${dadosPedidoObj.quantidade}x)</span>
-                                    <span class="bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-700 font-black">${dadosPedidoObj.valor_total}</span>
-                                    <span class="bg-gray-100 px-2 py-0.5 rounded-md text-gray-700">${dadosPedidoObj.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada'}</span>
-                                    <span class="text-[10px] text-emerald-600 font-bold hover:underline ml-1">Clique para abrir detalhes →</span>
-                                </div>
-                            ` : (total > 1 ? `
-                                <span class="inline-flex items-center mt-1 bg-blue-100 text-blue-900 text-xs font-black px-2.5 py-0.5 rounded-full cursor-pointer hover:bg-blue-200 transition shadow-2xs" onclick="toggleExpandirCliente('${grupo.key}')">
-                                    <i class="fa-solid fa-clock-rotate-left mr-1 text-xs text-blue-600"></i> ${total} avaliações unificadas
-                                </span>
-                            ` : `
-                                <span class="text-xs text-gray-400 font-semibold">1 avaliação cadastrada</span>
-                            `)}
+                            <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                                ${grupo.totalBio > 1 ? `
+                                    <span class="inline-flex items-center bg-blue-100 text-blue-900 text-xs font-black px-2.5 py-0.5 rounded-full cursor-pointer hover:bg-blue-200 transition shadow-2xs" onclick="toggleExpandirCliente('${grupo.key}')">
+                                        <i class="fa-solid fa-clock-rotate-left mr-1 text-xs text-blue-600"></i> ${grupo.totalBio} avaliações unificadas
+                                    </span>
+                                ` : (grupo.totalBio === 1 ? `
+                                    <span class="text-xs text-gray-400 font-semibold">1 avaliação</span>
+                                ` : '')}
+                                ${badgePedidosClienteHtml}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -4990,9 +5145,9 @@
                         ${colunaNomeHtml}
                     </td>
                     <td class="p-3 sm:p-4">
-                        ${whatsLimpo && !item.whatsapp_cliente.toLowerCase().includes('sem whats') ? `
+                        ${whatsLimpo && !grupo.whatsExibicao.toLowerCase().includes('sem whats') ? `
                             <a href="https://wa.me/${whatsHref}" target="_blank" class="text-green-700 hover:text-green-800 font-extrabold text-sm sm:text-base flex items-center">
-                                <i class="fa-brands fa-whatsapp mr-1.5 text-lg text-green-600"></i> ${item.whatsapp_cliente}
+                                <i class="fa-brands fa-whatsapp mr-1.5 text-lg text-green-600"></i> ${grupo.whatsExibicao}
                             </a>
                         ` : `
                             <span class="text-gray-400 text-xs sm:text-sm italic flex items-center">
@@ -5002,24 +5157,17 @@
                     </td>
                     <td class="p-3 sm:p-4 font-semibold text-gray-700">
                         <span class="block font-black text-gray-900 text-sm sm:text-base">${dataFmt}</span>
+                        <span class="block text-[10px] text-gray-400 font-semibold">${grupo.temBio ? 'Última Bioimpedância' : 'Data do Pedido'}</span>
                     </td>
                     <td class="p-3 sm:p-4">
-                        ${isPedido && dadosPedidoObj ? `
-                            <div class="cursor-pointer" onclick="abrirComandaPedido(${item.id})">
-                                <span class="text-base sm:text-lg font-black text-emerald-800">${dadosPedidoObj.valor_total}</span>
-                                <span class="block text-[10px] text-gray-500 font-semibold">${dadosPedidoObj.forma_pagamento}</span>
-                            </div>
-                        ` : `
+                        ${grupo.temBio ? `
                             <span class="text-base sm:text-xl font-black text-brand-dark">${item.peso ? item.peso + ' kg' : '- kg'}</span>
+                        ` : `
+                            <span class="text-xs text-gray-400 font-bold italic">Sem bio</span>
                         `}
                     </td>
                     <td class="p-3 sm:p-4 hidden sm:table-cell">
-                        ${isPedido ? `
-                            <div class="text-xs text-gray-700 font-medium cursor-pointer" onclick="abrirComandaPedido(${item.id})">
-                                <span class="font-bold text-gray-900 block">${dadosPedidoObj?.modalidade === 'ENTREGA' ? 'Entrega: ' + (dadosPedidoObj?.endereco || '-') : 'Retirada no Espaço'}</span>
-                                ${dadosPedidoObj?.observacoes && dadosPedidoObj.observacoes !== 'Nenhuma' ? `<span class="text-gray-500 text-[11px] italic">"${dadosPedidoObj.observacoes}"</span>` : ''}
-                            </div>
-                        ` : blocoMedidasHtml}
+                        ${blocoMedidasHtml}
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center space-x-1.5">
@@ -5028,19 +5176,19 @@
                                     <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Whats
                                 </a>
                             ` : ''}
-                            ${isPedido ? `
-                                <button onclick="abrirComandaPedido(${item.id})" title="Ver e Imprimir Comanda do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-cart-shopping text-sm"></i> Pedido
-                                </button>
-                                <button onclick="abrirDetalhesPedido(${item.id})" title="Gerenciar / Editar Status do Pedido" class="bg-amber-500 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
-                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
-                                </button>
-                            ` : `
+                            ${grupo.temBio ? `
                                 <button onclick="verFichaCompleta(${item.id})" title="Ver Detalhes / Ficha" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center cursor-pointer">
                                     <i class="fa-solid fa-file-waveform mr-1 text-sm"></i> Ficha
                                 </button>
                                 <button onclick="abrirEditarAvaliacao(${item.id})" title="Editar Registro" class="bg-amber-500 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
                                     <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                </button>
+                            ` : `
+                                <button onclick="abrirComandaPedido(${item.id})" title="Ver e Imprimir Comanda do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-1.5 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-print text-sm"></i> Comanda
+                                </button>
+                                <button onclick="abrirCentralPedidosCliente('${whatsLimpo}', '${grupo.nomeExibicao}')" title="Ver Pedidos no Card PEDIDOS" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 font-black p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
+                                    <i class="fa-solid fa-truck-fast text-sm"></i>
                                 </button>
                             `}
                             <button onclick="excluirAvaliacao(${item.id})" title="Excluir Registro" class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-xl text-xs transition shadow-sm inline-flex items-center cursor-pointer">
@@ -5051,86 +5199,139 @@
                 `;
                 corpo.appendChild(tr);
 
-                // Se estiver expandido e tiver mais de 1 avaliação, renderiza as linhas de histórico
-                if (isExpandido && total > 1) {
-                    grupo.itens.forEach((sub, subIdx) => {
-                        const subData = new Date(sub.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-                        const isPrimeiraOuUltima = subIdx === 0 ? 'Última' : (subIdx === total - 1 ? 'Inicial' : `Check-in ${total - subIdx}`);
-                        const subBio = extrairBioDiretaObjeto(sub);
-                        const subTemMedidas = sub.busto || sub.cintura || sub.abdomen || sub.quadril;
-                        const subTemBio = subBio.gordura || subBio.musculo || subBio.visceral;
-                        const isSubPedido = (sub.codigo_acesso === 'PEDIDO') || (sub.nome_cliente && sub.nome_cliente.startsWith('[PEDIDO]')) || (sub.como_foi_semana && sub.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+                // Se estiver expandido, renderiza o histórico completo do cliente (Bioimpedâncias e Pedidos)
+                if (isExpandido) {
+                    // 1. Linhas de Histórico de Bioimpedância
+                    if (grupo.totalBio > 0) {
+                        grupo.itensBio.forEach((sub, subIdx) => {
+                            const subData = new Date(sub.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                            const isPrimeiraOuUltima = subIdx === 0 ? 'Última' : (subIdx === grupo.totalBio - 1 ? 'Inicial' : `Check-in ${grupo.totalBio - subIdx}`);
+                            const subBio = extrairBioDiretaObjeto(sub);
+                            const subTemMedidas = sub.busto || sub.cintura || sub.abdomen || sub.quadril;
+                            const subTemBio = subBio.gordura || subBio.musculo || subBio.visceral;
 
-                        let subMedidasHtml = '';
-                        if (subTemBio && !subTemMedidas) {
-                            subMedidasHtml = `
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-black text-emerald-800">
-                                        G: ${subBio.gordura || '-'}% • M: ${subBio.musculo || '-'}%
-                                    </span>
-                                    <span class="text-[10px] text-emerald-700 font-bold">
-                                        Visc: ${subBio.visceral || '-'}
-                                    </span>
-                                </div>
-                            `;
-                        } else if (subTemMedidas) {
-                            subMedidasHtml = `<span class="text-xs font-semibold text-gray-700">${sub.busto || '-'} / ${sub.cintura || '-'} / ${sub.abdomen || '-'} / ${sub.quadril || '-'}</span>`;
-                        } else {
-                            subMedidasHtml = `<span class="text-xs text-gray-400 italic">-</span>`;
-                        }
+                            let subMedidasHtml = '';
+                            if (subTemBio && !subTemMedidas) {
+                                subMedidasHtml = `
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-black text-emerald-800">
+                                            G: ${subBio.gordura || '-'}% • M: ${subBio.musculo || '-'}%
+                                        </span>
+                                        <span class="text-[10px] text-emerald-700 font-bold">
+                                            Visc: ${subBio.visceral || '-'}
+                                        </span>
+                                    </div>
+                                `;
+                            } else if (subTemMedidas) {
+                                subMedidasHtml = `<span class="text-xs font-semibold text-gray-700">${sub.busto || '-'} / ${sub.cintura || '-'} / ${sub.abdomen || '-'} / ${sub.quadril || '-'}</span>`;
+                            } else {
+                                subMedidasHtml = `<span class="text-xs text-gray-400 italic">-</span>`;
+                            }
 
-                        const subTr = document.createElement('tr');
-                        subTr.className = "bg-gray-50/90 hover:bg-blue-50/60 transition border-b border-gray-200 text-xs sm:text-sm";
-                        subTr.innerHTML = `
-                            <td class="p-2.5 sm:p-3 w-12 text-center"></td>
-                            <td class="p-2.5 sm:p-3 pl-10">
-                                <div class="flex items-center space-x-2">
-                                    <span class="inline-block w-2.5 h-2.5 rounded-full ${subIdx === 0 ? 'bg-blue-600' : 'bg-gray-400'}"></span>
-                                    <span class="font-extrabold text-gray-800 text-xs sm:text-sm">${isPrimeiraOuUltima}</span>
-                                    <span class="text-xs text-gray-500 font-mono font-bold">#${sub.id}</span>
-                                </div>
-                            </td>
-                            <td class="p-2.5 sm:p-3 text-gray-700 font-semibold text-xs sm:text-sm">${sub.whatsapp_cliente || '-'}</td>
-                            <td class="p-2.5 sm:p-3 font-bold text-gray-800 text-xs sm:text-sm">${subData}</td>
-                            <td class="p-2.5 sm:p-3 font-black text-brand-dark text-sm sm:text-base">${sub.peso ? sub.peso + ' kg' : '- kg'}</td>
-                            <td class="p-2.5 sm:p-3 text-gray-700 hidden sm:table-cell text-xs sm:text-sm font-semibold">${subMedidasHtml}</td>
-                            <td class="p-2.5 sm:p-3 text-right whitespace-nowrap">
-                                <div class="inline-flex items-center space-x-1.5">
-                                    ${isSubPedido ? `
-                                        <button onclick="abrirComandaPedido(${sub.id})" title="Ver e Imprimir Comanda do Pedido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center gap-1 cursor-pointer">
-                                            <i class="fa-solid fa-cart-shopping text-xs"></i> Pedido
-                                        </button>
-                                    ` : `
+                            const subTr = document.createElement('tr');
+                            subTr.className = "bg-gray-50/90 hover:bg-blue-50/60 transition border-b border-gray-200 text-xs sm:text-sm";
+                            subTr.innerHTML = `
+                                <td class="p-2.5 sm:p-3 w-12 text-center"></td>
+                                <td class="p-2.5 sm:p-3 pl-8 sm:pl-10">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-block w-2.5 h-2.5 rounded-full ${subIdx === 0 ? 'bg-blue-600' : 'bg-gray-400'}"></span>
+                                        <span class="font-extrabold text-gray-800 text-xs sm:text-sm">${isPrimeiraOuUltima}</span>
+                                        <span class="text-xs text-gray-500 font-mono font-bold">#${sub.id}</span>
+                                    </div>
+                                </td>
+                                <td class="p-2.5 sm:p-3 text-gray-700 font-semibold text-xs sm:text-sm">${sub.whatsapp_cliente || '-'}</td>
+                                <td class="p-2.5 sm:p-3 font-bold text-gray-800 text-xs sm:text-sm">${subData}</td>
+                                <td class="p-2.5 sm:p-3 font-black text-brand-dark text-sm sm:text-base">${sub.peso ? sub.peso + ' kg' : '- kg'}</td>
+                                <td class="p-2.5 sm:p-3 text-gray-700 hidden sm:table-cell text-xs sm:text-sm font-semibold">${subMedidasHtml}</td>
+                                <td class="p-2.5 sm:p-3 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center space-x-1.5">
                                         <button onclick="verFichaCompleta(${sub.id})" title="Ver Ficha desta Data" class="bg-blue-600/90 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
                                             <i class="fa-solid fa-file-waveform mr-1 text-xs"></i> Ver
                                         </button>
-                                    `}
-                                    <button onclick="${isSubPedido ? `abrirDetalhesPedido(${sub.id})` : `abrirEditarAvaliacao(${sub.id})`}" title="Editar" class="bg-amber-500/90 hover:bg-amber-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
-                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
-                                    </button>
-                                    <button onclick="excluirAvaliacao(${sub.id})" title="Excluir" class="bg-red-500/90 hover:bg-red-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
-                                        <i class="fa-solid fa-trash-can text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        corpo.appendChild(subTr);
-                    });
+                                        <button onclick="abrirEditarAvaliacao(${sub.id})" title="Editar" class="bg-amber-500/90 hover:bg-amber-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
+                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                        </button>
+                                        <button onclick="excluirAvaliacao(${sub.id})" title="Excluir" class="bg-red-500/90 hover:bg-red-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            corpo.appendChild(subTr);
+                        });
+                    }
+
+                    // 2. Linhas de Histórico de Pedidos Litrão (Registrados no Cadastro do Cliente com Datas e Quantidades)
+                    if (grupo.totalPedidos > 0) {
+                        grupo.itensPedidos.forEach((subPed) => {
+                            const pedData = new Date(subPed.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                            const dadosSub = (typeof extrairDadosPedidoItem === 'function') ? extrairDadosPedidoItem(subPed) : null;
+                            const subTrPed = document.createElement('tr');
+                            subTrPed.className = "bg-emerald-50/60 hover:bg-emerald-100/70 transition border-b border-emerald-200/80 text-xs sm:text-sm";
+                            subTrPed.innerHTML = `
+                                <td class="p-2.5 sm:p-3 w-12 text-center"></td>
+                                <td class="p-2.5 sm:p-3 pl-8 sm:pl-10">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black flex items-center justify-center text-xs flex-shrink-0 shadow-2xs">
+                                            <i class="fa-solid fa-cart-shopping text-[11px]"></i>
+                                        </span>
+                                        <div>
+                                            <span class="font-black text-emerald-950 text-xs sm:text-sm">Pedido Litrão</span>
+                                            <span class="text-[11px] text-emerald-700 font-bold ml-1.5 font-mono">#${subPed.id}</span>
+                                            <div class="text-[11px] text-emerald-800 font-bold mt-0.5">
+                                                ${dadosSub?.produto || 'Litrão do Reset'} (${dadosSub?.quantidade || 1}x) • ${dadosSub?.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-2.5 sm:p-3 text-gray-700 font-semibold text-xs sm:text-sm">${subPed.whatsapp_cliente || '-'}</td>
+                                <td class="p-2.5 sm:p-3 font-bold text-gray-800 text-xs sm:text-sm">
+                                    <span class="text-emerald-950 font-black block">${pedData}</span>
+                                    <span class="text-[10px] text-gray-500 font-semibold">Data do Pedido</span>
+                                </td>
+                                <td class="p-2.5 sm:p-3 font-black text-emerald-800 text-sm sm:text-base">
+                                    <span>${dadosSub?.valor_total || 'R$ 49,90'}</span>
+                                    <span class="block text-[10px] text-gray-500 font-semibold">${dadosSub?.forma_pagamento || 'PIX'}</span>
+                                </td>
+                                <td class="p-2.5 sm:p-3 text-gray-700 hidden sm:table-cell text-xs font-semibold">
+                                    <span class="font-bold text-gray-900 block">${dadosSub?.modalidade === 'ENTREGA' ? 'Entrega: ' + (dadosSub?.endereco || '-') : 'Retirada no Espaço'}</span>
+                                    <span class="text-emerald-700 text-[11px] font-bold">Status: ${dadosSub?.status || 'PENDENTE'}</span>
+                                </td>
+                                <td class="p-2.5 sm:p-3 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center space-x-1.5">
+                                        <button onclick="abrirComandaPedido(${subPed.id})" title="Ver e Imprimir Comanda Térmica (Print 4)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center gap-1 cursor-pointer shadow-2xs">
+                                            <i class="fa-solid fa-print text-xs"></i> Comanda
+                                        </button>
+                                        <button onclick="abrirCentralPedidosCliente('${whatsLimpo}', '${grupo.nomeExibicao}')" title="Ver no Card PEDIDOS" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-lg text-xs transition inline-flex items-center gap-1 cursor-pointer border border-emerald-300">
+                                            <i class="fa-solid fa-truck-fast text-xs"></i> Card Pedidos
+                                        </button>
+                                        <button onclick="abrirDetalhesPedido(${subPed.id})" title="Editar Status do Pedido" class="bg-amber-500/90 hover:bg-amber-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
+                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                        </button>
+                                        <button onclick="excluirAvaliacao(${subPed.id})" title="Excluir Registro de Pedido" class="bg-red-500/90 hover:bg-red-600 text-white font-bold p-1.5 rounded-lg text-xs transition inline-flex items-center cursor-pointer">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            corpo.appendChild(subTrPed);
+                        });
+                    }
                 }
             });
 
             // Atualiza os contadores nos Cards do topo
             const badgeTotalClientes = document.getElementById('badge-total-clientes');
             if (badgeTotalClientes) {
-                badgeTotalClientes.innerText = gruposMap.size;
+                badgeTotalClientes.innerText = grupos.length;
             }
             const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
             if (statCardTotalClientes) {
-                statCardTotalClientes.innerText = gruposMap.size;
+                statCardTotalClientes.innerText = grupos.length;
             }
             const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
             if (statCardTotalAvaliacoes) {
-                statCardTotalAvaliacoes.innerText = (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) ? todasAvaliacoesCache.length : grupos.reduce((acc, g) => acc + g.total, 0);
+                statCardTotalAvaliacoes.innerText = totalBiosTotal;
             }
             atualizarBadgesAniversarios();
             try { atualizarCardEMovimentacaoPedidos(); } catch(e) {}
@@ -6415,15 +6616,19 @@
             const todasDoCliente = todasAvaliacoesCache.filter(a => normalizarChaveCliente(a) === chaveCliente)
                 .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
 
+            // Filtra avaliações físicas para cálculos de bioimpedância e pedidos para exibição
+            const todasBioDoCliente = todasDoCliente.filter(a => !isItemPedido(a));
+            const todosPedidosDoCliente = todasDoCliente.filter(a => isItemPedido(a));
+
             // Localiza avaliação anterior do mesmo cliente criada ANTES desta
             const dataAtual = new Date(item.criado_em).getTime();
-            const historicoAnteriores = todasDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
+            const historicoAnteriores = todasBioDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
 
             // Determina as referências:
             // 1. avaliacaoInicialCliente: a primeira avaliação cronológica da história do cliente
             // 2. avaliacaoPenultimaCliente: a avaliação imediatamente anterior à selecionada
-            const avaliacaoInicialCliente = (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id) 
-                ? todasDoCliente[todasDoCliente.length - 1] 
+            const avaliacaoInicialCliente = (todasBioDoCliente.length > 1 && todasBioDoCliente[todasBioDoCliente.length - 1].id !== item.id) 
+                ? todasBioDoCliente[todasBioDoCliente.length - 1] 
                 : null;
 
             // Penúltima imediatamente anterior à atual (no tempo)
@@ -6679,40 +6884,40 @@
                         </div>
                     </div>
 
-                    <!-- BLOCO DE PEDIDO LITRÃO SE HOUVER -->
-                    ${isPedido ? `
-                    <div class="mb-5 bg-emerald-50 border-2 border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xs text-gray-800">
-                        <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-200">
+                    <!-- BLOCO DE PEDIDOS LITRÃO REGISTRADOS DO CLIENTE -->
+                    ${todosPedidosDoCliente && todosPedidosDoCliente.length > 0 ? `
+                    <div class="mb-5 bg-emerald-50 border border-emerald-300 rounded-2xl p-4 sm:p-5 shadow-xs text-gray-800">
+                        <div class="flex items-center justify-between pb-2 mb-3 border-b border-emerald-200">
                             <span class="inline-flex items-center gap-1.5 bg-emerald-700 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                                <i class="fa-solid fa-cart-shopping"></i> Reserva / Pedido Litrão
+                                <i class="fa-solid fa-cart-shopping"></i> Pedidos Litrão Registrados (${todosPedidosDoCliente.length})
                             </span>
-                            <span class="text-sm font-black text-emerald-900">${dadosPedidoObj?.valor_total || ''}</span>
+                            <button type="button" onclick="document.getElementById('modal-ficha').classList.add('hidden'); abrirCentralPedidosCliente('${whatsLimpo}', '${item.nome_cliente}')" class="text-xs text-emerald-800 font-black hover:underline flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-truck-fast"></i> Ver no Card Pedidos →
+                            </button>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                            <div>
-                                <span class="text-gray-500 font-bold block text-[11px]">Pacote Selecionado:</span>
-                                <strong class="text-emerald-950 font-black text-sm">${dadosPedidoObj?.produto || 'Litrão do Reset'} (${dadosPedidoObj?.quantidade || 1}x de ${dadosPedidoObj?.valor_unitario || ''})</strong>
-                            </div>
-                            <div>
-                                <span class="text-gray-500 font-bold block text-[11px]">Forma de Pagamento:</span>
-                                <strong class="text-gray-900 font-black text-sm">${dadosPedidoObj?.forma_pagamento || 'PIX'}</strong>
-                            </div>
-                            <div>
-                                <span class="text-gray-500 font-bold block text-[11px]">Modalidade:</span>
-                                <strong class="text-gray-900 font-black">${dadosPedidoObj?.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada no Espaço'}</strong>
-                                ${dadosPedidoObj?.modalidade === 'ENTREGA' && dadosPedidoObj?.endereco ? `<p class="text-xs text-gray-700 font-semibold mt-0.5">${dadosPedidoObj.endereco}</p>` : ''}
-                            </div>
-                            <div>
-                                <span class="text-gray-500 font-bold block text-[11px]">WhatsApp do Cliente:</span>
-                                <strong class="text-emerald-800 font-black text-sm">${item.whatsapp_cliente}</strong>
-                            </div>
+                        <div class="space-y-2">
+                            ${todosPedidosDoCliente.map(ped => {
+                                const dp = (typeof extrairDadosPedidoItem === 'function') ? extrairDadosPedidoItem(ped) : null;
+                                const dtPed = new Date(ped.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                                return `
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-xl border border-emerald-200 text-xs gap-2">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <strong class="text-emerald-950 font-black text-sm">${dp?.produto || 'Litrão do Reset'} (${dp?.quantidade || 1}x)</strong>
+                                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${dp?.modalidade === 'ENTREGA' ? '🚚 Delivery' : '🏪 Retirada'}</span>
+                                            </div>
+                                            <span class="text-gray-500 font-medium block text-[11px] mt-0.5">${dtPed} ${dp?.modalidade === 'ENTREGA' && dp?.endereco ? '• ' + dp.endereco : ''}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between sm:justify-end gap-2.5">
+                                            <span class="font-black text-emerald-700 text-sm">${dp?.valor_total || 'R$ 49,90'}</span>
+                                            <button onclick="document.getElementById('modal-ficha').classList.add('hidden'); abrirComandaPedido(${ped.id})" title="Ver e Imprimir Comanda Térmica (Print 4)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs">
+                                                <i class="fa-solid fa-print"></i> Comanda
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
-                        ${dadosPedidoObj?.observacoes && dadosPedidoObj.observacoes !== 'Nenhuma' ? `
-                            <div class="mt-3 pt-3 border-t border-emerald-200/60 text-xs">
-                                <span class="text-gray-500 font-bold block text-[11px]">Observações / Sabor:</span>
-                                <p class="text-gray-800 font-semibold italic mt-0.5">"${dadosPedidoObj.observacoes}"</p>
-                            </div>
-                        ` : ''}
                     </div>
                     ` : ''}
 
@@ -8164,11 +8369,13 @@
             const todasDoCliente = todasAvaliacoesCache.filter(a => normalizarChaveCliente(a) === chaveCliente)
                 .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
 
+            const todasBioDoCliente = todasDoCliente.filter(a => !isItemPedido(a));
+
             const dataAtual = new Date(item.criado_em).getTime();
-            const historicoAnteriores = todasDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
+            const historicoAnteriores = todasBioDoCliente.filter(a => a.id !== item.id && new Date(a.criado_em).getTime() < dataAtual);
             
-            const avInicial = (todasDoCliente.length > 1 && todasDoCliente[todasDoCliente.length - 1].id !== item.id) 
-                ? todasDoCliente[todasDoCliente.length - 1] 
+            const avInicial = (todasBioDoCliente.length > 1 && todasBioDoCliente[todasBioDoCliente.length - 1].id !== item.id) 
+                ? todasBioDoCliente[todasBioDoCliente.length - 1] 
                 : null;
             const avPenultima = historicoAnteriores.length > 0 ? historicoAnteriores[0] : null;
 
