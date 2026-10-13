@@ -1025,6 +1025,14 @@
                     consultorAtendenteElInit.innerText = `Atendimento direto com: ${consultorNomeExibicaoInit}`;
                 }
 
+                // Garante que as 3 letras de patrocínio Herbalife sejam sempre limpas (3 letras maiúsculas)
+                let letrasLimpaHerbalife = (consultor.letras || '').trim().replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
+                if (!letrasLimpaHerbalife && consultor.slug) {
+                    const mSlug = consultor.slug.match(/([a-zA-Z]{2,4})$/);
+                    if (mSlug && mSlug[1]) letrasLimpaHerbalife = mSlug[1].toUpperCase();
+                }
+                consultor.letras = letrasLimpaHerbalife || 'BRA';
+
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 

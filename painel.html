@@ -976,14 +976,27 @@
                         <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">ID Herbalife</label>
-                            <input type="text" id="superadmin-edit-herbalife-id" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                <span>ID Herbalife</span>
+                                <span class="text-[10px] text-purple-600 font-extrabold">Número</span>
+                            </label>
+                            <input type="text" id="superadmin-edit-herbalife-id" required placeholder="Ex: 433005811" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Letras / Senha</label>
-                            <input type="text" id="superadmin-edit-letras" maxlength="5" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase">
+                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                <span>3 Letras (Herbalife)</span>
+                                <span class="text-[10px] text-emerald-600 font-extrabold">Sponsor</span>
+                            </label>
+                            <input type="text" id="superadmin-edit-letras" maxlength="3" required placeholder="Ex: BRA" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-black text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase tracking-widest text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                <span>Senha do Painel</span>
+                                <span class="text-[10px] text-amber-600 font-extrabold">Acesso</span>
+                            </label>
+                            <input type="text" id="superadmin-edit-senha" placeholder="Ex: 120547" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                         </div>
                     </div>
 
@@ -2766,7 +2779,36 @@
         let consultorAtual = null;
 
         const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
-        let modalQrCodeInstancia = null;
+        // Utilitários para separação estrita de Letras Herbalife (Sponsor) e Senha do Painel (Acesso)
+        function extrairSenhaConsultor(c) {
+            if (!c) return '';
+            if (c.nome_espaco && c.nome_espaco.includes('<!--SENHA:')) {
+                const match = c.nome_espaco.match(/<!--SENHA:(.*?)-->/);
+                if (match && match[1]) return match[1].trim();
+            }
+            const l = (c.letras || '').trim();
+            if (l.length > 3 || /\d/.test(l)) {
+                return l;
+            }
+            return l;
+        }
+        window.extrairSenhaConsultor = extrairSenhaConsultor;
+
+        function extrairLetrasHerbalife(c) {
+            if (!c) return '';
+            const l = (c.letras || '').trim().toUpperCase();
+            if (/^[A-Z]{2,4}$/.test(l)) {
+                return l;
+            }
+            if (c.slug) {
+                const matchSlug = c.slug.match(/([a-zA-Z]{2,4})$/);
+                if (matchSlug && matchSlug[1]) {
+                    return matchSlug[1].toUpperCase();
+                }
+            }
+            return l.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'BRA';
+        }
+        window.extrairLetrasHerbalife = extrairLetrasHerbalife;
 
         function verificarTrialPromocao() {
             if (!consultorAtual) return;
@@ -3373,19 +3415,22 @@
 
                 if (data && data.length > 0) {
                     const consultor = data[0];
-                    const letrasCadastradas = (consultor.letras || '').trim();
+                    const letrasCadastradas = extrairLetrasHerbalife(consultor);
+                    const senhaCadastrada = extrairSenhaConsultor(consultor);
 
-                    // Compara senha: case-insensitive para comodidade (ex: 'fit' == 'FIT') ou match exato
-                    const senhaConfere = (senha.toUpperCase() === letrasCadastradas.toUpperCase()) || (senha === letrasCadastradas) || !letrasCadastradas;
+                    // Compara senha: aceita a senha exclusiva cadastrada OU as 3 letras como padrão
+                    const senhaConfere = (senhaCadastrada && (senha === senhaCadastrada || senha.toUpperCase() === senhaCadastrada.toUpperCase())) ||
+                                         (letrasCadastradas && (senha.toUpperCase() === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
+                                         (!senhaCadastrada && !letrasCadastradas);
 
                     if (senhaConfere) {
                         consultorAtual = consultor;
                         try {
-                            localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras }));
+                            localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: consultor.herbalife_id, letras: consultor.letras, senha: senhaCadastrada }));
                         } catch (e) {}
                         mostrarDashboard();
                     } else {
-                        exibirErroLogin(`Senha incorreta para o ID <strong>${consultor.herbalife_id}</strong>! Digite as 3 letras cadastradas ou sua nova senha.`);
+                        exibirErroLogin(`Senha incorreta para o ID <strong>${consultor.herbalife_id}</strong>! Digite sua senha de acesso ou suas 3 letras cadastradas.`);
                         if (senhaInput) senhaInput.focus();
                     }
                 } else {
@@ -4184,8 +4229,14 @@
                         </div>
                     </td>
                     <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs sm:text-sm">
-                        <span>${c.herbalife_id}</span>
-                        <span class="text-xs text-purple-600 font-bold ml-1">${c.letras || ''}</span>
+                        <div class="flex items-center gap-1.5">
+                            <span>${c.herbalife_id}</span>
+                            <span class="text-xs text-purple-700 font-black bg-purple-100 border border-purple-200 px-1.5 py-0.5 rounded" title="3 Letras do Sobrenome (Herbalife)">${extrairLetrasHerbalife(c)}</span>
+                        </div>
+                        <div class="text-[11px] font-semibold text-gray-500 mt-1 flex items-center gap-1" title="Senha de acesso ao painel">
+                            <i class="fa-solid fa-key text-[10px] text-amber-500"></i>
+                            <span class="font-mono text-gray-700 font-bold">${extrairSenhaConsultor(c) || '<span class="text-gray-400 italic font-sans font-normal">Padrão</span>'}</span>
+                        </div>
                     </td>
                     <td class="p-3 sm:p-4">
                         ${whatsLimpo ? `
@@ -4235,8 +4286,11 @@
             const consultor = todosConsultoresCache.find(c => c.id === id);
             if (!consultor) return;
 
+            const letrasHerbalife = extrairLetrasHerbalife(consultor);
+            const senhaPainel = extrairSenhaConsultor(consultor);
+
             document.getElementById('superadmin-edit-id').value = consultor.id || '';
-            document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • ${consultor.letras || ''}`;
+            document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • Letras: ${letrasHerbalife || '---'} • Senha: ${senhaPainel || '---'}`;
             
             // Extrai dados limpos de nome_espaco e redes sociais
             let textoEspacoLimpo = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
@@ -4269,7 +4323,8 @@
             if (elPrecoTurboAdm) elPrecoTurboAdm.value = precosKitsObj.reset_turbo || '';
 
             document.getElementById('superadmin-edit-herbalife-id').value = consultor.herbalife_id || '';
-            document.getElementById('superadmin-edit-letras').value = (consultor.letras || '').toUpperCase();
+            document.getElementById('superadmin-edit-letras').value = letrasHerbalife;
+            document.getElementById('superadmin-edit-senha').value = senhaPainel;
             document.getElementById('superadmin-edit-whatsapp').value = consultor.whatsapp || '';
             document.getElementById('superadmin-edit-status').value = consultor.status || 'Ativo';
             document.getElementById('superadmin-edit-vencimento').value = consultor.vencimento || '';
@@ -4326,19 +4381,28 @@
                 nomeEspacoBase += ` <!--PRECOS_KITS:${JSON.stringify(precosKits)}-->`;
             }
 
-            // Preserva outras tags extras do consultor (ex: PIX)
+            // Senha do painel em tag oculta separada <!--SENHA:...-->
+            const senhaEdit = (document.getElementById('superadmin-edit-senha')?.value || '').trim();
+            if (senhaEdit) {
+                nomeEspacoBase += ` <!--SENHA:${senhaEdit}-->`;
+            }
+
+            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS e SENHA para não duplicar
             const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
             }
 
+            // 3 Letras da Herbalife: apenas letras maiúsculas (máximo 3)
+            const letrasEdit = (document.getElementById('superadmin-edit-letras')?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
+
             const payload = {
                 nome_espaco: nomeEspacoBase,
                 herbalife_id: document.getElementById('superadmin-edit-herbalife-id').value.trim(),
-                letras: document.getElementById('superadmin-edit-letras').value.trim().toUpperCase(),
+                letras: letrasEdit,
                 whatsapp: document.getElementById('superadmin-edit-whatsapp').value.trim(),
                 status: document.getElementById('superadmin-edit-status').value,
                 vencimento: document.getElementById('superadmin-edit-vencimento').value || null,
@@ -10021,9 +10085,19 @@
                 nomeEspacoCompleto += ` <!--PRECOS_KITS:${JSON.stringify(precosKitsObj)}-->`;
             }
 
-            // Preserva outras tags extras existentes, ignorando SOCIAIS, PIX e PRECOS_KITS para não duplicar
+            // Senha do painel: salva separada em <!--SENHA:...--> e preserva senha anterior se não alterada
             const rawAntigo = consultorAtual.nome_espaco || '';
-            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:|PRECOS_KITS:).*?-->/g);
+            if (novaSenha) {
+                nomeEspacoCompleto += ` <!--SENHA:${novaSenha}-->`;
+            } else if (rawAntigo.includes('<!--SENHA:')) {
+                const matchSenhaAntiga = rawAntigo.match(/<!--SENHA:(.*?)-->/);
+                if (matchSenhaAntiga && !nomeEspacoCompleto.includes('<!--SENHA:')) {
+                    nomeEspacoCompleto += ` <!--SENHA:${matchSenhaAntiga[1]}-->`;
+                }
+            }
+
+            // Preserva outras tags extras existentes, ignorando SOCIAIS, PIX, PRECOS_KITS e SENHA para não duplicar
+            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:|PRECOS_KITS:|SENHA:).*?-->/g);
             if (matchComentarios) {
                 nomeEspacoCompleto += ' ' + matchComentarios.join(' ');
             }
@@ -10032,9 +10106,6 @@
                 nome_espaco: nomeEspacoCompleto,
                 whatsapp: zap
             };
-            if (novaSenha) {
-                payloadAtualizacao.letras = novaSenha;
-            }
 
             if (btn) {
                 btn.disabled = true;
@@ -10295,10 +10366,14 @@
             const novaSenha = (document.getElementById('nova-senha-consultor').value || '').trim();
             const confirmarSenha = (document.getElementById('confirmar-senha-consultor').value || '').trim();
 
-            const senhaCadastrada = (consultorAtual.letras || '').trim();
+            const senhaCadastrada = extrairSenhaConsultor(consultorAtual);
+            const letrasCadastradas = extrairLetrasHerbalife(consultorAtual);
 
-            // Validação de senha atual
-            const confereAtual = !senhaCadastrada || (senhaAtual.toUpperCase() === senhaCadastrada.toUpperCase()) || (senhaAtual === senhaCadastrada);
+            // Validação de senha atual (confere com a senha exclusiva ou com as 3 letras de cadastro)
+            const confereAtual = !senhaCadastrada || 
+                                 (senhaAtual === senhaCadastrada) || 
+                                 (senhaAtual.toUpperCase() === senhaCadastrada.toUpperCase()) || 
+                                 (senhaAtual.toUpperCase() === letrasCadastradas.toUpperCase());
             if (!confereAtual) {
                 if (errBox) {
                     errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> A senha atual informada não confere com sua senha cadastrada.';
@@ -10329,6 +10404,11 @@
             }
 
             try {
+                let rawNomeEspaco = consultorAtual.nome_espaco || '';
+                // Remove tag anterior de senha se existir
+                rawNomeEspaco = rawNomeEspaco.replace(/<!--SENHA:[\s\S]*?-->/g, '').trim();
+                rawNomeEspaco += ` <!--SENHA:${novaSenha}-->`;
+
                 const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
                 const res = await fetch(patchUrl, {
                     method: 'PATCH',
@@ -10338,19 +10418,20 @@
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
-                    body: JSON.stringify({ letras: novaSenha })
+                    body: JSON.stringify({ nome_espaco: rawNomeEspaco })
                 });
 
                 if (!res.ok) {
                     throw new Error(`Erro HTTP ${res.status} ao salvar no Supabase`);
                 }
 
-                // Atualiza sessão em memória e armazenamento local
-                consultorAtual.letras = novaSenha;
+                // Atualiza sessão em memória e armazenamento local (preservando o campo letras da Herbalife!)
+                consultorAtual.nome_espaco = rawNomeEspaco;
                 try {
                     localStorage.setItem('litrao_consultor_auth', JSON.stringify({
                         id: consultorAtual.herbalife_id,
-                        letras: novaSenha
+                        letras: consultorAtual.letras,
+                        senha: novaSenha
                     }));
                 } catch (_) {}
 

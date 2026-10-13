@@ -230,11 +230,22 @@
                     statusBadgeHtml = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase mb-1 inline-block">${item.status || 'Inativo'}</span>`;
                 }
                 
+                let letrasItem = (item.letras || '').trim().replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
+                let senhaItem = '';
+                if (item.nome_espaco && item.nome_espaco.includes('<!--SENHA:')) {
+                    const mS = item.nome_espaco.match(/<!--SENHA:(.*?)-->/);
+                    if (mS && mS[1]) senhaItem = mS[1].trim();
+                }
+
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
                         <td class="p-4">
                             <p class="font-bold text-gray-900">${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
-                            <p class="text-xs text-gray-500">ID: ${item.herbalife_id} ${item.letras ? item.letras.toUpperCase() : ''}</p>
+                            <p class="text-xs text-gray-500">
+                                ID: <span class="font-bold text-gray-700">${item.herbalife_id}</span>
+                                <span class="text-purple-600 font-extrabold ml-1 bg-purple-50 border border-purple-200 px-1 py-0.2 rounded text-[10px]" title="3 Letras Herbalife">${letrasItem || '---'}</span>
+                                ${senhaItem ? `<span class="text-amber-700 font-bold ml-1 text-[10px]" title="Senha de acesso"><i class="fa-solid fa-key text-[9px] text-amber-500"></i> ${senhaItem}</span>` : ''}
+                            </p>
                         </td>
                         <td class="p-4">
                             <a href="/${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
