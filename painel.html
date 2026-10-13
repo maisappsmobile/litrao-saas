@@ -37,6 +37,9 @@
                 <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
                     <i class="fa-solid fa-key text-amber-600"></i> <span class="hidden sm:inline">Alterar Senha</span>
                 </button>
+                <button id="btn-abrir-directs-prospeccao" onclick="abrirModalDirectsProspeccao()" class="text-xs font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Modelos de Direct & Scripts X1 para Redes Sociais">
+                    <i class="fa-solid fa-paper-plane text-yellow-300"></i> <span class="hidden md:inline">Directs X1</span>
+                </button>
                 <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 px-3 py-1.5 rounded-lg transition border border-gray-200 hidden cursor-pointer">
                     <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
                 </button>
@@ -191,6 +194,37 @@
             </div>
         </div>
 
+        <!-- CARD: PROSPECÇÃO X1 & DIRECTS PARA REDES SOCIAIS -->
+        <div id="card-prospeccao-x1-container" class="mb-6">
+            <div class="w-full bg-gradient-to-r from-pink-600 via-purple-700 to-indigo-800 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-pink-400/40 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-5 group">
+                <div class="absolute -right-10 -bottom-10 w-52 h-52 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition duration-500"></div>
+                <div class="flex items-center space-x-4 relative z-10">
+                    <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-yellow-300 via-pink-400 to-purple-500 text-purple-950 flex items-center justify-center text-2xl font-black shadow-lg flex-shrink-0">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                            <span class="bg-white/20 backdrop-blur-xs text-yellow-300 border border-white/20 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-bullhorn"></i> MÁQUINA DE ATRAÇÃO X1
+                            </span>
+                            <span class="bg-black/30 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                Instagram • WhatsApp • Telegram • Facebook
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black text-white leading-tight">Modelos de Direct para Consultores & EVS</h4>
+                        <p class="text-xs sm:text-sm text-pink-100 font-medium mt-0.5 max-w-xl">
+                            Scripts prontos de alta conversão para abordar consultores e donos de Espaço Vida Saudável nas redes sociais e trazê-los para os <strong>7 dias de teste grátis</strong>.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto relative z-10 flex-shrink-0">
+                    <button type="button" onclick="abrirModalDirectsProspeccao()" class="w-full md:w-auto bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-purple-950 font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-bolt text-amber-700"></i> ABRIR SCRIPTS DE DIRECT
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- CARD SUPERADMIN EXCLUSIVO (APENAS ID 433005811) -->
         <div id="card-superadmin-container" class="hidden mb-6">
             <div class="w-full bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden border-2 border-purple-500/40 ring-1 ring-purple-400/20 group">
@@ -222,6 +256,10 @@
                             <span class="block text-[10px] uppercase tracking-widest font-extrabold text-purple-200/80">TOTAL CONSULTORES</span>
                             <span id="superadmin-total-badge" class="text-2xl font-black text-amber-300 block leading-tight">...</span>
                         </div>
+                        <button onclick="abrirModalDirectsProspeccao()" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-black py-3.5 px-5 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-paper-plane text-yellow-300"></i>
+                            <span>DIRECTS X1</span>
+                        </button>
                         <button onclick="abrirModalSuperadminCupons()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-purple-950 font-black py-3.5 px-5 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer whitespace-nowrap">
                             <i class="fa-solid fa-ticket text-base"></i>
                             <span>CRIAR QUALQUER CUPOM (%)</span>
@@ -762,6 +800,113 @@
                         <button type="button" id="btn-salvar-cfg-precos" onclick="salvarPrecosKitsModal()" class="flex-1 sm:flex-none text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-floppy-disk"></i> Salvar Preços e Ativar Pacotes
                         </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MODAL: MODELOS DE DIRECT & PROSPECÇÃO X1 PARA REDES SOCIAIS -->
+        <div id="modal-directs-prospeccao" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden">
+            <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-7 shadow-2xl relative border border-gray-200 max-h-[94vh] flex flex-col animate-fade-in">
+                <!-- Botão Fechar -->
+                <button type="button" onclick="fecharModalDirectsProspeccao()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition z-20">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Cabeçalho do Modal -->
+                <div class="flex items-center space-x-3.5 mb-4 border-b border-gray-100 pb-4 flex-shrink-0 pr-10">
+                    <div class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-md flex-shrink-0">
+                        <i class="fa-solid fa-paper-plane text-yellow-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Central de Directs & Prospecção X1</h3>
+                            <span class="bg-gradient-to-r from-amber-500 to-yellow-500 text-purple-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                Atração de Consultores & EVS
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Modelos prontos e testados para abordar consultores Herbalife e Espaços Vida Saudável no <strong>Instagram, WhatsApp, Telegram e Facebook</strong> para trazê-los para os <strong>7 dias grátis</strong> na plataforma.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Barra de Personalização Instantânea em Tempo Real -->
+                <div class="bg-gradient-to-r from-slate-900 via-purple-950 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl mb-4 shadow-md flex-shrink-0 border border-purple-400/20">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-black uppercase tracking-wider text-yellow-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Personalização em Tempo Real (Substituição Automática nos Scripts)
+                        </span>
+                        <span class="text-[11px] text-purple-200 font-semibold hidden sm:inline">Preencha e veja todos os textos mudarem instantaneamente</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-purple-200 mb-1">
+                                <i class="fa-solid fa-user-tag text-pink-400 mr-1"></i> Nome do Consultor / EVS:
+                            </label>
+                            <input type="text" id="direct-campo-nome" placeholder="Ex: Ana Paula ou EVS Vida Ativa" oninput="atualizarTextosDirects()" class="w-full p-2.5 bg-white/10 border border-white/20 focus:border-yellow-400 rounded-xl text-xs font-bold text-white placeholder-gray-400 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-purple-200 mb-1">
+                                <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i> Cidade / Região:
+                            </label>
+                            <input type="text" id="direct-campo-cidade" placeholder="Ex: Curitiba ou sua cidade" oninput="atualizarTextosDirects()" class="w-full p-2.5 bg-white/10 border border-white/20 focus:border-yellow-400 rounded-xl text-xs font-bold text-white placeholder-gray-400 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-purple-200 mb-1">
+                                <i class="fa-solid fa-link text-emerald-400 mr-1"></i> Seu Link de Teste Grátis:
+                            </label>
+                            <input type="text" id="direct-campo-link" placeholder="https://litraodoreset.com.br" oninput="atualizarTextosDirects()" class="w-full p-2.5 bg-white/10 border border-white/20 focus:border-yellow-400 rounded-xl text-xs font-bold text-white placeholder-gray-400 focus:outline-none transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abas / Filtros por Canal de Rede Social -->
+                <div class="flex items-center gap-1.5 sm:gap-2 mb-4 overflow-x-auto pb-1 flex-shrink-0 border-b border-gray-100">
+                    <button type="button" onclick="filtrarAbasDirects('todos')" id="tab-direct-todos" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 whitespace-nowrap bg-purple-700 text-white shadow-xs">
+                        <i class="fa-solid fa-layer-group"></i> Todos (<span id="cont-todos">12</span>)
+                    </button>
+                    <button type="button" onclick="filtrarAbasDirects('instagram')" id="tab-direct-instagram" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-pink-50 text-gray-700 hover:text-pink-700">
+                        <i class="fa-brands fa-instagram text-pink-600"></i> Instagram Direct (<span id="cont-instagram">3</span>)
+                    </button>
+                    <button type="button" onclick="filtrarAbasDirects('whatsapp')" id="tab-direct-whatsapp" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700">
+                        <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp X1 (<span id="cont-whatsapp">3</span>)
+                    </button>
+                    <button type="button" onclick="filtrarAbasDirects('telegram')" id="tab-direct-telegram" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-sky-50 text-gray-700 hover:text-sky-700">
+                        <i class="fa-brands fa-telegram text-sky-500"></i> Telegram (<span id="cont-telegram">2</span>)
+                    </button>
+                    <button type="button" onclick="filtrarAbasDirects('facebook')" id="tab-direct-facebook" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-700">
+                        <i class="fa-brands fa-facebook text-blue-600"></i> Facebook (<span id="cont-facebook">2</span>)
+                    </button>
+                    <button type="button" onclick="filtrarAbasDirects('audio')" id="tab-direct-audio" class="tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-amber-50 text-gray-700 hover:text-amber-800">
+                        <i class="fa-solid fa-microphone-lines text-amber-600"></i> Áudios Scriptados (<span id="cont-audio">2</span>)
+                    </button>
+                </div>
+
+                <!-- Container Rolável dos Cards de Modelos de Script -->
+                <div id="container-cards-directs" class="flex-1 overflow-y-auto space-y-4 pr-1 sm:pr-2">
+                    <!-- Cards injetados via JS -->
+                </div>
+
+                <!-- Dicas Estratégicas no Rodapé do Modal -->
+                <div class="mt-4 pt-3 border-t border-gray-200 flex-shrink-0 bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80">
+                    <div class="flex items-center gap-2 mb-1 text-xs font-black text-amber-900 uppercase tracking-wide">
+                        <i class="fa-solid fa-lightbulb text-amber-600"></i> Dicas de Ouro para Alta Conversão no X1:
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] text-amber-950 font-medium leading-relaxed">
+                        <div class="flex items-start gap-1.5">
+                            <span class="font-black text-amber-700">1.</span>
+                            <span><strong>Quebre o gelo primeiro:</strong> No Instagram, curta 2 fotos e responda a um Story antes de enviar o direct. A taxa de abertura passa de 85%!</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <span class="font-black text-amber-700">2.</span>
+                            <span><strong>Use áudio curto:</strong> Gravar 25 a 35 segundos com a sua voz natural gera confiança imediata e converte 3x mais que texto longo.</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <span class="font-black text-amber-700">3.</span>
+                            <span><strong>Enfatize os 7 dias grátis:</strong> Deixe claro que não precisa de cartão de crédito e que é um convite cortesia de colega para colega.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -3202,6 +3347,8 @@
                 if (btnPerfil) btnPerfil.classList.remove('hidden');
                 const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
                 if (btnPrecosKits) btnPrecosKits.classList.remove('hidden');
+                const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
+                if (btnDirects) btnDirects.classList.remove('hidden');
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
                 if (btnAlterarSenha) btnAlterarSenha.classList.remove('hidden');
 
@@ -9486,6 +9633,8 @@
             if (btnAltSenha) btnAltSenha.classList.add('hidden');
             const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
             if (btnPrecosKits) btnPrecosKits.classList.add('hidden');
+            const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
+            if (btnDirects) btnDirects.classList.add('hidden');
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
@@ -10352,6 +10501,388 @@
                 alert("Roteiro copiado para a área de transferência!");
             });
         }
+
+        // ========================================================
+        // CENTRAL DE DIRECTS & PROSPECÇÃO X1 (REDES SOCIAIS)
+        // ========================================================
+        const SCRIPTS_PROSPECCAO_X1 = [
+            // INSTAGRAM DIRECT
+            {
+                id: "ig_stories_quebra_gelo",
+                rede: "instagram",
+                badgeCanal: "📸 Instagram Direct",
+                badgeCor: "from-pink-500 to-purple-600 text-white",
+                titulo: "1. Quebra de Gelo em Stories do EVS (Elogio + Gancho do Litrão)",
+                gatilho: "🔥 Elogio Genuíno + Curiosidade Irresistível",
+                descricaoUso: "Responda a um Story do consultor mostrando preparo de shakes, garrafas ou movimento no espaço.",
+                textoBase: "Oi {NOME}! Tudo bem? Vi seus stories aqui do seu EVS e achei o movimento e a dedicação de vocês incrível! 💚\n\nMe diz uma coisa: você já tem um cardápio digital próprio para os pedidos do Litrão do Reset que gera a comanda automática pro motoboy e coloca seu link na bio aqui do Insta?\n\nNós desenvolvemos uma plataforma feita exclusivamente para consultores e donos de Espaço Vida Saudável. Ela organiza todos os pedidos de Litrão, imprime a comanda na hora pro motoboy e ainda gera relatórios lindos de bioimpedância pros clientes.\n\nLiberei um acesso de 7 dias de degustação 100% grátis pra você testar no seu espaço sem compromisso:\n👉 {LINK}\n\nDá uma olhadinha e me fala o que achou! Sucesso aí no espaço! 🚀"
+            },
+            {
+                id: "ig_direct_perfil_evs",
+                rede: "instagram",
+                badgeCanal: "📸 Instagram Direct",
+                badgeCor: "from-pink-500 to-purple-600 text-white",
+                titulo: "2. Direct no Perfil do EVS (Foco: Fim da Papelada & Mais Vendas)",
+                gatilho: "⚡ Dor da Rotina Corrida + Automação Fácil",
+                descricaoUso: "Envie diretamente no inbox de perfis de Espaços Vida Saudável encontrados no Instagram.",
+                textoBase: "Olá {NOME}, parabéns pelo perfil e pelo lindo trabalho com o EVS em {CIDADE}! 🌿✨\n\nPassando rápido pra te fazer uma pergunta de consultor pra consultor: quanto tempo você perde hoje anotando pedidos de Litrão pelo WhatsApp e organizando entregas em caderno ou planilha?\n\nA gente criou o Sistema Oficial do Litrão do Reset:\n✅ Cardápio Digital personalizado com seu link pra bio do Instagram\n✅ Pedidos de Garrafas e Kits direto pelo celular\n✅ Comanda térmica de 80mm pronta com 1 clique pro motoboy\n✅ Ficha de Bioimpedância visual moderna que fideliza clientes\n\nVocê pode testar GRATUITAMENTE por 7 dias agora mesmo, sem precisar cadastrar cartão nem nada:\n👉 {LINK}\n\nSe precisar de qualquer ajuda pra colocar seu cardápio no ar, é só me chamar aqui! 💚"
+            },
+            {
+                id: "ig_bioimpedancia_vip",
+                rede: "instagram",
+                badgeCanal: "📸 Instagram Direct",
+                badgeCor: "from-pink-500 to-purple-600 text-white",
+                titulo: "3. Direct Focado na Bioimpedância Visual (Para quem faz avaliações)",
+                gatilho: "⭐ Encantamento do Cliente + Retenção Semanal",
+                descricaoUso: "Use quando o consultor postar fotos de balança, medições ou resultados corporais.",
+                textoBase: "Oi {NOME}! Parabéns pelos resultados dos seus clientes na bioimpedância! 👏🔥\n\nVocê ainda entrega os resultados dos clientes em fichinha de papel ou manda mensagem manual?\n\nNós criamos uma ferramenta que gera um Relatório Visual de Bioimpedância Profissional em 1 clique para enviar direto no WhatsApp do cliente com a logo do Litrão, comparativo de evolução e metas corporais. Os clientes amam e a taxa de retorno no espaço triplica!\n\nE o melhor: dentro do mesmo sistema você tem o cardápio digital de Litrão e controle de pedidos.\n\nConsegui liberar uma cortesia de 7 dias grátis pra você testar:\n👉 {LINK}\n\nTesta aí no seu espaço hoje mesmo e veja como seus clientes vão reagir!"
+            },
+            {
+                id: "ig_audio_roteiro",
+                rede: "audio",
+                badgeCanal: "🎙️ Áudio Scriptado (Instagram / WhatsApp)",
+                badgeCor: "from-amber-500 to-yellow-500 text-purple-950 font-black",
+                titulo: "4. Roteiro de Áudio para Direct do Instagram (25 a 35 segundos)",
+                gatilho: "🗣️ Humanização Máxima + Tom Amigável de Colega",
+                descricaoUso: "Grave com o microfone do Direct. Áudios convertem até 4x mais que mensagens em texto!",
+                textoBase: "🎙️ [ROTEIRO DE FALA - GRAVE COM SUA VOZ]:\n\n\"Fala {NOME}, tudo bem? Aqui é [Seu Nome]! Cara, tava olhando aqui o Instagram do seu EVS e achei muito top o movimento de vocês! Seguinte, passei rapidinho pra te dar uma dica de ouro: você já viu o sistema novo do Litrão do Reset que gera o link de cardápio digital pra bio e comanda automática de entrega? Mudou a nossa vida aqui, acabou com aquela loucura de papelada! Consegui liberar pra você um link de teste de 7 dias 100% grátis. Vou te mandar o link aqui embaixo, dá uma olhada quando puder, você vai adorar! Um abraço!\"\n\n🔗 [ENVIE ESTE LINK LOGO APÓS O ÁUDIO]:\n👉 {LINK}"
+            },
+
+            // WHATSAPP X1
+            {
+                id: "wpp_apresentacao_oficial",
+                rede: "whatsapp",
+                badgeCanal: "💬 WhatsApp X1",
+                badgeCor: "from-emerald-600 to-teal-600 text-white",
+                titulo: "5. Apresentação Oficial Completa (Estruturada e Profissional)",
+                gatilho: "🏆 Autoridade + Lista de Benefícios + Degustação 7 Dias",
+                descricaoUso: "Ideal para abordar consultores no WhatsApp via lista de contatos ou indicação.",
+                textoBase: "Olá, {NOME}! Tudo bem com você? 🌿\n\nMeu nome é [Seu Nome], também faço parte da comunidade de consultores e Espaços Vida Saudável.\n\nEntrei em contato porque sei como a rotina do EVS é corrida, principalmente na hora de receber pedidos do *Litrão do Reset*, organizar sabores, taxa de entrega e ficha de bioimpedância.\n\nQuero te apresentar a plataforma que criamos sob medida para o nosso negócio:\n\n🚀 *O QUE A PLATAFORMA FAZ PELO SEU ESPAÇO:*\n• 🥤 *Cardápio Digital do Litrão:* Seu cliente escolhe os sabores, kits semanais, endereço e forma de pagamento online.\n• 🛵 *Comanda Térmica Pronta:* Gera a comanda no padrão 80mm pronta pra imprimir ou mandar pro entregador.\n• 📊 *Bioimpedância Inteligente:* Avaliação física com relatório visual moderno direto no WhatsApp do cliente.\n• 🎂 *Módulo de Aniversários:* Lembra os aniversariantes do dia e mês para você mandar mensagem e vender mais.\n• 💰 *Personalização Regional:* Você define o valor das garrafas da sua região em segundos.\n\n🎁 Quero te convidar para fazer um *Teste Grátis por 7 Dias* (sem custo e sem precisar cadastrar cartão):\n👉 {LINK}\n\nQualquer dúvida na ativação, estou por aqui pra te ajudar! Boas vendas aí no espaço! 💚"
+            },
+            {
+                id: "wpp_consultor_para_consultor",
+                rede: "whatsapp",
+                badgeCanal: "💬 WhatsApp X1",
+                badgeCor: "from-emerald-600 to-teal-600 text-white",
+                titulo: "6. Papo Direto de Consultor para Consultor (Informal e Empático)",
+                gatilho: "🤝 Afinidade de Colega + Solução Imediata de Problemas",
+                descricaoUso: "Para conversar de maneira rápida, natural e sem parecer vendedor tradicional.",
+                textoBase: "Oi {NOME}, tudo na paz? 🌿\n\nMe diz uma coisa: como você tá organizando os pedidos de garrafas do Litrão e as entregas aí no seu espaço hoje? Ainda na prancheta ou anotando no WhatsApp?\n\nDesenvolvemos um sistema web que roda liso no celular e automatizou tudo isso pra nós. O cliente entra no seu link, escolhe o Litrão, já cai com endereço, forma de entrega e gera até a comanda pro motoboy. Além de salvar todo o histórico das bioimpedâncias!\n\nLiberamos um teste gratuito de 7 dias pra você experimentar sem pagar nada:\n👉 {LINK}\n\nAcessa aí e depois me conta o que achou! Forte abraço!"
+            },
+            {
+                id: "wpp_audio_roteiro",
+                rede: "audio",
+                badgeCanal: "🎙️ Áudio Scriptado (WhatsApp)",
+                badgeCor: "from-amber-500 to-yellow-500 text-purple-950 font-black",
+                titulo: "7. Script de Áudio para WhatsApp (Voz Humanizada - 30 a 40 segundos)",
+                gatilho: "🎧 Conexão Pessoal + Facilidade de Aplicação",
+                descricaoUso: "Grave uma mensagem de voz no WhatsApp e mande o link logo em seguida.",
+                textoBase: "🎙️ [ROTEIRO DE FALA NO WHATSAPP]:\n\n\"Oi {NOME}, tudo bem? [Seu Nome] por aqui! Só passando pra te mandar uma ferramenta que me ajudou demais aqui com o Litrão do Reset e com os clientes do espaço. É um sistema onde o cliente faz o pedido direto pelo link, cai organizadinho com comanda de entrega e já calcula a bioimpedância do cliente pra fidelizar. Liberei um link de degustação grátis de 7 dias pra você testar aí no seu espaço sem pagar nada. Dá uma olhadinha no link que vou te mandar aqui em seguida e me fala o que achou!\"\n\n🔗 [TEXTO DE APOIO PARA MANDAR EM SEGUIDA]:\nSegue o link do seu teste grátis por 7 dias, {NOME}:\n👉 {LINK}"
+            },
+            {
+                id: "wpp_followup_resgate",
+                rede: "whatsapp",
+                badgeCanal: "💬 WhatsApp X1",
+                badgeCor: "from-emerald-600 to-teal-600 text-white",
+                titulo: "8. Follow-up de Resgate (Para quem visualizou e não respondeu)",
+                gatilho: "⏳ Quebra de Objeção de Tempo + Lembrete sem Pressão",
+                descricaoUso: "Envie 24 a 48 horas depois caso o consultor tenha visualizado a mensagem anterior.",
+                textoBase: "Oi {NOME}! Passando só pra ver se você conseguiu dar uma olhadinha no link da plataforma do Litrão do Reset que te mandei. 😊\n\nLembrando que o teste de 7 dias é *100% gratuito e sem compromisso nenhum*. É só entrar e já começar a usar com os seus clientes hoje mesmo!\n\n👉 {LINK}\n\nSe tiver qualquer dúvida de como colocar seu link na bio ou gerar seu primeiro pedido, me dá um toque aqui que te ajudo na hora! 👊✨"
+            },
+
+            // TELEGRAM
+            {
+                id: "tg_privado_consultor",
+                rede: "telegram",
+                badgeCanal: "✈️ Telegram Privado",
+                badgeCor: "from-sky-500 to-blue-600 text-white",
+                titulo: "9. Abordagem no Privado do Telegram (Membros de Grupos)",
+                gatilho: "👥 Senso de Comunidade + Produtividade Prática",
+                descricaoUso: "Para abordar membros que participam de grupos de consultores ou EVS no Telegram.",
+                textoBase: "Fala {NOME}, tudo bem? Te vi no grupo de consultores! 🌿\n\nPassando pra compartilhar uma ferramenta que organizou 100% os pedidos do Litrão do Reset e as bioimpedâncias aqui no nosso espaço.\n\nÉ uma plataforma web onde você tem seu cardápio digital próprio, recebe os pedidos de garrafas com endereço e taxa de entrega, e ainda imprime a comanda na hora pro motoboy.\n\nEstá liberada uma degustação de **7 dias grátis** sem precisar cadastrar cartão:\n👉 {LINK}\n\nDepois me diz o que achou, vale muito a pena colocar no seu espaço! 🚀"
+            },
+            {
+                id: "tg_post_grupo",
+                rede: "telegram",
+                badgeCanal: "✈️ Telegram Grupos",
+                badgeCor: "from-sky-500 to-blue-600 text-white",
+                titulo: "10. Post Informativo para Grupos / Canais do Telegram",
+                gatilho: "📢 Dica de Ouro Compartilhada + Prova Social",
+                descricaoUso: "Publique em canais ou grupos autorizados onde consultores trocam dicas de trabalho.",
+                textoBase: "🔥 **DICA DE OURO PARA QUEM VENDE LITRÃO DO RESET & EVS** 🔥\n\nPessoal, pra quem ainda perde tempo anotando pedidos de Litrão no caderno ou sofrendo pra mandar endereço e sabores pros motoboys:\n\nLiberaram 7 dias de teste grátis na plataforma web do **Litrão do Reset**!\n\n✨ Cardápio Digital exclusivo com seu link pra bio\n✨ Pedidos automáticos de garrafas e kits semanais\n✨ Comanda térmica de 80mm pronta em 1 clique pro motoboy\n✨ Bioimpedância inteligente com relatório visual lindo pro cliente\n✨ Gestão de aniversariantes e retenção\n\nTestem aqui enquanto o trial grátis de 7 dias está ativo:\n👉 {LINK}\n\nBora bater meta de vendas este mês! 💪🚀"
+            },
+
+            // FACEBOOK
+            {
+                id: "fb_messenger_pagina_evs",
+                rede: "facebook",
+                badgeCanal: "👥 Facebook Messenger",
+                badgeCor: "from-blue-600 to-indigo-700 text-white",
+                titulo: "11. Mensagem via Messenger para Páginas de EVS no Facebook",
+                gatilho: "🏢 Respeito Profissional + Inovação Tecnológica",
+                descricaoUso: "Para abordar administradores de páginas de Espaço Vida Saudável no Facebook.",
+                textoBase: "Olá administradores do {NOME}! Tudo bem? 🌿\n\nAcompanho as publicações de vocês aqui no Facebook e quero parabenizar pelo excelente trabalho com a nutrição e estilo de vida saudável em {CIDADE}!\n\nGostaria de apresentar para a equipe do espaço uma plataforma desenvolvida exclusivamente para potencializar o Litrão do Reset e os atendimentos no EVS:\n\n• Cardápio online para receber pedidos de Litrão pelo celular\n• Geração de comandas de entrega profissionais para os entregadores\n• Relatórios de bioimpedância que encantam os clientes e estimulam a recompra\n\nVocês podem testar **gratuitamente por 7 dias** sem nenhum compromisso:\n👉 {LINK}\n\nDesejamos muito sucesso e ainda mais clientes para o espaço de vocês! 💚"
+            },
+            {
+                id: "fb_post_grupos_empreendedores",
+                rede: "facebook",
+                badgeCanal: "👥 Facebook Grupos",
+                badgeCor: "from-blue-600 to-indigo-700 text-white",
+                titulo: "12. Post Estratégico em Grupos de Consultores no Facebook",
+                gatilho: "💡 História Real + Transformação no Dia a Dia",
+                descricaoUso: "Compartilhe em grupos de consultores para gerar atração orgânica e curiosidade.",
+                textoBase: "Olá pessoal! Vim compartilhar uma virada de chave no meu Espaço Vida Saudável: a automação dos pedidos do Litrão do Reset e das bioimpedâncias.\n\nAntigamente era um caos com anotação em papel, mensagens picadas no WhatsApp e pedidos perdidos. Agora o cliente faz o pedido no cardápio online com meu link exclusivo, já escolhe os sabores do kit e a comanda sai prontinha com endereço e valor.\n\nA plataforma liberou 7 dias de degustação gratuita para consultores:\n👉 {LINK}\n\nRecomendo muito a todos os colegas que querem profissionalizar o atendimento e vender mais garrafas no espaço! 🚀✨"
+            }
+        ];
+
+        let abaDirectsAtual = 'todos';
+
+        function abrirModalDirectsProspeccao() {
+            const modal = document.getElementById('modal-directs-prospeccao');
+            if (!modal) return;
+
+            // Preenche o campo de link com o link real do consultor se estiver em branco
+            const campoLink = document.getElementById('direct-campo-link');
+            if (campoLink && (!campoLink.value || campoLink.value === 'https://litraodoreset.com.br')) {
+                const linkReal = (consultorAtual && (consultorAtual.slug || consultorAtual.herbalife_id))
+                    ? (window.location.origin + '/' + (consultorAtual.slug || consultorAtual.herbalife_id))
+                    : window.location.origin;
+                campoLink.value = linkReal;
+            }
+
+            modal.classList.remove('hidden');
+            atualizarContadoresAbasDirects();
+            renderizarCardsDirects();
+        }
+        window.abrirModalDirectsProspeccao = abrirModalDirectsProspeccao;
+
+        function fecharModalDirectsProspeccao() {
+            const modal = document.getElementById('modal-directs-prospeccao');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalDirectsProspeccao = fecharModalDirectsProspeccao;
+
+        function filtrarAbasDirects(rede) {
+            abaDirectsAtual = rede;
+
+            const abas = [
+                { id: 'tab-direct-todos', rede: 'todos', classeAtiva: 'bg-purple-700 text-white shadow-xs' },
+                { id: 'tab-direct-instagram', rede: 'instagram', classeAtiva: 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-xs' },
+                { id: 'tab-direct-whatsapp', rede: 'whatsapp', classeAtiva: 'bg-emerald-600 text-white shadow-xs' },
+                { id: 'tab-direct-telegram', rede: 'telegram', classeAtiva: 'bg-sky-500 text-white shadow-xs' },
+                { id: 'tab-direct-facebook', rede: 'facebook', classeAtiva: 'bg-blue-600 text-white shadow-xs' },
+                { id: 'tab-direct-audio', rede: 'audio', classeAtiva: 'bg-amber-500 text-purple-950 font-black shadow-xs' }
+            ];
+
+            abas.forEach(a => {
+                const btn = document.getElementById(a.id);
+                if (!btn) return;
+                if (a.rede === rede) {
+                    btn.className = `tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 whitespace-nowrap ${a.classeAtiva}`;
+                } else {
+                    btn.className = 'tab-direct-btn px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700';
+                }
+            });
+
+            renderizarCardsDirects();
+        }
+        window.filtrarAbasDirects = filtrarAbasDirects;
+
+        function atualizarContadoresAbasDirects() {
+            const contTodos = document.getElementById('cont-todos');
+            const contIg = document.getElementById('cont-instagram');
+            const contWpp = document.getElementById('cont-whatsapp');
+            const contTg = document.getElementById('cont-telegram');
+            const contFb = document.getElementById('cont-facebook');
+            const contAudio = document.getElementById('cont-audio');
+
+            if (contTodos) contTodos.innerText = SCRIPTS_PROSPECCAO_X1.length;
+            if (contIg) contIg.innerText = SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === 'instagram').length;
+            if (contWpp) contWpp.innerText = SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === 'whatsapp').length;
+            if (contTg) contTg.innerText = SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === 'telegram').length;
+            if (contFb) contFb.innerText = SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === 'facebook').length;
+            if (contAudio) contAudio.innerText = SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === 'audio').length;
+        }
+
+        function obterValoresSubstituicaoDirects() {
+            const rawNome = (document.getElementById('direct-campo-nome')?.value || '').trim();
+            const rawCidade = (document.getElementById('direct-campo-cidade')?.value || '').trim();
+            const rawLink = (document.getElementById('direct-campo-link')?.value || '').trim();
+
+            return {
+                nome: rawNome || 'Consultor(a)',
+                cidade: rawCidade || 'sua região',
+                link: rawLink || window.location.origin
+            };
+        }
+
+        function processarTextoScript(textoBase) {
+            const vars = obterValoresSubstituicaoDirects();
+            return textoBase
+                .replace(/{NOME}/g, vars.nome)
+                .replace(/{CIDADE}/g, vars.cidade)
+                .replace(/{LINK}/g, vars.link);
+        }
+
+        function atualizarTextosDirects() {
+            renderizarCardsDirects();
+        }
+        window.atualizarTextosDirects = atualizarTextosDirects;
+
+        function renderizarCardsDirects() {
+            const container = document.getElementById('container-cards-directs');
+            if (!container) return;
+
+            const lista = (abaDirectsAtual === 'todos')
+                ? SCRIPTS_PROSPECCAO_X1
+                : SCRIPTS_PROSPECCAO_X1.filter(s => s.rede === abaDirectsAtual);
+
+            if (lista.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-gray-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                        <p class="font-bold text-sm">Nenhum script encontrado nesta categoria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = lista.map(item => {
+                const textoFinal = processarTextoScript(item.textoBase);
+                const isAudio = item.rede === 'audio';
+
+                return `
+                    <div class="bg-gray-50/80 hover:bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 transition-all shadow-2xs hover:shadow-md flex flex-col justify-between gap-3">
+                        <!-- Topo do Card -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-3">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="bg-gradient-to-r ${item.badgeCor} text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                                    ${item.badgeCanal}
+                                </span>
+                                <span class="bg-yellow-100 text-yellow-900 border border-yellow-300/80 text-[10px] font-black px-2 py-0.5 rounded-full">
+                                    ${item.gatilho}
+                                </span>
+                            </div>
+                            <span class="text-[11px] text-gray-500 font-semibold italic">
+                                <i class="fa-solid fa-circle-info text-gray-400 mr-1"></i>${item.descricaoUso}
+                            </span>
+                        </div>
+
+                        <!-- Título do Script -->
+                        <h4 class="text-sm sm:text-base font-black text-gray-900 leading-snug">
+                            ${item.titulo}
+                        </h4>
+
+                        <!-- Balão do Texto Formatado -->
+                        <div class="relative bg-white rounded-xl p-3.5 sm:p-4 border border-gray-200/90 font-mono text-xs sm:text-[13px] text-gray-800 leading-relaxed whitespace-pre-wrap select-all shadow-inner max-h-64 overflow-y-auto">
+                            ${escapeHtml(textoFinal)}
+                        </div>
+
+                        <!-- Barra de Ferramentas / Ações Rápidas -->
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="copiarTextoDirect(this, '${item.id}')" class="btn-copiar-direct flex-1 sm:flex-none bg-purple-700 hover:bg-purple-800 text-white font-black px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer">
+                                    <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                                </button>
+                                <button type="button" onclick="abrirWhatsAppComDirect('${item.id}')" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer" title="Abrir com este texto no WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar WhatsApp</span>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 text-xs font-bold text-gray-500">
+                                <span>Abrir na Rede:</span>
+                                <button type="button" onclick="abrirRedeSocialDirect('instagram')" class="w-8 h-8 rounded-lg bg-pink-100 hover:bg-pink-200 text-pink-700 flex items-center justify-center transition cursor-pointer" title="Abrir Instagram Direct">
+                                    <i class="fa-brands fa-instagram text-sm"></i>
+                                </button>
+                                <button type="button" onclick="abrirRedeSocialDirect('telegram')" class="w-8 h-8 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-700 flex items-center justify-center transition cursor-pointer" title="Abrir Telegram">
+                                    <i class="fa-brands fa-telegram text-sm"></i>
+                                </button>
+                                <button type="button" onclick="abrirRedeSocialDirect('facebook')" class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 flex items-center justify-center transition cursor-pointer" title="Abrir Facebook Messenger">
+                                    <i class="fa-brands fa-facebook text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function copiarTextoDirect(btn, idScript) {
+            const item = SCRIPTS_PROSPECCAO_X1.find(s => s.id === idScript);
+            if (!item) return;
+
+            const texto = processarTextoScript(item.textoBase);
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto).then(() => {
+                    notificarSucessoCopiaDirect(btn);
+                }).catch(() => {
+                    fallbackCopiarTexto(texto);
+                    notificarSucessoCopiaDirect(btn);
+                });
+            } else {
+                fallbackCopiarTexto(texto);
+                notificarSucessoCopiaDirect(btn);
+            }
+        }
+        window.copiarTextoDirect = copiarTextoDirect;
+
+        function fallbackCopiarTexto(texto) {
+            const textarea = document.createElement("textarea");
+            textarea.value = texto;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {}
+            document.body.removeChild(textarea);
+        }
+
+        function notificarSucessoCopiaDirect(btn) {
+            if (!btn) return;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-white"></i> <span>Copiado com Sucesso! ✅</span>';
+            btn.classList.remove('bg-purple-700', 'hover:bg-purple-800');
+            btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                btn.classList.add('bg-purple-700', 'hover:bg-purple-800');
+            }, 2200);
+        }
+
+        function abrirWhatsAppComDirect(idScript) {
+            const item = SCRIPTS_PROSPECCAO_X1.find(s => s.id === idScript);
+            if (!item) return;
+            const texto = processarTextoScript(item.textoBase);
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+        window.abrirWhatsAppComDirect = abrirWhatsAppComDirect;
+
+        function abrirRedeSocialDirect(rede) {
+            if (rede === 'instagram') {
+                window.open('https://instagram.com/direct/inbox/', '_blank');
+            } else if (rede === 'telegram') {
+                window.open('https://t.me/', '_blank');
+            } else if (rede === 'facebook') {
+                window.open('https://facebook.com/messages/', '_blank');
+            }
+        }
+        window.abrirRedeSocialDirect = abrirRedeSocialDirect;
     </script>
 </body>
 </html>
