@@ -5315,9 +5315,15 @@
 
         function limparNomeCliente(nome) {
             if (!nome) return '';
-            return String(nome)
+            const nStr = String(nome).trim();
+            // Preserva o nome Edwan intacto
+            if (/\bedwan\b/i.test(nStr)) {
+                return nStr.replace(/^\[PEDIDO\]\s*/i, '').trim();
+            }
+            return nStr
                 .replace(/^\[PEDIDO\]\s*/i, '')
                 .replace(/^edw\s*[-–:.]*\s*/i, '')
+                .replace(/\bedw\s+/gi, '')
                 .trim();
         }
 
