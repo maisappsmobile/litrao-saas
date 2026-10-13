@@ -1628,13 +1628,13 @@
                                 <label class="block text-xs font-black text-emerald-950 mb-1">
                                     <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para o Flyer:
                                 </label>
-                                <input type="text" id="flyer-input-whatsapp" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                <input type="text" id="flyer-input-whatsapp" oninput="atualizarPreviewCopyFlyer()" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                             </div>
                             <div>
                                 <label class="block text-xs font-black text-emerald-950 mb-1">
                                     <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Aparecerá abaixo do número):
                                 </label>
-                                <input type="text" id="flyer-input-cidade" placeholder="Ex: Primavera do Leste - MT" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                <input type="text" id="flyer-input-cidade" oninput="atualizarPreviewCopyFlyer()" placeholder="Ex: Primavera do Leste - MT" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                             </div>
                         </div>
 
@@ -1652,28 +1652,58 @@
                                 </div>
                             </div>
 
-                            <div id="conteudo-preview-flyer" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-                                <div class="md:col-span-5 relative bg-gray-900 border border-gray-200 rounded-2xl overflow-hidden p-2 shadow-inner max-h-96 flex items-center justify-center">
-                                    <img id="img-preview-flyer" src="" alt="Flyer do Litrão Personalizado" class="w-full h-auto max-h-88 object-contain rounded-xl shadow-md">
+                            <div id="conteudo-preview-flyer" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                                <div class="md:col-span-5 relative bg-gray-900 border border-gray-200 rounded-2xl overflow-hidden p-2 shadow-inner flex flex-col items-center justify-center">
+                                    <img id="img-preview-flyer" src="" alt="Flyer do Litrão Personalizado" class="w-full h-auto max-h-[460px] object-contain rounded-xl shadow-md">
+                                    <span class="text-[10px] text-gray-400 mt-2 font-medium">Arte oficial em alta resolução com seu WhatsApp aplicado</span>
                                 </div>
                                 <div class="md:col-span-7 flex flex-col justify-between space-y-3">
-                                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-950 leading-relaxed font-medium">
-                                        <span class="font-black text-emerald-900 block text-sm mb-1">
-                                            ✅ Arte 100% Pronta para Divulgação!
-                                        </span>
-                                        Seu WhatsApp foi posicionado automaticamente com tipografia em <strong>cor branca nítida</strong> no campo verde inferior. Compartilhe no Status do WhatsApp, Stories do Instagram e envie diretamente para clientes e listas de transmissão!
+                                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl text-xs text-emerald-950 leading-relaxed font-medium">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-black text-emerald-900 block text-xs sm:text-sm">
+                                                ✅ Arte & Copy 100% Prontas para Divulgação!
+                                            </span>
+                                            <span class="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Pronto para Grupos</span>
+                                        </div>
+                                        Seu WhatsApp foi posicionado automaticamente com tipografia em <strong>cor branca nítida</strong> no campo verde. Ao clicar em <strong>Compartilhar</strong>, a foto é enviada acompanhada da copy persuasiva com os links do seu WhatsApp e da sua página oficial!
                                     </div>
 
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                        <button onclick="baixarArquivoGerado('flyer')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer">
+                                    <!-- BOTÕES DE AÇÃO DO FLYER -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <button onclick="compartilharArquivoGerado('flyer')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer transform hover:scale-101">
+                                            <i class="fa-brands fa-whatsapp mr-2 text-base"></i> Compartilhar Flyer no WhatsApp
+                                        </button>
+                                        <button onclick="copiarCopyFlyerGrupos()" id="btn-copiar-copy-flyer" class="bg-amber-400 hover:bg-amber-500 text-brand-dark font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer transform hover:scale-101">
+                                            <i class="fa-solid fa-copy mr-1.5 text-sm"></i> Copiar Copy com Meus Links
+                                        </button>
+                                        <button onclick="baixarArquivoGerado('flyer')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-sm cursor-pointer">
                                             <i class="fa-solid fa-download mr-1.5 text-yellow-300"></i> Baixar Flyer (JPG)
                                         </button>
-                                        <button onclick="compartilharArquivoGerado('flyer')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black py-3 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer">
-                                            <i class="fa-brands fa-whatsapp mr-1.5 text-base"></i> Enviar WhatsApp
-                                        </button>
-                                        <button onclick="imprimirArquivoGerado('flyer')" class="bg-gray-800 hover:bg-black text-white font-bold py-3 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer">
+                                        <button onclick="imprimirArquivoGerado('flyer')" class="bg-gray-800 hover:bg-black text-white font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-sm cursor-pointer">
                                             <i class="fa-solid fa-print mr-1.5"></i> Imprimir Cartaz
                                         </button>
+                                    </div>
+
+                                    <!-- CAIXA COM A COPY COMPLETA PARA DIVULGAÇÃO -->
+                                    <div class="bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-700 text-white text-xs shadow-inner">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-black text-yellow-400 text-xs flex items-center">
+                                                <i class="fa-solid fa-bullhorn mr-1.5 text-yellow-300"></i> Copy Validada para Grupos de WhatsApp:
+                                            </span>
+                                            <button onclick="copiarCopyFlyerGrupos()" class="text-[11px] bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-black px-2.5 py-1 rounded-lg transition flex items-center cursor-pointer shadow-xs">
+                                                <i class="fa-solid fa-copy mr-1"></i> Copiar Texto
+                                            </button>
+                                        </div>
+                                        <textarea id="flyer-copy-whatsapp-text" rows="8" readonly class="w-full bg-gray-950 text-gray-200 p-2.5 rounded-xl font-sans text-[11px] leading-relaxed border border-gray-800 resize-none focus:outline-none"></textarea>
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2 pt-2 border-t border-gray-800 text-[10px] text-gray-400">
+                                            <div class="flex items-center space-x-1.5 text-emerald-400 font-semibold">
+                                                <i class="fa-solid fa-link"></i>
+                                                <span>Links do seu WhatsApp e da sua Loja já inclusos na mensagem!</span>
+                                            </div>
+                                            <button onclick="abrirWhatsAppWebComCopy()" class="text-emerald-400 hover:text-emerald-300 font-bold underline flex items-center cursor-pointer">
+                                                <i class="fa-brands fa-whatsapp mr-1 text-xs"></i> Abrir WhatsApp com Copy
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2273,7 +2303,7 @@
     <div style="display:none;">
         <img id="img-base" src="adesivo-base.png?v=4" crossorigin="anonymous">
         <canvas id="canvas-a4"></canvas>
-        <img id="img-base-flyer" src="flyer_kit_semanal_reset_base.jpg" crossorigin="anonymous">
+        <img id="img-base-flyer" src="flyer_kit_semanal_reset_base.jpg?v=2" crossorigin="anonymous">
         <canvas id="canvas-flyer"></canvas>
         <div id="qrcode-temp"></div>
     </div>
@@ -3077,6 +3107,107 @@
         }
         window.baixarArquivoGerado = baixarArquivoGerado;
 
+        /* ==========================================================================
+           COPY E LINKS DE COMPARTILHAMENTO DO FLYER PARA GRUPOS DE WHATSAPP
+           ========================================================================== */
+        function obterLinkWhatsAppConsultor(consultor, msgPersonalizada) {
+            const cons = consultor || consultorAtual || {};
+            const inWhats = document.getElementById('flyer-input-whatsapp');
+            let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (cons.whatsapp || '');
+            let limpo = String(numWhats).replace(/\D/g, '');
+            if (!limpo) return '';
+            if (limpo.length <= 11 && !limpo.startsWith('55')) {
+                limpo = '55' + limpo;
+            }
+            const textoPadrao = msgPersonalizada || "Olá! Vi o flyer do Reset no grupo e quero garantir o meu kit da semana! 🥤🌿";
+            return `https://wa.me/${limpo}?text=${encodeURIComponent(textoPadrao)}`;
+        }
+        window.obterLinkWhatsAppConsultor = obterLinkWhatsAppConsultor;
+
+        function obterLinkLojaConsultor(consultor) {
+            const cons = consultor || consultorAtual || {};
+            let baseUrl = window.location.origin;
+            if (!baseUrl || baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1') || baseUrl.startsWith('file')) {
+                baseUrl = 'https://www.litrao.app.br';
+            }
+            const slugOuId = cons.slug || cons.herbalife_id || '';
+            return slugOuId ? `${baseUrl}/${slugOuId}` : baseUrl;
+        }
+        window.obterLinkLojaConsultor = obterLinkLojaConsultor;
+
+        function obterCopyCompartilhamentoFlyer(consultor) {
+            const cons = consultor || consultorAtual || {};
+            const linkWhats = obterLinkWhatsAppConsultor(cons);
+            const linkLoja = obterLinkLojaConsultor(cons);
+
+            let msg = `🔥 *EXAGEROU UM POUQUINHO NO FIM DE SEMANA? O SEU CORPO PRECISA DE UM RESET!* 🌿✨\n\n`;
+            msg += `Acabe com a retenção de líquidos, sensação de inchaço e cansaço! O *Litrão do Reset* é a estratégia perfeita para desintoxicar o organismo, acelerar seu metabolismo e recuperar sua energia com foco total. 💧🚀\n\n`;
+            msg += `🥤 *ESCOLHA O SEU PROTOCOLO DA SEMANA (5 GARRAFAS - 1 POR DIA):*\n\n`;
+            msg += `1️⃣ *RESET (Kit com 5 Garrafas de 500ml)* — R$ 49,90\n`;
+            msg += `🍃 5 Dias: Desintoxicação diária, leveza e renovação do metabolismo.\n\n`;
+            msg += `2️⃣ *RESET + (Kit com 5 Garrafas de 1 Litro)* — R$ 65,00 ⭐ *(Mais Vendido)*\n`;
+            msg += `🔥 5 Dias: Saciedade prolongada, queima acelerada e desinchaço profundo!\n\n`;
+            msg += `3️⃣ *RESET TURBO (Kit com 5 Garrafas de 1 Litro Turbo)* — R$ 79,99 ⚡\n`;
+            msg += `🚀 5 Dias: Máxima potência! Mais energia, queima potencializada e foco absoluto!\n\n`;
+            msg += `🛵 *Entregamos geladinho na sua casa ou trabalho todos os dias!*\n\n`;
+            msg += `👇 *GARANTA O SEU AGORA MESMO:*\n\n`;
+            if (linkWhats) {
+                msg += `📲 *Toque no link abaixo para pedir direto no meu WhatsApp:*\n👉 ${linkWhats}\n\n`;
+            }
+            msg += `🌐 *Ou faça seu pedido online no meu link:*\n👉 ${linkLoja}\n\n`;
+            msg += `⚠️ *Atenção:* Produção fresca e diária com vagas limitadas por lote. Reserve o seu antes que encerre o lote de hoje! 🏃‍♀️💨`;
+
+            return msg;
+        }
+        window.obterCopyCompartilhamentoFlyer = obterCopyCompartilhamentoFlyer;
+
+        function atualizarPreviewCopyFlyer() {
+            const txtArea = document.getElementById('flyer-copy-whatsapp-text');
+            if (txtArea) {
+                txtArea.value = obterCopyCompartilhamentoFlyer(consultorAtual);
+            }
+        }
+        window.atualizarPreviewCopyFlyer = atualizarPreviewCopyFlyer;
+
+        async function copiarCopyFlyerGrupos() {
+            const copy = obterCopyCompartilhamentoFlyer(consultorAtual);
+            const btn = document.getElementById('btn-copiar-copy-flyer');
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(copy);
+                } else {
+                    const txt = document.getElementById('flyer-copy-whatsapp-text');
+                    if (txt) {
+                        txt.select();
+                        document.execCommand('copy');
+                    }
+                }
+                if (btn) {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-1.5 text-base text-brand-dark"></i> COPY COPIADA COM LINKS!';
+                    btn.className = "bg-emerald-400 text-brand-dark font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer";
+                    setTimeout(() => {
+                        btn.innerHTML = original;
+                        btn.className = "bg-amber-400 hover:bg-amber-500 text-brand-dark font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer transform hover:scale-101";
+                    }, 3000);
+                }
+            } catch(err) {
+                const txt = document.getElementById('flyer-copy-whatsapp-text');
+                if (txt) {
+                    txt.select();
+                    document.execCommand('copy');
+                }
+            }
+        }
+        window.copiarCopyFlyerGrupos = copiarCopyFlyerGrupos;
+
+        function abrirWhatsAppWebComCopy() {
+            const copy = obterCopyCompartilhamentoFlyer(consultorAtual);
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(copy)}`;
+            window.open(url, '_blank');
+        }
+        window.abrirWhatsAppWebComCopy = abrirWhatsAppWebComCopy;
+
         async function compartilharArquivoGerado(tipo) {
             let dataUrl = dadosDataURLAdesivos;
             let nomeArquivo = `Adesivos_Litro_${consultorAtual?.herbalife_id || 'consultor'}.png`;
@@ -3088,12 +3219,25 @@
                 nomeArquivo = `Tiquetes_Sacola_${consultorAtual?.herbalife_id || 'consultor'}.png`;
                 titulo = 'Folha de Tíquetes para Sacola';
             } else if (tipo === 'flyer') {
+                if (!dadosDataURLFlyer) {
+                    gerarFlyerPersonalizado();
+                    await new Promise(r => setTimeout(r, 600));
+                }
                 dataUrl = dadosDataURLFlyer;
                 nomeArquivo = `Flyer_Kit_Reset_${consultorAtual?.herbalife_id || 'consultor'}.jpg`;
                 titulo = 'Flyer Oficial - Peça seu Kit Semanal do Reset';
                 mimeType = 'image/jpeg';
             }
             if (!dataUrl) return;
+
+            const textoCopy = (tipo === 'flyer') 
+                ? obterCopyCompartilhamentoFlyer(consultorAtual) 
+                : `${titulo} - Peça já o seu Litrão do Reset!`;
+
+            // Copia automaticamente para a área de transferência para garantir que o consultor sempre tenha a copy pronta
+            if (tipo === 'flyer' && navigator.clipboard && navigator.clipboard.writeText) {
+                try { await navigator.clipboard.writeText(textoCopy); } catch(e){}
+            }
 
             try {
                 const res = await fetch(dataUrl);
@@ -3103,22 +3247,29 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         title: titulo,
-                        text: `${titulo} - Peça já o seu Litrão do Reset!`,
+                        text: textoCopy,
                         files: [file]
                     });
                 } else if (navigator.share) {
                     await navigator.share({
                         title: titulo,
-                        text: `${titulo} - Peça já o seu Litrão do Reset!`,
-                        url: window.location.href
+                        text: textoCopy,
+                        url: (tipo === 'flyer' ? obterLinkLojaConsultor(consultorAtual) : window.location.href)
                     });
                 } else {
                     baixarArquivoGerado(tipo);
-                    alert("O flyer foi baixado no seu dispositivo para você compartilhar com clientes!");
+                    if (tipo === 'flyer') {
+                        abrirWhatsAppWebComCopy();
+                    } else {
+                        alert("O flyer foi baixado no seu dispositivo para você compartilhar com clientes!");
+                    }
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     baixarArquivoGerado(tipo);
+                    if (tipo === 'flyer') {
+                        abrirWhatsAppWebComCopy();
+                    }
                 }
             }
         }
@@ -3164,6 +3315,7 @@
                 const cidDetectada = extrairCidadeConsultor(consultorAtual);
                 inCidade.value = cidDetectada || "Primavera do Leste - MT";
             }
+            atualizarPreviewCopyFlyer();
         }
         window.preencherCamposFlyer = preencherCamposFlyer;
 
@@ -3268,6 +3420,10 @@
                         if (labelFlyer) labelFlyer.innerText = 'Minimizar';
                         previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
+
+                    try {
+                        atualizarPreviewCopyFlyer();
+                    } catch(e) {}
 
                     if (btn) {
                         btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl text-yellow-300"></i> FLYER GERADO COM SUCESSO!';
