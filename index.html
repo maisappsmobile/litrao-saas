@@ -64,7 +64,7 @@
 
             <!-- Menu Desktop -->
             <nav class="hidden md:flex items-center space-x-6 text-sm font-bold text-gray-700">
-                <a href="#produtos" class="text-emerald-700 hover:text-emerald-800 transition flex items-center font-black">
+                <a href="#produtos" id="nav-link-produtos" class="text-emerald-700 hover:text-emerald-800 transition flex items-center font-black" style="display: none;">
                     <i class="fa-solid fa-bottle-droplet mr-1.5 text-xs text-emerald-600"></i> Pedir Litrão
                 </a>
                 <a href="#beneficios" class="hover:text-brand-dark-green transition">Benefícios</a>
@@ -103,7 +103,7 @@
 
         <!-- Gaveta Menu Mobile (Dropdown) -->
         <div id="menu-mobile-gaveta" class="hidden md:hidden border-t border-gray-100 bg-white px-4 pt-3 pb-5 shadow-lg space-y-3">
-            <a href="#produtos" onclick="toggleMenuMobile()" class="block font-black text-emerald-800 py-1.5 border-b border-gray-50 text-sm">
+            <a href="#produtos" id="nav-link-produtos-mobile" onclick="toggleMenuMobile()" class="block font-black text-emerald-800 py-1.5 border-b border-gray-50 text-sm" style="display: none;">
                 <i class="fa-solid fa-bottle-droplet text-emerald-600 mr-2"></i> Pedir o Litrão Oficial
             </a>
             <a href="#beneficios" onclick="toggleMenuMobile()" class="block font-bold text-gray-700 hover:text-brand-dark-green py-1.5 border-b border-gray-50 text-sm">
@@ -305,8 +305,8 @@
         </div>
     </section>
 
-    <!-- SEÇÃO: ESCOLHA SEU PACOTE & CARRINHO DE FATURAMENTO / RESERVA -->
-    <section id="produtos" class="bg-gradient-to-b from-gray-50 via-emerald-50/20 to-white py-14 md:py-20 px-4 border-t border-gray-100">
+    <!-- SEÇÃO: ESCOLHA SEU PACOTE & CARRINHO DE FATURAMENTO / RESERVA (SÓ APARECE SE O CONSULTOR DEFINIR PREÇOS) -->
+    <section id="produtos" class="hidden bg-gradient-to-b from-gray-50 via-emerald-50/20 to-white py-14 md:py-20 px-4 border-t border-gray-100" style="display: none;">
         <div class="max-w-4xl mx-auto">
             
             <div class="text-center mb-10">
@@ -337,7 +337,7 @@
                         <!-- Pílula de Preço Exata da Foto -->
                         <div class="my-4 bg-emerald-700 text-white rounded-2xl py-3 px-4 shadow-md flex items-center justify-center gap-1">
                             <span class="text-base font-black">R$</span>
-                            <span class="text-3xl sm:text-4xl font-black tracking-tight">49,90</span>
+                            <span id="preco-valor-reset" class="text-3xl sm:text-4xl font-black tracking-tight">49,90</span>
                         </div>
 
                         <ul class="text-left text-xs font-semibold text-gray-600 space-y-2 mt-4 pt-3 border-t border-gray-100">
@@ -348,7 +348,7 @@
                         </ul>
                     </div>
 
-                    <button type="button" onclick="abrirCarrinho('RESET', 49.90, 'DESINTOXICA E RENOVA')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                    <button type="button" id="btn-reservar-reset" onclick="abrirCarrinho('RESET', 49.90, 'DESINTOXICA E RENOVA')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
                 </div>
@@ -369,7 +369,7 @@
                         <!-- Pílula de Preço Exata da Foto -->
                         <div class="my-4 bg-emerald-700 text-white rounded-2xl py-3 px-4 shadow-md flex items-center justify-center gap-1">
                             <span class="text-base font-black">R$</span>
-                            <span class="text-3xl sm:text-4xl font-black tracking-tight">65,00</span>
+                            <span id="preco-valor-reset-plus" class="text-3xl sm:text-4xl font-black tracking-tight">65,00</span>
                         </div>
 
                         <ul class="text-left text-xs font-semibold text-gray-600 space-y-2 mt-4 pt-3 border-t border-gray-100">
@@ -380,7 +380,7 @@
                         </ul>
                     </div>
 
-                    <button type="button" onclick="abrirCarrinho('RESET +', 65.00, 'RESULTADOS AINDA MELHORES')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                    <button type="button" id="btn-reservar-reset-plus" onclick="abrirCarrinho('RESET +', 65.00, 'RESULTADOS AINDA MELHORES')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
                 </div>
@@ -401,7 +401,7 @@
                         <!-- Pílula de Preço Exata da Foto (Dourada) -->
                         <div class="my-4 bg-gradient-to-r from-amber-50 to-yellow-500 text-white rounded-2xl py-3 px-4 shadow-md flex items-center justify-center gap-1 border border-amber-400/30" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
                             <span class="text-base font-black">R$</span>
-                            <span class="text-3xl sm:text-4xl font-black tracking-tight">79,99</span>
+                            <span id="preco-valor-reset-turbo" class="text-3xl sm:text-4xl font-black tracking-tight">79,99</span>
                         </div>
 
                         <ul class="text-left text-xs font-semibold text-gray-600 space-y-2 mt-4 pt-3 border-t border-gray-100">
@@ -412,7 +412,7 @@
                         </ul>
                     </div>
 
-                    <button type="button" onclick="abrirCarrinho('RESET TURBO', 79.99, 'ACELERE SEUS RESULTADOS!')" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-gray-950 font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                    <button type="button" id="btn-reservar-reset-turbo" onclick="abrirCarrinho('RESET TURBO', 79.99, 'ACELERE SEUS RESULTADOS!')" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-gray-950 font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
                 </div>
@@ -1142,7 +1142,104 @@
                 }
                 atualizarDadosPixCarrinho();
             }
+
+            // Aplica configuração dinâmica de preços dos kits e visibilidade condicional da seção de produtos (Print 3)
+            aplicarPrecosKitsLandingPage(consultor);
         });
+
+        /* ==========================================================================
+           APLICAÇÃO DOS PREÇOS REGIONAIS DOS KITS & VISIBILIDADE CONDICIONAL
+           A seção de produtos (Print 3) só aparece se o consultor tiver configurado valores!
+           ========================================================================== */
+        function aplicarPrecosKitsLandingPage(consultor) {
+            let precosKits = null;
+            if (consultor && consultor.nome_espaco && consultor.nome_espaco.includes('<!--PRECOS_KITS:')) {
+                try {
+                    const matchPrecos = consultor.nome_espaco.match(/<!--PRECOS_KITS:(.*?)-->/);
+                    if (matchPrecos && matchPrecos[1]) {
+                        precosKits = JSON.parse(matchPrecos[1]);
+                    }
+                } catch(ePrecos) {
+                    console.error("Erro ao fazer parse dos preços dos kits:", ePrecos);
+                }
+            }
+
+            const secaoProdutos = document.getElementById('produtos');
+            const navLinkProdutos = document.getElementById('nav-link-produtos');
+            const navLinkProdutosMobile = document.getElementById('nav-link-produtos-mobile');
+            const btnBeneficios = document.getElementById('whatsapp-link-beneficios');
+
+            const temPrecoConfigurado = precosKits && (
+                (precosKits.reset && String(precosKits.reset).trim() !== '') ||
+                (precosKits.reset_plus && String(precosKits.reset_plus).trim() !== '') ||
+                (precosKits.reset_turbo && String(precosKits.reset_turbo).trim() !== '')
+            );
+
+            if (temPrecoConfigurado && secaoProdutos) {
+                // Consultor preencheu valores: EXIBE A SEÇÃO E CARREGA OS PREÇOS DINÂMICOS
+                secaoProdutos.classList.remove('hidden');
+                secaoProdutos.style.display = 'block';
+
+                if (navLinkProdutos) navLinkProdutos.style.display = 'flex';
+                if (navLinkProdutosMobile) navLinkProdutosMobile.style.display = 'block';
+
+                if (btnBeneficios) {
+                    btnBeneficios.href = '#produtos';
+                    const subTexto = btnBeneficios.querySelector('span');
+                    if (subTexto) subTexto.innerText = '👉 Toque aqui para escolher seu pacote no cardápio';
+                }
+
+                function parsePrecoNum(valStr, defVal) {
+                    if (!valStr) return defVal;
+                    const limpo = String(valStr).replace('R$', '').trim().replace(',', '.');
+                    const num = parseFloat(limpo);
+                    return isNaN(num) ? defVal : num;
+                }
+
+                function formatarPrecoExibicao(valStr, defStr) {
+                    if (!valStr || String(valStr).trim() === '') return defStr;
+                    let limpo = String(valStr).replace('R$', '').trim();
+                    return limpo;
+                }
+
+                const precoResetStr = formatarPrecoExibicao(precosKits.reset, '49,90');
+                const precoResetNum = parsePrecoNum(precosKits.reset, 49.90);
+                const elPrecoReset = document.getElementById('preco-valor-reset');
+                const btnReset = document.getElementById('btn-reservar-reset');
+                if (elPrecoReset) elPrecoReset.innerText = precoResetStr;
+                if (btnReset) btnReset.setAttribute('onclick', `abrirCarrinho('RESET', ${precoResetNum}, 'DESINTOXICA E RENOVA')`);
+
+                const precoPlusStr = formatarPrecoExibicao(precosKits.reset_plus, '65,00');
+                const precoPlusNum = parsePrecoNum(precosKits.reset_plus, 65.00);
+                const elPrecoPlus = document.getElementById('preco-valor-reset-plus');
+                const btnPlus = document.getElementById('btn-reservar-reset-plus');
+                if (elPrecoPlus) elPrecoPlus.innerText = precoPlusStr;
+                if (btnPlus) btnPlus.setAttribute('onclick', `abrirCarrinho('RESET +', ${precoPlusNum}, 'RESULTADOS AINDA MELHORES')`);
+
+                const precoTurboStr = formatarPrecoExibicao(precosKits.reset_turbo, '79,99');
+                const precoTurboNum = parsePrecoNum(precosKits.reset_turbo, 79.99);
+                const elPrecoTurbo = document.getElementById('preco-valor-reset-turbo');
+                const btnTurbo = document.getElementById('btn-reservar-reset-turbo');
+                if (elPrecoTurbo) elPrecoTurbo.innerText = precoTurboStr;
+                if (btnTurbo) btnTurbo.setAttribute('onclick', `abrirCarrinho('RESET TURBO', ${precoTurboNum}, 'ACELERE SEUS RESULTADOS!')`);
+
+            } else {
+                // Consultor NÃO preencheu valores: A SEÇÃO DE PACOTES (PRINT 3) FICA 100% OCULTA!
+                if (secaoProdutos) {
+                    secaoProdutos.classList.add('hidden');
+                    secaoProdutos.style.display = 'none';
+                }
+                if (navLinkProdutos) navLinkProdutos.style.display = 'none';
+                if (navLinkProdutosMobile) navLinkProdutosMobile.style.display = 'none';
+
+                if (btnBeneficios && consultor && consultor.whatsapp) {
+                    const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
+                    btnBeneficios.href = `https://wa.me/${consultor.whatsapp}?text=${txtBeneficios}`;
+                    const subTexto = btnBeneficios.querySelector('span');
+                    if (subTexto) subTexto.innerText = '👉 Toque aqui para falar diretamente no WhatsApp do Consultor';
+                }
+            }
+        }
 
         /* ==========================================================================
            LÓGICA DO CARRINHO & CHECKOUT DE PEDIDOS DO LITRÃO DO RESET

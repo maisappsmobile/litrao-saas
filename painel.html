@@ -31,6 +31,9 @@
                 <button id="btn-abrir-perfil" onclick="abrirModalPerfil()" class="text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Editar Meu Perfil">
                     <i class="fa-solid fa-user-gear text-emerald-600"></i> <span class="hidden sm:inline">Meu Perfil</span>
                 </button>
+                <button id="btn-abrir-precos-kits" onclick="abrirModalConfigPrecosKits()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Configurar Preços dos Pacotes (Kits) da Minha Região">
+                    <i class="fa-solid fa-tags text-amber-600"></i> <span class="hidden sm:inline">Preços dos Pacotes</span>
+                </button>
                 <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
                     <i class="fa-solid fa-key text-amber-600"></i> <span class="hidden sm:inline">Alterar Senha</span>
                 </button>
@@ -434,6 +437,42 @@
                         </div>
                     </div>
 
+                    <!-- BLOCO: TABELA DE PREÇOS DOS PACOTES DA REGIÃO -->
+                    <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-amber-900 flex items-center">
+                                <i class="fa-solid fa-tags text-amber-600 mr-1.5 text-sm"></i> Tabela de Preços dos Pacotes (Kits da sua Região)
+                            </h4>
+                            <span class="text-[10px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded-full">Ativação na Landing Page</span>
+                        </div>
+                        <p class="text-[11px] text-amber-800 leading-snug">
+                            Defina os valores dos 3 pacotes praticados na sua cidade/região. <strong>Atenção:</strong> A seção de pacotes no seu site oficial só é exibida para os clientes caso você preencha estes valores!
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Pacote RESET (500ml)</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                    <input type="text" id="perfil-preco-reset" placeholder="49,90" class="w-full pl-9 pr-3 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Pacote RESET + (1L)</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                    <input type="text" id="perfil-preco-plus" placeholder="65,00" class="w-full pl-9 pr-3 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Pacote RESET TURBO</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                    <input type="text" id="perfil-preco-turbo" placeholder="79,99" class="w-full pl-9 pr-3 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- BLOCO 4: ALTERAÇÃO DE SENHA (OPCIONAL) -->
                     <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 space-y-3">
                         <div class="flex items-center justify-between">
@@ -558,6 +597,177 @@
             </div>
         </div>
 
+        <!-- MODAL: CONFIGURAÇÃO DE PREÇOS DOS PACOTES (KITS) DA REGIÃO + PREVIEW EM TEMPO REAL -->
+        <div id="modal-config-precos-kits" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden">
+            <div class="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl relative border border-gray-100 max-h-[92vh] overflow-y-auto animate-fade-in">
+                <!-- Botão Fechar -->
+                <button type="button" onclick="fecharModalConfigPrecosKits()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Cabeçalho -->
+                <div class="flex items-center space-x-3 mb-5 border-b border-gray-100 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-2xl shadow-xs flex-shrink-0">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Preços dos Pacotes (Kits) da Região</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Defina os valores cobrados em cada pacote para seus clientes. A seção de pacotes na landing page <strong>só aparecerá se estes valores forem preenchidos</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Formulário com os 3 inputs -->
+                <div class="bg-gray-50/80 p-4 sm:p-5 rounded-2xl border border-gray-200/80 mb-6">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center mb-3">
+                        <i class="fa-solid fa-pen-to-square text-amber-600 mr-1.5"></i> Digite os Valores Praticados na sua Região
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Input Kit RESET -->
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+                            <label class="block text-xs font-black text-emerald-800 mb-0.5">
+                                🥤 Pacote RESET (500ml)
+                            </label>
+                            <span class="block text-[11px] text-gray-400 mb-2">5 Garrafas de 500ml</span>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                <input type="text" id="cfg-preco-reset" placeholder="49,90" oninput="atualizarPreviewPrecosKits()" class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-emerald-300 rounded-lg text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        </div>
+
+                        <!-- Input Kit RESET + -->
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+                            <label class="block text-xs font-black text-emerald-800 mb-0.5">
+                                ⭐ Pacote RESET + (1 Litrão)
+                            </label>
+                            <span class="block text-[11px] text-gray-400 mb-2">5 Garrafas de 1L (Mais Popular)</span>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                <input type="text" id="cfg-preco-plus" placeholder="65,00" oninput="atualizarPreviewPrecosKits()" class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-emerald-300 rounded-lg text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        </div>
+
+                        <!-- Input Kit RESET TURBO -->
+                        <div class="bg-white p-3.5 rounded-xl border border-amber-800 mb-0.5">
+                            <label class="block text-xs font-black text-amber-800 mb-0.5">
+                                🔥 Pacote RESET TURBO
+                            </label>
+                            <span class="block text-[11px] text-gray-400 mb-2">5 Garrafas de 1L Turbo (Máxima Potência)</span>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                                <input type="text" id="cfg-preco-turbo" placeholder="79,99" oninput="atualizarPreviewPrecosKits()" class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-amber-300 rounded-lg text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview em Tempo Real dos 3 Cards (Idêntico ao Print 1 / Print 2) -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                            <i class="fa-solid fa-eye text-emerald-600 mr-1.5"></i> Preview em Tempo Real (Visual Oficial da Landing Page)
+                        </h4>
+                        <span class="text-[11px] text-gray-500 font-semibold bg-gray-100 px-2.5 py-0.5 rounded-full">Atualiza ao digitar</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80">
+                        <!-- Card Preview 1: RESET -->
+                        <div class="bg-white rounded-2xl p-4 border-2 border-emerald-700 shadow-md flex flex-col justify-between text-center relative">
+                            <div>
+                                <h3 class="text-xl font-black text-gray-900 tracking-tight">RESET</h3>
+                                <p class="text-[10px] font-black text-gray-700 uppercase tracking-wider mt-0.5">DESINTOXICA E RENOVA</p>
+                                
+                                <!-- Pílula de Preço Preenchida Dinamicamente -->
+                                <div class="my-3 bg-emerald-700 text-white rounded-xl py-2.5 px-3 shadow flex items-center justify-center gap-1 transition-all">
+                                    <span class="text-xs font-black">R$</span>
+                                    <span id="preview-pill-reset" class="text-2xl sm:text-3xl font-black tracking-tight">49,90</span>
+                                </div>
+
+                                <ul class="text-left text-[11px] font-semibold text-gray-600 space-y-1.5 pt-2 border-t border-gray-100">
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Garrafa oficial de 500ml do Reset</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Desintoxica e elimina retenção líquida</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Protocolo inicial para renovar o corpo</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Acompanhamento do consultor</li>
+                                </ul>
+                            </div>
+                            <div class="mt-4 w-full bg-emerald-700 text-white font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 opacity-90">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i> RESERVAR ESTE
+                            </div>
+                        </div>
+
+                        <!-- Card Preview 2: RESET + -->
+                        <div class="bg-white rounded-2xl p-4 border-2 border-emerald-700 shadow-lg flex flex-col justify-between text-center relative ring-2 ring-emerald-500/20">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-emerald-700 text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs whitespace-nowrap">
+                                ⭐ MAIS POPULAR
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-black text-gray-900 tracking-tight mt-1">RESET +</h3>
+                                <p class="text-[10px] font-black text-gray-700 uppercase tracking-wider mt-0.5">RESULTADOS AINDA MELHORES</p>
+                                
+                                <!-- Pílula de Preço Preenchida Dinamicamente -->
+                                <div class="my-3 bg-emerald-700 text-white rounded-xl py-2.5 px-3 shadow flex items-center justify-center gap-1 transition-all">
+                                    <span class="text-xs font-black">R$</span>
+                                    <span id="preview-pill-plus" class="text-2xl sm:text-3xl font-black tracking-tight">65,00</span>
+                                </div>
+
+                                <ul class="text-left text-[11px] font-semibold text-gray-600 space-y-1.5 pt-2 border-t border-gray-100">
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Garrafa oficial de 1 Litrão com ativos extra</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Potencializa queima e energia física</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Saciedade prolongada e foco mental</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Avaliação de Bioimpedância inclusa</li>
+                                </ul>
+                            </div>
+                            <div class="mt-4 w-full bg-emerald-700 text-white font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 opacity-90">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i> RESERVAR ESTE
+                            </div>
+                        </div>
+
+                        <!-- Card Preview 3: RESET TURBO -->
+                        <div class="bg-white rounded-2xl p-4 border-2 border-amber-500 shadow-lg flex flex-col justify-between text-center relative ring-2 ring-amber-400/40">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs whitespace-nowrap">
+                                🔥 MÁXIMA POTÊNCIA
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-black text-gray-900 tracking-tight mt-1">RESET TURBO</h3>
+                                <p class="text-[10px] font-black text-amber-700 uppercase tracking-wider mt-0.5">ACELERE SEUS RESULTADOS!</p>
+                                
+                                <!-- Pílula de Preço Preenchida Dinamicamente (Dourada) -->
+                                <div class="my-3 text-white rounded-xl py-2.5 px-3 shadow flex items-center justify-center gap-1 border border-amber-400/30 transition-all" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
+                                    <span class="text-xs font-black">R$</span>
+                                    <span id="preview-pill-turbo" class="text-2xl sm:text-3xl font-black tracking-tight">79,99</span>
+                                </div>
+
+                                <ul class="text-left text-[11px] font-semibold text-gray-600 space-y-1.5 pt-2 border-t border-gray-100">
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-500 text-xs"></i> Garrafa oficial de 1 Litrão Concentração Turbo</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-500 text-xs"></i> Acelera o metabolismo no limite</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-500 text-xs"></i> Relatório Completo de Bioimpedância VIP</li>
+                                    <li class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-500 text-xs"></i> Suporte Prioritário 1 a 1 do Consultor</li>
+                                </ul>
+                            </div>
+                            <div class="mt-4 w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-gray-950 font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 opacity-90">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i> RESERVAR ESTE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                    <button type="button" onclick="limparPrecosKitsModal()" class="w-full sm:w-auto text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-eye-slash"></i> Ocultar Pacotes da Landing Page (Deixar sem Preços)
+                    </button>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="fecharModalConfigPrecosKits()" class="flex-1 sm:flex-none text-xs font-bold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="button" id="btn-salvar-cfg-precos" onclick="salvarPrecosKitsModal()" class="flex-1 sm:flex-none text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Preços e Ativar Pacotes
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <!-- MODAL DE EDIÇÃO DE CONSULTOR (SUPERADMIN) -->
         <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-200 relative">
@@ -642,6 +852,39 @@
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-600 mb-0.5">TikTok</label>
                                 <input type="text" id="superadmin-edit-tk" placeholder="@tiktok" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREÇOS DOS PACOTES DA REGIÃO (SUPERADMIN) -->
+                    <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200 space-y-2.5">
+                        <span class="block text-xs font-black text-amber-900 uppercase">
+                            <i class="fa-solid fa-tags text-amber-600 mr-1.5"></i> Preços dos Pacotes (Kits da Região)
+                        </span>
+                        <p class="text-[10px] text-amber-800">
+                            Preencha para ativar a seção de pacotes na Landing Page deste consultor. Deixe em branco para ocultar.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET (500ml)</label>
+                                <div class="relative">
+                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                    <input type="text" id="superadmin-edit-preco-reset" placeholder="49,90" class="w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET + (1L)</label>
+                                <div class="relative">
+                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                    <input type="text" id="superadmin-edit-preco-plus" placeholder="65,00" class="w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET TURBO</label>
+                                <div class="relative">
+                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                    <input type="text" id="superadmin-edit-preco-turbo" placeholder="79,99" class="w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1190,10 +1433,16 @@
                         <span id="card-pedidos-stat-total-faturado" class="text-base font-black text-emerald-300">R$ 0,00</span>
                     </div>
 
-                    <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
-                        <span id="label-toggle-pedidos">Abrir Pedidos</span>
-                        <i id="icone-toggle-pedidos" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="abrirModalConfigPrecosKits()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs sm:text-sm py-2.5 px-3.5 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap" title="Configurar Tabela de Preços dos Pacotes (Kits) da Região">
+                            <i class="fa-solid fa-tags text-xs"></i>
+                            <span>Preços da Região</span>
+                        </button>
+                        <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
+                            <span id="label-toggle-pedidos">Abrir Pedidos</span>
+                            <i id="icone-toggle-pedidos" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -2951,6 +3200,8 @@
                 document.getElementById('btn-logout').classList.remove('hidden');
                 const btnPerfil = document.getElementById('btn-abrir-perfil');
                 if (btnPerfil) btnPerfil.classList.remove('hidden');
+                const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
+                if (btnPrecosKits) btnPrecosKits.classList.remove('hidden');
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
                 if (btnAlterarSenha) btnAlterarSenha.classList.remove('hidden');
 
@@ -3758,6 +4009,21 @@
             document.getElementById('superadmin-edit-fb').value = sociaisObj.fb || '';
             document.getElementById('superadmin-edit-tk').value = sociaisObj.tk || '';
 
+            // Preços dos kits da região
+            let precosKitsObj = {};
+            if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--PRECOS_KITS:')) {
+                try {
+                    const matchPrecos = consultor.nome_espaco.match(/<!--PRECOS_KITS:(.*?)-->/);
+                    if (matchPrecos && matchPrecos[1]) precosKitsObj = JSON.parse(matchPrecos[1]) || {};
+                } catch(e) {}
+            }
+            const elPrecoResetAdm = document.getElementById('superadmin-edit-preco-reset');
+            const elPrecoPlusAdm = document.getElementById('superadmin-edit-preco-plus');
+            const elPrecoTurboAdm = document.getElementById('superadmin-edit-preco-turbo');
+            if (elPrecoResetAdm) elPrecoResetAdm.value = precosKitsObj.reset || '';
+            if (elPrecoPlusAdm) elPrecoPlusAdm.value = precosKitsObj.reset_plus || '';
+            if (elPrecoTurboAdm) elPrecoTurboAdm.value = precosKitsObj.reset_turbo || '';
+
             document.getElementById('superadmin-edit-herbalife-id').value = consultor.herbalife_id || '';
             document.getElementById('superadmin-edit-letras').value = (consultor.letras || '').toUpperCase();
             document.getElementById('superadmin-edit-whatsapp').value = consultor.whatsapp || '';
@@ -3802,6 +4068,27 @@
 
             if (Object.keys(soc).length > 0) {
                 nomeEspacoBase += ` <!--SOCIAIS:${JSON.stringify(soc)}-->`;
+            }
+
+            // Preços dos Pacotes (Kits da Região)
+            const pReset = (document.getElementById('superadmin-edit-preco-reset')?.value || '').trim();
+            const pPlus = (document.getElementById('superadmin-edit-preco-plus')?.value || '').trim();
+            const pTurbo = (document.getElementById('superadmin-edit-preco-turbo')?.value || '').trim();
+            const precosKits = {};
+            if (pReset) precosKits.reset = pReset;
+            if (pPlus) precosKits.reset_plus = pPlus;
+            if (pTurbo) precosKits.reset_turbo = pTurbo;
+            if (Object.keys(precosKits).length > 0) {
+                nomeEspacoBase += ` <!--PRECOS_KITS:${JSON.stringify(precosKits)}-->`;
+            }
+
+            // Preserva outras tags extras do consultor (ex: PIX)
+            const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
+            if (consultorOriginal && consultorOriginal.nome_espaco) {
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:).*?-->/g);
+                if (matchOutrasTags) {
+                    nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
+                }
             }
 
             const payload = {
@@ -4718,8 +5005,16 @@
             return (w.length >= 8) ? w : '';
         }
 
+        function limparNomeCliente(nome) {
+            if (!nome) return '';
+            return String(nome)
+                .replace(/^\[PEDIDO\]\s*/i, '')
+                .replace(/^edw\s*[-–:.]*\s*/i, '')
+                .trim();
+        }
+
         function normalizarNomeCliente(nome) {
-            const rawNome = (nome || '').replace(/^\[PEDIDO\]\s*/i, '').trim();
+            const rawNome = limparNomeCliente(nome);
             return rawNome
                 .toLowerCase()
                 .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -4965,10 +5260,11 @@
 
                 let nomeExibicao = '';
                 if (temBio && itensBio[0].nome_cliente) {
-                    nomeExibicao = itensBio[0].nome_cliente.replace(/^\[PEDIDO\]\s*/i, '').trim();
+                    nomeExibicao = limparNomeCliente(itensBio[0].nome_cliente);
                 } else if (itensPedidos.length > 0 && itensPedidos[0].nome_cliente) {
-                    nomeExibicao = itensPedidos[0].nome_cliente.replace(/^\[PEDIDO\]\s*/i, '').trim();
-                } else {
+                    nomeExibicao = limparNomeCliente(itensPedidos[0].nome_cliente);
+                }
+                if (!nomeExibicao) {
                     nomeExibicao = 'Cliente Sem Nome';
                 }
 
@@ -5409,7 +5705,7 @@
 
                 listaClientes.push({
                     key,
-                    nome: maisRecente.nome_cliente || 'Sem Nome',
+                    nome: limparNomeCliente(maisRecente.nome_cliente) || 'Sem Nome',
                     whatsapp: maisRecente.whatsapp_cliente || '',
                     data_nascimento: dataNasc,
                     peso_atual: maisRecente.peso,
@@ -6193,6 +6489,8 @@
                         const colunas = parseLinhaCSV(linhasBrutas[i], delimitador);
                         let nome = getCol(colunas, indexMap.nome);
                         if (!nome) continue; // Pula linha vazia
+                        nome = limparNomeCliente(nome);
+                        if (!nome) continue;
 
                         const whats = getCol(colunas, indexMap.whats);
                         const rawPeso = getCol(colunas, indexMap.peso).replace(',', '.');
@@ -6877,7 +7175,7 @@
                                 <span class="bg-brand-dark text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                                     Litrão do Reset
                                 </span>
-                                 <h3 class="text-xl sm:text-2xl font-black text-brand-dark leading-tight">${(item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '')}</h3>
+                                 <h3 class="text-xl sm:text-2xl font-black text-brand-dark leading-tight">${limparNomeCliente(item.nome_cliente) || 'Cliente'}</h3>
                                 <p class="text-[11px] text-gray-500 font-medium">
                                     ${item.genero || '---'} • Altura: <strong>${item.altura ? item.altura + ' cm' : '---'}</strong> • Idade: <strong>${bioCalculadaAtual ? bioCalculadaAtual.idade + ' anos' : '---'}</strong>
                                 </p>
@@ -7290,7 +7588,7 @@
             if (!modal || !container) return;
 
             const dados = extrairDadosPedidoItem(item);
-            const nomeCliente = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente Sem Nome';
+            const nomeCliente = limparNomeCliente(item.nome_cliente) || 'Cliente Sem Nome';
             const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
             const dataFormatada = item.criado_em ? new Date(item.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-';
 
@@ -7508,7 +7806,7 @@
                 alert('Este pedido não possui WhatsApp cadastrado.');
                 return;
             }
-            const nomeCliente = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente';
+            const nomeCliente = limparNomeCliente(item.nome_cliente) || 'Cliente';
             const status = dados.status || 'PENDENTE';
 
             let mensagemStatus = '';
@@ -7666,7 +7964,7 @@
             const item = todasAvaliacoesCache.find(a => a.id == id);
             if (!item) return;
             const dados = extrairDadosPedidoItem(item);
-            const nomeCliente = item.nome_cliente ? item.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente';
+            const nomeCliente = limparNomeCliente(item.nome_cliente) || 'Cliente';
             const dataFormatada = item.criado_em ? new Date(item.criado_em).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
 
             let whatsClienteLimpo = String(item.whatsapp_cliente || '').replace(/\D/g, '');
@@ -8080,7 +8378,7 @@
             let html = '';
             pedidos.forEach(pedido => {
                 const dados = extrairDadosPedidoItem(pedido);
-                const nomeCliente = pedido.nome_cliente ? pedido.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente';
+                const nomeCliente = limparNomeCliente(pedido.nome_cliente) || 'Cliente';
                 const whatsLimpo = (pedido.whatsapp_cliente || '').replace(/\D/g, '');
                 const dataFormatada = pedido.criado_em ? new Date(pedido.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-';
                 const st = dados?.status || 'PENDENTE';
@@ -8636,8 +8934,8 @@
             }
 
             document.getElementById('edit-id').value = item.id;
-            document.getElementById('editar-titulo-nome').innerText = `Editar: ${item.nome_cliente}`;
-            document.getElementById('edit-nome').value = item.nome_cliente || '';
+            document.getElementById('editar-titulo-nome').innerText = `Editar: ${limparNomeCliente(item.nome_cliente) || 'Cliente'}`;
+            document.getElementById('edit-nome').value = limparNomeCliente(item.nome_cliente) || '';
             document.getElementById('edit-whatsapp').value = item.whatsapp_cliente || '';
             document.getElementById('edit-grupo').value = '';
             document.getElementById('edit-peso').value = formatarDecimalBr(item.peso);
@@ -8749,10 +9047,10 @@
 
             // Novo ID vazio para criar novo registro
             document.getElementById('edit-id').value = '';
-            document.getElementById('editar-titulo-nome').innerText = `Nova Avaliação: ${clienteRef.nome_cliente}`;
+            document.getElementById('editar-titulo-nome').innerText = `Nova Avaliação: ${limparNomeCliente(clienteRef.nome_cliente) || 'Cliente'}`;
             
             // Dados Fixos preenchidos automaticamente
-            document.getElementById('edit-nome').value = clienteRef.nome_cliente || '';
+            document.getElementById('edit-nome').value = limparNomeCliente(clienteRef.nome_cliente) || '';
             document.getElementById('edit-whatsapp').value = clienteRef.whatsapp_cliente || '';
             document.getElementById('edit-altura').value = formatarDecimalBr(clienteRef.altura || '170');
             document.getElementById('edit-nascimento').value = clienteRef.data_nascimento || '1990-01-01';
@@ -8870,7 +9168,7 @@
 
             const payload = {
                 herbalife_id: consultorAtual.herbalife_id,
-                nome_cliente: document.getElementById('edit-nome').value.trim(),
+                nome_cliente: limparNomeCliente(document.getElementById('edit-nome').value.trim()) || 'Cliente',
                 whatsapp_cliente: document.getElementById('edit-whatsapp').value.trim(),
                 peso: parseDecimalBr(document.getElementById('edit-peso').value),
                 altura: parseDecimalBr(document.getElementById('edit-altura').value),
@@ -8955,7 +9253,7 @@
         // ==========================================
         async function excluirAvaliacao(id) {
             const item = todasAvaliacoesCache.find(a => a.id == id);
-            const nome = item ? item.nome_cliente : 'esta avaliação';
+            const nome = item ? (limparNomeCliente(item.nome_cliente) || 'esta avaliação') : 'esta avaliação';
 
             if (!confirm(`Tem certeza que deseja excluir permanentemente a avaliação de "${nome}"?\n\nEsta ação não poderá ser desfeita.`)) {
                 return;
@@ -9186,6 +9484,8 @@
             if (btnPerfil) btnPerfil.classList.add('hidden');
             const btnAltSenha = document.getElementById('btn-abrir-alterar-senha');
             if (btnAltSenha) btnAltSenha.classList.add('hidden');
+            const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
+            if (btnPrecosKits) btnPrecosKits.classList.add('hidden');
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
@@ -9223,6 +9523,13 @@
                     const parsedPix = JSON.parse(matchPix[1]);
                     if (parsedPix) pix = Object.assign(pix, parsedPix);
                 } catch(_) {}
+            }
+
+            // 1.2 Preços dos Kits (RESET, RESET +, RESET TURBO)
+            let precosKits = {};
+            const matchPrecos = raw.match(/<!--PRECOS_KITS:(.*?)-->/);
+            if (matchPrecos && matchPrecos[1]) {
+                try { precosKits = JSON.parse(matchPrecos[1]) || {}; } catch(_) {}
             }
 
             // 2. Limpa tags HTML
@@ -9272,7 +9579,8 @@
                 cidade,
                 estado,
                 sociais,
-                pix
+                pix,
+                precosKits
             };
         }
 
@@ -9333,6 +9641,14 @@
 
                 const inPixTitular = document.getElementById('perfil-pix-titular');
                 if (inPixTitular) inPixTitular.value = (dados.pix && dados.pix.titular) ? dados.pix.titular : '';
+
+                // Popula campos de preços dos pacotes
+                const inPrecoReset = document.getElementById('perfil-preco-reset');
+                if (inPrecoReset) inPrecoReset.value = (dados.precosKits && dados.precosKits.reset) ? dados.precosKits.reset : '';
+                const inPrecoPlus = document.getElementById('perfil-preco-plus');
+                if (inPrecoPlus) inPrecoPlus.value = (dados.precosKits && dados.precosKits.reset_plus) ? dados.precosKits.reset_plus : '';
+                const inPrecoTurbo = document.getElementById('perfil-preco-turbo');
+                if (inPrecoTurbo) inPrecoTurbo.value = (dados.precosKits && dados.precosKits.reset_turbo) ? dados.precosKits.reset_turbo : '';
 
                 // Limpa campos de senha
                 const inNovaSenha = document.getElementById('perfil-nova-senha');
@@ -9447,9 +9763,21 @@
                 nomeEspacoCompleto += ` <!--PIX:${JSON.stringify(pixObj)}-->`;
             }
 
-            // Preserva outras tags extras existentes (como cupons, etc.), ignorando SOCIAIS e PIX para não duplicar
+            // Preços dos pacotes (Kits da Região)
+            const pReset = (document.getElementById('perfil-preco-reset')?.value || '').trim();
+            const pPlus = (document.getElementById('perfil-preco-plus')?.value || '').trim();
+            const pTurbo = (document.getElementById('perfil-preco-turbo')?.value || '').trim();
+            const precosKitsObj = {};
+            if (pReset) precosKitsObj.reset = pReset;
+            if (pPlus) precosKitsObj.reset_plus = pPlus;
+            if (pTurbo) precosKitsObj.reset_turbo = pTurbo;
+            if (Object.keys(precosKitsObj).length > 0) {
+                nomeEspacoCompleto += ` <!--PRECOS_KITS:${JSON.stringify(precosKitsObj)}-->`;
+            }
+
+            // Preserva outras tags extras existentes, ignorando SOCIAIS, PIX e PRECOS_KITS para não duplicar
             const rawAntigo = consultorAtual.nome_espaco || '';
-            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:).*?-->/g);
+            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:|PRECOS_KITS:).*?-->/g);
             if (matchComentarios) {
                 nomeEspacoCompleto += ' ' + matchComentarios.join(' ');
             }
@@ -9523,6 +9851,154 @@
             }
         }
         window.salvarPerfilConsultor = salvarPerfilConsultor;
+
+        /* ==========================================================================
+           GESTÃO DEDICADA DA TABELA DE PREÇOS DOS PACOTES (KITS DA REGIÃO)
+           ========================================================================== */
+        function abrirModalConfigPrecosKits() {
+            const modal = document.getElementById('modal-config-precos-kits');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            if (!consultorAtual) return;
+
+            let precosObj = {};
+            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--PRECOS_KITS:')) {
+                try {
+                    const m = consultorAtual.nome_espaco.match(/<!--PRECOS_KITS:(.*?)-->/);
+                    if (m && m[1]) precosObj = JSON.parse(m[1]) || {};
+                } catch(_) {}
+            }
+
+            const inReset = document.getElementById('cfg-preco-reset');
+            const inPlus = document.getElementById('cfg-preco-plus');
+            const inTurbo = document.getElementById('cfg-preco-turbo');
+
+            if (inReset) inReset.value = precosObj.reset || '';
+            if (inPlus) inPlus.value = precosObj.reset_plus || '';
+            if (inTurbo) inTurbo.value = precosObj.reset_turbo || '';
+
+            atualizarPreviewPrecosKits();
+        }
+        window.abrirModalConfigPrecosKits = abrirModalConfigPrecosKits;
+
+        function fecharModalConfigPrecosKits() {
+            const modal = document.getElementById('modal-config-precos-kits');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalConfigPrecosKits = fecharModalConfigPrecosKits;
+
+        function atualizarPreviewPrecosKits() {
+            const inReset = (document.getElementById('cfg-preco-reset')?.value || '').trim();
+            const inPlus = (document.getElementById('cfg-preco-plus')?.value || '').trim();
+            const inTurbo = (document.getElementById('cfg-preco-turbo')?.value || '').trim();
+
+            const prevReset = document.getElementById('preview-pill-reset');
+            const prevPlus = document.getElementById('preview-pill-plus');
+            const prevTurbo = document.getElementById('preview-pill-turbo');
+
+            if (prevReset) prevReset.innerText = inReset || '--,--';
+            if (prevPlus) prevPlus.innerText = inPlus || '--,--';
+            if (prevTurbo) prevTurbo.innerText = inTurbo || '--,--';
+        }
+        window.atualizarPreviewPrecosKits = atualizarPreviewPrecosKits;
+
+        async function salvarPrecosKitsModal() {
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Sessão não identificada. Faça login novamente no painel.");
+                return;
+            }
+
+            const valReset = (document.getElementById('cfg-preco-reset')?.value || '').trim();
+            const valPlus = (document.getElementById('cfg-preco-plus')?.value || '').trim();
+            const valTurbo = (document.getElementById('cfg-preco-turbo')?.value || '').trim();
+
+            const precosObj = {};
+            if (valReset) precosObj.reset = valReset;
+            if (valPlus) precosObj.reset_plus = valPlus;
+            if (valTurbo) precosObj.reset_turbo = valTurbo;
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--PRECOS_KITS:[\s\S]*?-->/g, '').trim();
+
+            if (Object.keys(precosObj).length > 0) {
+                rawEspaco += ` <!--PRECOS_KITS:${JSON.stringify(precosObj)}-->`;
+            }
+
+            const btn = document.getElementById('btn-salvar-cfg-precos');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Salvando...';
+            }
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                consultorAtual.nome_espaco = rawEspaco;
+                alert("✅ Preços dos pacotes salvos com sucesso! A seção de pacotes da sua landing page agora está ativa com os valores da sua região.");
+                fecharModalConfigPrecosKits();
+            } catch(err) {
+                console.error("Erro ao salvar preços:", err);
+                alert("❌ Erro ao salvar preços no servidor. Tente novamente.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Preços e Ativar Pacotes';
+                }
+            }
+        }
+        window.salvarPrecosKitsModal = salvarPrecosKitsModal;
+
+        async function limparPrecosKitsModal() {
+            if (!consultorAtual || !consultorAtual.id) return;
+            if (!confirm("Deseja realmente remover os preços? Ao fazer isso, a seção de pacotes ficará OCULTA na sua Landing Page.")) return;
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--PRECOS_KITS:[\s\S]*?-->/g, '').trim();
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                consultorAtual.nome_espaco = rawEspaco;
+                const inReset = document.getElementById('cfg-preco-reset');
+                const inPlus = document.getElementById('cfg-preco-plus');
+                const inTurbo = document.getElementById('cfg-preco-turbo');
+                if (inReset) inReset.value = '';
+                if (inPlus) inPlus.value = '';
+                if (inTurbo) inTurbo.value = '';
+                atualizarPreviewPrecosKits();
+                alert("ℹ️ Preços removidos com sucesso. A seção de pacotes da Landing Page agora está oculta.");
+                fecharModalConfigPrecosKits();
+            } catch(err) {
+                console.error("Erro ao limpar preços:", err);
+                alert("❌ Erro ao salvar alteração. Tente novamente.");
+            }
+        }
+        window.limparPrecosKitsModal = limparPrecosKitsModal;
 
         // ==========================================
         // GESTÃO DE SENHA DO CONSULTOR
