@@ -1126,33 +1126,204 @@
             </div>
         </div>
 
-        <!-- SEÇÃO: MATERIAIS DE APOIO & COMO DIVULGAR -->
-        <div class="mt-8 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300">
-            <div class="relative z-10">
-                <!-- CABEÇALHO DO BANNER (CLICÁVEL PARA EXPANDIR / RECOLHER) -->
-                <div onclick="toggleMateriaisApoio()" class="cursor-pointer group select-none flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex-1">
-                        <div class="inline-block bg-brand-yellow text-brand-dark font-black text-xs px-3 py-1 rounded-full uppercase mb-2">
-                            Treinamento Oficial
-                        </div>
-                        <h2 class="text-xl sm:text-2xl font-black flex items-center group-hover:text-yellow-300 transition">
-                            <i class="fa-solid fa-graduation-cap text-brand-yellow mr-2.5"></i> Materiais de Apoio & Como Divulgar
-                        </h2>
-                        <p class="text-gray-200 text-xs sm:text-sm max-w-2xl mt-1 leading-relaxed">
-                            Aprenda a atrair clientes todos os dias usando seu link oficial, roteiros validados de WhatsApp e a estratégia da sacola com os tíquetes.
-                        </p>
+        <!-- SEÇÃO: 2 CARDS LADO A LADO (1. PEDIDOS & ENTREGAS | 2. MATERIAIS DE APOIO & TREINAMENTO) -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+            
+            <!-- CARD 1: PEDIDOS & ENTREGAS (MOVIMENTAÇÃO EM TEMPO REAL) -->
+            <div class="bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-xl border-2 border-emerald-500/40 relative overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all">
+                <!-- Efeito Glow -->
+                <div class="absolute -right-12 -top-12 w-52 h-52 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/25 transition"></div>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span>Gestão & Delivery</span>
+                        </span>
+                        <span class="text-xs font-bold text-emerald-200/80 flex items-center gap-1">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Tempo Real
+                        </span>
                     </div>
-                    
-                    <div class="flex items-center">
-                        <button type="button" id="btn-toggle-materiais" class="bg-brand-yellow hover:bg-yellow-400 text-brand-dark font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center space-x-2">
-                            <span id="label-toggle-materiais">Abrir Materiais</span>
-                            <i id="icone-toggle-materiais" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
-                        </button>
+
+                    <h3 class="text-xl sm:text-2xl font-black text-white flex items-center leading-tight">
+                        <i class="fa-solid fa-cart-shopping text-emerald-400 mr-2.5"></i> Pedidos & Entregas
+                    </h3>
+                    <p class="text-emerald-100/85 text-xs sm:text-sm mt-1 leading-relaxed">
+                        Toda movimentação, controle de garrafas, rotas no Google Maps e agilização de entregas do seu Litrão.
+                    </p>
+
+                    <!-- MINI DASHBOARD DE MOVIMENTAÇÃO NO CARD -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 my-4">
+                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-amber-300">🟡 Pendentes</span>
+                            <span id="card-pedidos-stat-pendente" class="text-xl font-black text-white block mt-0.5">0</span>
+                        </div>
+                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-blue-300">🥣 Preparo</span>
+                            <span id="card-pedidos-stat-preparo" class="text-xl font-black text-white block mt-0.5">0</span>
+                        </div>
+                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-purple-300">🛵 Em Rota</span>
+                            <span id="card-pedidos-stat-entrega" class="text-xl font-black text-white block mt-0.5">0</span>
+                        </div>
+                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-cyan-300">📦 Retirada</span>
+                            <span id="card-pedidos-stat-retirada" class="text-xl font-black text-white block mt-0.5">0</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- CONTEÚDO DOS MATERIAIS DE APOIO (INICIALMENTE OCULTO - APENAS O BANNER FICA VISÍVEL) -->
-                <div id="conteudo-materiais-apoio" class="hidden mt-6 pt-6 border-t border-white/20">
+                <!-- RODAPÉ DO CARD: TOTAL FATURADO + BOTÃO ABRIR -->
+                <div class="relative z-10 pt-3 border-t border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="text-xs">
+                        <span class="text-emerald-200/80 block text-[11px] font-medium">Total em Pedidos:</span>
+                        <span id="card-pedidos-stat-total-faturado" class="text-base font-black text-emerald-300">R$ 0,00</span>
+                    </div>
+
+                    <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
+                        <span id="label-toggle-pedidos">Abrir Pedidos</span>
+                        <i id="icone-toggle-pedidos" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARD 2: MATERIAIS DE APOIO & COMO DIVULGAR -->
+            <div class="bg-gradient-to-br from-brand-dark via-[#244b2c] to-[#1c3822] rounded-3xl p-6 sm:p-7 text-white shadow-xl border border-white/10 relative overflow-hidden flex flex-col justify-between group hover:border-yellow-400/40 transition-all">
+                <!-- Efeito Glow -->
+                <div class="absolute -right-12 -top-12 w-52 h-52 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-yellow-500/20 transition"></div>
+
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="inline-block bg-brand-yellow text-brand-dark font-black text-xs px-3 py-1 rounded-full uppercase">
+                            Treinamento Oficial
+                        </span>
+                        <span class="text-xs font-bold text-yellow-200/80 flex items-center gap-1">
+                            <i class="fa-solid fa-book-open"></i> Scripts & Mídias
+                        </span>
+                    </div>
+
+                    <h3 class="text-xl sm:text-2xl font-black text-white flex items-center leading-tight">
+                        <i class="fa-solid fa-graduation-cap text-brand-yellow mr-2.5"></i> Materiais de Apoio & Divulgação
+                    </h3>
+                    <p class="text-gray-200 text-xs sm:text-sm mt-1 leading-relaxed">
+                        Aprenda a atrair clientes todos os dias usando seu link oficial, roteiros validados de WhatsApp e a estratégia da sacola com os tíquetes.
+                    </p>
+
+                    <!-- TAGS DE RECURSOS NO CARD -->
+                    <div class="flex flex-wrap items-center gap-1.5 my-4">
+                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                            🏷️ Tíquetes da Sacola
+                        </span>
+                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                            💬 Roteiros WhatsApp
+                        </span>
+                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                            🖼️ Gerador de Flyers
+                        </span>
+                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
+                            👑 Kit Equipe VIP
+                        </span>
+                    </div>
+                </div>
+
+                <!-- RODAPÉ DO CARD: BOTÃO ABRIR -->
+                <div class="relative z-10 pt-3 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="text-[11px] text-gray-300 font-medium">Acesso liberado a todas as ferramentas de divulgação</span>
+                    <button type="button" onclick="toggleMateriaisApoio()" id="btn-toggle-materiais" class="bg-brand-yellow hover:bg-yellow-400 text-brand-dark font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
+                        <span id="label-toggle-materiais">Abrir Materiais</span>
+                        <i id="icone-toggle-materiais" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SEÇÃO EXPANSÍVEL: CENTRAL DE GESTÃO DE PEDIDOS & AGILIZAÇÃO DE ENTREGAS -->
+        <div id="secao-central-pedidos" class="hidden mt-6 bg-white rounded-3xl shadow-xl p-5 sm:p-7 border-2 border-emerald-500/30">
+            <!-- CABEÇALHO DA CENTRAL DE PEDIDOS -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-gray-100 pb-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-300">
+                            <i class="fa-solid fa-bolt mr-1"></i> Despacho Rápido & Delivery
+                        </span>
+                        <span id="badge-pedidos-contador-geral" class="text-xs font-bold text-gray-500">0 pedidos registrados</span>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black text-gray-900 flex items-center">
+                        <i class="fa-solid fa-truck-fast text-emerald-600 mr-2.5"></i> Central de Pedidos & Agilização de Entregas
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-0.5">Gerencie status, rotas de entrega no GPS, imprima comandas e notifique no WhatsApp.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- BUSCA RÁPIDA -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
+                        <input type="text" id="busca-pedidos-central" oninput="filtrarCentralPedidos(this.value)" placeholder="Buscar cliente, rua, produto..." class="pl-9 pr-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-52 sm:w-64">
+                    </div>
+                    <button onclick="carregarAvaliacoes();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer" title="Atualizar Pedidos">
+                        <i class="fa-solid fa-rotate"></i> Atualizar
+                    </button>
+                    <button onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-chevron-up text-xs"></i> Minimizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- ABAS DE STATUS DOS PEDIDOS (FILTROS RÁPIDOS) -->
+            <div class="flex flex-wrap items-center gap-2 mb-4 pb-3 border-b border-gray-100 text-xs">
+                <button id="tab-pedidos-status-todos" onclick="filtrarAbaStatusPedidos('TODOS')" class="px-3.5 py-1.5 rounded-xl font-black transition bg-gray-900 text-white shadow-xs flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-layer-group"></i> Todos (<span id="cont-status-todos">0</span>)
+                </button>
+                <button id="tab-pedidos-status-pendente" onclick="filtrarAbaStatusPedidos('PENDENTE')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
+                    🟡 Pendentes (<span id="cont-status-pendente">0</span>)
+                </button>
+                <button id="tab-pedidos-status-preparo" onclick="filtrarAbaStatusPedidos('PREPARO')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
+                    🥣 Em Preparo (<span id="cont-status-preparo">0</span>)
+                </button>
+                <button id="tab-pedidos-status-entrega" onclick="filtrarAbaStatusPedidos('SAIU_ENTREGA')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
+                    🛵 Em Entrega (<span id="cont-status-entrega">0</span>)
+                </button>
+                <button id="tab-pedidos-status-retirada" onclick="filtrarAbaStatusPedidos('PRONTO_RETIRADA')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
+                    📦 Pronto Retirada (<span id="cont-status-retirada">0</span>)
+                </button>
+                <button id="tab-pedidos-status-concluido" onclick="filtrarAbaStatusPedidos('CONCLUIDO')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
+                    ✅ Entregues (<span id="cont-status-concluido">0</span>)
+                </button>
+            </div>
+
+            <!-- CONTAINER DA LISTA DE PEDIDOS -->
+            <div id="container-lista-pedidos-central" class="space-y-3">
+                <div class="p-8 text-center text-gray-400">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando pedidos...
+                </div>
+            </div>
+
+            <!-- RODAPÉ DA CENTRAL -->
+            <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                <span>💡 Clique em <strong>"Abrir Rota GPS"</strong> para traçar a rota da entrega no Google Maps.</span>
+                <button onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3.5 rounded-lg transition cursor-pointer">
+                    <i class="fa-solid fa-chevron-up text-xs mr-1"></i> Minimizar Pedidos
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DOS MATERIAIS DE APOIO (EXPANSÍVEL) -->
+        <div id="conteudo-materiais-apoio" class="hidden mt-6 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300 border border-yellow-400/20">
+            <div class="relative z-10">
+                <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/20">
+                    <div>
+                        <span class="inline-block bg-brand-yellow text-brand-dark font-black text-xs px-3 py-1 rounded-full uppercase mb-1">
+                            Treinamento & Materiais Oficiais
+                        </span>
+                        <h3 class="text-xl sm:text-2xl font-black text-white flex items-center">
+                            <i class="fa-solid fa-graduation-cap text-brand-yellow mr-2"></i> Ferramentas de Divulgação do Litrão
+                        </h3>
+                    </div>
+                    <button onclick="toggleMateriaisApoio(event)" class="text-xs bg-white/15 hover:bg-white/25 text-white font-bold py-2 px-4 rounded-xl transition flex items-center shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-chevron-up mr-1.5 text-xs text-yellow-300"></i> Minimizar
+                    </button>
+                </div>
 
                     <!-- CARD ESPECIAL: KIT DE DIVULGAÇÃO & EXPANSÃO DE EQUIPE (SUPERADMIN & MASTER VIP) -->
                     <div id="kit-divulgacao-equipe-vip" class="mb-6 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden text-white">
@@ -1517,7 +1688,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- MODAL DE TREINAMENTO -->
         <div id="modal-treinamento" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -4797,6 +4967,7 @@
                 statCardTotalAvaliacoes.innerText = (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) ? todasAvaliacoesCache.length : grupos.reduce((acc, g) => acc + g.total, 0);
             }
             atualizarBadgesAniversarios();
+            try { atualizarCardEMovimentacaoPedidos(); } catch(e) {}
         }
 
         let filtroBuscaCliente = '';
@@ -7069,6 +7240,349 @@
             janelaImpr.document.close();
         }
         window.imprimirComandaPedido = imprimirComandaPedido;
+
+        // ==========================================
+        // GESTÃO E CENTRAL DE PEDIDOS & ENTREGAS (MOVIMENTAÇÃO EM TEMPO REAL)
+        // ==========================================
+        let filtroStatusPedidosAtual = 'TODOS';
+        let buscaPedidosCentralTexto = '';
+
+        function toggleCentralPedidos(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const secao = document.getElementById('secao-central-pedidos');
+            const label = document.getElementById('label-toggle-pedidos');
+            const icone = document.getElementById('icone-toggle-pedidos');
+            if (!secao) return;
+
+            if (secao.classList.contains('hidden')) {
+                secao.classList.remove('hidden');
+                if (label) label.innerText = 'Minimizar Pedidos';
+                if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
+                renderizarCentralPedidos();
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                secao.classList.add('hidden');
+                if (label) label.innerText = 'Abrir Pedidos';
+                if (icone) icone.className = 'fa-solid fa-chevron-down text-xs transition-transform duration-200';
+            }
+        }
+        window.toggleCentralPedidos = toggleCentralPedidos;
+
+        function filtrarAbaStatusPedidos(status) {
+            filtroStatusPedidosAtual = status;
+
+            const abas = [
+                { id: 'tab-pedidos-status-todos', st: 'TODOS', activeBg: 'bg-gray-900 text-white shadow-xs' },
+                { id: 'tab-pedidos-status-pendente', st: 'PENDENTE', activeBg: 'bg-amber-500 text-white shadow-xs' },
+                { id: 'tab-pedidos-status-preparo', st: 'PREPARO', activeBg: 'bg-blue-600 text-white shadow-xs' },
+                { id: 'tab-pedidos-status-entrega', st: 'SAIU_ENTREGA', activeBg: 'bg-purple-600 text-white shadow-xs' },
+                { id: 'tab-pedidos-status-retirada', st: 'PRONTO_RETIRADA', activeBg: 'bg-indigo-600 text-white shadow-xs' },
+                { id: 'tab-pedidos-status-concluido', st: 'CONCLUIDO', activeBg: 'bg-emerald-600 text-white shadow-xs' }
+            ];
+
+            abas.forEach(aba => {
+                const el = document.getElementById(aba.id);
+                if (!el) return;
+                if (aba.st === status) {
+                    el.className = `px-3.5 py-1.5 rounded-xl font-black transition flex items-center gap-1.5 cursor-pointer ${aba.activeBg}`;
+                } else {
+                    el.className = `px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700`;
+                }
+            });
+
+            renderizarCentralPedidos();
+        }
+        window.filtrarAbaStatusPedidos = filtrarAbaStatusPedidos;
+
+        function filtrarCentralPedidos(busca) {
+            buscaPedidosCentralTexto = (busca || '').toLowerCase().trim();
+            renderizarCentralPedidos();
+        }
+        window.filtrarCentralPedidos = filtrarCentralPedidos;
+
+        function atualizarCardEMovimentacaoPedidos() {
+            if (typeof todasAvaliacoesCache === 'undefined' || !todasAvaliacoesCache) return;
+
+            let countPendente = 0;
+            let countPreparo = 0;
+            let countEntrega = 0;
+            let countRetirada = 0;
+            let countConcluido = 0;
+            let totalFaturadoCentavos = 0;
+            let totalPedidos = 0;
+
+            todasAvaliacoesCache.forEach(item => {
+                const isPedido = (item.codigo_acesso === 'PEDIDO') || 
+                                 (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || 
+                                 (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+                if (!isPedido) return;
+
+                totalPedidos++;
+                const dados = extrairDadosPedidoItem(item);
+                const st = dados?.status || 'PENDENTE';
+
+                if (st === 'PENDENTE') countPendente++;
+                else if (st === 'PREPARO') countPreparo++;
+                else if (st === 'SAIU_ENTREGA') countEntrega++;
+                else if (st === 'PRONTO_RETIRADA') countRetirada++;
+                else if (st === 'CONCLUIDO') countConcluido++;
+
+                if (dados && dados.valor_total) {
+                    const numStr = String(dados.valor_total).replace(/[^\d,]/g, '').replace(',', '.');
+                    const num = parseFloat(numStr);
+                    if (!isNaN(num)) {
+                        totalFaturadoCentavos += Math.round(num * 100);
+                    }
+                }
+            });
+
+            const totalFaturadoFormatado = (totalFaturadoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const elPend = document.getElementById('card-pedidos-stat-pendente');
+            if (elPend) elPend.innerText = countPendente;
+
+            const elPrep = document.getElementById('card-pedidos-stat-preparo');
+            if (elPrep) elPrep.innerText = countPreparo;
+
+            const elEntr = document.getElementById('card-pedidos-stat-entrega');
+            if (elEntr) elEntr.innerText = countEntrega;
+
+            const elRet = document.getElementById('card-pedidos-stat-retirada');
+            if (elRet) elRet.innerText = countRetirada;
+
+            const elFat = document.getElementById('card-pedidos-stat-total-faturado');
+            if (elFat) elFat.innerText = totalFaturadoFormatado;
+
+            const tTodos = document.getElementById('cont-status-todos');
+            if (tTodos) tTodos.innerText = totalPedidos;
+
+            const tPend = document.getElementById('cont-status-pendente');
+            if (tPend) tPend.innerText = countPendente;
+
+            const tPrep = document.getElementById('cont-status-preparo');
+            if (tPrep) tPrep.innerText = countPreparo;
+
+            const tEntr = document.getElementById('cont-status-entrega');
+            if (tEntr) tEntr.innerText = countEntrega;
+
+            const tRet = document.getElementById('cont-status-retirada');
+            if (tRet) tRet.innerText = countRetirada;
+
+            const tConc = document.getElementById('cont-status-concluido');
+            if (tConc) tConc.innerText = countConcluido;
+
+            const tGeralBadge = document.getElementById('badge-pedidos-contador-geral');
+            if (tGeralBadge) tGeralBadge.innerText = `${totalPedidos} pedido(s) registrado(s)`;
+
+            renderizarCentralPedidos();
+        }
+        window.atualizarCardEMovimentacaoPedidos = atualizarCardEMovimentacaoPedidos;
+
+        function renderizarCentralPedidos() {
+            const container = document.getElementById('container-lista-pedidos-central');
+            if (!container) return;
+
+            if (typeof todasAvaliacoesCache === 'undefined' || !todasAvaliacoesCache) {
+                container.innerHTML = '<div class="p-8 text-center text-gray-400">Carregando pedidos...</div>';
+                return;
+            }
+
+            let pedidos = todasAvaliacoesCache.filter(item => {
+                return (item.codigo_acesso === 'PEDIDO') || 
+                       (item.nome_cliente && item.nome_cliente.startsWith('[PEDIDO]')) || 
+                       (item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:'));
+            }).sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+
+            if (filtroStatusPedidosAtual !== 'TODOS') {
+                pedidos = pedidos.filter(item => {
+                    const dados = extrairDadosPedidoItem(item);
+                    return (dados?.status || 'PENDENTE') === filtroStatusPedidosAtual;
+                });
+            }
+
+            if (buscaPedidosCentralTexto) {
+                pedidos = pedidos.filter(item => {
+                    const dados = extrairDadosPedidoItem(item);
+                    const nome = (item.nome_cliente || '').toLowerCase();
+                    const whats = (item.whatsapp_cliente || '').toLowerCase();
+                    const prod = (dados?.produto || '').toLowerCase();
+                    const end = (dados?.endereco || '').toLowerCase();
+                    const obs = (dados?.observacoes || '').toLowerCase();
+                    const st = (dados?.status || '').toLowerCase();
+
+                    return nome.includes(buscaPedidosCentralTexto) || 
+                           whats.includes(buscaPedidosCentralTexto) || 
+                           prod.includes(buscaPedidosCentralTexto) || 
+                           end.includes(buscaPedidosCentralTexto) || 
+                           obs.includes(buscaPedidosCentralTexto) || 
+                           st.includes(buscaPedidosCentralTexto);
+                });
+            }
+
+            if (pedidos.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl p-8 sm:p-10 text-center">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-3 shadow-xs">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+                        <h4 class="text-lg font-black text-gray-800">Nenhum pedido encontrado</h4>
+                        <p class="text-xs text-gray-500 max-w-sm mx-auto mt-1">
+                            ${buscaPedidosCentralTexto ? 'Nenhum pedido corresponde à sua pesquisa.' : 'Assim que seus clientes reservarem pelo link oficial do Litrão, os pedidos aparecerão aqui para agilização das entregas!'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const statusStyles = {
+                'PENDENTE': { label: '🟡 Aguardando Confirmação', bg: 'bg-amber-100 text-amber-900 border-amber-300' },
+                'PREPARO': { label: '🥣 Em Preparo', bg: 'bg-blue-100 text-blue-900 border-blue-300' },
+                'SAIU_ENTREGA': { label: '🛵 Saiu para Entrega', bg: 'bg-purple-100 text-purple-900 border-purple-300' },
+                'PRONTO_RETIRADA': { label: '📦 Pronto Retirada', bg: 'bg-indigo-100 text-indigo-900 border-indigo-300' },
+                'CONCLUIDO': { label: '✅ Entregue / Concluído', bg: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+                'CANCELADO': { label: '❌ Cancelado', bg: 'bg-red-100 text-red-900 border-red-300' }
+            };
+
+            let html = '';
+            pedidos.forEach(pedido => {
+                const dados = extrairDadosPedidoItem(pedido);
+                const nomeCliente = pedido.nome_cliente ? pedido.nome_cliente.replace(/^\[PEDIDO\]\s*/i, '') : 'Cliente';
+                const whatsLimpo = (pedido.whatsapp_cliente || '').replace(/\D/g, '');
+                const dataFormatada = pedido.criado_em ? new Date(pedido.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-';
+                const st = dados?.status || 'PENDENTE';
+                const stConfig = statusStyles[st] || statusStyles['PENDENTE'];
+
+                html += `
+                    <div class="bg-gray-50/70 hover:bg-emerald-50/20 border border-gray-200 hover:border-emerald-300 rounded-2xl p-4 transition shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                        <!-- Coluna 1: Dados do Cliente & Status -->
+                        <div class="min-w-0 xl:w-72">
+                            <div class="flex items-center gap-1.5 flex-wrap mb-1.5">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${stConfig.bg}">
+                                    ${stConfig.label}
+                                </span>
+                                <span class="text-[11px] text-gray-500 font-semibold flex items-center gap-1">
+                                    <i class="fa-regular fa-clock"></i> ${dataFormatada}
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-bold">#${pedido.id}</span>
+                            </div>
+                            <div class="text-base font-black text-gray-900 cursor-pointer hover:text-emerald-700 transition" onclick="abrirDetalhesPedido(${pedido.id})">
+                                ${nomeCliente}
+                            </div>
+                            <div class="text-xs text-gray-600 font-semibold flex items-center gap-2 mt-0.5">
+                                <span>Whats: <strong>${pedido.whatsapp_cliente || '-'}</strong></span>
+                                ${whatsLimpo ? `
+                                    <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-green-600 hover:text-green-700 font-bold inline-flex items-center gap-0.5 text-xs">
+                                        <i class="fa-brands fa-whatsapp"></i> Chamar
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2: Produto Solicitado, Qtd e Pagamento -->
+                        <div class="min-w-0 xl:w-64">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Produto & Valor</span>
+                            <div class="text-sm font-black text-gray-900">${dados.quantidade || 1}x ${dados.produto}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-base font-black text-emerald-700">${dados.valor_total}</span>
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-700 uppercase">
+                                    💳 ${dados.forma_pagamento || 'PIX'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 3: Modalidade & Rota no Google Maps -->
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${dados.modalidade === 'ENTREGA' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">
+                                    ${dados.modalidade === 'ENTREGA' ? '🛵 Delivery / Entrega' : '📦 Retirada no Espaço'}
+                                </span>
+                            </div>
+                            ${dados.modalidade === 'ENTREGA' ? `
+                                <div class="text-xs font-bold text-gray-900 mt-1 flex items-start gap-1">
+                                    <i class="fa-solid fa-location-dot text-red-500 mt-0.5 flex-shrink-0"></i>
+                                    <span class="truncate" title="${dados.endereco}">${dados.endereco || 'Endereço não informado'}</span>
+                                </div>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dados.endereco || '')}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 mt-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition w-fit">
+                                    <i class="fa-solid fa-map-location-dot"></i> Abrir Rota GPS no Maps
+                                </a>
+                            ` : `
+                                <div class="text-xs text-gray-500 mt-0.5 italic">O cliente retirará no seu Espaço.</div>
+                            `}
+                            ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
+                                <div class="text-[11px] text-amber-800 font-medium italic mt-1 truncate" title="${dados.observacoes}">
+                                    Obs: "${dados.observacoes}"
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Coluna 4: Ações Rápidas de Despacho & Notificação -->
+                        <div class="flex flex-col sm:flex-row xl:flex-col items-stretch xl:items-end gap-2 flex-shrink-0">
+                            <!-- Seletor Rápido de Status -->
+                            <div class="flex items-center gap-1.5 w-full xl:w-auto">
+                                <select onchange="atualizarStatusPedidoRapido(${pedido.id}, this.value)" class="w-full xl:w-auto text-xs font-bold border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs">
+                                    <option value="PENDENTE" ${st === 'PENDENTE' ? 'selected' : ''}>🟡 Pendente</option>
+                                    <option value="PREPARO" ${st === 'PREPARO' ? 'selected' : ''}>🥣 Em Preparo</option>
+                                    <option value="SAIU_ENTREGA" ${st === 'SAIU_ENTREGA' ? 'selected' : ''}>🛵 Saiu p/ Entrega</option>
+                                    <option value="PRONTO_RETIRADA" ${st === 'PRONTO_RETIRADA' ? 'selected' : ''}>📦 Pronto Retirada</option>
+                                    <option value="CONCLUIDO" ${st === 'CONCLUIDO' ? 'selected' : ''}>✅ Entregue</option>
+                                    <option value="CANCELADO" ${st === 'CANCELADO' ? 'selected' : ''}>❌ Cancelado</option>
+                                </select>
+                            </div>
+
+                            <!-- Botões de Ação Imediata -->
+                            <div class="flex items-center gap-1.5 w-full xl:w-auto justify-end">
+                                <button onclick="notificarClienteStatusWhatsApp(${pedido.id})" title="Enviar WhatsApp com status atual" class="flex-1 xl:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Whats
+                                </button>
+                                <button onclick="imprimirComandaPedido(${pedido.id})" title="Imprimir comanda do pedido" class="flex-1 xl:flex-initial bg-gray-800 hover:bg-gray-900 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-print"></i> Comanda
+                                </button>
+                                <button onclick="abrirDetalhesPedido(${pedido.id})" title="Ver detalhes completos" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black p-2 rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+        window.renderizarCentralPedidos = renderizarCentralPedidos;
+
+        async function atualizarStatusPedidoRapido(id, novoStatus) {
+            const item = todasAvaliacoesCache.find(a => a.id == id);
+            if (!item) return;
+
+            const dados = extrairDadosPedidoItem(item);
+            dados.status = novoStatus;
+
+            let novoComoFoi = item.como_foi_semana || '';
+            const tagNovo = `<!--DADOS_PEDIDO:${JSON.stringify(dados)}-->`;
+            if (novoComoFoi.includes('<!--DADOS_PEDIDO:')) {
+                novoComoFoi = novoComoFoi.replace(/<!--DADOS_PEDIDO:.*?-->/, tagNovo);
+            } else {
+                novoComoFoi += `\n${tagNovo}`;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('avaliacoes')
+                    .update({ como_foi_semana: novoComoFoi })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                item.como_foi_semana = novoComoFoi;
+
+                atualizarCardEMovimentacaoPedidos();
+                renderizarTabelaAgrupada();
+            } catch (err) {
+                console.error('Erro ao atualizar status rápido:', err);
+                alert('Erro ao atualizar status: ' + (err.message || err));
+            }
+        }
+        window.atualizarStatusPedidoRapido = atualizarStatusPedidoRapido;
 
         // ==========================================
         // GERAR / VISUALIZAR / BAIXAR / COMPARTILHAR RELATÓRIO EM FOTO (PNG)
