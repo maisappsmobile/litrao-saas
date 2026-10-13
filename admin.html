@@ -198,10 +198,37 @@
             if(data.length === 0) return tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8">Nenhum cadastrado.</td></tr>';
 
             data.forEach(item => {
-                const isAtivo = (item.status || '').toLowerCase() === 'ativo';
+                let diasAtrasoItem = 0;
+                let isAtrasado20 = false;
+                const isSuperAdminItem = String(item.herbalife_id || '').trim() === '433005811';
+
+                if (item.vencimento && !isSuperAdminItem) {
+                    const p = item.vencimento.split('-');
+                    if (p.length === 3 && parseInt(p[0], 10) < 2035) {
+                        const dt = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                        const hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
+                        const diff = Math.floor((hoje - dt) / (1000 * 60 * 60 * 24));
+                        if (diff >= 20) {
+                            isAtrasado20 = true;
+                            diasAtrasoItem = diff;
+                        }
+                    }
+                }
+                const stUpper = (item.status || '').trim().toUpperCase();
+                if ((stUpper === 'BLOQUEADO' || stUpper === 'INADIMPLENTE') && !isSuperAdminItem) {
+                    isAtrasado20 = true;
+                }
+
+                const isAtivo = (item.status || '').toLowerCase() === 'ativo' && !isAtrasado20;
                 if(isAtivo) ativosCount++;
 
-                let statusColor = isAtivo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                let statusBadgeHtml = `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase mb-1 inline-block">${item.status || 'Ativo'}</span>`;
+                if (isAtrasado20) {
+                    statusBadgeHtml = `<span class="bg-red-600 text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase mb-1 inline-block" title="Link redirecionado para o principal (+${diasAtrasoItem}d atraso)"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Redirecionado (+${diasAtrasoItem}d)</span>`;
+                } else if (!isAtivo) {
+                    statusBadgeHtml = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase mb-1 inline-block">${item.status || 'Inativo'}</span>`;
+                }
                 
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
@@ -213,10 +240,11 @@
                             <a href="/${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
                                 /${item.slug} <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
                             </a>
+                            ${isAtrasado20 ? `<span class="text-[10px] font-bold text-red-600 block mt-0.5"><i class="fa-solid fa-route mr-1"></i> Redireciona p/ litraodoreset.com.br</span>` : ''}
                         </td>
                         <td class="p-4 text-sm font-medium"><a href="https://wa.me/${item.whatsapp}" target="_blank" class="text-green-600 hover:underline"><i class="fa-brands fa-whatsapp"></i> ${item.whatsapp}</a></td>
                         <td class="p-4 text-center">
-                            <span class="${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase mb-1 inline-block">${item.status || 'Ativo'}</span>
+                            ${statusBadgeHtml}
                             <div class="text-[11px] font-bold text-gray-500"><i class="fa-regular fa-calendar mr-1"></i> ${formatarData(item.vencimento)}</div>
                         </td>
                         <td class="p-4 text-center space-x-2">

@@ -168,6 +168,29 @@
             </div>
         </div>
 
+        <!-- AVISO DE LINK REDIRECIONADO POR ATRASO DE PAGAMENTO (+20 DIAS) -->
+        <div id="alerta-link-redirecionado" class="hidden bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white rounded-2xl p-4 sm:p-5 mb-5 shadow-lg border-2 border-red-300 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center space-x-3.5">
+                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl flex-shrink-0 text-white">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-sm sm:text-base tracking-wide flex items-center gap-2">
+                        <span>SEU LINK ESTÁ REDIRECIONANDO PARA A PÁGINA PRINCIPAL!</span>
+                        <span class="bg-yellow-400 text-red-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Regra 20 Dias Ativa</span>
+                    </h4>
+                    <p class="text-xs text-red-100 mt-1 leading-relaxed">
+                        Constatamos mais de <strong>20 dias de atraso no pagamento</strong>. Os acessos ao seu link estão sendo automaticamente direcionados para <strong>https://www.litraodoreset.com.br</strong>. Para reativar seu link exclusivo e voltar a capturar clientes diretamente, regularize sua mensalidade agora.
+                    </p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <button onclick="abrirModalPromocao()" class="w-full md:w-auto bg-yellow-400 hover:bg-yellow-300 text-red-950 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-bolt"></i> Regularizar Acesso
+                </button>
+            </div>
+        </div>
+
         <!-- CARD MASTER VIP: INDIQUE UM CONSULTOR (CUPOM 15% OFF) -->
         <div id="card-vip-indique-container" class="mb-6">
             <div id="card-vip-box" class="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-purple-400/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -2753,11 +2776,16 @@
             const alertaVenc = document.getElementById('dash-vencimento-alerta');
             const txtContagemBanner = document.getElementById('txt-contagem-banner');
             const txtDiasRestantesBadge = document.getElementById('txt-dias-restantes-badge');
+            const alertaRedirecionado = document.getElementById('alerta-link-redirecionado');
+
+            const isSuperAdminOficial = String(consultorAtual.herbalife_id || '').trim() === '433005811';
+            const statusUpper = String(consultorAtual.status || '').trim().toUpperCase();
 
             if (!consultorAtual.vencimento) {
                 if (banner) banner.classList.add('hidden');
                 if (badgeStatus) badgeStatus.classList.add('hidden');
                 if (alertaVenc) alertaVenc.classList.add('hidden');
+                if (alertaRedirecionado) alertaRedirecionado.classList.add('hidden');
                 return;
             }
 
@@ -2766,11 +2794,39 @@
             const ano = parseInt(partes[0], 10);
             const mes = parseInt(partes[1], 10) - 1;
             const dia = parseInt(partes[2], 10);
+
+            // Plano Vitalício (Permanente) ou SuperAdmin Oficial
+            if (ano >= 2035 || isSuperAdminOficial) {
+                if (banner) banner.classList.add('hidden');
+                if (badgeStatus) badgeStatus.classList.add('hidden');
+                if (alertaVenc) alertaVenc.classList.add('hidden');
+                if (alertaRedirecionado) alertaRedirecionado.classList.add('hidden');
+                return;
+            }
+
             const dataVenc = new Date(ano, mes, dia, 23, 59, 59);
             const agora = new Date();
 
             const diffMs = dataVenc - agora;
             const diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+            // REGRA: Atraso de pagamento de 20 dias (diffDias <= -20) ou Status Bloqueado
+            const isAtrasado20Dias = (diffDias <= -20) || ['BLOQUEADO', 'INADIMPLENTE', 'CANCELADO', 'SUSPENSO'].includes(statusUpper);
+            const diasAtrasoTotal = diffDias < 0 ? Math.abs(diffDias) : 0;
+
+            if (isAtrasado20Dias) {
+                if (alertaRedirecionado) alertaRedirecionado.classList.remove('hidden');
+                if (alertaVenc) {
+                    alertaVenc.classList.remove('hidden');
+                    alertaVenc.className = 'text-[11px] font-black text-red-600 animate-pulse mt-0.5';
+                    alertaVenc.innerHTML = `🚨 Link Direcionado p/ Matriz (+${diasAtrasoTotal}d atraso)`;
+                }
+                if (badgeStatus) badgeStatus.classList.add('hidden');
+                if (banner) banner.classList.add('hidden');
+                return;
+            } else {
+                if (alertaRedirecionado) alertaRedirecionado.classList.add('hidden');
+            }
 
             // Conta em período de degustação (ou vencendo em até 14 dias)
             const isTrial = diffDias <= 14;
@@ -2778,7 +2834,11 @@
             if (isTrial) {
                 if (banner) banner.classList.remove('hidden');
                 if (badgeStatus) badgeStatus.classList.remove('hidden');
-                if (alertaVenc) alertaVenc.classList.remove('hidden');
+                if (alertaVenc) {
+                    alertaVenc.classList.remove('hidden');
+                    alertaVenc.className = 'text-[11px] font-black text-amber-600 animate-pulse mt-0.5';
+                    alertaVenc.innerText = '⏰ Teste Grátis expira em breve!';
+                }
 
                 let textoDias = "";
                 if (diffDias > 1) {
@@ -4066,6 +4126,9 @@
                 let vencTexto = "Sem data";
                 let isVitalicio = false;
                 let isTrial = false;
+                let isAtrasado20Dias = false;
+                let diasAtrasoConsultor = 0;
+                const isSuperAdminOficialLinha = String(c.herbalife_id || '').trim() === '433005811';
 
                 if (c.vencimento) {
                     const p = c.vencimento.split('-');
@@ -4076,10 +4139,17 @@
                             isVitalicio = true;
                             vencTexto = "Vitalício (Permanente)";
                         } else {
-                            const dtVenc = new Date(ano, parseInt(p[1], 10) - 1, parseInt(p[2], 10));
-                            const diffDias = Math.ceil((dtVenc - new Date()) / (1000 * 60 * 60 * 24));
+                            const dtVenc = new Date(ano, parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                            const hojeDia = new Date();
+                            hojeDia.setHours(0, 0, 0, 0);
+                            const diffDias = Math.ceil((dtVenc - hojeDia) / (1000 * 60 * 60 * 24));
                             if (diffDias >= 0 && diffDias <= 8) {
                                 isTrial = true;
+                            } else if (diffDias < 0 && !isSuperAdminOficialLinha) {
+                                diasAtrasoConsultor = Math.abs(diffDias);
+                                if (diasAtrasoConsultor >= 20) {
+                                    isAtrasado20Dias = true;
+                                }
                             }
                         }
                     }
@@ -4087,8 +4157,14 @@
 
                 // Badges de Status
                 const statusNormal = (c.status || 'Ativo').trim();
+                if ((statusNormal.toLowerCase() === 'bloqueado' || statusNormal.toLowerCase() === 'inadimplente') && !isSuperAdminOficialLinha) {
+                    isAtrasado20Dias = true;
+                }
+
                 let statusBadge = `<span class="bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Ativo</span>`;
-                if (statusNormal.toLowerCase() === 'bloqueado') {
+                if (isAtrasado20Dias) {
+                    statusBadge = `<span class="bg-red-600 text-white font-extrabold px-2.5 py-1 rounded-full text-xs shadow-xs inline-flex items-center gap-1" title="Atraso de ${diasAtrasoConsultor} dias - Link direcionado para a Matriz Oficial"><i class="fa-solid fa-triangle-exclamation"></i> Link Direcionado (+${diasAtrasoConsultor}d)</span>`;
+                } else if (statusNormal.toLowerCase() === 'bloqueado') {
                     statusBadge = `<span class="bg-red-100 text-red-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Bloqueado</span>`;
                 } else if (statusNormal.toLowerCase() === 'pendente') {
                     statusBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Pendente</span>`;
@@ -4131,6 +4207,11 @@
                         <a href="${linkConsultor}" target="_blank" class="text-blue-600 hover:underline font-bold text-xs flex items-center gap-1 truncate max-w-[150px]" title="${linkConsultor}">
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> /${slugFinal}
                         </a>
+                        ${isAtrasado20Dias ? `
+                            <span class="inline-flex items-center gap-1 text-[10px] font-black text-red-700 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded mt-1" title="Qualquer visita a este link vai direto para https://www.litraodoreset.com.br">
+                                <i class="fa-solid fa-arrow-turn-down text-red-600"></i> Vai p/ Principal
+                            </span>
+                        ` : ''}
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center gap-1.5">

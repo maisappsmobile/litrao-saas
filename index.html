@@ -931,6 +931,68 @@
                     }
                 }
 
+                // =========================================================================
+                // REGRA OBRIGATÓRIA: LINKS COM ATRASO DE PAGAMENTO DE 20 DIAS SÃO
+                // AUTOMATICAMENTE DIRECIONADOS AO PRINCIPAL (https://www.litraodoreset.com.br)
+                // =========================================================================
+                if (data) {
+                    const idSponsor = String(data.herbalife_id || '').trim();
+                    const isPrincipalOficial = (idSponsor === '433005811');
+                    let diasAtraso = 0;
+                    let deveRedirecionarPrincipal = false;
+
+                    if (!isPrincipalOficial) {
+                        // 1. Verifica data de vencimento no formato YYYY-MM-DD
+                        if (data.vencimento) {
+                            const partesVenc = String(data.vencimento).trim().split('-');
+                            if (partesVenc.length === 3) {
+                                const anoVenc = parseInt(partesVenc[0], 10);
+                                const mesVenc = parseInt(partesVenc[1], 10) - 1;
+                                const diaVenc = parseInt(partesVenc[2], 10);
+                                // Ano >= 2035 indica plano Vitalício / Permanente
+                                if (anoVenc < 2035) {
+                                    const hojeZera = new Date();
+                                    hojeZera.setHours(0, 0, 0, 0);
+                                    const dataVencObj = new Date(anoVenc, mesVenc, diaVenc, 0, 0, 0);
+                                    const diffMs = hojeZera.getTime() - dataVencObj.getTime();
+                                    diasAtraso = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                    if (diasAtraso >= 20) {
+                                        deveRedirecionarPrincipal = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 2. Verifica status bloqueado / inadimplente no Supabase
+                        const statusConsultor = String(data.status || '').trim().toUpperCase();
+                        if (['BLOQUEADO', 'INADIMPLENTE', 'CANCELADO', 'SUSPENSO'].includes(statusConsultor)) {
+                            deveRedirecionarPrincipal = true;
+                        }
+                    }
+
+                    if (deveRedirecionarPrincipal) {
+                        console.warn(`[REGRA 20 DIAS] Consultor ID ${data.herbalife_id} (${data.slug || 'sem-slug'}) com ${diasAtraso} dias de atraso de pagamento (ou bloqueado). Redirecionando para https://www.litraodoreset.com.br`);
+                        
+                        const urlPrincipal = "https://www.litraodoreset.com.br";
+                        const urlAtual = window.location.href;
+                        
+                        // Detecta se acessou via rota com slug ou parâmetros de indicação
+                        const pathnameLimpo = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+                        const temSlugOuRota = pathnameLimpo !== '' && pathnameLimpo !== 'index.html';
+                        const temParametros = window.location.search && window.location.search.length > 1;
+                        const jaEstaNaRaizOficial = (urlAtual === urlPrincipal || urlAtual === urlPrincipal + "/");
+
+                        // Se veio por link personalizado ou não está na raiz estrita oficial, redireciona imediatamente
+                        if (!jaEstaNaRaizOficial || temSlugOuRota || temParametros) {
+                            window.location.replace(urlPrincipal);
+                            return;
+                        }
+
+                        // Se já está na raiz e não pode redirecionar para evitar loop, descarta o consultor inadimplente
+                        data = null;
+                    }
+                }
+
                 consultor = data;
 
                 function formatarTelefoneBrasil(num) {
