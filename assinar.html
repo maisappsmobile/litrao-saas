@@ -6,6 +6,7 @@
     <title>Crie sua Página - Litrão do Reset</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="solana-bundle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -229,6 +230,18 @@
                 <a href="#" id="link-gerado" target="_blank" class="text-blue-600 font-bold text-lg break-all hover:underline">litraodoreset.com.br/</a>
             </div>
 
+            <!-- SELETOR DE MÉTODO DE PAGAMENTO -->
+            <div class="my-4 bg-gray-100 p-1.5 rounded-2xl border border-gray-200 grid grid-cols-2 gap-2 shadow-inner">
+                <button type="button" id="btn-assinar-pix" onclick="alternarMetodoAssinar('pix')" class="py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-300 cursor-pointer">
+                    <i class="fa-brands fa-pix text-emerald-600 text-sm"></i>
+                    <span>PIX (Valor Normal)</span>
+                </button>
+                <button type="button" id="btn-assinar-fitcoin" onclick="alternarMetodoAssinar('fitcoin')" class="py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-slate-200 text-gray-700 hover:text-slate-900 border border-transparent cursor-pointer">
+                    <img src="fitcoin-logo.png" class="w-4 h-4 rounded-full border border-amber-400">
+                    <span class="text-amber-800 font-extrabold">FitCoin (22% OFF 🔥)</span>
+                </button>
+            </div>
+
             <!-- Caixa do PIX -->
             <div id="pix-box" class="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6 text-left shadow-sm">
                 <h3 class="font-bold text-teal-900 mb-2 flex items-center">
@@ -272,6 +285,83 @@
                     <p id="msg-pix-copiado" class="text-green-700 font-bold text-xs mt-2 hidden text-center bg-green-50 py-1 px-3 rounded-lg border border-green-200">
                         <i class="fa-solid fa-check mr-1"></i> Chave PIX copiada com sucesso!
                     </p>
+                </div>
+            </div>
+
+            <!-- Caixa da FitCoin (22% de Desconto) -->
+            <div id="fitcoin-box" class="hidden bg-gradient-to-b from-slate-900 via-slate-900 to-[#0B0F19] border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-5 mb-6 text-center shadow-2xl relative overflow-hidden">
+                
+                <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 shadow-md animate-pulse">
+                    <i class="fa-solid fa-fire text-orange-600"></i>
+                    <span>INCENTIVO FITCOIN • 22% DE DESCONTO APLICADO!</span>
+                </div>
+
+                <div class="mb-4 bg-slate-950/80 border border-amber-500/40 rounded-2xl p-4 shadow-inner text-center">
+                    <div class="flex items-center justify-center gap-2 text-xs text-gray-400 font-bold mb-1">
+                        <span>Adesão Normal:</span>
+                        <span id="assinar-fitcoin-original" class="line-through text-red-400 font-bold">R$ 199,00</span>
+                        <span class="text-amber-400 font-black bg-amber-500/20 px-2 py-0.5 rounded-full text-[10px]">-22% OFF</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 my-1">
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase font-bold block">Valor com 22% de Desconto:</span>
+                            <div id="assinar-fitcoin-brl" class="text-2xl sm:text-3xl font-black text-amber-400 leading-tight">
+                                R$ 155,22
+                            </div>
+                        </div>
+                        <div class="text-xl text-gray-500 hidden sm:block">=</div>
+                        <div class="bg-amber-500/15 border border-amber-500/40 px-3.5 py-1.5 rounded-xl">
+                            <span class="text-[10px] text-amber-300 uppercase font-bold block">Total em FitCoins:</span>
+                            <div id="assinar-fitcoin-tokens" class="text-xl sm:text-2xl font-black text-emerald-400 flex items-center justify-center gap-1.5">
+                                <img src="fitcoin-logo.png" class="w-5 h-5 rounded-full">
+                                <span>1.552 $FIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-300 mt-2 pt-2 border-t border-slate-800">
+                        Economize <strong>R$ 43,78</strong> pagando com FitCoin (Paridade oficial: 10 FIT = R$ 1,00)!
+                    </p>
+                </div>
+
+                <!-- OPÇÃO 1: PHANTOM 1-CLIQUE -->
+                <div class="mb-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-left">
+                    <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> Pagar com Carteira Phantom (1 Clique)
+                    </span>
+                    <button type="button" id="btn-assinar-phantom" onclick="pagarAssinaturaPhantom()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>TRANSFERIR FITCOINS NA PHANTOM</span>
+                    </button>
+                </div>
+
+                <!-- OPÇÃO 2: QR CODE SOLANA & ENDEREÇO -->
+                <div class="mb-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-left">
+                    <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-qrcode text-emerald-400"></i> Carteira Solana Oficial (BragaPay)
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="text" readonly value="4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy" class="w-full text-[11px] bg-slate-900 border border-slate-700 text-emerald-400 font-mono rounded-lg px-2.5 py-1.5 select-all focus:outline-none">
+                        <button type="button" onclick="navigator.clipboard.writeText('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy'); alert('Endereço copiado!');" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-gray-300 text-xs shrink-0" title="Copiar">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OPÇÃO 3: QUEM NÃO ENTENDE DE CRIPTO -->
+                <div class="bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-emerald-500/20 border-2 border-amber-400/80 rounded-2xl p-3.5 text-left shadow-lg">
+                    <div class="flex items-start gap-2">
+                        <span class="text-xl">💡</span>
+                        <div class="flex-1">
+                            <h5 class="text-xs font-black text-amber-300">Não entende de cripto? Pague fácil!</h5>
+                            <p class="text-[11px] text-gray-200 mt-0.5 leading-snug">
+                                A Central BragaPay converte para você e libera seu plano direto com os <strong>22% de desconto</strong> via Pix!
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="enviarAssinaturaFitcoinWhatsApp()" class="mt-2.5 w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-base"></i>
+                        <span>QUERO OS 22% DE DESCONTO VIA WHATSAPP (FÁCIL)</span>
+                    </button>
                 </div>
             </div>
             
@@ -612,6 +702,152 @@
                 document.getElementById('link-gerado').href = siteUrl;
             }
         }
+
+        // ==========================================
+        // FUNÇÕES FITCOIN COM 22% DE DESCONTO
+        // ==========================================
+        let metodoAssinarAtual = 'pix';
+        const FITCOIN_CONFIG_ASSINAR = {
+            walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+            mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
+            discountPercent: 22,
+            tokensPerBrl: 10
+        };
+
+        function alternarMetodoAssinar(metodo) {
+            metodoAssinarAtual = metodo;
+            const btnPix = document.getElementById('btn-assinar-pix');
+            const btnFitcoin = document.getElementById('btn-assinar-fitcoin');
+            const boxPix = document.getElementById('pix-box');
+            const boxFitcoin = document.getElementById('fitcoin-box');
+
+            if (metodo === 'fitcoin') {
+                if (btnFitcoin) {
+                    btnFitcoin.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-md border border-amber-400 cursor-pointer scale-[1.01]";
+                }
+                if (btnPix) {
+                    btnPix.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-slate-200 text-gray-700 hover:text-slate-900 border border-transparent cursor-pointer";
+                }
+                if (boxPix) boxPix.classList.add('hidden');
+                if (boxFitcoin) boxFitcoin.classList.remove('hidden');
+            } else {
+                if (btnPix) {
+                    btnPix.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-300 cursor-pointer";
+                }
+                if (btnFitcoin) {
+                    btnFitcoin.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-slate-200 text-gray-700 hover:text-slate-900 border border-transparent cursor-pointer";
+                }
+                if (boxPix) boxPix.classList.remove('hidden');
+                if (boxFitcoin) boxFitcoin.classList.add('hidden');
+            }
+        }
+        window.alternarMetodoAssinar = alternarMetodoAssinar;
+
+        async function pagarAssinaturaPhantom() {
+            const btn = document.getElementById('btn-assinar-phantom');
+            const originalHtml = btn ? btn.innerHTML : '';
+
+            function getSolanaProvider() {
+                if ('phantom' in window && window.phantom?.solana?.isPhantom) return window.phantom.solana;
+                if ('solana' in window && window.solana?.isPhantom) return window.solana;
+                return window.solana || null;
+            }
+
+            const provider = getSolanaProvider();
+            if (!provider) {
+                alert("Extensão Phantom não detectada nesta aba! Por favor instale ou abra a Phantom para pagar com 1 clique.");
+                return;
+            }
+
+            try {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Conectando à Phantom...';
+                }
+
+                const resp = await provider.connect();
+                const userPubkey = resp.publicKey;
+
+                if (typeof solanaWeb3 === 'undefined' || typeof splToken === 'undefined') {
+                    alert(`Phantom conectada (${userPubkey.toBase58().slice(0, 6)}...${userPubkey.toBase58().slice(-4)})!\n\nEnvie 1.552 FIT para a carteira BragaPay:\n4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy\n\nDepois clique em 'Falar no WhatsApp' para liberar sua conta!`);
+                    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+                    return;
+                }
+
+                const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                const mintPubkey = new solanaWeb3.PublicKey(FITCOIN_CONFIG_ASSINAR.mintAddress);
+                const recipientOwner = new solanaWeb3.PublicKey(FITCOIN_CONFIG_ASSINAR.walletReceiver);
+
+                const sourceAta = splToken.getAssociatedTokenAddressSync(
+                    mintPubkey,
+                    userPubkey,
+                    false,
+                    splToken.TOKEN_PROGRAM_ID,
+                    splToken.ASSOCIATED_TOKEN_PROGRAM_ID
+                );
+
+                const destAta = splToken.getAssociatedTokenAddressSync(
+                    mintPubkey,
+                    recipientOwner,
+                    false,
+                    splToken.TOKEN_PROGRAM_ID,
+                    splToken.ASSOCIATED_TOKEN_PROGRAM_ID
+                );
+
+                const amountRaw = BigInt(1552) * BigInt(1000000); // 1.552 FIT
+
+                const tx = new solanaWeb3.Transaction();
+                tx.add(
+                    splToken.createTransferInstruction(
+                        sourceAta,
+                        destAta,
+                        userPubkey,
+                        amountRaw,
+                        [],
+                        splToken.TOKEN_PROGRAM_ID
+                    )
+                );
+
+                const { blockhash } = await connection.getLatestBlockhash('confirmed');
+                tx.recentBlockhash = blockhash;
+                tx.feePayer = userPubkey;
+
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-fingerprint mr-1"></i> Aprove a transferência na Phantom...';
+                const { signature } = await provider.signAndSendTransaction(tx);
+
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Transferência Enviada!';
+                alert(`🎉 SUCESSO!\n\nTransferência de 1.552 FIT enviada na Solana com sucesso!\nHash: ${signature.slice(0, 16)}...\n\nSua conta do Reset será liberada com o desconto de 22%!`);
+                enviarAssinaturaFitcoinWhatsApp(signature);
+
+            } catch (err) {
+                console.error("Erro transferência Phantom:", err);
+                alert(`Aviso: ${err.message || 'Transferência cancelada na Phantom.'}`);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        }
+        window.pagarAssinaturaPhantom = pagarAssinaturaPhantom;
+
+        function enviarAssinaturaFitcoinWhatsApp(hashTx = '') {
+            const espaco = (document.getElementById('nome_espaco')?.value || '').trim() || 'Consultor';
+            const hid = (document.getElementById('herbalife_id')?.value || '').trim();
+
+            let msg = `Olá Edwan! Sou o novo consultor *${espaco}* (ID: *${hid}*).\n\n`;
+            msg += `Quero ativar minha adesão no Litrão do Reset aproveitando o *DESCONTO DE 22% DA FITCOIN*! 🔥🪙\n\n`;
+            msg += `💰 *Valor Normal:* R$ 199,00\n`;
+            msg += `⭐ *Valor c/ 22% OFF:* R$ 155,22 (1.552 FIT)\n\n`;
+            if (hashTx) {
+                msg += `🔗 *Hash da Transação Solana:* https://solscan.io/tx/${hashTx}\n\n`;
+                msg += `Já transferi os 1.552 FitCoins para a carteira BragaPay. Pode liberar minha página?`;
+            } else {
+                msg += `Não entendo de carteira virtual/cripto e gostaria de pagar via Pix com o desconto de 22% aplicado (R$ 155,22). Como faço para liberar meu link?`;
+            }
+
+            window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.enviarAssinaturaFitcoinWhatsApp = enviarAssinaturaFitcoinWhatsApp;
     </script>
 </body>
 </html>
