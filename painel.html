@@ -34,6 +34,9 @@
                 <button id="btn-abrir-precos-kits" onclick="abrirModalConfigPrecosKits()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Configurar Preços dos Pacotes (Kits) da Minha Região">
                     <i class="fa-solid fa-tags text-amber-600"></i> <span class="hidden sm:inline">Preços dos Pacotes</span>
                 </button>
+                <button id="btn-abrir-taxas-entrega" onclick="abrirModalConfigTaxasEntrega()" class="text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Configurar Taxas de Entrega / Delivery (Única, por Bairros ou Grátis)">
+                    <i class="fa-solid fa-motorcycle text-blue-600"></i> <span class="hidden sm:inline">Taxas de Entrega</span>
+                </button>
                 <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
                     <i class="fa-solid fa-key text-amber-600"></i> <span class="hidden sm:inline">Alterar Senha</span>
                 </button>
@@ -677,6 +680,22 @@
                     </div>
                 </div>
 
+                <!-- Banner Atalho Taxas de Entrega / Delivery -->
+                <div class="mb-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black flex-shrink-0 shadow-xs">
+                            <i class="fa-solid fa-motorcycle"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-black text-blue-950 block">🛵 Cobrança de Taxa de Entrega / Delivery</span>
+                            <span class="text-[11px] text-blue-700 block">Configure taxa única, taxas personalizadas por bairro ou opção de frete grátis para os pedidos.</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalConfigPrecosKits(); abrirModalConfigTaxasEntrega();" class="text-xs font-black bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-3.5 py-2 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer shrink-0">
+                        <i class="fa-solid fa-gear"></i> Configurar Entregas
+                    </button>
+                </div>
+
                 <!-- Formulário com os 3 inputs -->
                 <div class="bg-gray-50/80 p-4 sm:p-5 rounded-2xl border border-gray-200/80 mb-6">
                     <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center mb-3">
@@ -826,6 +845,156 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- MODAL: CONFIGURAÇÃO DE TAXAS DE ENTREGA / DELIVERY (POR BAIRROS, TAXA ÚNICA OU GRÁTIS) -->
+        <div id="modal-config-taxas-entrega" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden">
+            <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-7 shadow-2xl relative border border-gray-100 max-h-[92vh] overflow-y-auto animate-fade-in">
+                <!-- Botão Fechar -->
+                <button type="button" onclick="fecharModalConfigTaxasEntrega()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Cabeçalho -->
+                <div class="flex items-center space-x-3 mb-5 border-b border-gray-100 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-black text-2xl shadow-xs flex-shrink-0">
+                        <i class="fa-solid fa-motorcycle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Taxas de Entrega / Delivery</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Defina como você cobra a taxa de entrega dos pedidos: <strong>Taxa por Bairros</strong>, <strong>Taxa Única</strong> ou <strong>Entrega Grátis</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Seletor de Tipo de Cobrança (3 Cards Clicáveis) -->
+                <div class="mb-5">
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-2">
+                        Escolha a Modalidade de Cobrança:
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Opção Bairros -->
+                        <div id="card-modo-bairros" onclick="selecionarModoTaxaEntrega('bairros')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-map-location-dot"></i></span>
+                                <input type="radio" name="modo_taxa_entrega" id="radio-modo-bairros" value="bairros" checked class="text-blue-600 focus:ring-blue-500 pointer-events-none">
+                            </div>
+                            <span class="block text-xs font-black text-gray-900">Por Bairros</span>
+                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Valores diferentes por bairro ou região.</span>
+                        </div>
+
+                        <!-- Opção Taxa Única -->
+                        <div id="card-modo-fixa" onclick="selecionarModoTaxaEntrega('fixa')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-tag"></i></span>
+                                <input type="radio" name="modo_taxa_entrega" id="radio-modo-fixa" value="fixa" class="text-emerald-600 focus:ring-emerald-500 pointer-events-none">
+                            </div>
+                            <span class="block text-xs font-black text-gray-900">Taxa Única (Fixa)</span>
+                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Mesmo valor para toda a cidade (ex: R$ 5,00).</span>
+                        </div>
+
+                        <!-- Opção Grátis -->
+                        <div id="card-modo-gratis" onclick="selecionarModoTaxaEntrega('gratis')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="w-7 h-7 rounded-lg bg-yellow-500 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-gift"></i></span>
+                                <input type="radio" name="modo_taxa_entrega" id="radio-modo-gratis" value="gratis" class="text-yellow-600 focus:ring-yellow-500 pointer-events-none">
+                            </div>
+                            <span class="block text-xs font-black text-gray-900">Entrega Grátis</span>
+                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Frete Grátis para qualquer pedido.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL 1: ENTREGA GRÁTIS -->
+                <div id="secao-taxa-gratis" class="hidden bg-emerald-50 p-4 rounded-2xl border border-emerald-200 mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg flex-shrink-0">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-black text-emerald-950">Entrega Grátis Ativada</h4>
+                            <p class="text-xs text-emerald-800 mt-0.5">Seus clientes verão a mensagem <strong>"🎁 Entrega Grátis"</strong> no carrinho online e nenhum frete será somado.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL 2: TAXA FIXA (ÚNICA) -->
+                <div id="secao-taxa-fixa" class="hidden bg-gray-50 p-4.5 rounded-2xl border border-gray-200 mb-5">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 mb-2.5 flex items-center">
+                        <i class="fa-solid fa-motorcycle text-emerald-600 mr-1.5"></i> Valor da Taxa Única de Entrega
+                    </h4>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div class="relative w-full sm:w-48">
+                            <span class="absolute left-3 top-2.5 text-xs font-black text-gray-400">R$</span>
+                            <input type="text" id="cfg-taxa-fixa-valor" placeholder="5,00" oninput="atualizarPreviewTaxasEntrega()" class="campo-moeda-auto w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <button type="button" onclick="definirTaxaFixaGratis()" class="text-xs font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-gift text-emerald-600"></i> Tornar Grátis (R$ 0,00)
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-2">Este valor fixo será adicionado automaticamente ao total de todos os pedidos via Delivery.</p>
+                </div>
+
+                <!-- PAINEL 3: POR BAIRROS -->
+                <div id="secao-taxa-bairros" class="space-y-4 mb-5">
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                                <i class="fa-solid fa-list-check text-blue-600 mr-1.5"></i> Lista de Bairros Cadastrados
+                            </h4>
+                            <button type="button" onclick="adicionarLinhaBairro()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i> Adicionar Bairro
+                            </button>
+                        </div>
+
+                        <!-- Tabela / Lista de Linhas de Bairros -->
+                        <div id="lista-bairros-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </div>
+
+                        <!-- Rodapé: Taxa Padrão para outros bairros -->
+                        <div class="mt-4 pt-3 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-gray-200">
+                            <div>
+                                <span class="block text-xs font-black text-gray-800">Taxa para Outros Bairros (Não Listados):</span>
+                                <span class="block text-[11px] text-gray-500">Cobrada se o cliente escolher "Outro Bairro"</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-28">
+                                    <span class="absolute left-2.5 top-2 text-xs font-black text-gray-400">R$</span>
+                                    <input type="text" id="cfg-taxa-padrao-outros" placeholder="7,00" oninput="atualizarPreviewTaxasEntrega()" class="campo-moeda-auto w-full pl-8 pr-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button type="button" onclick="definirTaxaPadraoOutrosGratis()" class="text-[11px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-1.5 rounded-lg transition cursor-pointer">
+                                    Grátis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREVIEW VISUAL DO CARDÁPIO ONLINE -->
+                <div class="mb-5 bg-gradient-to-r from-gray-50 to-emerald-50/40 p-4 rounded-2xl border border-gray-200">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-gray-500 block mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-eye text-emerald-600"></i> Como o cliente verá a taxa no cardápio online:
+                    </span>
+                    <div id="preview-taxa-carrinho" class="bg-white p-3 rounded-xl border border-emerald-300 shadow-2xs flex items-center justify-between text-xs font-bold">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                    <button type="button" onclick="desativarTaxasEntrega()" class="w-full sm:w-auto text-xs font-bold text-gray-500 hover:text-red-700 bg-gray-100 hover:bg-red-50 border border-gray-200 px-3.5 py-2.5 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> Limpar / Sem Taxa Configurada
+                    </button>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="fecharModalConfigTaxasEntrega()" class="flex-1 sm:flex-none text-xs font-bold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="button" id="btn-salvar-cfg-taxas" onclick="salvarTaxasEntregaModal()" class="flex-1 sm:flex-none text-xs font-black text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Taxas de Entrega
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1634,6 +1803,10 @@
                         <button type="button" onclick="abrirModalConfigPrecosKits()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs sm:text-sm py-2.5 px-3.5 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap" title="Configurar Tabela de Preços dos Pacotes (Kits) da Região">
                             <i class="fa-solid fa-tags text-xs"></i>
                             <span>Preços da Região</span>
+                        </button>
+                        <button type="button" onclick="abrirModalConfigTaxasEntrega()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm py-2.5 px-3.5 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap" title="Configurar Taxa de Entrega por Bairros ou Taxa Única">
+                            <i class="fa-solid fa-motorcycle text-xs"></i>
+                            <span>Taxa de Entrega</span>
                         </button>
                         <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
                             <span id="label-toggle-pedidos">Abrir Pedidos</span>
@@ -3468,6 +3641,8 @@
                 if (btnPerfil) btnPerfil.classList.remove('hidden');
                 const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
                 if (btnPrecosKits) btnPrecosKits.classList.remove('hidden');
+                const btnTaxasEntrega = document.getElementById('btn-abrir-taxas-entrega');
+                if (btnTaxasEntrega) btnTaxasEntrega.classList.remove('hidden');
                 const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
                 if (btnDirects) btnDirects.classList.remove('hidden');
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
@@ -8157,14 +8332,25 @@
             txt += `---------------------------------\n`;
             txt += `🛵 *ENTREGA / RETIRADA:*\n`;
             txt += `*Modalidade:* ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}\n`;
+            if (dados.bairro) {
+                txt += `📍 *Bairro:* ${dados.bairro}\n`;
+            }
+            if (dados.taxa_entrega) {
+                txt += `🛵 *Taxa de Entrega:* ${dados.taxa_entrega}\n`;
+            }
             if (dados.modalidade === 'ENTREGA' && dados.endereco) {
                 txt += `🏠 *Endereço:* ${dados.endereco}\n`;
             }
             txt += `---------------------------------\n`;
             txt += `🥤 *ITENS DO PEDIDO:*\n`;
-            txt += `• ${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'} (${dados.valor_total || ''})\n`;
+            txt += `• ${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'} (${dados.subtotal || dados.valor_unitario || dados.valor_total || ''})\n`;
             if (dados.subtitulo) {
                 txt += `  _(${dados.subtitulo})_\n`;
+            }
+            if (dados.subtotal && dados.taxa_entrega) {
+                txt += `---------------------------------\n`;
+                txt += `Subtotal Itens: ${dados.subtotal}\n`;
+                txt += `Taxa de Entrega: ${dados.taxa_entrega}\n`;
             }
             txt += `---------------------------------\n`;
             txt += `💰 *TOTAL A PAGAR:* ${dados.valor_total || ''}\n`;
@@ -8215,15 +8401,31 @@
                     <div class="border-t border-dashed border-gray-400 my-2.5"></div>
                     <div class="font-bold">ENTREGA / RETIRADA:</div>
                     <div><b>Modalidade:</b> ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}</div>
-                    ${dados.modalidade === 'ENTREGA' ? `<div><b>Endereço:</b> ${dados.endereco || '-'}</div>` : ''}
+                    ${dados.modalidade === 'ENTREGA' ? `
+                        <div><b>Endereço:</b> ${dados.endereco || '-'}</div>
+                        ${dados.bairro ? `<div><b>Bairro:</b> ${dados.bairro}</div>` : ''}
+                        ${dados.taxa_entrega ? `<div><b>Taxa de Entrega:</b> ${dados.taxa_entrega}</div>` : ''}
+                    ` : ''}
 
                     <div class="border-t border-dashed border-gray-400 my-2.5"></div>
                     <div class="font-bold">ITENS DO PEDIDO:</div>
                     <div class="flex justify-between font-bold">
                         <span>${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'}</span>
-                        <span>${dados.valor_total || ''}</span>
+                        <span>${dados.subtotal || dados.valor_unitario || dados.valor_total || ''}</span>
                     </div>
                     ${dados.subtitulo ? `<div class="text-[10px] text-gray-600">(${dados.subtitulo})</div>` : ''}
+
+                    ${dados.subtotal && dados.taxa_entrega ? `
+                        <div class="border-t border-dashed border-gray-400 my-2.5"></div>
+                        <div class="flex justify-between text-[11px] font-bold">
+                            <span>Subtotal Itens:</span>
+                            <span>${dados.subtotal}</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] font-bold">
+                            <span>Taxa de Entrega:</span>
+                            <span>${dados.taxa_entrega}</span>
+                        </div>
+                    ` : ''}
 
                     <div class="border-t border-dashed border-gray-400 my-2.5"></div>
                     <div class="flex justify-between font-black text-sm">
@@ -8422,15 +8624,31 @@
                         <div class="divisor"></div>
                         <div class="bold">ENTREGA / RETIRADA:</div>
                         <div><b>Modalidade:</b> ${dados.modalidade === 'ENTREGA' ? 'DELIVERY / ENTREGA' : 'RETIRADA NO ESPAÇO'}</div>
-                        ${dados.modalidade === 'ENTREGA' ? `<div><b>Endereço:</b> ${dados.endereco || '-'}</div>` : ''}
+                        ${dados.modalidade === 'ENTREGA' ? `
+                            <div><b>Endereço:</b> ${dados.endereco || '-'}</div>
+                            ${dados.bairro ? `<div><b>Bairro:</b> ${dados.bairro}</div>` : ''}
+                            ${dados.taxa_entrega ? `<div><b>Taxa de Entrega:</b> ${dados.taxa_entrega}</div>` : ''}
+                        ` : ''}
 
                         <div class="divisor"></div>
                         <div class="bold">ITENS DO PEDIDO:</div>
                         <div class="linha-info">
                             <span class="bold">${dados.quantidade || 1}x ${dados.produto || 'Kit do Reset'}</span>
-                            <span class="bold">${dados.valor_total || ''}</span>
+                            <span class="bold">${dados.subtotal || dados.valor_unitario || dados.valor_total || ''}</span>
                         </div>
                         ${dados.subtitulo ? `<div style="font-size: 11px; color: #444;">(${dados.subtitulo})</div>` : ''}
+
+                        ${dados.subtotal && dados.taxa_entrega ? `
+                            <div class="divisor"></div>
+                            <div class="linha-info" style="font-size: 11px; font-weight: bold;">
+                                <span>Subtotal Itens:</span>
+                                <span>${dados.subtotal}</span>
+                            </div>
+                            <div class="linha-info" style="font-size: 11px; font-weight: bold;">
+                                <span>Taxa de Entrega:</span>
+                                <span>${dados.taxa_entrega}</span>
+                            </div>
+                        ` : ''}
 
                         <div class="divisor"></div>
                         <div class="linha-info bold" style="font-size: 14px;">
@@ -9877,6 +10095,8 @@
             if (btnAltSenha) btnAltSenha.classList.add('hidden');
             const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
             if (btnPrecosKits) btnPrecosKits.classList.add('hidden');
+            const btnTaxasEntrega = document.getElementById('btn-abrir-taxas-entrega');
+            if (btnTaxasEntrega) btnTaxasEntrega.classList.add('hidden');
             const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
             if (btnDirects) btnDirects.classList.add('hidden');
             document.getElementById('login-senha').value = '';
@@ -10401,6 +10621,365 @@
             }
         }
         window.limparPrecosKitsModal = limparPrecosKitsModal;
+
+        /* ==========================================================================
+           GESTÃO DEDICADA DE TAXAS DE ENTREGA / DELIVERY (BAIRROS, FIXA OU GRÁTIS)
+           ========================================================================== */
+        let modoTaxaEntregaSelecionado = 'bairros';
+
+        function selecionarModoTaxaEntrega(modo) {
+            modoTaxaEntregaSelecionado = modo;
+
+            const radioBairros = document.getElementById('radio-modo-bairros');
+            const radioFixa = document.getElementById('radio-modo-fixa');
+            const radioGratis = document.getElementById('radio-modo-gratis');
+            if (radioBairros) radioBairros.checked = (modo === 'bairros');
+            if (radioFixa) radioFixa.checked = (modo === 'fixa');
+            if (radioGratis) radioGratis.checked = (modo === 'gratis');
+
+            const cardBairros = document.getElementById('card-modo-bairros');
+            const cardFixa = document.getElementById('card-modo-fixa');
+            const cardGratis = document.getElementById('card-modo-gratis');
+
+            [cardBairros, cardFixa, cardGratis].forEach(c => {
+                if (!c) return;
+                c.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300";
+            });
+
+            const secBairros = document.getElementById('secao-taxa-bairros');
+            const secFixa = document.getElementById('secao-taxa-fixa');
+            const secGratis = document.getElementById('secao-taxa-gratis');
+
+            if (secBairros) secBairros.classList.add('hidden');
+            if (secFixa) secFixa.classList.add('hidden');
+            if (secGratis) secGratis.classList.add('hidden');
+
+            if (modo === 'bairros') {
+                if (cardBairros) cardBairros.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs";
+                if (secBairros) secBairros.classList.remove('hidden');
+            } else if (modo === 'fixa') {
+                if (cardFixa) cardFixa.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-emerald-600 bg-emerald-50/70 shadow-xs";
+                if (secFixa) secFixa.classList.remove('hidden');
+            } else if (modo === 'gratis') {
+                if (cardGratis) cardGratis.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-yellow-500 bg-yellow-50/70 shadow-xs";
+                if (secGratis) secGratis.classList.remove('hidden');
+            }
+
+            atualizarPreviewTaxasEntrega();
+        }
+        window.selecionarModoTaxaEntrega = selecionarModoTaxaEntrega;
+
+        function definirTaxaFixaGratis() {
+            const input = document.getElementById('cfg-taxa-fixa-valor');
+            if (input) {
+                input.value = '0,00';
+                atualizarPreviewTaxasEntrega();
+            }
+        }
+        window.definirTaxaFixaGratis = definirTaxaFixaGratis;
+
+        function definirTaxaPadraoOutrosGratis() {
+            const input = document.getElementById('cfg-taxa-padrao-outros');
+            if (input) {
+                input.value = '0,00';
+                atualizarPreviewTaxasEntrega();
+            }
+        }
+        window.definirTaxaPadraoOutrosGratis = definirTaxaPadraoOutrosGratis;
+
+        function criarElementoLinhaBairro(nome = '', valor = '5,00', gratis = false) {
+            const div = document.createElement('div');
+            div.className = "linha-bairro-item flex items-center gap-2 bg-white p-2.5 rounded-xl border border-gray-200 shadow-2xs";
+            
+            const valorFinal = gratis ? '0,00' : (valor || '5,00');
+
+            div.innerHTML = `
+                <div class="flex-1">
+                    <input type="text" placeholder="Nome do Bairro (ex: Centro, Jd. América)" value="${nome.replace(/"/g, '&quot;')}" oninput="atualizarPreviewTaxasEntrega()" class="input-bairro-nome w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="relative w-28 shrink-0">
+                    <span class="absolute left-2.5 top-2 text-xs font-black text-gray-400">R$</span>
+                    <input type="text" placeholder="5,00" value="${valorFinal}" oninput="atualizarPreviewTaxasEntrega()" class="input-bairro-valor campo-moeda-auto w-full pl-8 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="button" onclick="alternarGratisLinhaBairro(this)" class="btn-toggle-gratis-bairro text-[11px] font-black px-2.5 py-1.5 rounded-lg border transition shrink-0 ${gratis ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-gray-100 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 border-gray-200'}" title="Tornar entrega grátis para este bairro">
+                    ${gratis ? '✓ GRÁTIS' : 'Grátis'}
+                </button>
+                <button type="button" onclick="removerLinhaBairro(this)" class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition shrink-0 cursor-pointer" title="Remover este bairro">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            `;
+            return div;
+        }
+
+        function adicionarLinhaBairro(nome = '', valor = '5,00', gratis = false) {
+            const container = document.getElementById('lista-bairros-container');
+            if (!container) return;
+            const el = criarElementoLinhaBairro(nome, valor, gratis);
+            container.appendChild(el);
+            if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
+            atualizarPreviewTaxasEntrega();
+        }
+        window.adicionarLinhaBairro = adicionarLinhaBairro;
+
+        function removerLinhaBairro(btn) {
+            const linha = btn.closest('.linha-bairro-item');
+            if (linha) {
+                linha.remove();
+                atualizarPreviewTaxasEntrega();
+            }
+        }
+        window.removerLinhaBairro = removerLinhaBairro;
+
+        function alternarGratisLinhaBairro(btn) {
+            const linha = btn.closest('.linha-bairro-item');
+            if (!linha) return;
+            const inputVal = linha.querySelector('.input-bairro-valor');
+            const isGratisAgora = btn.classList.contains('bg-emerald-600');
+
+            if (isGratisAgora) {
+                btn.className = "btn-toggle-gratis-bairro text-[11px] font-black px-2.5 py-1.5 rounded-lg border transition shrink-0 bg-gray-100 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 border-gray-200 cursor-pointer";
+                btn.innerHTML = "Grátis";
+                if (inputVal && (!inputVal.value || inputVal.value === '0,00')) {
+                    inputVal.value = '5,00';
+                }
+            } else {
+                btn.className = "btn-toggle-gratis-bairro text-[11px] font-black px-2.5 py-1.5 rounded-lg border transition shrink-0 bg-emerald-600 text-white border-emerald-600 cursor-pointer";
+                btn.innerHTML = "✓ GRÁTIS";
+                if (inputVal) inputVal.value = '0,00';
+            }
+            atualizarPreviewTaxasEntrega();
+        }
+        window.alternarGratisLinhaBairro = alternarGratisLinhaBairro;
+
+        function extrairTaxasEntregaObjeto(consultor) {
+            if (!consultor || !consultor.nome_espaco) return null;
+            if (consultor.nome_espaco.includes('<!--TAXAS_ENTREGA:')) {
+                try {
+                    const m = consultor.nome_espaco.match(/<!--TAXAS_ENTREGA:(.*?)-->/);
+                    if (m && m[1]) return JSON.parse(m[1]);
+                } catch(_) {}
+            }
+            return null;
+        }
+        window.extrairTaxasEntregaObjeto = extrairTaxasEntregaObjeto;
+
+        function abrirModalConfigTaxasEntrega() {
+            const modal = document.getElementById('modal-config-taxas-entrega');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            if (!consultorAtual) return;
+
+            const config = extrairTaxasEntregaObjeto(consultorAtual) || {
+                modo: 'bairros',
+                taxaFixa: '5,00',
+                taxaPadrao: '7,00',
+                bairros: [
+                    { nome: 'Centro', valor: '5,00', gratis: false },
+                    { nome: 'Bairro Próximo ao EVS', valor: '0,00', gratis: true }
+                ]
+            };
+
+            const modo = config.modo || 'bairros';
+            selecionarModoTaxaEntrega(modo);
+
+            const inFixa = document.getElementById('cfg-taxa-fixa-valor');
+            if (inFixa) inFixa.value = formatarValorInicialMoeda(config.taxaFixa || '5,00');
+
+            const inPadrao = document.getElementById('cfg-taxa-padrao-outros');
+            if (inPadrao) inPadrao.value = formatarValorInicialMoeda(config.taxaPadrao || '7,00');
+
+            const container = document.getElementById('lista-bairros-container');
+            if (container) {
+                container.innerHTML = '';
+                const lista = (Array.isArray(config.bairros) && config.bairros.length > 0) ? config.bairros : [
+                    { nome: 'Centro', valor: '5,00', gratis: false }
+                ];
+                lista.forEach(b => {
+                    const valForm = formatarValorInicialMoeda(b.valor || '5,00');
+                    const isGratis = (b.gratis === true) || (valForm === '0,00');
+                    adicionarLinhaBairro(b.nome || '', valForm, isGratis);
+                });
+            }
+
+            if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
+            atualizarPreviewTaxasEntrega();
+        }
+        window.abrirModalConfigTaxasEntrega = abrirModalConfigTaxasEntrega;
+
+        function fecharModalConfigTaxasEntrega() {
+            const modal = document.getElementById('modal-config-taxas-entrega');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalConfigTaxasEntrega = fecharModalConfigTaxasEntrega;
+
+        function atualizarPreviewTaxasEntrega() {
+            const prev = document.getElementById('preview-taxa-carrinho');
+            if (!prev) return;
+
+            if (modoTaxaEntregaSelecionado === 'gratis') {
+                prev.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-yellow-100 text-yellow-700 flex items-center justify-center text-xs"><i class="fa-solid fa-gift"></i></span>
+                        <div>
+                            <span class="text-gray-900 block font-black">Entrega / Delivery</span>
+                            <span class="text-[11px] text-gray-500 font-normal">Entrega em qualquer localidade</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        🎁 Grátis
+                    </span>
+                `;
+            } else if (modoTaxaEntregaSelecionado === 'fixa') {
+                const val = (document.getElementById('cfg-taxa-fixa-valor')?.value || '5,00').trim();
+                const isGratis = (val === '0,00' || val === '0');
+                prev.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs"><i class="fa-solid fa-motorcycle"></i></span>
+                        <div>
+                            <span class="text-gray-900 block font-black">Taxa de Entrega (Fixa)</span>
+                            <span class="text-[11px] text-gray-500 font-normal">Válida para toda a cidade</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black ${isGratis ? 'text-emerald-700 bg-emerald-100' : 'text-gray-900 bg-gray-100'} px-2.5 py-1 rounded-full">
+                        ${isGratis ? '🎁 Grátis' : 'R$ ' + val}
+                    </span>
+                `;
+            } else {
+                // Modo Bairros
+                const linhas = document.querySelectorAll('.linha-bairro-item');
+                const qtd = linhas.length;
+                const primeiroBairroNome = (linhas[0]?.querySelector('.input-bairro-nome')?.value || 'Centro').trim();
+                const primeiroBairroVal = (linhas[0]?.querySelector('.input-bairro-valor')?.value || '5,00').trim();
+                const isPrimeiroGratis = (primeiroBairroVal === '0,00');
+
+                prev.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center text-xs"><i class="fa-solid fa-map-location-dot"></i></span>
+                        <div>
+                            <span class="text-gray-900 block font-black">Seletor de Bairro no Carrinho (${qtd} cadastrado${qtd > 1 ? 's' : ''})</span>
+                            <span class="text-[11px] text-gray-500 font-normal">Exemplo: "${primeiroBairroNome}"</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black ${isPrimeiroGratis ? 'text-emerald-700 bg-emerald-100' : 'text-blue-900 bg-blue-100'} px-2.5 py-1 rounded-full">
+                        ${isPrimeiroGratis ? '🎁 Grátis' : 'R$ ' + primeiroBairroVal}
+                    </span>
+                `;
+            }
+        }
+        window.atualizarPreviewTaxasEntrega = atualizarPreviewTaxasEntrega;
+
+        async function salvarTaxasEntregaModal() {
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Sessão não identificada. Faça login novamente no painel.");
+                return;
+            }
+
+            const modo = modoTaxaEntregaSelecionado;
+            let taxasObj = { modo: modo };
+
+            if (modo === 'fixa') {
+                const valFixa = (document.getElementById('cfg-taxa-fixa-valor')?.value || '5,00').trim();
+                taxasObj.taxaFixa = valFixa || '0,00';
+            } else if (modo === 'gratis') {
+                taxasObj.taxaFixa = '0,00';
+            } else if (modo === 'bairros') {
+                const linhas = document.querySelectorAll('.linha-bairro-item');
+                const listaBairros = [];
+                linhas.forEach(linha => {
+                    const nome = (linha.querySelector('.input-bairro-nome')?.value || '').trim();
+                    const valor = (linha.querySelector('.input-bairro-valor')?.value || '0,00').trim();
+                    const isGratis = (valor === '0,00' || valor === '0');
+                    if (nome) {
+                        listaBairros.push({
+                            nome: nome,
+                            valor: valor,
+                            gratis: isGratis
+                        });
+                    }
+                });
+
+                if (listaBairros.length === 0) {
+                    alert("Por favor, adicione pelo menos um bairro ou escolha o modo 'Taxa Única'.");
+                    return;
+                }
+
+                const valPadrao = (document.getElementById('cfg-taxa-padrao-outros')?.value || '7,00').trim();
+                taxasObj.bairros = listaBairros;
+                taxasObj.taxaPadrao = valPadrao || '0,00';
+            }
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--TAXAS_ENTREGA:[\s\S]*?-->/g, '').trim();
+            rawEspaco += ` <!--TAXAS_ENTREGA:${JSON.stringify(taxasObj)}-->`;
+
+            const btn = document.getElementById('btn-salvar-cfg-taxas');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Salvando...';
+            }
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                consultorAtual.nome_espaco = rawEspaco;
+                alert("✅ Taxas de entrega salvas com sucesso! Seu cardápio online agora aplicará essas taxas automaticamente aos pedidos de delivery.");
+                fecharModalConfigTaxasEntrega();
+            } catch(err) {
+                console.error("Erro ao salvar taxas de entrega:", err);
+                alert("❌ Erro ao salvar taxas no servidor. Tente novamente.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Taxas de Entrega';
+                }
+            }
+        }
+        window.salvarTaxasEntregaModal = salvarTaxasEntregaModal;
+
+        async function desativarTaxasEntrega() {
+            if (!consultorAtual || !consultorAtual.id) return;
+            if (!confirm("Deseja realmente remover as configurações de taxa de entrega? O cardápio passará a não cobrar taxa adicional.")) return;
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--TAXAS_ENTREGA:[\s\S]*?-->/g, '').trim();
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                consultorAtual.nome_espaco = rawEspaco;
+                alert("ℹ️ Configuração de taxas de entrega removida com sucesso.");
+                fecharModalConfigTaxasEntrega();
+            } catch(err) {
+                console.error("Erro ao limpar taxas de entrega:", err);
+                alert("❌ Erro ao salvar alteração. Tente novamente.");
+            }
+        }
+        window.desativarTaxasEntrega = desativarTaxasEntrega;
 
         // ==========================================
         // GESTÃO DE SENHA DO CONSULTOR
