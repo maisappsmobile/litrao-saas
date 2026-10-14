@@ -47,12 +47,20 @@
             <div class="flex items-center text-xl font-bold text-gray-800">
                 <i class="fa-solid fa-users text-brand-light mr-3"></i> Gestão de Assinaturas
             </div>
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden md:block">
-                    <p class="text-sm font-bold text-gray-800">Administrador</p>
-                    <p class="text-xs text-gray-500">Acesso Total</p>
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="abrirModalConfigPlanosAdmin()" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition">
+                    <i class="fa-solid fa-sliders text-amber-300"></i>
+                    <span>EDITAR PLANOS & FITCOIN</span>
+                </button>
+                <a href="painel.html" class="bg-brand-dark hover:bg-black text-white font-black text-xs px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-gauge text-brand-yellow"></i>
+                    <span>PAINEL GERAL</span>
+                </a>
+                <div class="text-right hidden md:block pl-2 border-l border-gray-200">
+                    <p class="text-sm font-bold text-gray-800">SuperAdmin Edwan</p>
+                    <p class="text-[11px] text-purple-700 font-bold">ID: 433005811</p>
                 </div>
-                <div class="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center text-white font-bold text-lg">A</div>
+                <div class="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm">E</div>
             </div>
         </header>
 
@@ -168,6 +176,121 @@
                     <button type="button" onclick="fecharModal()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl">Cancelar</button>
                     <button type="submit" class="px-5 py-3 bg-brand-light text-white font-bold rounded-xl hover:bg-green-600 shadow-md">Salvar</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal SuperAdmin: Configuração de Planos & FitCoin -->
+    <div id="modal-config-planos-admin" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-7 w-full max-w-2xl shadow-2xl border-4 border-purple-600 relative max-h-[92vh] overflow-y-auto">
+            <button type="button" onclick="fecharModalConfigPlanosAdmin()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-800 text-amber-300 flex items-center justify-center text-2xl shadow-lg border border-purple-400">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <span class="bg-purple-100 text-purple-900 border border-purple-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-block mb-0.5">
+                        SuperAdmin Exclusivo
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Configurar Planos & FitCoin</h2>
+                </div>
+            </div>
+            <p class="text-xs text-gray-600 mb-5 leading-relaxed">
+                Ajuste os nomes, taxas de adesão, mensalidades e regras de desconto da <strong>FitCoin</strong>. Salve para sincronizar instantaneamente no Supabase e refletir para todos os consultores.
+            </p>
+
+            <form id="form-config-planos-admin" onsubmit="salvarConfigPlanosAdmin(event)" class="space-y-4">
+                <!-- Plano 1 -->
+                <div class="bg-emerald-50 border border-emerald-300 rounded-2xl p-4 text-left">
+                    <span class="text-xs font-black text-emerald-900 uppercase block mb-2">PLANO 1 (Start Pro)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome</label>
+                            <input type="text" id="adm-p1-nome" required class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Adesão (R$)</label>
+                            <input type="number" step="0.01" id="adm-p1-adesao" required class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-sm font-black text-emerald-700">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                            <input type="number" step="0.01" id="adm-p1-mensal" required class="w-full p-2 bg-white border border-emerald-300 rounded-xl text-sm font-black text-emerald-700">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plano 2 -->
+                <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-left">
+                    <span class="text-xs font-black text-amber-900 uppercase block mb-2">PLANO 2 (Vitalício Smart)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome</label>
+                            <input type="text" id="adm-p2-nome" required class="w-full p-2 bg-white border border-amber-300 rounded-xl text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Adesão (R$)</label>
+                            <input type="number" step="0.01" id="adm-p2-adesao" required class="w-full p-2 bg-white border border-amber-300 rounded-xl text-sm font-black text-amber-700">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                            <input type="number" step="0.01" id="adm-p2-mensal" required class="w-full p-2 bg-white border border-amber-300 rounded-xl text-sm font-black text-amber-700">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plano 3 -->
+                <div class="bg-purple-50 border border-purple-300 rounded-2xl p-4 text-left">
+                    <span class="text-xs font-black text-purple-900 uppercase block mb-2">PLANO 3 (Master VIP)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome</label>
+                            <input type="text" id="adm-p3-nome" required class="w-full p-2 bg-white border border-purple-300 rounded-xl text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Adesão (R$)</label>
+                            <input type="number" step="0.01" id="adm-p3-adesao" required class="w-full p-2 bg-white border border-purple-300 rounded-xl text-sm font-black text-purple-700">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                            <input type="number" step="0.01" id="adm-p3-mensal" required class="w-full p-2 bg-white border border-purple-300 rounded-xl text-sm font-black text-purple-700">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FitCoin -->
+                <div class="bg-slate-900 border-2 border-amber-400 rounded-2xl p-4 text-white text-left">
+                    <span class="text-xs font-black text-amber-300 uppercase block mb-2">Regras da FitCoin & Chave Pix</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Desconto FitCoin (%)</label>
+                            <input type="number" min="0" max="100" id="adm-fit-desconto" required class="w-full p-2 bg-slate-950 border border-slate-700 text-amber-300 font-black text-sm rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Paridade (FIT por R$ 1,00)</label>
+                            <input type="number" min="1" id="adm-fit-paridade" required class="w-full p-2 bg-slate-950 border border-slate-700 text-emerald-400 font-black text-sm rounded-xl">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Carteira Solana Recebedora (BragaPay)</label>
+                            <input type="text" id="adm-fit-carteira" required class="w-full p-2 bg-slate-950 border border-slate-700 text-emerald-400 font-mono text-xs rounded-xl">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Chave Pix Recebimento Facilitado</label>
+                            <input type="text" id="adm-fit-chave" required class="w-full p-2 bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs rounded-xl">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="submit" id="btn-adm-salvar-planos" class="flex-1 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 text-white font-black py-3 px-4 rounded-xl shadow-lg transition text-xs uppercase cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk text-amber-300 mr-1.5"></i> Salvar Alterações
+                    </button>
+                    <button type="button" onclick="fecharModalConfigPlanosAdmin()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-xs transition cursor-pointer">
+                        Cancelar
+                    </button>
+                </div>
+                <div id="adm-cfg-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
             </form>
         </div>
     </div>
@@ -320,7 +443,170 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', carregarDados);
+        // ==========================================
+        // GESTÃO DOS PLANOS & FITCOIN NO ADMIN
+        // ==========================================
+        let configPlanosAdmin = {
+            planos: {
+                plano1: { nome: 'Start Pro', valorAdesaoNum: 199.00, valorMensalidadeNum: 99.00 },
+                plano2: { nome: 'Vitalício Smart', valorAdesaoNum: 497.00, valorMensalidadeNum: 25.00 },
+                plano3: { nome: 'Master VIP', valorAdesaoNum: 1299.00, valorMensalidadeNum: 49.00 }
+            },
+            fitcoin: {
+                discountPercent: 22,
+                tokensPerBrl: 10,
+                walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+                pixChave: 'maisappsmobile@gmail.com'
+            }
+        };
+
+        function abrirModalConfigPlanosAdmin() {
+            carregarConfigPlanosAdmin();
+            document.getElementById('modal-config-planos-admin').classList.remove('hidden');
+        }
+
+        function fecharModalConfigPlanosAdmin() {
+            document.getElementById('modal-config-planos-admin').classList.add('hidden');
+        }
+
+        async function carregarConfigPlanosAdmin() {
+            try {
+                // Tenta carregar do localStorage
+                const local = localStorage.getItem('cfg_planos_superadmin');
+                if (local) {
+                    const parsed = JSON.parse(local);
+                    if (parsed.planos) Object.assign(configPlanosAdmin.planos, parsed.planos);
+                    if (parsed.fitcoin) Object.assign(configPlanosAdmin.fitcoin, parsed.fitcoin);
+                }
+
+                // Tenta carregar do cadastro de Edwan no Supabase
+                const { data } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('herbalife_id', '433005811')
+                    .maybeSingle();
+
+                if (data && data.nome_espaco && data.nome_espaco.includes('<!--CONFIG_PLANOS:')) {
+                    const match = data.nome_espaco.match(/<!--CONFIG_PLANOS:([\s\S]*?)-->/);
+                    if (match && match[1]) {
+                        const parsedRemote = JSON.parse(match[1]);
+                        if (parsedRemote.planos) Object.assign(configPlanosAdmin.planos, parsedRemote.planos);
+                        if (parsedRemote.fitcoin) Object.assign(configPlanosAdmin.fitcoin, parsedRemote.fitcoin);
+                    }
+                }
+
+                // Preenche inputs
+                const p1 = configPlanosAdmin.planos.plano1;
+                const p2 = configPlanosAdmin.planos.plano2;
+                const p3 = configPlanosAdmin.planos.plano3;
+                const fit = configPlanosAdmin.fitcoin;
+
+                document.getElementById('adm-p1-nome').value = p1.nome || 'Start Pro';
+                document.getElementById('adm-p1-adesao').value = p1.valorAdesaoNum || 199.00;
+                document.getElementById('adm-p1-mensal').value = p1.valorMensalidadeNum || 99.00;
+
+                document.getElementById('adm-p2-nome').value = p2.nome || 'Vitalício Smart';
+                document.getElementById('adm-p2-adesao').value = p2.valorAdesaoNum || 497.00;
+                document.getElementById('adm-p2-mensal').value = p2.valorMensalidadeNum || 25.00;
+
+                document.getElementById('adm-p3-nome').value = p3.nome || 'Master VIP';
+                document.getElementById('adm-p3-adesao').value = p3.valorAdesaoNum || 1299.00;
+                document.getElementById('adm-p3-mensal').value = p3.valorMensalidadeNum || 49.00;
+
+                document.getElementById('adm-fit-desconto').value = fit.discountPercent || 22;
+                document.getElementById('adm-fit-paridade').value = fit.tokensPerBrl || 10;
+                document.getElementById('adm-fit-carteira').value = fit.walletReceiver || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
+                document.getElementById('adm-fit-chave').value = fit.pixChave || 'maisappsmobile@gmail.com';
+
+            } catch (e) {
+                console.warn("Erro ao carregar dados admin planos:", e);
+            }
+        }
+
+        async function salvarConfigPlanosAdmin(e) {
+            e.preventDefault();
+            const feed = document.getElementById('adm-cfg-feedback');
+            const btn = document.getElementById('btn-adm-salvar-planos');
+            const orig = btn ? btn.innerHTML : '';
+
+            try {
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando...'; }
+
+                const p1Adesao = parseFloat(document.getElementById('adm-p1-adesao').value) || 199.00;
+                const p1Mensal = parseFloat(document.getElementById('adm-p1-mensal').value) || 99.00;
+                const p1Nome = document.getElementById('adm-p1-nome').value.trim();
+
+                const p2Adesao = parseFloat(document.getElementById('adm-p2-adesao').value) || 497.00;
+                const p2Mensal = parseFloat(document.getElementById('adm-p2-mensal').value) || 25.00;
+                const p2Nome = document.getElementById('adm-p2-nome').value.trim();
+
+                const p3Adesao = parseFloat(document.getElementById('adm-p3-adesao').value) || 1299.00;
+                const p3Mensal = parseFloat(document.getElementById('adm-p3-mensal').value) || 49.00;
+                const p3Nome = document.getElementById('adm-p3-nome').value.trim();
+
+                const fitDesc = parseFloat(document.getElementById('adm-fit-desconto').value) || 22;
+                const fitPar = parseFloat(document.getElementById('adm-fit-paridade').value) || 10;
+                const fitCart = document.getElementById('adm-fit-carteira').value.trim();
+                const fitChave = document.getElementById('adm-fit-chave').value.trim();
+
+                configPlanosAdmin.planos.plano1 = { id: 'plano1', nome: p1Nome, adesao: `R$ ${p1Adesao.toFixed(2)}`, valorAdesaoNum: p1Adesao, mensalidade: `R$ ${p1Mensal.toFixed(2)}/mês`, valorMensalidadeNum: p1Mensal };
+                configPlanosAdmin.planos.plano2 = { id: 'plano2', nome: p2Nome, adesao: `R$ ${p2Adesao.toFixed(2)}`, valorAdesaoNum: p2Adesao, mensalidade: `R$ ${p2Mensal.toFixed(2)}/mês`, valorMensalidadeNum: p2Mensal };
+                configPlanosAdmin.planos.plano3 = { id: 'plano3', nome: p3Nome, adesao: `R$ ${p3Adesao.toFixed(2)}`, valorAdesaoNum: p3Adesao, mensalidade: `R$ ${p3Mensal.toFixed(2)}/mês`, valorMensalidadeNum: p3Mensal };
+
+                configPlanosAdmin.fitcoin = {
+                    discountPercent: fitDesc,
+                    tokensPerBrl: fitPar,
+                    walletReceiver: fitCart,
+                    pixChave: fitChave,
+                    pixTitular: 'LUCIA SANTANA S. BRAGA'
+                };
+
+                // Salva no localStorage
+                localStorage.setItem('cfg_planos_superadmin', JSON.stringify(configPlanosAdmin));
+
+                // Salva no Supabase na linha do SuperAdmin Edwan (433005811)
+                const { data: superAdminRow } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('herbalife_id', '433005811')
+                    .maybeSingle();
+
+                if (superAdminRow) {
+                    let rawEspaco = superAdminRow.nome_espaco || '';
+                    const tagNova = `<!--CONFIG_PLANOS:${JSON.stringify(configPlanosAdmin)}-->`;
+                    if (rawEspaco.includes('<!--CONFIG_PLANOS:')) {
+                        rawEspaco = rawEspaco.replace(/<!--CONFIG_PLANOS:[\s\S]*?-->/, tagNova);
+                    } else {
+                        rawEspaco += ' ' + tagNova;
+                    }
+                    await supabaseClient.from('consultores').update({ nome_espaco: rawEspaco }).eq('id', superAdminRow.id);
+                }
+
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-400 block";
+                    feed.innerHTML = "✅ Alterações dos planos e FitCoin salvas com sucesso no Supabase!";
+                }
+
+                setTimeout(() => {
+                    fecharModalConfigPlanosAdmin();
+                    if (feed) feed.classList.add('hidden');
+                }, 1500);
+
+            } catch (err) {
+                console.error("Erro ao salvar config planos admin:", err);
+                if (feed) {
+                    feed.className = "p-3 rounded-xl text-xs font-bold bg-red-100 text-red-900 border border-red-400 block";
+                    feed.innerHTML = `Erro: ${err.message || 'Tente novamente'}`;
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarDados();
+            carregarConfigPlanosAdmin();
+        });
     </script>
 </body>
 </html>

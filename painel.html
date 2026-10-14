@@ -291,6 +291,10 @@
                             <i class="fa-solid fa-ticket text-base"></i>
                             <span>CRIAR QUALQUER CUPOM (%)</span>
                         </button>
+                        <button onclick="abrirModalConfiguracaoPlanosSuperadmin()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black py-3.5 px-5 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-sliders text-amber-300"></i>
+                            <span>EDITAR PLANOS & FITCOIN</span>
+                        </button>
                         <button onclick="toggleSecaoSuperadmin()" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm cursor-pointer border border-white/20 whitespace-nowrap">
                             <i class="fa-solid fa-users-gear text-lg text-amber-300"></i>
                             <span id="superadmin-btn-label">ABRIR GESTÃO DE CONSULTORES</span>
@@ -2594,6 +2598,14 @@
                     <p class="text-xs sm:text-sm text-gray-500 mt-1 font-medium">
                         Aproveite a condição de boas-vindas com liberação imediata via PIX.
                     </p>
+
+                    <!-- BOTÃO EXCLUSIVO SUPERADMIN (APENAS APARECE PARA O ID 433005811) -->
+                    <div id="btn-configurar-planos-superadmin" class="hidden mt-2.5">
+                        <button type="button" onclick="abrirModalConfiguracaoPlanosSuperadmin()" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs px-4 py-2 rounded-xl shadow-md border border-purple-400 transition cursor-pointer">
+                            <i class="fa-solid fa-gears text-amber-300"></i>
+                            <span>EDITAR PLANOS & FITCOIN (SUPERADMIN EXCLUSIVO)</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- SELETOR DOS 3 PLANOS EM CARDS -->
@@ -2603,12 +2615,12 @@
                     <div id="card-plano1" onclick="selecionarPlano('plano1')" class="cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-emerald-500 bg-emerald-50/70 shadow-lg ring-2 ring-emerald-400/50 scale-[1.02]">
                         <div>
                             <span class="block text-[10px] font-black uppercase tracking-wider text-emerald-800">PLANO 1</span>
-                            <h4 class="text-base font-black text-gray-900 mt-0.5">Start Pro</h4>
+                            <h4 id="card-plano1-nome" class="text-base font-black text-gray-900 mt-0.5">Start Pro</h4>
                             <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Entrada super acessível para iniciar agora.</p>
                             <div class="mt-3">
                                 <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span class="text-2xl font-black text-emerald-600 block leading-tight">R$ 199,00</span>
-                                <span class="inline-block mt-1 bg-emerald-100 text-emerald-900 font-black text-[11px] px-2 py-0.5 rounded-md">
+                                <span id="card-plano1-adesao" class="text-2xl font-black text-emerald-600 block leading-tight">R$ 199,00</span>
+                                <span id="card-plano1-mensalidade" class="inline-block mt-1 bg-emerald-100 text-emerald-900 font-black text-[11px] px-2 py-0.5 rounded-md">
                                     + R$ 99,00/mês
                                 </span>
                             </div>
@@ -2640,12 +2652,12 @@
                         </div>
                         <div>
                             <span class="block text-[10px] font-black uppercase tracking-wider text-amber-800">PLANO 2</span>
-                            <h4 class="text-base font-black text-gray-900 mt-0.5">Vitalício Smart</h4>
+                            <h4 id="card-plano2-nome" class="text-base font-black text-gray-900 mt-0.5">Vitalício Smart</h4>
                             <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Menor mensalidade contínua com adesão vitalícia.</p>
                             <div class="mt-3">
                                 <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span class="text-2xl font-black text-amber-600 block leading-tight">R$ 497,00</span>
-                                <span class="inline-block mt-1 bg-amber-200/70 text-amber-900 font-black text-[11px] px-2 py-0.5 rounded-md">
+                                <span id="card-plano2-adesao" class="text-2xl font-black text-amber-600 block leading-tight">R$ 497,00</span>
+                                <span id="card-plano2-mensalidade" class="inline-block mt-1 bg-amber-200/70 text-amber-900 font-black text-[11px] px-2 py-0.5 rounded-md">
                                     + R$ 25,00/mês
                                 </span>
                             </div>
@@ -2677,12 +2689,12 @@
                         </div>
                         <div>
                             <span class="block text-[10px] font-black uppercase tracking-wider text-purple-800">PLANO 3</span>
-                            <h4 class="text-base font-black text-gray-900 mt-0.5">Master VIP</h4>
+                            <h4 id="card-plano3-nome" class="text-base font-black text-gray-900 mt-0.5">Master VIP</h4>
                             <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Licença premium com mensalidade ultra reduzida.</p>
                             <div class="mt-3">
                                 <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span class="text-2xl font-black text-purple-700 block leading-tight">R$ 1.299,00</span>
-                                <span class="inline-block mt-1 bg-purple-100 text-purple-900 font-black text-[11px] px-2 py-0.5 rounded-md">
+                                <span id="card-plano3-adesao" class="text-2xl font-black text-purple-700 block leading-tight">R$ 1.299,00</span>
+                                <span id="card-plano3-mensalidade" class="inline-block mt-1 bg-purple-100 text-purple-900 font-black text-[11px] px-2 py-0.5 rounded-md">
                                     + R$ 49,00/mês
                                 </span>
                             </div>
@@ -2798,30 +2810,77 @@
                 </div>
 
                 <!-- BOX 2: ÁREA FITCOIN (22% DE DESCONTO) -->
-                <div id="box-pagamento-fitcoin" class="hidden bg-gradient-to-b from-slate-900 via-slate-900 to-[#0B0F19] border-2 border-amber-400 text-white rounded-2xl p-4 sm:p-5 text-center shadow-2xl relative overflow-hidden">
+                <div id="box-pagamento-fitcoin" class="hidden bg-gradient-to-b from-slate-900 via-slate-900 to-[#0B0F19] border-2 border-amber-400 text-white rounded-3xl p-4 sm:p-6 text-center shadow-2xl relative overflow-hidden">
                     
-                    <!-- Fundo decorativo sutil -->
-                    <div class="absolute -top-16 -right-16 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                    <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <!-- Fundo decorativo com néon -->
+                    <div class="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-                    <!-- Badge do Desconto Oficial -->
-                    <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 shadow-md animate-pulse">
-                        <i class="fa-solid fa-fire text-orange-600"></i>
-                        <span>INCENTIVO FITCOIN • 22% DE DESCONTO APLICADO!</span>
+                    <!-- SHOWCASE VISUAL IMPONENTE DA MOEDA FITCOIN ($FIT) -->
+                    <div class="mb-5 bg-gradient-to-b from-slate-950 via-[#0d1527] to-slate-950 border-2 border-amber-400 rounded-3xl p-5 sm:p-6 shadow-[0_0_35px_rgba(245,158,11,0.35)] relative overflow-hidden">
+                        <div class="flex flex-col items-center text-center relative z-10">
+                            <!-- Badge Oficial Solana -->
+                            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 px-4 py-1 rounded-full text-[11px] font-black uppercase tracking-wider mb-4 shadow-lg animate-pulse">
+                                <i class="fa-solid fa-coins text-amber-950"></i>
+                                <span>REDE SOLANA • CONTRATO OFICIAL VERIFICADO • MAINNET</span>
+                            </div>
+
+                            <!-- Moeda FitCoin 3D Central com Iluminação e Glow -->
+                            <div class="relative my-2 group cursor-pointer transition transform hover:scale-105 duration-300">
+                                <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1.5 bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.6)] flex items-center justify-center animate-pulse">
+                                    <img src="fitcoin-logo.png" alt="Moeda FitCoin $FIT" class="w-full h-full object-cover rounded-full shadow-2xl border-2 border-amber-300">
+                                </div>
+                                <div class="absolute -bottom-2 bg-slate-900/95 border border-amber-400 text-amber-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                                    $FIT • SOLANA SPL
+                                </div>
+                            </div>
+
+                            <!-- Título e Subtítulo -->
+                            <h4 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 mt-3 leading-tight">
+                                MOEDA FITCOIN ($FIT)
+                            </h4>
+                            <p class="text-xs sm:text-sm text-amber-100/90 font-bold max-w-lg mt-1 leading-relaxed">
+                                A moeda oficial de incentivo do <strong class="text-amber-300">Litrão do Reset</strong> e <strong class="text-emerald-400">BragaPay</strong>. Quem usa FitCoin economiza <span class="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-md font-black border border-amber-400/40">22% DE DESCONTO</span> em qualquer adesão ou mensalidade!
+                            </p>
+
+                            <!-- 4 Pilares Explicativos da Moeda -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full mt-4 text-left">
+                                <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-3 shadow-sm">
+                                    <span class="text-lg">🪙</span>
+                                    <span class="block text-[11px] font-black text-amber-300 uppercase mt-1">100% Real & On-Chain</span>
+                                    <p class="text-[10px] text-gray-300 leading-tight mt-0.5">Criada na Solana Mainnet com fornecimento total de 100M FIT.</p>
+                                </div>
+                                <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-3 shadow-sm">
+                                    <span class="text-lg">🔥</span>
+                                    <span class="block text-[11px] font-black text-amber-300 uppercase mt-1">22% de Desconto</span>
+                                    <p class="text-[10px] text-gray-300 leading-tight mt-0.5">Desconto direto na adesão e em todas as mensalidades contínuas.</p>
+                                </div>
+                                <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-3 shadow-sm">
+                                    <span class="text-lg">💎</span>
+                                    <span class="block text-[11px] font-black text-amber-300 uppercase mt-1">Paridade Fixa</span>
+                                    <p class="text-[10px] text-gray-300 leading-tight mt-0.5">10 FIT = R$ 1,00. Cálculo simples, transparente e sem oscilações.</p>
+                                </div>
+                                <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-3 shadow-sm">
+                                    <span class="text-lg">⚡</span>
+                                    <span class="block text-[11px] font-black text-amber-300 uppercase mt-1">Pix ou Phantom</span>
+                                    <p class="text-[10px] text-gray-300 leading-tight mt-0.5">Pague em 1 clique na carteira ou use o Pix Facilitado com 22% OFF!</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Resumo do Valor com 22% OFF -->
+                    <!-- Resumo do Valor do Plano com 22% OFF -->
                     <div class="mb-4 bg-slate-950/80 border border-amber-500/40 rounded-2xl p-4 shadow-inner text-center">
                         <div class="flex items-center justify-center gap-2 text-xs text-gray-400 font-bold mb-1">
                             <span>Adesão Normal:</span>
-                            <span id="fitcoin-valor-original" class="line-through text-red-400 font-bold">R$ 497,00</span>
+                            <span id="fitcoin-valor-original" class="line-through text-red-400 font-bold">R$ 199,00</span>
                             <span class="text-amber-400 font-black bg-amber-500/20 px-2 py-0.5 rounded-full text-[10px]">-22% OFF</span>
                         </div>
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 my-1">
                             <div>
                                 <span class="text-[10px] text-gray-400 uppercase font-bold block">Valor com 22% de Desconto:</span>
                                 <div id="fitcoin-valor-brl" class="text-2xl sm:text-3xl font-black text-amber-400 leading-tight">
-                                    R$ 387,66
+                                    R$ 155,22
                                 </div>
                             </div>
                             <div class="text-xl text-gray-500 hidden sm:block">=</div>
@@ -2829,17 +2888,17 @@
                                 <span class="text-[10px] text-amber-300 uppercase font-bold block">Total em FitCoins:</span>
                                 <div id="fitcoin-qtd-tokens" class="text-xl sm:text-2xl font-black text-emerald-400 flex items-center justify-center gap-1.5">
                                     <img src="fitcoin-logo.png" class="w-5 h-5 rounded-full">
-                                    <span>3.876 $FIT</span>
+                                    <span>1.552 $FIT</span>
                                 </div>
                             </div>
                         </div>
                         <div id="fitcoin-mensalidade-resumo" class="text-xs font-bold text-gray-300 mt-2 pt-2 border-t border-slate-800">
-                            Mensalidade com 22% OFF: <strong class="text-amber-400">R$ 19,50</strong> (<span class="text-emerald-400">195 FIT</span>) após 30 dias (10 FIT = R$ 1,00)
+                            Mensalidade com 22% OFF: <strong class="text-amber-400">R$ 77,22</strong> (<span class="text-emerald-400 font-bold">772 FIT</span>) após 30 dias (10 FIT = R$ 1,00)
                         </div>
                     </div>
 
                     <!-- OPÇÃO 1: PAGAR COM PHANTOM WALLET (1 CLIQUE) -->
-                    <div class="mb-4 bg-slate-950 p-4 rounded-xl border border-slate-800 text-left">
+                    <div class="mb-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left">
                         <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-2">
                             <i class="fa-solid fa-bolt text-amber-400"></i> Opção 1: Pagar com 1 Clique (Phantom Solana)
                         </span>
@@ -2853,7 +2912,7 @@
                     </div>
 
                     <!-- OPÇÃO 2: QR CODE SOLANA & ENDEREÇO DA CARTEIRA BRAGAPAY -->
-                    <div class="mb-4 bg-slate-950 p-4 rounded-xl border border-slate-800 text-left">
+                    <div class="mb-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left">
                         <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-2">
                             <i class="fa-solid fa-qrcode text-emerald-400"></i> Opção 2: Transferir Manualmente por QR Code / Endereço
                         </span>
@@ -2885,32 +2944,114 @@
                         </div>
                     </div>
 
-                    <!-- OPÇÃO 3: FÁCIL PARA QUEM NÃO ENTENDE DE MOEDA VIRTUAL! -->
-                    <div class="bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-emerald-500/20 border-2 border-amber-400/80 rounded-2xl p-4 text-left shadow-lg">
-                        <div class="flex items-start gap-2.5">
-                            <div class="w-8 h-8 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 text-base">
+                    <!-- OPÇÃO 3: FÁCIL PARA QUEM NÃO ENTENDE DE MOEDA VIRTUAL (QR CODE E CHAVE PIX maisappsmobile@gmail.com) -->
+                    <div id="card-fitcoin-opcao-facil" class="bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-emerald-500/20 border-2 border-amber-400 rounded-3xl p-4 sm:p-5 text-left shadow-xl">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 text-xl shadow-md">
                                 💡
                             </div>
                             <div class="flex-1">
-                                <h5 class="text-sm font-black text-amber-300 leading-tight">
-                                    Não entende de moeda virtual e quer os 22% de desconto?
+                                <span class="inline-block bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">
+                                    Opção 3 • A Mais Prática e Recomendada
+                                </span>
+                                <h5 class="text-sm sm:text-base font-black text-amber-300 leading-tight">
+                                    Não entende de cripto? Pague via PIX Facilitado com os 22% de Desconto!
                                 </h5>
                                 <p class="text-xs text-gray-200 mt-1 leading-relaxed">
-                                    <strong>Super simples!</strong> Você não precisa ter carteira cripto. A Central BragaPay converte para você e já aplica o <strong>desconto de 22%</strong> direto via Pix facilitado!
+                                    Você não precisa de carteira digital. A Central <strong>BragaPay</strong> converte para você na hora! Pague o valor com os <strong>22% de desconto</strong> já aplicados direto no QR Code ou Chave Pix abaixo:
                                 </p>
                             </div>
                         </div>
 
-                        <button type="button" onclick="enviarSolicitacaoFitcoinWhatsApp()" class="mt-3.5 w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                            <span>QUERO MEUS 22% DE DESCONTO VIA WHATSAPP (FÁCIL)</span>
-                        </button>
+                        <!-- BOTÃO DE AÇÃO RÁPIDA -->
+                        <div class="mt-3.5">
+                            <button type="button" onclick="ativarPixFacilitadoFitcoin()" class="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.01] flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer border-2 border-emerald-300">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                                <span>QUERO MEUS 22% DE DESCONTO VIA WHATSAPP (FÁCIL)</span>
+                            </button>
+                        </div>
+
+                        <!-- BOX INTEGRADO COM QR CODE E CHAVE PIX maisappsmobile@gmail.com -->
+                        <div id="box-pix-facilitado-fitcoin" class="mt-4 bg-slate-950/95 border-2 border-emerald-400/80 rounded-2xl p-4 sm:p-5 shadow-2xl">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    <span class="text-xs font-black uppercase tracking-wider text-emerald-400">
+                                        QR CODE PIX • 22% DE DESCONTO GARANTIDO
+                                    </span>
+                                </div>
+                                <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                                    Conversão Automática
+                                </span>
+                            </div>
+
+                            <!-- Resumo do Valor do Pix com Desconto -->
+                            <div class="my-3 text-center bg-slate-900 border border-emerald-500/30 rounded-xl p-3">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase block">Total a Pagar no Pix (com 22% OFF):</span>
+                                <div id="fitcoin-pix-facilitado-valor" class="text-3xl font-black text-amber-400 leading-tight">
+                                    R$ 155,22
+                                </div>
+                                <span id="fitcoin-pix-facilitado-economia" class="text-xs font-bold text-emerald-400 block mt-0.5">
+                                    Você economiza R$ 43,78 na taxa de adesão!
+                                </span>
+                            </div>
+
+                            <!-- QR Code Pix Gerado Dinamicamente -->
+                            <div class="flex flex-col items-center justify-center my-3">
+                                <div class="bg-white p-3 rounded-2xl border-2 border-emerald-400 shadow-xl">
+                                    <div id="modal-fitcoin-pix-qrcode" class="flex justify-center"></div>
+                                </div>
+                                <p class="text-[11px] text-gray-300 font-bold mt-2 flex items-center">
+                                    <i class="fa-solid fa-camera mr-1.5 text-emerald-400"></i> Abra o app do seu banco e escaneie este QR Code
+                                </p>
+                            </div>
+
+                            <!-- Campos de Cópia: Chave Pix maisappsmobile@gmail.com e Copia e Cola -->
+                            <div class="space-y-3 mt-3 text-left">
+                                <!-- Chave Pix E-mail -->
+                                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider">Chave PIX Oficial (E-mail):</span>
+                                        <strong id="txt-chave-pix-facilitada" class="text-amber-300 text-sm sm:text-base select-all font-mono">maisappsmobile@gmail.com</strong>
+                                        <span class="block text-gray-400 text-[11px] font-medium mt-0.5">Favorecida: <strong id="txt-favorecida-pix-facilitada" class="text-gray-200">LUCIA SANTANA S. BRAGA</strong></span>
+                                    </div>
+                                    <button type="button" onclick="copiarPixFacilitadoEmail()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 self-start sm:self-auto cursor-pointer shadow-md whitespace-nowrap">
+                                        <i class="fa-regular fa-clone"></i> Copiar Chave
+                                    </button>
+                                </div>
+
+                                <!-- Código Pix Copia e Cola Dinâmico -->
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                        Código Pix Copia e Cola (Valor com 22% OFF):
+                                    </label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="text" id="fitcoin-pix-payload-input" readonly value="" class="w-full text-xs bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono select-all focus:outline-none">
+                                        <button type="button" onclick="copiarPixFacilitadoPayload()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer shadow-md">
+                                            <i class="fa-regular fa-copy"></i> Copiar Código
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="msg-pix-facilitado-copiado" class="hidden p-2 bg-emerald-900/60 border border-emerald-400 text-emerald-300 rounded-xl text-xs font-black text-center">
+                                    <i class="fa-solid fa-check mr-1"></i> Copiado com sucesso!
+                                </div>
+                            </div>
+
+                            <!-- Botão WhatsApp para Envio do Comprovante com 22% OFF -->
+                            <div class="mt-4 pt-3 border-t border-slate-800">
+                                <button type="button" onclick="enviarComprovantePixFacilitadoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 px-4 rounded-xl shadow-xl transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
+                                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                                    <span>JÁ FIZ O PIX C/ 22% OFF! ENVIAR COMPROVANTE VIA WHATSAPP</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- BOTÃO ENVIAR COMPROVANTE FITCOIN -->
+                    <!-- BOTÃO ENVIAR COMPROVANTE FITCOIN ON-CHAIN -->
                     <div class="mt-4 pt-2 flex flex-col gap-2">
                         <button onclick="enviarComprovanteFitcoinTransferidoWhatsApp()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3.5 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center text-sm cursor-pointer">
-                            <i class="fa-brands fa-whatsapp mr-2 text-xl text-slate-950"></i> JÁ ENVIEI OS FITCOINS! LIBERAR MINHA CONTA
+                            <i class="fa-brands fa-whatsapp mr-2 text-xl text-slate-950"></i> JÁ ENVIEI OS FITCOINS NA SOLANA! LIBERAR MINHA CONTA
                         </button>
                     </div>
 
@@ -3024,6 +3165,168 @@
                         <p class="text-xs text-gray-400 text-center py-2">Carregando cupons...</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- MODAL SUPERADMIN EXCLUSIVO: GESTÃO & CONFIGURAÇÃO DOS PLANOS E FITCOIN -->
+        <div id="modal-configuracao-planos-superadmin" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border-4 border-purple-600 relative max-h-[92vh] overflow-y-auto">
+                <button type="button" onclick="fecharModalConfiguracaoPlanosSuperadmin()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                
+                <!-- Cabeçalho SuperAdmin -->
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 via-indigo-700 to-purple-900 text-amber-300 flex items-center justify-center text-2xl shadow-lg border border-purple-400">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 bg-purple-100 text-purple-900 border border-purple-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-0.5">
+                            <i class="fa-solid fa-shield-halved text-amber-500"></i> SuperAdmin Exclusivo (ID 433005811)
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Configurar Planos & FitCoin</h3>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-600 mb-5 leading-relaxed">
+                    Personalize os nomes, valores de adesão, mensalidades e regras de incentivo da <strong>FitCoin</strong>. As alterações são sincronizadas no sistema e aplicadas imediatamente nos modais e cálculos.
+                </p>
+
+                <form id="form-configuracao-planos-superadmin" onsubmit="salvarConfiguracaoPlanosSuperadmin(event)" class="space-y-5">
+                    
+                    <!-- SEÇÃO: PLANO 1 (START PRO) -->
+                    <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-4 text-left">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-200">
+                            <span class="text-xs font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-emerald-600"></i> PLANO 1 (Start Pro)
+                            </span>
+                            <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded-md">Entrada</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
+                                <input type="text" id="cfg-p1-nome" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
+                                <input type="number" step="0.01" min="1" id="cfg-p1-adesao" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-black text-sm text-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                                <input type="number" step="0.01" min="0" id="cfg-p1-mensalidade" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-black text-sm text-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
+                                <input type="text" id="cfg-p1-desc" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: PLANO 2 (VITALÍCIO SMART) -->
+                    <div class="bg-amber-50/70 border-2 border-amber-300 rounded-2xl p-4 text-left">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-amber-200">
+                            <span class="text-xs font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-star text-amber-500"></i> PLANO 2 (Vitalício Smart)
+                            </span>
+                            <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-md">Mais Popular</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
+                                <input type="text" id="cfg-p2-nome" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
+                                <input type="number" step="0.01" min="1" id="cfg-p2-adesao" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-black text-sm text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                                <input type="number" step="0.01" min="0" id="cfg-p2-mensalidade" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-black text-sm text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
+                                <input type="text" id="cfg-p2-desc" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: PLANO 3 (MASTER VIP) -->
+                    <div class="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-4 text-left">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-200">
+                            <span class="text-xs font-black text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-crown text-purple-600"></i> PLANO 3 (Master VIP)
+                            </span>
+                            <span class="text-[10px] bg-purple-200 text-purple-900 font-bold px-2 py-0.5 rounded-md">Elite VIP</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
+                                <input type="text" id="cfg-p3-nome" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
+                                <input type="number" step="0.01" min="1" id="cfg-p3-adesao" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-purple-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
+                                <input type="number" step="0.01" min="0" id="cfg-p3-mensalidade" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-purple-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
+                                <input type="text" id="cfg-p3-desc" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: FITCOIN ($FIT) E DADOS DE PAGAMENTO -->
+                    <div class="bg-slate-900 border-2 border-amber-400 rounded-2xl p-4 text-white text-left">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                            <span class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-coins text-amber-400"></i> Parâmetros da Moeda FitCoin ($FIT) & Pix
+                            </span>
+                            <span class="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-md uppercase">Solana + Pix</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Desconto com FitCoin (%) *</label>
+                                <input type="number" min="0" max="100" id="cfg-fit-desconto" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-amber-300 font-black text-sm rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Paridade (FIT por R$ 1,00) *</label>
+                                <input type="number" min="1" id="cfg-fit-paridade" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-emerald-400 font-black text-sm rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Carteira Solana Recebedora (BragaPay)</label>
+                                <input type="text" id="cfg-fit-carteira" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-emerald-400 font-mono text-xs rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Contrato Mint Oficial FitCoin ($FIT)</label>
+                                <input type="text" id="cfg-fit-mint" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Chave Pix para Recebimento Facilitado</label>
+                                <input type="text" id="cfg-fit-pix-chave" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-300 uppercase mb-1">Favorecida do Pix</label>
+                                <input type="text" id="cfg-fit-pix-titular" required class="w-full p-2.5 bg-slate-950 border border-slate-700 text-gray-200 font-bold text-xs rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES DE SUBMIT E RESTAURAÇÃO -->
+                    <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
+                        <button type="submit" id="btn-salvar-cfg-planos" class="flex-1 bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white font-black py-3.5 px-4 rounded-xl shadow-xl transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk text-amber-300 text-base"></i>
+                            <span>SALVAR ALTERAÇÕES DOS PLANOS</span>
+                        </button>
+                        <button type="button" onclick="restaurarPadroesPlanosSuperadmin()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-wide transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-rotate-left"></i> Restaurar Padrões
+                        </button>
+                    </div>
+
+                    <div id="cfg-planos-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+                </form>
             </div>
         </div>
 
@@ -3209,29 +3512,35 @@
         }
         window.verificarTrialPromocao = verificarTrialPromocao;
 
-        // DADOS E PAYLOADS DOS 3 PLANOS OFICIAIS
-        const DADOS_PLANOS = {
+        // DADOS E PAYLOADS DOS 3 PLANOS OFICIAIS (MUTÁVEL VIA SUPERADMIN)
+        let DADOS_PLANOS = {
             plano1: {
                 id: 'plano1',
-                nome: 'Plano 1 - Start Pro',
+                nome: 'Start Pro',
                 adesao: 'R$ 199,00',
+                valorAdesaoNum: 199.00,
                 mensalidade: 'R$ 99,00/mês',
+                valorMensalidadeNum: 99.00,
                 descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
                 payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3'
             },
             plano2: {
                 id: 'plano2',
-                nome: 'Plano 2 - Vitalício Smart',
+                nome: 'Vitalício Smart',
                 adesao: 'R$ 497,00',
+                valorAdesaoNum: 497.00,
                 mensalidade: 'R$ 25,00/mês',
+                valorMensalidadeNum: 25.00,
                 descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
                 payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406497.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET49763049BD6'
             },
             plano3: {
                 id: 'plano3',
-                nome: 'Plano 3 - Master VIP',
+                nome: 'Master VIP',
                 adesao: 'R$ 1.299,00',
+                valorAdesaoNum: 1299.00,
                 mensalidade: 'R$ 49,00/mês',
+                valorMensalidadeNum: 49.00,
                 descricaoMensalidade: 'Mensalidade de apenas R$ 49,00 após 30 dias',
                 payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com52040000530398654071299.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62130509RESET129963049F23'
             }
@@ -3447,16 +3756,11 @@
             const txtMensalidade = document.getElementById('txt-plano-mensalidade-selecionada');
             const inputPayload = document.getElementById('modal-pix-payload-input');
 
-            // Preço base numérico
-            const precosBase = {
-                plano1: 199.00,
-                plano2: 497.00,
-                plano3: 1299.00
-            };
-            const valorBase = precosBase[planoKey] || 199.00;
+            // Preço base numérico dinâmico
+            const valorBase = DADOS_PLANOS[planoKey]?.valorAdesaoNum || 199.00;
 
             let valorFinal = valorBase;
-            let payloadPixFinal = p.payloadPix;
+            let payloadPixFinal = p.payloadPix || gerarPixPayloadDinamico(valorBase, `RESET${Math.round(valorBase)}`);
 
             if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
                 const descontoValor = (valorBase * cupomAtivoModal.descontoPorcentagem) / 100;
@@ -3511,14 +3815,16 @@
         window.selecionarPlano = selecionarPlano;
 
         // ==========================================
-        // SISTEMA DE PAGAMENTO FITCOIN (22% OFF)
+        // SISTEMA DE PAGAMENTO FITCOIN & PIX FACILITADO (22% OFF)
         // ==========================================
         let metodoPagamentoAtual = 'pix';
-        const FITCOIN_SOLANA_CONFIG = {
+        let FITCOIN_SOLANA_CONFIG = {
             walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
             mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
             discountPercent: 22, // 22% de desconto no pagamento com FitCoin
-            tokensPerBrl: 10     // 10 FIT = R$ 1,00
+            tokensPerBrl: 10,    // 10 FIT = R$ 1,00
+            pixChave: 'maisappsmobile@gmail.com',
+            pixTitular: 'LUCIA SANTANA S. BRAGA'
         };
 
         let dadosCalculadosFitcoin = {
@@ -3547,8 +3853,9 @@
                 if (boxPix) boxPix.classList.add('hidden');
                 if (boxFitcoin) boxFitcoin.classList.remove('hidden');
 
-                // Renderiza QR code da carteira Solana
+                // Renderiza QR code da carteira Solana e do Pix facilitado
                 renderizarQrCodeFitcoin();
+                renderizarQrCodePixFacilitadoFitcoin(dadosCalculadosFitcoin.valorComDescontoBrl);
             } else {
                 if (btnPix) {
                     btnPix.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-300 cursor-pointer";
@@ -3563,19 +3870,17 @@
         window.alternarMetodoPagamento = alternarMetodoPagamento;
 
         function atualizarValoresFitcoinPlano(valorAdesaoBrl, planoKey) {
-            const mensalidadesBase = {
-                plano1: 99.00,
-                plano2: 25.00,
-                plano3: 49.00
-            };
-            const mensalidadeBase = mensalidadesBase[planoKey] || 99.00;
+            const mensalidadeBase = DADOS_PLANOS[planoKey]?.valorMensalidadeNum || 99.00;
+            const descPercent = FITCOIN_SOLANA_CONFIG.discountPercent || 22;
+            const descFactor = Math.max(0, (100 - descPercent) / 100);
 
-            const descFactor = 0.78; // 22% de desconto
             const valorComDesc = Math.round(valorAdesaoBrl * descFactor * 100) / 100;
-            const fitTokensAdesao = Math.round(valorComDesc * FITCOIN_SOLANA_CONFIG.tokensPerBrl);
+            const fitTokensAdesao = Math.round(valorComDesc * (FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10));
 
             const mensalidadeComDesc = Math.round(mensalidadeBase * descFactor * 100) / 100;
-            const fitTokensMensalidade = Math.round(mensalidadeComDesc * FITCOIN_SOLANA_CONFIG.tokensPerBrl);
+            const fitTokensMensalidade = Math.round(mensalidadeComDesc * (FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10));
+
+            const economiaBrl = Math.round((valorAdesaoBrl - valorComDesc) * 100) / 100;
 
             dadosCalculadosFitcoin = {
                 valorOriginalBrl: valorAdesaoBrl,
@@ -3583,13 +3888,16 @@
                 fitTokens: fitTokensAdesao,
                 mensalidadeOriginalBrl: mensalidadeBase,
                 mensalidadeComDescontoBrl: mensalidadeComDesc,
-                mensalidadeFitTokens: fitTokensMensalidade
+                mensalidadeFitTokens: fitTokensMensalidade,
+                economiaBrl: economiaBrl
             };
 
             const elOriginal = document.getElementById('fitcoin-valor-original');
             const elBrl = document.getElementById('fitcoin-valor-brl');
             const elTokens = document.getElementById('fitcoin-qtd-tokens');
             const elMensal = document.getElementById('fitcoin-mensalidade-resumo');
+            const elPixFacilitadoValor = document.getElementById('fitcoin-pix-facilitado-valor');
+            const elPixFacilitadoEco = document.getElementById('fitcoin-pix-facilitado-economia');
 
             if (elOriginal) elOriginal.innerText = `R$ ${valorAdesaoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             if (elBrl) elBrl.innerText = `R$ ${valorComDesc.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -3601,11 +3909,19 @@
             }
             if (elMensal) {
                 elMensal.innerHTML = `
-                    Mensalidade com 22% OFF: <strong class="text-amber-400">R$ ${mensalidadeComDesc.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> (<span class="text-emerald-400 font-bold">${fitTokensMensalidade.toLocaleString('pt-BR')} FIT</span>) após 30 dias (10 FIT = R$ 1,00)
+                    Mensalidade com ${descPercent}% OFF: <strong class="text-amber-400">R$ ${mensalidadeComDesc.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> (<span class="text-emerald-400 font-bold">${fitTokensMensalidade.toLocaleString('pt-BR')} FIT</span>) após 30 dias (${FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10} FIT = R$ 1,00)
                 `;
             }
 
+            if (elPixFacilitadoValor) {
+                elPixFacilitadoValor.innerText = `R$ ${valorComDesc.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+            if (elPixFacilitadoEco) {
+                elPixFacilitadoEco.innerText = `Você economiza R$ ${economiaBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${descPercent}% OFF) na taxa de adesão!`;
+            }
+
             renderizarQrCodeFitcoin();
+            renderizarQrCodePixFacilitadoFitcoin(valorComDesc);
         }
 
         let modalFitcoinQrCodeInstancia = null;
@@ -3624,6 +3940,87 @@
                 correctLevel: (QRCode && QRCode.CorrectLevel) ? QRCode.CorrectLevel.M : 0
             });
         }
+
+        let modalFitcoinPixQrCodeInstancia = null;
+        function renderizarQrCodePixFacilitadoFitcoin(valorComDesconto) {
+            const qrContainer = document.getElementById('modal-fitcoin-pix-qrcode');
+            const inputPayload = document.getElementById('fitcoin-pix-payload-input');
+            if (!qrContainer || typeof QRCode === 'undefined') return;
+
+            const txid = `FIT${Math.round(valorComDesconto)}`;
+            const payloadPixComDesconto = gerarPixPayloadDinamico(valorComDesconto, txid);
+
+            if (inputPayload) {
+                inputPayload.value = payloadPixComDesconto;
+            }
+
+            qrContainer.innerHTML = '';
+            modalFitcoinPixQrCodeInstancia = new QRCode(qrContainer, {
+                text: payloadPixComDesconto,
+                width: 175,
+                height: 175,
+                colorDark: "#022c22",
+                colorLight: "#ffffff",
+                correctLevel: (QRCode && QRCode.CorrectLevel) ? QRCode.CorrectLevel.M : 0
+            });
+        }
+
+        function ativarPixFacilitadoFitcoin() {
+            // Copia chave Pix oficial para facilitar
+            copiarPixFacilitadoEmail();
+
+            // Rola suavemente até o QR Code do Pix com 22% OFF
+            const boxPix = document.getElementById('box-pix-facilitado-fitcoin');
+            if (boxPix) {
+                boxPix.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Abre o WhatsApp com a mensagem pronta de suporte
+            enviarSolicitacaoFitcoinWhatsApp();
+        }
+        window.ativarPixFacilitadoFitcoin = ativarPixFacilitadoFitcoin;
+
+        function copiarPixFacilitadoEmail() {
+            const chave = FITCOIN_SOLANA_CONFIG.pixChave || "maisappsmobile@gmail.com";
+            navigator.clipboard.writeText(chave).then(() => {
+                mostrarAvisoPixFacilitado(`Chave PIX (${chave}) copiada com sucesso! Escaneie o QR Code ou cole no seu app de banco.`);
+            });
+        }
+        window.copiarPixFacilitadoEmail = copiarPixFacilitadoEmail;
+
+        function copiarPixFacilitadoPayload() {
+            const inputPayload = document.getElementById('fitcoin-pix-payload-input');
+            if (!inputPayload || !inputPayload.value) return;
+
+            navigator.clipboard.writeText(inputPayload.value).then(() => {
+                mostrarAvisoPixFacilitado(`Código Pix Copia e Cola (com 22% OFF: R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}) copiado!`);
+            });
+        }
+        window.copiarPixFacilitadoPayload = copiarPixFacilitadoPayload;
+
+        function mostrarAvisoPixFacilitado(msg) {
+            const el = document.getElementById('msg-pix-facilitado-copiado');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-check mr-1 text-emerald-400"></i> ${msg}`;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 4500);
+            }
+        }
+
+        function enviarComprovantePixFacilitadoWhatsApp() {
+            const p = DADOS_PLANOS[planoSelecionadoAtual] || DADOS_PLANOS.plano1;
+            const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || "Consultor";
+            const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
+
+            let msg = `Olá Edwan! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\n`;
+            msg += `Acabei de realizar o PIX no valor de *R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}* (com *${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% DE DESCONTO FITCOIN*) referente ao *${p.nome}* para a chave *${FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com'}*! 🚀🪙\n\n`;
+            msg += `Valor original: R$ ${dadosCalculadosFitcoin.valorOriginalBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
+            msg += `Total de FitCoins equivalentes: ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT\n\n`;
+            msg += `Segue o comprovante de pagamento em anexo para ativação imediata da minha conta!`;
+
+            window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.enviarComprovantePixFacilitadoWhatsApp = enviarComprovantePixFacilitadoWhatsApp;
 
         async function pagarPlanoComPhantom() {
             const btn = document.getElementById('btn-pagar-phantom-modal');
@@ -3655,7 +4052,7 @@
                 }
 
                 if (typeof solanaWeb3 === 'undefined' || typeof splToken === 'undefined') {
-                    alert(`Phantom conectada (${userPubkey.toBase58().slice(0, 6)}...${userPubkey.toBase58().slice(-4)})!\n\nEnvie ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT para a carteira BragaPay:\n4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy\n\nDepois clique em 'JÁ ENVIEI OS FITCOINS' para liberar!`);
+                    alert(`Phantom conectada (${userPubkey.toBase58().slice(0, 6)}...${userPubkey.toBase58().slice(-4)})!\n\nEnvie ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT para a carteira BragaPay:\n${FITCOIN_SOLANA_CONFIG.walletReceiver}\n\nDepois clique em 'JÁ ENVIEI OS FITCOINS' para liberar!`);
                     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
                     return;
                 }
@@ -3680,7 +4077,6 @@
                     splToken.ASSOCIATED_TOKEN_PROGRAM_ID
                 );
 
-                // Quantidade com 6 casas decimais
                 const amountRaw = BigInt(dadosCalculadosFitcoin.fitTokens) * BigInt(1000000);
 
                 const tx = new solanaWeb3.Transaction();
@@ -3703,7 +4099,7 @@
                 const { signature } = await provider.signAndSendTransaction(tx);
 
                 if (btn) btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Pagamento Enviado com Sucesso!';
-                alert(`🎉 SUCESSO!\n\nTransferência de ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT enviada na Solana!\nHash: ${signature.slice(0, 16)}...\n\nSua conta será liberada com o desconto de 22%!`);
+                alert(`🎉 SUCESSO!\n\nTransferência de ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT enviada na Solana!\nHash: ${signature.slice(0, 16)}...\n\nSua conta será liberada com o desconto de ${FITCOIN_SOLANA_CONFIG.discountPercent || 22}%!`);
                 enviarComprovanteFitcoinTransferidoWhatsApp(signature);
 
             } catch (err) {
@@ -3723,12 +4119,13 @@
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
 
             let msg = `Olá Edwan! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\n`;
-            msg += `Quero pagar meu plano no Litrão do Reset aproveitando o *DESCONTO DE 22% DA FITCOIN*! 🔥\n\n`;
+            msg += `Quero pagar meu plano no Litrão do Reset aproveitando o *DESCONTO DE ${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% DA FITCOIN*! 🔥\n\n`;
             msg += `📋 *Plano Selecionado:* ${p.nome}\n`;
             msg += `💰 *Valor Normal:* R$ ${dadosCalculadosFitcoin.valorOriginalBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
-            msg += `⭐ *Valor c/ 22% OFF FitCoin:* R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT)\n`;
-            msg += `📅 *Mensalidade c/ 22% OFF:* R$ ${dadosCalculadosFitcoin.mensalidadeComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês (${dadosCalculadosFitcoin.mensalidadeFitTokens.toLocaleString('pt-BR')} FIT)\n\n`;
-            msg += `Não entendo de carteira virtual/cripto e quero garantir meus 22% de desconto no Pix facilitado. Como faço para efetuar o pagamento e liberar minha conta?`;
+            msg += `⭐ *Valor c/ ${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% OFF FitCoin:* R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT)\n`;
+            msg += `📅 *Mensalidade c/ Desconto:* R$ ${dadosCalculadosFitcoin.mensalidadeComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês (${dadosCalculadosFitcoin.mensalidadeFitTokens.toLocaleString('pt-BR')} FIT)\n\n`;
+            msg += `Chave PIX: ${FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com'}\n`;
+            msg += `Estou com o QR Code na tela e gostaria de confirmar para ativação rápida.`;
 
             window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
         }
@@ -3740,7 +4137,7 @@
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
 
             let msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\n`;
-            msg += `Acabei de transferir *${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FitCoins ($FIT)* referente ao *${p.nome}* com *22% DE DESCONTO* para a carteira oficial BragaPay na Solana! 🚀🪙\n\n`;
+            msg += `Acabei de transferir *${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FitCoins ($FIT)* referente ao *${p.nome}* com *${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% DE DESCONTO* para a carteira oficial BragaPay na Solana! 🚀🪙\n\n`;
             msg += `Valor em Reais equivalente: R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
             if (hashTx) {
                 msg += `🔗 *Hash da Transação Solana:* https://solscan.io/tx/${hashTx}\n`;
@@ -3771,10 +4168,350 @@
             if (!modal) return;
             modal.classList.remove('hidden');
 
+            // BOTÃO EXCLUSIVO SUPERADMIN: Somente visível para o ID 433005811
+            const btnSuperAdmin = document.getElementById('btn-configurar-planos-superadmin');
+            if (btnSuperAdmin) {
+                if (isSuperAdminLogado()) {
+                    btnSuperAdmin.classList.remove('hidden');
+                } else {
+                    btnSuperAdmin.classList.add('hidden');
+                }
+            }
+
             // Garante seleção inicial
             selecionarPlano(planoSelecionadoAtual || 'plano1');
         }
         window.abrirModalPromocao = abrirModalPromocao;
+
+        // ==========================================
+        // MÓDULO EXCLUSIVO SUPERADMIN: CONFIGURAÇÃO DE PLANOS & FITCOIN
+        // ==========================================
+        function abrirModalConfiguracaoPlanosSuperadmin() {
+            if (!isSuperAdminLogado()) {
+                alert("Acesso restrito exclusivamente ao SuperAdmin do Litrão do Reset.");
+                return;
+            }
+
+            // Preenche os campos com os valores atuais de DADOS_PLANOS
+            const p1 = DADOS_PLANOS.plano1;
+            const p2 = DADOS_PLANOS.plano2;
+            const p3 = DADOS_PLANOS.plano3;
+
+            const inP1Nome = document.getElementById('cfg-p1-nome');
+            const inP1Adesao = document.getElementById('cfg-p1-adesao');
+            const inP1Mensal = document.getElementById('cfg-p1-mensalidade');
+            const inP1Desc = document.getElementById('cfg-p1-desc');
+
+            const inP2Nome = document.getElementById('cfg-p2-nome');
+            const inP2Adesao = document.getElementById('cfg-p2-adesao');
+            const inP2Mensal = document.getElementById('cfg-p2-mensalidade');
+            const inP2Desc = document.getElementById('cfg-p2-desc');
+
+            const inP3Nome = document.getElementById('cfg-p3-nome');
+            const inP3Adesao = document.getElementById('cfg-p3-adesao');
+            const inP3Mensal = document.getElementById('cfg-p3-mensalidade');
+            const inP3Desc = document.getElementById('cfg-p3-desc');
+
+            const inFitDesc = document.getElementById('cfg-fit-desconto');
+            const inFitPar = document.getElementById('cfg-fit-paridade');
+            const inFitCart = document.getElementById('cfg-fit-carteira');
+            const inFitMint = document.getElementById('cfg-fit-mint');
+            const inFitChave = document.getElementById('cfg-fit-pix-chave');
+            const inFitTitular = document.getElementById('cfg-fit-pix-titular');
+
+            if (inP1Nome) inP1Nome.value = p1.nome || 'Start Pro';
+            if (inP1Adesao) inP1Adesao.value = p1.valorAdesaoNum || 199.00;
+            if (inP1Mensal) inP1Mensal.value = p1.valorMensalidadeNum || 99.00;
+            if (inP1Desc) inP1Desc.value = p1.descricaoMensalidade || 'Mensalidade de R$ 99,00 após 30 dias';
+
+            if (inP2Nome) inP2Nome.value = p2.nome || 'Vitalício Smart';
+            if (inP2Adesao) inP2Adesao.value = p2.valorAdesaoNum || 497.00;
+            if (inP2Mensal) inP2Mensal.value = p2.valorMensalidadeNum || 25.00;
+            if (inP2Desc) inP2Desc.value = p2.descricaoMensalidade || 'Mensalidade de apenas R$ 25,00 após 30 dias';
+
+            if (inP3Nome) inP3Nome.value = p3.nome || 'Master VIP';
+            if (inP3Adesao) inP3Adesao.value = p3.valorAdesaoNum || 1299.00;
+            if (inP3Mensal) inP3Mensal.value = p3.valorMensalidadeNum || 49.00;
+            if (inP3Desc) inP3Desc.value = p3.descricaoMensalidade || 'Mensalidade de apenas R$ 49,00 após 30 dias';
+
+            if (inFitDesc) inFitDesc.value = FITCOIN_SOLANA_CONFIG.discountPercent || 22;
+            if (inFitPar) inFitPar.value = FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10;
+            if (inFitCart) inFitCart.value = FITCOIN_SOLANA_CONFIG.walletReceiver || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
+            if (inFitMint) inFitMint.value = FITCOIN_SOLANA_CONFIG.mintAddress || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK';
+            if (inFitChave) inFitChave.value = FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com';
+            if (inFitTitular) inFitTitular.value = FITCOIN_SOLANA_CONFIG.pixTitular || 'LUCIA SANTANA S. BRAGA';
+
+            const modal = document.getElementById('modal-configuracao-planos-superadmin');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalConfiguracaoPlanosSuperadmin = abrirModalConfiguracaoPlanosSuperadmin;
+
+        function fecharModalConfiguracaoPlanosSuperadmin() {
+            const modal = document.getElementById('modal-configuracao-planos-superadmin');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalConfiguracaoPlanosSuperadmin = fecharModalConfiguracaoPlanosSuperadmin;
+
+        async function salvarConfiguracaoPlanosSuperadmin(e) {
+            if (e) e.preventDefault();
+            if (!isSuperAdminLogado()) {
+                alert("Acesso restrito exclusivamente ao SuperAdmin.");
+                return;
+            }
+
+            const feedback = document.getElementById('cfg-planos-feedback');
+            const btnSalvar = document.getElementById('btn-salvar-cfg-planos');
+            const origHtml = btnSalvar ? btnSalvar.innerHTML : '';
+
+            try {
+                if (btnSalvar) {
+                    btnSalvar.disabled = true;
+                    btnSalvar.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando Configurações...';
+                }
+
+                // Captura novos dados
+                const p1Adesao = parseFloat(document.getElementById('cfg-p1-adesao')?.value) || 199.00;
+                const p1Mensal = parseFloat(document.getElementById('cfg-p1-mensalidade')?.value) || 99.00;
+                const p1Nome = (document.getElementById('cfg-p1-nome')?.value || 'Start Pro').trim();
+                const p1Desc = (document.getElementById('cfg-p1-desc')?.value || `Mensalidade de R$ ${p1Mensal.toFixed(2)} após 30 dias`).trim();
+
+                const p2Adesao = parseFloat(document.getElementById('cfg-p2-adesao')?.value) || 497.00;
+                const p2Mensal = parseFloat(document.getElementById('cfg-p2-mensalidade')?.value) || 25.00;
+                const p2Nome = (document.getElementById('cfg-p2-nome')?.value || 'Vitalício Smart').trim();
+                const p2Desc = (document.getElementById('cfg-p2-desc')?.value || `Mensalidade de apenas R$ ${p2Mensal.toFixed(2)} após 30 dias`).trim();
+
+                const p3Adesao = parseFloat(document.getElementById('cfg-p3-adesao')?.value) || 1299.00;
+                const p3Mensal = parseFloat(document.getElementById('cfg-p3-mensalidade')?.value) || 49.00;
+                const p3Nome = (document.getElementById('cfg-p3-nome')?.value || 'Master VIP').trim();
+                const p3Desc = (document.getElementById('cfg-p3-desc')?.value || `Mensalidade de apenas R$ ${p3Mensal.toFixed(2)} após 30 dias`).trim();
+
+                const fitDesc = parseFloat(document.getElementById('cfg-fit-desconto')?.value) || 22;
+                const fitPar = parseFloat(document.getElementById('cfg-fit-paridade')?.value) || 10;
+                const fitCart = (document.getElementById('cfg-fit-carteira')?.value || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy').trim();
+                const fitMint = (document.getElementById('cfg-fit-mint')?.value || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK').trim();
+                const fitChave = (document.getElementById('cfg-fit-pix-chave')?.value || 'maisappsmobile@gmail.com').trim();
+                const fitTitular = (document.getElementById('cfg-fit-pix-titular')?.value || 'LUCIA SANTANA S. BRAGA').trim();
+
+                // Atualiza em memória
+                DADOS_PLANOS.plano1 = {
+                    id: 'plano1',
+                    nome: p1Nome,
+                    adesao: `R$ ${p1Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    valorAdesaoNum: p1Adesao,
+                    mensalidade: `R$ ${p1Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
+                    valorMensalidadeNum: p1Mensal,
+                    descricaoMensalidade: p1Desc,
+                    payloadPix: gerarPixPayloadDinamico(p1Adesao, `RESET${Math.round(p1Adesao)}`)
+                };
+
+                DADOS_PLANOS.plano2 = {
+                    id: 'plano2',
+                    nome: p2Nome,
+                    adesao: `R$ ${p2Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    valorAdesaoNum: p2Adesao,
+                    mensalidade: `R$ ${p2Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
+                    valorMensalidadeNum: p2Mensal,
+                    descricaoMensalidade: p2Desc,
+                    payloadPix: gerarPixPayloadDinamico(p2Adesao, `RESET${Math.round(p2Adesao)}`)
+                };
+
+                DADOS_PLANOS.plano3 = {
+                    id: 'plano3',
+                    nome: p3Nome,
+                    adesao: `R$ ${p3Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    valorAdesaoNum: p3Adesao,
+                    mensalidade: `R$ ${p3Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
+                    valorMensalidadeNum: p3Mensal,
+                    descricaoMensalidade: p3Desc,
+                    payloadPix: gerarPixPayloadDinamico(p3Adesao, `RESET${Math.round(p3Adesao)}`)
+                };
+
+                FITCOIN_SOLANA_CONFIG = {
+                    walletReceiver: fitCart,
+                    mintAddress: fitMint,
+                    discountPercent: fitDesc,
+                    tokensPerBrl: fitPar,
+                    pixChave: fitChave,
+                    pixTitular: fitTitular
+                };
+
+                const configExport = {
+                    planos: DADOS_PLANOS,
+                    fitcoin: FITCOIN_SOLANA_CONFIG,
+                    atualizadoEm: new Date().toISOString()
+                };
+
+                // 1. Salva em localStorage
+                localStorage.setItem('cfg_planos_superadmin', JSON.stringify(configExport));
+
+                // 2. Salva no Supabase na linha do SuperAdmin
+                if (consultorAtual && String(consultorAtual.herbalife_id || '').trim() === '433005811') {
+                    let rawEspaco = consultorAtual.nome_espaco || '';
+                    const tagNova = `<!--CONFIG_PLANOS:${JSON.stringify(configExport)}-->`;
+
+                    if (rawEspaco.includes('<!--CONFIG_PLANOS:')) {
+                        rawEspaco = rawEspaco.replace(/<!--CONFIG_PLANOS:[\s\S]*?-->/, tagNova);
+                    } else {
+                        rawEspaco = rawEspaco + ' ' + tagNova;
+                    }
+
+                    const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ nome_espaco: rawEspaco })
+                    });
+
+                    if (res.ok) {
+                        consultorAtual.nome_espaco = rawEspaco;
+                    }
+                }
+
+                // 3. Atualiza na tela
+                aplicarConfiguracoesPlanosNaTela();
+                selecionarPlano(planoSelecionadoAtual || 'plano1');
+
+                if (feedback) {
+                    feedback.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border-2 border-emerald-400 block animate-fade-in";
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-sm"></i> <strong>Configurações salvas com sucesso!</strong> Valores e regras atualizados em todo o sistema.';
+                }
+
+                setTimeout(() => {
+                    fecharModalConfiguracaoPlanosSuperadmin();
+                    if (feedback) feedback.classList.add('hidden');
+                }, 1800);
+
+            } catch (err) {
+                console.error("Erro ao salvar configurações dos planos:", err);
+                if (feedback) {
+                    feedback.className = "p-3 rounded-xl text-xs font-bold bg-red-100 text-red-900 border-2 border-red-400 block";
+                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro ao salvar: ${err.message || 'Tente novamente'}`;
+                }
+            } finally {
+                if (btnSalvar) {
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = origHtml;
+                }
+            }
+        }
+        window.salvarConfiguracaoPlanosSuperadmin = salvarConfiguracaoPlanosSuperadmin;
+
+        function restaurarPadroesPlanosSuperadmin() {
+            if (!confirm("Deseja restaurar os planos e FitCoin para os valores oficiais originais?")) return;
+
+            DADOS_PLANOS = {
+                plano1: {
+                    id: 'plano1',
+                    nome: 'Start Pro',
+                    adesao: 'R$ 199,00',
+                    valorAdesaoNum: 199.00,
+                    mensalidade: 'R$ 99,00/mês',
+                    valorMensalidadeNum: 99.00,
+                    descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
+                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3'
+                },
+                plano2: {
+                    id: 'plano2',
+                    nome: 'Vitalício Smart',
+                    adesao: 'R$ 497,00',
+                    valorAdesaoNum: 497.00,
+                    mensalidade: 'R$ 25,00/mês',
+                    valorMensalidadeNum: 25.00,
+                    descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
+                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406497.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET49763049BD6'
+                },
+                plano3: {
+                    id: 'plano3',
+                    nome: 'Master VIP',
+                    adesao: 'R$ 1.299,00',
+                    valorAdesaoNum: 1299.00,
+                    mensalidade: 'R$ 49,00/mês',
+                    valorMensalidadeNum: 49.00,
+                    descricaoMensalidade: 'Mensalidade de apenas R$ 49,00 após 30 dias',
+                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com52040000530398654071299.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62130509RESET129963049F23'
+                }
+            };
+
+            FITCOIN_SOLANA_CONFIG = {
+                walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+                mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
+                discountPercent: 22,
+                tokensPerBrl: 10,
+                pixChave: 'maisappsmobile@gmail.com',
+                pixTitular: 'LUCIA SANTANA S. BRAGA'
+            };
+
+            localStorage.removeItem('cfg_planos_superadmin');
+            aplicarConfiguracoesPlanosNaTela();
+            abrirModalConfiguracaoPlanosSuperadmin();
+            selecionarPlano(planoSelecionadoAtual || 'plano1');
+            alert("Valores restaurados para o padrão original!");
+        }
+        window.restaurarPadroesPlanosSuperadmin = restaurarPadroesPlanosSuperadmin;
+
+        function carregarConfiguracoesPlanosSuperadmin() {
+            try {
+                // Tenta carregar do localStorage primeiro
+                const local = localStorage.getItem('cfg_planos_superadmin');
+                if (local) {
+                    const parsed = JSON.parse(local);
+                    if (parsed.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsed.planos);
+                    if (parsed.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsed.fitcoin);
+                }
+
+                // Tenta carregar da tag do consultor logado (se for SuperAdmin ou se houver no objeto)
+                if (consultorAtual && consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--CONFIG_PLANOS:')) {
+                    const match = consultorAtual.nome_espaco.match(/<!--CONFIG_PLANOS:([\s\S]*?)-->/);
+                    if (match && match[1]) {
+                        const parsedRemote = JSON.parse(match[1]);
+                        if (parsedRemote.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsedRemote.planos);
+                        if (parsedRemote.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsedRemote.fitcoin);
+                    }
+                }
+
+                aplicarConfiguracoesPlanosNaTela();
+            } catch (e) {
+                console.warn("Aviso ao carregar configurações de planos:", e);
+            }
+        }
+        window.carregarConfiguracoesPlanosSuperadmin = carregarConfiguracoesPlanosSuperadmin;
+
+        function aplicarConfiguracoesPlanosNaTela() {
+            // Atualiza Card 1
+            const p1Nome = document.getElementById('card-plano1-nome');
+            const p1Adesao = document.getElementById('card-plano1-adesao');
+            const p1Mensal = document.getElementById('card-plano1-mensalidade');
+            if (p1Nome && DADOS_PLANOS.plano1) p1Nome.innerText = DADOS_PLANOS.plano1.nome;
+            if (p1Adesao && DADOS_PLANOS.plano1) p1Adesao.innerText = DADOS_PLANOS.plano1.adesao;
+            if (p1Mensal && DADOS_PLANOS.plano1) p1Mensal.innerText = `+ ${DADOS_PLANOS.plano1.mensalidade}`;
+
+            // Atualiza Card 2
+            const p2Nome = document.getElementById('card-plano2-nome');
+            const p2Adesao = document.getElementById('card-plano2-adesao');
+            const p2Mensal = document.getElementById('card-plano2-mensalidade');
+            if (p2Nome && DADOS_PLANOS.plano2) p2Nome.innerText = DADOS_PLANOS.plano2.nome;
+            if (p2Adesao && DADOS_PLANOS.plano2) p2Adesao.innerText = DADOS_PLANOS.plano2.adesao;
+            if (p2Mensal && DADOS_PLANOS.plano2) p2Mensal.innerText = `+ ${DADOS_PLANOS.plano2.mensalidade}`;
+
+            // Atualiza Card 3
+            const p3Nome = document.getElementById('card-plano3-nome');
+            const p3Adesao = document.getElementById('card-plano3-adesao');
+            const p3Mensal = document.getElementById('card-plano3-mensalidade');
+            if (p3Nome && DADOS_PLANOS.plano3) p3Nome.innerText = DADOS_PLANOS.plano3.nome;
+            if (p3Adesao && DADOS_PLANOS.plano3) p3Adesao.innerText = DADOS_PLANOS.plano3.adesao;
+            if (p3Mensal && DADOS_PLANOS.plano3) p3Mensal.innerText = `+ ${DADOS_PLANOS.plano3.mensalidade}`;
+
+            // Atualiza Chave Pix e Titular exibidos no box do Pix Facilitado
+            const elChavePix = document.getElementById('txt-chave-pix-facilitada');
+            const elFavorecidaPix = document.getElementById('txt-favorecida-pix-facilitada');
+            if (elChavePix) elChavePix.innerText = FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com';
+            if (elFavorecidaPix) elFavorecidaPix.innerText = FITCOIN_SOLANA_CONFIG.pixTitular || 'LUCIA SANTANA S. BRAGA';
+        }
+        window.aplicarConfiguracoesPlanosNaTela = aplicarConfiguracoesPlanosNaTela;
 
         function fecharModalPromocao() {
             const modal = document.getElementById('modal-promocao-pix');
@@ -4615,13 +5352,31 @@
 
         function verificarSuperAdmin() {
             const cardContainer = document.getElementById('card-superadmin-container');
-            if (!cardContainer) return;
+            const btnModalSuperAdmin = document.getElementById('btn-configurar-planos-superadmin');
+            const isSA = isSuperAdminLogado();
 
-            if (isSuperAdminLogado()) {
-                cardContainer.classList.remove('hidden');
-                carregarConsultoresSuperadmin();
-            } else {
-                cardContainer.classList.add('hidden');
+            if (cardContainer) {
+                if (isSA) {
+                    cardContainer.classList.remove('hidden');
+                    carregarConsultoresSuperadmin();
+                } else {
+                    cardContainer.classList.add('hidden');
+                }
+            }
+
+            if (btnModalSuperAdmin) {
+                if (isSA) {
+                    btnModalSuperAdmin.classList.remove('hidden');
+                } else {
+                    btnModalSuperAdmin.classList.add('hidden');
+                }
+            }
+
+            // Carrega as configurações personalizadas de planos e FitCoin salvas pelo SuperAdmin
+            try {
+                carregarConfiguracoesPlanosSuperadmin();
+            } catch (e) {
+                console.warn("Aviso ao inicializar configurações de planos:", e);
             }
         }
 
