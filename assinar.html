@@ -117,13 +117,49 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Seu WhatsApp</label>
-                    <div class="relative">
-                        <i class="fa-brands fa-whatsapp absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="text" id="zap" required placeholder="5511999999999" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light">
+                <!-- WHATSAPP COM CÓDIGO DO PAÍS NO AUTOMÁTICO -->
+                <div class="bg-emerald-50/60 p-4 border border-emerald-200/90 rounded-2xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-black text-gray-900">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 mr-1 text-base"></i> Seu WhatsApp <span class="text-red-500">*</span>
+                        </label>
+                        <span class="text-[10px] font-black bg-emerald-600 text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs tracking-wider uppercase">
+                            <i class="fa-solid fa-bolt text-yellow-300"></i> País no Automático
+                        </span>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-1 ml-1"><i class="fa-solid fa-info-circle"></i> Apenas números. Comece com 55.</p>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Seletor do Código DDI do País (Preenchido no Automático) -->
+                        <div class="relative shrink-0">
+                            <select id="ddi-pais" onchange="atualizarDdiWhatsApp()" class="appearance-none bg-white border-2 border-emerald-300 hover:border-emerald-500 rounded-xl pl-3 pr-8 py-3 text-xs sm:text-sm font-black text-emerald-950 focus:outline-none focus:ring-2 focus:ring-brand-light cursor-pointer shadow-xs transition">
+                                <option value="55" selected>🇧🇷 +55 (Brasil)</option>
+                                <option value="1">🇺🇸 +1 (EUA / CAN)</option>
+                                <option value="351">🇵🇹 +351 (Portugal)</option>
+                                <option value="595">🇵🇾 +595 (Paraguai)</option>
+                                <option value="591">🇧🇴 +591 (Bolívia)</option>
+                                <option value="54">🇦🇷 +54 (Argentina)</option>
+                                <option value="56">🇨🇱 +56 (Chile)</option>
+                                <option value="598">🇺🇾 +598 (Uruguai)</option>
+                                <option value="34">🇪🇸 +34 (Espanha)</option>
+                                <option value="81">🇯🇵 +81 (Japão)</option>
+                                <option value="outro">🌍 Outro DDI</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-4 text-emerald-700 text-xs pointer-events-none"></i>
+                        </div>
+
+                        <!-- Campo manual caso escolha Outro DDI -->
+                        <input type="text" id="ddi-outro" placeholder="+DDI" class="hidden w-20 px-2 py-3 bg-white border-2 border-emerald-300 rounded-xl text-xs font-black text-center focus:outline-none focus:ring-2 focus:ring-brand-light">
+
+                        <!-- Campo do WhatsApp com Máscara e Detecção Automática -->
+                        <div class="relative flex-1">
+                            <input type="tel" id="zap" required oninput="mascararWhatsAppInput(this)" placeholder="(11) 99999-9999" class="w-full px-4 py-3 bg-white border-2 border-gray-200 focus:border-emerald-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-black text-gray-900 text-sm sm:text-base transition">
+                        </div>
+                    </div>
+
+                    <p id="legenda-zap-auto" class="text-[11px] text-emerald-900 font-semibold mt-1 flex items-center gap-1.5 leading-snug">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+                        <span>O código do país <strong>(+55 Brasil)</strong> já é colocado <strong>no automático</strong>! Digite apenas o seu DDD e o número celular.</span>
+                    </p>
                 </div>
 
                 <!-- REDES SOCIAIS DO CONSULTOR (OPCIONAIS) -->
@@ -525,6 +561,78 @@
             window.location.href = 'painel.html';
         }
 
+        // LÓGICA DE DDI E CÓDIGO DO PAÍS NO AUTOMÁTICO
+        function atualizarDdiWhatsApp() {
+            const selectDdi = document.getElementById('ddi-pais');
+            const ddiOutro = document.getElementById('ddi-outro');
+            const zap = document.getElementById('zap');
+            const legenda = document.getElementById('legenda-zap-auto');
+            if (!selectDdi || !zap) return;
+
+            if (selectDdi.value === 'outro') {
+                if (ddiOutro) {
+                    ddiOutro.classList.remove('hidden');
+                    ddiOutro.focus();
+                }
+                zap.placeholder = "Número internacional...";
+                if (legenda) {
+                    legenda.innerHTML = `<i class="fa-solid fa-globe text-blue-600 text-xs"></i> <span>Digite o DDI do seu país no campo lateral e o número celular.</span>`;
+                }
+            } else {
+                if (ddiOutro) ddiOutro.classList.add('hidden');
+                if (selectDdi.value === '55') {
+                    zap.placeholder = "(11) 99999-9999";
+                    if (legenda) {
+                        legenda.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> <span>O código do país <strong>(+55 Brasil)</strong> já é colocado <strong>no automático</strong>! Digite apenas o seu DDD e o número celular.</span>`;
+                    }
+                } else {
+                    const textoOpt = selectDdi.options[selectDdi.selectedIndex]?.text || '';
+                    zap.placeholder = "Número com código de área";
+                    if (legenda) {
+                        legenda.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> <span>Código <strong>+${selectDdi.value} (${textoOpt.split(' ')[0]})</strong> adicionado no automático!</span>`;
+                    }
+                }
+            }
+            mascararWhatsAppInput(zap);
+        }
+        window.atualizarDdiWhatsApp = atualizarDdiWhatsApp;
+
+        function mascararWhatsAppInput(el) {
+            if (!el) return;
+            const selectDdi = document.getElementById('ddi-pais');
+            const ddi = selectDdi ? selectDdi.value : '55';
+
+            let val = el.value.replace(/\D/g, '');
+
+            // Se o DDI for Brasil (55)
+            if (ddi === '55') {
+                // Se a pessoa colou o número já começando com 55 (ex: 5511999998888 ou 551188887777)
+                if (val.startsWith('55') && val.length > 11) {
+                    val = val.slice(2);
+                }
+
+                // Limita a 11 dígitos locais (DDD + 9 dígitos)
+                if (val.length > 11) val = val.slice(0, 11);
+
+                // Aplica a máscara brasileira de forma dinâmica e elegante
+                if (val.length > 10) {
+                    el.value = `(${val.slice(0, 2)}) ${val.slice(2, 7)}-${val.slice(7)}`;
+                } else if (val.length > 6) {
+                    el.value = `(${val.slice(0, 2)}) ${val.slice(2, 6)}-${val.slice(6)}`;
+                } else if (val.length > 2) {
+                    el.value = `(${val.slice(0, 2)}) ${val.slice(2)}`;
+                } else if (val.length > 0) {
+                    el.value = `(${val}`;
+                } else {
+                    el.value = '';
+                }
+            } else {
+                // Para outros países, aceita dígitos livres
+                el.value = val.slice(0, 15);
+            }
+        }
+        window.mascararWhatsAppInput = mascararWhatsAppInput;
+
         // LÓGICA DE ESTADOS E CIDADES (API IBGE)
         function mudarPais(pais) {
             const isBrasil = pais === 'Brasil';
@@ -536,6 +644,17 @@
             document.getElementById('input-estado-livre').required = !isBrasil;
             document.getElementById('input-cidade-livre').classList.toggle('hidden', isBrasil);
             document.getElementById('input-cidade-livre').required = !isBrasil;
+
+            // Sincroniza o DDI no automático de acordo com a seleção de país
+            const selectDdi = document.getElementById('ddi-pais');
+            if (selectDdi) {
+                if (isBrasil) {
+                    selectDdi.value = '55';
+                } else if (selectDdi.value === '55') {
+                    selectDdi.value = 'outro';
+                }
+                atualizarDdiWhatsApp();
+            }
         }
 
         async function carregarCidades(uf) {
@@ -578,7 +697,43 @@
                 return;
             }
 
-            const zap = document.getElementById('zap').value.replace(/\D/g, '');
+            // Captura do WhatsApp com DDI colocado no automático
+            const selectDdi = document.getElementById('ddi-pais');
+            let ddi = selectDdi ? selectDdi.value : '55';
+            if (ddi === 'outro') {
+                ddi = (document.getElementById('ddi-outro')?.value || '').replace(/\D/g, '');
+                if (!ddi) {
+                    alert("Por favor, informe o código do país (DDI) no campo ao lado do seu WhatsApp!");
+                    btn.innerHTML = 'GERAR MEU LINK AGORA';
+                    btn.disabled = false;
+                    document.getElementById('ddi-outro').focus();
+                    return;
+                }
+            }
+
+            let zapLimpo = document.getElementById('zap').value.replace(/\D/g, '');
+            if (ddi === '55' && zapLimpo.startsWith('55') && zapLimpo.length > 11) {
+                zapLimpo = zapLimpo.slice(2);
+            }
+
+            if (ddi === '55' && zapLimpo.length < 10) {
+                alert("Por favor, digite seu WhatsApp completo com DDD (ex: 11 99999-9999)!");
+                btn.innerHTML = 'GERAR MEU LINK AGORA';
+                btn.disabled = false;
+                document.getElementById('zap').focus();
+                return;
+            }
+
+            if (zapLimpo.length < 6) {
+                alert("Por favor, informe um número de telefone válido!");
+                btn.innerHTML = 'GERAR MEU LINK AGORA';
+                btn.disabled = false;
+                document.getElementById('zap').focus();
+                return;
+            }
+
+            // O número final do WhatsApp tem o país colocado no AUTOMÁTICO!
+            const zap = ddi + zapLimpo;
             const cupom = document.getElementById('cupom').value.toUpperCase().trim();
             
             // Slug baseado no ID e primeira letra do consultor
@@ -954,6 +1109,12 @@
             window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
         }
         window.enviarAssinaturaFitcoinWhatsApp = enviarAssinaturaFitcoinWhatsApp;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof atualizarDdiWhatsApp === 'function') {
+                atualizarDdiWhatsApp();
+            }
+        });
     </script>
 </body>
 </html>

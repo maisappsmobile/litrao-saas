@@ -420,10 +420,13 @@
                         </h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="sm:col-span-1">
-                                <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (com DDD) <span class="text-red-500">*</span></label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-gray-700">WhatsApp (com DDD) <span class="text-red-500">*</span></label>
+                                    <span class="text-[9px] font-black bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded uppercase">🇧🇷 +55 Auto</span>
+                                </div>
                                 <div class="relative">
                                     <i class="fa-brands fa-whatsapp absolute left-3 top-2.5 text-green-600 text-sm"></i>
-                                    <input type="tel" id="perfil-whatsapp" required placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                    <input type="tel" id="perfil-whatsapp" required oninput="mascararTelefoneSimples(this)" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
                                 </div>
                             </div>
                             <div class="sm:col-span-1">
@@ -3384,6 +3387,43 @@
         let consultorAtual = null;
 
         const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
+
+        // Utilitário global para normalizar qualquer número de WhatsApp garantindo o código do país (+55) no automático sem duplicar
+        function normalizarNumeroWhatsApp(num) {
+            let n = String(num || '').replace(/\D/g, '');
+            if (!n) return '';
+            // Se tiver duplicação histórica de 55 (ex: 5555...)
+            if (n.startsWith('5555') && n.length > 13) {
+                n = n.slice(2);
+            }
+            // Se for número nacional com 10 ou 11 dígitos, adiciona o DDI 55 no automático!
+            if (!n.startsWith('55') && (n.length === 10 || n.length === 11)) {
+                n = '55' + n;
+            }
+            return n;
+        }
+        window.normalizarNumeroWhatsApp = normalizarNumeroWhatsApp;
+
+        // Máscara dinâmica de telefone simples para inputs
+        function mascararTelefoneSimples(el) {
+            if (!el) return;
+            let val = el.value.replace(/\D/g, '');
+            if (val.startsWith('55') && val.length > 11) val = val.slice(2);
+            if (val.length > 11) val = val.slice(0, 11);
+            if (val.length > 10) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2, 7)}-${val.slice(7)}`;
+            } else if (val.length > 6) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2, 6)}-${val.slice(6)}`;
+            } else if (val.length > 2) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2)}`;
+            } else if (val.length > 0) {
+                el.value = `(${val}`;
+            } else {
+                el.value = '';
+            }
+        }
+        window.mascararTelefoneSimples = mascararTelefoneSimples;
+
         // Utilitários para separação estrita de Letras Herbalife (Sponsor) e Senha do Painel (Acesso)
         function extrairSenhaConsultor(c) {
             if (!c) return '';
@@ -5543,7 +5583,7 @@
                     </td>
                     <td class="p-3 sm:p-4">
                         ${whatsLimpo ? `
-                            <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-emerald-700 hover:text-emerald-800 font-extrabold text-xs sm:text-sm flex items-center gap-1">
+                            <a href="https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}" target="_blank" class="text-emerald-700 hover:text-emerald-800 font-extrabold text-xs sm:text-sm flex items-center gap-1">
                                 <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i> ${c.whatsapp}
                             </a>
                         ` : `<span class="text-gray-400 italic text-xs">Sem whats</span>`}
@@ -7507,7 +7547,7 @@
             cont.innerHTML = filtrados.map(item => {
                 const whatsLimpo = (item.whatsapp || '').replace(/\D/g, '');
                 const msgNiver = encodeURIComponent(`Olá ${item.nome.split(' ')[0]}! 🎉 Parabéns pelo seu aniversário! Que seu novo ciclo seja repleto de saúde, energia e conquistas! Um abraço especial da sua equipe do Litrão do Reset! 🎂✨`);
-                const linkWhats = whatsLimpo ? `https://wa.me/55${whatsLimpo}?text=${msgNiver}` : '#';
+                const linkWhats = whatsLimpo ? `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${msgNiver}` : '#';
 
                 return `
                     <div class="p-3.5 bg-gray-50 hover:bg-purple-50/50 rounded-2xl border border-gray-200 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -9238,7 +9278,7 @@
                                 <i class="fa-solid fa-user text-emerald-600"></i> Dados do Cliente
                             </span>
                             ${whatsLimpo ? `
-                                <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 px-2.5 py-1 rounded-lg transition">
+                                <a href="https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 px-2.5 py-1 rounded-lg transition">
                                     <i class="fa-brands fa-whatsapp text-sm"></i> Chamar no Whats
                                 </a>
                             ` : ''}
@@ -9440,7 +9480,7 @@
                 mensagemStatus + `\n\n` +
                 `_${consultorAtual?.nome_completo || 'Seu Consultor'} • Litrão do Reset_`;
 
-            const url = `https://wa.me/55${whatsLimpo}?text=${encodeURIComponent(textoCompleto)}`;
+            const url = `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent(textoCompleto)}`;
             window.open(url, '_blank');
         }
         window.notificarClienteStatusWhatsApp = notificarClienteStatusWhatsApp;
@@ -10057,7 +10097,7 @@
                             <div class="text-xs text-gray-600 font-semibold flex items-center gap-2 mt-0.5">
                                 <span>Whats: <strong>${pedido.whatsapp_cliente || '-'}</strong></span>
                                 ${whatsLimpo ? `
-                                    <a href="https://wa.me/55${whatsLimpo}" target="_blank" class="text-green-600 hover:text-green-700 font-bold inline-flex items-center gap-0.5 text-xs">
+                                    <a href="https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}" target="_blank" class="text-green-600 hover:text-green-700 font-bold inline-flex items-center gap-0.5 text-xs">
                                         <i class="fa-brands fa-whatsapp"></i> Chamar
                                     </a>
                                 ` : ''}
@@ -10274,7 +10314,7 @@
 
             baixarFotoRelatorioGerada();
             const url = whatsLimpo 
-                ? `https://wa.me/55${whatsLimpo}?text=${encodeURIComponent(msg)}`
+                ? `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent(msg)}`
                 : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
@@ -10428,7 +10468,7 @@
             texto += `💪 *Constância vence o cansaço! Eu estou 100% comprometido(a) com a sua transformação e vamos juntos alcançar sua meta mais rápido!* 🚀\n\n`;
             texto += `_${consultorAtual.nome_completo || 'Seu Consultor Oficial'} • Litrão do Reset_`;
 
-            const url = `https://wa.me/55${whatsLimpo}?text=${encodeURIComponent(texto)}`;
+            const url = `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
         }
 
@@ -11436,7 +11476,7 @@
 
             const nomeConsultor = (document.getElementById('perfil-nome-consultor').value || '').trim();
             const nomeEspaco = (document.getElementById('perfil-nome-espaco').value || '').trim();
-            const zap = (document.getElementById('perfil-whatsapp').value || '').replace(/\D/g, '');
+            let zap = (document.getElementById('perfil-whatsapp').value || '').replace(/\D/g, '');
             const cidade = (document.getElementById('perfil-cidade').value || '').trim();
             const estado = (document.getElementById('perfil-estado').value || '').trim();
 
@@ -11466,6 +11506,8 @@
                 }
                 return;
             }
+            // Garante o código do país (+55 Brasil) no automático
+            zap = normalizarNumeroWhatsApp(zap);
 
             if (novaSenha) {
                 if (novaSenha.length < 3) {

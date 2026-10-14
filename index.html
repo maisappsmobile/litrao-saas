@@ -1039,6 +1039,14 @@
                     return `📞 ${digits}`;
                 }
 
+                function normalizarNumeroWhatsApp(num) {
+                    let n = String(num || '').replace(/\D/g, '');
+                    if (!n) return '';
+                    if (n.startsWith('5555') && n.length > 13) n = n.slice(2);
+                    if (!n.startsWith('55') && (n.length === 10 || n.length === 11)) n = '55' + n;
+                    return n;
+                }
+
                 if (!consultor) {
                     console.warn("Aviso: Link não encontrado no BD. Usando perfil padrão.", error);
                     consultor = {
@@ -1119,14 +1127,15 @@
                     }
                 }
 
+                const whatsConsultorWaMe = normalizarNumeroWhatsApp(consultor.whatsapp);
                 const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
                 const txtPassos = encodeURIComponent("Olá! Acabei de fazer meu cadastro na Herbalife com o seu ID e quero saber os próximos passos para começar.");
 
                 const btnBeneficios = document.getElementById('whatsapp-link-beneficios');
-                if (btnBeneficios) btnBeneficios.href = `https://wa.me/${consultor.whatsapp}?text=${txtBeneficios}`;
+                if (btnBeneficios) btnBeneficios.href = `https://wa.me/${whatsConsultorWaMe}?text=${txtBeneficios}`;
                 
                 const btnPassos = document.getElementById('whatsapp-link-passos');
-                if (btnPassos) btnPassos.href = `https://wa.me/${consultor.whatsapp}?text=${txtPassos}`;
+                if (btnPassos) btnPassos.href = `https://wa.me/${whatsConsultorWaMe}?text=${txtPassos}`;
 
                 // Assinatura Dinâmica no Rodapé (APENAS Nome do Espaço; se não tiver, fica em branco)
                 const footerName = document.getElementById('footer-name');
@@ -1170,7 +1179,7 @@
                     footerPhone.innerText = formatarTelefoneBrasil(consultor.whatsapp);
                 }
                 if (footerPhoneLink && consultor.whatsapp) {
-                    footerPhoneLink.href = `https://wa.me/${consultor.whatsapp}?text=${encodeURIComponent("Olá! Vi o seu site do Litrão do Reset.")}`;
+                    footerPhoneLink.href = `https://wa.me/${whatsConsultorWaMe}?text=${encodeURIComponent("Olá! Vi o seu site do Litrão do Reset.")}`;
                     footerPhoneLink.target = "_blank";
                 }
 
@@ -1339,7 +1348,8 @@
 
                 if (btnBeneficios && consultor && consultor.whatsapp) {
                     const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
-                    btnBeneficios.href = `https://wa.me/${consultor.whatsapp}?text=${txtBeneficios}`;
+                    const whatsNorm = (typeof normalizarNumeroWhatsApp === 'function') ? normalizarNumeroWhatsApp(consultor.whatsapp) : consultor.whatsapp;
+                    btnBeneficios.href = `https://wa.me/${whatsNorm}?text=${txtBeneficios}`;
                     const subTexto = document.getElementById('cta-subtexto-beneficios');
                     if (subTexto) subTexto.innerText = '👉 Toque aqui para falar diretamente no WhatsApp do Consultor';
                 }
