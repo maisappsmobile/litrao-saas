@@ -1153,6 +1153,26 @@
                         <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
 
+                    <!-- CIDADE E ESTADO (UF) DO CONSULTOR -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-purple-50/50 p-3 rounded-2xl border border-purple-200">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
+                                <span><i class="fa-solid fa-city text-purple-600 mr-1"></i> Cidade do Consultor / Espaço</span>
+                                <span class="text-[10px] text-purple-600 font-extrabold">Aparece no Link</span>
+                            </label>
+                            <input type="text" id="superadmin-edit-cidade" placeholder="Ex: Primavera do Leste, Juína, etc." class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
+                                <span><i class="fa-solid fa-map-location-dot text-purple-600 mr-1"></i> Estado (UF)</span>
+                            </label>
+                            <select id="superadmin-edit-estado" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Selecione...</option>
+                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
@@ -5635,9 +5655,27 @@
             document.getElementById('superadmin-edit-id').value = consultor.id || '';
             document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • Letras: ${letrasHerbalife || '---'} • Senha: ${senhaPainel || '---'}`;
             
-            // Extrai dados limpos de nome_espaco e redes sociais
+            // Extrai dados limpos de nome_espaco, cidade, estado e redes sociais
+            const dadosConsultor = (typeof extrairDadosPerfilConsultor === 'function') 
+                ? extrairDadosPerfilConsultor(consultor) 
+                : {};
+
             let textoEspacoLimpo = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
-            document.getElementById('superadmin-edit-nome-espaco').value = textoEspacoLimpo;
+            let nomeBaseExibicao = '';
+
+            if (dadosConsultor.nomeEspaco && dadosConsultor.nomeConsultor) {
+                nomeBaseExibicao = `${dadosConsultor.nomeEspaco} • ${dadosConsultor.nomeConsultor}`;
+            } else if (dadosConsultor.nomeConsultor) {
+                nomeBaseExibicao = dadosConsultor.nomeConsultor;
+            } else if (dadosConsultor.nomeEspaco) {
+                nomeBaseExibicao = dadosConsultor.nomeEspaco;
+            } else {
+                nomeBaseExibicao = textoEspacoLimpo.split('|')[0].replace(/^•\s*/, '').trim();
+            }
+
+            document.getElementById('superadmin-edit-nome-espaco').value = nomeBaseExibicao;
+            document.getElementById('superadmin-edit-cidade').value = dadosConsultor.cidade || '';
+            document.getElementById('superadmin-edit-estado').value = (dadosConsultor.estado || '').toUpperCase();
 
             let sociaisObj = {};
             if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--SOCIAIS:')) {
@@ -5701,6 +5739,24 @@
             const id = document.getElementById('superadmin-edit-id').value;
 
             let nomeEspacoBase = document.getElementById('superadmin-edit-nome-espaco').value.trim();
+            // Remove qualquer pipe residual do nome
+            nomeEspacoBase = nomeEspacoBase.split('|')[0].trim();
+
+            const cidadeEdit = (document.getElementById('superadmin-edit-cidade')?.value || '').trim();
+            const estadoEdit = (document.getElementById('superadmin-edit-estado')?.value || '').trim().toUpperCase();
+
+            // Monta o bloco de localização caso cidade seja informada
+            let localizacao = '';
+            if (cidadeEdit && estadoEdit) {
+                localizacao = `${cidadeEdit} - ${estadoEdit}`;
+            } else if (cidadeEdit) {
+                localizacao = cidadeEdit;
+            }
+
+            if (localizacao) {
+                nomeEspacoBase += ` | ${localizacao}`;
+            }
+
             const ig = document.getElementById('superadmin-edit-ig').value.trim();
             const fb = document.getElementById('superadmin-edit-fb').value.trim();
             const tk = document.getElementById('superadmin-edit-tk').value.trim();
@@ -5742,12 +5798,15 @@
 
             // 3 Letras da Herbalife: apenas letras maiúsculas (máximo 3)
             const letrasEdit = (document.getElementById('superadmin-edit-letras')?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
+            const zapLimpo = (typeof normalizarNumeroWhatsApp === 'function')
+                ? normalizarNumeroWhatsApp(document.getElementById('superadmin-edit-whatsapp').value.trim())
+                : document.getElementById('superadmin-edit-whatsapp').value.trim();
 
             const payload = {
                 nome_espaco: nomeEspacoBase,
                 herbalife_id: document.getElementById('superadmin-edit-herbalife-id').value.trim(),
                 letras: letrasEdit,
-                whatsapp: document.getElementById('superadmin-edit-whatsapp').value.trim(),
+                whatsapp: zapLimpo,
                 status: document.getElementById('superadmin-edit-status').value,
                 vencimento: document.getElementById('superadmin-edit-vencimento').value || null,
                 slug: document.getElementById('superadmin-edit-slug').value.trim() || null
