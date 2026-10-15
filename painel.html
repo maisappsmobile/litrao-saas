@@ -2755,8 +2755,8 @@
                             <i class="fa-solid fa-tag text-xs"></i> APLICAR CUPOM
                         </button>
                     </div>
-                    <p class="text-[10px] text-amber-800 font-bold mt-1.5 ml-0.5">
-                        <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i> O cupom incide exclusivamente sobre a <strong>taxa de adesão inicial</strong>. As mensalidades permanecem inalteradas.
+                    <p class="text-[10px] text-amber-900 font-bold mt-1.5 ml-0.5">
+                        <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i> <strong>Regra de Descontos:</strong> Cupons incidem exclusivamente sobre a taxa de adesão do PIX Normal e <strong>NUNCA são cumulativos</strong> com o desconto promocional de 22% da FitCoin ou outros descontos já aplicados.
                     </p>
                     <div id="cupom-modal-feedback" class="hidden mt-2.5 text-xs font-bold p-2.5 rounded-xl text-center"></div>
                 </div>
@@ -3643,6 +3643,20 @@
             const feedback = document.getElementById('cupom-modal-feedback');
             if (!input || !feedback) return;
 
+            // REGRA: NUNCA APLICAR CUPOM QUANDO JÁ TEVE DESCONTO
+            if (metodoPagamentoAtual === 'fitcoin') {
+                feedback.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-amber-950 bg-amber-100 border-2 border-amber-400 block animate-fade-in";
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-1.5 text-xs font-black text-amber-800">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i> DESCONTOS NÃO CUMULATIVOS!
+                    </div>
+                    <p class="mt-1 text-amber-950 font-semibold text-[11px] leading-relaxed">
+                        Você já está utilizando o desconto promocional de <strong>22% da FitCoin / Pix Facilitado</strong>. Cupons de desconto <strong>NUNCA</strong> podem ser aplicados quando outro desconto já está em vigor. Para usar cupom, selecione o método <strong>PIX (Valor Normal)</strong>.
+                    </p>
+                `;
+                return;
+            }
+
             const codigo = input.value.trim().toUpperCase();
             if (!codigo) {
                 feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-amber-900 bg-amber-100 border border-amber-300 block";
@@ -3869,8 +3883,8 @@
             // Renderiza QR Code do plano com o valor atualizado
             renderizarQrCodePlano(payloadPixFinal);
 
-            // Atualiza valores e cálculos da FitCoin (22% de desconto de incentivo)
-            atualizarValoresFitcoinPlano(valorFinal, planoKey);
+            // Atualiza valores e cálculos da FitCoin (22% de desconto de incentivo sempre sobre o valorBase, sem acumular com cupom)
+            atualizarValoresFitcoinPlano(valorBase, planoKey);
         }
         window.selecionarPlano = selecionarPlano;
 
@@ -3902,8 +3916,29 @@
             const btnFitcoin = document.getElementById('btn-metodo-fitcoin');
             const boxPix = document.getElementById('box-pagamento-pix');
             const boxFitcoin = document.getElementById('box-pagamento-fitcoin');
+            const feedbackCupom = document.getElementById('cupom-modal-feedback');
+            const inputCupom = document.getElementById('cupom-modal-plano');
 
             if (metodo === 'fitcoin') {
+                // REGRA: NUNCA APLICAR CUPOM QUANDO JÁ TEVE DESCONTO
+                // Se havia cupom ativo, anula o cupom pois FitCoin já tem 22% OFF promocional (descontos não cumulativos)
+                if (cupomAtivoModal) {
+                    cupomAtivoModal = null;
+                    if (inputCupom) inputCupom.value = '';
+                    if (feedbackCupom) {
+                        feedbackCupom.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-amber-950 bg-amber-100 border-2 border-amber-400 block animate-fade-in";
+                        feedbackCupom.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-xs font-black text-amber-800">
+                                <i class="fa-solid fa-circle-info text-amber-600"></i> DESCONTOS NÃO CUMULATIVOS
+                            </div>
+                            <p class="mt-1 text-amber-950 font-medium text-[11px]">
+                                O cupom anterior foi desativado automaticamente porque a opção <strong>FitCoin já possui 22% de desconto promocional</strong>.
+                            </p>
+                        `;
+                    }
+                    selecionarPlano(planoSelecionadoAtual);
+                }
+
                 if (btnFitcoin) {
                     btnFitcoin.className = "py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-md border border-amber-400 cursor-pointer scale-[1.01]";
                 }
@@ -4610,10 +4645,23 @@
             const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || "Consultor";
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
             
-            let msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\nAcabei de realizar o PIX de adesão no valor de *${p.adesao}* referente ao *${p.nome}* no Litrão do Reset! 🚀\n`;
+            let valorAdesao = p.adesao;
+            if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+                const desc = (p.valorAdesaoNum * cupomAtivoModal.descontoPorcentagem) / 100;
+                const vf = Math.max(1, p.valorAdesaoNum - desc);
+                valorAdesao = `R$ ${vf.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (com ${cupomAtivoModal.descontoPorcentagem}% OFF)`;
+            }
+
+            let msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\nAcabei de realizar o PIX de adesão no valor de *${valorAdesao}* referente ao *${p.nome}* no Litrão do Reset! 🚀\n`;
             
             if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
                 msg += `\n🎟️ *CUPOM APLICADO:* MEUPRESIDENTE\n⭐ *BENEFÍCIO ATIVADO:* Mensalidade promocional de *R$ 20,00/mês* com *60 DIAS DE CARÊNCIA* (1ª mensalidade apenas em ${cupomAtivoModal.dataPrimeiraMensalidade})!\n`;
+            } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+                msg += `\n🎟️ *CUPOM APLICADO:* ${cupomAtivoModal.codigo} (${cupomAtivoModal.descontoPorcentagem}% OFF na taxa de adesão)!\n`;
+                if (cupomAtivoModal.carenciaDias > 0) {
+                    msg += `⭐ *CARÊNCIA ATIVADA:* ${cupomAtivoModal.carenciaDias} dias de carência (1ª mensalidade em ${cupomAtivoModal.dataPrimeiraMensalidade})!\n`;
+                }
+                msg += `\nPlano com mensalidade de *${p.mensalidade}*.\n`;
             } else {
                 msg += `\nPlano com mensalidade de *${p.mensalidade}*.\n`;
             }
