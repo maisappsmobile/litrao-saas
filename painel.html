@@ -3315,6 +3315,45 @@
 
                 <form id="form-configuracao-planos-superadmin" onsubmit="salvarConfiguracaoPlanosSuperadmin(event)" class="space-y-5">
                     
+                    <!-- SEÇÃO: TEMPO & VALIDADES PARA NOVOS CONSULTORES (TRIAL E CICLOS) -->
+                    <div class="bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-400 rounded-2xl p-4 text-left shadow-sm">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-200">
+                            <span class="text-xs font-black text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-clock text-purple-700"></i> Tempo & Duração dos Planos para Novos Consultores
+                            </span>
+                            <span class="text-[10px] bg-purple-200 text-purple-900 font-bold px-2 py-0.5 rounded-md uppercase">Controle de Validade</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">
+                                    Degustação Grátis ao Cadastrar (Trial) *
+                                </label>
+                                <div class="relative">
+                                    <input type="number" min="0" max="365" id="cfg-novos-trial-dias" required value="7" class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-purple-900 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-xs text-purple-700 font-bold">dias</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1 block">Tempo grátis ao criar conta em assinar.html</span>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">
+                                    Ciclo do Plano Start Pro (Mensal) *
+                                </label>
+                                <div class="relative">
+                                    <input type="number" min="1" max="365" id="cfg-p1-dias-ciclo" required value="30" class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-emerald-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-xs text-emerald-700 font-bold">dias</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1 block">Dias acrescidos a cada mensalidade paga</span>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">
+                                    Data Limite dos Planos Vitalícios *
+                                </label>
+                                <input type="date" id="cfg-vitalicio-data" required value="2036-12-31" class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-xs text-amber-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <span class="text-[10px] text-gray-500 mt-1 block">Vencimento dos planos Vitalício / VIP</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- SEÇÃO: PLANO 1 (START PRO) -->
                     <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-4 text-left">
                         <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-200">
@@ -4238,10 +4277,10 @@
             const pKey = planoKey || planoSelecionadoAtual || 'plano1';
             const infoPlano = DADOS_PLANOS[pKey] || DADOS_PLANOS.plano1;
 
-            // 1. Cálculo da nova data de validade (Start Pro +30 dias, Planos Vitalícios permanentes até 2036)
+            // 1. Cálculo da nova data de validade (Start Pro + dias do ciclo configurado pelo SuperAdmin, Planos Vitalícios com data configurada)
             let novoVencimento = '';
             if (pKey === 'plano2' || pKey === 'plano3') {
-                novoVencimento = '2036-12-31';
+                novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
             } else {
                 let baseDate = new Date();
                 if (consultorAtual.vencimento) {
@@ -4256,7 +4295,8 @@
                         }
                     }
                 }
-                baseDate.setDate(baseDate.getDate() + 30);
+                const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
+                baseDate.setDate(baseDate.getDate() + diasCiclo);
                 const anoStr = baseDate.getFullYear();
                 const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
                 const diaStr = String(baseDate.getDate()).padStart(2, '0');
@@ -4625,6 +4665,13 @@
         }
         window.abrirModalPromocao = abrirModalPromocao;
 
+        // Configuração de Tempo & Validades dos Planos (SuperAdmin)
+        let CONFIG_TEMPO_PLANOS = {
+            trialDiasNovosConsultores: 7,
+            diasCicloPlano1: 30,
+            dataVitalicio: '2036-12-31'
+        };
+
         // ==========================================
         // MÓDULO EXCLUSIVO SUPERADMIN: CONFIGURAÇÃO DE PLANOS & FITCOIN
         // ==========================================
@@ -4660,6 +4707,14 @@
             const inFitMint = document.getElementById('cfg-fit-mint');
             const inFitChave = document.getElementById('cfg-fit-pix-chave');
             const inFitTitular = document.getElementById('cfg-fit-pix-titular');
+
+            const inTrialNovos = document.getElementById('cfg-novos-trial-dias');
+            const inCicloP1 = document.getElementById('cfg-p1-dias-ciclo');
+            const inDataVit = document.getElementById('cfg-vitalicio-data');
+
+            if (inTrialNovos) inTrialNovos.value = CONFIG_TEMPO_PLANOS.trialDiasNovosConsultores ?? 7;
+            if (inCicloP1) inCicloP1.value = CONFIG_TEMPO_PLANOS.diasCicloPlano1 ?? 30;
+            if (inDataVit) inDataVit.value = CONFIG_TEMPO_PLANOS.dataVitalicio || '2036-12-31';
 
             if (inP1Nome) inP1Nome.value = p1.nome || 'Start Pro';
             if (inP1Adesao) inP1Adesao.value = p1.valorAdesaoNum || 199.00;
@@ -4710,6 +4765,17 @@
                     btnSalvar.disabled = true;
                     btnSalvar.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando Configurações...';
                 }
+
+                // Captura parâmetros de tempo
+                const trialNovos = parseInt(document.getElementById('cfg-novos-trial-dias')?.value, 10) || 7;
+                const cicloP1 = parseInt(document.getElementById('cfg-p1-dias-ciclo')?.value, 10) || 30;
+                const dataVit = (document.getElementById('cfg-vitalicio-data')?.value || '2036-12-31').trim();
+
+                CONFIG_TEMPO_PLANOS = {
+                    trialDiasNovosConsultores: trialNovos,
+                    diasCicloPlano1: cicloP1,
+                    dataVitalicio: dataVit
+                };
 
                 // Captura novos dados
                 const p1Adesao = parseFloat(document.getElementById('cfg-p1-adesao')?.value) || 199.00;
@@ -4780,6 +4846,7 @@
                 const configExport = {
                     planos: DADOS_PLANOS,
                     fitcoin: FITCOIN_SOLANA_CONFIG,
+                    tempo: CONFIG_TEMPO_PLANOS,
                     atualizadoEm: new Date().toISOString()
                 };
 
@@ -4819,7 +4886,7 @@
 
                 if (feedback) {
                     feedback.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border-2 border-emerald-400 block animate-fade-in";
-                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-sm"></i> <strong>Configurações salvas com sucesso!</strong> Valores e regras atualizados em todo o sistema.';
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-sm"></i> <strong>Configurações salvas com sucesso!</strong> Valores e tempos de planos atualizados em todo o sistema.';
                 }
 
                 setTimeout(() => {
@@ -4844,6 +4911,12 @@
 
         function restaurarPadroesPlanosSuperadmin() {
             if (!confirm("Deseja restaurar os planos e FitCoin para os valores oficiais originais?")) return;
+
+            CONFIG_TEMPO_PLANOS = {
+                trialDiasNovosConsultores: 7,
+                diasCicloPlano1: 30,
+                dataVitalicio: '2036-12-31'
+            };
 
             DADOS_PLANOS = {
                 plano1: {
@@ -4903,6 +4976,7 @@
                     const parsed = JSON.parse(local);
                     if (parsed.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsed.planos);
                     if (parsed.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsed.fitcoin);
+                    if (parsed.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsed.tempo);
                 }
 
                 // Tenta carregar da tag do consultor logado (se for SuperAdmin ou se houver no objeto)
@@ -4912,6 +4986,7 @@
                         const parsedRemote = JSON.parse(match[1]);
                         if (parsedRemote.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsedRemote.planos);
                         if (parsedRemote.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsedRemote.fitcoin);
+                        if (parsedRemote.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsedRemote.tempo);
                     }
                 }
 

@@ -840,9 +840,12 @@
                 }
             }
 
-            // Data de vencimento (7 dias normal, 60 dias de carência se MEUPRESIDENTE, ou carência do cupom)
+            // Data de vencimento (Trial configurado pelo SuperAdmin, 60 dias de carência se MEUPRESIDENTE, ou carência do cupom)
             const hoje = new Date();
-            let diasCarenciaAplicados = 7;
+            let diasCarenciaAplicados = (typeof configTempoAssinar !== 'undefined' && configTempoAssinar && configTempoAssinar.trialDiasNovosConsultores !== undefined)
+                ? parseInt(configTempoAssinar.trialDiasNovosConsultores, 10)
+                : 7;
+
             if (isPresidente) {
                 diasCarenciaAplicados = 60;
             } else if (cupomPorcentagemObj && cupomPorcentagemObj.carenciaDias > 0) {
@@ -977,8 +980,14 @@
         }
 
         // ==========================================
-        // FUNÇÕES FITCOIN COM 22% DE DESCONTO
+        // CONFIGURAÇÕES DE TEMPO & FITCOIN
         // ==========================================
+        let configTempoAssinar = {
+            trialDiasNovosConsultores: 7,
+            diasCicloPlano1: 30,
+            dataVitalicio: '2036-12-31'
+        };
+
         let metodoAssinarAtual = 'pix';
         const FITCOIN_CONFIG_ASSINAR = {
             walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
@@ -988,6 +997,32 @@
         };
 
         let pixDescontoPayloadAtivo = "";
+
+        async function carregarConfigSuperadminEmAssinar() {
+            try {
+                const { data } = await supabaseClient
+                    .from('consultores')
+                    .select('nome_espaco')
+                    .eq('herbalife_id', '433005811')
+                    .single();
+
+                if (data && data.nome_espaco && data.nome_espaco.includes('<!--CONFIG_PLANOS:')) {
+                    const match = data.nome_espaco.match(/<!--CONFIG_PLANOS:([\s\S]*?)-->/);
+                    if (match && match[1]) {
+                        const parsed = JSON.parse(match[1]);
+                        if (parsed.tempo) {
+                            configTempoAssinar = Object.assign(configTempoAssinar, parsed.tempo);
+                        }
+                        if (parsed.fitcoin) {
+                            Object.assign(FITCOIN_CONFIG_ASSINAR, parsed.fitcoin);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Aviso ao carregar config em assinar:", err);
+            }
+        }
+        window.carregarConfigSuperadminEmAssinar = carregarConfigSuperadminEmAssinar;
 
         function alternarMetodoAssinar(metodo) {
             metodoAssinarAtual = metodo;
@@ -1104,12 +1139,16 @@
                     rawEspaco = rawEspaco + ' ' + tagTx;
                 }
 
-                // Ativação Imediata: Status Ativo e Vencimento Vitalício (2036-12-31)
+                // Ativação Imediata: Status Ativo e Vencimento Vitalício (configurado pelo SuperAdmin)
+                const vencimentoVitalicio = (typeof configTempoAssinar !== 'undefined' && configTempoAssinar && configTempoAssinar.dataVitalicio)
+                    ? configTempoAssinar.dataVitalicio
+                    : '2036-12-31';
+
                 const { error } = await supabaseClient
                     .from('consultores')
                     .update({
                         status: 'Ativo',
-                        vencimento: '2036-12-31',
+                        vencimento: vencimentoVitalicio,
                         nome_espaco: rawEspaco
                     })
                     .eq('herbalife_id', dados.hid);
@@ -1292,6 +1331,9 @@
         window.enviarAssinaturaFitcoinWhatsApp = enviarAssinaturaFitcoinWhatsApp;
 
         document.addEventListener('DOMContentLoaded', () => {
+            if (typeof carregarConfigSuperadminEmAssinar === 'function') {
+                carregarConfigSuperadminEmAssinar();
+            }
             if (typeof atualizarDdiWhatsApp === 'function') {
                 atualizarDdiWhatsApp();
             }
