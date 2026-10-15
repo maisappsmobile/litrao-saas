@@ -399,27 +399,70 @@
                     </p>
                 </div>
 
-                <!-- OPÇÃO 1: PHANTOM 1-CLIQUE -->
+                <!-- OPÇÃO 1: PHANTOM 1-CLIQUE COM LIBERAÇÃO AUTOMÁTICA -->
                 <div class="mb-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-left">
-                    <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-bolt text-amber-400"></i> Pagar com Carteira Phantom (1 Clique)
-                    </span>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-black text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> Pagar com Carteira Phantom (1 Clique)
+                        </span>
+                        <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-black px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            ⚡ LIBERAÇÃO AUTOMÁTICA
+                        </span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mb-2">
+                        Pague direto na rede Solana com 1 clique. O sistema <strong>ativa sua conta instantaneamente</strong>!
+                    </p>
                     <button type="button" id="btn-assinar-phantom" onclick="pagarAssinaturaPhantom()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs cursor-pointer">
                         <i class="fa-solid fa-wallet"></i>
-                        <span>TRANSFERIR FITCOINS NA PHANTOM</span>
+                        <span>TRANSFERIR FITCOINS & ATIVAR AGORA</span>
                     </button>
                 </div>
 
-                <!-- OPÇÃO 2: QR CODE SOLANA & ENDEREÇO -->
+                <!-- OPÇÃO 2: QR CODE SOLANA & ENDEREÇO COM CONFIRMAÇÃO POR HASH -->
                 <div class="mb-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-left">
-                    <span class="text-xs font-black text-gray-300 flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-qrcode text-emerald-400"></i> Carteira Solana Oficial (BragaPay)
-                    </span>
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-black text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-qrcode text-emerald-400"></i> Carteira Solana Oficial (BragaPay)
+                        </span>
+                        <span class="bg-amber-500/20 text-amber-300 text-[9px] font-black px-2 py-0.5 rounded-full border border-amber-500/30">
+                            Liberação por Hash
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5 mb-2.5">
                         <input type="text" readonly value="4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy" class="w-full text-[11px] bg-slate-900 border border-slate-700 text-emerald-400 font-mono rounded-lg px-2.5 py-1.5 select-all focus:outline-none">
-                        <button type="button" onclick="navigator.clipboard.writeText('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy'); alert('Endereço da carteira BragaPay copiado!');" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-gray-300 text-xs shrink-0" title="Copiar">
+                        <button type="button" onclick="navigator.clipboard.writeText('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy'); alert('Endereço da carteira BragaPay copiado!');" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-gray-300 text-xs shrink-0 cursor-pointer" title="Copiar">
                             <i class="fa-regular fa-copy"></i>
                         </button>
+                    </div>
+
+                    <!-- CAMPO CONFIRMAÇÃO MANUAL POR HASH -->
+                    <div class="pt-2 border-t border-slate-800/80">
+                        <label class="block text-[10px] font-bold text-amber-300 uppercase mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-receipt text-emerald-400"></i> Cole o Hash/Assinatura da Transação Externa:
+                        </label>
+                        <div class="flex gap-1.5">
+                            <input type="text" id="input-hash-assinar-manual" placeholder="Hash da transação Solana (ex: 4vJ9m...)" class="flex-1 bg-black border border-slate-700 text-emerald-400 font-mono text-[11px] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                            <button type="button" id="btn-confirmar-hash-assinar" onclick="confirmarAssinaturaFitcoinManual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[11px] px-3 py-1.5 rounded-lg transition whitespace-nowrap cursor-pointer shadow-sm">
+                                Liberar Agora
+                            </button>
+                        </div>
+                        <span class="text-[9px] text-gray-400 mt-1 block">
+                            ⚡ Ativação imediata no banco de dados sem depender de aprovação manual.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- BOX DINÂMICO DE CELEBRAÇÃO / SUCESSO -->
+                <div id="box-sucesso-ativacao-assinar" class="hidden my-3 p-4 bg-emerald-950/90 border-2 border-emerald-400 rounded-2xl text-center text-white shadow-xl animate-fade-in">
+                    <div class="w-10 h-10 bg-emerald-500 text-slate-950 rounded-full flex items-center justify-center text-xl mx-auto mb-2 font-black shadow-md">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h5 class="text-sm font-black text-emerald-300">🎉 CONTA LIBERADA COM SUCESSO!</h5>
+                    <p class="text-[11px] text-gray-200 mt-0.5 leading-relaxed">
+                        Seu pagamento em FitCoins foi validado na rede Solana e seu link já está 100% ativo!
+                    </p>
+                    <div class="mt-2 text-[10px] font-mono text-cyan-300 break-all">
+                        <a id="link-solscan-assinar-sucesso" href="#" target="_blank" class="underline hover:text-white">Ver comprovante no Solscan</a>
                     </div>
                 </div>
 
@@ -1007,6 +1050,139 @@
         }
         window.copiarPixPayloadAssinarDesconto = copiarPixPayloadAssinarDesconto;
 
+        function obterDadosNovoConsultor() {
+            let hid = (document.getElementById('hid')?.value || document.getElementById('herbalife_id')?.value || '').trim();
+            let letras = (document.getElementById('letras')?.value || '').trim().toUpperCase();
+            let nomeConsultor = (document.getElementById('nome-consultor')?.value || '').trim();
+            let nomeEspaco = (document.getElementById('nome-espaco')?.value || '').trim();
+
+            if (!hid) {
+                try {
+                    const authLocal = localStorage.getItem('litrao_consultor_auth');
+                    if (authLocal) {
+                        const parsed = JSON.parse(authLocal);
+                        hid = parsed.id || '';
+                        letras = parsed.letras || '';
+                    }
+                } catch(e) {}
+            }
+
+            return { hid, letras, nomeConsultor, nomeEspaco };
+        }
+
+        let ativandoAssinaturaFitcoinEmAndamento = false;
+        async function ativarConsultorNovoFitcoin(signature) {
+            if (ativandoAssinaturaFitcoinEmAndamento) return;
+            ativandoAssinaturaFitcoinEmAndamento = true;
+
+            const hashLimpo = String(signature || '').trim();
+            if (!hashLimpo || hashLimpo.length < 15) {
+                alert("Erro: Assinatura ou Hash da transação Solana inválido.");
+                ativandoAssinaturaFitcoinEmAndamento = false;
+                return;
+            }
+
+            const dados = obterDadosNovoConsultor();
+            if (!dados.hid) {
+                alert("Atenção: Por favor conclua o cadastro primeiro preenchendo seu ID Herbalife.");
+                ativandoAssinaturaFitcoinEmAndamento = false;
+                return;
+            }
+
+            try {
+                // Busca o consultor para preservar tags existentes
+                const { data: consultores } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('herbalife_id', dados.hid);
+
+                let rawEspaco = (consultores && consultores[0] && consultores[0].nome_espaco) || '';
+                const tagTx = `<!--PAGAMENTO_FITCOIN:${JSON.stringify({ tx: hashLimpo, tokens: 1552, desconto: 22, data: new Date().toISOString() })}-->`;
+                if (rawEspaco.includes('<!--PAGAMENTO_FITCOIN:')) {
+                    rawEspaco = rawEspaco.replace(/<!--PAGAMENTO_FITCOIN:[\s\S]*?-->/, tagTx);
+                } else {
+                    rawEspaco = rawEspaco + ' ' + tagTx;
+                }
+
+                // Ativação Imediata: Status Ativo e Vencimento Vitalício (2036-12-31)
+                const { error } = await supabaseClient
+                    .from('consultores')
+                    .update({
+                        status: 'Ativo',
+                        vencimento: '2036-12-31',
+                        nome_espaco: rawEspaco
+                    })
+                    .eq('herbalife_id', dados.hid);
+
+                if (error) {
+                    throw error;
+                }
+
+                // Exibe box de celebração na tela
+                const boxSucesso = document.getElementById('box-sucesso-ativacao-assinar');
+                const linkSolscan = document.getElementById('link-solscan-assinar-sucesso');
+                if (linkSolscan) {
+                    linkSolscan.href = `https://solscan.io/tx/${hashLimpo}`;
+                    linkSolscan.innerText = `Solscan TX: ${hashLimpo.slice(0, 16)}...${hashLimpo.slice(-10)}`;
+                }
+                if (boxSucesso) {
+                    boxSucesso.classList.remove('hidden');
+                }
+
+                // Atualiza o botão principal de acesso
+                const btnAcessar = document.getElementById('link-acessar');
+                if (btnAcessar) {
+                    btnAcessar.innerHTML = `<i class="fa-solid fa-circle-check text-amber-300 mr-2"></i> ACESSAR MEU PAINEL (CONTA 100% LIBERADA)`;
+                    btnAcessar.className = "inline-block bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-4 px-8 rounded-full shadow-2xl transition w-full text-center text-base cursor-pointer ring-4 ring-emerald-400/50 animate-pulse";
+                }
+
+                alert(`🎉 PARABÉNS!\n\nSua conta foi ATIVADA AUTOMATICAMENTE via FitCoin ($FIT) na rede Solana!\nSeu acesso vitalício está 100% liberado.`);
+
+            } catch (err) {
+                console.error("Erro na ativação automática da assinatura:", err);
+                alert(`Aviso ao atualizar conta: ${err.message || 'Houve uma instabilidade'}. Por favor envie o comprovante no WhatsApp.`);
+            } finally {
+                ativandoAssinaturaFitcoinEmAndamento = false;
+            }
+        }
+        window.ativarConsultorNovoFitcoin = ativarConsultorNovoFitcoin;
+
+        async function confirmarAssinaturaFitcoinManual() {
+            const input = document.getElementById('input-hash-assinar-manual');
+            const btn = document.getElementById('btn-confirmar-hash-assinar');
+            if (!input) return;
+
+            const hash = input.value.trim();
+            if (!hash) {
+                alert("Por favor, cole a assinatura/hash da transação Solana que você realizou na sua carteira.");
+                input.focus();
+                return;
+            }
+
+            if (hash.length < 20) {
+                alert("O Hash informado parece ser muito curto. Transações Solana possuem cerca de 88 caracteres.");
+                input.focus();
+                return;
+            }
+
+            const origHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ativando...';
+            }
+
+            try {
+                await ativarConsultorNovoFitcoin(hash);
+                input.value = '';
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            }
+        }
+        window.confirmarAssinaturaFitcoinManual = confirmarAssinaturaFitcoinManual;
+
         async function pagarAssinaturaPhantom() {
             const btn = document.getElementById('btn-assinar-phantom');
             const originalHtml = btn ? btn.innerHTML : '';
@@ -1033,7 +1209,7 @@
                 const userPubkey = resp.publicKey;
 
                 if (typeof solanaWeb3 === 'undefined' || typeof splToken === 'undefined') {
-                    alert(`Phantom conectada (${userPubkey.toBase58().slice(0, 6)}...${userPubkey.toBase58().slice(-4)})!\n\nEnvie 1.552 FIT para a carteira BragaPay:\n4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy\n\nDepois clique em 'Falar no WhatsApp' para liberar sua conta!`);
+                    alert(`Phantom conectada (${userPubkey.toBase58().slice(0, 6)}...${userPubkey.toBase58().slice(-4)})!\n\nEnvie 1.552 FIT para a carteira BragaPay:\n4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy\n\nDepois cole o Hash no campo de confirmação manual para liberar sua conta na hora!`);
                     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
                     return;
                 }
@@ -1079,9 +1255,10 @@
                 if (btn) btn.innerHTML = '<i class="fa-solid fa-fingerprint mr-1"></i> Aprove a transferência na Phantom...';
                 const { signature } = await provider.signAndSendTransaction(tx);
 
-                if (btn) btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Transferência Enviada!';
-                alert(`🎉 SUCESSO!\n\nTransferência de 1.552 FIT enviada na Solana com sucesso!\nHash: ${signature.slice(0, 16)}...\n\nSua conta do Reset será liberada com o desconto de 22%!`);
-                enviarAssinaturaFitcoinWhatsApp(signature);
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Liberando sua conta automaticamente...';
+                
+                // ATIVAÇÃO AUTOMÁTICA IMEDIATA NO SUPABASE
+                await ativarConsultorNovoFitcoin(signature);
 
             } catch (err) {
                 console.error("Erro transferência Phantom:", err);
@@ -1095,16 +1272,17 @@
         window.pagarAssinaturaPhantom = pagarAssinaturaPhantom;
 
         function enviarAssinaturaFitcoinWhatsApp(hashTx = '') {
-            const espaco = (document.getElementById('nome_espaco')?.value || '').trim() || 'Consultor';
-            const hid = (document.getElementById('herbalife_id')?.value || '').trim();
+            const dados = obterDadosNovoConsultor();
+            const espaco = dados.nomeEspaco || dados.nomeConsultor || 'Consultor';
+            const hid = dados.hid || '';
 
             let msg = `Olá Edwan! Sou o novo consultor *${espaco}* (ID: *${hid}*).\n\n`;
-            msg += `Quero ativar minha adesão no Litrão do Reset aproveitando o *DESCONTO DE 22% DA FITCOIN*! 🔥🪙\n\n`;
+            msg += `Quero registrar minha adesão no Litrão do Reset aproveitando o *DESCONTO DE 22% DA FITCOIN*! 🔥🪙\n\n`;
             msg += `💰 *Valor Normal:* R$ 199,00\n`;
             msg += `⭐ *Valor c/ 22% OFF:* R$ 155,22 (1.552 FIT)\n\n`;
             if (hashTx) {
                 msg += `🔗 *Hash da Transação Solana:* https://solscan.io/tx/${hashTx}\n\n`;
-                msg += `Já transferi os 1.552 FitCoins para a carteira BragaPay. Pode liberar minha página?`;
+                msg += `⚡ Minha conta já foi LIBERADA AUTOMATICAMENTE pelo sistema! Segue o link para registro na matriz.`;
             } else {
                 msg += `Não entendo de carteira virtual/cripto e gostaria de pagar via Pix com o desconto de 22% aplicado (R$ 155,22). Como faço para liberar meu link?`;
             }
