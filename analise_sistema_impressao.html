@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Completa do Sistema Herbalife - Litrão do Reset SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1f2937;
+            background-color: #f3f4f6;
+            line-height: 1.55;
+            font-size: 13px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            color: #111827;
+            font-weight: 800;
+        }
+
+        /* Estilo da barra de ações na tela */
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #1e3a24;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toolbar .btn {
+            background: #ffa700;
+            color: #1e3a24;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .toolbar .btn:hover {
+            background: #ffb732;
+            transform: translateY(-1px);
+        }
+
+        /* Container A4 na tela */
+        .paper-container {
+            max-width: 210mm;
+            margin: 25px auto;
+            background: #ffffff;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border-radius: 4px;
+        }
+
+        .page {
+            padding: 16mm 18mm 18mm 18mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        /* Regras de Impressão */
+        @page {
+            size: A4 portrait;
+            margin: 12mm 14mm 14mm 14mm;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                font-size: 11.5px;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .paper-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            .page {
+                padding: 0 !important;
+                min-height: auto !important;
+                page-break-after: always;
+                break-after: page;
+            }
+            .page:last-child {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+            .avoid-break {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        /* Elementos Visuais Corporativos */
+        .header-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #204624;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .brand-pill {
+            background: #204624;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .accent-yellow {
+            color: #d97706;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #204624 0%, #152e18 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 22px 26px;
+            margin-bottom: 24px;
+            border-left: 6px solid #ffa700;
+        }
+
+        .hero-banner h1 {
+            color: #ffffff;
+            font-size: 23px;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        .hero-banner p {
+            color: #d1fae5;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .meta-item {
+            font-size: 11px;
+        }
+
+        .meta-item .label {
+            color: #9ca3af;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 9px;
+            display: block;
+        }
+
+        .meta-item .value {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* Seções */
+        .section-title {
+            font-size: 16px;
+            color: #204624;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e5e7eb;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title i {
+            color: #ffa700;
+            font-size: 17px;
+        }
+
+        .sub-title {
+            font-size: 14px;
+            color: #111827;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Cards e Boxes */
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card-highlight {
+            border-left: 4px solid #204624;
+            background: #fdfdfd;
+        }
+
+        .card-alert {
+            border-left: 4px solid #d97706;
+            background: #fffbeb;
+        }
+
+        .card-success {
+            border-left: 4px solid #059669;
+            background: #ecfdf5;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-tech {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+
+        .badge-fitcoin {
+            background: #fdf2f8;
+            color: #9d174d;
+            border: 1px solid #fbcfe8;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 16px 0;
+            font-size: 11.5px;
+        }
+
+        table th {
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 800;
+            text-align: left;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            font-size: 10.5px;
+            text-transform: uppercase;
+        }
+
+        table td {
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        table tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        /* Listas */
+        ul.custom-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 6px 0;
+        }
+
+        ul.custom-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        ul.custom-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #059669;
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        ul.pending-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 6px 0;
+        }
+
+        ul.pending-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        ul.pending-list li::before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 11px;
+        }
+
+        .footer-page {
+            margin-top: 25px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .stat-box .num {
+            font-size: 22px;
+            font-weight: 900;
+            color: #204624;
+            display: block;
+            line-height: 1.1;
+        }
+
+        .stat-box .desc {
+            font-size: 10px;
+            color: #6b7280;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA FIXA DE AÇÃO NO NAVEGADOR -->
+    <div class="toolbar no-print">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fa-solid fa-file-pdf" style="font-size: 20px; color: #ffa700;"></i>
+            <div>
+                <strong style="font-size: 14px; display: block;">LITRÃO DO RESET SAAS • RELATÓRIO EXECUTIVO</strong>
+                <span style="font-size: 11px; color: #a7f3d0;">Pronto para Impressão em A4 e Exportação Oficial</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="window.print()" class="btn">
+                <i class="fa-solid fa-print"></i> IMPRIMIR / SALVAR PDF
+            </button>
+            <a href="painel.html" class="btn" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fa-solid fa-arrow-left"></i> VOLTAR AO PAINEL
+            </a>
+        </div>
+    </div>
+
+    <div class="paper-container">
+
+        <!-- ========================================== -->
+        <!-- PÁGINA 1: CAPA, VISÃO GERAL & MÓDULOS ATIVOS 1 E 2 -->
+        <!-- ========================================== -->
+        <div class="page">
+            <div class="header-brand">
+                <div>
+                    <h3 style="font-size: 18px; color: #204624; letter-spacing: -0.5px;">LITRÃO DO RESET <span style="color: #ffa700;">SAAS</span></h3>
+                    <p style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Ecossistema Digital para Consultores & Espaços Herbalife</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="brand-pill"><i class="fa-solid fa-leaf"></i> Herbalife Nutrition Project</span>
+                    <p style="font-size: 10px; color: #9ca3af; margin-top: 4px; font-weight: 600;">Data: 16 de Outubro de 2026 • v2.6 Pro</p>
+                </div>
+            </div>
+
+            <div class="hero-banner">
+                <span class="badge" style="background: rgba(255,167,0,0.25); color: #ffa700; border: 1px solid #ffa700; margin-bottom: 8px;">
+                    AUDITORIA & MAPEAMENTO TÉCNICO COMPLETO
+                </span>
+                <h1>Análise Completa de Todo o Nosso Sistema Herbalife</h1>
+                <p>
+                    Diagnóstico aprofundado de arquitetura, ferramentas operacionais ativas, fluxo de vendas de Litrão, esteira Web3 (FitCoin), banco Supabase e os módulos que faltam implementar para escalar a operação.
+                </p>
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <span class="label">Modelo de Negócio</span>
+                        <span class="value">SaaS B2B + B2C EVS</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Base de Dados</span>
+                        <span class="value">Supabase (PostgreSQL)</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Moeda & Web3</span>
+                        <span class="value">FitCoin ($FIT / Solana)</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Nível de Maturidade</span>
+                        <span class="value">Operacional / Produção</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTATÍSTICAS RÁPIDAS DA ARQUITETURA -->
+            <div class="grid-3" style="margin-bottom: 18px;">
+                <div class="stat-box">
+                    <span class="num">5</span>
+                    <span class="desc">Aplicações Core Web</span>
+                </div>
+                <div class="stat-box">
+                    <span class="num">28+</span>
+                    <span class="desc">Módulos & Modais Ativos</span>
+                </div>
+                <div class="stat-box">
+                    <span class="num">100%</span>
+                    <span class="desc">Automatizado via FitCoin</span>
+                </div>
+            </div>
+
+            <!-- MÓDULO 1: VITRINE PÚBLICA -->
+            <div class="card card-highlight avoid-break">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h3 style="font-size: 14px; color: #204624;">
+                        <i class="fa-solid fa-store" style="color: #059669; margin-right: 6px;"></i>
+                        1. Vitrine de Vendas & Catálogo do Litrão (<code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">index.html</code>)
+                    </h3>
+                    <span class="badge badge-active">100% Funcional</span>
+                </div>
+                <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">
+                    É a porta de entrada para os clientes finais. O sistema identifica o consultor dinamicamente pela rota amigável (slug, ex: <code style="color: #059669; font-weight: bold;">/433005811edw</code>) ou parâmetro, personalizando toda a experiência.
+                </p>
+                <ul class="custom-list">
+                    <li><strong>Catálogo Oficial dos 3 Pacotes de Litrão:</strong> Apresentação visual fiel dos combos: <strong>RESET</strong> (Kit 5x 500ml), <strong>RESET +</strong> (Kit 5x 1L - Mais Popular) e <strong>RESET TURBO</strong> (Kit 5x 1L Turbo com máxima potência termogênica).</li>
+                    <li><strong>Preços Regionais Personalizados:</strong> Se o consultor alterou os preços da sua cidade no painel, a página lê automaticamente esses valores; caso contrário, adota os valores padrões (R$ 49,90 / R$ 65,00 / R$ 79,99).</li>
+                    <li><strong>Carrinho Inteligente & Modalidades:</strong> Suporte a Retirada no EVS e Delivery com cálculo de taxa de entrega (única, tabela por bairro ou frete grátis).</li>
+                    <li><strong>Checkout com Dados Estruturados no Supabase:</strong> Cada pedido grava um registro na tabela <code style="font-weight: 700;">avaliacoes</code> com código de acesso <code style="font-weight: 700;">PEDIDO</code> contendo JSON com produto, valor, modalidade, endereço e observações.</li>
+                    <li><strong>Disparo Automático de Mensagem no WhatsApp:</strong> Abre o WhatsApp diretamente com a mensagem detalhada e pronta para confirmação de pagamento (com chave Pix do consultor copiada).</li>
+                    <li><strong>Regra Protetora dos 20 Dias de Inadimplência:</strong> Caso a assinatura do consultor esteja vencida há mais de 20 dias, a página redireciona o tráfego automaticamente para a central (<code style="font-weight: 700;">litraodoreset.com.br</code>), blindando a plataforma.</li>
+                </ul>
+            </div>
+
+            <!-- MÓDULO 2: AVALIAÇÃO DE BIOIMPEDÂNCIA -->
+            <div class="card card-highlight avoid-break" style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h3 style="font-size: 14px; color: #204624;">
+                        <i class="fa-solid fa-clipboard-check" style="color: #059669; margin-right: 6px;"></i>
+                        2. Sistema de Avaliação Física & Bioimpedância On-line (<code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">avaliacao.html</code>)
+                    </h3>
+                    <span class="badge badge-active">100% Funcional</span>
+                </div>
+                <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">
+                    Formulário de alta conversão para geração de leads qualificados que desejam acompanhamento físico e metabólico no Espaço de Vida Saudável (EVS).
+                </p>
+                <ul class="custom-list">
+                    <li><strong>Captura Completa de Anamnese:</strong> Peso, altura, medidas corporais em centímetros (cintura, quadril, braço, coxa), rotina semanal e nível de disposição.</li>
+                    <li><strong>Vínculo Automático com o ID do Consultor:</strong> O lead entra diretamente para a carteira exclusiva do consultor no banco de dados.</li>
+                    <li><strong>Integração com a Ficha do Painel:</strong> Os dados alimentam instantaneamente o visualizador de ficha com histórico comparativo de evolução.</li>
+                </ul>
+            </div>
+
+            <div class="footer-page">
+                <span>Relatório Confidencial • Ecossistema Litrão do Reset Herbalife</span>
+                <span>Página 1 de 4</span>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PÁGINA 2: PAINEL DO CONSULTOR & SUPERADMIN -->
+        <!-- ========================================== -->
+        <div class="page">
+            <div class="header-brand">
+                <div>
+                    <h3 style="font-size: 16px; color: #204624;">PAINEL DO CONSULTOR & ADMINISTRAÇÃO MASTER</h3>
+                    <p style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Ferramentas de Gestão, Produção e Controle Financeiro</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="badge badge-tech"><i class="fa-solid fa-cubes"></i> Módulos 3 & 4</span>
+                </div>
+            </div>
+
+            <!-- MÓDULO 3: PAINEL DO CONSULTOR -->
+            <div class="card card-highlight avoid-break">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h3 style="font-size: 14px; color: #204624;">
+                        <i class="fa-solid fa-user-gear" style="color: #204624; margin-right: 6px;"></i>
+                        3. Painel Operacional do Consultor Herbalife (<code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">painel.html</code>)
+                    </h3>
+                    <span class="badge badge-active">100% Funcional</span>
+                </div>
+                <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">
+                    O centro de comando onde o consultor gerencia seus atendimentos, seus pedidos de Litrão, suas artes de marketing e o faturamento do seu espaço.
+                </p>
+                <div class="grid-2">
+                    <div>
+                        <ul class="custom-list">
+                            <li><strong>Autenticação Dupla Segura:</strong> Login por ID Herbalife de 9 dígitos + validação por 3 letras de cadastro ou senha forte personalizada.</li>
+                            <li><strong>Gestor de Pedidos de Litrão & Comanda:</strong> Visualização de cada pedido recebido pelo carrinho com modal de detalhes e geração de <strong>Comanda de Preparo para Cozinha do EVS</strong> pronta para impressão.</li>
+                            <li><strong>Gerador de Adesivo Oficial para Garrafão:</strong> Renderiza automaticamente na tela o adesivo em alta definição com QR Code do consultor, pronto para imprimir e colar no garrafão (via <code style="font-size: 10px; font-weight: 700;">html2canvas</code>).</li>
+                            <li><strong>Gerador de Flyers para Redes Sociais:</strong> Criação de posts personalizados com foto dos kits de Reset para Instagram e WhatsApp.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="custom-list">
+                            <li><strong>Módulo de Preços & Taxas de Delivery:</strong> Permite ao consultor customizar o valor dos kits (Reset, Reset +, Reset Turbo) e cadastrar bairros com taxas de entrega.</li>
+                            <li><strong>Fichas de Bioimpedância com Acompanhamento:</strong> Histórico comparativo das semanas do cliente para retenção na Herbalife.</li>
+                            <li><strong>Módulo de Aniversariantes do Mês:</strong> Identificação de clientes aniversariantes e botão de disparo de parabéns em 1 clique com cupom de presente.</li>
+                            <li><strong>Scripts & Modelos de Direct X1:</strong> Biblioteca completa de mensagens para abordagem de prospecção ativa no Instagram e WhatsApp.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO 4: PAINEL ADMINISTRATIVO & SUPERADMIN -->
+            <div class="card card-highlight avoid-break" style="margin-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h3 style="font-size: 14px; color: #204624;">
+                        <i class="fa-solid fa-sliders" style="color: #6366f1; margin-right: 6px;"></i>
+                        4. Painel Administrativo Geral & Governança Master (<code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">admin.html</code>)
+                    </h3>
+                    <span class="badge badge-active">100% Funcional</span>
+                </div>
+                <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">
+                    Acesso restrito ao SuperAdmin (Edwan - ID <code style="font-weight: 700;">433005811</code>) para controle irrestrito de todos os consultores do Brasil, preços e regras de tempo.
+                </p>
+                <div class="grid-2">
+                    <div>
+                        <ul class="custom-list">
+                            <li><strong>Tabela Geral de Consultores:</strong> Listagem de todos os membros cadastrados, status (Ativo/Bloqueado), data de vencimento e atalho para o link público.</li>
+                            <li><strong>Ajuste Individual de Vencimento:</strong> Permite prorrogar datas manualmente ou conceder <strong>Acesso Vitalício</strong> em 1 clique (definindo vencimento até 2036).</li>
+                            <li><strong>Configurador Global de Planos:</strong> Modal para reajustar taxas de adesão e mensalidades dos 3 planos (Start Pro, Vitalício Smart, Master VIP).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="custom-list">
+                            <li><strong>Controle de Tempo para Novos Consultores:</strong> O SuperAdmin altera a qualquer momento:
+                                <br>• <strong>Degustação Grátis (Trial):</strong> Dias gratuitos no cadastro (ex: 7, 14, 30 dias);
+                                <br>• <strong>Ciclo do Plano 1:</strong> Dias de duração da assinatura (ex: 30 dias);
+                                <br>• <strong>Data Limite dos Vitalícios:</strong> Data padrão (ex: 31/12/2036).</li>
+                            <li><strong>Sincronização Nuvem Supabase:</strong> Os parâmetros ficam salvos na linha do SuperAdmin e alimentam automaticamente o <code style="font-size: 10px; font-weight: 700;">assinar.html</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO 5: ESTEIRA WEB3 & FITCOIN -->
+            <div class="card card-highlight avoid-break" style="margin-top: 12px; border-left-color: #9d174d;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h3 style="font-size: 14px; color: #9d174d;">
+                        <i class="fa-brands fa-bitcoin" style="color: #9d174d; margin-right: 6px;"></i>
+                        5. Infraestrutura Cripto FitCoin ($FIT) & Ativação Automática (<code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">assinar.html</code> & <code style="font-size: 11px; background: #e5e7eb; padding: 2px 4px; border-radius: 4px;">painel.html</code>)
+                    </h3>
+                    <span class="badge badge-fitcoin">Web3 Integrada</span>
+                </div>
+                <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">
+                    Sistema pioneiro no Brasil que permite aos consultores pagarem suas adesões com a moeda oficial da rede, com desconto exclusivo e liberação 100% autônoma.
+                </p>
+                <div class="grid-3">
+                    <div style="background: #fdf2f8; padding: 8px 10px; border-radius: 8px; border: 1px solid #fbcfe8;">
+                        <strong style="color: #9d174d; font-size: 11px; display: block;">Desconto de 22%</strong>
+                        <span style="font-size: 10.5px; color: #6b7280;">Incentivo agressivo para pagamento em $FIT, economizando custos de adquirentes tradicionais.</span>
+                    </div>
+                    <div style="background: #fdf2f8; padding: 8px 10px; border-radius: 8px; border: 1px solid #fbcfe8;">
+                        <strong style="color: #9d174d; font-size: 11px; display: block;">Paridade & Carteira</strong>
+                        <span style="font-size: 10.5px; color: #6b7280;">R$ 1,00 = 10 FitCoins. Carteira Solana receptora: <code>4EaESLKJTu...jo1jjBy</code>.</span>
+                    </div>
+                    <div style="background: #fdf2f8; padding: 8px 10px; border-radius: 8px; border: 1px solid #fbcfe8;">
+                        <strong style="color: #9d174d; font-size: 11px; display: block;">Liberação Instantânea</strong>
+                        <span style="font-size: 10.5px; color: #6b7280;">Ao assinar a transação na Solana, o status do consultor muda na hora para Ativo no Supabase.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-page">
+                <span>Relatório Confidencial • Ecossistema Litrão do Reset Herbalife</span>
+                <span>Página 2 de 4</span>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PÁGINA 3: O QUE FALTA IMPLEMENTAR (GAP ANALYSIS) -->
+        <!-- ========================================== -->
+        <div class="page">
+            <div class="header-brand">
+                <div>
+                    <h3 style="font-size: 16px; color: #b45309;">O QUE FALTA IMPLEMENTAR (GAP ANALYSIS & ROADMAP)</h3>
+                    <p style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Diagnóstico de Gargalos, Automações Faltantes e Melhorias Estratégicas</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="badge badge-pending"><i class="fa-solid fa-clock"></i> Prioridades Técnicas</span>
+                </div>
+            </div>
+
+            <p style="font-size: 12px; color: #4b5563; margin-bottom: 14px; line-height: 1.5;">
+                Apesar de o ecossistema estar em plena operação e estável, identificamos <strong>8 gargalos principais</strong> que exigem intervenção manual do SuperAdmin ou do Consultor, além de oportunidades para multiplicar o faturamento das franquias de Litrão.
+            </p>
+
+            <!-- TABELA COMPARATIVA DOS GAPS -->
+            <table class="avoid-break">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Recurso Faltante</th>
+                        <th style="width: 27%;">Como Funciona Hoje (Gargalo)</th>
+                        <th style="width: 32%;">Solução a Implementar</th>
+                        <th style="width: 13%;">Prioridade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Cobrança Recorrente Automática (Gateway Webhook)</strong></td>
+                        <td>O Plano Start Pro (R$ 99/mês) depende de cobrança manual ou PIX transferido avulso; o SuperAdmin precisa renovar manualmente.</td>
+                        <td>Integração de Webhook via Asaas ou Mercado Pago para assinatura automática no cartão de crédito e PIX recorrente com suspensão automática.</td>
+                        <td><span class="badge" style="background: #fee2e2; color: #991b1b;">CRÍTICA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Disparos Automáticos de WhatsApp (ZapControl360 / Z-API)</strong></td>
+                        <td>O envio de mensagens depende do clique no botão <code>wa.me/</code> pelo cliente ou consultor no navegador.</td>
+                        <td>Disparo em background via API: notifica o consultor na hora de um pedido novo e envia lembrete automático de reposição semanal ao cliente.</td>
+                        <td><span class="badge" style="background: #fee2e2; color: #991b1b;">ALTA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Módulo Financeiro & Controle de Doses EVS</strong></td>
+                        <td>O consultor não tem visão no painel de quanto gasta de pó de chá/fibra Herbalife por Litrão nem sua margem líquida real.</td>
+                        <td>Cálculo automático do CMV (Custo da Mercadoria Vendida) por garrafa, controle de estoque de insumos e fechamento de caixa diário do EVS.</td>
+                        <td><span class="badge" style="background: #fef3c7; color: #92400e;">ALTA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Cartão Fidelidade Digital & Gamificação do Cliente</strong></td>
+                        <td>Não há painel do cliente final para acompanhar quantos Litrões ele já tomou ou carimbar a cartela de 10 garrafas.</td>
+                        <td>Web app para o cliente com Cartão Fidelidade Digital (a cada 10 Litrões ganha 1) e acúmulo de pontos/cashback em FitCoins no EVS.</td>
+                        <td><span class="badge" style="background: #fef3c7; color: #92400e;">MÉDIA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Acesso para Multi-atendentes do EVS</strong></td>
+                        <td>Se o consultor possui um funcionário ou estagiário preparando os shakes e Litrões, ele é obrigado a passar a senha master.</td>
+                        <td>Criação do perfil restrito "Atendente do EVS": visualiza apenas a fila de pedidos e comandas, sem acesso a dados financeiros ou senhas.</td>
+                        <td><span class="badge" style="background: #e0e7ff; color: #3730a3;">MÉDIA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Sugestor Inteligente de Reposição no MyHerbalife</strong></td>
+                        <td>O consultor precisa adivinhar quando fazer novos pedidos de pontos de volume no portal oficial da Herbalife.</td>
+                        <td>O sistema calcula os Litrões vendidos na semana e gera uma lista exata de quantos potes de NRG, Chá e Fibra pedir no MyHerbalife.</td>
+                        <td><span class="badge" style="background: #e0e7ff; color: #3730a3;">MÉDIA</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>7. Notificações Push Nativas (PWA Avançado)</strong></td>
+                        <td>O consultor só vê que recebeu um lead ou pedido se abrir o painel ou se o cliente finalizar o clique do WhatsApp.</td>
+                        <td>Implementação de Web Push Notifications com vibração e alerta no smartphone do consultor mesmo com tela bloqueada.</td>
+                        <td><span class="badge" style="background: #f3f4f6; color: #374151;">DESEJÁVEL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>8. Assistente de IA de Copys & Stories (NotebookLM / Gemini)</strong></td>
+                        <td>O consultor precisa redigir manualmente postagens diárias de atração e quebra de objeções.</td>
+                        <td>Botão "Gerar Story do Dia" no painel, criando chamadas magnéticas e scripts de vendas adaptados ao público do seu bairro.</td>
+                        <td><span class="badge" style="background: #f3f4f6; color: #374151;">DESEJÁVEL</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- DETALHAMENTO DOS 2 PRINCIPAIS GARGALOS -->
+            <div class="grid-2 avoid-break" style="margin-top: 10px;">
+                <div class="card card-alert">
+                    <h4 style="font-size: 13px; color: #92400e; margin-bottom: 6px;">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Gargalo 1: Risco de Evasão na Mensalidade (R$ 99)
+                    </h4>
+                    <p style="font-size: 11px; color: #4b5563; line-height: 1.45;">
+                        Hoje o consultor que entra no Plano 1 Start Pro recebe 30 dias de ciclo. Porém, quando vence, o sistema exige que o SuperAdmin monitore o banco ou que o consultor envie comprovante Pix. Sem gateway recorrente, perde-se previsibilidade de faturamento passivo da plataforma.
+                    </p>
+                </div>
+                <div class="card card-alert">
+                    <h4 style="font-size: 13px; color: #92400e; margin-bottom: 6px;">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Gargalo 2: Dependência do Clique do Cliente
+                    </h4>
+                    <p style="font-size: 11px; color: #4b5563; line-height: 1.45;">
+                        No carrinho de compras, se o cliente preenche nome e WhatsApp mas fecha o navegador antes de tocar no botão do WhatsApp, o consultor não recebe alerta no celular (o lead fica registrado só no banco). Com disparador ativo de API, o WhatsApp toca automaticamente para ambos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-page">
+                <span>Relatório Confidencial • Ecossistema Litrão do Reset Herbalife</span>
+                <span>Página 3 de 4</span>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PÁGINA 4: PLANO DE AÇÃO & CONCLUSÃO EXECUTIVA -->
+        <!-- ========================================== -->
+        <div class="page">
+            <div class="header-brand">
+                <div>
+                    <h3 style="font-size: 16px; color: #204624;">PLANO DE IMPLEMENTAÇÃO & RECOMENDAÇÃO TÉCNICA</h3>
+                    <p style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Cronograma em Fases e Próximos Passos Recomendados</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="brand-pill"><i class="fa-solid fa-rocket"></i> Roadmap 2026/2027</span>
+                </div>
+            </div>
+
+            <h3 class="section-title">
+                <i class="fa-solid fa-list-check"></i> Cronograma Sugerido de Execução (Fases 1, 2 e 3)
+            </h3>
+
+            <!-- FASE 1 -->
+            <div class="card card-success avoid-break">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h4 style="font-size: 13.5px; color: #065f46;">
+                        FASE 1: Automatização Financeira & Disparo de Notificações (Imediata • Próximos 15 Dias)
+                    </h4>
+                    <span class="badge badge-active">Retorno Financeiro Imediato</span>
+                </div>
+                <ul class="custom-list">
+                    <li><strong>Gateway Recorrente para o Plano Start Pro:</strong> Conectar webhook (Asaas ou Mercado Pago Assinaturas) para cobrança mensal automática de R$ 99,00 via Cartão e PIX com auto-renovação de data no Supabase.</li>
+                    <li><strong>Disparador Webhook de WhatsApp para Novos Pedidos:</strong> Integrar a API de WhatsApp (Evolution API / ZapControl360) para alertar o consultor instantaneamente quando um pedido for gerado.</li>
+                    <li><strong>Lembrete Automático de Renovação para o Consultor:</strong> Envio de mensagem automática no WhatsApp 5 dias e 1 dia antes do vencimento do plano para evitar bloqueio.</li>
+                </ul>
+            </div>
+
+            <!-- FASE 2 -->
+            <div class="card card-highlight avoid-break" style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h4 style="font-size: 13.5px; color: #204624;">
+                        FASE 2: Gestão Financeira do EVS & Retenção de Clientes (Curto Prazo • 30 a 45 Dias)
+                    </h4>
+                    <span class="badge badge-pending">Retenção de Consultores</span>
+                </div>
+                <ul class="custom-list">
+                    <li><strong>Calculadora de CMV das Doses Herbalife:</strong> Configuração de custo por dose dos produtos (NRG, Chá Original, Fibra de Maçã, Shakes) com apuração de lucro líquido por Litrão.</li>
+                    <li><strong>Cartão Fidelidade Digital 10+1:</strong> Interface para o cliente final registrar presença no espaço e ganhar benefícios acumulativos.</li>
+                    <li><strong>Multi-atendentes para Espaços com Equipe:</strong> Criação de credencial restrita para operadores de balcão e estagiários.</li>
+                </ul>
+            </div>
+
+            <!-- FASE 3 -->
+            <div class="card card-highlight avoid-break" style="margin-top: 10px; border-left-color: #6366f1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h4 style="font-size: 13.5px; color: #3730a3;">
+                        FASE 3: Expansão, Inteligência Artificial & MyHerbalife (Médio Prazo)
+                    </h4>
+                    <span class="badge badge-tech">Escala Nacional</span>
+                </div>
+                <ul class="custom-list">
+                    <li><strong>Assistente de IA Integrado (NotebookLM / Gemini):</strong> Botão de auxílio no painel para responder clientes com dúvidas de dieta e sugerir copys para stories do Instagram.</li>
+                    <li><strong>Módulo de Reposição de Estoque MyHerbalife:</strong> Exportação de planilha de pontos de volume sugeridos para compra no sistema oficial.</li>
+                    <li><strong>Web Push Notifications Nativas:</strong> Alerta sonoro e push no smartphone do consultor como aplicativo de delivery profissional.</li>
+                </ul>
+            </div>
+
+            <!-- CONCLUSÃO EXECUTIVA -->
+            <div class="card avoid-break" style="background: #faf5ff; border: 1px solid #d8b4fe; margin-top: 14px;">
+                <h4 style="font-size: 13px; color: #6b21a8; margin-bottom: 6px;">
+                    <i class="fa-solid fa-crown" style="color: #9333ea; margin-right: 5px;"></i> Parecer & Conclusão Executiva
+                </h4>
+                <p style="font-size: 11px; color: #4c1d95; line-height: 1.5;">
+                    O sistema do <strong>Litrão do Reset SaaS</strong> possui hoje uma maturidade técnica impressionante: vitrine moderna, catálogo otimizado para celulares, carrinho funcional com delivery, proteção por 20 dias, módulo de marketing, painel administrativo mestre e integração inédita com a criptomoeda FitCoin ($FIT) na Solana.
+                    <br><br>
+                    Para transformar essa estrutura em uma <strong>máquina de escala previsível e passiva</strong>, o foco imediato deve ser a <strong>recorrência automática das mensalidades</strong> e as <strong>mensagens ativas de WhatsApp via API</strong>. Com esses dois passos, o SuperAdmin elimina todo o retrabalho de cobrança e os consultores aumentam exponencialmente suas vendas diárias de Litrão.
+                </p>
+            </div>
+
+            <div class="footer-page">
+                <span>Relatório Confidencial • Ecossistema Litrão do Reset Herbalife</span>
+                <span>Página 4 de 4 • Documento Oficial para Impressão</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
