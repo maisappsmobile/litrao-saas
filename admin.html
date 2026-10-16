@@ -132,6 +132,13 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1">Data de Vencimento</label>
                         <input type="date" id="edit-vencimento" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
                     </div>
+                    <div class="mt-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
+                        <label class="flex items-center space-x-2 cursor-pointer select-none">
+                            <input type="checkbox" id="edit-financeiro-liberado" class="w-4 h-4 text-purple-600 rounded">
+                            <span class="text-xs font-bold text-purple-900"><i class="fa-solid fa-calculator mr-1"></i> Módulo Financeiro do EVS Liberado</span>
+                        </label>
+                        <p class="text-[10px] text-purple-700 mt-1">Permite ao consultor acessar a Calculadora de Doses, Lucro do Litrão e Catálogo.</p>
+                    </div>
                 </div>
                 <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="fecharModalEditar()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Cancelar</button>
@@ -394,33 +401,37 @@
                     const mS = item.nome_espaco.match(/<!--SENHA:(.*?)-->/);
                     if (mS && mS[1]) senhaItem = mS[1].trim();
                 }
+                const isFinLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
 
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
                         <td class="p-4">
-                            <p class="font-bold text-gray-900">${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
+                            <p class="font-bold text-gray-900">\${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
                             <p class="text-xs text-gray-500">
-                                ID: <span class="font-bold text-gray-700">${item.herbalife_id}</span>
-                                <span class="text-purple-600 font-extrabold ml-1 bg-purple-50 border border-purple-200 px-1 py-0.2 rounded text-[10px]" title="3 Letras Herbalife">${letrasItem || '---'}</span>
-                                ${senhaItem ? `<span class="text-amber-700 font-bold ml-1 text-[10px]" title="Senha de acesso"><i class="fa-solid fa-key text-[9px] text-amber-500"></i> ${senhaItem}</span>` : ''}
+                                ID: <span class="font-bold text-gray-700">\${item.herbalife_id}</span>
+                                <span class="text-purple-600 font-extrabold ml-1 bg-purple-50 border border-purple-200 px-1 py-0.2 rounded text-[10px]" title="3 Letras Herbalife">\${letrasItem || '---'}</span>
+                                \${senhaItem ? \`<span class="text-amber-700 font-bold ml-1 text-[10px]" title="Senha de acesso"><i class="fa-solid fa-key text-[9px] text-amber-500"></i> \${senhaItem}</span>\` : ''}
                             </p>
                         </td>
                         <td class="p-4">
-                            <a href="/${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
-                                /${item.slug} <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
+                            <a href="/\${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
+                                /\${item.slug} <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
                             </a>
-                            ${isAtrasado20 ? `<span class="text-[10px] font-bold text-red-600 block mt-0.5"><i class="fa-solid fa-route mr-1"></i> Redireciona p/ litraodoreset.com.br</span>` : ''}
+                            \${isAtrasado20 ? \`<span class="text-[10px] font-bold text-red-600 block mt-0.5"><i class="fa-solid fa-route mr-1"></i> Redireciona p/ litraodoreset.com.br</span>\` : ''}
                         </td>
-                        <td class="p-4 text-sm font-medium"><a href="https://wa.me/${normalizarNumeroWhatsApp(item.whatsapp)}" target="_blank" class="text-green-600 hover:underline"><i class="fa-brands fa-whatsapp"></i> ${item.whatsapp}</a></td>
+                        <td class="p-4 text-sm font-medium"><a href="https://wa.me/\${normalizarNumeroWhatsApp(item.whatsapp)}" target="_blank" class="text-green-600 hover:underline"><i class="fa-brands fa-whatsapp"></i> \${item.whatsapp}</a></td>
                         <td class="p-4 text-center">
-                            ${statusBadgeHtml}
-                            <div class="text-[11px] font-bold text-gray-500"><i class="fa-regular fa-calendar mr-1"></i> ${formatarData(item.vencimento)}</div>
+                            \${statusBadgeHtml}
+                            <div class="text-[11px] font-bold text-gray-500"><i class="fa-regular fa-calendar mr-1"></i> \${formatarData(item.vencimento)}</div>
                         </td>
-                        <td class="p-4 text-center space-x-2">
-                            <button onclick="abrirModalEditar('${item.id}', '${item.status || 'Ativo'}', '${item.vencimento || ''}')" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm">
+                        <td class="p-4 text-center space-x-1.5 whitespace-nowrap">
+                            <button onclick="alternarFinanceiroAdmin('\${item.id}', \${!isFinLiberado})" class="\${isFinLiberado ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs" title="\${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}">
+                                <i class="fa-solid fa-calculator \${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> \${isFinLiberado ? 'Financeiro: Liberado' : 'Liberar Financeiro'}
+                            </button>
+                            <button onclick="abrirModalEditar('\${item.id}', '\${item.status || 'Ativo'}', '\${item.vencimento || ''}', \${isFinLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm">
                                 <i class="fa-solid fa-pen-to-square"></i> Liberar/Editar
                             </button>
-                            <button onclick="deletar('${item.id}')" class="text-gray-400 hover:text-red-500 transition p-2 rounded-lg">
+                            <button onclick="deletar('\${item.id}')" class="text-gray-400 hover:text-red-500 transition p-2 rounded-lg">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -431,10 +442,13 @@
         }
 
         // EDICAO
-        function abrirModalEditar(id, status, venc) {
+        function abrirModalEditar(id, status, venc, isFinLiberado) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-status').value = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
             document.getElementById('edit-vencimento').value = venc;
+            if (document.getElementById('edit-financeiro-liberado')) {
+                document.getElementById('edit-financeiro-liberado').checked = !!isFinLiberado;
+            }
             document.getElementById('modal-editar').classList.remove('hidden');
         }
         function fecharModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
@@ -444,11 +458,69 @@
             const id = document.getElementById('edit-id').value;
             const st = document.getElementById('edit-status').value;
             const dt = document.getElementById('edit-vencimento').value;
-            
-            await supabaseClient.from('consultores').update({ status: st, vencimento: dt }).eq('id', id);
-            fecharModalEditar();
-            carregarDados();
+            const finLiberado = document.getElementById('edit-financeiro-liberado') ? document.getElementById('edit-financeiro-liberado').checked : false;
+
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_FINANCEIRO:${finLiberado ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_FINANCEIRO:')) {
+                    raw = raw.replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({
+                    status: st,
+                    vencimento: dt,
+                    nome_espaco: raw.trim()
+                }).eq('id', id);
+
+                fecharModalEditar();
+                carregarDados();
+            } catch (err) {
+                alert("Erro ao salvar: " + err.message);
+            }
         }
+
+        async function alternarFinanceiroAdmin(id, liberar) {
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, herbalife_id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                const hid = row ? row.herbalife_id : id;
+                if (String(hid).trim() === '433005811' && !liberar) {
+                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
+                    return;
+                }
+
+                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Módulo Financeiro do EVS para o consultor ID ${hid}?`)) {
+                    return;
+                }
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_FINANCEIRO:${liberar ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_FINANCEIRO:')) {
+                    raw = raw.replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                carregarDados();
+            } catch (err) {
+                alert(`Erro ao alterar liberação: ${err.message}`);
+            }
+        }
+        window.alternarFinanceiroAdmin = alternarFinanceiroAdmin;
 
         // NOVO
         function abrirModal() { document.getElementById('modal-novo').classList.remove('hidden'); }
