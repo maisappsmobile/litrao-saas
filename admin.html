@@ -139,6 +139,13 @@
                         </label>
                         <p class="text-[10px] text-purple-700 mt-1">Permite ao consultor acessar a Calculadora de Doses, Lucro do Litrão e Catálogo.</p>
                     </div>
+                    <div class="mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                        <label class="flex items-center space-x-2 cursor-pointer select-none">
+                            <input type="checkbox" id="edit-catalogo-liberado" class="w-4 h-4 text-blue-600 rounded">
+                            <span class="text-xs font-bold text-blue-900"><i class="fa-solid fa-book-open-reader mr-1"></i> Catálogo Digital Interativo Liberado</span>
+                        </label>
+                        <p class="text-[10px] text-blue-700 mt-1">Permite ao consultor acessar o painel de estatísticas, compartilhamento WhatsApp/E-mail e visitas.</p>
+                    </div>
                 </div>
                 <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="fecharModalEditar()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Cancelar</button>
@@ -402,6 +409,7 @@
                     if (mS && mS[1]) senhaItem = mS[1].trim();
                 }
                 const isFinLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+                const isCatLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
 
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
@@ -428,7 +436,10 @@
                             <button onclick="alternarFinanceiroAdmin('\${item.id}', \${!isFinLiberado})" class="\${isFinLiberado ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs" title="\${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}">
                                 <i class="fa-solid fa-calculator \${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> \${isFinLiberado ? 'Financeiro: Liberado' : 'Liberar Financeiro'}
                             </button>
-                            <button onclick="abrirModalEditar('\${item.id}', '\${item.status || 'Ativo'}', '\${item.vencimento || ''}', \${isFinLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm">
+                            <button onclick="alternarCatalogoAdmin('\${item.id}', \${!isCatLiberado})" class="\${isCatLiberado ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs" title="\${isCatLiberado ? 'Clique para Bloquear o Catálogo Interativo' : 'Clique para Liberar o Catálogo Interativo'}">
+                                <i class="fa-solid fa-book-open-reader \${isCatLiberado ? 'text-blue-600' : 'text-gray-400'}"></i> \${isCatLiberado ? 'Catálogo: Liberado' : 'Liberar Catálogo'}
+                            </button>
+                            <button onclick="abrirModalEditar('\${item.id}', '\${item.status || 'Ativo'}', '\${item.vencimento || ''}', \${isFinLiberado}, \${isCatLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm">
                                 <i class="fa-solid fa-pen-to-square"></i> Liberar/Editar
                             </button>
                             <button onclick="deletar('\${item.id}')" class="text-gray-400 hover:text-red-500 transition p-2 rounded-lg">
@@ -442,12 +453,15 @@
         }
 
         // EDICAO
-        function abrirModalEditar(id, status, venc, isFinLiberado) {
+        function abrirModalEditar(id, status, venc, isFinLiberado, isCatLiberado) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-status').value = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
             document.getElementById('edit-vencimento').value = venc;
             if (document.getElementById('edit-financeiro-liberado')) {
                 document.getElementById('edit-financeiro-liberado').checked = !!isFinLiberado;
+            }
+            if (document.getElementById('edit-catalogo-liberado')) {
+                document.getElementById('edit-catalogo-liberado').checked = !!isCatLiberado;
             }
             document.getElementById('modal-editar').classList.remove('hidden');
         }
@@ -459,6 +473,7 @@
             const st = document.getElementById('edit-status').value;
             const dt = document.getElementById('edit-vencimento').value;
             const finLiberado = document.getElementById('edit-financeiro-liberado') ? document.getElementById('edit-financeiro-liberado').checked : false;
+            const catLiberado = document.getElementById('edit-catalogo-liberado') ? document.getElementById('edit-catalogo-liberado').checked : false;
 
             try {
                 const { data: row } = await supabaseClient
@@ -468,11 +483,21 @@
                     .maybeSingle();
 
                 let raw = (row && row.nome_espaco) || '';
-                const tagNova = `<!--MODULO_FINANCEIRO:${finLiberado ? 'true' : 'false'}-->`;
+                
+                // Atualiza tag financeira
+                const tagFin = `<!--MODULO_FINANCEIRO:${finLiberado ? 'true' : 'false'}-->`;
                 if (raw.includes('<!--MODULO_FINANCEIRO:')) {
-                    raw = raw.replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/, tagNova);
+                    raw = raw.replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/, tagFin);
                 } else {
-                    raw += ' ' + tagNova;
+                    raw += ' ' + tagFin;
+                }
+
+                // Atualiza tag catálogo
+                const tagCat = `<!--MODULO_CATALOGO_INTERATIVO:${catLiberado ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CATALOGO_INTERATIVO:')) {
+                    raw = raw.replace(/<!--MODULO_CATALOGO_INTERATIVO:[\s\S]*?-->/, tagCat);
+                } else {
+                    raw += ' ' + tagCat;
                 }
 
                 await supabaseClient.from('consultores').update({
@@ -521,6 +546,40 @@
             }
         }
         window.alternarFinanceiroAdmin = alternarFinanceiroAdmin;
+
+        async function alternarCatalogoAdmin(id, liberar) {
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, herbalife_id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                const hid = row ? row.herbalife_id : id;
+                if (String(hid).trim() === '433005811' && !liberar) {
+                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
+                    return;
+                }
+
+                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Catálogo Digital Interativo para o consultor ID ${hid}?`)) {
+                    return;
+                }
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_CATALOGO_INTERATIVO:${liberar ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CATALOGO_INTERATIVO:')) {
+                    raw = raw.replace(/<!--MODULO_CATALOGO_INTERATIVO:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                carregarDados();
+            } catch (err) {
+                alert(`Erro ao alterar liberação: ${err.message}`);
+            }
+        }
+        window.alternarCatalogoAdmin = alternarCatalogoAdmin;
 
         // NOVO
         function abrirModal() { document.getElementById('modal-novo').classList.remove('hidden'); }

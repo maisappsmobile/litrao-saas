@@ -47,6 +47,9 @@
                 <button id="btn-abrir-financeiro-evs" onclick="abrirModuloFinanceiroEVS()" class="text-xs font-black bg-gradient-to-r from-emerald-600 via-teal-700 to-green-800 hover:from-emerald-700 hover:to-green-900 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Módulo Financeiro do EVS & Custos de Doses">
                     <i class="fa-solid fa-calculator text-amber-300"></i> <span class="hidden md:inline">Financeiro & Doses</span>
                 </button>
+                <button id="btn-abrir-catalogo-interativo" onclick="abrirModuloCatalogoInterativo()" class="text-xs font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Meu Catálogo Interativo Digital & Compartilhamento">
+                    <i class="fa-solid fa-book-open-reader text-cyan-300"></i> <span class="hidden md:inline">Meu Catálogo Digital</span>
+                </button>
                 <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 px-3 py-1.5 rounded-lg transition border border-gray-200 hidden cursor-pointer">
                     <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
                 </button>
@@ -281,6 +284,37 @@
                 <div class="flex items-center gap-3 w-full md:w-auto relative z-10 flex-shrink-0">
                     <button type="button" onclick="abrirModuloFinanceiroEVS()" class="w-full md:w-auto bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
                         <i class="fa-solid fa-calculator text-emerald-950"></i> ABRIR CALCULADORA & CATÁLOGO
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD: MEU CATÁLOGO DIGITAL INTERATIVO & COMPARTILHAMENTO -->
+        <div id="card-modulo-catalogo-container" class="mb-6">
+            <div class="w-full bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-blue-400/40 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-5 group">
+                <div class="absolute -right-10 -bottom-10 w-52 h-52 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition duration-500"></div>
+                <div class="flex items-center space-x-4 relative z-10">
+                    <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg flex-shrink-0 group-hover:scale-105 transition transform">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                            <span class="bg-blue-500/20 text-cyan-300 border border-blue-400/30 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-star"></i> CATÁLOGO DIGITAL INTERATIVO
+                            </span>
+                            <span id="badge-catalogo-acesso-status" class="bg-black/40 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-300/30">
+                                <i class="fa-solid fa-lock mr-1"></i> Acesso Restrito SuperAdmin
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black text-white leading-tight">Meu Catálogo Herbalife & Litrão do Reset</h4>
+                        <p class="text-xs sm:text-sm text-blue-100 font-medium mt-0.5 max-w-xl">
+                            Painel de estatísticas (visitas, downloads e compartilhamentos), envio rápido para clientes via WhatsApp e E-mail com mensagens pré-formatadas e revista digital interativa.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto relative z-10 flex-shrink-0">
+                    <button type="button" onclick="abrirModuloCatalogoInterativo()" class="w-full md:w-auto bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 text-slate-950 font-black py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-chart-line text-blue-950"></i> GERENCIAR MEU CATÁLOGO
                     </button>
                 </div>
             </div>
@@ -1272,6 +1306,23 @@
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="superadmin-edit-financeiro-liberado" class="sr-only peer">
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- LIBERAÇÃO MANUAL DO CATÁLOGO INTERATIVO HERBALIFE -->
+                    <div class="bg-blue-50/80 p-3 rounded-2xl border border-blue-300 flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-xs">
+                                <i class="fa-solid fa-book-open-reader"></i>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-black text-blue-950 uppercase">Catálogo Digital Interativo</span>
+                                <span class="text-[10px] text-blue-700 font-medium">Libera painel do catálogo, compartilhamento WhatsApp/E-mail e visitas</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="superadmin-edit-catalogo-liberado" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
 
@@ -4159,6 +4210,406 @@
         </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- MODAL PRINCIPAL: GESTÃO DO MEU CATÁLOGO DIGITAL INTERATIVO (HERBALIFE)   -->
+    <!-- Inspirado no layout oficial do catalogoherbalife.com.br/painel           -->
+    <!-- ========================================================================= -->
+    <div id="modal-modulo-catalogo-interativo" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden animate-fade-in">
+        <div class="bg-slate-100 rounded-3xl max-w-5xl w-full p-4 sm:p-7 shadow-2xl border-2 border-blue-400 relative max-h-[94vh] overflow-y-auto">
+            <!-- Botão Fechar -->
+            <button onclick="fecharModuloCatalogoInterativo()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer z-20">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Topo do Painel de Gestão do Catálogo -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-gray-200 gap-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center text-2xl font-black shadow-md">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">HERBALIFE NUTRITION</span>
+                            <span class="bg-blue-100 text-blue-900 border border-blue-300 text-[10px] font-black uppercase px-2 py-0.2 rounded-full">
+                                Painel Meu Catálogo
+                            </span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">
+                            Gestão do Meu Catálogo Digital
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirModalPerfil()" class="bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <i class="fa-solid fa-user-pen"></i> Editar meus dados
+                    </button>
+                    <div class="flex items-center space-x-1.5 bg-white border border-gray-200 px-3 py-1.5 rounded-xl shadow-xs">
+                        <span class="text-xs font-bold text-gray-600">Olá, <strong id="cat-consultor-nome-topo" class="text-gray-900">Consultor</strong></span>
+                        <span class="w-6 h-6 rounded-full bg-cyan-100 text-cyan-800 flex items-center justify-center font-black text-xs">C</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade de Blocos e Estatísticas (Idêntico ao catalogoherbalife.com.br/painel) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-5">
+                
+                <!-- Bloco 1: Card Estatísticas (Coral/Vermelho Vibrante) -->
+                <div class="bg-gradient-to-tr from-rose-500 to-red-500 rounded-3xl p-5 text-white shadow-lg flex flex-col justify-between">
+                    <div>
+                        <span class="text-sm font-black uppercase tracking-wider block mb-4">Estatísticas</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="abrirModalGraficoVisitas('semestre')" class="bg-white/95 hover:bg-white text-gray-800 p-3 rounded-2xl shadow-sm text-left transition transform hover:scale-[1.02] cursor-pointer">
+                            <i class="fa-solid fa-chart-column text-amber-500 text-lg mb-1 block"></i>
+                            <span class="text-xs font-extrabold text-gray-900 block">Visitas</span>
+                            <span id="cat-card-stat-visitas" class="text-[10px] text-gray-500 font-bold">Ver gráfico</span>
+                        </button>
+                        <button onclick="abrirModalPerfil()" class="bg-white/95 hover:bg-white text-gray-800 p-3 rounded-2xl shadow-sm text-left transition transform hover:scale-[1.02] cursor-pointer">
+                            <i class="fa-solid fa-user-check text-blue-500 text-lg mb-1 block"></i>
+                            <span class="text-xs font-extrabold text-gray-900 block">Meus Dados</span>
+                            <span class="text-[10px] text-gray-500 font-bold">Atualizar</span>
+                        </button>
+                        <button onclick="abrirModalGraficoVisitas('trimestre')" class="bg-white/95 hover:bg-white text-gray-800 p-3 rounded-2xl shadow-sm text-left transition transform hover:scale-[1.02] cursor-pointer">
+                            <i class="fa-solid fa-cubes-stacked text-rose-500 text-lg mb-1 block"></i>
+                            <span class="text-xs font-extrabold text-gray-900 block">Downloads</span>
+                            <span id="cat-card-stat-downloads" class="text-[10px] text-gray-500 font-bold">3 no mês</span>
+                        </button>
+                        <button onclick="abrirModalCompartilharWhatsApp()" class="bg-white/95 hover:bg-white text-gray-800 p-3 rounded-2xl shadow-sm text-left transition transform hover:scale-[1.02] cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-green-500 text-lg mb-1 block"></i>
+                            <span class="text-xs font-extrabold text-gray-900 block">WhatsApp</span>
+                            <span class="text-[10px] text-gray-500 font-bold">Enviar link</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bloco 2: Card Downloads -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-table-cells-large"></i>
+                        </div>
+                        <span id="cat-badge-downloads-count" class="bg-blue-600 text-white font-black text-sm px-3 py-1 rounded-xl shadow-xs">
+                            3
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-xs uppercase font-extrabold text-gray-400 block">Downloads</span>
+                        <p class="text-xs text-gray-500 mt-1">Clientes que baixaram o arquivo oficial do seu catálogo em PDF.</p>
+                    </div>
+                    <!-- Onda decorativa de gráfico -->
+                    <div class="h-8 mt-3 w-full bg-cyan-50 rounded-xl flex items-end px-2 pb-1 gap-1">
+                        <div class="h-3 w-1/6 bg-cyan-400 rounded-sm"></div>
+                        <div class="h-5 w-1/6 bg-cyan-400 rounded-sm"></div>
+                        <div class="h-4 w-1/6 bg-cyan-400 rounded-sm"></div>
+                        <div class="h-7 w-1/6 bg-cyan-500 rounded-sm"></div>
+                        <div class="h-6 w-1/6 bg-cyan-500 rounded-sm"></div>
+                        <div class="h-8 w-1/6 bg-blue-600 rounded-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Bloco 3: Card Visitas -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span id="cat-badge-visitas-count" class="text-3xl font-black text-gray-800">
+                            55
+                        </span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs uppercase font-extrabold text-gray-400 block">Visitas</span>
+                        <p class="text-xs text-gray-500 mt-1">Total de acessos únicos ao seu Catálogo Interativo Digital.</p>
+                    </div>
+                    <button onclick="abrirModalGraficoVisitas('semestre')" class="mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-chart-line"></i> Ver Histórico Mensal
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Grade Inferior: Checklist, Foto, Cor do Card e Compartilhamento -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+                
+                <!-- Checklist Meu Catálogo -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-black text-gray-900 text-sm">Meu Catálogo</h4>
+                        <span id="cat-visualizacoes-resumo" class="text-xs text-gray-500 font-bold">55 visualizações</span>
+                    </div>
+                    
+                    <div class="space-y-3.5 pl-2 relative border-l-2 border-gray-100 ml-2">
+                        <div class="relative flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-600 ring-4 ring-purple-100 -ml-[19px]"></span>
+                            <a href="javascript:void(0)" onclick="abrirModuloFinanceiroEVS()" class="text-xs font-bold text-gray-700 hover:text-purple-600">Atualizar meu Catálogo</a>
+                        </div>
+                        <div class="relative flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-teal-500 ring-4 ring-teal-100 -ml-[19px]"></span>
+                            <a href="javascript:void(0)" onclick="abrirModalPerfil()" class="text-xs font-bold text-gray-700 hover:text-teal-600">Atualizar meus dados</a>
+                        </div>
+                        <div class="relative flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 ring-4 ring-amber-100 -ml-[19px]"></span>
+                            <a href="javascript:void(0)" onclick="abrirModalGraficoVisitas('trimestre')" class="text-xs font-bold text-gray-700 hover:text-amber-600">Visitas</a>
+                        </div>
+                        <div class="relative flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 ring-4 ring-rose-100 -ml-[19px]"></span>
+                            <a href="javascript:void(0)" onclick="abrirVisualizadorMeuCatalogo()" class="text-xs font-bold text-rose-600 hover:underline">Ver meu Catálogo ao Vivo</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Foto do Espaço & Cor do Tema -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Foto do Consultor / Espaço -->
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto rounded-2xl bg-gray-900 border-2 border-gray-300 overflow-hidden mb-2 relative group flex items-center justify-center shadow-xs">
+                                <img id="cat-preview-foto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Sua foto aqui" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-[11px] font-bold text-gray-700 block">Sua foto aqui</span>
+                            <button onclick="alterarFotoCatalogoPrompt()" class="text-[10px] text-blue-600 hover:underline font-bold mt-0.5 cursor-pointer">
+                                Alterar foto
+                            </button>
+                        </div>
+
+                        <!-- Cor do Card / Tema -->
+                        <div class="text-center">
+                            <div id="cat-preview-cor-card" class="w-20 h-20 mx-auto rounded-2xl bg-emerald-600 border-2 border-gray-300 mb-2 shadow-xs flex items-center justify-center text-white">
+                                <i class="fa-solid fa-palette text-xl"></i>
+                            </div>
+                            <span class="text-[11px] font-bold text-gray-700 block">Cor do seu card</span>
+                            <button onclick="alterarCorTemaCatalogoPrompt()" class="text-[10px] text-blue-600 hover:underline font-bold mt-0.5 cursor-pointer">
+                                Mudar cor
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+                        <button onclick="abrirVisualizadorMeuCatalogo()" class="w-full bg-slate-900 hover:bg-black text-white font-black py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-cyan-300"></i> Abrir Catálogo ao Vivo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Compartilhamento Oficial -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-black text-gray-900 text-sm mb-1">Compartilhar Catálogo:</h4>
+                        <p class="text-xs text-gray-500 mb-4">Envie o catálogo diretamente para clientes pelo WhatsApp, E-mail ou copie o link.</p>
+                        
+                        <div class="flex items-center justify-center gap-4 py-2">
+                            <!-- Botão WhatsApp -->
+                            <button onclick="abrirModalCompartilharWhatsApp()" class="w-12 h-12 rounded-2xl bg-green-50 hover:bg-green-100 text-green-600 border border-green-200 flex items-center justify-center text-2xl transition transform hover:scale-110 shadow-xs cursor-pointer" title="Compartilhar pelo WhatsApp">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+
+                            <!-- Botão E-mail -->
+                            <button onclick="abrirModalCompartilharEmail()" class="w-12 h-12 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 flex items-center justify-center text-xl transition transform hover:scale-110 shadow-xs cursor-pointer" title="Compartilhar por E-mail">
+                                <i class="fa-regular fa-envelope"></i>
+                            </button>
+
+                            <!-- Botão Copiar Link -->
+                            <button onclick="copiarLinkMeuCatalogo()" class="w-12 h-12 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 flex items-center justify-center text-xl transition transform hover:scale-110 shadow-xs cursor-pointer" title="Copiar Link do Catálogo">
+                                <i class="fa-solid fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+                        <span id="cat-link-display" class="text-[11px] font-mono text-gray-500 truncate block">https://litraodoreset.com.br/catalogo</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: COMPARTILHAR CATÁLOGO PELO WHATSAPP (IDÊNTICO AO PRINT DO USUÁRIO) -->
+    <!-- ========================================================================= -->
+    <div id="modal-compartilhar-catalogo-whatsapp" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-100 relative">
+            <button onclick="fecharModalCompartilharWhatsApp()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <h3 class="text-xl font-black text-gray-900 mb-4">Compartilhar Catálogo pelo WhatsApp</h3>
+
+            <!-- Caixa de Alerta Ciano (Idêntica ao print do usuário) -->
+            <div class="bg-cyan-50/80 border border-cyan-400 rounded-2xl p-4 flex items-center gap-3 text-cyan-900 text-xs font-bold mb-4">
+                <div class="w-8 h-8 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center flex-shrink-0 text-base">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <span>Digite abaixo o número e mensagem para enviar</span>
+            </div>
+
+            <form onsubmit="enviarCatalogoWhatsAppCliente(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp:</label>
+                    <input type="text" id="share-zap-numero" placeholder="Celular do cliente para enviar a mensagem via WhatsApp" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <span class="text-[10px] text-gray-400 mt-1 block">Celular do cliente para enviar a mensagem via WhatsApp (Ex: 11999998888 ou deixe vazio para escolher no app)</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Mensagem:</label>
+                    <textarea id="share-zap-mensagem" rows="6" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 leading-relaxed"></textarea>
+                    <span class="text-[10px] text-gray-400 mt-1 block">Mensagem para o WhatsApp do cliente</span>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="fecharModalCompartilharWhatsApp()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition cursor-pointer">
+                        Fechar
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl text-xs font-black text-white bg-blue-500 hover:bg-blue-600 transition shadow-md cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: COMPARTILHAR CATÁLOGO POR E-MAIL (IDÊNTICO AO PRINT DO USUÁRIO)    -->
+    <!-- ========================================================================= -->
+    <div id="modal-compartilhar-catalogo-email" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-100 relative">
+            <button onclick="fecharModalCompartilharEmail()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <h3 class="text-xl font-black text-gray-900 mb-4">Compartilhar Catálogo por E-mail</h3>
+
+            <!-- Caixa de Alerta Azul (Idêntica ao print do usuário) -->
+            <div class="bg-blue-50/80 border border-blue-400 rounded-2xl p-4 flex items-center gap-3 text-blue-900 text-xs font-bold mb-4">
+                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 text-base">
+                    <i class="fa-regular fa-envelope"></i>
+                </div>
+                <span>Digite abaixo o e-mail e mensagem para enviar</span>
+            </div>
+
+            <form onsubmit="enviarCatalogoEmailCliente(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">E-mail:</label>
+                    <input type="email" id="share-email-endereco" placeholder="E-mail do cliente para enviar a mensagem" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <span class="text-[10px] text-gray-400 mt-1 block">E-mail do cliente para enviar a mensagem</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Mensagem:</label>
+                    <textarea id="share-email-mensagem" maxlength="500" rows="6" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"></textarea>
+                    <span class="text-[10px] text-red-500 font-bold mt-1 block">Mensagem que vai para o e-mail do seu cliente (máximo 500 caracteres)</span>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="fecharModalCompartilharEmail()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition cursor-pointer">
+                        Fechar
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl text-xs font-black text-white bg-blue-500 hover:bg-blue-600 transition shadow-md cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-regular fa-paper-plane text-sm"></i> Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: GRÁFICO DE ONDA DE VISITAS (IDÊNTICO AO PRINT 4 DO USUÁRIO)        -->
+    <!-- ========================================================================= -->
+    <div id="modal-grafico-visitas-catalogo" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 relative">
+            <button onclick="fecharModalGraficoVisitas()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Abas Trimestre / Semestre (Idênticas ao print) -->
+            <div class="flex justify-end space-x-4 border-b border-gray-100 pb-3 mb-6 pr-8">
+                <button id="tab-grafico-trimestre" onclick="renderizarGraficoOndaVisitas('trimestre')" class="text-xs font-bold text-gray-500 hover:text-blue-600 pb-1 cursor-pointer transition">
+                    Trimestre
+                </button>
+                <button id="tab-grafico-semestre" onclick="renderizarGraficoOndaVisitas('semestre')" class="text-xs font-black text-blue-600 border-b-2 border-blue-600 pb-1 cursor-pointer transition">
+                    Semestre
+                </button>
+            </div>
+
+            <!-- Área do Gráfico de Curva / Onda -->
+            <div class="relative w-full h-64 sm:h-72 flex items-center justify-center">
+                <svg id="svg-grafico-visitas" viewBox="0 0 600 240" class="w-full h-full overflow-visible">
+                    <!-- Linhas Guia Horizontais -->
+                    <line x1="50" y1="40" x2="570" y2="40" stroke="#000000" stroke-width="1.5" />
+                    <line x1="50" y1="80" x2="570" y2="80" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="50" y1="120" x2="570" y2="120" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="50" y1="160" x2="570" y2="160" stroke="#000000" stroke-width="1.5" />
+                    <line x1="50" y1="200" x2="570" y2="200" stroke="#e5e7eb" stroke-width="1" />
+
+                    <!-- Rótulo do Eixo Y -->
+                    <text x="25" y="125" font-size="11" font-weight="bold" fill="#374151" transform="rotate(-90 25,125)" text-anchor="middle">Visitas</text>
+
+                    <!-- Linha vertical no último mês -->
+                    <line x1="520" y1="40" x2="520" y2="200" stroke="#000000" stroke-width="1" />
+
+                    <!-- Curva Suave de Onda (Laranja) -->
+                    <path id="svg-curva-onda" d="M 80 160 C 130 160, 160 170, 200 168 C 240 166, 260 40, 310 40 C 360 40, 380 160, 420 160 C 460 160, 480 60, 520 40" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
+
+                    <!-- Ponto de Destaque no Final da Curva -->
+                    <circle id="svg-ponto-onda" cx="520" cy="40" r="6" fill="#ffffff" stroke="#f59e0b" stroke-width="3" />
+
+                    <!-- Rótulos dos Meses no Eixo X -->
+                    <text id="label-mes-1" x="80" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Mai</text>
+                    <text id="label-mes-2" x="168" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Jun</text>
+                    <text id="label-mes-3" x="256" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Jul</text>
+                    <text id="label-mes-4" x="344" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Ago</text>
+                    <text id="label-mes-5" x="432" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Set</text>
+                    <text id="label-mes-6" x="520" y="220" font-size="11" font-weight="bold" fill="#4b5563" text-anchor="middle">Out</text>
+                </svg>
+            </div>
+
+            <div class="text-center mt-2">
+                <span id="grafico-legenda-periodo" class="text-xs text-gray-500 italic font-medium">Últimos 6 meses</span>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="fecharModalGraficoVisitas()" class="px-6 py-2.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 transition cursor-pointer">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: CATÁLOGO DIGITAL BLOQUEADO (SOLICITAÇÃO AO SUPERADMIN)              -->
+    <!-- ========================================================================= -->
+    <div id="modal-catalogo-bloqueado" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border-4 border-blue-500 relative text-center">
+            <button onclick="fecharModalCatalogoBloqueado()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-16 h-16 bg-blue-100 text-blue-800 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm border border-blue-300">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+            <span class="inline-block bg-amber-100 text-amber-900 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
+                <i class="fa-solid fa-lock mr-1"></i> Acesso Restrito ao Catálogo Digital
+            </span>
+            <h3 class="text-xl font-black text-gray-900 leading-tight mb-2">
+                Meu Catálogo Digital Interativo
+            </h3>
+            <p class="text-xs text-gray-600 leading-relaxed mb-5">
+                O painel de estatísticas de visitas, downloads e disparo de mensagens via WhatsApp e E-mail do Catálogo Digital encontra-se <strong>restrito para o seu ID</strong>.
+                <br><br>
+                Este módulo é liberado manualmente pelo <strong>SuperAdmin Edwan (ID 433005811)</strong>. Toque no botão abaixo para solicitar a liberação via WhatsApp.
+            </p>
+            <div class="space-y-2.5">
+                <a id="link-whatsapp-solicitar-catalogo" href="https://wa.me/5566981411234?text=Ol%C3%A1%20Edwan!%20Gostaria%20de%20solicitar%20a%20libera%C3%A7%C3%A3o%20do%20M%C3%B3dulo%20do%20Cat%C3%A1logo%20Digital%20no%20meu%20painel." target="_blank" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> SOLICITAR LIBERAÇÃO NO WHATSAPP
+                </a>
+                <button type="button" onclick="fecharModalCatalogoBloqueado()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS E FLYER -->
     <div style="display:none;">
@@ -5925,6 +6376,8 @@
                 if (btnTaxasEntrega) btnTaxasEntrega.classList.remove('hidden');
                 const btnFin = document.getElementById('btn-abrir-financeiro-evs');
                 if (btnFin) btnFin.classList.remove('hidden');
+                const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
+                if (btnCat) btnCat.classList.remove('hidden');
 
                 // Atualiza badge de acesso do card financeiro
                 const badgeFinAcesso = document.getElementById('badge-financeiro-acesso-status');
@@ -5939,6 +6392,22 @@
                     } else {
                         badgeFinAcesso.className = "bg-black/40 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-300/30";
                         badgeFinAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> Acesso Restrito SuperAdmin';
+                    }
+                }
+
+                // Atualiza badge de acesso do card catálogo interativo
+                const badgeCatAcesso = document.getElementById('badge-catalogo-acesso-status');
+                if (badgeCatAcesso && consultorAtual) {
+                    const isCatLib = isModuloCatalogoLiberadoParaConsultor();
+                    if (String(consultorAtual.herbalife_id).trim() === '433005811') {
+                        badgeCatAcesso.className = "bg-purple-600/30 text-yellow-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-yellow-300/40";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-300"></i> SuperAdmin • Acesso Total';
+                    } else if (isCatLib) {
+                        badgeCatAcesso.className = "bg-blue-500/30 text-cyan-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-cyan-400/40";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-cyan-400"></i> Acesso Liberado pelo SuperAdmin';
+                    } else {
+                        badgeCatAcesso.className = "bg-black/40 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-300/30";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> Acesso Restrito SuperAdmin';
                     }
                 }
                 const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
@@ -6706,6 +7175,9 @@
                     statusBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2.5 py-1 rounded-full text-xs">Pendente</span>`;
                 }
 
+                const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+                const isCatLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
+
                 tr.innerHTML = `
                     <td class="p-3 sm:p-4 font-bold text-gray-900">
                         <div class="flex items-center space-x-2.5">
@@ -6760,6 +7232,9 @@
                             <button onclick="alternarLiberacaoFinanceiro('${c.id}', ${!isFinLiberado})" title="${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}" class="${isFinLiberado ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
                                 <i class="fa-solid fa-calculator ${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> ${isFinLiberado ? 'Financeiro: Liberado' : 'Liberar Financeiro'}
                             </button>
+                            <button onclick="alternarLiberacaoCatalogo('${c.id}', ${!isCatLiberado})" title="${isCatLiberado ? 'Clique para Bloquear o Catálogo Interativo' : 'Clique para Liberar o Catálogo Interativo'}" class="${isCatLiberado ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-book-open-reader ${isCatLiberado ? 'text-blue-600' : 'text-gray-400'}"></i> ${isCatLiberado ? 'Catálogo: Liberado' : 'Liberar Catálogo'}
+                            </button>
                             <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar Vitalício Rápido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-1.5 rounded-xl text-xs transition shadow-xs flex items-center gap-1 cursor-pointer">
                                 <i class="fa-solid fa-infinity"></i> Vitalício
                             </button>
@@ -6787,6 +7262,11 @@
             const isFinConsultor = String(consultor.herbalife_id).trim() === '433005811' || (consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
             const chkFinEdit = document.getElementById('superadmin-edit-financeiro-liberado');
             if (chkFinEdit) chkFinEdit.checked = !!isFinConsultor;
+
+            const isCatConsultor = String(consultor.herbalife_id).trim() === '433005811' || (consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
+            const chkCatEdit = document.getElementById('superadmin-edit-catalogo-liberado');
+            if (chkCatEdit) chkCatEdit.checked = !!isCatConsultor;
+
             document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • Letras: ${letrasHerbalife || '---'} • Senha: ${senhaPainel || '---'}`;
             
             // Extrai dados limpos de nome_espaco, cidade, estado e redes sociais
@@ -6921,10 +7401,10 @@
                 nomeEspacoBase += ` <!--SENHA:${senhaEdit}-->`;
             }
 
-            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA e MODULO_FINANCEIRO para não duplicar
+            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO e MODULO_CATALOGO_INTERATIVO para não duplicar
             const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
@@ -6933,6 +7413,10 @@
             // Tag de Liberação do Módulo Financeiro do EVS
             const isFinCheck = document.getElementById('superadmin-edit-financeiro-liberado') ? document.getElementById('superadmin-edit-financeiro-liberado').checked : false;
             nomeEspacoBase += ` <!--MODULO_FINANCEIRO:${isFinCheck ? 'true' : 'false'}-->`;
+
+            // Tag de Liberação do Catálogo Interativo Digital
+            const isCatCheck = document.getElementById('superadmin-edit-catalogo-liberado') ? document.getElementById('superadmin-edit-catalogo-liberado').checked : false;
+            nomeEspacoBase += ` <!--MODULO_CATALOGO_INTERATIVO:${isCatCheck ? 'true' : 'false'}-->`;
 
             // 3 Letras da Herbalife: apenas letras maiúsculas (máximo 3)
             const letrasEdit = (document.getElementById('superadmin-edit-letras')?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
@@ -14828,7 +15312,316 @@
                 alert(`Erro ao alterar liberação: ${err.message}`);
             }
         }
-        window.alternarLiberacaoFinanceiro = alternarLiberacaoFinanceiro;
+        // =========================================================================
+        // MÓDULO DO MEU CATÁLOGO DIGITAL INTERATIVO (HERBALIFE & LITRÃO DO RESET)
+        // =========================================================================
+        function isModuloCatalogoLiberadoParaConsultor() {
+            if (!consultorAtual) return false;
+            if (String(consultorAtual.herbalife_id).trim() === '433005811') return true;
+            return !!(consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
+        }
+
+        function abrirModuloCatalogoInterativo() {
+            if (!isModuloCatalogoLiberadoParaConsultor()) {
+                const linkZapSol = document.getElementById('link-whatsapp-solicitar-catalogo');
+                if (linkZapSol && consultorAtual) {
+                    const msgSol = `Olá Edwan! Gostaria de solicitar a liberação do Módulo do Catálogo Digital para o meu consultor ID ${consultorAtual.herbalife_id}.`;
+                    linkZapSol.href = `https://wa.me/5566981411234?text=${encodeURIComponent(msgSol)}`;
+                }
+                document.getElementById('modal-catalogo-bloqueado').classList.remove('hidden');
+                return;
+            }
+
+            carregarDadosGestaoMeuCatalogo();
+            document.getElementById('modal-modulo-catalogo-interativo').classList.remove('hidden');
+        }
+
+        function fecharModuloCatalogoInterativo() {
+            document.getElementById('modal-modulo-catalogo-interativo').classList.add('hidden');
+        }
+
+        function fecharModalCatalogoBloqueado() {
+            document.getElementById('modal-catalogo-bloqueado').classList.add('hidden');
+        }
+
+        function carregarDadosGestaoMeuCatalogo() {
+            if (!consultorAtual) return;
+
+            const hid = consultorAtual.herbalife_id;
+            const slug = consultorAtual.slug || hid;
+            const nomeEspaco = (consultorAtual.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+
+            const elNomeTopo = document.getElementById('cat-consultor-nome-topo');
+            if (elNomeTopo) elNomeTopo.innerText = nomeEspaco || `Consultor #${hid}`;
+
+            // Métricas (local ou padrão)
+            const visitasKey = 'visitas_cat_' + hid;
+            const downloadsKey = 'downloads_cat_' + hid;
+            const visitas = parseInt(localStorage.getItem(visitasKey) || '55', 10);
+            const downloads = parseInt(localStorage.getItem(downloadsKey) || '3', 10);
+
+            if (document.getElementById('cat-badge-visitas-count')) document.getElementById('cat-badge-visitas-count').innerText = visitas;
+            if (document.getElementById('cat-card-stat-visitas')) document.getElementById('cat-card-stat-visitas').innerText = visitas + ' visitas';
+            if (document.getElementById('cat-visualizacoes-resumo')) document.getElementById('cat-visualizacoes-resumo').innerText = visitas + ' visualizações';
+
+            if (document.getElementById('cat-badge-downloads-count')) document.getElementById('cat-badge-downloads-count').innerText = downloads;
+            if (document.getElementById('cat-card-stat-downloads')) document.getElementById('cat-card-stat-downloads').innerText = downloads + ' no mês';
+
+            // Link do catálogo
+            const baseUrl = window.location.origin + window.location.pathname.replace('painel.html', '');
+            const linkCatalogo = `${baseUrl}catalogo.html?c=${encodeURIComponent(slug)}`;
+            if (document.getElementById('cat-link-display')) {
+                document.getElementById('cat-link-display').innerText = linkCatalogo;
+                document.getElementById('cat-link-display').title = linkCatalogo;
+            }
+
+            // Foto e Cor
+            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--CATALOGO_CUSTOM:')) {
+                try {
+                    const m = consultorAtual.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        const parsed = JSON.parse(m[1]);
+                        if (parsed.foto && document.getElementById('cat-preview-foto')) {
+                            document.getElementById('cat-preview-foto').src = parsed.foto;
+                        }
+                        if (parsed.cor && document.getElementById('cat-preview-cor-card')) {
+                            document.getElementById('cat-preview-cor-card').style.backgroundColor = parsed.cor;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function abrirVisualizadorMeuCatalogo() {
+            if (!consultorAtual) return;
+            const slug = consultorAtual.slug || consultorAtual.herbalife_id;
+            window.open(`catalogo.html?c=${encodeURIComponent(slug)}`, '_blank');
+        }
+
+        function copiarLinkMeuCatalogo() {
+            if (!consultorAtual) return;
+            const slug = consultorAtual.slug || consultorAtual.herbalife_id;
+            const baseUrl = window.location.origin + window.location.pathname.replace('painel.html', '');
+            const linkCatalogo = `${baseUrl}catalogo.html?c=${encodeURIComponent(slug)}`;
+
+            navigator.clipboard.writeText(linkCatalogo).then(() => {
+                alert("Link do seu Catálogo Digital copiado com sucesso!\n\n" + linkCatalogo);
+            }).catch(() => {
+                prompt("Copie o link do seu Catálogo Digital abaixo:", linkCatalogo);
+            });
+        }
+
+        // WhatsApp
+        function abrirModalCompartilharWhatsApp() {
+            if (!consultorAtual) return;
+            const slug = consultorAtual.slug || consultorAtual.herbalife_id;
+            const nomeConsultor = (consultorAtual.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim() || 'Edwan Braga';
+            const baseUrl = window.location.origin + window.location.pathname.replace('painel.html', '');
+            const linkCatalogo = `${baseUrl}catalogo.html?c=${encodeURIComponent(slug)}`;
+
+            const msgPadrao = `Olá! Segue abaixo meu catálogo para você poder ver as novidades!!\n\n${linkCatalogo}\n\nQualquer necessidade permaneço à disposição!\n\nAtt. ${nomeConsultor}`;
+            
+            document.getElementById('share-zap-numero').value = '';
+            document.getElementById('share-zap-mensagem').value = msgPadrao;
+            document.getElementById('modal-compartilhar-catalogo-whatsapp').classList.remove('hidden');
+        }
+
+        function fecharModalCompartilharWhatsApp() {
+            document.getElementById('modal-compartilhar-catalogo-whatsapp').classList.add('hidden');
+        }
+
+        function enviarCatalogoWhatsAppCliente(e) {
+            e.preventDefault();
+            const num = (document.getElementById('share-zap-numero').value || '').trim();
+            const msg = document.getElementById('share-zap-mensagem').value.trim();
+
+            let url = '';
+            if (num) {
+                const zapLimpo = (typeof normalizarNumeroWhatsApp === 'function') ? normalizarNumeroWhatsApp(num) : num.replace(/\D/g, '');
+                url = `https://wa.me/${zapLimpo}?text=${encodeURIComponent(msg)}`;
+            } else {
+                url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            }
+
+            window.open(url, '_blank');
+            fecharModalCompartilharWhatsApp();
+        }
+
+        // E-mail
+        function abrirModalCompartilharEmail() {
+            if (!consultorAtual) return;
+            const slug = consultorAtual.slug || consultorAtual.herbalife_id;
+            const nomeConsultor = (consultorAtual.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim() || 'Edwan Braga';
+            const zap = consultorAtual.whatsapp || '';
+            const baseUrl = window.location.origin + window.location.pathname.replace('painel.html', '');
+            const linkCatalogo = `${baseUrl}catalogo.html?c=${encodeURIComponent(slug)}`;
+
+            const msgPadrao = `Olá! Segue abaixo meu catálogo para você poder ver as novidades!!\n\n${linkCatalogo}\n\nQualquer necessidade permaneço à disposição!\n\nAtt.\n${nomeConsultor}\nWhatsApp: ${zap}`;
+
+            document.getElementById('share-email-endereco').value = '';
+            document.getElementById('share-email-mensagem').value = msgPadrao;
+            document.getElementById('modal-compartilhar-catalogo-email').classList.remove('hidden');
+        }
+
+        function fecharModalCompartilharEmail() {
+            document.getElementById('modal-compartilhar-catalogo-email').classList.add('hidden');
+        }
+
+        function enviarCatalogoEmailCliente(e) {
+            e.preventDefault();
+            const email = (document.getElementById('share-email-endereco').value || '').trim();
+            const msg = document.getElementById('share-email-mensagem').value.trim();
+
+            const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent('Catálogo Digital Oficial Herbalife & Litrão do Reset')}&body=${encodeURIComponent(msg)}`;
+            window.location.href = mailtoUrl;
+            fecharModalCompartilharEmail();
+        }
+
+        // Gráfico de Onda de Visitas
+        function abrirModalGraficoVisitas(periodo) {
+            renderizarGraficoOndaVisitas(periodo || 'semestre');
+            document.getElementById('modal-grafico-visitas-catalogo').classList.remove('hidden');
+        }
+
+        function fecharModalGraficoVisitas() {
+            document.getElementById('modal-grafico-visitas-catalogo').classList.add('hidden');
+        }
+
+        function renderizarGraficoOndaVisitas(periodo) {
+            const tabTrimestre = document.getElementById('tab-grafico-trimestre');
+            const tabSemestre = document.getElementById('tab-grafico-semestre');
+            const legenda = document.getElementById('grafico-legenda-periodo');
+
+            if (periodo === 'trimestre') {
+                tabTrimestre.className = "text-xs font-black text-blue-600 border-b-2 border-blue-600 pb-1 cursor-pointer transition";
+                tabSemestre.className = "text-xs font-bold text-gray-500 hover:text-blue-600 pb-1 cursor-pointer transition";
+                if (legenda) legenda.innerText = "Últimos 3 meses (Trimestre)";
+
+                document.getElementById('label-mes-1').innerText = "Ago";
+                document.getElementById('label-mes-2').innerText = "Ago/Set";
+                document.getElementById('label-mes-3').innerText = "Set";
+                document.getElementById('label-mes-4').innerText = "Set/Out";
+                document.getElementById('label-mes-5').innerText = "Out";
+                document.getElementById('label-mes-6').innerText = "Hoje";
+
+                const curva = document.getElementById('svg-curva-onda');
+                if (curva) curva.setAttribute('d', 'M 80 140 C 130 140, 180 80, 240 70 C 300 60, 360 150, 420 120 C 480 90, 500 50, 520 40');
+            } else {
+                tabSemestre.className = "text-xs font-black text-blue-600 border-b-2 border-blue-600 pb-1 cursor-pointer transition";
+                tabTrimestre.className = "text-xs font-bold text-gray-500 hover:text-blue-600 pb-1 cursor-pointer transition";
+                if (legenda) legenda.innerText = "Últimos 6 meses";
+
+                document.getElementById('label-mes-1').innerText = "Mai";
+                document.getElementById('label-mes-2').innerText = "Jun";
+                document.getElementById('label-mes-3').innerText = "Jul";
+                document.getElementById('label-mes-4').innerText = "Ago";
+                document.getElementById('label-mes-5').innerText = "Set";
+                document.getElementById('label-mes-6').innerText = "Out";
+
+                const curva = document.getElementById('svg-curva-onda');
+                if (curva) curva.setAttribute('d', 'M 80 160 C 130 160, 160 170, 200 168 C 240 166, 260 40, 310 40 C 360 40, 380 160, 420 160 C 460 160, 480 60, 520 40');
+            }
+        }
+
+        // Alterar Foto e Cor do Tema
+        async function alterarFotoCatalogoPrompt() {
+            const url = prompt("Cole a URL direta da imagem ou logo para o seu Catálogo:", document.getElementById('cat-preview-foto').src);
+            if (!url || !url.trim().startsWith('http')) return;
+
+            document.getElementById('cat-preview-foto').src = url.trim();
+            await salvarCustomizacaoCatalogo({ foto: url.trim() });
+        }
+
+        async function alterarCorTemaCatalogoPrompt() {
+            const cor = prompt("Digite o código hexadecimal da cor do seu card (Ex: #78be20, #2563eb, #7c3aed):", "#78be20");
+            if (!cor || !cor.trim().startsWith('#')) return;
+
+            document.getElementById('cat-preview-cor-card').style.backgroundColor = cor.trim();
+            await salvarCustomizacaoCatalogo({ cor: cor.trim() });
+        }
+
+        async function salvarCustomizacaoCatalogo(alteracoes) {
+            if (!consultorAtual || !consultorAtual.id) return;
+            try {
+                let custom = {};
+                let rawNome = consultorAtual.nome_espaco || '';
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        try { custom = JSON.parse(m[1]); } catch (e) {}
+                    }
+                }
+
+                Object.assign(custom, alteracoes);
+                const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    rawNome = rawNome.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova);
+                } else {
+                    rawNome += ' ' + tagNova;
+                }
+
+                consultorAtual.nome_espaco = rawNome;
+                await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+                alert("Personalização do Catálogo salva com sucesso!");
+            } catch (err) {
+                alert("Erro ao salvar customização: " + err.message);
+            }
+        }
+
+        // SuperAdmin: Alternar Liberação do Catálogo
+        async function alternarLiberacaoCatalogo(id, liberar) {
+            const consultor = (typeof todosConsultoresCache !== 'undefined' ? todosConsultoresCache : []).find(c => String(c.id) === String(id));
+            const hid = consultor ? consultor.herbalife_id : id;
+
+            if (String(hid).trim() === '433005811' && !liberar) {
+                alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito ao Catálogo.");
+                return;
+            }
+
+            if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Catálogo Digital Interativo para o consultor ID ${hid}?`)) {
+                return;
+            }
+
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_CATALOGO_INTERATIVO:${liberar ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CATALOGO_INTERATIVO:')) {
+                    raw = raw.replace(/<!--MODULO_CATALOGO_INTERATIVO:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({ nome_espaco: raw }).eq('id', id);
+                alert(`Catálogo Digital Interativo ${liberar ? 'LIBERADO' : 'BLOQUEADO'} com sucesso para o consultor ${hid}!`);
+                await carregarConsultoresSuperadmin();
+            } catch (err) {
+                alert(`Erro ao alterar liberação do catálogo: ${err.message}`);
+            }
+        }
+        window.alternarLiberacaoCatalogo = alternarLiberacaoCatalogo;
+        window.abrirModuloCatalogoInterativo = abrirModuloCatalogoInterativo;
+        window.fecharModuloCatalogoInterativo = fecharModuloCatalogoInterativo;
+        window.fecharModalCatalogoBloqueado = fecharModalCatalogoBloqueado;
+        window.abrirModalCompartilharWhatsApp = abrirModalCompartilharWhatsApp;
+        window.fecharModalCompartilharWhatsApp = fecharModalCompartilharWhatsApp;
+        window.enviarCatalogoWhatsAppCliente = enviarCatalogoWhatsAppCliente;
+        window.abrirModalCompartilharEmail = abrirModalCompartilharEmail;
+        window.fecharModalCompartilharEmail = fecharModalCompartilharEmail;
+        window.enviarCatalogoEmailCliente = enviarCatalogoEmailCliente;
+        window.abrirModalGraficoVisitas = abrirModalGraficoVisitas;
+        window.fecharModalGraficoVisitas = fecharModalGraficoVisitas;
+        window.renderizarGraficoOndaVisitas = renderizarGraficoOndaVisitas;
+        window.copiarLinkMeuCatalogo = copiarLinkMeuCatalogo;
+        window.abrirVisualizadorMeuCatalogo = abrirVisualizadorMeuCatalogo;
+        window.alterarFotoCatalogoPrompt = alterarFotoCatalogoPrompt;
+        window.alterarCorTemaCatalogoPrompt = alterarCorTemaCatalogoPrompt;
 
     </script>
 </body>

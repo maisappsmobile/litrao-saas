@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Catálogo Digital Oficial Herbalife & Litrão do Reset</title>
+    <meta name="description" id="page-description" content="Catálogo Interativo Oficial de Nutrição Herbalife e Linha Litrão do Reset. Conheça nossos produtos e faça seu pedido direto via WhatsApp!">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        play: ['Play', 'sans-serif']
+                    },
+                    colors: {
+                        herbalife: {
+                            green: '#78be20',
+                            dark: '#005a3c',
+                            light: '#91d624',
+                            black: '#252525'
+                        },
+                        reset: {
+                            gold: '#f59e0b',
+                            purple: '#7c3aed'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .flipbook-page {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        .page-curl {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 85%, #e5e7eb 100%);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #78be20;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #005a3c;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- BARRA SUPERIOR INSTITUCIONAL -->
+    <nav class="bg-gradient-to-r from-emerald-900 via-teal-900 to-green-950 text-white sticky top-0 z-40 shadow-lg border-b border-emerald-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white p-1.5 shadow-md flex items-center justify-center">
+                    <img src="reset-logo.png" alt="Reset Metabólico" class="max-h-full object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2921/2921822.png'">
+                </div>
+                <div>
+                    <span class="text-xs font-black tracking-wider uppercase text-emerald-400 block leading-tight">HERBALIFE NUTRITION</span>
+                    <h1 id="nav-nome-espaco" class="text-sm sm:text-base font-extrabold text-white truncate max-w-[200px] sm:max-w-xs">Carregando catálogo...</h1>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas do Cabeçalho -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a id="btn-header-pdf" href="catalogo-herbalife-oficial.pdf" download="Catalogo-Herbalife-Oficial.pdf" onclick="registrarMetricaDownload()" class="hidden sm:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition cursor-pointer">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i>
+                    <span>Baixar PDF</span>
+                </a>
+
+                <button onclick="abrirModalCompartilharPublico()" class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition cursor-pointer">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span class="hidden sm:inline">Compartilhar</span>
+                </button>
+
+                <a id="btn-header-zap" href="#" target="_blank" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span class="hidden md:inline">Falar com Consultor</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BANNER DO CONSULTOR / ESPAÇO -->
+    <header class="bg-gradient-to-b from-emerald-900 to-emerald-800 text-white py-8 sm:py-12 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(120,190,32,0.2),transparent_50%)]"></div>
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                <!-- Foto do Consultor / Espaço -->
+                <div class="relative group">
+                    <div id="avatar-container" class="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-white p-2 shadow-2xl border-4 border-emerald-400 overflow-hidden flex items-center justify-center transform group-hover:scale-105 transition">
+                        <img id="consultor-foto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Foto do Consultor" class="w-full h-full object-cover rounded-2xl">
+                    </div>
+                    <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> Verificado
+                    </span>
+                </div>
+
+                <!-- Textos e Identificação -->
+                <div class="flex-1 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 bg-emerald-950/60 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-bold text-emerald-300 mb-2">
+                        <i class="fa-solid fa-leaf text-herbalife-green"></i> Consultor Independente Oficial Herbalife
+                    </div>
+                    <h2 id="consultor-nome" class="text-2xl sm:text-4xl font-black text-white tracking-tight">Espaço & Consultor Herbalife</h2>
+                    <p id="consultor-bio" class="text-xs sm:text-sm text-emerald-100 max-w-2xl mt-1.5 leading-relaxed font-medium">
+                        Coach de Nutrição & Bem-Estar. Catálogo oficial atualizado com toda a linha Litrão do Reset, Shakes, Chás Termogênicos, Fibras e Nutrição Esportiva Herbalife24.
+                    </p>
+
+                    <!-- Selos e Contatos Rápidos -->
+                    <div class="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+                        <span id="badge-cidade" class="bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1 rounded-xl text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-emerald-400"></i> <span id="consultor-cidade">Atendimento Online & Presencial</span>
+                        </span>
+                        <a id="link-zap-bio" href="#" target="_blank" class="bg-green-500/20 hover:bg-green-500/30 border border-green-400/40 px-3 py-1 rounded-xl text-xs font-bold text-green-300 hover:text-white flex items-center gap-1.5 transition">
+                            <i class="fa-brands fa-whatsapp text-green-400"></i> <span id="consultor-zap-display">(00) 00000-0000</span>
+                        </a>
+                        <span class="bg-amber-500/20 border border-amber-400/40 px-3 py-1 rounded-xl text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-truck-fast text-amber-400"></i> Pronta Entrega & Envio Brasil
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card de Ação Rápida WhatsApp -->
+                <div class="w-full md:w-auto bg-emerald-950/80 border border-emerald-400/30 rounded-2xl p-4 sm:p-5 text-center shadow-xl flex flex-col items-center">
+                    <span class="text-[11px] font-black text-emerald-300 uppercase tracking-wider block mb-1">Dúvidas ou Pedidos?</span>
+                    <a id="btn-hero-zap" href="#" target="_blank" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black px-6 py-3 rounded-xl shadow-lg transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm uppercase">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Falar Agora no WhatsApp
+                    </a>
+                    <span class="text-[10px] text-emerald-200 mt-2 block">Atendimento rápido com consultor oficial</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVEGAÇÃO DE MODOS: VITRINE / REVISTA DIGITAL / VÍDEOS -->
+    <div class="bg-white border-b border-gray-200 sticky top-14 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between overflow-x-auto py-2.5 gap-2 no-scrollbar">
+                <div class="flex items-center space-x-2">
+                    <button id="tab-btn-vitrine" onclick="mudarModoExibicao('vitrine')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 bg-emerald-600 text-white shadow-sm cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-basket-shopping"></i> Vitrine de Produtos & Pedidos
+                    </button>
+                    <button id="tab-btn-revista" onclick="mudarModoExibicao('revista')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-book-open"></i> Revista Flipbook Digital
+                    </button>
+                    <button id="tab-btn-videos" onclick="mudarModoExibicao('videos')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-circle-play text-red-500"></i> Vídeos Oficiais de Nutrição
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <a id="btn-download-pdf-top" href="catalogo-herbalife-oficial.pdf" download="Catalogo-Herbalife-Oficial.pdf" onclick="registrarMetricaDownload()" class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i class="fa-solid fa-file-pdf"></i> Baixar Catálogo em PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ============================================================= -->
+        <!-- SEÇÃO 1: MODO VITRINE DE PRODUTOS & PEDIDOS RÁPIDOS           -->
+        <!-- ============================================================= -->
+        <div id="secao-vitrine" class="space-y-6">
+            <!-- Barra de Busca e Filtros de Categoria -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <!-- Barra de Busca -->
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="filtro-pesquisa-produtos" oninput="filtrarProdutosVitrine()" placeholder="Buscar por produto, sabor ou benefício..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <!-- Botões de Categoria -->
+                <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
+                    <button onclick="filtrarCategoriaVitrine('todos', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer whitespace-nowrap">
+                        Todos
+                    </button>
+                    <button onclick="filtrarCategoriaVitrine('litrao', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap">
+                        🔥 Litrão do Reset
+                    </button>
+                    <button onclick="filtrarCategoriaVitrine('shakes', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap">
+                        🥤 Shakes & Nutrição
+                    </button>
+                    <button onclick="filtrarCategoriaVitrine('chas', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap">
+                        🍵 Chás & NRG
+                    </button>
+                    <button onclick="filtrarCategoriaVitrine('fibras', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap">
+                        🍇 Fibras & Digestão
+                    </button>
+                    <button onclick="filtrarCategoriaVitrine('sports', this)" class="btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap">
+                        ⚡ Linha 24H & Colágeno
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grade de Produtos -->
+            <div id="grid-produtos-vitrine" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                <!-- Renderizado via JavaScript -->
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SEÇÃO 2: MODO REVISTA FLIPBOOK DIGITAL                        -->
+        <!-- ============================================================= -->
+        <div id="secao-revista" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-4 sm:p-8 shadow-xl border border-gray-200">
+                <div class="flex flex-col sm:flex-row items-center justify-between pb-4 mb-4 border-b border-gray-100 gap-3">
+                    <div>
+                        <span class="text-xs font-black text-emerald-700 uppercase tracking-wider block">Catálogo Oficial Digital</span>
+                        <h3 class="text-xl font-black text-gray-900">Revista Digital Interativa Herbalife</h3>
+                    </div>
+                    <!-- Controles do Flipbook -->
+                    <div class="flex items-center gap-2">
+                        <button onclick="paginaAnteriorFlipbook()" class="p-2.5 rounded-xl bg-gray-100 hover:bg-emerald-100 text-gray-700 hover:text-emerald-800 transition cursor-pointer font-bold text-sm" title="Página Anterior">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="indicador-pagina-flipbook" class="text-xs font-black text-gray-700 bg-gray-100 px-3 py-2 rounded-xl">
+                            Pág. 1 de 20
+                        </span>
+                        <button onclick="proximaPaginaFlipbook()" class="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer font-bold text-sm" title="Próxima Página">
+                            Próxima <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                        <button onclick="alternarTelaCheiaRevista()" class="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition cursor-pointer" title="Tela Cheia">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visor da Página da Revista (Interativo) -->
+                <div id="flipbook-viewport" class="relative w-full max-w-4xl mx-auto min-h-[480px] sm:min-h-[640px] bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center p-2 sm:p-6">
+                    <div id="flipbook-page-card" class="bg-white rounded-xl shadow-2xl w-full max-w-2xl min-h-[440px] sm:min-h-[580px] p-6 sm:p-10 flex flex-col justify-between border border-gray-200 relative transition-all duration-300">
+                        <!-- Conteúdo da Página da Revista Renderizado Dinamicamente -->
+                        <div id="flipbook-conteudo-pagina">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+
+                        <!-- Barra Inferior da Página -->
+                        <div class="pt-4 mt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
+                            <span class="font-bold text-emerald-700"><i class="fa-solid fa-leaf"></i> Herbalife Nutrition & Litrão do Reset</span>
+                            <span id="flipbook-rodape-numero" class="font-extrabold text-gray-500">Página 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Miniaturas de Páginas Rápidas -->
+                <div class="mt-6">
+                    <span class="text-xs font-black text-gray-500 uppercase block mb-2">Navegar por Páginas:</span>
+                    <div id="miniaturas-paginas-container" class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+                        <!-- Miniaturas dinâmicas -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- SEÇÃO 3: MODO VÍDEOS OFICIAIS DE NUTRIÇÃO                     -->
+        <!-- ============================================================= -->
+        <div id="secao-videos" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-red-950 via-slate-900 to-emerald-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <div class="max-w-2xl">
+                    <span class="bg-red-600/30 text-red-300 border border-red-500/30 text-[10px] font-black uppercase px-2.5 py-1 rounded-full inline-block mb-2">
+                        <i class="fa-brands fa-youtube mr-1 text-red-500"></i> CANAL OFICIAL HERBALIFE BRASIL
+                    </span>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white">Momento Nutrição & Ciência dos Produtos</h3>
+                    <p class="text-xs sm:text-sm text-gray-300 mt-1">
+                        Assista aos vídeos oficiais explicativos sobre a importância das proteínas, o poder do colágeno Verisol®, o sistema imunológico e como potencializar seus resultados com os Shakes e Litrões do Reset.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Grade de Vídeos -->
+            <div id="grid-videos-nutricao" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <!-- Renderizado via JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="bg-slate-900 text-white mt-12 py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center">
+                    <img src="reset-logo.png" alt="Reset" class="max-h-full object-contain">
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-300">Catálogo Digital Oficial • Linha Litrão do Reset & Herbalife</p>
+                    <p class="text-[11px] text-gray-500">Desenvolvido para os consultores oficiais do ecossistema Litrão do Reset</p>
+                </div>
+            </div>
+            <div class="text-xs text-gray-400">
+                <p>© 2026 • Todos os direitos reservados aos respectivos proprietários.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOTÃO FLUTUANTE DO WHATSAPP -->
+    <a id="btn-flutuante-zap" href="#" target="_blank" class="fixed bottom-5 right-5 z-50 bg-gradient-to-tr from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition duration-300 flex items-center justify-center group" title="Falar no WhatsApp">
+        <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl"></i>
+        <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-black text-xs px-0 group-hover:px-2">
+            Pedir no WhatsApp
+        </span>
+    </a>
+
+    <!-- MODAL DE VÍDEO DO YOUTUBE -->
+    <div id="modal-video-player" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-950 rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl border border-slate-800 relative">
+            <button onclick="fecharModalVideo()" class="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center font-bold hover:bg-red-700 cursor-pointer shadow-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h4 id="modal-video-titulo" class="text-base sm:text-lg font-black text-white mb-2">Vídeo</h4>
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-inner">
+                <iframe id="iframe-video-player" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p id="modal-video-descricao" class="text-xs text-gray-400 mt-3 leading-relaxed"></p>
+        </div>
+    </div>
+
+    <!-- MODAL DE COMPARTILHAMENTO PÚBLICO -->
+    <div id="modal-compartilhar-publico" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-gray-100 relative">
+            <button onclick="fecharModalCompartilharPublico()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-black">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-black text-gray-900">Compartilhar Catálogo</h3>
+                    <p class="text-xs text-gray-500">Envie este catálogo completo para amigos e clientes</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <a id="btn-share-whatsapp" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold p-3 rounded-xl flex items-center justify-center gap-2 text-xs transition shadow-md">
+                    <i class="fa-brands fa-whatsapp text-base"></i> Enviar pelo WhatsApp
+                </a>
+                <button onclick="copiarLinkCatalogoAtual()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold p-3 rounded-xl flex items-center justify-center gap-2 text-xs transition cursor-pointer">
+                    <i class="fa-solid fa-copy"></i> Copiar Link do Catálogo
+                </button>
+            </div>
+            <p id="msg-copiado-sucesso" class="text-center text-xs font-bold text-emerald-600 mt-3 hidden">
+                <i class="fa-solid fa-circle-check mr-1"></i> Link copiado com sucesso!
+            </p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO CATÁLOGO INTERATIVO -->
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://xcdovbyqgqmslptfskpk.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZG92YnlxZ3Ftc2xwdGZza3BrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkzODIyOTksImV4cCI6MjA0NDk1ODI5OX0.zXpU8lQjGz1vL_fB2xN-hC_bB2m1lV7fD5wN7b3k_mU';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+        // Dados do Consultor Padrão (Fallback: Edwan Braga - SuperAdmin)
+        let consultorAtual = {
+            id: '433005811',
+            herbalife_id: '433005811',
+            slug: 'forboss-espaco-fitness',
+            nome_espaco: 'Edwan Braga • ForBoss Espaço Fitness',
+            whatsapp: '66981411234',
+            cidade: 'Sinop - MT',
+            bio: 'Empreendedor & Coach Nutricional Herbalife. Litrão do Reset, Shakes Gourmet e Nutrição Esportiva.',
+            foto: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+        };
+
+        // Vídeos Oficiais do Catálogo Herbalife
+        const VIDEOS_HERBALIFE = [
+            { id: "1", videoId: "-qMUdf3fPbc", titulo: "O que é proteína", descricao: "Descubra por que a proteína é um nutriente fundamental para o funcionamento do corpo e ganho de massa magra.", duracao: "3:15" },
+            { id: "2", videoId: "EzcGI-jAgV4", titulo: "Classificações da Proteína", descricao: "Entenda as classificações das proteínas de acordo com a qualidade nutricional e valor biológico.", duracao: "2:45" },
+            { id: "3", videoId: "8NYRAuXYzBU", titulo: "Vá Além com Herbalife24", descricao: "Conheça a linha oficial de nutrição para atletas e treinos de alta performance Herbalife24.", duracao: "4:10" },
+            { id: "4", videoId: "AjsRt8ehZEs", titulo: "Colágeno Verisol® Beauty Booster", descricao: "O que é colágeno ingerível de tecnologia Verisol e como ele rejuvenesce a pele de dentro para fora.", duracao: "3:30" },
+            { id: "5", videoId: "JoLTmAn7tgQ", titulo: "Multivitaminas e Minerais", descricao: "Vitaminas e minerais são essenciais para manter o sistema imunológico forte e a energia diária.", duracao: "2:50" },
+            { id: "6", videoId: "mgBWKcZiFNc", titulo: "Sistema Imunológico & Nutrição", descricao: "Entenda o papel da imunidade e o que você pode consumir diariamente para protegê-la.", duracao: "3:40" },
+            { id: "7", videoId: "tsy8YT15wd8", titulo: "Funções da Proteína no Emagrecimento", descricao: "Como a ingestão correta de proteína acelera o metabolismo e preserva massa magra.", duracao: "3:20" },
+            { id: "8", videoId: "uqicpBQBKV8", titulo: "Nova Fórmula do Shake Herbalife", descricao: "Sem glúten, sem lactose, vegetariano e incrivelmente cremoso e saboroso!", duracao: "2:15" }
+        ];
+
+        // Produtos Oficiais do Catálogo Herbalife & Litrão do Reset
+        const PRODUTOS_CATALOGO = [
+            // Litrão do Reset
+            { id: "reset-1l", categoria: "litrao", nome: "Litrão do Reset Turbo (1 Litro)", sku: "LR-1000", preco: 25.00, img: "https://cdn-icons-png.flaticon.com/512/2447/2447039.png", desc: "A fórmula original e poderosa de 1 Litro: NRG Guaraná concentrado, Chá Termogênico e Fibra sabor Manga/Uva. Desinchaço em tempo recorde." },
+            { id: "reset-kit5", categoria: "litrao", nome: "Kit Semanal Litrão do Reset (5 Dias)", sku: "KIT-05D", preco: 110.00, img: "https://cdn-icons-png.flaticon.com/512/8243/8243419.png", desc: "Programa completo de 5 dias para secar até 3kg e eliminar a retenção de líquidos com acompanhamento via WhatsApp." },
+            { id: "reset-kit10", categoria: "litrao", nome: "Desafio Detox 10 Dias Litrão", sku: "KIT-10D", preco: 199.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "10 garrafas de 1L com protocolo acelerador de queima calórica e desintoxicação metabólica." },
+            
+            // Shakes & Nutrição
+            { id: "shake-doce-leite", categoria: "shakes", nome: "Shake Herbalife Doce de Leite (550g)", sku: "#0940", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Refeição saudável e prática com 23 vitaminas e minerais, fibras e proteína de alta qualidade. Sem glúten." },
+            { id: "shake-morango", categoria: "shakes", nome: "Shake Herbalife Morango Cremoso (550g)", sku: "#0130", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Sabor irresistível de morango, cremoso, fornece apenas cerca de 200 calorias por copo preparado." },
+            { id: "shake-chocolate", categoria: "shakes", nome: "Shake Herbalife Chocolate Sensação (550g)", sku: "#0106", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Ideal para saciar a vontade de doce enquanto nutre o corpo com proteína e micronutrientes essenciais." },
+            { id: "nutrev", categoria: "shakes", nome: "NutreV Bebida Vegetal Sem Lactose (672g)", sku: "#2863", preco: 98.00, img: "https://cdn-icons-png.flaticon.com/512/2447/2447039.png", desc: "Alternativa ao leite, vegetal, fortificado com cálcio e proteínas. Deixa os Shakes e Litrões super cremosos." },
+
+            // Chás & NRG
+            { id: "nrg-po", categoria: "chas", nome: "N-R-G Guaraná em Pó (100g)", sku: "#0102", preco: 135.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Guaraná puro com ação termogênica natural que fornece disposição mental, foco e energia o dia todo." },
+            { id: "cha-original-100", categoria: "chas", nome: "Herbal Concentrate Chá Termogênico 100g", sku: "#0255", preco: 230.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Mistura instantânea de chá verde e chá preto que acelera a queima calórica e combate a retenção de líquidos." },
+            { id: "cha-limao-50", categoria: "chas", nome: "Herbal Concentrate Sabor Limão (50g)", sku: "#0256", preco: 135.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Refrescante sabor limão. Pode ser consumido quente ou gelado ao longo de todo o dia." },
+
+            // Fibras & Digestão
+            { id: "fiber-manga", categoria: "fibras", nome: "Fiber Concentrate Líquido Sabor Manga (450ml)", sku: "#2864", preco: 145.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Fibra solúvel líquida de alta absorção. O ingrediente segredo do Litrão do Reset para regular o intestino." },
+            { id: "fiber-uva", categoria: "fibras", nome: "Fiber Concentrate Líquido Sabor Uva (450ml)", sku: "#2865", preco: 145.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Sabor uva suave e delicioso para preparar sua água saborizada turbinada com fibras." },
+            { id: "fiber-powder", categoria: "fibras", nome: "Fiber Powder Fibra em Pó Sem Sabor (260g)", sku: "#2866", preco: 140.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Fibras sem sabor para adicionar em sucos, sopas e receitas sem alterar o paladar." },
+
+            // Linha 24H & Colágeno
+            { id: "beauty-booster", categoria: "sports", nome: "Beauty Booster Colágeno Verisol® (270g)", sku: "#1664", preco: 260.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Peptídeos bioativos de colágeno Verisol com biotina e zinco para firmeza da pele e redução de rugas." },
+            { id: "cr7-drive", categoria: "sports", nome: "CR7 Drive Bebida Hidrotônica (810g)", sku: "#1463", preco: 165.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Desenvolvido em parceria com Cristiano Ronaldo para hidratação avançada e reposição de eletrólitos." },
+            { id: "rebuild-strength", categoria: "sports", nome: "H24 Rebuild Strength Whey Isolado (1010g)", sku: "#1459", preco: 380.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "25g de proteína isolada por porção, BCAA e ferro para recuperação muscular imediata pós-treino." }
+        ];
+
+        // Páginas da Revista Flipbook
+        const PAGINAS_REVISTA = [
+            {
+                numero: 1,
+                titulo: "Bem-vindo ao Catálogo Oficial Herbalife & Litrão do Reset",
+                subtitulo: "Nutrição balanceada para uma vida mais ativa e saudável",
+                tipo: "capa",
+                conteudo: `
+                    <div class="text-center py-6">
+                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider inline-block mb-3">EDIÇÃO DIGITAL INTERATIVA</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight mb-3">Linha Litrão do Reset & Nutrição Herbalife</h2>
+                        <p class="text-xs sm:text-sm text-gray-600 max-w-md mx-auto mb-6">Explore nossas páginas interativas para conhecer os produtos mais pedidos para desinchar, queimar calorias e ter mais vitalidade.</p>
+                        <div class="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-lg text-xs font-bold">
+                            <i class="fa-solid fa-arrow-right text-emerald-400"></i> Clique em 'Próxima' para folhear a revista
+                        </div>
+                    </div>
+                `
+            },
+            {
+                numero: 2,
+                titulo: "O que é o Fenômeno Litrão do Reset?",
+                subtitulo: "Por que milhares de pessoas estão secando com o Litrão?",
+                tipo: "artigo",
+                conteudo: `
+                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                        <p class="font-bold text-emerald-800 text-sm">Uma combinação sinérgica e inteligente criada no Espaço de Vida Saudável:</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>NRG Guaraná:</strong> Disposição natural imediata, foco e termogênese prolongada.</li>
+                            <li><strong>Herbal Concentrate:</strong> Combinação de chá verde e preto que acelera a queima calórica e elimina a retenção hídrica.</li>
+                            <li><strong>Fiber Concentrate:</strong> Fibra líquida de sabor delicioso que regula o trânsito intestinal e reduz a fome.</li>
+                        </ul>
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 font-bold text-xs mt-4">
+                            💡 Você toma 1 Litro gelado ao longo da sua manhã ou tarde e sente a diferença na retenção já nos primeiros dias!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                numero: 3,
+                titulo: "Shakes Nutricionais Herbalife",
+                subtitulo: "Substituição parcial de refeição com sabor e cremosidade",
+                tipo: "artigo",
+                conteudo: `
+                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                        <p>O Shake Herbalife é o produto nutricional mais consumido no mundo para gerenciamento de peso saudável:</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-bold text-slate-800">
+                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍦 Doce de Leite Cremoso</div>
+                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍓 Morango Silvestre</div>
+                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍫 Chocolate Sensação</div>
+                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍌 Banana Caramelizada</div>
+                        </div>
+                        <p class="text-xs text-gray-500">Fornece cerca de 23 vitaminas e minerais essenciais, fibras prebióticas e proteína isolada de alta absorção.</p>
+                    </div>
+                `
+            },
+            {
+                numero: 4,
+                titulo: "Colágeno Verisol® Beauty Booster",
+                subtitulo: "Rejuvenescimento e elasticidade de dentro para fora",
+                tipo: "artigo",
+                conteudo: `
+                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                        <p>Desenvolvido com a exclusiva tecnologia alemã <strong>Verisol®</strong>, cientificamente comprovada para estimular a síntese de colágeno na derme:</p>
+                        <ul class="list-disc pl-5 space-y-1.5">
+                            <li>Redução significativa da profundidade das rugas após 4 semanas.</li>
+                            <li>Fortalecimento visível de unhas e cabelos.</li>
+                            <li>Aumento da elasticidade e hidratação da pele corporal e facial.</li>
+                        </ul>
+                        <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-pink-900 font-bold text-xs">
+                            ✨ Pode ser adicionado diretamente no seu Litrão do Reset criando o famoso Litrão Turbo Beauty!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                numero: 5,
+                titulo: "Faça seu Pedido com o Consultor Oficial",
+                subtitulo: "Pronta entrega e consultoria personalizada gratuita",
+                tipo: "chamada",
+                conteudo: `
+                    <div class="text-center py-4 space-y-4">
+                        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-md">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900">Pronto para começar seu Desafio?</h4>
+                        <p class="text-xs text-gray-600 max-w-sm mx-auto">Converse agora diretamente com seu consultor oficial para tirar dúvidas, calcular seu frete ou encomendar seu Litrão do Reset.</p>
+                        <button onclick="falarComConsultorWhatsAppGeral()" class="bg-green-600 hover:bg-green-700 text-white font-black px-6 py-3 rounded-xl shadow-lg transition text-xs sm:text-sm uppercase cursor-pointer">
+                            <i class="fa-brands fa-whatsapp mr-1 text-base"></i> Abrir WhatsApp do Consultor
+                        </button>
+                    </div>
+                `
+            }
+        ];
+
+        let paginaAtualRevista = 0;
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            await carregarDadosConsultor();
+            renderizarVitrineProdutos(PRODUTOS_CATALOGO);
+            renderizarVideosNutricao();
+            carregarPaginaRevista(0);
+            renderizarMiniaturasRevista();
+            registrarMetricaVisita();
+        });
+
+        // Carrega dados do consultor via parâmetros de URL ou Supabase
+        async function carregarDadosConsultor() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slugParam = urlParams.get('c') || urlParams.get('slug');
+            const idParam = urlParams.get('id') || urlParams.get('hid');
+
+            if (supabaseClient && (slugParam || idParam)) {
+                try {
+                    let query = supabaseClient.from('consultores').select('*');
+                    if (slugParam) query = query.eq('slug', slugParam);
+                    else if (idParam) query = query.eq('herbalife_id', idParam);
+
+                    const { data, error } = await query.maybeSingle();
+                    if (data && !error) {
+                        consultorAtual.id = data.id;
+                        consultorAtual.herbalife_id = data.herbalife_id || consultorAtual.herbalife_id;
+                        consultorAtual.slug = data.slug || consultorAtual.slug;
+                        consultorAtual.whatsapp = normalizarTelefone(data.whatsapp || consultorAtual.whatsapp);
+
+                        // Trata nome do espaço e tags
+                        let rawNome = data.nome_espaco || '';
+                        consultorAtual.nome_espaco = rawNome.replace(/<!--[\s\S]*?-->/g, '').trim() || 'Espaço de Vida Saudável';
+
+                        // Verifica customização de foto e bio
+                        if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                            try {
+                                const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                                if (m && m[1]) {
+                                    const custom = JSON.parse(m[1]);
+                                    if (custom.foto) consultorAtual.foto = custom.foto;
+                                    if (custom.bio) consultorAtual.bio = custom.bio;
+                                    if (custom.cidade) consultorAtual.cidade = custom.cidade;
+                                }
+                            } catch (e) { console.warn("Erro ao ler custom:", e); }
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Erro ao buscar consultor:", err);
+                }
+            }
+
+            atualizarElementosInterfaceConsultor();
+        }
+
+        function normalizarTelefone(tel) {
+            let limpo = String(tel || '').replace(/\D/g, '');
+            if (!limpo.startsWith('55') && limpo.length >= 10 && limpo.length <= 11) {
+                limpo = '55' + limpo;
+            }
+            return limpo;
+        }
+
+        function formatarTelefoneExibicao(tel) {
+            let limpo = String(tel || '').replace(/\D/g, '');
+            if (limpo.startsWith('55')) limpo = limpo.slice(2);
+            if (limpo.length === 11) {
+                return `(${limpo.slice(0, 2)}) ${limpo.slice(2, 7)}-${limpo.slice(7)}`;
+            } else if (limpo.length === 10) {
+                return `(${limpo.slice(0, 2)}) ${limpo.slice(2, 6)}-${limpo.slice(6)}`;
+            }
+            return tel;
+        }
+
+        function atualizarElementosInterfaceConsultor() {
+            document.getElementById('nav-nome-espaco').innerText = consultorAtual.nome_espaco;
+            document.getElementById('consultor-nome').innerText = consultorAtual.nome_espaco;
+            document.getElementById('consultor-bio').innerText = consultorAtual.bio;
+            document.getElementById('consultor-cidade').innerText = consultorAtual.cidade;
+            document.getElementById('consultor-zap-display').innerText = formatarTelefoneExibicao(consultorAtual.whatsapp);
+            document.getElementById('consultor-foto').src = consultorAtual.foto;
+
+            const zapLink = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent('Olá ' + consultorAtual.nome_espaco + '! Acessei o seu Catálogo Digital e gostaria de mais informações.')}`;
+            document.getElementById('btn-header-zap').href = zapLink;
+            document.getElementById('btn-hero-zap').href = zapLink;
+            document.getElementById('link-zap-bio').href = zapLink;
+            document.getElementById('btn-flutuante-zap').href = zapLink;
+
+            const linkCatalogo = window.location.href;
+            const zapShareLink = `https://wa.me/?text=${encodeURIComponent('Confira o Catálogo Digital de Nutrição Oficial Herbalife & Litrão do Reset: ' + linkCatalogo)}`;
+            document.getElementById('btn-share-whatsapp').href = zapShareLink;
+        }
+
+        // ==========================================
+        // RENDERIZAR VITRINE DE PRODUTOS
+        // ==========================================
+        function renderizarVitrineProdutos(produtos) {
+            const grid = document.getElementById('grid-produtos-vitrine');
+            grid.innerHTML = '';
+
+            if (produtos.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-4xl mb-3 block"></i>
+                        <p class="font-bold">Nenhum produto encontrado com este filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            produtos.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl transition border border-gray-100 flex flex-col justify-between group";
+
+                const msgPedido = `Olá ${consultorAtual.nome_espaco}! Gostaria de fazer o pedido do produto: *${prod.nome}* (R$ ${prod.preco.toFixed(2)}) que vi no seu Catálogo Digital!`;
+                const zapPedidoLink = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgPedido)}`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative w-full h-44 bg-gray-50 rounded-xl mb-3 overflow-hidden flex items-center justify-center p-4">
+                            <span class="absolute top-2 left-2 bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
+                                ${prod.sku}
+                            </span>
+                            <img src="${prod.img}" alt="${prod.nome}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h4 class="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition leading-snug mb-1.5">${prod.nome}</h4>
+                        <p class="text-[11px] text-gray-500 line-clamp-3 leading-relaxed mb-3">${prod.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Preço Oficial</span>
+                            <span class="text-base font-black text-gray-900">R$ ${prod.preco.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <a href="${zapPedidoLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition transform hover:scale-105">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Pedir
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrarProdutosVitrine() {
+            const termo = document.getElementById('filtro-pesquisa-produtos').value.toLowerCase().trim();
+            const filtrados = PRODUTOS_CATALOGO.filter(p => 
+                p.nome.toLowerCase().includes(termo) || 
+                p.desc.toLowerCase().includes(termo) || 
+                p.sku.toLowerCase().includes(termo)
+            );
+            renderizarVitrineProdutos(filtrados);
+        }
+
+        function filtrarCategoriaVitrine(cat, btn) {
+            document.querySelectorAll('.btn-cat-filtro').forEach(b => {
+                b.className = "btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap";
+            });
+            btn.className = "btn-cat-filtro px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer whitespace-nowrap";
+
+            if (cat === 'todos') {
+                renderizarVitrineProdutos(PRODUTOS_CATALOGO);
+            } else {
+                const filtrados = PRODUTOS_CATALOGO.filter(p => p.categoria === cat);
+                renderizarVitrineProdutos(filtrados);
+            }
+        }
+
+        // ==========================================
+        // RENDERIZAR VÍDEOS OFICIAIS
+        // ==========================================
+        function renderizarVideosNutricao() {
+            const grid = document.getElementById('grid-videos-nutricao');
+            grid.innerHTML = '';
+
+            VIDEOS_HERBALIFE.forEach(v => {
+                const thumbUrl = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition border border-gray-100 flex flex-col justify-between group cursor-pointer";
+                card.onclick = () => abrirModalVideo(v.videoId, v.titulo, v.descricao);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative w-full aspect-video bg-black overflow-hidden flex items-center justify-center">
+                            <img src="${thumbUrl}" alt="${v.titulo}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 opacity-90">
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center text-lg shadow-xl group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-play ml-0.5"></i>
+                                </div>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                                ${v.duracao}
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-sm text-gray-900 group-hover:text-red-600 transition leading-snug mb-1.5">${v.titulo}</h4>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${v.descricao}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <button class="w-full bg-red-50 group-hover:bg-red-600 text-red-700 group-hover:text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-circle-play"></i> Assistir Vídeo
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function abrirModalVideo(videoId, titulo, desc) {
+            document.getElementById('modal-video-titulo').innerText = titulo;
+            document.getElementById('modal-video-descricao').innerText = desc;
+            document.getElementById('iframe-video-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            document.getElementById('modal-video-player').classList.remove('hidden');
+        }
+
+        function fecharModalVideo() {
+            document.getElementById('iframe-video-player').src = '';
+            document.getElementById('modal-video-player').classList.add('hidden');
+        }
+
+        // ==========================================
+        // FLIPBOOK / REVISTA DIGITAL
+        // ==========================================
+        function carregarPaginaRevista(index) {
+            if (index < 0 || index >= PAGINAS_REVISTA.length) return;
+            paginaAtualRevista = index;
+            const pag = PAGINAS_REVISTA[index];
+
+            document.getElementById('indicador-pagina-flipbook').innerText = `Pág. ${pag.numero} de ${PAGINAS_REVISTA.length}`;
+            document.getElementById('flipbook-rodape-numero').innerText = `Página ${pag.numero}`;
+
+            const container = document.getElementById('flipbook-conteudo-pagina');
+            container.innerHTML = `
+                <div class="animate-fade-in">
+                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block mb-1">CAPÍTULO ${pag.numero}</span>
+                    <h3 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-tight">${pag.titulo}</h3>
+                    <p class="text-xs text-gray-500 font-bold mb-4">${pag.subtitulo}</p>
+                    <div class="pt-2">${pag.conteudo}</div>
+                </div>
+            `;
+
+            // Atualiza destaque nas miniaturas
+            document.querySelectorAll('.thumb-pag-btn').forEach((b, idx) => {
+                if (idx === index) {
+                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer flex-shrink-0";
+                } else {
+                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0";
+                }
+            });
+        }
+
+        function proximaPaginaFlipbook() {
+            if (paginaAtualRevista < PAGINAS_REVISTA.length - 1) {
+                carregarPaginaRevista(paginaAtualRevista + 1);
+            }
+        }
+
+        function paginaAnteriorFlipbook() {
+            if (paginaAtualRevista > 0) {
+                carregarPaginaRevista(paginaAtualRevista - 1);
+            }
+        }
+
+        function renderizarMiniaturasRevista() {
+            const container = document.getElementById('miniaturas-paginas-container');
+            container.innerHTML = '';
+            PAGINAS_REVISTA.forEach((p, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0";
+                btn.innerText = `Pág. ${p.numero}`;
+                btn.onclick = () => carregarPaginaRevista(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function alternarTelaCheiaRevista() {
+            const elem = document.getElementById('flipbook-viewport');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => console.warn(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function falarComConsultorWhatsAppGeral() {
+            const msg = `Olá ${consultorAtual.nome_espaco}! Estava folheando seu Catálogo Digital e gostaria de falar com você sobre os produtos!`;
+            window.open(`https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // ==========================================
+        // MUDANÇA DE MODOS (TABS)
+        // ==========================================
+        function mudarModoExibicao(modo) {
+            const secVitrine = document.getElementById('secao-vitrine');
+            const secRevista = document.getElementById('secao-revista');
+            const secVideos = document.getElementById('secao-videos');
+
+            const btnVitrine = document.getElementById('tab-btn-vitrine');
+            const btnRevista = document.getElementById('tab-btn-revista');
+            const btnVideos = document.getElementById('tab-btn-videos');
+
+            // Reset classes
+            [btnVitrine, btnRevista, btnVideos].forEach(b => {
+                b.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2 cursor-pointer whitespace-nowrap";
+            });
+
+            secVitrine.classList.add('hidden');
+            secRevista.classList.add('hidden');
+            secVideos.classList.add('hidden');
+
+            if (modo === 'vitrine') {
+                secVitrine.classList.remove('hidden');
+                btnVitrine.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 bg-emerald-600 text-white shadow-sm cursor-pointer whitespace-nowrap";
+            } else if (modo === 'revista') {
+                secRevista.classList.remove('hidden');
+                btnRevista.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 bg-emerald-600 text-white shadow-sm cursor-pointer whitespace-nowrap";
+            } else if (modo === 'videos') {
+                secVideos.classList.remove('hidden');
+                btnVideos.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 bg-red-600 text-white shadow-sm cursor-pointer whitespace-nowrap";
+            }
+        }
+
+        // ==========================================
+        // COMPARTILHAMENTO & MÉTRICAS
+        // ==========================================
+        function abrirModalCompartilharPublico() {
+            document.getElementById('modal-compartilhar-publico').classList.remove('hidden');
+        }
+
+        function fecharModalCompartilharPublico() {
+            document.getElementById('modal-compartilhar-publico').classList.add('hidden');
+            document.getElementById('msg-copiado-sucesso').classList.add('hidden');
+        }
+
+        function copiarLinkCatalogoAtual() {
+            navigator.clipboard.writeText(window.location.href);
+            document.getElementById('msg-copiado-sucesso').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('msg-copiado-sucesso').classList.add('hidden');
+            }, 3000);
+        }
+
+        function registrarMetricaVisita() {
+            try {
+                const key = `visitas_cat_${consultorAtual.herbalife_id}`;
+                const cur = parseInt(localStorage.getItem(key) || '0', 10);
+                localStorage.setItem(key, String(cur + 1));
+            } catch (e) {}
+        }
+
+        function registrarMetricaDownload() {
+            try {
+                const key = `downloads_cat_${consultorAtual.herbalife_id}`;
+                const cur = parseInt(localStorage.getItem(key) || '0', 10);
+                localStorage.setItem(key, String(cur + 1));
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>
