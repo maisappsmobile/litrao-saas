@@ -6,6 +6,13 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <!-- PWA Config do Consultor -->
+    <link rel="manifest" href="/manifest-consultor.json">
+    <meta name="theme-color" content="#1e3a24">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Painel Consultor">
+    <link rel="apple-touch-icon" href="/reset-logo.png">
     <title>Painel do Consultor - Litrão do Reset</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -29,6 +36,19 @@
             <img src="reset-logo.png" alt="Reset Metabólico" class="h-10">
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <span class="text-xs font-bold text-gray-500 uppercase hidden sm:inline">Área do Consultor</span>
+
+                <!-- Central de Notificações Inteligentes (Radar de Clientes) -->
+                <button id="btn-central-notificacoes" onclick="abrirModalCentralNotificacoes()" class="relative text-xs font-black bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-950 border border-amber-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Central de Notificações Inteligentes (Bioimpedâncias pendentes, clientes sumidos e pedidos)">
+                    <i class="fa-solid fa-bell text-amber-600 text-sm"></i>
+                    <span class="hidden sm:inline">Radar & Alertas</span>
+                    <span id="badge-contador-notificacoes-topo" class="bg-red-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-xs">0</span>
+                </button>
+
+                <!-- Atalho PWA / Instalar App -->
+                <button id="btn-instalar-app-consultor" onclick="iniciarInstalacaoApp()" class="btn-instalar-app-trigger text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm hidden cursor-pointer" title="Instalar Aplicativo no Celular ou PC (PWA)">
+                    <i class="fa-solid fa-download text-amber-300"></i> <span class="hidden sm:inline">Instalar App</span>
+                </button>
+
                 <button id="btn-abrir-perfil" onclick="abrirModalPerfil()" class="text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Editar Meu Perfil">
                     <i class="fa-solid fa-user-gear text-emerald-600"></i> <span class="hidden sm:inline">Meu Perfil</span>
                 </button>
@@ -198,6 +218,71 @@
                 <button onclick="abrirModalPromocao()" class="w-full md:w-auto bg-yellow-400 hover:bg-yellow-300 text-red-950 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-bolt"></i> Regularizar Acesso
                 </button>
+            </div>
+        </div>
+
+        <!-- CARD: RADAR DE CLIENTES & ALERTAS DE CONTATO INTELIGENTE -->
+        <div id="card-radar-notificacoes-container" class="mb-6">
+            <div class="w-full bg-gradient-to-r from-amber-950 via-slate-900 to-orange-950 text-white rounded-3xl p-5 sm:p-6 shadow-xl border-2 border-amber-400/50 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-5 group">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition duration-500"></div>
+                <div class="flex items-center space-x-4 relative z-10 w-full lg:w-auto">
+                    <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-400 via-orange-500 to-yellow-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg flex-shrink-0 group-hover:scale-105 transition transform">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                            <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                                <span>RADAR ATIVO DO CONSULTOR</span>
+                            </span>
+                            <span id="badge-radar-total-pendencias" class="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs">
+                                0 Alertas Pendentes
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black text-white leading-tight">Radar de Clientes & Alertas de Contato</h4>
+                        <p class="text-xs sm:text-sm text-amber-100/90 font-medium mt-0.5 max-w-xl">
+                            Clientes que precisam entregar bioimpedância ou reavaliação, clientes sumidos (+30 dias), pedidos pendentes e aniversários.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Mini Cards com Contadores Clicáveis -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-auto relative z-10">
+                    <button type="button" onclick="abrirModalCentralNotificacoes('bio')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-2.5 sm:p-3 rounded-2xl text-left transition transform hover:scale-[1.02] cursor-pointer">
+                        <div class="flex items-center justify-between text-cyan-300 text-xs mb-1">
+                            <i class="fa-solid fa-weight-scale"></i>
+                            <span id="card-radar-count-bio" class="text-base sm:text-lg font-black text-white">0</span>
+                        </div>
+                        <span class="block text-[10px] font-bold text-gray-200 leading-tight">Bio Pendente / Reavaliar</span>
+                    </button>
+                    <button type="button" onclick="abrirModalCentralNotificacoes('sumidos')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-2.5 sm:p-3 rounded-2xl text-left transition transform hover:scale-[1.02] cursor-pointer">
+                        <div class="flex items-center justify-between text-rose-300 text-xs mb-1">
+                            <i class="fa-solid fa-ghost"></i>
+                            <span id="card-radar-count-sumidos" class="text-base sm:text-lg font-black text-white">0</span>
+                        </div>
+                        <span class="block text-[10px] font-bold text-gray-200 leading-tight">Sumidos (+30d)</span>
+                    </button>
+                    <button type="button" onclick="abrirModalCentralNotificacoes('pedidos')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-2.5 sm:p-3 rounded-2xl text-left transition transform hover:scale-[1.02] cursor-pointer">
+                        <div class="flex items-center justify-between text-emerald-300 text-xs mb-1">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <span id="card-radar-count-pedidos" class="text-base sm:text-lg font-black text-white">0</span>
+                        </div>
+                        <span class="block text-[10px] font-bold text-gray-200 leading-tight">Pedidos Abertos</span>
+                    </button>
+                    <button type="button" onclick="abrirModalCentralNotificacoes('aniversarios')" class="bg-white/10 hover:bg-white/20 border border-white/15 p-2.5 sm:p-3 rounded-2xl text-left transition transform hover:scale-[1.02] cursor-pointer">
+                        <div class="flex items-center justify-between text-yellow-300 text-xs mb-1">
+                            <i class="fa-solid fa-cake-candles"></i>
+                            <span id="card-radar-count-aniversarios" class="text-base sm:text-lg font-black text-white">0</span>
+                        </div>
+                        <span class="block text-[10px] font-bold text-gray-200 leading-tight">Aniversariantes</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 w-full lg:w-auto relative z-10 flex-shrink-0">
+                    <button type="button" onclick="abrirModalCentralNotificacoes()" class="w-full lg:w-auto bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black py-3.5 px-5 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-bell text-amber-950"></i> ABRIR CENTRAL DE ALERTAS
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1680,6 +1765,90 @@
                     ✕
                 </button>
                 <div id="modal-comanda-pedido-conteudo"></div>
+            </div>
+        </div>
+
+        <!-- MODAL: CENTRAL & RADAR DE NOTIFICAÇÕES INTELIGENTES DO CONSULTOR -->
+        <div id="modal-central-notificacoes" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+            <div class="bg-white max-w-4xl xl:max-w-5xl w-full rounded-3xl p-5 sm:p-7 shadow-2xl relative max-h-[94vh] flex flex-col border border-gray-200 animate-fade-in overflow-hidden">
+                <!-- Botão Fechar -->
+                <button type="button" onclick="fecharModalCentralNotificacoes()" class="absolute right-4 top-4 sm:right-6 sm:top-6 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold transition z-20 cursor-pointer">
+                    ✕
+                </button>
+
+                <!-- Cabeçalho do Modal -->
+                <div class="flex items-start space-x-3.5 border-b border-gray-100 pb-4 mb-4 flex-shrink-0">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-md flex-shrink-0">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="bg-amber-100 text-amber-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-amber-300">
+                                <i class="fa-solid fa-robot mr-1"></i> Inteligência de Retenção & Vendas
+                            </span>
+                            <span id="notif-modal-badge-total" class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                                0 pendências
+                            </span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">
+                            Central & Radar de Notificações de Clientes
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            Identifique clientes para entregar Bioimpedância, clientes inativos para resgatar, pedidos pendentes e aniversários.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Abas de Navegação -->
+                <div class="flex flex-wrap items-center gap-2 mb-4 border-b border-gray-100 pb-3 flex-shrink-0">
+                    <button type="button" id="btn-tab-notif-bio" onclick="mudarAbaNotificacoes('bio')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 cursor-pointer bg-slate-900 text-white shadow-xs">
+                        <i class="fa-solid fa-weight-scale text-cyan-300"></i>
+                        <span>Bioimpedância Pendente</span>
+                        <span id="notif-aba-count-bio" class="bg-cyan-400/30 text-cyan-200 text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                    <button type="button" id="btn-tab-notif-sumidos" onclick="mudarAbaNotificacoes('sumidos')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700">
+                        <i class="fa-solid fa-ghost text-rose-500"></i>
+                        <span>Clientes Sumidos (+30d)</span>
+                        <span id="notif-aba-count-sumidos" class="bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                    <button type="button" id="btn-tab-notif-pedidos" onclick="mudarAbaNotificacoes('pedidos')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700">
+                        <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                        <span>Pedidos em Aberto</span>
+                        <span id="notif-aba-count-pedidos" class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                    <button type="button" id="btn-tab-notif-aniversarios" onclick="mudarAbaNotificacoes('aniversarios')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700">
+                        <i class="fa-solid fa-cake-candles text-amber-500"></i>
+                        <span>Aniversariantes</span>
+                        <span id="notif-aba-count-aniversarios" class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                </div>
+
+                <!-- Barra de Busca Rápida e Info da Aba -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3 flex-shrink-0">
+                    <p id="notif-aba-descricao" class="text-xs text-gray-600 font-medium">
+                        Exibindo clientes que precisam de reavaliação ou check-in corporal.
+                    </p>
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="busca-notif-input" oninput="filtrarClientesNotificacoes(this.value)" placeholder="Filtrar por nome ou whatsapp..." class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    </div>
+                </div>
+
+                <!-- Lista com Rolagem dos Cards de Clientes -->
+                <div id="container-lista-notificacoes" class="overflow-y-auto flex-1 space-y-3 pr-1 py-1">
+                    <!-- Cards renderizados dinamicamente via JS -->
+                </div>
+
+                <!-- Rodapé com Dica de Vendas -->
+                <div class="mt-4 pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs flex-shrink-0">
+                    <div class="flex items-center space-x-2 text-gray-500">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-sm"></i>
+                        <span id="notif-dica-rodape">Dica: Um contato humanizado a cada 15-20 dias duplica a recompra de Litrões e Shakes.</span>
+                    </div>
+                    <button type="button" onclick="fecharModalCentralNotificacoes()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-1.5 rounded-xl transition cursor-pointer">
+                        Fechar Central
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -6368,6 +6537,10 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
+                const btnNotifTopo = document.getElementById('btn-central-notificacoes');
+                if (btnNotifTopo) btnNotifTopo.classList.remove('hidden');
+                const btnInstalarApp = document.getElementById('btn-instalar-app-consultor');
+                if (btnInstalarApp) btnInstalarApp.classList.remove('hidden');
                 const btnPerfil = document.getElementById('btn-abrir-perfil');
                 if (btnPerfil) btnPerfil.classList.remove('hidden');
                 const btnPrecosKits = document.getElementById('btn-abrir-precos-kits');
@@ -8490,6 +8663,7 @@
                 if (contadorTexto) contadorTexto.innerText = '0 clientes exibidos (0 avaliações)';
 
                 atualizarBadgesAniversarios();
+                try { calcularRadarNotificacoes([]); } catch(e) {}
                 return;
             }
 
@@ -8969,6 +9143,7 @@
             }
             atualizarBadgesAniversarios();
             try { atualizarCardEMovimentacaoPedidos(); } catch(e) {}
+            try { calcularRadarNotificacoes(grupos); } catch(e) { console.error("Erro radar:", e); }
         }
 
         let filtroBuscaCliente = '';
@@ -12938,6 +13113,10 @@
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
+            const btnNotifTopo = document.getElementById('btn-central-notificacoes');
+            if (btnNotifTopo) btnNotifTopo.classList.add('hidden');
+            const btnInstalarApp = document.getElementById('btn-instalar-app-consultor');
+            if (btnInstalarApp) btnInstalarApp.classList.add('hidden');
             const btnPerfil = document.getElementById('btn-abrir-perfil');
             if (btnPerfil) btnPerfil.classList.add('hidden');
             const btnAltSenha = document.getElementById('btn-abrir-alterar-senha');
@@ -15623,6 +15802,496 @@
         window.alterarFotoCatalogoPrompt = alterarFotoCatalogoPrompt;
         window.alterarCorTemaCatalogoPrompt = alterarCorTemaCatalogoPrompt;
 
+        // ==========================================
+        // MÓDULO INTELIGENTE: CENTRAL & RADAR DE NOTIFICAÇÕES DE CLIENTES
+        // Notifica: Bioimpedância pendente / reavaliação, clientes sumidos (+30d),
+        // pedidos em aberto e aniversariantes, com botão direto de WhatsApp.
+        // ==========================================
+        let dadosRadarNotificacoes = {
+            bio: [],
+            sumidos: [],
+            pedidos: [],
+            aniversarios: []
+        };
+        let abaAtivaNotificacoes = 'bio';
+        let filtroBuscaNotificacoes = '';
+
+        function calcularRadarNotificacoes(grupos) {
+            const agora = Date.now();
+            const diaMs = 1000 * 60 * 60 * 24;
+
+            dadosRadarNotificacoes = {
+                bio: [],
+                sumidos: [],
+                pedidos: [],
+                aniversarios: []
+            };
+
+            // Se grupos não foi passado, recria grupos a partir de todasAvaliacoesCache
+            let listaGrupos = grupos;
+            if (!listaGrupos && Array.isArray(todasAvaliacoesCache) && todasAvaliacoesCache.length > 0) {
+                try {
+                    const mapa = new Map();
+                    todasAvaliacoesCache.forEach(it => {
+                        const chave = normalizarChaveCliente(it);
+                        if (!mapa.has(chave)) mapa.set(chave, []);
+                        mapa.get(chave).push(it);
+                    });
+                    listaGrupos = [];
+                    mapa.forEach((itens, key) => {
+                        const itensBio = itens.filter(it => !isItemPedido(it));
+                        const itensPedidos = itens.filter(it => isItemPedido(it));
+                        itensBio.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+                        itensPedidos.sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+                        const temBio = itensBio.length > 0;
+                        const itemPrincipal = temBio ? itensBio[0] : itensPedidos[0];
+                        const nomeExibicao = limparNomeCliente(itemPrincipal.nome_cliente) || 'Cliente';
+                        let whatsExibicao = '';
+                        for (const it of itens) {
+                            const w = (it.whatsapp_cliente || '').replace(/\D/g, '');
+                            if (w && w.length >= 8) { whatsExibicao = it.whatsapp_cliente; break; }
+                        }
+                        listaGrupos.push({
+                            key,
+                            itens,
+                            itensBio,
+                            itensPedidos,
+                            temBio,
+                            itemPrincipal,
+                            nomeExibicao,
+                            whatsExibicao,
+                            totalBio: itensBio.length,
+                            totalPedidos: itensPedidos.length,
+                            dataReferencia: new Date(itemPrincipal.criado_em).getTime()
+                        });
+                    });
+                } catch(e) {
+                    listaGrupos = [];
+                }
+            }
+
+            if (Array.isArray(listaGrupos)) {
+                listaGrupos.forEach(g => {
+                    const whats = g.whatsExibicao || '';
+                    const nome = g.nomeExibicao || 'Cliente';
+
+                    // 1. BIOIMPEDÂNCIA PENDENTE / REAVALIAÇÃO
+                    if (g.temBio && g.itensBio.length > 0) {
+                        const ultBio = g.itensBio[0];
+                        const dtUltBio = new Date(ultBio.criado_em).getTime();
+                        const diffDiasBio = Math.floor((agora - dtUltBio) / diaMs);
+                        // Se já faz 15 ou mais dias desde a última pesagem/bio
+                        if (diffDiasBio >= 15) {
+                            dadosRadarNotificacoes.bio.push({
+                                tipo: 'bio_reavaliacao',
+                                cliente: g,
+                                nome,
+                                whats,
+                                dias: diffDiasBio,
+                                dataUltima: new Date(ultBio.criado_em).toLocaleDateString('pt-BR'),
+                                pesoAtual: ultBio.peso || '-',
+                                idReferencia: ultBio.id,
+                                motivo: `Última Bio realizada há ${diffDiasBio} dias`
+                            });
+                        }
+                    } else if (!g.temBio && g.totalPedidos > 0) {
+                        // Cliente de Litrão que nunca realizou Bioimpedância!
+                        const ultPed = g.itensPedidos[0];
+                        const dtUltPed = new Date(ultPed.criado_em).getTime();
+                        const diffDiasPed = Math.floor((agora - dtUltPed) / diaMs);
+                        dadosRadarNotificacoes.bio.push({
+                            tipo: 'bio_primeira',
+                            cliente: g,
+                            nome,
+                            whats,
+                            dias: diffDiasPed,
+                            dataUltima: new Date(ultPed.criado_em).toLocaleDateString('pt-BR'),
+                            pesoAtual: '-',
+                            idReferencia: ultPed.id,
+                            motivo: `Comprou ${g.totalPedidos}x Litrão mas ainda não fez a 1ª Bio`
+                        });
+                    }
+
+                    // 2. CLIENTES SUMIDOS (+30 DIAS INATIVOS)
+                    const dataUltimoContato = g.dataReferencia || (g.itemPrincipal ? new Date(g.itemPrincipal.criado_em).getTime() : 0);
+                    if (dataUltimoContato > 0) {
+                        const diffDiasInativo = Math.floor((agora - dataUltimoContato) / diaMs);
+                        if (diffDiasInativo >= 30) {
+                            dadosRadarNotificacoes.sumidos.push({
+                                tipo: 'sumido',
+                                cliente: g,
+                                nome,
+                                whats,
+                                dias: diffDiasInativo,
+                                dataUltima: new Date(dataUltimoContato).toLocaleDateString('pt-BR'),
+                                totalCompras: g.totalPedidos,
+                                idReferencia: g.itemPrincipal ? g.itemPrincipal.id : null,
+                                motivo: `Sem contato ou compra há ${diffDiasInativo} dias`
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Ordena Bio e Sumidos por dias decrescentes (os mais urgentes primeiro)
+            dadosRadarNotificacoes.bio.sort((a, b) => b.dias - a.dias);
+            dadosRadarNotificacoes.sumidos.sort((a, b) => b.dias - a.dias);
+
+            // 3. PEDIDOS EM ABERTO (STATUS PENDENTE OU PREPARO)
+            if (Array.isArray(todasAvaliacoesCache)) {
+                todasAvaliacoesCache.forEach(item => {
+                    if (isItemPedido(item)) {
+                        const st = String(item.status_pedido || 'PENDENTE').toUpperCase().trim();
+                        if (st === 'PENDENTE' || st === 'PREPARO') {
+                            const dtPed = new Date(item.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                            dadosRadarNotificacoes.pedidos.push({
+                                tipo: 'pedido',
+                                item,
+                                nome: limparNomeCliente(item.nome_cliente) || 'Cliente',
+                                whats: item.whatsapp_cliente || '',
+                                status: st,
+                                dataUltima: dtPed,
+                                idReferencia: item.id,
+                                motivo: st === 'PREPARO' ? 'Em preparo - aguardando despacho' : 'Pedido recebido - aguardando preparo'
+                            });
+                        }
+                    }
+                });
+            }
+
+            // 4. ANIVERSARIANTES (HOJE OU PRÓXIMOS 7 DIAS)
+            try {
+                const clientesUnicos = extrairClientesUnicos();
+                clientesUnicos.forEach(c => {
+                    const dadosNiver = calcularDadosAniversario(c.data_nascimento);
+                    if (dadosNiver && dadosNiver.diffDias >= 0 && dadosNiver.diffDias <= 7) {
+                        dadosRadarNotificacoes.aniversarios.push({
+                            tipo: 'aniversario',
+                            cliente: c,
+                            nome: c.nome,
+                            whats: c.whatsapp,
+                            diffDias: dadosNiver.diffDias,
+                            idade: dadosNiver.idade,
+                            statusTexto: dadosNiver.statusTexto,
+                            dataUltima: c.data_nascimento,
+                            idReferencia: c.maisRecente ? c.maisRecente.id : null,
+                            motivo: dadosNiver.diffDias === 0 ? 'Faz aniversário HOJE! 🎂' : `Aniversário em ${dadosNiver.diffDias} dia(s)`
+                        });
+                    }
+                });
+                dadosRadarNotificacoes.aniversarios.sort((a, b) => a.diffDias - b.diffDias);
+            } catch(e) {}
+
+            // Atualiza contadores na interface
+            const totalAlertas = dadosRadarNotificacoes.bio.length +
+                                 dadosRadarNotificacoes.sumidos.length +
+                                 dadosRadarNotificacoes.pedidos.length +
+                                 dadosRadarNotificacoes.aniversarios.length;
+
+            // 1. Badge do Sininho no Topo
+            const badgeTopo = document.getElementById('badge-contador-notificacoes-topo');
+            if (badgeTopo) {
+                badgeTopo.innerText = totalAlertas;
+                if (totalAlertas > 0) {
+                    badgeTopo.classList.remove('hidden');
+                    badgeTopo.classList.add('animate-pulse');
+                } else {
+                    badgeTopo.classList.add('hidden');
+                }
+            }
+
+            // 2. Card de Destaque no Dashboard
+            const badgeRadarTotal = document.getElementById('badge-radar-total-pendencias');
+            if (badgeRadarTotal) {
+                badgeRadarTotal.innerText = `${totalAlertas} Alerta${totalAlertas !== 1 ? 's' : ''} Pendente${totalAlertas !== 1 ? 's' : ''}`;
+                badgeRadarTotal.className = totalAlertas > 0 
+                    ? "bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs animate-pulse"
+                    : "bg-emerald-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs";
+            }
+            const countCardBio = document.getElementById('card-radar-count-bio');
+            if (countCardBio) countCardBio.innerText = dadosRadarNotificacoes.bio.length;
+            const countCardSumidos = document.getElementById('card-radar-count-sumidos');
+            if (countCardSumidos) countCardSumidos.innerText = dadosRadarNotificacoes.sumidos.length;
+            const countCardPedidos = document.getElementById('card-radar-count-pedidos');
+            if (countCardPedidos) countCardPedidos.innerText = dadosRadarNotificacoes.pedidos.length;
+            const countCardNiver = document.getElementById('card-radar-count-aniversarios');
+            if (countCardNiver) countCardNiver.innerText = dadosRadarNotificacoes.aniversarios.length;
+
+            // 3. Modal de Notificações
+            const badgeModalTotal = document.getElementById('notif-modal-badge-total');
+            if (badgeModalTotal) badgeModalTotal.innerText = `${totalAlertas} pendência${totalAlertas !== 1 ? 's' : ''}`;
+            const abaCountBio = document.getElementById('notif-aba-count-bio');
+            if (abaCountBio) abaCountBio.innerText = dadosRadarNotificacoes.bio.length;
+            const abaCountSumidos = document.getElementById('notif-aba-count-sumidos');
+            if (abaCountSumidos) abaCountSumidos.innerText = dadosRadarNotificacoes.sumidos.length;
+            const abaCountPedidos = document.getElementById('notif-aba-count-pedidos');
+            if (abaCountPedidos) abaCountPedidos.innerText = dadosRadarNotificacoes.pedidos.length;
+            const abaCountNiver = document.getElementById('notif-aba-count-aniversarios');
+            if (abaCountNiver) abaCountNiver.innerText = dadosRadarNotificacoes.aniversarios.length;
+
+            // Se o modal estiver aberto, atualiza visualização
+            const modalNotif = document.getElementById('modal-central-notificacoes');
+            if (modalNotif && !modalNotif.classList.contains('hidden')) {
+                renderizarConteudoAbaNotificacoes();
+            }
+        }
+
+        function abrirModalCentralNotificacoes(abaInicial) {
+            const modal = document.getElementById('modal-central-notificacoes');
+            if (!modal) return;
+            if (abaInicial && ['bio', 'sumidos', 'pedidos', 'aniversarios'].includes(abaInicial)) {
+                abaAtivaNotificacoes = abaInicial;
+            }
+            const inp = document.getElementById('busca-notif-input');
+            if (inp) inp.value = '';
+            filtroBuscaNotificacoes = '';
+
+            mudarAbaNotificacoes(abaAtivaNotificacoes);
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalCentralNotificacoes() {
+            const modal = document.getElementById('modal-central-notificacoes');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function mudarAbaNotificacoes(aba) {
+            abaAtivaNotificacoes = aba;
+            const abas = ['bio', 'sumidos', 'pedidos', 'aniversarios'];
+            abas.forEach(nome => {
+                const btn = document.getElementById(`btn-tab-notif-${nome}`);
+                if (btn) {
+                    if (nome === aba) {
+                        btn.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2 cursor-pointer bg-slate-900 text-white shadow-xs border-2 border-amber-400/60";
+                    } else {
+                        btn.className = "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700";
+                    }
+                }
+            });
+
+            const txtDesc = document.getElementById('notif-aba-descricao');
+            const txtDica = document.getElementById('notif-dica-rodape');
+            if (aba === 'bio') {
+                if (txtDesc) txtDesc.innerHTML = '⚖️ Clientes com mais de 15 dias sem pesagem ou que compraram Litrão mas ainda não fizeram a 1ª Bio.';
+                if (txtDica) txtDica.innerHTML = 'Dica: A reavaliação a cada 15 dias reanima o cliente e gera novas vendas de shakes e fibras.';
+            } else if (aba === 'sumidos') {
+                if (txtDesc) txtDesc.innerHTML = '👻 Clientes inativos há mais de 30 dias sem compras ou registros no sistema.';
+                if (txtDica) txtDica.innerHTML = 'Dica: 68% dos clientes inativos voltam a comprar quando recebem um convite caloroso com mimo.';
+            } else if (aba === 'pedidos') {
+                if (txtDesc) txtDesc.innerHTML = '📦 Pedidos aguardando preparo ou entrega.';
+                if (txtDica) txtDica.innerHTML = 'Dica: Notificar o cliente quando o Litrão sai para entrega gera nota 10 no atendimento!';
+            } else if (aba === 'aniversarios') {
+                if (txtDesc) txtDesc.innerHTML = '🎂 Clientes aniversariantes de hoje ou dos próximos 7 dias.';
+                if (txtDica) txtDica.innerHTML = 'Dica: Um parabéns no WhatsApp fortalece a conexão emocional e atrai o cliente para o EVS.';
+            }
+
+            renderizarConteudoAbaNotificacoes();
+        }
+
+        function filtrarClientesNotificacoes(termo) {
+            filtroBuscaNotificacoes = (termo || '').toLowerCase().trim();
+            renderizarConteudoAbaNotificacoes();
+        }
+
+        function renderizarConteudoAbaNotificacoes() {
+            const container = document.getElementById('container-lista-notificacoes');
+            if (!container) return;
+
+            let lista = dadosRadarNotificacoes[abaAtivaNotificacoes] || [];
+
+            if (filtroBuscaNotificacoes) {
+                lista = lista.filter(item => {
+                    const n = (item.nome || '').toLowerCase();
+                    const w = (item.whats || '').replace(/\D/g, '');
+                    return n.includes(filtroBuscaNotificacoes) || w.includes(filtroBuscaNotificacoes);
+                });
+            }
+
+            if (lista.length === 0) {
+                let msgVazia = 'Nenhum alerta pendente nesta categoria no momento.';
+                let iconeVazio = 'fa-circle-check text-emerald-500';
+                if (abaAtivaNotificacoes === 'bio') {
+                    msgVazia = 'Parabéns! Todos os seus clientes estão com a bioimpedância em dia.';
+                } else if (abaAtivaNotificacoes === 'sumidos') {
+                    msgVazia = 'Nenhum cliente sumido! Sua base está ativa e engajada.';
+                } else if (abaAtivaNotificacoes === 'pedidos') {
+                    msgVazia = 'Todos os pedidos foram atendidos e entregues.';
+                } else if (abaAtivaNotificacoes === 'aniversarios') {
+                    msgVazia = 'Nenhum aniversariante nos próximos 7 dias.';
+                }
+
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                        <i class="fa-solid ${iconeVazio} text-4xl mb-3"></i>
+                        <h5 class="text-sm font-black text-gray-800">Tudo sob controle!</h5>
+                        <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">${msgVazia}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            lista.forEach((item) => {
+                const whatsLimpo = String(item.whats || '').replace(/\D/g, '');
+                const temWhats = whatsLimpo.length >= 8;
+                const inicial = (item.nome || 'C').charAt(0).toUpperCase();
+
+                let badgeTipoHtml = '';
+                let botaoSecundarioHtml = '';
+
+                if (abaAtivaNotificacoes === 'bio') {
+                    if (item.tipo === 'bio_primeira') {
+                        badgeTipoHtml = `
+                            <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-900 border border-purple-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                                🥤 Nunca Fez Bio • Cliente Litrão
+                            </span>
+                        `;
+                        botaoSecundarioHtml = `
+                            <button type="button" onclick="fecharModalCentralNotificacoes(); abrirNovaAvaliacaoParaCliente('${whatsLimpo}', '${item.nome.replace(/'/g, "\\'")}');" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-plus-circle"></i> Criar 1ª Bio
+                            </button>
+                        `;
+                    } else {
+                        badgeTipoHtml = `
+                            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                                ⏰ Reavaliação Pendente (${item.dias} dias)
+                            </span>
+                        `;
+                        botaoSecundarioHtml = `
+                            <button type="button" onclick="fecharModalCentralNotificacoes(); verFichaCompleta(${item.idReferencia});" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-file-waveform"></i> Ver Ficha
+                            </button>
+                        `;
+                    }
+                } else if (abaAtivaNotificacoes === 'sumidos') {
+                    badgeTipoHtml = `
+                        <span class="inline-flex items-center gap-1 bg-rose-100 text-rose-900 border border-rose-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                            👻 Inativo há ${item.dias} dias
+                        </span>
+                    `;
+                    botaoSecundarioHtml = `
+                        <button type="button" onclick="fecharModalCentralNotificacoes(); abrirModuloClientes(); setTimeout(() => filtrarTabelaClientes('${item.nome.replace(/'/g, "\\'")}'), 200);" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-user"></i> Histórico
+                        </button>
+                    `;
+                } else if (abaAtivaNotificacoes === 'pedidos') {
+                    badgeTipoHtml = `
+                        <span class="inline-flex items-center gap-1 ${item.status === 'PREPARO' ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-rose-100 text-rose-900 border-rose-300'} border text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                            📦 ${item.status}
+                        </span>
+                    `;
+                    botaoSecundarioHtml = `
+                        <button type="button" onclick="fecharModalCentralNotificacoes(); abrirComandaPedido(${item.idReferencia});" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-print"></i> Comanda
+                        </button>
+                    `;
+                } else if (abaAtivaNotificacoes === 'aniversarios') {
+                    badgeTipoHtml = `
+                        <span class="inline-flex items-center gap-1 ${item.diffDias === 0 ? 'bg-yellow-400 text-yellow-950 font-black animate-bounce' : 'bg-amber-100 text-amber-900'} border border-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                            🎂 ${item.motivo}
+                        </span>
+                    `;
+                    botaoSecundarioHtml = `
+                        <button type="button" onclick="fecharModalCentralNotificacoes(); abrirModuloAniversarios();" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-gift"></i> Ver Módulo
+                        </button>
+                    `;
+                }
+
+                html += `
+                    <div class="bg-white hover:bg-amber-50/20 rounded-2xl p-3.5 sm:p-4 border border-gray-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition">
+                        <div class="flex items-start space-x-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-800 to-gray-900 text-white flex items-center justify-center font-black text-sm flex-shrink-0 shadow-xs">
+                                ${inicial}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <h5 class="text-sm sm:text-base font-black text-gray-900 truncate">${item.nome}</h5>
+                                    ${badgeTipoHtml}
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 font-medium">
+                                    <span><i class="fa-brands fa-whatsapp text-green-600 mr-1"></i>${item.whats || 'Sem telefone'}</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-calendar mr-1"></i>${item.dataUltima}</span>
+                                    ${item.pesoAtual && item.pesoAtual !== '-' ? `<span>•</span><span>⚖️ ${item.pesoAtual} kg</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                            ${botaoSecundarioHtml}
+                            ${temWhats ? `
+                                <button type="button" onclick="abrirWhatsAppAlerta('${item.tipo}', '${item.whats}', '${item.nome.replace(/'/g, "\\'")}', ${item.dias || item.diffDias || 0})" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black px-3.5 py-2 rounded-xl text-xs sm:text-sm transition shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    <span>Chamar no WhatsApp</span>
+                                </button>
+                            ` : `
+                                <span class="text-xs text-gray-400 italic">Sem WhatsApp</span>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function gerarMsgWhatsAppAlerta(tipo, item, extra) {
+            const consultorNome = (consultorAtual && consultorAtual.nome_consultor) 
+                ? consultorAtual.nome_consultor.trim().split(' ')[0] 
+                : 'seu consultor';
+            const espacoNome = (consultorAtual && consultorAtual.nome_espaco) 
+                ? consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim() 
+                : '';
+            const assinatura = espacoNome ? `\n\n*${espacoNome}* • ${consultorNome}` : `\n\nAbraços, *${consultorNome}*!`;
+            const nome = item.nomeExibicao || item.nome || 'Cliente';
+
+            if (tipo === 'bio_reavaliacao') {
+                const dias = extra || 15;
+                return `Olá, *${nome}*! Tudo bem? 😊\n\nPassando aqui para acompanhar sua rotina! Já completamos *${dias} dias* desde a sua última avaliação física e pesagem.\n\nVamos agendar seu novo check-in de *Bioimpedância* para avaliarmos sua evolução, queima de gordura e ganho de massa magra? ⚖️💪\n\nQual o melhor horário para você hoje ou amanhã?${assinatura}`;
+            }
+
+            if (tipo === 'bio_primeira') {
+                return `Olá, *${nome}*! Tudo bem? 🥤✨\n\nNotei aqui no meu sistema que você é nosso cliente de Litrão do Reset, mas ainda não realizou a sua *Bioimpedância Corporal Completa gratuita*!\n\nNela avaliamos sua gordura visceral, massa muscular, taxa metabólica e hidratação para acelerar seus resultados. 🎯\n\nPodemos agendar a sua avaliação esta semana?${assinatura}`;
+            }
+
+            if (tipo === 'sumido') {
+                const dias = extra || 30;
+                return `Oi, *${nome}*! Tudo bem com você? ✨\n\nSenti muito a sua falta por aqui no nosso ${espacoNome || 'Espaço / Litrão do Reset'}! Como estão seus dias e seus objetivos de saúde e energia?\n\nPreparei uma condição super especial no seu próximo *Litrão do Reset* para você retomar com tudo no foco dos seus resultados! 🚀🥤\n\nMe dá um "oi" aqui para eu te contar!${assinatura}`;
+            }
+
+            if (tipo === 'pedido') {
+                return `Olá, *${nome}*! Tudo bem? 📦🥤\n\nAcompanhando aqui o seu pedido do *Litrão do Reset*! Já está em processo de preparo e separação com todo cuidado.\n\nQualquer dúvida sobre a entrega ou preparo, só me avisar por aqui!${assinatura}`;
+            }
+
+            if (tipo === 'aniversario') {
+                return `🎂 Parabéns, *${nome}*! 🎉🎈\n\nDesejo um dia extraordinário, cheio de saúde, energia e momentos especiais!\n\nPara comemorar o seu aniversário, passe aqui no ${espacoNome || 'nosso Espaço'} ou peça seu Litrão que tem um mimo / presente especial te esperando hoje! Parabéns! 🎁✨${assinatura}`;
+            }
+
+            return `Olá, *${nome}*! Tudo bem? Passando para saber como você está e se precisa de algum suporte hoje! 😊${assinatura}`;
+        }
+
+        function abrirWhatsAppAlerta(tipo, whats, nome, extra) {
+            const numLimpo = String(whats || '').replace(/\D/g, '');
+            if (!numLimpo || numLimpo.length < 8) {
+                alert('Este cliente não possui um WhatsApp cadastrado válido.');
+                return;
+            }
+            let ddi = numLimpo.startsWith('55') ? numLimpo : `55${numLimpo}`;
+            const texto = gerarMsgWhatsAppAlerta(tipo, { nomeExibicao: nome, nome }, extra);
+            const url = `https://wa.me/${ddi}?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+        }
+
+        window.abrirModalCentralNotificacoes = abrirModalCentralNotificacoes;
+        window.fecharModalCentralNotificacoes = fecharModalCentralNotificacoes;
+        window.mudarAbaNotificacoes = mudarAbaNotificacoes;
+        window.filtrarClientesNotificacoes = filtrarClientesNotificacoes;
+        window.abrirWhatsAppAlerta = abrirWhatsAppAlerta;
+        window.calcularRadarNotificacoes = calcularRadarNotificacoes;
+        window.gerarMsgWhatsAppAlerta = gerarMsgWhatsAppAlerta;
+
     </script>
+    <script src="/pwa-install.js"></script>
 </body>
 </html>

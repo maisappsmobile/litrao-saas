@@ -6,6 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Litrão Reset">
+    <link rel="apple-touch-icon" href="/reset-logo.png">
     <title>Litrão do Reset - Energia Natural em Movimento</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -74,8 +79,11 @@
                 </a>
             </nav>
 
-            <!-- Botões Desktop: Painel & Cadastro -->
+            <!-- Botões Desktop: Painel, Instalar App & Cadastro -->
             <div class="hidden md:flex items-center space-x-3">
+                <button type="button" onclick="iniciarInstalacaoApp()" class="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-xs font-black px-3.5 py-2.5 rounded-full shadow-md transition transform hover:scale-105 cursor-pointer" title="Instalar aplicativo no celular ou computador">
+                    <i class="fa-solid fa-mobile-screen-button mr-1.5 text-yellow-300"></i> INSTALAR APP
+                </button>
                 <button type="button" onclick="abrirModalCarrinhoDireto()" class="inline-flex items-center bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3.5 py-2.5 rounded-full shadow-md transition transform hover:scale-105 cursor-pointer">
                     <i class="fa-solid fa-cart-shopping mr-1.5 text-yellow-300"></i> MEU CARRINHO <span id="badge-qtd-carrinho" class="hidden ml-1.5 bg-yellow-400 text-gray-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">1</span>
                 </button>
@@ -89,6 +97,9 @@
 
             <!-- Botão Menu Mobile (Hambúrguer) -->
             <div class="flex items-center space-x-2 md:hidden">
+                <button type="button" onclick="iniciarInstalacaoApp()" class="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[11px] font-black px-2.5 py-1.5 rounded-full shadow-sm" title="Instalar aplicativo no celular">
+                    <i class="fa-solid fa-download text-yellow-300 mr-1"></i> APP
+                </button>
                 <button type="button" onclick="abrirModalCarrinhoDireto()" class="inline-flex items-center bg-emerald-700 text-white text-[11px] font-black px-2.5 py-1.5 rounded-full shadow-sm">
                     <i class="fa-solid fa-cart-shopping text-yellow-300 mr-1"></i> <span id="badge-qtd-carrinho-mob">CARRINHO</span>
                 </button>
@@ -103,6 +114,9 @@
 
         <!-- Gaveta Menu Mobile (Dropdown) -->
         <div id="menu-mobile-gaveta" class="hidden md:hidden border-t border-gray-100 bg-white px-4 pt-3 pb-5 shadow-lg space-y-3">
+            <button type="button" onclick="iniciarInstalacaoApp(); toggleMenuMobile();" class="w-full text-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button text-yellow-300 text-sm"></i> INSTALAR APP NO CELULAR (ATALHO)
+            </button>
             <a href="#produtos" id="nav-link-produtos-mobile" onclick="toggleMenuMobile()" class="block font-black text-emerald-800 py-1.5 border-b border-gray-50 text-sm" style="display: none;">
                 <i class="fa-solid fa-bottle-droplet text-emerald-600 mr-2"></i> Pedir o Litrão Oficial
             </a>
@@ -1957,5 +1971,6 @@
         }
         window.finalizarPedidoCarrinho = finalizarPedidoCarrinho;
     </script>
+    <script src="/pwa-install.js"></script>
 </body>
 </html>
