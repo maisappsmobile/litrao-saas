@@ -93,9 +93,15 @@
 
             <!-- Ações Rápidas do Cabeçalho -->
             <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="abrirModalSacola()" class="relative flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition cursor-pointer" title="Ver Sacola de Compras">
+                    <i class="fa-solid fa-basket-shopping text-sm"></i>
+                    <span>Sacola</span>
+                    <span id="sacola-badge-top" class="hidden ml-0.5 px-1.5 py-0.2 bg-red-600 text-white text-[10px] font-black rounded-full">0</span>
+                </button>
+
                 <a id="btn-header-pdf" href="catalogo-herbalife-oficial.pdf" download="Catalogo-Herbalife-Oficial.pdf" onclick="registrarMetricaDownload()" class="hidden sm:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition cursor-pointer">
                     <i class="fa-solid fa-file-pdf text-red-400"></i>
-                    <span>Baixar PDF</span>
+                    <span class="hidden md:inline">Baixar PDF</span>
                 </a>
 
                 <button type="button" onclick="iniciarInstalacaoApp()" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-purple-950 text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition cursor-pointer" title="Instalar Catálogo como App no Celular">
@@ -103,9 +109,9 @@
                     <span class="hidden sm:inline">Instalar App</span>
                 </button>
 
-                <button onclick="abrirModalCompartilharPublico()" class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition cursor-pointer">
+                <button onclick="abrirModalCompartilharPublico()" class="hidden sm:flex items-center gap-1.5 bg-emerald-600/80 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl border border-emerald-400/30 transition cursor-pointer">
                     <i class="fa-solid fa-share-nodes"></i>
-                    <span class="hidden sm:inline">Compartilhar</span>
+                    <span>Compartilhar</span>
                 </button>
 
                 <a id="btn-header-zap" href="#" target="_blank" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow-md transition">
@@ -332,12 +338,306 @@
     </footer>
 
     <!-- BOTÃO FLUTUANTE DO WHATSAPP -->
-    <a id="btn-flutuante-zap" href="#" target="_blank" class="fixed bottom-5 right-5 z-50 bg-gradient-to-tr from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition duration-300 flex items-center justify-center group" title="Falar no WhatsApp">
+    <a id="btn-flutuante-zap" href="#" target="_blank" class="fixed bottom-5 right-5 z-40 bg-gradient-to-tr from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white p-3.5 sm:p-4 rounded-full shadow-2xl hover:scale-110 transition duration-300 flex items-center justify-center group" title="Falar no WhatsApp">
         <i class="fa-brands fa-whatsapp text-2xl sm:text-3xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-black text-xs px-0 group-hover:px-2">
             Pedir no WhatsApp
         </span>
     </a>
+
+    <!-- BARRA FLUTUANTE DA SACOLA INTELIGENTE (VALE DO SILÍCIO) -->
+    <div id="barra-flutuante-sacola" class="hidden fixed bottom-5 left-4 sm:left-6 z-40 bg-slate-900/95 text-white backdrop-blur-md border border-emerald-500/40 rounded-2xl p-2.5 sm:p-3 shadow-2xl flex items-center gap-3 sm:gap-4 transition-all duration-300">
+        <div class="flex items-center gap-2.5 cursor-pointer" onclick="abrirModalSacola()">
+            <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <span id="sacola-badge-flutuante" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
+            </div>
+            <div>
+                <span class="block text-[10px] uppercase font-bold text-gray-400 leading-tight">Sua Sacola</span>
+                <span id="sacola-total-flutuante" class="block text-sm sm:text-base font-black text-emerald-400 leading-tight">R$ 0,00</span>
+            </div>
+        </div>
+        <button onclick="abrirModalSacola()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition transform hover:scale-105 whitespace-nowrap">
+            <span>Ver Sacola</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+    </div>
+
+    <!-- TOAST DE NOTIFICAÇÃO AO ADICIONAR PRODUTO -->
+    <div id="toast-sacola" class="fixed top-20 right-4 sm:right-6 z-50 bg-slate-900 text-white border border-emerald-500/50 rounded-2xl p-3 shadow-2xl flex items-center gap-3 transition-all duration-300 translate-y-[-100px] opacity-0 pointer-events-none">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center text-sm font-black shrink-0">
+            <i class="fa-solid fa-basket-shopping"></i>
+        </div>
+        <div class="min-w-0 pr-2">
+            <span class="block text-xs font-black text-white truncate" id="toast-sacola-titulo">Item Adicionado!</span>
+            <span class="block text-[11px] text-emerald-300 truncate" id="toast-sacola-desc">Produto adicionado à sua sacola</span>
+        </div>
+        <button onclick="abrirModalSacola()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs shrink-0 cursor-pointer transition">
+            Ver Sacola
+        </button>
+    </div>
+
+    <!-- MODAL DA SACOLA DE COMPRAS MULTI-ITENS -->
+    <div id="modal-sacola" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden overflow-y-auto">
+        <div class="relative bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-gray-100 flex flex-col max-h-[92vh] overflow-hidden my-auto">
+            
+            <!-- Header da Sacola -->
+            <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-emerald-500/30 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-emerald-300 text-lg shadow-inner">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-black text-white">Sua Sacola de Compras</h3>
+                            <span id="sacola-badge-modal-header" class="bg-emerald-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">0 itens</span>
+                        </div>
+                        <p class="text-xs text-emerald-200 truncate max-w-xs sm:max-w-md" id="sacola-consultor-sub">Atendimento oficial com o consultor</p>
+                    </div>
+                </div>
+                <button onclick="fecharModalSacola()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-lg cursor-pointer transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Corpo Rolável da Sacola -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+                
+                <!-- Lista de Itens na Sacola -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase text-gray-500 tracking-wider">Produtos Escolhidos</span>
+                        <button type="button" onclick="limparSacola()" id="btn-limpar-sacola" class="text-[11px] text-red-500 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i> Limpar Sacola
+                        </button>
+                    </div>
+
+                    <!-- Container dos Cards de Itens -->
+                    <div id="sacola-lista-itens" class="space-y-2.5">
+                        <!-- Renderizado via JS -->
+                    </div>
+
+                    <!-- Estado Vazio -->
+                    <div id="sacola-estado-vazio" class="hidden py-8 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl mx-auto mb-3">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                        </div>
+                        <h4 class="text-sm font-black text-gray-800">Sua sacola está vazia</h4>
+                        <p class="text-xs text-gray-500 max-w-xs mx-auto mt-1 mb-4">Escolha os Shakes, Chás, Litrões e produtos de nutrição na vitrine para montar seu pedido!</p>
+                        <button type="button" onclick="fecharModalSacola()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition cursor-pointer">
+                            Explorar Vitrine de Produtos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bloco de Identificação, Entrega e Checkout (Exibido apenas com itens) -->
+                <div id="sacola-bloco-checkout" class="space-y-4 pt-4 border-t border-gray-200">
+                    
+                    <!-- Resumo Financeiro da Sacola -->
+                    <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200/80 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-gray-600">
+                            <span>Subtotal dos Produtos:</span>
+                            <span id="sacola-subtotal-display" class="font-black text-gray-900 text-sm">R$ 0,00</span>
+                        </div>
+                        <div id="sacola-linha-taxa-entrega" class="hidden flex items-center justify-between text-gray-600">
+                            <span class="flex items-center gap-1">
+                                <i class="fa-solid fa-motorcycle text-emerald-700"></i> Taxa de Entrega:
+                            </span>
+                            <span id="sacola-valor-taxa-entrega" class="font-black text-emerald-800 text-sm">R$ 0,00</span>
+                        </div>
+                        <div class="pt-2 border-t border-emerald-200 flex items-center justify-between">
+                            <span class="font-black text-sm text-gray-900">Valor Total do Pedido:</span>
+                            <span id="sacola-total-geral-display" class="font-black text-lg text-emerald-800">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Formulário do Cliente -->
+                    <form id="form-sacola" onsubmit="finalizarPedidoSacola(event)" class="space-y-3.5">
+                        
+                        <!-- Aviso de Reconhecimento Automático de Cliente Recorrente -->
+                        <div id="sacola-badge-cliente-reconhecido" class="hidden p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between text-xs text-emerald-900 font-semibold shadow-2xs">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-sparkles text-amber-500"></i>
+                                <span>Dados preenchidos automaticamente da sua compra anterior!</span>
+                            </span>
+                            <button type="button" onclick="limparCamposClienteNovoSacola()" class="text-[11px] text-emerald-700 hover:text-emerald-950 underline font-bold cursor-pointer shrink-0 ml-2">
+                                Outra pessoa?
+                            </button>
+                        </div>
+
+                        <!-- Nome Completo -->
+                        <div>
+                            <label class="block text-xs font-black text-gray-700 mb-1">Seu Nome Completo *</label>
+                            <input type="text" id="sacola-cliente-nome" list="lista-clientes-sacola" autocomplete="name" required placeholder="Ex: Carlos Silva" oninput="aoDigitarNomeClienteSacola(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            <datalist id="lista-clientes-sacola"></datalist>
+                        </div>
+
+                        <!-- WhatsApp com DDI Automático (+55) -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-black text-gray-700">Seu WhatsApp com DDD *</label>
+                                <span class="text-[10px] text-gray-400 font-medium">Padrão: +55 (Brasil)</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-32 sm:w-36 shrink-0">
+                                    <select id="sacola-cliente-ddi" onchange="aoMudarDdiSacola(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer">
+                                        <option value="55" selected>🇧🇷 +55 (BR)</option>
+                                        <option value="1">🇺🇸 +1 (EUA)</option>
+                                        <option value="351">🇵🇹 +351 (PT)</option>
+                                        <option value="54">🇦🇷 +54 (AR)</option>
+                                        <option value="595">🇵🇾 +595 (PY)</option>
+                                        <option value="598">🇺🇾 +598 (UY)</option>
+                                        <option value="591">🇧🇴 +591 (BO)</option>
+                                        <option value="56">🇨🇱 +56 (CL)</option>
+                                        <option value="34">🇪🇸 +34 (ES)</option>
+                                        <option value="39">🇮🇹 +39 (IT)</option>
+                                        <option value="44">🇬🇧 +44 (UK)</option>
+                                        <option value="57">🇨🇴 +57 (CO)</option>
+                                        <option value="58">🇻🇪 +58 (VE)</option>
+                                        <option value="81">🇯🇵 +81 (JP)</option>
+                                        <option value="outro">🌐 Outro DDI</option>
+                                    </select>
+                                </div>
+                                <div class="relative flex-1 min-w-0">
+                                    <input type="tel" id="sacola-cliente-whats" list="lista-whats-sacola" required placeholder="Ex: (66) 99999-9999" oninput="aplicarMascaraWhatsDinamicaSacola(this)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                    <datalist id="lista-whats-sacola"></datalist>
+                                </div>
+                            </div>
+
+                            <!-- Bloco DDI Personalizado Manual -->
+                            <div id="bloco-ddi-personalizado-sacola" class="hidden mt-2 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-2">
+                                <span class="text-xs font-bold text-emerald-900 shrink-0">Código DDI (+):</span>
+                                <input type="number" id="sacola-cliente-ddi-manual" placeholder="Ex: 49" oninput="atualizarDdiManualSacola(this.value)" class="w-20 p-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-bold text-gray-800">
+                                <span class="text-[11px] text-emerald-700">Digite o código telefônico do seu país</span>
+                            </div>
+                        </div>
+
+                        <!-- Modalidade e Forma de Pagamento -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-black text-gray-700 mb-1">Entrega / Retirada *</label>
+                                <select id="sacola-modalidade" onchange="toggleEnderecoSacola(this.value === 'ENTREGA')" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                    <option value="RETIRADA">Retirar no Espaço (Grátis)</option>
+                                    <option value="ENTREGA">Receber por Delivery</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-gray-700 mb-1">Forma de Pagamento *</label>
+                                <select id="sacola-pagamento" onchange="togglePagamentoPixSacola(this.value === 'PIX')" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                    <option value="PIX" selected>PIX (Imediato)</option>
+                                    <option value="CARTAO">Cartão de Crédito/Débito</option>
+                                    <option value="DINHEIRO">Dinheiro na Retirada/Entrega</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Box de Pagamento PIX com Chave e Copiar -->
+                        <div id="sacola-box-pix" class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl p-3.5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-pix text-emerald-600 text-base"></i> Pagar via PIX Imediato
+                                </span>
+                                <span class="text-[10px] bg-emerald-200 text-emerald-900 font-black px-2 py-0.5 rounded-full uppercase">
+                                    Liberação Rápida
+                                </span>
+                            </div>
+
+                            <div id="sacola-pix-com-dados" class="space-y-2">
+                                <div class="bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 shadow-xs">
+                                    <div class="min-w-0 flex-1">
+                                        <span class="block text-[10px] font-bold text-gray-500 uppercase" id="sacola-pix-tipo">Chave PIX:</span>
+                                        <span class="block text-xs sm:text-sm font-mono font-black text-gray-900 truncate select-all" id="sacola-pix-chave">---</span>
+                                        <span class="block text-[10px] font-semibold text-gray-600 truncate mt-0.5" id="sacola-pix-titular"></span>
+                                    </div>
+                                    <button type="button" onclick="copiarChavePixSacola('sacola-pix-chave', this)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0 transition cursor-pointer shadow-sm">
+                                        <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-emerald-900 font-medium leading-snug">
+                                    💡 Copie a chave acima, faça o PIX pelo seu app bancário e clique abaixo para enviar o pedido com o comprovante no WhatsApp!
+                                </p>
+                            </div>
+
+                            <div id="sacola-pix-sem-dados" class="hidden text-[11px] text-emerald-900 font-semibold bg-white p-2.5 rounded-xl border border-emerald-200">
+                                ℹ️ Ao confirmar o pedido, o consultor enviará a chave PIX diretamente na sua conversa do WhatsApp.
+                            </div>
+                        </div>
+
+                        <!-- Campo de Endereço e Taxa de Entrega (se Delivery) -->
+                        <div id="sacola-bloco-endereco" class="hidden space-y-3 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-motorcycle text-emerald-700 text-sm"></i> Entrega por Delivery
+                                </span>
+                                <span id="sacola-badge-taxa-tipo" class="text-[10px] bg-emerald-200 text-emerald-900 font-black px-2 py-0.5 rounded-full uppercase">
+                                    Taxa de Entrega
+                                </span>
+                            </div>
+
+                            <div id="sacola-bloco-bairro" class="hidden">
+                                <label class="block text-xs font-black text-gray-700 mb-1">Selecione o seu Bairro *</label>
+                                <select id="sacola-bairro-entrega" onchange="atualizarTaxaEntregaSacola()" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                    <!-- Preenchido dinamicamente via JS -->
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-gray-700 mb-1">Endereço Completo de Entrega *</label>
+                                <input type="text" id="sacola-cliente-endereco" placeholder="Rua, número, complemento, ponto de referência..." class="w-full p-3 bg-white border border-emerald-300 rounded-xl text-xs sm:text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            </div>
+                        </div>
+
+                        <!-- Observações -->
+                        <div>
+                            <label class="block text-xs font-black text-gray-700 mb-1">Observações ou Instruções (Opcional)</label>
+                            <textarea id="sacola-cliente-obs" rows="2" placeholder="Ex: Deixar na portaria / Entregar no período da tarde..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 resize-none"></textarea>
+                        </div>
+
+                        <!-- Botão Finalizar Pedido -->
+                        <button id="btn-finalizar-sacola" type="submit" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 text-sm sm:text-base uppercase tracking-wider transition transform hover:scale-[1.01] cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>Enviar Pedido ao Consultor no WhatsApp</span>
+                        </button>
+                        <p class="text-center text-[10px] text-gray-400 font-medium">
+                            🔒 Pedido registrado com segurança e enviado diretamente ao WhatsApp oficial do seu consultor.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO DO PEDIDO (SUCESSO) -->
+    <div id="modal-sucesso-sacola" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-emerald-100 text-center relative animate-scale-up">
+            <button onclick="fecharModalSucessoSacola()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-4 shadow-sm">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 mb-1">Pedido Enviado com Sucesso!</h3>
+            <p class="text-xs text-gray-600 leading-relaxed mb-4">
+                Seu pedido foi registrado no sistema e encaminhado para o WhatsApp oficial do consultor.
+            </p>
+            <div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-200 text-left text-xs space-y-1.5 mb-5">
+                <div class="flex justify-between">
+                    <span class="text-gray-500 font-bold">Total do Pedido:</span>
+                    <span id="sucesso-sacola-total" class="font-black text-emerald-800">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500 font-bold">Itens:</span>
+                    <span id="sucesso-sacola-itens-count" class="font-black text-gray-800">0 itens</span>
+                </div>
+            </div>
+            <a id="btn-reabrir-zap-sacola" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition mb-2">
+                <i class="fa-brands fa-whatsapp text-base"></i> Abrir WhatsApp do Consultor Novamente
+            </a>
+            <button type="button" onclick="fecharModalSucessoSacola()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
+                Continuar Navegando no Catálogo
+            </button>
+        </div>
+    </div>
 
     <!-- MODAL DE VÍDEO DO YOUTUBE -->
     <div id="modal-video-player" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -784,11 +1084,13 @@
         // ==========================================
         window.addEventListener('DOMContentLoaded', async () => {
             await carregarDadosConsultor();
+            carregarSacolaStorage();
             renderizarVitrineProdutos(PRODUTOS_CATALOGO);
             renderizarVideosNutricao();
             carregarPaginaRevista(0);
             renderizarMiniaturasRevista();
             registrarMetricaVisita();
+            atualizarDisplaySacola();
         });
 
         // Carrega dados do consultor via parâmetros de URL ou Supabase
@@ -812,6 +1114,7 @@
 
                         // Trata nome do espaço e tags
                         let rawNome = data.nome_espaco || '';
+                        consultorAtual.nome_espaco_raw = rawNome;
                         consultorAtual.nome_espaco = rawNome.replace(/<!--[\s\S]*?-->/g, '').trim() || 'Espaço de Vida Saudável';
 
                         // Verifica customização de foto, bio e produtos da vitrine
@@ -1048,14 +1351,21 @@
                         ${selectorHtml}
                         ${linkRevistaSecundaria}
                     </div>
-                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto gap-2">
                         <div>
-                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Preço Oficial</span>
+                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Preço</span>
                             <span id="card-preco-${prod.id}" class="text-base font-black text-gray-900">R$ ${precoAtual.toFixed(2).replace('.', ',')}</span>
                         </div>
-                        <a id="card-zap-${prod.id}" href="${zapPedidoLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition transform hover:scale-105">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Pedir
-                        </a>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" onclick="adicionarProdutoSacola('${prod.id}')" class="bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-300 text-emerald-800 font-black px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Adicionar à Sacola">
+                                <i class="fa-solid fa-cart-plus text-emerald-600"></i>
+                                <span>+ Sacola</span>
+                            </button>
+                            <a id="card-zap-${prod.id}" href="${zapPedidoLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-2 rounded-xl text-xs flex items-center gap-1 shadow-md transition transform hover:scale-105" title="Pedir direto no WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                                <span class="hidden sm:inline">Pedir</span>
+                            </a>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1332,6 +1642,909 @@
                 .replace(/"/g, '&quot;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
+        }
+
+        /* ==========================================================================
+           LÓGICA DA SACOLA INTELIGENTE DE COMPRAS MULTI-ITENS (VALE DO SILÍCIO)
+           ========================================================================== */
+        const CHAVE_STORAGE_SACOLA = 'litrao_sacola_itens_v1';
+        const CHAVE_STORAGE_HISTORICO_CLIENTES = 'litrao_clientes_historico_v1';
+        const CHAVE_STORAGE_ULTIMO_CLIENTE = 'litrao_ultimo_cliente_v1';
+
+        let sacolaItens = [];
+        let toastTimeoutId = null;
+
+        function carregarSacolaStorage() {
+            try {
+                const raw = localStorage.getItem(CHAVE_STORAGE_SACOLA);
+                if (raw) {
+                    sacolaItens = JSON.parse(raw) || [];
+                }
+            } catch (e) {
+                sacolaItens = [];
+            }
+        }
+
+        function salvarSacolaStorage() {
+            try {
+                localStorage.setItem(CHAVE_STORAGE_SACOLA, JSON.stringify(sacolaItens));
+            } catch (e) {}
+        }
+
+        function adicionarProdutoSacola(prodId) {
+            const prod = PRODUTOS_CATALOGO.find(p => p.id === prodId);
+            if (!prod) return;
+
+            const varIdx = variacoesSelecionadas[prod.id] || 0;
+            const variacaoAtiva = prod.temVariacoes && prod.variacoes ? prod.variacoes[varIdx] : null;
+
+            const skuItem = variacaoAtiva ? variacaoAtiva.sku : prod.sku;
+            const nomeVariacao = variacaoAtiva ? variacaoAtiva.nome : '';
+            const precoItem = variacaoAtiva ? variacaoAtiva.preco : prod.preco;
+            const imgItem = (variacaoAtiva && variacaoAtiva.img) ? variacaoAtiva.img : prod.img;
+
+            const chaveItem = `${prod.id}___${skuItem}`;
+            const existente = sacolaItens.find(item => item.chave === chaveItem);
+
+            if (existente) {
+                existente.qtd += 1;
+            } else {
+                sacolaItens.push({
+                    chave: chaveItem,
+                    id: prod.id,
+                    nome: prod.nome,
+                    variacao: nomeVariacao,
+                    sku: skuItem,
+                    preco: precoItem,
+                    img: imgItem,
+                    qtd: 1
+                });
+            }
+
+            salvarSacolaStorage();
+            atualizarDisplaySacola();
+            exibirToastSacola("Item Adicionado!", `${prod.nome} ${nomeVariacao ? '(' + nomeVariacao + ')' : ''}`);
+        }
+
+        function alterarQtdItemSacola(chave, delta) {
+            const item = sacolaItens.find(i => i.chave === chave);
+            if (!item) return;
+
+            item.qtd += delta;
+            if (item.qtd <= 0) {
+                removerItemSacola(chave);
+                return;
+            }
+
+            salvarSacolaStorage();
+            renderizarItensSacola();
+            atualizarDisplaySacola();
+        }
+
+        function removerItemSacola(chave) {
+            sacolaItens = sacolaItens.filter(i => i.chave !== chave);
+            salvarSacolaStorage();
+            renderizarItensSacola();
+            atualizarDisplaySacola();
+        }
+
+        function limparSacola() {
+            if (sacolaItens.length === 0) return;
+            if (confirm("Deseja realmente esvaziar sua sacola de compras?")) {
+                sacolaItens = [];
+                salvarSacolaStorage();
+                renderizarItensSacola();
+                atualizarDisplaySacola();
+            }
+        }
+
+        function abrirModalSacola() {
+            renderizarItensSacola();
+            atualizarDisplaySacola();
+            popularSeletorBairrosSacola();
+            atualizarDadosPixSacola();
+            inicializarHistoricoClienteSacola();
+
+            const subEl = document.getElementById('sacola-consultor-sub');
+            if (subEl) {
+                subEl.innerText = `Atendimento direto com: ${consultorAtual.nome_espaco}`;
+            }
+
+            const modal = document.getElementById('modal-sacola');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+        }
+
+        function fecharModalSacola() {
+            const modal = document.getElementById('modal-sacola');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        function renderizarItensSacola() {
+            const container = document.getElementById('sacola-lista-itens');
+            const estadoVazio = document.getElementById('sacola-estado-vazio');
+            const blocoCheckout = document.getElementById('sacola-bloco-checkout');
+            const btnLimpar = document.getElementById('btn-limpar-sacola');
+
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (sacolaItens.length === 0) {
+                if (estadoVazio) estadoVazio.classList.remove('hidden');
+                if (blocoCheckout) blocoCheckout.classList.add('hidden');
+                if (btnLimpar) btnLimpar.classList.add('hidden');
+                return;
+            }
+
+            if (estadoVazio) estadoVazio.classList.add('hidden');
+            if (blocoCheckout) blocoCheckout.classList.remove('hidden');
+            if (btnLimpar) btnLimpar.classList.remove('hidden');
+
+            sacolaItens.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "p-3 bg-gray-50/90 hover:bg-emerald-50/40 rounded-2xl border border-gray-200/80 flex items-center justify-between gap-3 transition";
+
+                const subtotalItem = item.preco * item.qtd;
+                const nomeEsc = escapeHtml(item.nome);
+                const varEsc = item.variacao ? escapeHtml(item.variacao) : '';
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <div class="w-12 h-12 rounded-xl bg-white p-1 border border-gray-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                            <img src="${item.img}" alt="${nomeEsc}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <div class="min-w-0">
+                            <h5 class="text-xs sm:text-sm font-black text-gray-900 truncate leading-snug">${nomeEsc}</h5>
+                            ${varEsc ? `<span class="inline-block bg-emerald-100 text-emerald-900 text-[10px] font-black px-2 py-0.2 rounded-md truncate max-w-[200px] sm:max-w-xs">${varEsc}</span>` : ''}
+                            <span class="block text-[11px] text-gray-500 font-semibold mt-0.5">R$ ${item.preco.toFixed(2).replace('.', ',')} cada <span class="text-gray-400">(${item.sku})</span></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-2xs">
+                            <button type="button" onclick="alterarQtdItemSacola('${item.chave}', -1)" class="w-6 h-6 rounded-lg bg-gray-100 hover:bg-emerald-100 text-gray-700 flex items-center justify-center font-black text-xs transition cursor-pointer">
+                                <i class="fa-solid fa-minus text-[9px]"></i>
+                            </button>
+                            <span class="w-6 text-center font-black text-xs text-gray-900">${item.qtd}</span>
+                            <button type="button" onclick="alterarQtdItemSacola('${item.chave}', 1)" class="w-6 h-6 rounded-lg bg-gray-100 hover:bg-emerald-100 text-gray-700 flex items-center justify-center font-black text-xs transition cursor-pointer">
+                                <i class="fa-solid fa-plus text-[9px]"></i>
+                            </button>
+                        </div>
+                        <div class="text-right min-w-[65px] sm:min-w-[80px]">
+                            <span class="block text-xs sm:text-sm font-black text-gray-900">R$ ${subtotalItem.toFixed(2).replace('.', ',')}</span>
+                            <button type="button" onclick="removerItemSacola('${item.chave}')" class="text-[10px] text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 ml-auto transition cursor-pointer mt-0.5">
+                                <i class="fa-solid fa-trash-can text-[9px]"></i> Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function atualizarDisplaySacola() {
+            let totalItens = 0;
+            let subtotal = 0;
+
+            sacolaItens.forEach(item => {
+                totalItens += item.qtd;
+                subtotal += (item.preco * item.qtd);
+            });
+
+            // Badge Superior
+            const badgeTop = document.getElementById('sacola-badge-top');
+            if (badgeTop) {
+                if (totalItens > 0) {
+                    badgeTop.innerText = totalItens;
+                    badgeTop.classList.remove('hidden');
+                } else {
+                    badgeTop.classList.add('hidden');
+                }
+            }
+
+            // Header do Modal
+            const badgeModal = document.getElementById('sacola-badge-modal-header');
+            if (badgeModal) {
+                badgeModal.innerText = `${totalItens} ${totalItens === 1 ? 'item' : 'itens'}`;
+            }
+
+            // Barra Flutuante
+            const barraFlutuante = document.getElementById('barra-flutuante-sacola');
+            const badgeFlutuante = document.getElementById('sacola-badge-flutuante');
+            const totalFlutuante = document.getElementById('sacola-total-flutuante');
+
+            if (barraFlutuante && badgeFlutuante && totalFlutuante) {
+                if (totalItens > 0) {
+                    barraFlutuante.classList.remove('hidden');
+                    badgeFlutuante.innerText = totalItens;
+                    totalFlutuante.innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+                } else {
+                    barraFlutuante.classList.add('hidden');
+                }
+            }
+
+            // Resumo do Modal
+            const subtotalEl = document.getElementById('sacola-subtotal-display');
+            if (subtotalEl) {
+                subtotalEl.innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            }
+
+            const taxaInfo = calcularTaxaEntregaSacola();
+            const linhaTaxa = document.getElementById('sacola-linha-taxa-entrega');
+            const valorTaxaEl = document.getElementById('sacola-valor-taxa-entrega');
+
+            const selectMod = document.getElementById('sacola-modalidade');
+            const isEntrega = (selectMod && selectMod.value === 'ENTREGA');
+
+            let valorTotalGeral = subtotal;
+
+            if (isEntrega) {
+                if (linhaTaxa) linhaTaxa.classList.remove('hidden');
+                if (valorTaxaEl) valorTaxaEl.innerText = taxaInfo.texto;
+                valorTotalGeral += (taxaInfo.valor || 0);
+            } else {
+                if (linhaTaxa) linhaTaxa.classList.add('hidden');
+            }
+
+            const totalGeralEl = document.getElementById('sacola-total-geral-display');
+            if (totalGeralEl) {
+                totalGeralEl.innerText = `R$ ${valorTotalGeral.toFixed(2).replace('.', ',')}`;
+            }
+        }
+
+        function exibirToastSacola(titulo, desc) {
+            const toast = document.getElementById('toast-sacola');
+            const tTitulo = document.getElementById('toast-sacola-titulo');
+            const tDesc = document.getElementById('toast-sacola-desc');
+
+            if (!toast) return;
+            if (tTitulo) tTitulo.innerText = titulo || "Item Adicionado!";
+            if (tDesc) tDesc.innerText = desc || "Produto adicionado à sua sacola";
+
+            if (toastTimeoutId) clearTimeout(toastTimeoutId);
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+
+            toastTimeoutId = setTimeout(() => {
+                toast.classList.add('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+            }, 3500);
+        }
+
+        // ================= CONFIGURAÇÕES DE PIX E ENTREGA =================
+        function extrairPixConsultor(consultor) {
+            const raw = consultor?.nome_espaco_raw || consultor?.nome_espaco || '';
+            const match = raw.match(/<!--PIX:(.*?)-->/);
+            if (match && match[1]) {
+                try {
+                    const parsed = JSON.parse(match[1]);
+                    if (parsed && parsed.chave && parsed.chave.trim()) {
+                        return parsed;
+                    }
+                } catch (_) {}
+            }
+            return null;
+        }
+
+        function extrairTaxasEntregaConsultor(consultor) {
+            const raw = consultor?.nome_espaco_raw || consultor?.nome_espaco || '';
+            if (raw.includes('<!--TAXAS_ENTREGA:')) {
+                try {
+                    const m = raw.match(/<!--TAXAS_ENTREGA:(.*?)-->/);
+                    if (m && m[1]) return JSON.parse(m[1]);
+                } catch(_) {}
+            }
+            return null;
+        }
+
+        function calcularTaxaEntregaSacola() {
+            const selectMod = document.getElementById('sacola-modalidade');
+            const isEntrega = (selectMod && selectMod.value === 'ENTREGA');
+            if (!isEntrega) {
+                return { valor: 0, texto: 'R$ 0,00', isGratis: false, cobrada: false, bairro: '' };
+            }
+
+            const config = extrairTaxasEntregaConsultor(consultorAtual);
+            if (!config) {
+                return { valor: 0, texto: 'Grátis', isGratis: true, cobrada: false, bairro: '' };
+            }
+
+            if (config.modo === 'gratis') {
+                return { valor: 0, texto: '🎁 Grátis', isGratis: true, cobrada: true, bairro: '' };
+            }
+
+            if (config.modo === 'fixa') {
+                const num = parseFloat(String(config.taxaFixa || '0').replace(/\./g, '').replace(',', '.'));
+                const val = isNaN(num) ? 0 : num;
+                const isGratis = (val === 0);
+                return {
+                    valor: val,
+                    texto: isGratis ? '🎁 Grátis' : `R$ ${val.toFixed(2).replace('.', ',')}`,
+                    isGratis: isGratis,
+                    cobrada: true,
+                    bairro: ''
+                };
+            }
+
+            if (config.modo === 'bairros') {
+                const selectBairro = document.getElementById('sacola-bairro-entrega');
+                const optSel = selectBairro ? selectBairro.options[selectBairro.selectedIndex] : null;
+                const bairroNome = optSel ? optSel.value : '';
+                const taxaRaw = optSel ? optSel.getAttribute('data-taxa') : null;
+
+                if (!bairroNome || !taxaRaw) {
+                    return { valor: 0, texto: 'Selecione o Bairro', isGratis: false, cobrada: false, bairro: '' };
+                }
+
+                const num = parseFloat(String(taxaRaw).replace(/\./g, '').replace(',', '.'));
+                const val = isNaN(num) ? 0 : num;
+                const isGratis = (val === 0);
+                return {
+                    valor: val,
+                    texto: isGratis ? '🎁 Grátis' : `R$ ${val.toFixed(2).replace('.', ',')}`,
+                    isGratis: isGratis,
+                    cobrada: true,
+                    bairro: bairroNome
+                };
+            }
+
+            return { valor: 0, texto: 'R$ 0,00', isGratis: false, cobrada: false, bairro: '' };
+        }
+
+        function atualizarTaxaEntregaSacola() {
+            atualizarDisplaySacola();
+        }
+
+        function popularSeletorBairrosSacola() {
+            const config = extrairTaxasEntregaConsultor(consultorAtual);
+            const blocoBairro = document.getElementById('sacola-bloco-bairro');
+            const selectBairro = document.getElementById('sacola-bairro-entrega');
+            const badgeTipo = document.getElementById('sacola-badge-taxa-tipo');
+
+            if (!config) {
+                if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (badgeTipo) badgeTipo.innerText = 'Entrega Disponível';
+                return;
+            }
+
+            if (config.modo === 'gratis') {
+                if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (badgeTipo) badgeTipo.innerText = '🎁 Frete Grátis';
+            } else if (config.modo === 'fixa') {
+                if (blocoBairro) blocoBairro.classList.add('hidden');
+                const num = parseFloat(String(config.taxaFixa || '0').replace(',', '.'));
+                const isGratis = (num === 0);
+                if (badgeTipo) badgeTipo.innerText = isGratis ? '🎁 Frete Grátis' : `Taxa Fixa R$ ${config.taxaFixa || '5,00'}`;
+            } else if (config.modo === 'bairros') {
+                if (blocoBairro) blocoBairro.classList.remove('hidden');
+                if (badgeTipo) badgeTipo.innerText = 'Taxa por Bairro';
+
+                if (selectBairro) {
+                    const valorAnterior = selectBairro.value;
+                    let htmlOpts = `<option value="">-- Selecione seu bairro para entrega --</option>`;
+                    if (Array.isArray(config.bairros)) {
+                        config.bairros.forEach(b => {
+                            const num = parseFloat(String(b.valor || '0').replace(',', '.'));
+                            const isGratis = (num === 0 || b.gratis === true);
+                            const labelTaxa = isGratis ? 'Entrega Grátis' : `Taxa: R$ ${b.valor}`;
+                            htmlOpts += `<option value="${b.nome.replace(/"/g, '&quot;')}" data-taxa="${b.valor}">📍 ${b.nome} (${labelTaxa})</option>`;
+                        });
+                    }
+                    if (config.taxaPadrao) {
+                        const numPadrao = parseFloat(String(config.taxaPadrao || '0').replace(',', '.'));
+                        const isGratisPadrao = (numPadrao === 0);
+                        const labelPadrao = isGratisPadrao ? 'Entrega Grátis' : `Taxa: R$ ${config.taxaPadrao}`;
+                        htmlOpts += `<option value="Outro Bairro" data-taxa="${config.taxaPadrao}">📍 Outro Bairro (${labelPadrao})</option>`;
+                    }
+                    selectBairro.innerHTML = htmlOpts;
+                    if (valorAnterior) selectBairro.value = valorAnterior;
+                }
+            }
+        }
+
+        function atualizarDadosPixSacola() {
+            const pix = extrairPixConsultor(consultorAtual);
+            const boxPix = document.getElementById('sacola-box-pix');
+            const comDados = document.getElementById('sacola-pix-com-dados');
+            const semDados = document.getElementById('sacola-pix-sem-dados');
+
+            const selectPagamento = document.getElementById('sacola-pagamento');
+            const isPix = (!selectPagamento || selectPagamento.value === 'PIX');
+
+            if (boxPix) {
+                if (isPix) boxPix.classList.remove('hidden');
+                else boxPix.classList.add('hidden');
+            }
+
+            if (pix && pix.chave) {
+                if (comDados) comDados.classList.remove('hidden');
+                if (semDados) semDados.classList.add('hidden');
+
+                const tipoEl = document.getElementById('sacola-pix-tipo');
+                const chaveEl = document.getElementById('sacola-pix-chave');
+                const titularEl = document.getElementById('sacola-pix-titular');
+
+                if (tipoEl) tipoEl.innerText = `Chave PIX (${pix.tipo || 'Geral'}):`;
+                if (chaveEl) {
+                    chaveEl.innerText = pix.chave;
+                    chaveEl.setAttribute('data-chave', pix.chave);
+                }
+                if (titularEl) {
+                    if (pix.titular) {
+                        titularEl.innerText = `Titular / Banco: ${pix.titular}`;
+                        titularEl.classList.remove('hidden');
+                    } else {
+                        titularEl.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (comDados) comDados.classList.add('hidden');
+                if (semDados) semDados.classList.remove('hidden');
+            }
+        }
+
+        function togglePagamentoPixSacola(isPix) {
+            const boxPix = document.getElementById('sacola-box-pix');
+            if (boxPix) {
+                if (isPix) {
+                    boxPix.classList.remove('hidden');
+                    atualizarDadosPixSacola();
+                } else {
+                    boxPix.classList.add('hidden');
+                }
+            }
+        }
+
+        function copiarChavePixSacola(elementId, btnElement) {
+            const el = document.getElementById(elementId);
+            let texto = el ? (el.getAttribute('data-chave') || el.innerText || '') : '';
+            if (!texto || texto === '---') {
+                const pix = extrairPixConsultor(consultorAtual);
+                if (pix && pix.chave) texto = pix.chave;
+            }
+
+            if (texto && texto !== '---') {
+                navigator.clipboard.writeText(texto).then(() => {
+                    if (btnElement) {
+                        const htmlAntigo = btnElement.innerHTML;
+                        btnElement.innerHTML = `<i class="fa-solid fa-check text-green-300"></i> Copiado!`;
+                        btnElement.classList.add('bg-green-700');
+                        setTimeout(() => {
+                            btnElement.innerHTML = htmlAntigo;
+                            btnElement.classList.remove('bg-green-700');
+                        }, 2000);
+                    }
+                }).catch(() => {
+                    prompt("Copie a chave PIX abaixo:", texto);
+                });
+            }
+        }
+
+        // ================= DDI AUTOMÁTICO E CLIENTE RECORRENTE =================
+        function aoMudarDdiSacola(valor) {
+            const blocoManual = document.getElementById('bloco-ddi-personalizado-sacola');
+            const inputWhats = document.getElementById('sacola-cliente-whats');
+            if (valor === 'outro') {
+                if (blocoManual) blocoManual.classList.remove('hidden');
+                const inManual = document.getElementById('sacola-cliente-ddi-manual');
+                if (inManual) inManual.focus();
+            } else {
+                if (blocoManual) blocoManual.classList.add('hidden');
+            }
+
+            if (inputWhats) {
+                if (obterDdiFinalSacola() === '55') {
+                    inputWhats.placeholder = 'Ex: (66) 99999-9999';
+                } else {
+                    inputWhats.placeholder = 'Ex: número local com código';
+                }
+                aplicarMascaraWhatsDinamicaSacola(inputWhats);
+            }
+        }
+
+        function atualizarDdiManualSacola(val) {
+            const inputWhats = document.getElementById('sacola-cliente-whats');
+            if (inputWhats) aplicarMascaraWhatsDinamicaSacola(inputWhats);
+        }
+
+        function obterDdiFinalSacola() {
+            const selectDdi = document.getElementById('sacola-cliente-ddi');
+            if (!selectDdi) return '55';
+            if (selectDdi.value === 'outro') {
+                const manual = document.getElementById('sacola-cliente-ddi-manual')?.value;
+                const limpo = manual ? String(manual).replace(/\D/g, '') : '';
+                return limpo || '55';
+            }
+            return selectDdi.value || '55';
+        }
+
+        function aplicarMascaraWhatsDinamicaSacola(input) {
+            if (!input) return;
+            const ddi = obterDdiFinalSacola();
+            let v = input.value;
+
+            if (ddi === '55') {
+                v = v.replace(/\D/g, '');
+                if (v.length > 11) v = v.substring(0, 11);
+                if (v.length > 6) {
+                    v = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`;
+                } else if (v.length > 2) {
+                    v = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+                } else if (v.length > 0) {
+                    v = `(${v}`;
+                }
+                input.value = v;
+            }
+        }
+
+        function obterHistoricoClientesSacola() {
+            try {
+                const raw = localStorage.getItem(CHAVE_STORAGE_HISTORICO_CLIENTES);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function obterUltimoClienteSalvoSacola() {
+            try {
+                const raw = localStorage.getItem(CHAVE_STORAGE_ULTIMO_CLIENTE);
+                return raw ? JSON.parse(raw) : null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function salvarClienteNoHistoricoSacola(cliente) {
+            if (!cliente || !cliente.nome) return;
+            try {
+                let historico = obterHistoricoClientesSacola();
+                const whatsLimpo = String(cliente.whats || '').replace(/\D/g, '');
+                historico = historico.filter(c => {
+                    const cNome = String(c.nome || '').trim().toLowerCase();
+                    const cWhats = String(c.whats || '').replace(/\D/g, '');
+                    return cNome !== cliente.nome.trim().toLowerCase() && (whatsLimpo === '' || cWhats !== whatsLimpo);
+                });
+
+                historico.unshift({
+                    nome: cliente.nome.trim(),
+                    ddi: cliente.ddi || '55',
+                    whats: cliente.whats.trim(),
+                    endereco: cliente.endereco ? cliente.endereco.trim() : '',
+                    bairro: cliente.bairro || '',
+                    modalidade: cliente.modalidade || 'RETIRADA'
+                });
+
+                if (historico.length > 25) historico = historico.slice(0, 25);
+
+                localStorage.setItem(CHAVE_STORAGE_HISTORICO_CLIENTES, JSON.stringify(historico));
+                localStorage.setItem(CHAVE_STORAGE_ULTIMO_CLIENTE, JSON.stringify(cliente));
+            } catch(e) {}
+        }
+
+        function carregarHistoricoDatalistsSacola() {
+            const historico = obterHistoricoClientesSacola();
+            const datalistNomes = document.getElementById('lista-clientes-sacola');
+            const datalistWhats = document.getElementById('lista-whats-sacola');
+
+            if (datalistNomes) {
+                datalistNomes.innerHTML = historico
+                    .filter(c => c && c.nome)
+                    .map(c => `<option value="${c.nome}">${c.nome} • ${c.whats ? c.whats : ''}</option>`)
+                    .join('');
+            }
+
+            if (datalistWhats) {
+                datalistWhats.innerHTML = historico
+                    .filter(c => c && c.whats)
+                    .map(c => `<option value="${c.whats}">${c.whats} (${c.nome})</option>`)
+                    .join('');
+            }
+        }
+
+        function preencherFormularioComClienteSacola(cliente, ehSegundaCompra = false) {
+            if (!cliente) return;
+            const inNome = document.getElementById('sacola-cliente-nome');
+            const inWhats = document.getElementById('sacola-cliente-whats');
+            const selDdi = document.getElementById('sacola-cliente-ddi');
+            const inManualDdi = document.getElementById('sacola-cliente-ddi-manual');
+            const inEndereco = document.getElementById('sacola-cliente-endereco');
+            const selMod = document.getElementById('sacola-modalidade');
+            const selBairro = document.getElementById('sacola-bairro-entrega');
+            const badgeRecorrente = document.getElementById('sacola-badge-cliente-reconhecido');
+
+            if (inNome && cliente.nome) inNome.value = cliente.nome;
+
+            if (selDdi && cliente.ddi) {
+                const opcoes = Array.from(selDdi.options).map(o => o.value);
+                if (opcoes.includes(cliente.ddi)) {
+                    selDdi.value = cliente.ddi;
+                    aoMudarDdiSacola(cliente.ddi);
+                } else {
+                    selDdi.value = 'outro';
+                    aoMudarDdiSacola('outro');
+                    if (inManualDdi) inManualDdi.value = cliente.ddi;
+                }
+            }
+
+            if (inWhats && cliente.whats) {
+                inWhats.value = cliente.whats;
+                aplicarMascaraWhatsDinamicaSacola(inWhats);
+            }
+
+            if (cliente.modalidade && selMod) {
+                selMod.value = cliente.modalidade;
+                toggleEnderecoSacola(cliente.modalidade === 'ENTREGA');
+            }
+
+            if (cliente.endereco && inEndereco) {
+                inEndereco.value = cliente.endereco;
+            }
+
+            if (cliente.bairro && selBairro) {
+                selBairro.value = cliente.bairro;
+                atualizarTaxaEntregaSacola();
+            }
+
+            if (badgeRecorrente) {
+                badgeRecorrente.classList.remove('hidden');
+            }
+        }
+
+        function inicializarHistoricoClienteSacola() {
+            carregarHistoricoDatalistsSacola();
+
+            const inNome = document.getElementById('sacola-cliente-nome');
+            const inWhats = document.getElementById('sacola-cliente-whats');
+
+            const nomeAtual = (inNome?.value || '').trim();
+            const whatsAtual = (inWhats?.value || '').trim();
+
+            if (!nomeAtual && !whatsAtual) {
+                const ultimoCliente = obterUltimoClienteSalvoSacola();
+                if (ultimoCliente && ultimoCliente.nome && ultimoCliente.whats) {
+                    preencherFormularioComClienteSacola(ultimoCliente, true);
+                }
+            }
+        }
+
+        function aoDigitarNomeClienteSacola(valorDigitado) {
+            if (!valorDigitado || valorDigitado.trim().length === 0) return;
+            const v = valorDigitado.trim().toLowerCase();
+            const historico = obterHistoricoClientesSacola();
+
+            const encontrado = historico.find(c => String(c.nome || '').trim().toLowerCase() === v);
+            if (encontrado) {
+                preencherFormularioComClienteSacola(encontrado, false);
+            }
+        }
+
+        function limparCamposClienteNovoSacola() {
+            const inNome = document.getElementById('sacola-cliente-nome');
+            const inWhats = document.getElementById('sacola-cliente-whats');
+            const inEndereco = document.getElementById('sacola-cliente-endereco');
+            const selDdi = document.getElementById('sacola-cliente-ddi');
+            const badgeRecorrente = document.getElementById('sacola-badge-cliente-reconhecido');
+
+            if (inNome) { inNome.value = ''; inNome.focus(); }
+            if (inWhats) inWhats.value = '';
+            if (inEndereco) inEndereco.value = '';
+            if (selDdi) {
+                selDdi.value = '55';
+                aoMudarDdiSacola('55');
+            }
+            if (badgeRecorrente) badgeRecorrente.classList.add('hidden');
+        }
+
+        function toggleEnderecoSacola(isEntrega) {
+            const bloco = document.getElementById('sacola-bloco-endereco');
+            const input = document.getElementById('sacola-cliente-endereco');
+            if (bloco) {
+                if (isEntrega) {
+                    bloco.classList.remove('hidden');
+                    if (input) input.required = true;
+                    popularSeletorBairrosSacola();
+                } else {
+                    bloco.classList.add('hidden');
+                    if (input) input.required = false;
+                }
+            }
+            atualizarDisplaySacola();
+        }
+
+        // ================= FINALIZAÇÃO DO PEDIDO DA SACOLA =================
+        async function finalizarPedidoSacola(event) {
+            if (event && event.preventDefault) event.preventDefault();
+
+            if (sacolaItens.length === 0) {
+                alert("Sua sacola está vazia! Adicione produtos na vitrine antes de finalizar.");
+                return;
+            }
+
+            const nomeCliente = (document.getElementById('sacola-cliente-nome')?.value || '').trim();
+            const whatsCliente = (document.getElementById('sacola-cliente-whats')?.value || '').trim();
+            const ddiFinal = obterDdiFinalSacola();
+            const modalidade = document.getElementById('sacola-modalidade')?.value || 'RETIRADA';
+            const formaPagamento = document.getElementById('sacola-pagamento')?.value || 'PIX';
+            const endereco = (document.getElementById('sacola-cliente-endereco')?.value || '').trim();
+            const observacoes = (document.getElementById('sacola-cliente-obs')?.value || '').trim();
+
+            if (!nomeCliente || !whatsCliente) {
+                alert("Por favor, preencha o seu Nome e WhatsApp para contato!");
+                return;
+            }
+
+            const taxaInfo = calcularTaxaEntregaSacola();
+
+            if (modalidade === 'ENTREGA') {
+                const configTaxas = extrairTaxasEntregaConsultor(consultorAtual);
+                if (configTaxas && configTaxas.modo === 'bairros') {
+                    const selectBairro = document.getElementById('sacola-bairro-entrega');
+                    if (!selectBairro || !selectBairro.value) {
+                        alert("Por favor, selecione seu Bairro para calcular a taxa de entrega!");
+                        if (selectBairro) selectBairro.focus();
+                        return;
+                    }
+                }
+                if (!endereco) {
+                    alert("Por favor, informe seu Endereço completo para a entrega por Delivery!");
+                    return;
+                }
+            }
+
+            const btn = document.getElementById('btn-finalizar-sacola');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg mr-2"></i> REGISTRANDO SEU PEDIDO...`;
+            }
+
+            let subtotal = 0;
+            sacolaItens.forEach(i => subtotal += (i.preco * i.qtd));
+            const subtotalFormatado = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+
+            const valorTaxaNum = (modalidade === 'ENTREGA') ? (taxaInfo.valor || 0) : 0;
+            const totalGeral = subtotal + valorTaxaNum;
+            const totalFormatado = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+
+            const whatsClienteCompleto = `+${ddiFinal} ${whatsCliente}`;
+
+            // Salva dados no histórico local para a próxima compra
+            salvarClienteNoHistoricoSacola({
+                nome: nomeCliente,
+                ddi: ddiFinal,
+                whats: whatsCliente,
+                endereco: endereco,
+                bairro: (modalidade === 'ENTREGA' && taxaInfo.bairro) ? taxaInfo.bairro : '',
+                modalidade: modalidade
+            });
+
+            // Monta lista de itens estruturada
+            const dadosPedido = {
+                tipo: "PEDIDO_CATALOGO",
+                produtos: sacolaItens.map(i => ({
+                    nome: i.nome,
+                    variacao: i.variacao || null,
+                    sku: i.sku,
+                    quantidade: i.qtd,
+                    preco_unitario: `R$ ${i.preco.toFixed(2).replace('.', ',')}`,
+                    subtotal: `R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}`
+                })),
+                subtotal: subtotalFormatado,
+                taxa_entrega: (modalidade === 'ENTREGA') ? taxaInfo.texto : null,
+                bairro: (modalidade === 'ENTREGA' && taxaInfo.bairro) ? taxaInfo.bairro : null,
+                valor_total: totalFormatado,
+                modalidade: modalidade,
+                forma_pagamento: formaPagamento,
+                endereco: endereco || "Retirada no Espaço",
+                observacoes: observacoes || "Nenhuma",
+                data_pedido: new Date().toISOString()
+            };
+
+            // Monta texto formatado para o WhatsApp e para o banco de dados
+            let itensTextoWhatsApp = "";
+            let itensTextoObs = "";
+
+            sacolaItens.forEach((item, idx) => {
+                const subItem = item.preco * item.qtd;
+                itensTextoWhatsApp += `${idx + 1}. *${item.nome}*\n` +
+                                     (item.variacao ? `   • Sabor/Opção: ${item.variacao} (${item.sku})\n` : `   • Código: ${item.sku}\n`) +
+                                     `   • Qtd: ${item.qtd}x R$ ${item.preco.toFixed(2).replace('.', ',')} = R$ ${subItem.toFixed(2).replace('.', ',')}\n`;
+
+                itensTextoObs += `• ${item.qtd}x ${item.nome} ${item.variacao ? '(' + item.variacao + ')' : ''} [${item.sku}] = R$ ${subItem.toFixed(2).replace('.', ',')}\n`;
+            });
+
+            let linhaEntrega = `• Modalidade: ${modalidade === 'ENTREGA' ? 'Delivery (' + endereco + ')' : 'Retirada no Espaço (Grátis)'}\n`;
+            if (modalidade === 'ENTREGA' && taxaInfo.bairro) {
+                linhaEntrega += `• Bairro: ${taxaInfo.bairro} (Taxa: ${taxaInfo.texto})\n`;
+            } else if (modalidade === 'ENTREGA' && taxaInfo.texto) {
+                linhaEntrega += `• Taxa de Entrega: ${taxaInfo.texto}\n`;
+            }
+
+            const obsCompleta = `🛍️ NOVO PEDIDO DO CATÁLOGO DIGITAL:\n` +
+                                `${itensTextoObs}` +
+                                `• Subtotal dos Produtos: ${subtotalFormatado}\n` +
+                                linhaEntrega +
+                                `• Total Final: ${totalFormatado}\n` +
+                                `• Pagamento: ${formaPagamento}\n` +
+                                `• Obs: ${observacoes || 'Nenhuma'}\n` +
+                                `<!--DADOS_PEDIDO:${JSON.stringify(dadosPedido)}-->`;
+
+            // Grava na tabela 'avaliacoes' com código de acesso PEDIDO (compatível com o painel do consultor)
+            if (supabaseClient) {
+                try {
+                    await supabaseClient
+                        .from('avaliacoes')
+                        .insert([{
+                            herbalife_id: consultorAtual.herbalife_id,
+                            codigo_acesso: 'PEDIDO',
+                            nome_cliente: `[CATÁLOGO] ${nomeCliente}`,
+                            whatsapp_cliente: whatsClienteCompleto,
+                            como_foi_semana: obsCompleta,
+                            primeira_vez: true,
+                            criado_em: new Date().toISOString()
+                        }]);
+                } catch (e) {
+                    console.warn("Erro ao salvar pedido no Supabase:", e);
+                }
+            }
+
+            // Mensagem completa para o WhatsApp do consultor
+            const msgWhatsApp = `🛍️ *NOVO PEDIDO NO CATÁLOGO DIGITAL*\n` +
+                                `👤 *Cliente:* ${nomeCliente}\n` +
+                                `📱 *WhatsApp:* ${whatsClienteCompleto}\n\n` +
+                                `📦 *ITENS DO PEDIDO:*\n` +
+                                `${itensTextoWhatsApp}\n` +
+                                `💰 *RESUMO DO PEDIDO:*\n` +
+                                `• Subtotal dos Produtos: ${subtotalFormatado}\n` +
+                                `${linhaEntrega}` +
+                                `• *VALOR TOTAL: ${totalFormatado}*\n` +
+                                `• Forma de Pagamento: ${formaPagamento}\n` +
+                                (observacoes ? `• Observações: ${observacoes}\n` : '') +
+                                `\nOlá ${consultorAtual.nome_espaco}! Acabei de montar meu pedido no seu Catálogo Digital e gostaria de confirmar a disponibilidade e o prazo de preparo/entrega!`;
+
+            const linkZapFinal = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgWhatsApp)}`;
+
+            // Exibe modal de sucesso
+            const sucessoModal = document.getElementById('modal-sucesso-sacola');
+            const totalSucEl = document.getElementById('sucesso-sacola-total');
+            const itensCountSucEl = document.getElementById('sucesso-sacola-itens-count');
+            const btnReabrir = document.getElementById('btn-reabrir-zap-sacola');
+
+            if (totalSucEl) totalSucEl.innerText = totalFormatado;
+            if (itensCountSucEl) itensCountSucEl.innerText = `${sacolaItens.length} produto(s) diferente(s)`;
+            if (btnReabrir) btnReabrir.href = linkZapFinal;
+
+            // Limpa a sacola e reseta botões
+            sacolaItens = [];
+            salvarSacolaStorage();
+            atualizarDisplaySacola();
+            fecharModalSacola();
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-brands fa-whatsapp text-xl"></i> <span>Enviar Pedido ao Consultor no WhatsApp</span>`;
+            }
+
+            if (sucessoModal) {
+                sucessoModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            // Abre o WhatsApp do consultor em nova aba
+            window.open(linkZapFinal, '_blank');
+        }
+
+        function fecharModalSucessoSacola() {
+            const modal = document.getElementById('modal-sucesso-sacola');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
         }
     </script>
     <script src="/pwa-install.js"></script>
