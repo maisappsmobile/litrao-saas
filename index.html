@@ -666,17 +666,35 @@
 
             <!-- Resumo do Produto Selecionado -->
             <div class="bg-emerald-50/80 rounded-2xl p-4 border border-emerald-200 mb-4">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0 flex-1">
                         <span id="carrinho-item-badge" class="inline-block bg-emerald-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
                             KIT SEMANAL (5 GARRAFAS)
                         </span>
-                        <h4 id="carrinho-item-nome" class="text-lg font-black text-emerald-950">RESET</h4>
-                        <p id="carrinho-item-sub" class="text-xs font-bold text-emerald-800">DESINTOXICA E RENOVA</p>
+                        <h4 id="carrinho-item-nome" class="text-lg font-black text-emerald-950 truncate">RESET</h4>
+                        <p id="carrinho-item-sub" class="text-xs font-bold text-emerald-800 truncate">DESINTOXICA E RENOVA</p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right shrink-0 flex flex-col items-end">
                         <span class="text-xs font-semibold text-gray-500 block">Valor do Kit</span>
                         <span id="carrinho-item-preco" class="text-xl font-black text-emerald-800">R$ 49,90</span>
+                        <button type="button" onclick="toggleGavetaTrocarProduto()" id="btn-trocar-produto-modal" class="mt-1 text-[11px] font-black text-emerald-800 hover:text-emerald-950 bg-white hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-xl shadow-2xs transition flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-repeat text-emerald-600 text-xs"></i> <span>Trocar Pacote</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gaveta Deslizante para Troca de Produto -->
+                <div id="gaveta-trocar-produto" class="hidden mt-3 pt-3 border-t border-emerald-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-emerald-700"></i> Selecione outro Pacote do Litrão:
+                        </span>
+                        <button type="button" onclick="toggleGavetaTrocarProduto(false)" class="text-[11px] text-gray-500 hover:text-gray-800 font-bold cursor-pointer">
+                            Fechar <i class="fa-solid fa-xmark ml-0.5 text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div id="lista-opcoes-trocar-produto" class="grid grid-cols-1 gap-1.5 pt-1">
+                        <!-- Preenchido dinamicamente via JS -->
                     </div>
                 </div>
 
@@ -697,14 +715,67 @@
 
             <!-- Formulário de Identificação do Cliente -->
             <form id="form-carrinho" onsubmit="finalizarPedidoCarrinho(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs font-black text-gray-700 mb-1">Seu Nome Completo *</label>
-                    <input type="text" id="carrinho-cliente-nome" required placeholder="Ex: Carlos Silva" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                
+                <!-- Aviso Sutil de Cliente Recorrente / Segunda Compra -->
+                <div id="badge-cliente-reconhecido" class="hidden p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between text-xs text-emerald-900 font-semibold shadow-2xs">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-sparkles text-amber-500"></i>
+                        <span>Dados preenchidos automaticamente da sua compra anterior!</span>
+                    </span>
+                    <button type="button" onclick="limparCamposClienteNovo()" class="text-[11px] text-emerald-700 hover:text-emerald-950 underline font-bold cursor-pointer shrink-0 ml-2">
+                        Outra pessoa?
+                    </button>
                 </div>
 
+                <!-- Campo Nome com Autocomplete e Datalist de Compras Anteriores -->
                 <div>
-                    <label class="block text-xs font-black text-gray-700 mb-1">Seu WhatsApp com DDD *</label>
-                    <input type="tel" id="carrinho-cliente-whats" required placeholder="Ex: (66) 99999-9999" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                    <label class="block text-xs font-black text-gray-700 mb-1">Seu Nome Completo *</label>
+                    <input type="text" id="carrinho-cliente-nome" list="lista-clientes-anteriores" autocomplete="name" required placeholder="Ex: Carlos Silva" oninput="aoDigitarNomeCliente(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                    <datalist id="lista-clientes-anteriores"></datalist>
+                </div>
+
+                <!-- Campo WhatsApp com DDI Automático (+55 padrão e editável) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-black text-gray-700">Seu WhatsApp com DDD *</label>
+                        <span class="text-[10px] text-gray-400 font-medium">Padrão: +55 (Brasil)</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Dropdown do País / DDI (+55 Padrão) -->
+                        <div class="relative w-32 sm:w-36 shrink-0">
+                            <select id="carrinho-cliente-ddi" onchange="aoMudarDdi(this.value)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer">
+                                <option value="55" selected>🇧🇷 +55 (BR)</option>
+                                <option value="1">🇺🇸 +1 (EUA)</option>
+                                <option value="351">🇵🇹 +351 (PT)</option>
+                                <option value="54">🇦🇷 +54 (AR)</option>
+                                <option value="595">🇵🇾 +595 (PY)</option>
+                                <option value="598">🇺🇾 +598 (UY)</option>
+                                <option value="591">🇧🇴 +591 (BO)</option>
+                                <option value="56">🇨🇱 +56 (CL)</option>
+                                <option value="34">🇪🇸 +34 (ES)</option>
+                                <option value="39">🇮🇹 +39 (IT)</option>
+                                <option value="44">🇬🇧 +44 (UK)</option>
+                                <option value="57">🇨🇴 +57 (CO)</option>
+                                <option value="58">🇻🇪 +58 (VE)</option>
+                                <option value="81">🇯🇵 +81 (JP)</option>
+                                <option value="outro">🌐 Outro DDI</option>
+                            </select>
+                        </div>
+
+                        <!-- Input do Número com Datalist de Números Usados Antes -->
+                        <div class="relative flex-1 min-w-0">
+                            <input type="tel" id="carrinho-cliente-whats" list="lista-whats-anteriores" required placeholder="Ex: (66) 99999-9999" oninput="aplicarMascaraWhatsDinamica(this)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                            <datalist id="lista-whats-anteriores"></datalist>
+                        </div>
+                    </div>
+
+                    <!-- Bloco DDI Personalizado Manual (quando escolhe "Outro") -->
+                    <div id="bloco-ddi-personalizado" class="hidden mt-2 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-2">
+                        <span class="text-xs font-bold text-emerald-900 shrink-0">Código DDI (+):</span>
+                        <input type="number" id="carrinho-cliente-ddi-manual" placeholder="Ex: 49" oninput="atualizarDdiManual(this.value)" class="w-20 p-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-bold text-gray-800">
+                        <span class="text-[11px] text-emerald-700">Digite o código telefônico do seu país</span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1351,7 +1422,14 @@
                 if (elPrecoTurbo) elPrecoTurbo.innerText = precoTurboStr;
                 if (btnTurbo) btnTurbo.setAttribute('onclick', `abrirCarrinho('RESET TURBO', ${precoTurboNum}, 'ACELERE SEUS RESULTADOS!')`);
 
+                window.precosKitsAtuais = {
+                    reset: precoResetNum,
+                    reset_plus: precoPlusNum,
+                    reset_turbo: precoTurboNum
+                };
+
             } else {
+                window.precosKitsAtuais = { reset: 49.90, reset_plus: 65.00, reset_turbo: 79.99 };
                 // Consultor NÃO preencheu valores: A SEÇÃO DE PACOTES (PRINT 3) FICA 100% OCULTA!
                 if (secaoProdutos) {
                     secaoProdutos.classList.add('hidden');
@@ -1622,6 +1700,332 @@
         }
         window.copiarChavePix = copiarChavePix;
 
+        /* ==========================================================================
+           GESTÃO DE PACOTES, DDI E HISTÓRICO DE CLIENTES (2ª COMPRA AUTOCOMPLETA)
+           ========================================================================== */
+        const CHAVE_STORAGE_HISTORICO_CLIENTES = 'litrao_clientes_historico_v1';
+        const CHAVE_STORAGE_ULTIMO_CLIENTE = 'litrao_ultimo_cliente_v1';
+
+        function obterListaPacotesDisponiveis() {
+            const precos = window.precosKitsAtuais || { reset: 49.90, reset_plus: 65.00, reset_turbo: 79.99 };
+            const pReset = Number(precos.reset) || 49.90;
+            const pPlus = Number(precos.reset_plus) || 65.00;
+            const pTurbo = Number(precos.reset_turbo) || 79.99;
+            return [
+                {
+                    id: "RESET",
+                    nome: "RESET",
+                    sub: "DESINTOXICA E RENOVA",
+                    badge: "KIT SEMANAL (5 GARRAFAS DE 500ML)",
+                    detalhe: "5 Garrafas de 500ml",
+                    preco: pReset,
+                    precoFormatado: `R$ ${pReset.toFixed(2).replace('.', ',')}`
+                },
+                {
+                    id: "RESET +",
+                    nome: "RESET +",
+                    sub: "RESULTADOS AINDA MELHORES",
+                    badge: "KIT COM 5 GARRAFAS DE 1 LITRO",
+                    detalhe: "5 Garrafas de 1 Litro",
+                    preco: pPlus,
+                    precoFormatado: `R$ ${pPlus.toFixed(2).replace('.', ',')}`
+                },
+                {
+                    id: "RESET TURBO",
+                    nome: "RESET TURBO",
+                    sub: "ACELERE SEUS RESULTADOS!",
+                    badge: "KIT COM 5 GARRAFAS DE 1L TURBO",
+                    detalhe: "5 Garrafas de 1 Litro Turbo",
+                    preco: pTurbo,
+                    precoFormatado: `R$ ${pTurbo.toFixed(2).replace('.', ',')}`
+                }
+            ];
+        }
+        window.obterListaPacotesDisponiveis = obterListaPacotesDisponiveis;
+
+        function toggleGavetaTrocarProduto(forcarEstado) {
+            const gaveta = document.getElementById('gaveta-trocar-produto');
+            if (!gaveta) return;
+            const deveAbrir = (typeof forcarEstado === 'boolean') ? forcarEstado : gaveta.classList.contains('hidden');
+            if (deveAbrir) {
+                renderizarOpcoesTrocarProduto();
+                gaveta.classList.remove('hidden');
+            } else {
+                gaveta.classList.add('hidden');
+            }
+        }
+        window.toggleGavetaTrocarProduto = toggleGavetaTrocarProduto;
+
+        function renderizarOpcoesTrocarProduto() {
+            const container = document.getElementById('lista-opcoes-trocar-produto');
+            if (!container) return;
+
+            const pacotes = obterListaPacotesDisponiveis();
+            container.innerHTML = pacotes.map(p => {
+                const isSelected = (carrinhoAtual.item === p.id || carrinhoAtual.item === p.nome);
+                return `
+                    <div onclick="selecionarProdutoCarrinho('${p.id}')" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${isSelected ? 'bg-emerald-100/90 border-emerald-500 ring-2 ring-emerald-500/20' : 'bg-white hover:bg-emerald-50/70 border-emerald-200'}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-lg ${isSelected ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} flex items-center justify-center text-xs font-black shrink-0">
+                                ${isSelected ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-bottle-water"></i>'}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-black text-xs text-gray-900">${p.nome}</span>
+                                    ${isSelected ? '<span class="text-[9px] bg-emerald-700 text-white px-1.5 py-0.2 rounded-full font-black uppercase">Atual</span>' : ''}
+                                </div>
+                                <span class="block text-[11px] text-gray-500 font-medium truncate">${p.sub} • ${p.detalhe}</span>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-black text-emerald-800">${p.precoFormatado}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        window.renderizarOpcoesTrocarProduto = renderizarOpcoesTrocarProduto;
+
+        function selecionarProdutoCarrinho(id) {
+            const pacotes = obterListaPacotesDisponiveis();
+            const pkg = pacotes.find(p => p.id === id);
+            if (!pkg) return;
+
+            carrinhoAtual.item = pkg.nome;
+            carrinhoAtual.sub = pkg.sub;
+            carrinhoAtual.preco = pkg.preco;
+
+            atualizarDisplayCarrinho();
+            renderizarOpcoesTrocarProduto();
+            toggleGavetaTrocarProduto(false);
+        }
+        window.selecionarProdutoCarrinho = selecionarProdutoCarrinho;
+
+        // ================= DDI AUTOMÁTICO E MÁSCARA DINÂMICA =================
+        function aoMudarDdi(valor) {
+            const blocoManual = document.getElementById('bloco-ddi-personalizado');
+            const inputWhats = document.getElementById('carrinho-cliente-whats');
+            if (valor === 'outro') {
+                if (blocoManual) blocoManual.classList.remove('hidden');
+                const inManual = document.getElementById('carrinho-cliente-ddi-manual');
+                if (inManual) inManual.focus();
+            } else {
+                if (blocoManual) blocoManual.classList.add('hidden');
+            }
+
+            if (inputWhats) {
+                if (obterDdiFinal() === '55') {
+                    inputWhats.placeholder = 'Ex: (66) 99999-9999';
+                } else {
+                    inputWhats.placeholder = 'Ex: número local com código';
+                }
+                aplicarMascaraWhatsDinamica(inputWhats);
+            }
+        }
+        window.aoMudarDdi = aoMudarDdi;
+
+        function atualizarDdiManual(val) {
+            const inputWhats = document.getElementById('carrinho-cliente-whats');
+            if (inputWhats) aplicarMascaraWhatsDinamica(inputWhats);
+        }
+        window.atualizarDdiManual = atualizarDdiManual;
+
+        function obterDdiFinal() {
+            const selectDdi = document.getElementById('carrinho-cliente-ddi');
+            if (!selectDdi) return '55';
+            if (selectDdi.value === 'outro') {
+                const manual = document.getElementById('carrinho-cliente-ddi-manual')?.value;
+                const limpo = manual ? String(manual).replace(/\D/g, '') : '';
+                return limpo || '55';
+            }
+            return selectDdi.value || '55';
+        }
+        window.obterDdiFinal = obterDdiFinal;
+
+        function aplicarMascaraWhatsDinamica(input) {
+            if (!input) return;
+            const ddi = obterDdiFinal();
+            let v = input.value;
+
+            // Se for Brasil (+55), aplica máscara (99) 99999-9999 ou (99) 9999-9999
+            if (ddi === '55') {
+                v = v.replace(/\D/g, '');
+                if (v.length > 11) v = v.substring(0, 11);
+                if (v.length > 6) {
+                    v = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`;
+                } else if (v.length > 2) {
+                    v = `(${v.substring(0, 2)}) ${v.substring(2)}`;
+                } else if (v.length > 0) {
+                    v = `(${v}`;
+                }
+                input.value = v;
+            }
+        }
+        window.aplicarMascaraWhatsDinamica = aplicarMascaraWhatsDinamica;
+
+        // ================= HISTÓRICO DE CLIENTES & AUTOCOMPLETAR =================
+        function obterHistoricoClientes() {
+            try {
+                const raw = localStorage.getItem(CHAVE_STORAGE_HISTORICO_CLIENTES);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function obterUltimoClienteSalvo() {
+            try {
+                const raw = localStorage.getItem(CHAVE_STORAGE_ULTIMO_CLIENTE);
+                return raw ? JSON.parse(raw) : null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function salvarClienteNoHistorico(cliente) {
+            if (!cliente || !cliente.nome) return;
+            try {
+                let historico = obterHistoricoClientes();
+                const whatsLimpo = String(cliente.whats || '').replace(/\D/g, '');
+                historico = historico.filter(c => {
+                    const cNome = String(c.nome || '').trim().toLowerCase();
+                    const cWhats = String(c.whats || '').replace(/\D/g, '');
+                    return cNome !== cliente.nome.trim().toLowerCase() && (whatsLimpo === '' || cWhats !== whatsLimpo);
+                });
+
+                historico.unshift({
+                    nome: cliente.nome.trim(),
+                    ddi: cliente.ddi || '55',
+                    whats: cliente.whats.trim(),
+                    endereco: cliente.endereco ? cliente.endereco.trim() : '',
+                    bairro: cliente.bairro || '',
+                    modalidade: cliente.modalidade || 'RETIRADA'
+                });
+
+                if (historico.length > 25) historico = historico.slice(0, 25);
+
+                localStorage.setItem(CHAVE_STORAGE_HISTORICO_CLIENTES, JSON.stringify(historico));
+                localStorage.setItem(CHAVE_STORAGE_ULTIMO_CLIENTE, JSON.stringify(cliente));
+            } catch(e) {}
+        }
+
+        function carregarHistoricoDatalists() {
+            const historico = obterHistoricoClientes();
+            const datalistNomes = document.getElementById('lista-clientes-anteriores');
+            const datalistWhats = document.getElementById('lista-whats-anteriores');
+
+            if (datalistNomes) {
+                datalistNomes.innerHTML = historico
+                    .filter(c => c && c.nome)
+                    .map(c => `<option value="${c.nome}">${c.nome} • ${c.whats ? c.whats : ''}</option>`)
+                    .join('');
+            }
+
+            if (datalistWhats) {
+                datalistWhats.innerHTML = historico
+                    .filter(c => c && c.whats)
+                    .map(c => `<option value="${c.whats}">${c.whats} (${c.nome})</option>`)
+                    .join('');
+            }
+        }
+
+        function preencherFormularioComCliente(cliente, ehSegundaCompra = false) {
+            if (!cliente) return;
+            const inNome = document.getElementById('carrinho-cliente-nome');
+            const inWhats = document.getElementById('carrinho-cliente-whats');
+            const selDdi = document.getElementById('carrinho-cliente-ddi');
+            const inManualDdi = document.getElementById('carrinho-cliente-ddi-manual');
+            const inEndereco = document.getElementById('carrinho-cliente-endereco');
+            const selMod = document.getElementById('carrinho-modalidade');
+            const selBairro = document.getElementById('carrinho-bairro-entrega');
+            const badgeRecorrente = document.getElementById('badge-cliente-reconhecido');
+
+            if (inNome && cliente.nome) inNome.value = cliente.nome;
+
+            if (selDdi && cliente.ddi) {
+                const opcoes = Array.from(selDdi.options).map(o => o.value);
+                if (opcoes.includes(cliente.ddi)) {
+                    selDdi.value = cliente.ddi;
+                    aoMudarDdi(cliente.ddi);
+                } else {
+                    selDdi.value = 'outro';
+                    aoMudarDdi('outro');
+                    if (inManualDdi) inManualDdi.value = cliente.ddi;
+                }
+            }
+
+            if (inWhats && cliente.whats) {
+                inWhats.value = cliente.whats;
+                aplicarMascaraWhatsDinamica(inWhats);
+            }
+
+            if (cliente.modalidade && selMod) {
+                selMod.value = cliente.modalidade;
+                toggleEnderecoCarrinho(cliente.modalidade === 'ENTREGA');
+            }
+
+            if (cliente.endereco && inEndereco) {
+                inEndereco.value = cliente.endereco;
+            }
+
+            if (cliente.bairro && selBairro) {
+                selBairro.value = cliente.bairro;
+                if (typeof atualizarTaxaEntregaCarrinho === 'function') atualizarTaxaEntregaCarrinho();
+            }
+
+            if (badgeRecorrente) {
+                badgeRecorrente.classList.remove('hidden');
+            }
+        }
+
+        function inicializarHistoricoClienteCheckout() {
+            carregarHistoricoDatalists();
+
+            const inNome = document.getElementById('carrinho-cliente-nome');
+            const inWhats = document.getElementById('carrinho-cliente-whats');
+
+            const nomeAtual = (inNome?.value || '').trim();
+            const whatsAtual = (inWhats?.value || '').trim();
+
+            if (!nomeAtual && !whatsAtual) {
+                const ultimoCliente = obterUltimoClienteSalvo();
+                if (ultimoCliente && ultimoCliente.nome && ultimoCliente.whats) {
+                    preencherFormularioComCliente(ultimoCliente, true);
+                }
+            }
+        }
+
+        function aoDigitarNomeCliente(valorDigitado) {
+            if (!valorDigitado || valorDigitado.trim().length === 0) return;
+            const v = valorDigitado.trim().toLowerCase();
+            const historico = obterHistoricoClientes();
+
+            // Se o usuário selecionou ou digitou um nome que já estava no histórico, autocompleta os demais dados
+            const encontrado = historico.find(c => String(c.nome || '').trim().toLowerCase() === v);
+            if (encontrado) {
+                preencherFormularioComCliente(encontrado, false);
+            }
+        }
+        window.aoDigitarNomeCliente = aoDigitarNomeCliente;
+
+        function limparCamposClienteNovo() {
+            const inNome = document.getElementById('carrinho-cliente-nome');
+            const inWhats = document.getElementById('carrinho-cliente-whats');
+            const inEndereco = document.getElementById('carrinho-cliente-endereco');
+            const selDdi = document.getElementById('carrinho-cliente-ddi');
+            const badgeRecorrente = document.getElementById('badge-cliente-reconhecido');
+
+            if (inNome) { inNome.value = ''; inNome.focus(); }
+            if (inWhats) inWhats.value = '';
+            if (inEndereco) inEndereco.value = '';
+            if (selDdi) {
+                selDdi.value = '55';
+                aoMudarDdi('55');
+            }
+            if (badgeRecorrente) badgeRecorrente.classList.add('hidden');
+        }
+        window.limparCamposClienteNovo = limparCamposClienteNovo;
+
         function atualizarDisplayCarrinho() {
             const nomeEl = document.getElementById('carrinho-item-nome');
             const subEl = document.getElementById('carrinho-item-sub');
@@ -1631,11 +2035,22 @@
             const badgeQtd = document.getElementById('badge-qtd-carrinho');
             const badgeQtdMob = document.getElementById('badge-qtd-carrinho-mob');
             const qtdLabelEl = document.getElementById('carrinho-qtd-label');
+            const badgeItemEl = document.getElementById('carrinho-item-badge');
 
             if (nomeEl) nomeEl.innerText = carrinhoAtual.item;
             if (subEl) subEl.innerText = carrinhoAtual.sub;
             if (precoEl) precoEl.innerText = `R$ ${carrinhoAtual.preco.toFixed(2).replace('.', ',')}`;
             if (qtdEl) qtdEl.innerText = carrinhoAtual.qtd;
+
+            if (badgeItemEl) {
+                if (carrinhoAtual.item === 'RESET' || carrinhoAtual.item === 'RESET 5 DIAS') {
+                    badgeItemEl.innerText = 'KIT SEMANAL (5 GARRAFAS DE 500ML)';
+                } else if (carrinhoAtual.item === 'RESET +') {
+                    badgeItemEl.innerText = 'KIT COM 5 GARRAFAS DE 1 LITRO';
+                } else {
+                    badgeItemEl.innerText = 'KIT COM 5 GARRAFAS DE 1L TURBO';
+                }
+            }
 
             if (qtdLabelEl) {
                 if (carrinhoAtual.item === 'RESET' || carrinhoAtual.item === 'RESET 5 DIAS') {
@@ -1694,6 +2109,11 @@
             if (isEntrega) popularSeletorBairrosCarrinho();
 
             atualizarDisplayCarrinho();
+            renderizarOpcoesTrocarProduto();
+            toggleGavetaTrocarProduto(false);
+
+            // Carrega histórico de clientes (auto-completar na 2ª compra e datalists para letra inicial)
+            inicializarHistoricoClienteCheckout();
 
             const modal = document.getElementById('modal-carrinho');
             if (modal) {
@@ -1709,6 +2129,12 @@
             if (isEntrega) popularSeletorBairrosCarrinho();
 
             atualizarDisplayCarrinho();
+            renderizarOpcoesTrocarProduto();
+            toggleGavetaTrocarProduto(false);
+
+            // Carrega histórico de clientes
+            inicializarHistoricoClienteCheckout();
+
             const modal = document.getElementById('modal-carrinho');
             if (modal) {
                 modal.classList.remove('hidden');
@@ -1767,6 +2193,7 @@
 
             const nomeCliente = (document.getElementById('carrinho-cliente-nome')?.value || '').trim();
             const whatsCliente = (document.getElementById('carrinho-cliente-whats')?.value || '').trim();
+            const ddiFinal = obterDdiFinal();
             const modalidade = document.getElementById('carrinho-modalidade')?.value || 'RETIRADA';
             const formaPagamento = document.getElementById('carrinho-pagamento')?.value || 'PIX';
             const endereco = (document.getElementById('carrinho-cliente-endereco')?.value || '').trim();
@@ -1811,6 +2238,19 @@
             const totalGeral = subtotal + valorTaxaNum;
             const totalFormatado = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
 
+            // Número com DDI do cliente
+            const whatsClienteCompleto = `+${ddiFinal} ${whatsCliente}`;
+
+            // Salva dados no histórico local para facilitar compras futuras
+            salvarClienteNoHistorico({
+                nome: nomeCliente,
+                ddi: ddiFinal,
+                whats: whatsCliente,
+                endereco: endereco,
+                bairro: (modalidade === 'ENTREGA' && taxaInfo.bairro) ? taxaInfo.bairro : '',
+                modalidade: modalidade
+            });
+
             // Monta dados estruturados do pedido
             const dadosPedido = {
                 tipo: "PEDIDO_LITRAO",
@@ -1853,7 +2293,7 @@
                         herbalife_id: hidConsultor,
                         codigo_acesso: 'PEDIDO',
                         nome_cliente: `[PEDIDO] ${nomeCliente}`,
-                        whatsapp_cliente: whatsCliente,
+                        whatsapp_cliente: whatsClienteCompleto,
                         como_foi_semana: obsCompleta,
                         primeira_vez: true,
                         criado_em: new Date().toISOString()
@@ -1904,7 +2344,7 @@
                              (modalidade === 'ENTREGA' ? `🛵 *Taxa de Entrega:* ${taxaInfo.texto}${taxaInfo.bairro ? ' (' + taxaInfo.bairro + ')' : ''}\n` : '') +
                              `💰 *Valor Total:* ${totalFormatado}\n\n` +
                              `👤 *Cliente:* ${nomeCliente}\n` +
-                             `📱 *WhatsApp:* ${whatsCliente}\n` +
+                             `📱 *WhatsApp:* ${whatsClienteCompleto}\n` +
                              linhaEntregaWhats +
                              `${pagamentoWhats}\n` +
                              (observacoes ? `📝 *Observação:* ${observacoes}\n` : '') +
