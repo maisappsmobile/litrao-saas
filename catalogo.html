@@ -83,7 +83,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-white p-1.5 shadow-md flex items-center justify-center">
-                    <img src="reset-logo.png" alt="Reset Metabólico" class="max-h-full object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2921/2921822.png'">
+                    <img src="reset-logo.png" alt="Reset Metabólico" class="max-h-full object-contain" onerror="this.onerror=null; this.src='https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';">
                 </div>
                 <div>
                     <span class="text-xs font-black tracking-wider uppercase text-emerald-400 block leading-tight">HERBALIFE NUTRITION</span>
@@ -124,7 +124,7 @@
                 <!-- Foto do Consultor / Espaço -->
                 <div class="relative group">
                     <div id="avatar-container" class="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-white p-2 shadow-2xl border-4 border-emerald-400 overflow-hidden flex items-center justify-center transform group-hover:scale-105 transition">
-                        <img id="consultor-foto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Foto do Consultor" class="w-full h-full object-cover rounded-2xl">
+                        <img id="consultor-foto" src="https://ui-avatars.com/api/?name=Edwan+Braga&background=059669&color=ffffff&size=256&bold=true" alt="Foto do Consultor" class="w-full h-full object-cover rounded-2xl" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Consultor+Herbalife&background=059669&color=ffffff&size=256&bold=true';">
                     </div>
                     <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-1 rounded-full shadow-lg border-2 border-white flex items-center gap-1">
                         <i class="fa-solid fa-circle-check"></i> Verificado
@@ -383,6 +383,38 @@
         </div>
     </div>
 
+    <!-- MODAL DE ZOOM DE PRODUTOS E PÁGINAS DO CATÁLOGO -->
+    <div id="modal-zoom-cliente" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 hidden">
+        <div class="relative bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl border border-gray-100 flex flex-col max-h-[95vh] overflow-hidden">
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-100">
+                <div class="flex items-center space-x-2.5">
+                    <span id="modal-zoom-sku" class="bg-emerald-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md">
+                        #OFICIAL
+                    </span>
+                    <h3 id="modal-zoom-nome" class="text-sm sm:text-base font-black text-gray-900 truncate max-w-md">
+                        Produto Oficial Herbalife
+                    </h3>
+                </div>
+                <button onclick="fecharModalZoomCliente()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-lg cursor-pointer transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-auto flex items-center justify-center p-2 bg-slate-950/5 rounded-2xl min-h-[300px]">
+                <img id="modal-zoom-img" src="" alt="Produto em Alta Resolução" class="max-h-[65vh] max-w-full object-contain drop-shadow-xl transition-transform duration-300">
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between gap-3">
+                <button onclick="fecharModalZoomCliente()" class="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer transition">
+                    Fechar
+                </button>
+                <a id="modal-zoom-zap" href="#" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-black px-5 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition transform hover:scale-105">
+                    <i class="fa-brands fa-whatsapp text-base"></i> Pedir Este Produto no WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT DO CATÁLOGO INTERATIVO -->
     <script>
         // Configuração do Supabase
@@ -399,7 +431,7 @@
             whatsapp: '66981411234',
             cidade: 'Sinop - MT',
             bio: 'Empreendedor & Coach Nutricional Herbalife. Litrão do Reset, Shakes Gourmet e Nutrição Esportiva.',
-            foto: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+            foto: 'https://ui-avatars.com/api/?name=Edwan+Braga&background=059669&color=ffffff&size=256&bold=true'
         };
 
         // Vídeos Oficiais do Catálogo Herbalife
@@ -416,124 +448,422 @@
 
         // Produtos Oficiais do Catálogo Herbalife & Litrão do Reset
         const PRODUTOS_CATALOGO = [
-            // Litrão do Reset
-            { id: "reset-1l", categoria: "litrao", nome: "Litrão do Reset Turbo (1 Litro)", sku: "LR-1000", preco: 25.00, img: "https://cdn-icons-png.flaticon.com/512/2447/2447039.png", desc: "A fórmula original e poderosa de 1 Litro: NRG Guaraná concentrado, Chá Termogênico e Fibra sabor Manga/Uva. Desinchaço em tempo recorde." },
-            { id: "reset-kit5", categoria: "litrao", nome: "Kit Semanal Litrão do Reset (5 Dias)", sku: "KIT-05D", preco: 110.00, img: "https://cdn-icons-png.flaticon.com/512/8243/8243419.png", desc: "Programa completo de 5 dias para secar até 3kg e eliminar a retenção de líquidos com acompanhamento via WhatsApp." },
-            { id: "reset-kit10", categoria: "litrao", nome: "Desafio Detox 10 Dias Litrão", sku: "KIT-10D", preco: 199.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "10 garrafas de 1L com protocolo acelerador de queima calórica e desintoxicação metabólica." },
-            
-            // Shakes & Nutrição
-            { id: "shake-doce-leite", categoria: "shakes", nome: "Shake Herbalife Doce de Leite (550g)", sku: "#0940", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Refeição saudável e prática com 23 vitaminas e minerais, fibras e proteína de alta qualidade. Sem glúten." },
-            { id: "shake-morango", categoria: "shakes", nome: "Shake Herbalife Morango Cremoso (550g)", sku: "#0130", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Sabor irresistível de morango, cremoso, fornece apenas cerca de 200 calorias por copo preparado." },
-            { id: "shake-chocolate", categoria: "shakes", nome: "Shake Herbalife Chocolate Sensação (550g)", sku: "#0106", preco: 195.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Ideal para saciar a vontade de doce enquanto nutre o corpo com proteína e micronutrientes essenciais." },
-            { id: "nutrev", categoria: "shakes", nome: "NutreV Bebida Vegetal Sem Lactose (672g)", sku: "#2863", preco: 98.00, img: "https://cdn-icons-png.flaticon.com/512/2447/2447039.png", desc: "Alternativa ao leite, vegetal, fortificado com cálcio e proteínas. Deixa os Shakes e Litrões super cremosos." },
+            // ==========================================
+            // LINHA LITRÃO DO RESET
+            // ==========================================
+            {
+                id: "reset-1l",
+                categoria: "litrao",
+                nome: "Litrão do Reset Turbo (1 Litro)",
+                sku: "LR-1000",
+                preco: 25.00,
+                img: "divulgacao_litrao_reset_oficial.png",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg",
+                desc: "A fórmula original e poderosa de 1 Litro: NRG Guaraná concentrado, Chá Termogênico Herbal Concentrate e Fibra sabor Manga/Uva. Desinchaço em tempo recorde."
+            },
+            {
+                id: "reset-kit5",
+                categoria: "litrao",
+                nome: "Kit Semanal Litrão do Reset (5 Dias)",
+                sku: "KIT-05D",
+                preco: 110.00,
+                img: "flyer_kit_semanal_reset_base.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg",
+                desc: "Programa completo de 5 dias para secar até 3kg e eliminar retenção de líquidos com protocolo acelerador e acompanhamento via WhatsApp."
+            },
+            {
+                id: "reset-kit10",
+                categoria: "litrao",
+                nome: "Desafio Detox 10 Dias Litrão",
+                sku: "KIT-10D",
+                preco: 199.00,
+                img: "pacotes_reset_base.png",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg",
+                desc: "10 garrafas de 1L com protocolo acelerador de queima calórica, desintoxicação metabólica profunda e suporte diário."
+            },
 
-            // Chás & NRG
-            { id: "nrg-po", categoria: "chas", nome: "N-R-G Guaraná em Pó (100g)", sku: "#0102", preco: 135.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Guaraná puro com ação termogênica natural que fornece disposição mental, foco e energia o dia todo." },
-            { id: "cha-original-100", categoria: "chas", nome: "Herbal Concentrate Chá Termogênico 100g", sku: "#0255", preco: 230.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Mistura instantânea de chá verde e chá preto que acelera a queima calórica e combate a retenção de líquidos." },
-            { id: "cha-limao-50", categoria: "chas", nome: "Herbal Concentrate Sabor Limão (50g)", sku: "#0256", preco: 135.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Refrescante sabor limão. Pode ser consumido quente ou gelado ao longo de todo o dia." },
+            // ==========================================
+            // CHÁS & NRG (ENERGIA & TERMOGÊNICOS)
+            // ==========================================
+            {
+                id: "nrg-100",
+                categoria: "chas",
+                nome: "N-R-G Pó Guaraná da Amazônia 100g",
+                sku: "#0130",
+                preco: 145.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-057k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-18.jpg",
+                desc: "Guaraná puro com ação termogênica natural que fornece disposição mental, foco e energia o dia todo sem oscilações."
+            },
+            {
+                id: "nrg-60",
+                categoria: "chas",
+                nome: "N-R-G Pó Guaraná 60g",
+                sku: "#0131",
+                preco: 98.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-058k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-18.jpg",
+                desc: "Versão compacta de 60g do autêntico guaraná Herbalife. Ideal para levar na bolsa, trabalho ou viagens."
+            },
+            {
+                id: "cha-100",
+                categoria: "chas",
+                nome: "Herbal Concentrate Chá Termogênico Original 100g",
+                sku: "#0106",
+                preco: 245.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-059k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                desc: "Mistura instantânea de chá verde e chá preto que acelera a queima calórica, combate radicais livres e reduz retenção."
+            },
+            {
+                id: "cha-50-orig",
+                categoria: "chas",
+                nome: "Herbal Concentrate Chá Original 50g",
+                sku: "#0105",
+                preco: 149.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-060k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                desc: "O termogênico mais clássico e pedido da Herbalife em embalagem prática de 50g. Rende cerca de 29 porções vigorosas."
+            },
+            {
+                id: "cha-50-limao",
+                categoria: "chas",
+                nome: "Herbal Concentrate Chá Sabor Limão 50g",
+                sku: "#0255",
+                preco: 149.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-061k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                desc: "Sabor cítrico e super refrescante. Pode ser consumido quente ou gelado ao longo do dia para turbinar a hidratação."
+            },
+            {
+                id: "cha-50-canela",
+                categoria: "chas",
+                nome: "Herbal Concentrate Chá Sabor Canela 50g",
+                sku: "#0256",
+                preco: 149.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-062k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                desc: "Aroma e sabor aconchegante de canela com ação termogênica intensificada. Perfeito quente em dias amenos ou no pós-refeição."
+            },
+            {
+                id: "cha-50-laranja",
+                categoria: "chas",
+                nome: "Herbal Concentrate Laranja c/ Especiarias 50g",
+                sku: "#0257",
+                preco: 149.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-063k-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                desc: "Combinação aromática de laranja e especiarias selecionadas para acelerar o metabolismo com um paladar sofisticado."
+            },
 
-            // Fibras & Digestão
-            { id: "fiber-manga", categoria: "fibras", nome: "Fiber Concentrate Líquido Sabor Manga (450ml)", sku: "#2864", preco: 145.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Fibra solúvel líquida de alta absorção. O ingrediente segredo do Litrão do Reset para regular o intestino." },
-            { id: "fiber-uva", categoria: "fibras", nome: "Fiber Concentrate Líquido Sabor Uva (450ml)", sku: "#2865", preco: 145.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Sabor uva suave e delicioso para preparar sua água saborizada turbinada com fibras." },
-            { id: "fiber-powder", categoria: "fibras", nome: "Fiber Powder Fibra em Pó Sem Sabor (260g)", sku: "#2866", preco: 140.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Fibras sem sabor para adicionar em sucos, sopas e receitas sem alterar o paladar." },
+            // ==========================================
+            // FIBRAS & DIGESTÃO
+            // ==========================================
+            {
+                id: "fiber-manga",
+                categoria: "fibras",
+                nome: "Fiber Concentrate Líquido Sabor Manga 450ml",
+                sku: "#2863",
+                preco: 155.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg",
+                desc: "Fibra solúvel líquida de alta absorção. O ingrediente campeão do Litrão do Reset para regular o intestino e conferir sabor tropical irresistível."
+            },
+            {
+                id: "fiber-uva",
+                categoria: "fibras",
+                nome: "Fiber Concentrate Líquido Sabor Uva 450ml",
+                sku: "#2864",
+                preco: 155.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg",
+                desc: "Sabor uva suave e refrescante para preparar sua água saborizada turbinada com fibras prebióticas que auxiliam na microbiota intestinal."
+            },
+            {
+                id: "fiber-powder",
+                categoria: "fibras",
+                nome: "Fiber Powder Fibra Solúvel em Pó 260g",
+                sku: "#2865",
+                preco: 162.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-22.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-22.jpg",
+                desc: "Fibras puras sem sabor para adicionar em sucos, chás, sopas e receitas fitness sem alterar a textura ou o paladar original."
+            },
 
-            // Linha 24H & Colágeno
-            { id: "beauty-booster", categoria: "sports", nome: "Beauty Booster Colágeno Verisol® (270g)", sku: "#1664", preco: 260.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Peptídeos bioativos de colágeno Verisol com biotina e zinco para firmeza da pele e redução de rugas." },
-            { id: "cr7-drive", categoria: "sports", nome: "CR7 Drive Bebida Hidrotônica (810g)", sku: "#1463", preco: 165.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "Desenvolvido em parceria com Cristiano Ronaldo para hidratação avançada e reposição de eletrólitos." },
-            { id: "rebuild-strength", categoria: "sports", nome: "H24 Rebuild Strength Whey Isolado (1010g)", sku: "#1459", preco: 380.00, img: "https://cdn-icons-png.flaticon.com/512/3050/3050158.png", desc: "25g de proteína isolada por porção, BCAA e ferro para recuperação muscular imediata pós-treino." }
+            // ==========================================
+            // SHAKES & NUTRIÇÃO
+            // ==========================================
+            {
+                id: "shake-baunilha",
+                categoria: "shakes",
+                nome: "Shake Baunilha Cremoso 550g",
+                sku: "#0940",
+                preco: 198.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                desc: "Refeição saudável e prática com 23 vitaminas e minerais, fibras e proteína isolada de soja. A base perfeita para dezenas de receitas."
+            },
+            {
+                id: "shake-chocolate",
+                categoria: "shakes",
+                nome: "Shake Chocolate Cremoso 550g",
+                sku: "#0941",
+                preco: 198.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                desc: "Sabor irresistível de chocolate cremoso com apenas ~200 calorias por copo preparado. Sacia a vontade de doce nutrindo de verdade."
+            },
+            {
+                id: "shake-doce-leite",
+                categoria: "shakes",
+                nome: "Shake Doce de Leite Cremoso 550g",
+                sku: "#0942",
+                preco: 198.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                desc: "O sabor mais vendido do Brasil! Textura aveludada de doce de leite tradicional com perfil nutricional de alta performance."
+            },
+            {
+                id: "shake-morango",
+                categoria: "shakes",
+                nome: "Shake Morango Cremoso 550g",
+                sku: "#0943",
+                preco: 198.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                desc: "Refrescância e dulçor equilibrado do morango silvestre. Fornece vitaminas antioxidantes e saciedade duradoura."
+            },
+            {
+                id: "shake-cookies",
+                categoria: "shakes",
+                nome: "Shake Cookies & Cream 550g",
+                sku: "#0944",
+                preco: 198.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                desc: "Creme de baunilha com pedacinhos crocantes de biscoito de chocolate. Uma experiência gourmet para sua substituição de refeição."
+            },
+            {
+                id: "shake-banana",
+                categoria: "shakes",
+                nome: "Shake Banana Caramelizada 550g",
+                sku: "#0945",
+                preco: 198.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0945-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                desc: "Inspirado na clássica sobremesa brasileira. Toque sutil de canela e caramelo, rico em potássio e micronutrientes."
+            },
+            {
+                id: "shake-coco",
+                categoria: "shakes",
+                nome: "Shake Coco Cremoso 550g",
+                sku: "#0946",
+                preco: 198.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0946-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                desc: "Sabor tropical autêntico de coco fresco com aroma reconfortante. Excelente puro ou combinado com frutas."
+            },
+            {
+                id: "shake-pacoca",
+                categoria: "shakes",
+                nome: "Shake Paçoca Especial 550g",
+                sku: "#0947",
+                preco: 198.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                desc: "O autêntico sabor brasileiro do amendoim tostado. Super saboroso, saciante e sem adição desnecessária de gorduras."
+            },
+            {
+                id: "shake-milho",
+                categoria: "shakes",
+                nome: "Shake Milho Verde Cremoso 550g",
+                sku: "#0948",
+                preco: 198.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0948-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                desc: "Edição especial lembrando o tradicional curau de milho verde de fazenda. Cremoso, doce na medida certa e reconfortante."
+            },
+            {
+                id: "nutrev",
+                categoria: "shakes",
+                nome: "NutreV Bebida Vegetal c/ Proteína 672g",
+                sku: "#1639",
+                preco: 115.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1639-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-7.jpg",
+                desc: "Alternativa vegetal ao leite, sem lactose, fortificada com cálcio e proteínas. Deixa os Shakes e Litrões inacreditavelmente cremosos."
+            },
+            {
+                id: "nutrisoup",
+                categoria: "shakes",
+                nome: "Nutri Soup Frango com Legumes 416g",
+                sku: "#1640",
+                preco: 172.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-51.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-51.jpg",
+                desc: "Substituto parcial de refeição salgado e quentinho. Pedaços reais de frango e legumes com vitaminas e minerais essenciais."
+            },
+
+            // ==========================================
+            // LINHA 24H, COLÁGENO & PERFORMANCE
+            // ==========================================
+            {
+                id: "protein-240",
+                categoria: "sports",
+                nome: "Protein Powder Pó de Proteína 240g",
+                sku: "#0246",
+                preco: 158.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0246-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg",
+                desc: "Pó de proteína isolada sem sabor. Permite personalizar a quantidade de proteína dos shakes e receitas para maior saciedade e preservação muscular."
+            },
+            {
+                id: "protein-480",
+                categoria: "sports",
+                nome: "Protein Powder Econômico 480g",
+                sku: "#0247",
+                preco: 265.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg",
+                desc: "Versão econômica de 480g (80 porções). Máximo rendimento para quem busca alta ingestão de proteínas puras no dia a dia."
+            },
+            {
+                id: "colageno",
+                categoria: "sports",
+                nome: "Skin Beauty Drink Colágeno Verisol® 270g",
+                sku: "#0949",
+                preco: 248.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-45.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-45.jpg",
+                desc: "Peptídeos bioativos de colágeno Verisol®, biotina e antioxidantes. Comprovado cientificamente para firmeza da pele, redução de rugas e unhas fortes."
+            },
+            {
+                id: "cr7-drive",
+                categoria: "sports",
+                nome: "CR7 Drive Hidroeletrolítico 810g",
+                sku: "#1445",
+                preco: 219.00,
+                img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1445-br.png:pdp-w875h783?fmt=webp-alpha",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-37.jpg",
+                desc: "Desenvolvido em parceria com Cristiano Ronaldo. Eletrólitos e carboidratos de rápida absorção para hidratação de elite e resistência nos treinos."
+            },
+            {
+                id: "barra-choc",
+                categoria: "sports",
+                nome: "Barra de Proteína Chocolate/Amendoim (7 un)",
+                sku: "#0060",
+                preco: 95.00,
+                img: "https://catalogoherbalife.com.br/catalogo/herba/page-53.jpg",
+                fotoCatalogo: "https://catalogoherbalife.com.br/catalogo/herba/page-53.jpg",
+                desc: "Caixa com 7 barras de proteína cobertas com chocolate. Snack prático e crocante de 10g de proteína por barra para matar a fome a qualquer hora."
+            }
         ];
 
-        // Páginas da Revista Flipbook
+        // Páginas da Revista Flipbook (Scans Oficiais em Alta Resolução)
         const PAGINAS_REVISTA = [
             {
                 numero: 1,
-                titulo: "Bem-vindo ao Catálogo Oficial Herbalife & Litrão do Reset",
+                titulo: "Catálogo Oficial Herbalife & Litrão do Reset",
                 subtitulo: "Nutrição balanceada para uma vida mais ativa e saudável",
-                tipo: "capa",
-                conteudo: `
-                    <div class="text-center py-6">
-                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider inline-block mb-3">EDIÇÃO DIGITAL INTERATIVA</span>
-                        <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight mb-3">Linha Litrão do Reset & Nutrição Herbalife</h2>
-                        <p class="text-xs sm:text-sm text-gray-600 max-w-md mx-auto mb-6">Explore nossas páginas interativas para conhecer os produtos mais pedidos para desinchar, queimar calorias e ter mais vitalidade.</p>
-                        <div class="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-lg text-xs font-bold">
-                            <i class="fa-solid fa-arrow-right text-emerald-400"></i> Clique em 'Próxima' para folhear a revista
-                        </div>
-                    </div>
-                `
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg",
+                destaque: "EDIÇÃO OFICIAL DIGITAL",
+                msgZap: "Olá! Estava visualizando a Capa do Catálogo Oficial e gostaria de conhecer as opções disponíveis!"
             },
             {
-                numero: 2,
-                titulo: "O que é o Fenômeno Litrão do Reset?",
-                subtitulo: "Por que milhares de pessoas estão secando com o Litrão?",
-                tipo: "artigo",
-                conteudo: `
-                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
-                        <p class="font-bold text-emerald-800 text-sm">Uma combinação sinérgica e inteligente criada no Espaço de Vida Saudável:</p>
-                        <ul class="list-disc pl-5 space-y-2">
-                            <li><strong>NRG Guaraná:</strong> Disposição natural imediata, foco e termogênese prolongada.</li>
-                            <li><strong>Herbal Concentrate:</strong> Combinação de chá verde e preto que acelera a queima calórica e elimina a retenção hídrica.</li>
-                            <li><strong>Fiber Concentrate:</strong> Fibra líquida de sabor delicioso que regula o trânsito intestinal e reduz a fome.</li>
-                        </ul>
-                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 font-bold text-xs mt-4">
-                            💡 Você toma 1 Litro gelado ao longo da sua manhã ou tarde e sente a diferença na retenção já nos primeiros dias!
-                        </div>
-                    </div>
-                `
+                numero: 7,
+                titulo: "Fórmula 1 & Filosofia de Nutrição",
+                subtitulo: "Nutrição celular, proteínas e estilo de vida ativo",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-7.jpg",
+                destaque: "FILOSOFIA NUTRICIONAL GLOBAL",
+                msgZap: "Olá! Vi a página 7 sobre a Filosofia de Nutrição Herbalife e gostaria de começar meu plano nutricional!"
             },
             {
-                numero: 3,
-                titulo: "Shakes Nutricionais Herbalife",
-                subtitulo: "Substituição parcial de refeição com sabor e cremosidade",
-                tipo: "artigo",
-                conteudo: `
-                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
-                        <p>O Shake Herbalife é o produto nutricional mais consumido no mundo para gerenciamento de peso saudável:</p>
-                        <div class="grid grid-cols-2 gap-2 text-xs font-bold text-slate-800">
-                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍦 Doce de Leite Cremoso</div>
-                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍓 Morango Silvestre</div>
-                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍫 Chocolate Sensação</div>
-                            <div class="bg-gray-50 p-2.5 rounded-lg border">🍌 Banana Caramelizada</div>
-                        </div>
-                        <p class="text-xs text-gray-500">Fornece cerca de 23 vitaminas e minerais essenciais, fibras prebióticas e proteína isolada de alta absorção.</p>
-                    </div>
-                `
+                numero: 8,
+                titulo: "Shakes Shakes Cremosos - Sabores Tradicionais",
+                subtitulo: "Doce de Leite, Morango, Chocolate e Cookies & Cream",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg",
+                destaque: "SHAKE FÓRMULA 1",
+                msgZap: "Olá! Vi a página 8 dos Shakes Tradicionais (Doce de Leite, Morango, Chocolate) e quero pedir o meu!"
             },
             {
-                numero: 4,
-                titulo: "Colágeno Verisol® Beauty Booster",
-                subtitulo: "Rejuvenescimento e elasticidade de dentro para fora",
-                tipo: "artigo",
-                conteudo: `
-                    <div class="space-y-4 text-xs sm:text-sm text-gray-700 leading-relaxed">
-                        <p>Desenvolvido com a exclusiva tecnologia alemã <strong>Verisol®</strong>, cientificamente comprovada para estimular a síntese de colágeno na derme:</p>
-                        <ul class="list-disc pl-5 space-y-1.5">
-                            <li>Redução significativa da profundidade das rugas após 4 semanas.</li>
-                            <li>Fortalecimento visível de unhas e cabelos.</li>
-                            <li>Aumento da elasticidade e hidratação da pele corporal e facial.</li>
-                        </ul>
-                        <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-pink-900 font-bold text-xs">
-                            ✨ Pode ser adicionado diretamente no seu Litrão do Reset criando o famoso Litrão Turbo Beauty!
-                        </div>
-                    </div>
-                `
+                numero: 9,
+                titulo: "Shakes Sabores Brasileiros & Gourmet",
+                subtitulo: "Paçoca, Banana Caramelizada, Coco e Milho Verde",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg",
+                destaque: "SABORES ESPECIAIS EVS",
+                msgZap: "Olá! Vi a página 9 dos Shakes Gourmet (Paçoca, Banana, Milho Verde, Coco) e quero experimentar!"
             },
             {
-                numero: 5,
-                titulo: "Faça seu Pedido com o Consultor Oficial",
-                subtitulo: "Pronta entrega e consultoria personalizada gratuita",
-                tipo: "chamada",
-                conteudo: `
-                    <div class="text-center py-4 space-y-4">
-                        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-md">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                        <h4 class="text-xl font-black text-gray-900">Pronto para começar seu Desafio?</h4>
-                        <p class="text-xs text-gray-600 max-w-sm mx-auto">Converse agora diretamente com seu consultor oficial para tirar dúvidas, calcular seu frete ou encomendar seu Litrão do Reset.</p>
-                        <button onclick="falarComConsultorWhatsAppGeral()" class="bg-green-600 hover:bg-green-700 text-white font-black px-6 py-3 rounded-xl shadow-lg transition text-xs sm:text-sm uppercase cursor-pointer">
-                            <i class="fa-brands fa-whatsapp mr-1 text-base"></i> Abrir WhatsApp do Consultor
-                        </button>
-                    </div>
-                `
+                numero: 17,
+                titulo: "Herbal Concentrate - Chás Termogênicos",
+                subtitulo: "Original, Limão, Canela e Laranja c/ Especiarias",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg",
+                destaque: "CHÁ VERDE & PRETO ANTIOXIDANTE",
+                msgZap: "Olá! Vi a página 17 dos Chás Herbal Concentrate e quero encomendar o meu para acelerar o metabolismo!"
+            },
+            {
+                numero: 18,
+                titulo: "N-R-G - Guaraná da Amazônia",
+                subtitulo: "Energia, disposição mental e foco prolongado para o seu dia",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-18.jpg",
+                destaque: "BASE DO LITRÃO DO RESET",
+                msgZap: "Olá! Vi a página 18 do NRG Guaraná e quero pedir para ter mais energia e foco no meu dia!"
+            },
+            {
+                numero: 21,
+                titulo: "Fiber Concentrate Líquido - Manga e Uva",
+                subtitulo: "O ingrediente segredo do Litrão do Reset para regular o intestino",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg",
+                destaque: "FIBRAS SOLÚVEIS LÍQUIDAS",
+                msgZap: "Olá! Vi a página 21 da Fibra Concentrada (Manga/Uva) e quero pedir o meu Litrão do Reset!"
+            },
+            {
+                numero: 22,
+                titulo: "Fiber Powder - Fibras em Pó Sem Sabor",
+                subtitulo: "Turbine qualquer bebida com fibras puras prebióticas",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-22.jpg",
+                destaque: "DIGESTÃO E SAÚDE DA MICROBIOTA",
+                msgZap: "Olá! Vi a página 22 do Fiber Powder e quero saber mais sobre como adicionar na minha rotina!"
+            },
+            {
+                numero: 31,
+                titulo: "Protein Powder - Otimizador de Proteínas",
+                subtitulo: "Proteína isolada para mais saciedade e firmeza muscular",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg",
+                destaque: "PROTEÍNA ISOLADA PURA",
+                msgZap: "Olá! Vi a página 31 do Protein Powder e quero turbinar meu shake com mais proteína isolada!"
+            },
+            {
+                numero: 37,
+                titulo: "Linha Esportiva Herbalife24 & CR7 Drive",
+                subtitulo: "Hidratação avançada desenvolvida com Cristiano Ronaldo",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-37.jpg",
+                destaque: "NUTRIÇÃO PARA ATLETAS",
+                msgZap: "Olá! Vi a página 37 da linha esportiva Herbalife24 e CR7 Drive e quero pedir para os meus treinos!"
+            },
+            {
+                numero: 45,
+                titulo: "Skin Beauty Drink - Colágeno Verisol®",
+                subtitulo: "Rejuvenescimento, firmeza da pele e redução de rugas",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-45.jpg",
+                destaque: "TECNOLOGIA VERISOL® COMPROVADA",
+                msgZap: "Olá! Vi a página 45 do Beauty Drink Colágeno Verisol® e quero encomendar o meu!"
+            },
+            {
+                numero: 51,
+                titulo: "Nutri Soup - Sopas Nutricionais Cremosas",
+                subtitulo: "Refeição salgada quente e reconfortante com poucas calorias",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-51.jpg",
+                destaque: "OPÇÃO SALGADA COMPLETA",
+                msgZap: "Olá! Vi a página 51 da Nutri Soup Frango com Legumes e quero pedir a minha!"
+            },
+            {
+                numero: 53,
+                titulo: "Barras de Proteína & Snacks Práticos",
+                subtitulo: "Chocolate com amendoim crocante para saciar a qualquer hora",
+                scanUrl: "https://catalogoherbalife.com.br/catalogo/herba/page-53.jpg",
+                destaque: "10G DE PROTEÍNA POR BARRA",
+                msgZap: "Olá! Vi a página 53 das Barras de Proteína e quero pedir uma caixa!"
             }
         ];
 
@@ -654,18 +984,23 @@
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl transition border border-gray-100 flex flex-col justify-between group";
 
-                const msgPedido = `Olá ${consultorAtual.nome_espaco}! Gostaria de fazer o pedido do produto: *${prod.nome}* (R$ ${prod.preco.toFixed(2)}) que vi no seu Catálogo Digital!`;
+                const msgPedido = `Olá ${consultorAtual.nome_espaco}! Gostaria de fazer o pedido do produto: *${prod.nome}* (R$ ${prod.preco.toFixed(2).replace('.', ',')}) que vi no seu Catálogo Digital!`;
                 const zapPedidoLink = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgPedido)}`;
+                const nomeEscapado = escapeHtml(prod.nome);
+                const fallbackImg = prod.fotoCatalogo || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';
 
                 card.innerHTML = `
                     <div>
-                        <div class="relative w-full h-44 bg-gray-50 rounded-xl mb-3 overflow-hidden flex items-center justify-center p-4">
-                            <span class="absolute top-2 left-2 bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
+                        <div class="relative w-full h-52 bg-gradient-to-b from-gray-50 to-white rounded-2xl mb-3 overflow-hidden flex items-center justify-center p-3 border border-gray-100 group/img cursor-pointer" onclick="abrirModalZoomCliente('${prod.img}', '${nomeEscapado}', '${prod.sku}')" title="Clique para ampliar a foto oficial">
+                            <span class="absolute top-2 left-2 z-10 bg-emerald-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md shadow-xs">
                                 ${prod.sku}
                             </span>
-                            <img src="${prod.img}" alt="${prod.nome}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition duration-300">
+                            <button type="button" class="absolute top-2 right-2 z-10 w-7 h-7 rounded-lg bg-black/60 hover:bg-black/80 text-white text-xs flex items-center justify-center opacity-80 sm:opacity-0 group-hover/img:opacity-100 transition shadow-sm" title="Ampliar Imagem">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </button>
+                            <img src="${prod.img}" alt="${prod.nome}" onerror="this.onerror=null; this.src='${fallbackImg}';" class="max-h-full max-w-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300">
                         </div>
-                        <h4 class="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition leading-snug mb-1.5">${prod.nome}</h4>
+                        <h4 class="font-bold text-sm text-gray-900 group-hover:text-emerald-700 transition leading-snug mb-1.5 cursor-pointer" onclick="abrirModalZoomCliente('${prod.img}', '${nomeEscapado}', '${prod.sku}')">${prod.nome}</h4>
                         <p class="text-[11px] text-gray-500 line-clamp-3 leading-relaxed mb-3">${prod.desc}</p>
                     </div>
                     <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
@@ -768,24 +1103,42 @@
             const pag = PAGINAS_REVISTA[index];
 
             document.getElementById('indicador-pagina-flipbook').innerText = `Pág. ${pag.numero} de ${PAGINAS_REVISTA.length}`;
-            document.getElementById('flipbook-rodape-numero').innerText = `Página ${pag.numero}`;
+            document.getElementById('flipbook-rodape-numero').innerText = `Página Oficial ${pag.numero}`;
+
+            const zapUrl = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(pag.msgZap || ('Olá ' + consultorAtual.nome_espaco + '! Gostaria de fazer o pedido dos produtos da Página ' + pag.numero + ' do Catálogo Oficial.'))}`;
+            const tituloEscapado = escapeHtml(pag.titulo);
 
             const container = document.getElementById('flipbook-conteudo-pagina');
             container.innerHTML = `
-                <div class="animate-fade-in">
-                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block mb-1">CAPÍTULO ${pag.numero}</span>
-                    <h3 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-tight">${pag.titulo}</h3>
-                    <p class="text-xs text-gray-500 font-bold mb-4">${pag.subtitulo}</p>
-                    <div class="pt-2">${pag.conteudo}</div>
+                <div class="animate-fade-in flex flex-col items-center">
+                    <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                        <div>
+                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block mb-0.5">${pag.destaque || 'CATÁLOGO OFICIAL'}</span>
+                            <h3 class="text-lg sm:text-2xl font-black text-gray-900 tracking-tight leading-tight">${pag.titulo}</h3>
+                            <p class="text-xs text-gray-500 font-bold">${pag.subtitulo}</p>
+                        </div>
+                        <a href="${zapUrl}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-black px-4 py-2.5 rounded-xl shadow-md text-xs flex items-center gap-2 cursor-pointer transition transform hover:scale-105 whitespace-nowrap">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Pedir Desta Página
+                        </a>
+                    </div>
+                    
+                    <div class="relative w-full rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-md group cursor-pointer" onclick="abrirModalZoomCliente('${pag.scanUrl}', '${tituloEscapado}', 'Pág. ${pag.numero}')" title="Clique para ampliar em alta resolução">
+                        <img src="${pag.scanUrl}" alt="${pag.titulo}" onerror="this.onerror=null; this.src='https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';" class="w-full h-auto max-h-[600px] object-contain mx-auto transition duration-300 group-hover:scale-[1.02]">
+                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
+                            <span class="bg-black/80 text-white text-xs font-black px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-emerald-400"></i> Clique para Ampliar em Alta Resolução
+                            </span>
+                        </div>
+                    </div>
                 </div>
             `;
 
             // Atualiza destaque nas miniaturas
             document.querySelectorAll('.thumb-pag-btn').forEach((b, idx) => {
                 if (idx === index) {
-                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer flex-shrink-0";
+                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-600 text-white shadow-xs cursor-pointer flex-shrink-0 flex items-center gap-1.5";
                 } else {
-                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0";
+                    b.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0 flex items-center gap-1.5";
                 }
             });
         }
@@ -807,8 +1160,8 @@
             container.innerHTML = '';
             PAGINAS_REVISTA.forEach((p, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0";
-                btn.innerText = `Pág. ${p.numero}`;
+                btn.className = "thumb-pag-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer flex-shrink-0 flex items-center gap-1.5";
+                btn.innerHTML = `<i class="fa-solid fa-book-open text-[10px]"></i> Pág. ${p.numero}`;
                 btn.onclick = () => carregarPaginaRevista(idx);
                 container.appendChild(btn);
             });
@@ -895,6 +1248,36 @@
                 const cur = parseInt(localStorage.getItem(key) || '0', 10);
                 localStorage.setItem(key, String(cur + 1));
             } catch (e) {}
+        }
+
+        // ==========================================
+        // MODAL DE ZOOM DE PRODUTOS & SCANS
+        // ==========================================
+        function abrirModalZoomCliente(imgUrl, nome, sku) {
+            const modal = document.getElementById('modal-zoom-cliente');
+            if (!modal) return;
+            document.getElementById('modal-zoom-img').src = imgUrl;
+            document.getElementById('modal-zoom-nome').innerText = nome || 'Produto Herbalife';
+            document.getElementById('modal-zoom-sku').innerText = sku || '#OFICIAL';
+
+            const msg = `Olá ${consultorAtual.nome_espaco}! Gostaria de fazer o pedido do produto: *${nome}* (${sku}) que vi no seu Catálogo Digital!`;
+            document.getElementById('modal-zoom-zap').href = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msg)}`;
+
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalZoomCliente() {
+            const modal = document.getElementById('modal-zoom-cliente');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/'/g, '&#39;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
     </script>
     <script src="/pwa-install.js"></script>
