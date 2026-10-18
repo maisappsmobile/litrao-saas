@@ -4040,14 +4040,14 @@
                                     <label class="block font-bold text-gray-700 mb-1">Frete / Entrega Garrafa</label>
                                     <div class="relative">
                                         <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                        <input type="number" step="0.50" id="custo-input-frete" value="0.00" oninput="recalcularCustosFinanceiroEVS()" class="w-full pl-7 pr-2 p-1.5 bg-gray-50 border border-gray-300 rounded-lg font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                                        <input type="number" step="any" min="0" id="custo-input-frete" value="0.00" oninput="recalcularCustosFinanceiroEVS()" class="w-full pl-7 pr-2 p-1.5 bg-gray-50 border border-gray-300 rounded-lg font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block font-bold text-emerald-900 mb-1">Preço Venda Garrafa</label>
                                     <div class="relative">
                                         <span class="absolute left-2.5 top-2 text-xs font-black text-emerald-600">R$</span>
-                                        <input type="number" step="0.50" id="preco-venda-garrafa-input" value="65.00" oninput="recalcularCustosFinanceiroEVS()" class="w-full pl-7 pr-2 p-1.5 bg-emerald-50 border border-emerald-400 rounded-lg font-black text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                                        <input type="number" step="any" min="0" id="preco-venda-garrafa-input" value="65.00" oninput="recalcularCustosFinanceiroEVS()" class="w-full pl-7 pr-2 p-1.5 bg-emerald-50 border border-emerald-400 rounded-lg font-black text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
                                     </div>
                                 </div>
                             </div>
@@ -4955,13 +4955,13 @@
                     </div>
                     <div class="relative max-w-xs mt-1.5">
                         <span class="absolute left-3.5 top-2.5 text-sm font-black text-emerald-700">R$</span>
-                        <input type="number" step="0.50" min="0" id="edit-prod-preco" required class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-base font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                        <input type="text" inputmode="decimal" id="edit-prod-preco" placeholder="0,00" oninput="aplicarMascaraMoedaAoDigitar(this)" onblur="formatarMoedaAoSair(this)" class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-base font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
                     </div>
-                    <span class="text-[10px] text-gray-500 block mt-1">Preço que seus clientes verão na vitrine pública do catálogo.</span>
+                    <span class="text-[11px] text-gray-500 block mt-1">Preço que seus clientes verão na vitrine pública. <strong class="text-emerald-800">Dica: Se deixar 0,00 ou em branco, este produto NÃO aparecerá para o cliente.</strong></span>
 
                     <!-- Sub-bloco de Variações de Sabores / Tamanhos -->
                     <div id="edit-prod-container-variacoes" class="hidden mt-3 pt-3 border-t border-gray-200">
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center justify-between mb-1">
                             <span class="text-[11px] font-black text-emerald-900 uppercase">
                                 <i class="fa-solid fa-sliders text-emerald-600 mr-1"></i> Preços por Sabor / Tamanho:
                             </span>
@@ -4969,6 +4969,7 @@
                                 ⚡ Aplicar Preço Principal a Todos
                             </button>
                         </div>
+                        <span class="text-[10px] text-emerald-700 block mb-2">Sabores ou tamanhos com <strong>0,00 ou em branco</strong> NÃO aparecerão para o cliente no catálogo.</span>
                         <div id="edit-prod-lista-variacoes" class="space-y-2 max-h-48 overflow-y-auto pr-1">
                             <!-- Injetado via JS -->
                         </div>
@@ -15650,7 +15651,7 @@
                     <td class="p-3">
                         <div class="relative w-24">
                             <span class="absolute left-1.5 top-1.5 text-[10px] text-gray-400 font-bold">R$</span>
-                            <input type="number" step="0.50" id="prod-custo-${p.id}" value="${custoPote.toFixed(2)}" onchange="atualizarCustoProdutoNaTabela('${p.id}', this.value)" class="w-full pl-5 pr-1 py-1 bg-white border border-gray-300 rounded text-xs font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="number" step="any" min="0" id="prod-custo-${p.id}" value="${custoPote.toFixed(2)}" onchange="atualizarCustoProdutoNaTabela('${p.id}', this.value)" class="w-full pl-5 pr-1 py-1 bg-white border border-gray-300 rounded text-xs font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </td>
                     <td class="p-3 whitespace-nowrap">
@@ -15660,7 +15661,7 @@
                     <td class="p-3">
                         <div class="relative w-24">
                             <span class="absolute left-1.5 top-1.5 text-[10px] text-emerald-600 font-black">R$</span>
-                            <input type="number" step="0.50" id="prod-venda-${p.id}" value="${(p.precoVenda || 0).toFixed(2)}" class="w-full pl-5 pr-1 py-1 bg-emerald-50/60 border border-emerald-300 rounded text-xs font-black text-emerald-900 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="number" step="any" min="0" id="prod-venda-${p.id}" value="${(p.precoVenda || 0).toFixed(2)}" class="w-full pl-5 pr-1 py-1 bg-emerald-50/60 border border-emerald-300 rounded text-xs font-black text-emerald-900 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </td>
                     <td class="p-3">
@@ -17281,6 +17282,64 @@
         }
         window.renderizarListaProdutosCatalogoPainel = renderizarListaProdutosCatalogoPainel;
 
+        /* ==========================================================================
+           MÁSCARA E FORMATAÇÃO DE MOEDA (REAL BRASILEIRO R$ COM VÍRGULA AUTOMÁTICA)
+           ========================================================================== */
+        function formatarMoedaValorPtBr(val) {
+            if (val === undefined || val === null || val === '') return '0,00';
+            let num = (typeof val === 'number') ? val : parseFloat(String(val).replace(/\./g, '').replace(',', '.'));
+            if (isNaN(num)) return '0,00';
+            return num.toFixed(2).replace('.', ',');
+        }
+        window.formatarMoedaValorPtBr = formatarMoedaValorPtBr;
+
+        function parseMoedaPtBr(str) {
+            if (str === undefined || str === null || str === '') return 0;
+            if (typeof str === 'number') return isNaN(str) ? 0 : str;
+            let limpo = String(str).trim().replace(/[^\d.,]/g, '');
+            if (!limpo) return 0;
+            if (limpo.includes(',')) {
+                limpo = limpo.replace(/\./g, '').replace(',', '.');
+            }
+            let num = parseFloat(limpo);
+            return isNaN(num) ? 0 : num;
+        }
+        window.parseMoedaPtBr = parseMoedaPtBr;
+
+        function aplicarMascaraMoedaAoDigitar(input) {
+            if (!input) return;
+            let val = input.value;
+            if (!val) {
+                input.value = '';
+                return;
+            }
+            // Se o usuário digitou ou colou algo com 1 casa decimal ex: "79,9", completa com zero
+            let limpo = val.trim();
+            if (/^\d+[.,]\d{1}$/.test(limpo)) {
+                limpo += '0';
+            }
+            let digitos = limpo.replace(/\D/g, '');
+            if (!digitos) {
+                input.value = '';
+                return;
+            }
+            let num = parseInt(digitos, 10) / 100;
+            input.value = num.toFixed(2).replace('.', ',');
+        }
+        window.aplicarMascaraMoedaAoDigitar = aplicarMascaraMoedaAoDigitar;
+
+        function formatarMoedaAoSair(input) {
+            if (!input) return;
+            let v = input.value.trim();
+            if (!v || v === '0' || v === '0,00' || v === '0,0' || v === '0.') {
+                input.value = '0,00';
+                return;
+            }
+            let num = parseMoedaPtBr(v);
+            input.value = num.toFixed(2).replace('.', ',');
+        }
+        window.formatarMoedaAoSair = formatarMoedaAoSair;
+
         function abrirEditorItemCatalogo(prodId) {
             const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
             if (!prod) return;
@@ -17293,9 +17352,9 @@
             document.getElementById('edit-prod-nome-titulo').innerText = prod.nome;
             document.getElementById('edit-prod-sku-sub').innerText = `Código SKU: ${prod.sku} • Categoria: ${prod.categoria}`;
 
-            // Preço
+            // Preço Principal Formatado com Vírgula
             const precoVal = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '') ? parseFloat(cItem.preco) : prod.preco;
-            document.getElementById('edit-prod-preco').value = precoVal.toFixed(2);
+            document.getElementById('edit-prod-preco').value = formatarMoedaValorPtBr(precoVal);
 
             // Foto
             const imgVal = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : prod.imgPadrao;
@@ -17306,7 +17365,7 @@
             const descVal = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : prod.descPadrao;
             document.getElementById('edit-prod-desc').value = descVal;
 
-            // Variações
+            // Variações de Sabores / Tamanhos com Máscara de Moeda
             const boxVar = document.getElementById('edit-prod-container-variacoes');
             const listaVar = document.getElementById('edit-prod-lista-variacoes');
             if (prod.temVariacoes && prod.variacoes && prod.variacoes.length > 0) {
@@ -17315,6 +17374,7 @@
                 prod.variacoes.forEach((v, idx) => {
                     const varCustom = cItem.variacoes ? (cItem.variacoes[v.sku] || cItem.variacoes[v.nome] || cItem.variacoes[idx]) : null;
                     const vPreco = (varCustom && varCustom.preco !== undefined) ? parseFloat(varCustom.preco) : v.preco;
+                    const vPrecoFormatado = formatarMoedaValorPtBr(vPreco);
                     const vImg = (varCustom && varCustom.img) ? varCustom.img : '';
 
                     const row = document.createElement('div');
@@ -17326,7 +17386,7 @@
                         </div>
                         <div class="relative w-28 flex-shrink-0">
                             <span class="absolute left-2 top-1.5 text-[10px] text-emerald-700 font-bold">R$</span>
-                            <input type="number" step="0.50" min="0" id="edit-var-preco-${idx}" value="${vPreco.toFixed(2)}" class="w-full pl-6 pr-1.5 py-1 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" inputmode="decimal" id="edit-var-preco-${idx}" value="${vPrecoFormatado}" placeholder="0,00" oninput="aplicarMascaraMoedaAoDigitar(this)" onblur="formatarMoedaAoSair(this)" class="w-full pl-6 pr-1.5 py-1 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     `;
                     listaVar.appendChild(row);
@@ -17427,11 +17487,11 @@
             const prodId = document.getElementById('edit-prod-id').value;
             const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
             if (!prod) return;
-            document.getElementById('edit-prod-preco').value = prod.preco.toFixed(2);
+            document.getElementById('edit-prod-preco').value = formatarMoedaValorPtBr(prod.preco);
             if (prod.temVariacoes && prod.variacoes) {
                 prod.variacoes.forEach((v, idx) => {
                     const inputV = document.getElementById(`edit-var-preco-${idx}`);
-                    if (inputV) inputV.value = v.preco.toFixed(2);
+                    if (inputV) inputV.value = formatarMoedaValorPtBr(v.preco);
                 });
             }
         }
@@ -17455,14 +17515,14 @@
         window.restaurarDescricaoPadraoItem = restaurarDescricaoPadraoItem;
 
         function aplicarPrecoPrincipalATodasVariacoes() {
-            const precoGeral = parseFloat(document.getElementById('edit-prod-preco').value) || 0;
+            const precoGeralTexto = document.getElementById('edit-prod-preco').value || '0,00';
             const prodId = document.getElementById('edit-prod-id').value;
             const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
             if (!prod || !prod.variacoes) return;
 
             prod.variacoes.forEach((v, idx) => {
                 const inputV = document.getElementById(`edit-var-preco-${idx}`);
-                if (inputV) inputV.value = precoGeral.toFixed(2);
+                if (inputV) inputV.value = precoGeralTexto;
             });
         }
         window.aplicarPrecoPrincipalATodasVariacoes = aplicarPrecoPrincipalATodasVariacoes;
@@ -17484,7 +17544,9 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
 
             try {
-                const novoPreco = parseFloat(document.getElementById('edit-prod-preco').value) || prod.preco;
+                // Permite valor 0,00 ou em branco para propositalmente ocultar do cliente
+                const valorTexto = document.getElementById('edit-prod-preco').value;
+                const novoPreco = parseMoedaPtBr(valorTexto);
                 const novaImg = (document.getElementById('edit-prod-img-url').value || '').trim();
                 const novaDesc = (document.getElementById('edit-prod-desc').value || '').trim();
 
@@ -17493,11 +17555,9 @@
                     prod.variacoes.forEach((v, idx) => {
                         const inputV = document.getElementById(`edit-var-preco-${idx}`);
                         if (inputV) {
-                            const vp = parseFloat(inputV.value);
-                            if (!isNaN(vp) && vp >= 0) {
-                                variacoesCustom[v.sku] = { preco: vp };
-                                variacoesCustom[v.nome] = { preco: vp };
-                            }
+                            const vp = parseMoedaPtBr(inputV.value);
+                            variacoesCustom[v.sku] = { preco: vp };
+                            variacoesCustom[v.nome] = { preco: vp };
                         }
                     });
                 }

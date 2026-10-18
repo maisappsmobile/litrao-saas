@@ -1277,22 +1277,46 @@
             const grid = document.getElementById('grid-produtos-vitrine');
             grid.innerHTML = '';
 
-            if (produtos.length === 0) {
+            // REGRA: Quando estiver sem valor ou 0,00, NÃO PERMITE QUE APAREÇA AO CLIENTE
+            const produtosValidos = produtos.filter(prod => {
+                if (prod.temVariacoes && prod.variacoes && Array.isArray(prod.variacoes)) {
+                    const temVarAtiva = prod.variacoes.some(v => v.preco !== undefined && v.preco !== null && parseFloat(v.preco) > 0);
+                    if (temVarAtiva) return true;
+                }
+                return prod.preco !== undefined && prod.preco !== null && parseFloat(prod.preco) > 0;
+            });
+
+            if (produtosValidos.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full py-12 text-center text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-4xl mb-3 block"></i>
-                        <p class="font-bold">Nenhum produto encontrado com este filtro.</p>
+                        <p class="font-bold">Nenhum produto disponível com valor no momento.</p>
                     </div>
                 `;
                 return;
             }
 
-            produtos.forEach(prod => {
+            produtosValidos.forEach(prod => {
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl transition border border-gray-100 flex flex-col justify-between group";
 
-                const varIdx = variacoesSelecionadas[prod.id] || 0;
-                const variacaoAtiva = prod.temVariacoes && prod.variacoes ? prod.variacoes[varIdx] : null;
+                // Variações válidas com preço > 0 (oculta sabores/tamanhos com 0,00 ou sem valor)
+                let variacoesValidas = [];
+                if (prod.temVariacoes && prod.variacoes && Array.isArray(prod.variacoes)) {
+                    variacoesValidas = prod.variacoes.filter(v => v.preco !== undefined && v.preco !== null && parseFloat(v.preco) > 0);
+                }
+
+                // Índice selecionado: prioriza a primeira variação válida se a salva estiver zerada
+                let variacaoAtiva = null;
+                if (variacoesValidas.length > 0) {
+                    const idxSalvo = variacoesSelecionadas[prod.id];
+                    if (idxSalvo !== undefined && prod.variacoes[idxSalvo] && variacoesValidas.includes(prod.variacoes[idxSalvo])) {
+                        variacaoAtiva = prod.variacoes[idxSalvo];
+                    } else {
+                        variacaoAtiva = variacoesValidas[0];
+                        variacoesSelecionadas[prod.id] = prod.variacoes.indexOf(variacaoAtiva);
+                    }
+                }
 
                 const skuAtual = variacaoAtiva ? variacaoAtiva.sku : prod.sku;
                 const precoAtual = variacaoAtiva ? variacaoAtiva.preco : prod.preco;
@@ -1305,21 +1329,25 @@
                 
                 const zapPedidoLink = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgInicial)}`;
 
-                // Seletor de Sabores / Variações
+                // Seletor de Sabores / Variações (APENAS VARIAÇÕES COM PREÇO > 0)
                 let selectorHtml = '';
-                if (prod.temVariacoes && prod.variacoes && prod.variacoes.length > 0) {
+                if (variacoesValidas.length > 0) {
+                    const varAtivaIdxReal = prod.variacoes.indexOf(variacaoAtiva);
                     selectorHtml = `
                         <div class="my-2.5 bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200/60">
                             <label class="block text-[10px] font-black uppercase text-emerald-900 mb-1 flex items-center justify-between">
                                 <span><i class="fa-solid fa-sliders text-emerald-600 mr-1"></i> ${prod.tipoVariacao || 'Escolha a Opção'}:</span>
-                                <span class="text-[9px] text-emerald-700 font-bold">${prod.variacoes.length} opções</span>
+                                <span class="text-[9px] text-emerald-700 font-bold">${variacoesValidas.length} opções disponíveis</span>
                             </label>
                             <select id="select-var-${prod.id}" onchange="atualizarVariacaoProduto('${prod.id}', this.value)" class="w-full p-2 bg-white border border-emerald-300 rounded-lg text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs">
-                                ${prod.variacoes.map((v, i) => `
-                                    <option value="${i}" ${i === varIdx ? 'selected' : ''}>
-                                        ${v.nome} ${v.preco !== prod.preco ? ' • R$ ' + v.preco.toFixed(2).replace('.', ',') : ''}
-                                    </option>
-                                `).join('')}
+                                ${variacoesValidas.map((v) => {
+                                    const realIdx = prod.variacoes.indexOf(v);
+                                    return `
+                                        <option value="${realIdx}" ${realIdx === varAtivaIdxReal ? 'selected' : ''}>
+                                            ${v.nome} • R$ ${v.preco.toFixed(2).replace('.', ',')}
+                                        </option>
+                                    `;
+                                }).join('')}
                             </select>
                         </div>
                     `;
@@ -1658,7 +1686,9 @@
             try {
                 const raw = localStorage.getItem(CHAVE_STORAGE_SACOLA);
                 if (raw) {
-                    sacolaItens = JSON.parse(raw) || [];
+                    const parsed = JSON.parse(raw) || [];
+                    // REGRA: quando estiver sem valor ou 0,00 nao permite que apareca ao cliente nem na sacola
+                    sacolaItens = parsed.filter(item => item && item.preco !== undefined && item.preco !== null && parseFloat(item.preco) > 0);
                 }
             } catch (e) {
                 sacolaItens = [];
@@ -1683,6 +1713,13 @@
             const precoItem = variacaoAtiva ? variacaoAtiva.preco : prod.preco;
             const imgItem = (variacaoAtiva && variacaoAtiva.img) ? variacaoAtiva.img : prod.img;
 
+            // REGRA: trava de seguranca contra produtos ou variacoes com preco zerado ou sem valor
+            const precoNum = (precoItem !== undefined && precoItem !== null) ? parseFloat(precoItem) : 0;
+            if (isNaN(precoNum) || precoNum <= 0) {
+                alert("Este produto ou sabor não possui valor configurado e não pode ser adicionado.");
+                return;
+            }
+
             const chaveItem = `${prod.id}___${skuItem}`;
             const existente = sacolaItens.find(item => item.chave === chaveItem);
 
@@ -1695,7 +1732,7 @@
                     nome: prod.nome,
                     variacao: nomeVariacao,
                     sku: skuItem,
-                    preco: precoItem,
+                    preco: precoNum,
                     img: imgItem,
                     qtd: 1
                 });

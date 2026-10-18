@@ -339,7 +339,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto items-stretch">
                 
                 <!-- PRODUTO 1: RESET -->
-                <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-emerald-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative">
+                <div id="card-pacote-reset" class="bg-white rounded-3xl p-5 md:p-6 border-2 border-emerald-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative">
                     <div>
                         <h3 class="text-2xl font-black text-gray-900 tracking-tight">
                             RESET
@@ -368,7 +368,7 @@
                 </div>
 
                 <!-- PRODUTO 2: RESET + -->
-                <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-emerald-700 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative ring-2 ring-emerald-500/20">
+                <div id="card-pacote-reset-plus" class="bg-white rounded-3xl p-5 md:p-6 border-2 border-emerald-700 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative ring-2 ring-emerald-500/20">
                     <div class="absolute -top-3.5 left-1/2 transform -translate-x-1/2 bg-emerald-700 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md whitespace-nowrap">
                         ⭐ MAIS POPULAR
                     </div>
@@ -400,7 +400,7 @@
                 </div>
 
                 <!-- PRODUTO 3: RESET TURBO -->
-                <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-amber-500 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative ring-2 ring-amber-400/40">
+                <div id="card-pacote-reset-turbo" class="bg-white rounded-3xl p-5 md:p-6 border-2 border-amber-500 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col justify-between text-center relative ring-2 ring-amber-400/40">
                     <div class="absolute -top-3.5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md whitespace-nowrap">
                         🔥 MÁXIMA POTÊNCIA
                     </div>
@@ -1389,44 +1389,72 @@
                 }
 
                 function parsePrecoNum(valStr, defVal) {
-                    if (!valStr) return defVal;
-                    const limpo = String(valStr).replace('R$', '').trim().replace(',', '.');
+                    if (valStr === undefined || valStr === null || String(valStr).trim() === '') return (defVal !== undefined ? defVal : 0);
+                    const limpo = String(valStr).replace('R$', '').trim().replace(/\./g, '').replace(',', '.');
                     const num = parseFloat(limpo);
-                    return isNaN(num) ? defVal : num;
+                    return isNaN(num) ? (defVal !== undefined ? defVal : 0) : num;
                 }
 
-                function formatarPrecoExibicao(valStr, defStr) {
-                    if (!valStr || String(valStr).trim() === '') return defStr;
-                    let limpo = String(valStr).replace('R$', '').trim();
-                    return limpo;
+                const precoResetNum = parsePrecoNum(precosKits.reset, 0);
+                const cardReset = document.getElementById('card-pacote-reset');
+                if (precoResetNum > 0) {
+                    if (cardReset) cardReset.style.display = '';
+                    const elPrecoReset = document.getElementById('preco-valor-reset');
+                    const btnReset = document.getElementById('btn-reservar-reset');
+                    if (elPrecoReset) elPrecoReset.innerText = precoResetNum.toFixed(2).replace('.', ',');
+                    if (btnReset) btnReset.setAttribute('onclick', `abrirCarrinho('RESET', ${precoResetNum}, 'DESINTOXICA E RENOVA')`);
+                } else {
+                    if (cardReset) cardReset.style.display = 'none';
                 }
 
-                const precoResetStr = formatarPrecoExibicao(precosKits.reset, '49,90');
-                const precoResetNum = parsePrecoNum(precosKits.reset, 49.90);
-                const elPrecoReset = document.getElementById('preco-valor-reset');
-                const btnReset = document.getElementById('btn-reservar-reset');
-                if (elPrecoReset) elPrecoReset.innerText = precoResetStr;
-                if (btnReset) btnReset.setAttribute('onclick', `abrirCarrinho('RESET', ${precoResetNum}, 'DESINTOXICA E RENOVA')`);
+                const precoPlusNum = parsePrecoNum(precosKits.reset_plus, 0);
+                const cardPlus = document.getElementById('card-pacote-reset-plus');
+                if (precoPlusNum > 0) {
+                    if (cardPlus) cardPlus.style.display = '';
+                    const elPrecoPlus = document.getElementById('preco-valor-reset-plus');
+                    const btnPlus = document.getElementById('btn-reservar-reset-plus');
+                    if (elPrecoPlus) elPrecoPlus.innerText = precoPlusNum.toFixed(2).replace('.', ',');
+                    if (btnPlus) btnPlus.setAttribute('onclick', `abrirCarrinho('RESET +', ${precoPlusNum}, 'RESULTADOS AINDA MELHORES')`);
+                } else {
+                    if (cardPlus) cardPlus.style.display = 'none';
+                }
 
-                const precoPlusStr = formatarPrecoExibicao(precosKits.reset_plus, '65,00');
-                const precoPlusNum = parsePrecoNum(precosKits.reset_plus, 65.00);
-                const elPrecoPlus = document.getElementById('preco-valor-reset-plus');
-                const btnPlus = document.getElementById('btn-reservar-reset-plus');
-                if (elPrecoPlus) elPrecoPlus.innerText = precoPlusStr;
-                if (btnPlus) btnPlus.setAttribute('onclick', `abrirCarrinho('RESET +', ${precoPlusNum}, 'RESULTADOS AINDA MELHORES')`);
-
-                const precoTurboStr = formatarPrecoExibicao(precosKits.reset_turbo, '79,99');
-                const precoTurboNum = parsePrecoNum(precosKits.reset_turbo, 79.99);
-                const elPrecoTurbo = document.getElementById('preco-valor-reset-turbo');
-                const btnTurbo = document.getElementById('btn-reservar-reset-turbo');
-                if (elPrecoTurbo) elPrecoTurbo.innerText = precoTurboStr;
-                if (btnTurbo) btnTurbo.setAttribute('onclick', `abrirCarrinho('RESET TURBO', ${precoTurboNum}, 'ACELERE SEUS RESULTADOS!')`);
+                const precoTurboNum = parsePrecoNum(precosKits.reset_turbo, 0);
+                const cardTurbo = document.getElementById('card-pacote-reset-turbo');
+                if (precoTurboNum > 0) {
+                    if (cardTurbo) cardTurbo.style.display = '';
+                    const elPrecoTurbo = document.getElementById('preco-valor-reset-turbo');
+                    const btnTurbo = document.getElementById('btn-reservar-reset-turbo');
+                    if (elPrecoTurbo) elPrecoTurbo.innerText = precoTurboNum.toFixed(2).replace('.', ',');
+                    if (btnTurbo) btnTurbo.setAttribute('onclick', `abrirCarrinho('RESET TURBO', ${precoTurboNum}, 'ACELERE SEUS RESULTADOS!')`);
+                } else {
+                    if (cardTurbo) cardTurbo.style.display = 'none';
+                }
 
                 window.precosKitsAtuais = {
                     reset: precoResetNum,
                     reset_plus: precoPlusNum,
                     reset_turbo: precoTurboNum
                 };
+
+                // Se todos os pacotes estiverem sem valor ou 0,00, oculta a seção inteira
+                const algumKitAtivo = (precoResetNum > 0 || precoPlusNum > 0 || precoTurboNum > 0);
+                if (!algumKitAtivo) {
+                    if (secaoProdutos) {
+                        secaoProdutos.classList.add('hidden');
+                        secaoProdutos.style.display = 'none';
+                    }
+                    if (navLinkProdutos) navLinkProdutos.style.display = 'none';
+                    if (navLinkProdutosMobile) navLinkProdutosMobile.style.display = 'none';
+
+                    if (btnBeneficios && consultor && consultor.whatsapp) {
+                        const txtBeneficios = encodeURIComponent("Olá, quero saber mais sobre a bebida Litrão do Reset!");
+                        const whatsNorm = (typeof normalizarNumeroWhatsApp === 'function') ? normalizarNumeroWhatsApp(consultor.whatsapp) : consultor.whatsapp;
+                        btnBeneficios.href = `https://wa.me/${whatsNorm}?text=${txtBeneficios}`;
+                        const subTexto = document.getElementById('cta-subtexto-beneficios');
+                        if (subTexto) subTexto.innerText = '👉 Toque aqui para falar diretamente no WhatsApp do Consultor';
+                    }
+                }
 
             } else {
                 window.precosKitsAtuais = { reset: 49.90, reset_plus: 65.00, reset_turbo: 79.99 };
@@ -1708,10 +1736,10 @@
 
         function obterListaPacotesDisponiveis() {
             const precos = window.precosKitsAtuais || { reset: 49.90, reset_plus: 65.00, reset_turbo: 79.99 };
-            const pReset = Number(precos.reset) || 49.90;
-            const pPlus = Number(precos.reset_plus) || 65.00;
-            const pTurbo = Number(precos.reset_turbo) || 79.99;
-            return [
+            const pReset = Number(precos.reset) || 0;
+            const pPlus = Number(precos.reset_plus) || 0;
+            const pTurbo = Number(precos.reset_turbo) || 0;
+            const todos = [
                 {
                     id: "RESET",
                     nome: "RESET",
@@ -1740,6 +1768,8 @@
                     precoFormatado: `R$ ${pTurbo.toFixed(2).replace('.', ',')}`
                 }
             ];
+            // REGRA: quando estiver sem valor ou 0,00 nao permita que apareca ao cliente
+            return todos.filter(p => p.preco > 0);
         }
         window.obterListaPacotesDisponiveis = obterListaPacotesDisponiveis;
 
@@ -2099,9 +2129,20 @@
         }
 
         function abrirCarrinho(item, preco, sub) {
-            carrinhoAtual.item = item;
-            carrinhoAtual.preco = preco;
-            carrinhoAtual.sub = sub;
+            const pacotesValidos = obterListaPacotesDisponiveis();
+            if (pacotesValidos.length === 0) {
+                alert("Nenhum pacote com valor ativo no momento. Fale diretamente com o consultor pelo WhatsApp!");
+                return;
+            }
+
+            let pacoteEscolhido = pacotesValidos.find(p => p.id === item || p.nome === item);
+            if (!pacoteEscolhido) {
+                pacoteEscolhido = pacotesValidos[0];
+            }
+
+            carrinhoAtual.item = pacoteEscolhido.nome;
+            carrinhoAtual.preco = pacoteEscolhido.preco;
+            carrinhoAtual.sub = pacoteEscolhido.sub;
             carrinhoAtual.qtd = 1;
             
             const selectMod = document.getElementById('carrinho-modalidade');
@@ -2124,6 +2165,20 @@
         window.abrirCarrinho = abrirCarrinho;
 
         function abrirModalCarrinhoDireto() {
+            const pacotesValidos = obterListaPacotesDisponiveis();
+            if (pacotesValidos.length === 0) {
+                alert("Nenhum pacote com valor ativo no momento. Fale diretamente com o consultor pelo WhatsApp!");
+                return;
+            }
+
+            let pacoteEscolhido = pacotesValidos.find(p => p.id === carrinhoAtual.item || p.nome === carrinhoAtual.item);
+            if (!pacoteEscolhido) {
+                pacoteEscolhido = pacotesValidos[0];
+                carrinhoAtual.item = pacoteEscolhido.nome;
+                carrinhoAtual.preco = pacoteEscolhido.preco;
+                carrinhoAtual.sub = pacoteEscolhido.sub;
+            }
+
             const selectMod = document.getElementById('carrinho-modalidade');
             const isEntrega = (selectMod && selectMod.value === 'ENTREGA');
             if (isEntrega) popularSeletorBairrosCarrinho();
