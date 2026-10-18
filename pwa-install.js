@@ -71,8 +71,8 @@
         banner.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-5 sm:max-w-sm z-50 bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white p-4 rounded-3xl shadow-2xl border-2 border-emerald-400/50 flex items-center justify-between gap-3 animate-bounce-subtle backdrop-blur-md hidden';
         banner.innerHTML = `
             <div class="flex items-center space-x-3 min-w-0">
-                <div class="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-md flex-shrink-0 flex items-center justify-center">
-                    <img src="/reset-logo.png" alt="App" class="max-h-full object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2921/2921822.png'">
+                <div class="w-12 h-12 rounded-2xl bg-white p-1 shadow-md flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <img src="/app-icon.png" alt="App" class="w-full h-full object-contain rounded-xl" onerror="this.src='/reset-icon.png'">
                 </div>
                 <div class="min-w-0">
                     <span class="bg-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">
