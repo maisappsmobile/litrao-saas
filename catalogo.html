@@ -418,8 +418,8 @@
     <!-- JAVASCRIPT DO CATÁLOGO INTERATIVO -->
     <script>
         // Configuração do Supabase
-        const SUPABASE_URL = 'https://xcdovbyqgqmslptfskpk.supabase.co';
-        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZG92YnlxZ3Ftc2xwdGZza3BrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkzODIyOTksImV4cCI6MjA0NDk1ODI5OX0.zXpU8lQjGz1vL_fB2xN-hC_bB2m1lV7fD5wN7b3k_mU';
+        const SUPABASE_URL = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const SUPABASE_ANON = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
         const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
         // Dados do Consultor Padrão (Fallback: Edwan Braga - SuperAdmin)
@@ -814,7 +814,7 @@
                         let rawNome = data.nome_espaco || '';
                         consultorAtual.nome_espaco = rawNome.replace(/<!--[\s\S]*?-->/g, '').trim() || 'Espaço de Vida Saudável';
 
-                        // Verifica customização de foto e bio
+                        // Verifica customização de foto, bio e produtos da vitrine
                         if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
                             try {
                                 const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
@@ -823,6 +823,9 @@
                                     if (custom.foto) consultorAtual.foto = custom.foto;
                                     if (custom.bio) consultorAtual.bio = custom.bio;
                                     if (custom.cidade) consultorAtual.cidade = custom.cidade;
+                                    if (custom.produtosCustom) {
+                                        aplicarCustomizacaoProdutos(custom.produtosCustom);
+                                    }
                                 }
                             } catch (e) { console.warn("Erro ao ler custom:", e); }
                         }
@@ -832,7 +835,66 @@
                 }
             }
 
+            // Fallback localStorage para visualização imediata no dispositivo do consultor
+            try {
+                const localKey = 'catalogo_custom_produtos_' + consultorAtual.herbalife_id;
+                const localData = localStorage.getItem(localKey);
+                if (localData) {
+                    const parsed = JSON.parse(localData);
+                    aplicarCustomizacaoProdutos(parsed);
+                }
+            } catch (e) {}
+
             atualizarElementosInterfaceConsultor();
+        }
+
+        // Aplica preços, fotos e descrições personalizadas pelo consultor sobre os produtos padrão
+        function aplicarCustomizacaoProdutos(produtosCustom) {
+            if (!produtosCustom || typeof produtosCustom !== 'object') return;
+
+            PRODUTOS_CATALOGO.forEach(p => {
+                const itemCustom = produtosCustom[p.id];
+                if (!itemCustom) return;
+
+                // 1. Preço de Venda
+                if (itemCustom.preco !== undefined && itemCustom.preco !== null && itemCustom.preco !== '') {
+                    const precoNum = parseFloat(itemCustom.preco);
+                    if (!isNaN(precoNum) && precoNum >= 0) {
+                        p.preco = precoNum;
+                    }
+                }
+
+                // 2. Foto do Produto
+                if (itemCustom.img && typeof itemCustom.img === 'string' && itemCustom.img.trim()) {
+                    p.img = itemCustom.img.trim();
+                }
+
+                // 3. Descrição do Produto
+                if (itemCustom.desc && typeof itemCustom.desc === 'string' && itemCustom.desc.trim()) {
+                    p.desc = itemCustom.desc.trim();
+                }
+
+                // 4. Variações (Sabores, Tamanhos, Preços específicos de cada opção)
+                if (itemCustom.variacoes && p.temVariacoes && p.variacoes && Array.isArray(p.variacoes)) {
+                    p.variacoes.forEach((v, idx) => {
+                        const varCustom = itemCustom.variacoes[v.sku] || 
+                                          itemCustom.variacoes[v.nome] || 
+                                          itemCustom.variacoes[idx] ||
+                                          itemCustom.variacoes['var_' + idx];
+                        if (varCustom) {
+                            if (varCustom.preco !== undefined && varCustom.preco !== null && varCustom.preco !== '') {
+                                const vpNum = parseFloat(varCustom.preco);
+                                if (!isNaN(vpNum) && vpNum >= 0) {
+                                    v.preco = vpNum;
+                                }
+                            }
+                            if (varCustom.img && typeof varCustom.img === 'string' && varCustom.img.trim()) {
+                                v.img = varCustom.img.trim();
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         function normalizarTelefone(tel) {

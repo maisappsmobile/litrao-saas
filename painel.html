@@ -4717,8 +4717,12 @@
                     
                     <div class="space-y-3.5 pl-2 relative border-l-2 border-gray-100 ml-2">
                         <div class="relative flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-100 -ml-[19px]"></span>
+                            <a href="javascript:void(0)" onclick="abrirModalGerenciarProdutosCatalogo()" class="text-xs font-bold text-gray-700 hover:text-emerald-600">Editar Preços, Fotos e Descrições</a>
+                        </div>
+                        <div class="relative flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-purple-600 ring-4 ring-purple-100 -ml-[19px]"></span>
-                            <a href="javascript:void(0)" onclick="abrirModuloFinanceiroEVS()" class="text-xs font-bold text-gray-700 hover:text-purple-600">Atualizar meu Catálogo</a>
+                            <a href="javascript:void(0)" onclick="abrirModuloFinanceiroEVS()" class="text-xs font-bold text-gray-700 hover:text-purple-600">Custos de Doses & Estoque EVS</a>
                         </div>
                         <div class="relative flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-teal-500 ring-4 ring-teal-100 -ml-[19px]"></span>
@@ -4799,6 +4803,227 @@
 
             </div>
 
+            <!-- Banner Destaque: Gestão de Produtos do Catálogo (Preços, Fotos & Descrições) -->
+            <div class="mt-5 bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white border-2 border-emerald-400/60 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 mb-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Personalização Completa da Vitrine
+                    </span>
+                    <h3 class="text-lg sm:text-xl font-black text-white leading-tight flex items-center gap-2">
+                        Editar Preços, Fotos & Descrições dos Produtos
+                    </h3>
+                    <p class="text-xs text-emerald-100/90 mt-1 max-w-2xl leading-relaxed">
+                        Ajuste os preços de venda de cada produto ou sabor, troque as fotos oficiais por fotos personalizadas do seu EVS e personalize as descrições para os seus clientes.
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <button type="button" onclick="abrirModalGerenciarProdutosCatalogo()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 font-black py-3 px-5 rounded-2xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-sliders text-base"></i> Editar Produtos da Vitrine
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: GESTÃO COMPLETA DOS PRODUTOS DO CATÁLOGO (PREÇOS, FOTOS, DESCRIÇÃO) -->
+    <!-- ========================================================================= -->
+    <div id="modal-gerenciar-produtos-catalogo" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden animate-fade-in">
+        <div class="bg-slate-50 rounded-3xl max-w-5xl w-full p-4 sm:p-7 shadow-2xl border-2 border-emerald-500 relative max-h-[94vh] flex flex-col">
+            <!-- Botão Fechar -->
+            <button onclick="fecharModalGerenciarProdutosCatalogo()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer z-20">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Topo -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-200 gap-3 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-2xl font-black shadow-md">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">VITRINE DO CLIENTE</span>
+                            <span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black uppercase px-2 py-0.2 rounded-full">
+                                Personalização Total
+                            </span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">
+                            Editar Preços, Fotos e Descrições dos Produtos
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-900 hover:bg-black text-white text-xs font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-300"></i> Ver Catálogo ao Vivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de Busca e Filtros de Categoria -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200 shadow-2xs mb-4 flex-shrink-0">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
+                    <input type="text" id="busca-produtos-catalogo-input" oninput="filtrarProdutosCatalogoPainel(this.value)" placeholder="Buscar por produto, sabor ou SKU..." class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs flex-shrink-0">
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('TODOS')" id="btn-cat-filtro-TODOS" class="px-3 py-1.5 rounded-xl font-black text-xs transition bg-emerald-700 text-white shadow-2xs">
+                        Todos
+                    </button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('litrao')" id="btn-cat-filtro-litrao" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        Litrão
+                    </button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('shakes')" id="btn-cat-filtro-shakes" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        Shakes
+                    </button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('chas')" id="btn-cat-filtro-chas" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        Chás & NRG
+                    </button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('fibras')" id="btn-cat-filtro-fibras" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        Fibras
+                    </button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('sports')" id="btn-cat-filtro-sports" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        Linha 24H & Snacks
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grade de Produtos para Edição (Scrollável) -->
+            <div id="container-lista-produtos-catalogo" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                <!-- Injetado dinamicamente via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: EDITOR ESPECÍFICO DE UM PRODUTO (PREÇO, FOTO, DESCRIÇÃO, VARIAÇÕES) -->
+    <!-- ========================================================================= -->
+    <div id="modal-editor-item-catalogo" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-gray-200 relative max-h-[92vh] overflow-y-auto">
+            <!-- Botão Fechar -->
+            <button onclick="fecharEditorItemCatalogo()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Cabeçalho do Editor -->
+            <div class="flex items-center gap-3 pb-4 mb-4 border-b border-gray-100">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-black">
+                    <i class="fa-solid fa-pen-nib"></i>
+                </div>
+                <div>
+                    <span id="edit-prod-badge-cat" class="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        CATEGORIA
+                    </span>
+                    <h3 id="edit-prod-nome-titulo" class="text-lg sm:text-xl font-black text-gray-900 leading-tight">
+                        Nome do Produto
+                    </h3>
+                    <span id="edit-prod-sku-sub" class="text-[11px] text-gray-500 font-mono">SKU: #0000</span>
+                </div>
+            </div>
+
+            <form onsubmit="salvarEdicaoItemCatalogo(event)" class="space-y-4">
+                <input type="hidden" id="edit-prod-id">
+
+                <!-- 1. PREÇO DE VENDA -->
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-tag text-emerald-600 mr-1.5"></i> 1. Preço de Venda Principal (R$)
+                        </label>
+                        <button type="button" onclick="restaurarPrecoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                            Restaurar Preço Oficial
+                        </button>
+                    </div>
+                    <div class="relative max-w-xs mt-1.5">
+                        <span class="absolute left-3.5 top-2.5 text-sm font-black text-emerald-700">R$</span>
+                        <input type="number" step="0.50" min="0" id="edit-prod-preco" required class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-base font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                    </div>
+                    <span class="text-[10px] text-gray-500 block mt-1">Preço que seus clientes verão na vitrine pública do catálogo.</span>
+
+                    <!-- Sub-bloco de Variações de Sabores / Tamanhos -->
+                    <div id="edit-prod-container-variacoes" class="hidden mt-3 pt-3 border-t border-gray-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-black text-emerald-900 uppercase">
+                                <i class="fa-solid fa-sliders text-emerald-600 mr-1"></i> Preços por Sabor / Tamanho:
+                            </span>
+                            <button type="button" onclick="aplicarPrecoPrincipalATodasVariacoes()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-lg transition cursor-pointer">
+                                ⚡ Aplicar Preço Principal a Todos
+                            </button>
+                        </div>
+                        <div id="edit-prod-lista-variacoes" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. FOTO DO PRODUTO -->
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-image text-emerald-600 mr-1.5"></i> 2. Foto do Produto
+                        </label>
+                        <button type="button" onclick="restaurarFotoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                            Restaurar Foto Oficial Herbalife
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <!-- Preview da Imagem -->
+                        <div class="w-28 h-28 bg-white rounded-2xl border border-gray-200 flex items-center justify-center p-2 flex-shrink-0 shadow-2xs relative group overflow-hidden">
+                            <img id="edit-prod-preview-img" src="" alt="Preview" class="max-h-full max-w-full object-contain">
+                            <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] font-bold px-1.5 py-0.2 rounded backdrop-blur-xs">
+                                Preview
+                            </span>
+                        </div>
+
+                        <!-- Campos de URL ou Arquivo -->
+                        <div class="flex-1 w-full space-y-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">URL Direta da Imagem:</label>
+                                <input type="url" id="edit-prod-img-url" oninput="atualizarPreviewFotoItem(this.value)" placeholder="https://exemplo.com/minha-foto.png" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <label class="bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-2xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-upload text-emerald-600"></i>
+                                    <span>Escolher foto do aparelho</span>
+                                    <input type="file" id="edit-prod-file-input" accept="image/*" onchange="processarUploadFotoItem(event)" class="hidden">
+                                </label>
+                                <span class="text-[10px] text-gray-500">ou cole a URL acima</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. DESCRIÇÃO DO PRODUTO -->
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-align-left text-emerald-600 mr-1.5"></i> 3. Descrição do Produto
+                        </label>
+                        <button type="button" onclick="restaurarDescricaoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                            Restaurar Descrição Padrão
+                        </button>
+                    </div>
+                    <textarea id="edit-prod-desc" rows="3" class="w-full p-3 bg-white border border-gray-300 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs leading-relaxed" placeholder="Descreva os benefícios, sabor e modo de uso para seus clientes..."></textarea>
+                    <span class="text-[10px] text-gray-500 block mt-0.5">Texto explicativo exibido no card do produto na vitrine pública.</span>
+                </div>
+
+                <!-- Feedback de Salvamento -->
+                <div id="edit-prod-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+
+                <!-- Botões de Ação -->
+                <div class="pt-2 flex justify-end gap-2.5">
+                    <button type="button" onclick="fecharEditorItemCatalogo()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-salvar-edicao-item" class="px-6 py-2.5 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-md cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk text-amber-200"></i> Salvar Alterações
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -15430,6 +15655,9 @@
                     </td>
                     <td class="p-3 text-right whitespace-nowrap">
                         <div class="inline-flex items-center gap-1">
+                            <button type="button" onclick="abrirEditorItemCatalogoPorSkuOuNome('${p.sku}', '${p.id}')" title="Editar Foto, Preço e Descrição no Catálogo do Cliente" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-2 py-1 rounded-lg text-xs transition shadow-2xs cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i> Catálogo
+                            </button>
                             <button type="button" onclick="salvarProdutoIndividual('${p.id}')" title="Salvar Alterações Deste Produto" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1 rounded-lg text-xs transition shadow-2xs cursor-pointer">
                                 <i class="fa-solid fa-check"></i> Salvar
                             </button>
@@ -16677,6 +16905,683 @@
         window.abrirVisualizadorMeuCatalogo = abrirVisualizadorMeuCatalogo;
         window.alterarFotoCatalogoPrompt = alterarFotoCatalogoPrompt;
         window.alterarCorTemaCatalogoPrompt = alterarCorTemaCatalogoPrompt;
+
+        // =========================================================================
+        // MÓDULO: GESTÃO & EDIÇÃO DE PRODUTOS DO CATÁLOGO (PREÇOS, FOTOS, DESCRIÇÃO)
+        // Permite que qualquer consultor personalize preços, fotos e descrições na vitrine
+        // =========================================================================
+        const CATALOGO_PRODUTOS_BASE = [
+            {
+                id: "reset-1l",
+                categoria: "Litrão do Reset",
+                categoriaKey: "litrao",
+                nome: "Litrão do Reset Turbo (1 Litro)",
+                sku: "LR-1000",
+                preco: 25.00,
+                imgPadrao: "divulgacao_litrao_reset_oficial.png",
+                descPadrao: "Fórmula termogênica de 1 Litro: NRG Guaraná concentrado, Chá Termogênico Herbal Concentrate e Fibra Líquida. Efeito desinchaço imediato.",
+                temVariacoes: true,
+                tipoVariacao: "Sabor da Fibra Líquida",
+                variacoes: [
+                    { nome: "Sabor Manga (Tradicional Mais Pedido)", sku: "LR-1000-M", preco: 25.00, img: "divulgacao_litrao_reset_oficial.png" },
+                    { nome: "Sabor Uva (Super Refrescante)", sku: "LR-1000-U", preco: 25.00, img: "divulgacao_litrao_reset_oficial.png" },
+                    { nome: "Mix Turbo Especial (Manga + Uva)", sku: "LR-1000-MIX", preco: 25.00, img: "divulgacao_litrao_reset_oficial.png" }
+                ]
+            },
+            {
+                id: "reset-kit5",
+                categoria: "Litrão do Reset",
+                categoriaKey: "litrao",
+                nome: "Kit Semanal Litrão do Reset (5 Dias)",
+                sku: "KIT-05D",
+                preco: 110.00,
+                imgPadrao: "flyer_kit_semanal_reset_base.jpg",
+                descPadrao: "Programa completo de 5 dias para secar até 3kg e eliminar retenção de líquidos com protocolo acelerador e acompanhamento via WhatsApp.",
+                temVariacoes: false
+            },
+            {
+                id: "reset-kit10",
+                categoria: "Litrão do Reset",
+                categoriaKey: "litrao",
+                nome: "Desafio Detox 10 Dias Litrão",
+                sku: "KIT-10D",
+                preco: 199.00,
+                imgPadrao: "pacotes_reset_base.png",
+                descPadrao: "10 garrafas de 1L com protocolo acelerador de queima calórica, desintoxicação metabólica profunda e suporte diário.",
+                temVariacoes: false
+            },
+            {
+                id: "shake-f1",
+                categoria: "Shakes & Nutrição",
+                categoriaKey: "shakes",
+                nome: "Shake Nutricional Fórmula 1 (550g)",
+                sku: "#0942",
+                preco: 198.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Refeição saudável e prática com 23 vitaminas e minerais, fibras e proteína isolada de soja. Apenas cerca de 200 calorias por copo preparado. Sem glúten.",
+                temVariacoes: true,
+                tipoVariacao: "Escolha o Sabor",
+                variacoes: [
+                    { nome: "Doce de Leite Cremoso (#0942 - Campeão de Vendas)", sku: "#0942", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Baunilha Cremoso (#0940 - Base Neutra)", sku: "#0940", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Chocolate Cremoso (#0941 - Sensação)", sku: "#0941", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Morango Cremoso (#0943 - Frutas Silvestres)", sku: "#0943", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Cookies & Cream (#0944 - C/ Pedacinhos)", sku: "#0944", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Banana Caramelizada (#0945 - Sobremesa)", sku: "#0945", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0945-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Coco Cremoso (#0946 - Tropical)", sku: "#0946", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0946-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Paçoca Especial (#0947 - Amendoim Tostado)", sku: "#0947", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "Milho Verde (#0948 - Edição Especial Curau)", sku: "#0948", preco: 198.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0948-br.png:pdp-w875h783?fmt=webp-alpha" }
+                ]
+            },
+            {
+                id: "nutrev",
+                categoria: "Shakes & Nutrição",
+                categoriaKey: "shakes",
+                nome: "NutreV Bebida Vegetal Sem Lactose (672g)",
+                sku: "#1639",
+                preco: 115.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1639-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Alternativa saudável ao leite, vegetal, sem lactose, fortificada com cálcio e proteínas. Deixa os Shakes e Litrões super cremosos e nutritivos.",
+                temVariacoes: false
+            },
+            {
+                id: "nutri-soup",
+                categoria: "Shakes & Nutrição",
+                categoriaKey: "shakes",
+                nome: "Nutri Soup Sopa Nutricional Salgada (416g)",
+                sku: "#0748",
+                preco: 172.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0748-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Substituto parcial de refeição salgado e quentinho. Pedaços reais de legumes e frango com cerca de 200 calorias por prato preparado.",
+                temVariacoes: false
+            },
+            {
+                id: "cha-termogenico",
+                categoria: "Chás & NRG",
+                categoriaKey: "chas",
+                nome: "Herbal Concentrate (Chá Termogênico)",
+                sku: "#0106",
+                preco: 245.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-059k-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Mistura instantânea de chá verde e chá preto que acelera a queima calórica, combate a retenção de líquidos e tem potente ação antioxidante.",
+                temVariacoes: true,
+                tipoVariacao: "Tamanho & Sabor",
+                variacoes: [
+                    { nome: "100g Original (#0106 - 59 doses Econômico)", sku: "#0106", preco: 245.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-059k-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "50g Original (#0105 - 29 doses)", sku: "#0105", preco: 149.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-060k-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "50g Sabor Limão Refrescante (#0255)", sku: "#0255", preco: 149.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-061k-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "50g Sabor Canela Termogênica (#0256)", sku: "#0256", preco: 149.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-062k-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "50g Laranja com Especiarias (#0257)", sku: "#0257", preco: 149.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-063k-br.png:pdp-w875h783?fmt=webp-alpha" }
+                ]
+            },
+            {
+                id: "nrg-guarana",
+                categoria: "Chás & NRG",
+                categoriaKey: "chas",
+                nome: "N-R-G Guaraná da Amazônia em Pó",
+                sku: "#0130",
+                preco: 145.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-057k-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Guaraná puro com ação estimulante natural que fornece disposição mental, foco e energia o dia todo sem causar oscilações.",
+                temVariacoes: true,
+                tipoVariacao: "Tamanho da Embalagem",
+                variacoes: [
+                    { nome: "100g em Pó (#0130 - 100 doses Rende Mais)", sku: "#0130", preco: 145.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-057k-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "60g em Pó (#0131 - 60 doses Compacto)", sku: "#0131", preco: 98.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-058k-br.png:pdp-w875h783?fmt=webp-alpha" }
+                ]
+            },
+            {
+                id: "fiber-concentrate",
+                categoria: "Fibras & Digestão",
+                categoriaKey: "fibras",
+                nome: "Fiber Concentrate Líquido (450ml)",
+                sku: "#2863",
+                preco: 155.00,
+                imgPadrao: "https://cdn.clienteherbalife.com.br/upload/produtos/1y-3979-fiber-co.jpg",
+                descPadrao: "Fibra solúvel líquida de alta absorção. O ingrediente campeão do Litrão do Reset para regular o intestino e conferir sabor delicioso.",
+                temVariacoes: true,
+                tipoVariacao: "Escolha o Sabor",
+                variacoes: [
+                    { nome: "Sabor Manga (#2863 - Mais Vendido)", sku: "#2863", preco: 155.00, img: "https://cdn.clienteherbalife.com.br/upload/produtos/1y-3979-fiber-co.jpg" },
+                    { nome: "Sabor Uva (#2864 - Super Refrescante)", sku: "#2864", preco: 155.00, img: "https://cdn.clienteherbalife.com.br/upload/produtos/1y-3979-fiber-co.jpg" }
+                ]
+            },
+            {
+                id: "fiber-powder",
+                categoria: "Fibras & Digestão",
+                categoriaKey: "fibras",
+                nome: "Fiber Powder Fibra em Pó Sem Sabor (260g)",
+                sku: "#0927",
+                preco: 162.00,
+                imgPadrao: "https://www.herbalife.com/assets/market-reusable-assets/amer/brazil/images/canister/pc-0927-br.png",
+                descPadrao: "Fibras puras sem sabor para adicionar em sucos, chás, sopas e receitas fitness sem alterar a textura ou paladar. 5g de fibras por porção.",
+                temVariacoes: false
+            },
+            {
+                id: "protein-powder",
+                categoria: "Performance & Sports",
+                categoriaKey: "sports",
+                nome: "Protein Powder Otimizador de Proteínas",
+                sku: "#0246",
+                preco: 158.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0246-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Pó de proteína isolada sem sabor. Permite personalizar a quantidade de proteína dos shakes e receitas para maior saciedade e preservação muscular.",
+                temVariacoes: true,
+                tipoVariacao: "Tamanho da Embalagem",
+                variacoes: [
+                    { nome: "240g Regular (#0246 - 40 porções)", sku: "#0246", preco: 158.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0246-br.png:pdp-w875h783?fmt=webp-alpha" },
+                    { nome: "480g Econômico (#0247 - 80 porções)", sku: "#0247", preco: 265.00, img: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0246-br.png:pdp-w875h783?fmt=webp-alpha" }
+                ]
+            },
+            {
+                id: "colageno-verisol",
+                categoria: "Performance & Sports",
+                categoriaKey: "sports",
+                nome: "Skin Beauty Booster Colágeno Verisol® (240g)",
+                sku: "#1923",
+                preco: 248.00,
+                imgPadrao: "https://www.herbalife.com/assets/market-reusable-assets/amer/brazil/images/canister/pc-1923-br.png",
+                descPadrao: "Peptídeos bioativos de colágeno Verisol®, biotina e antioxidantes. Comprovado cientificamente para firmeza da pele, redução de rugas e fortalecimento de unhas e cabelos.",
+                temVariacoes: false
+            },
+            {
+                id: "cr7-drive",
+                categoria: "Performance & Sports",
+                categoriaKey: "sports",
+                nome: "CR7 Drive Bebida Hidroeletrolítica (810g)",
+                sku: "#1445",
+                preco: 219.00,
+                imgPadrao: "https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1445-br.png:pdp-w875h783?fmt=webp-alpha",
+                descPadrao: "Desenvolvido em parceria com Cristiano Ronaldo. Eletrólitos e carboidratos de rápida absorção para hidratação de elite e resistência nos treinos.",
+                temVariacoes: false
+            },
+            {
+                id: "barra-proteina",
+                categoria: "Performance & Sports",
+                categoriaKey: "sports",
+                nome: "Barra de Proteína Herbalife (Caixa 7 un)",
+                sku: "#0031",
+                preco: 95.00,
+                imgPadrao: "https://www.herbalife.com/assets/market-reusable-assets/amer/brazil/images/canister/pc-0031-br.png",
+                descPadrao: "Snack prático com cobertura de chocolate. 10g de proteína por barra para levar na bolsa e saciar a vontade de doce com apenas ~140 kcal.",
+                temVariacoes: true,
+                tipoVariacao: "Escolha o Sabor",
+                variacoes: [
+                    { nome: "Citrus Lemon (Limão c/ Chocolate)", sku: "#0031", preco: 95.00, img: "https://www.herbalife.com/assets/market-reusable-assets/amer/brazil/images/canister/pc-0031-br.png" },
+                    { nome: "Vanilla Almond (Baunilha c/ Amêndoa)", sku: "#0060", preco: 95.00, img: "https://www.herbalife.com/assets/market-reusable-assets/amer/brazil/images/canister/pc-0031-br.png" }
+                ]
+            }
+        ];
+
+        let filtroCategoriaCatalogoPainelAtiva = 'TODOS';
+        let termoBuscaCatalogoPainelAtivo = '';
+
+        function obterCustomizacaoProdutosConsultor() {
+            let custom = {};
+            if (consultorAtual && consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--CATALOGO_CUSTOM:')) {
+                try {
+                    const m = consultorAtual.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        const parsed = JSON.parse(m[1]);
+                        if (parsed.produtosCustom) custom = parsed.produtosCustom;
+                    }
+                } catch (e) {}
+            }
+            if ((!custom || Object.keys(custom).length === 0) && consultorAtual && consultorAtual.herbalife_id) {
+                try {
+                    const local = localStorage.getItem('catalogo_custom_produtos_' + consultorAtual.herbalife_id);
+                    if (local) custom = JSON.parse(local);
+                } catch (e) {}
+            }
+            return custom || {};
+        }
+
+        function abrirModalGerenciarProdutosCatalogo() {
+            if (!consultorAtual) {
+                alert("Por favor, faça login para gerenciar os produtos do seu catálogo.");
+                return;
+            }
+            renderizarListaProdutosCatalogoPainel();
+            document.getElementById('modal-gerenciar-produtos-catalogo').classList.remove('hidden');
+        }
+        window.abrirModalGerenciarProdutosCatalogo = abrirModalGerenciarProdutosCatalogo;
+
+        function fecharModalGerenciarProdutosCatalogo() {
+            document.getElementById('modal-gerenciar-produtos-catalogo').classList.add('hidden');
+        }
+        window.fecharModalGerenciarProdutosCatalogo = fecharModalGerenciarProdutosCatalogo;
+
+        function filtrarCategoriaProdutosCatalogoPainel(cat) {
+            filtroCategoriaCatalogoPainelAtiva = cat;
+            const botoes = ['TODOS', 'litrao', 'shakes', 'chas', 'fibras', 'sports'];
+            botoes.forEach(b => {
+                const el = document.getElementById('btn-cat-filtro-' + b);
+                if (!el) return;
+                if (b === cat) {
+                    el.className = "px-3 py-1.5 rounded-xl font-black text-xs transition bg-emerald-700 text-white shadow-2xs";
+                } else {
+                    el.className = "px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200";
+                }
+            });
+            renderizarListaProdutosCatalogoPainel();
+        }
+        window.filtrarCategoriaProdutosCatalogoPainel = filtrarCategoriaProdutosCatalogoPainel;
+
+        function filtrarProdutosCatalogoPainel(query) {
+            termoBuscaCatalogoPainelAtivo = (query || '').toLowerCase().trim();
+            renderizarListaProdutosCatalogoPainel();
+        }
+        window.filtrarProdutosCatalogoPainel = filtrarProdutosCatalogoPainel;
+
+        function renderizarListaProdutosCatalogoPainel() {
+            const container = document.getElementById('container-lista-produtos-catalogo');
+            if (!container) return;
+
+            const custom = obterCustomizacaoProdutosConsultor();
+            let lista = CATALOGO_PRODUTOS_BASE;
+
+            if (filtroCategoriaCatalogoPainelAtiva !== 'TODOS') {
+                lista = lista.filter(p => p.categoriaKey === filtroCategoriaCatalogoPainelAtiva);
+            }
+
+            if (termoBuscaCatalogoPainelAtivo) {
+                lista = lista.filter(p => {
+                    const termo = termoBuscaCatalogoPainelAtivo;
+                    if (p.nome.toLowerCase().includes(termo) || p.sku.toLowerCase().includes(termo) || p.categoria.toLowerCase().includes(termo)) return true;
+                    if (p.temVariacoes && p.variacoes) {
+                        return p.variacoes.some(v => v.nome.toLowerCase().includes(termo) || v.sku.toLowerCase().includes(termo));
+                    }
+                    return false;
+                });
+            }
+
+            if (lista.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center bg-white rounded-2xl border border-gray-200 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2 block"></i>
+                        <p class="font-bold text-sm">Nenhum produto encontrado com este filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            lista.forEach(prod => {
+                const cItem = custom[prod.id] || {};
+                const precoAtual = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '') ? parseFloat(cItem.preco) : prod.preco;
+                const imgAtual = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : prod.imgPadrao;
+                const descAtual = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : prod.descPadrao;
+
+                const precoCustomizado = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '' && parseFloat(cItem.preco) !== prod.preco);
+                const fotoCustomizada = !!(cItem.img && cItem.img.trim() && cItem.img.trim() !== prod.imgPadrao);
+                const descCustomizada = !!(cItem.desc && cItem.desc.trim() && cItem.desc.trim() !== prod.descPadrao);
+                const temAlgumaCustomizacao = precoCustomizado || fotoCustomizada || descCustomizada || !!(cItem.variacoes && Object.keys(cItem.variacoes).length > 0);
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition flex flex-col md:flex-row md:items-center justify-between gap-3.5";
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3.5 flex-1 min-w-0">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gray-50 border border-gray-200 p-1 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                            <img src="${imgAtual}" alt="${prod.nome}" class="max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='${prod.imgPadrao}'">
+                            ${fotoCustomizada ? '<span class="absolute bottom-0 inset-x-0 bg-emerald-600 text-white text-[8px] font-black uppercase text-center py-0.2">Foto Própria</span>' : ''}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.2 rounded uppercase">${prod.categoria}</span>
+                                <span class="text-[10px] text-gray-400 font-mono">${prod.sku}</span>
+                                ${prod.temVariacoes ? `<span class="bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold px-1.5 py-0.2 rounded"><i class="fa-solid fa-sliders text-[9px]"></i> ${prod.variacoes.length} variações</span>` : ''}
+                                ${temAlgumaCustomizacao ? `<span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-1.5 py-0.2 rounded">Personalizado</span>` : ''}
+                            </div>
+                            <h4 class="font-black text-sm text-gray-900 truncate">${prod.nome}</h4>
+                            <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${descAtual}</p>
+                            <div class="flex items-center gap-2 mt-1.5 flex-wrap text-xs">
+                                <span class="text-gray-400 text-[11px]">Preço de Venda:</span>
+                                <strong class="text-base font-black ${precoCustomizado ? 'text-emerald-700' : 'text-gray-900'} font-mono">
+                                    R$ ${precoAtual.toFixed(2).replace('.', ',')}
+                                </strong>
+                                ${precoCustomizado ? `<span class="text-[10px] text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">(Padrão: R$ ${prod.preco.toFixed(2).replace('.', ',')})</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-shrink-0 self-end md:self-center">
+                        <button type="button" onclick="abrirEditorItemCatalogo('${prod.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar Preço / Foto / Descrição
+                        </button>
+                        ${temAlgumaCustomizacao ? `
+                            <button type="button" onclick="restaurarProdutoInteiroPadrao('${prod.id}')" title="Restaurar valores oficiais originais Herbalife" class="bg-gray-100 hover:bg-rose-50 text-gray-600 hover:text-rose-700 p-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+        window.renderizarListaProdutosCatalogoPainel = renderizarListaProdutosCatalogoPainel;
+
+        function abrirEditorItemCatalogo(prodId) {
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+
+            const custom = obterCustomizacaoProdutosConsultor();
+            const cItem = custom[prod.id] || {};
+
+            document.getElementById('edit-prod-id').value = prod.id;
+            document.getElementById('edit-prod-badge-cat').innerText = prod.categoria.toUpperCase();
+            document.getElementById('edit-prod-nome-titulo').innerText = prod.nome;
+            document.getElementById('edit-prod-sku-sub').innerText = `Código SKU: ${prod.sku} • Categoria: ${prod.categoria}`;
+
+            // Preço
+            const precoVal = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '') ? parseFloat(cItem.preco) : prod.preco;
+            document.getElementById('edit-prod-preco').value = precoVal.toFixed(2);
+
+            // Foto
+            const imgVal = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : prod.imgPadrao;
+            document.getElementById('edit-prod-img-url').value = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : '';
+            atualizarPreviewFotoItem(imgVal);
+
+            // Descrição
+            const descVal = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : prod.descPadrao;
+            document.getElementById('edit-prod-desc').value = descVal;
+
+            // Variações
+            const boxVar = document.getElementById('edit-prod-container-variacoes');
+            const listaVar = document.getElementById('edit-prod-lista-variacoes');
+            if (prod.temVariacoes && prod.variacoes && prod.variacoes.length > 0) {
+                boxVar.classList.remove('hidden');
+                listaVar.innerHTML = '';
+                prod.variacoes.forEach((v, idx) => {
+                    const varCustom = cItem.variacoes ? (cItem.variacoes[v.sku] || cItem.variacoes[v.nome] || cItem.variacoes[idx]) : null;
+                    const vPreco = (varCustom && varCustom.preco !== undefined) ? parseFloat(varCustom.preco) : v.preco;
+                    const vImg = (varCustom && varCustom.img) ? varCustom.img : '';
+
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between gap-2 p-2 bg-white rounded-xl border border-gray-200 text-xs";
+                    row.innerHTML = `
+                        <div class="min-w-0 flex-1">
+                            <strong class="text-gray-900 block truncate text-[11px]">${v.nome}</strong>
+                            <span class="text-[9px] text-gray-400 font-mono">${v.sku}</span>
+                        </div>
+                        <div class="relative w-28 flex-shrink-0">
+                            <span class="absolute left-2 top-1.5 text-[10px] text-emerald-700 font-bold">R$</span>
+                            <input type="number" step="0.50" min="0" id="edit-var-preco-${idx}" value="${vPreco.toFixed(2)}" class="w-full pl-6 pr-1.5 py-1 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                    `;
+                    listaVar.appendChild(row);
+                });
+            } else {
+                boxVar.classList.add('hidden');
+                listaVar.innerHTML = '';
+            }
+
+            const feedback = document.getElementById('edit-prod-feedback');
+            if (feedback) feedback.classList.add('hidden');
+
+            document.getElementById('modal-editor-item-catalogo').classList.remove('hidden');
+        }
+        window.abrirEditorItemCatalogo = abrirEditorItemCatalogo;
+
+        function fecharEditorItemCatalogo() {
+            document.getElementById('modal-editor-item-catalogo').classList.add('hidden');
+        }
+        window.fecharEditorItemCatalogo = fecharEditorItemCatalogo;
+
+        function abrirEditorItemCatalogoPorSkuOuNome(sku, id) {
+            let prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === id);
+            if (!prod && sku) {
+                prod = CATALOGO_PRODUTOS_BASE.find(p => p.sku === sku);
+            }
+            if (!prod && sku) {
+                prod = CATALOGO_PRODUTOS_BASE.find(p => p.temVariacoes && p.variacoes && p.variacoes.some(v => v.sku === sku));
+            }
+            if (prod) {
+                abrirEditorItemCatalogo(prod.id);
+            } else {
+                abrirModalGerenciarProdutosCatalogo();
+            }
+        }
+        window.abrirEditorItemCatalogoPorSkuOuNome = abrirEditorItemCatalogoPorSkuOuNome;
+
+        function atualizarPreviewFotoItem(url) {
+            const preview = document.getElementById('edit-prod-preview-img');
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            const fallback = prod ? prod.imgPadrao : 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';
+
+            if (!url || !url.trim()) {
+                preview.src = fallback;
+            } else {
+                preview.src = url.trim();
+                preview.onerror = function() {
+                    preview.onerror = null;
+                    preview.src = fallback;
+                };
+            }
+        }
+        window.atualizarPreviewFotoItem = atualizarPreviewFotoItem;
+
+        function processarUploadFotoItem(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert("Por favor selecione um arquivo de imagem válido.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                    document.getElementById('edit-prod-img-url').value = dataUrl;
+                    atualizarPreviewFotoItem(dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        window.processarUploadFotoItem = processarUploadFotoItem;
+
+        function restaurarPrecoPadraoItem() {
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+            document.getElementById('edit-prod-preco').value = prod.preco.toFixed(2);
+            if (prod.temVariacoes && prod.variacoes) {
+                prod.variacoes.forEach((v, idx) => {
+                    const inputV = document.getElementById(`edit-var-preco-${idx}`);
+                    if (inputV) inputV.value = v.preco.toFixed(2);
+                });
+            }
+        }
+        window.restaurarPrecoPadraoItem = restaurarPrecoPadraoItem;
+
+        function restaurarFotoPadraoItem() {
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+            document.getElementById('edit-prod-img-url').value = '';
+            atualizarPreviewFotoItem(prod.imgPadrao);
+        }
+        window.restaurarFotoPadraoItem = restaurarFotoPadraoItem;
+
+        function restaurarDescricaoPadraoItem() {
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+            document.getElementById('edit-prod-desc').value = prod.descPadrao;
+        }
+        window.restaurarDescricaoPadraoItem = restaurarDescricaoPadraoItem;
+
+        function aplicarPrecoPrincipalATodasVariacoes() {
+            const precoGeral = parseFloat(document.getElementById('edit-prod-preco').value) || 0;
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod || !prod.variacoes) return;
+
+            prod.variacoes.forEach((v, idx) => {
+                const inputV = document.getElementById(`edit-var-preco-${idx}`);
+                if (inputV) inputV.value = precoGeral.toFixed(2);
+            });
+        }
+        window.aplicarPrecoPrincipalATodasVariacoes = aplicarPrecoPrincipalATodasVariacoes;
+
+        async function salvarEdicaoItemCatalogo(event) {
+            event.preventDefault();
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Consultor não identificado. Faça login para salvar.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-salvar-edicao-item');
+            const feedback = document.getElementById('edit-prod-feedback');
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
+
+            try {
+                const novoPreco = parseFloat(document.getElementById('edit-prod-preco').value) || prod.preco;
+                const novaImg = (document.getElementById('edit-prod-img-url').value || '').trim();
+                const novaDesc = (document.getElementById('edit-prod-desc').value || '').trim();
+
+                const variacoesCustom = {};
+                if (prod.temVariacoes && prod.variacoes) {
+                    prod.variacoes.forEach((v, idx) => {
+                        const inputV = document.getElementById(`edit-var-preco-${idx}`);
+                        if (inputV) {
+                            const vp = parseFloat(inputV.value);
+                            if (!isNaN(vp) && vp >= 0) {
+                                variacoesCustom[v.sku] = { preco: vp };
+                                variacoesCustom[v.nome] = { preco: vp };
+                            }
+                        }
+                    });
+                }
+
+                // Lê custom atual do consultor
+                let custom = {};
+                let rawNome = consultorAtual.nome_espaco || '';
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        try { custom = JSON.parse(m[1]); } catch (e) {}
+                    }
+                }
+
+                if (!custom.produtosCustom) custom.produtosCustom = {};
+                custom.produtosCustom[prodId] = {
+                    preco: novoPreco,
+                    img: novaImg,
+                    desc: novaDesc,
+                    variacoes: variacoesCustom
+                };
+
+                const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    rawNome = rawNome.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova);
+                } else {
+                    rawNome += ' ' + tagNova;
+                }
+
+                consultorAtual.nome_espaco = rawNome;
+
+                // Salva no Supabase
+                await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+
+                // Salva no LocalStorage para cache imediato
+                try {
+                    localStorage.setItem('catalogo_custom_produtos_' + consultorAtual.herbalife_id, JSON.stringify(custom.produtosCustom));
+                } catch (e) {}
+
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-950 border border-emerald-400 block shadow-xs";
+                feedback.innerHTML = `✅ Produto "${prod.nome}" atualizado com sucesso! Seu catálogo online já está exibindo os novos dados.`;
+
+                renderizarListaProdutosCatalogoPainel();
+
+                setTimeout(() => {
+                    fecharEditorItemCatalogo();
+                }, 1200);
+
+            } catch (err) {
+                feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-100 text-rose-950 border border-rose-400 block shadow-xs";
+                feedback.innerHTML = `❌ Erro ao salvar: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk text-amber-200"></i> Salvar Alterações`;
+            }
+        }
+        window.salvarEdicaoItemCatalogo = salvarEdicaoItemCatalogo;
+
+        async function restaurarProdutoInteiroPadrao(prodId) {
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+
+            if (!confirm(`Deseja restaurar o produto "${prod.nome}" para a foto oficial, preço e descrição padrões da Herbalife?`)) {
+                return;
+            }
+
+            try {
+                let custom = {};
+                let rawNome = consultorAtual.nome_espaco || '';
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        try { custom = JSON.parse(m[1]); } catch (e) {}
+                    }
+                }
+
+                if (custom.produtosCustom && custom.produtosCustom[prodId]) {
+                    delete custom.produtosCustom[prodId];
+                }
+
+                const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    rawNome = rawNome.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova);
+                } else {
+                    rawNome += ' ' + tagNova;
+                }
+
+                consultorAtual.nome_espaco = rawNome;
+
+                await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+
+                try {
+                    localStorage.setItem('catalogo_custom_produtos_' + consultorAtual.herbalife_id, JSON.stringify(custom.produtosCustom || {}));
+                } catch (e) {}
+
+                alert(`Produto "${prod.nome}" restaurado para os padrões oficiais Herbalife!`);
+                renderizarListaProdutosCatalogoPainel();
+
+            } catch (err) {
+                alert(`Erro ao restaurar: ${err.message}`);
+            }
+        }
+        window.restaurarProdutoInteiroPadrao = restaurarProdutoInteiroPadrao;
 
         // ==========================================
         // MÓDULO INTELIGENTE: CENTRAL & RADAR DE NOTIFICAÇÕES DE CLIENTES
