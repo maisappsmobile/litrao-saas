@@ -4879,8 +4879,11 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-900 hover:bg-black text-white text-xs font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" onclick="abrirEditorNovoProdutoCatalogo()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95">
+                        <i class="fa-solid fa-plus-circle text-amber-300"></i> + Criar Novo Produto
+                    </button>
+                    <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-900 hover:bg-black text-white text-xs font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
                         <i class="fa-solid fa-arrow-up-right-from-square text-cyan-300"></i> Ver Catálogo ao Vivo
                     </button>
                 </div>
@@ -4949,14 +4952,44 @@
 
             <form onsubmit="salvarEdicaoItemCatalogo(event)" class="space-y-4">
                 <input type="hidden" id="edit-prod-id">
+                <input type="hidden" id="edit-prod-is-novo" value="false">
 
-                <!-- 1. PREÇO DE VENDA -->
+                <!-- 0. NOME DO PRODUTO (DIGITÁVEL / PERSONALIZÁVEL) -->
+                <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-signature text-emerald-600 mr-1.5"></i> Nome do Produto no Catálogo
+                        </label>
+                        <button type="button" id="btn-restaurar-nome-oficial" onclick="restaurarNomePadraoItem()" class="text-[10px] text-emerald-700 hover:text-emerald-900 hover:underline font-bold cursor-pointer">
+                            Restaurar Nome Oficial
+                        </button>
+                    </div>
+                    <input type="text" id="edit-prod-nome" placeholder="Digite o nome do produto..." oninput="atualizarTituloModalEnquantoDigita(this.value)" class="w-full px-3.5 py-2.5 bg-white border border-emerald-300 rounded-xl text-sm font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs" required>
+                    <span class="text-[10px] text-emerald-800/80 block mt-1">Este é o nome que seus clientes verão na vitrine pública, na sacola de compras e no pedido via WhatsApp.</span>
+                </div>
+
+                <!-- Categoria (Visível para novos produtos ou para trocar categoria) -->
+                <div id="edit-prod-container-categoria" class="hidden bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                    <label class="block text-xs font-black text-gray-800 uppercase tracking-wider mb-1 flex items-center">
+                        <i class="fa-solid fa-layer-group text-emerald-600 mr-1.5"></i> Categoria do Catálogo
+                    </label>
+                    <select id="edit-prod-categoria-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="litrao">Linha Litrão do Reset</option>
+                        <option value="shakes">Shakes Nutricionais & Sopas</option>
+                        <option value="chas">Chás & NRG (Bebidas Energéticas)</option>
+                        <option value="fibras">Fibras & Digestão Saudável</option>
+                        <option value="sports">Linha 24H & Snacks Proteicos</option>
+                        <option value="outros">Especiais do Consultor</option>
+                    </select>
+                </div>
+
+                <!-- 1. PREÇO DE VENDA PRINCIPAL & VARIAÇÕES -->
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
                     <div class="flex items-center justify-between mb-1">
                         <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-tag text-emerald-600 mr-1.5"></i> 1. Preço de Venda Principal (R$)
                         </label>
-                        <button type="button" onclick="restaurarPrecoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                        <button type="button" id="btn-restaurar-preco-oficial" onclick="restaurarPrecoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
                             Restaurar Preço Oficial
                         </button>
                     </div>
@@ -4964,21 +4997,32 @@
                         <span class="absolute left-3.5 top-2.5 text-sm font-black text-emerald-700">R$</span>
                         <input type="text" inputmode="decimal" id="edit-prod-preco" placeholder="0,00" oninput="aplicarMascaraMoedaAoDigitar(this)" onblur="formatarMoedaAoSair(this)" class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-base font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
                     </div>
-                    <span class="text-[11px] text-gray-500 block mt-1">Preço que seus clientes verão na vitrine pública. <strong class="text-emerald-800">Dica: Se deixar 0,00 ou em branco, este produto NÃO aparecerá para o cliente.</strong></span>
+                    <span class="text-[11px] text-gray-500 block mt-1">Preço base que seus clientes verão. <strong class="text-emerald-800">Dica: Se deixar 0,00 ou em branco, este produto NÃO aparecerá para o cliente.</strong></span>
 
                     <!-- Sub-bloco de Variações de Sabores / Tamanhos -->
-                    <div id="edit-prod-container-variacoes" class="hidden mt-3 pt-3 border-t border-gray-200">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[11px] font-black text-emerald-900 uppercase">
-                                <i class="fa-solid fa-sliders text-emerald-600 mr-1"></i> Preços por Sabor / Tamanho:
+                    <div id="edit-prod-container-variacoes" class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                            <span class="text-xs font-black text-emerald-950 uppercase flex items-center">
+                                <i class="fa-solid fa-sliders text-emerald-600 mr-1.5"></i> Variações (Sabores / Tamanhos):
                             </span>
-                            <button type="button" onclick="aplicarPrecoPrincipalATodasVariacoes()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-lg transition cursor-pointer">
-                                ⚡ Aplicar Preço Principal a Todos
-                            </button>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="adicionarNovaVariacaoLinha()" class="text-xs bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+                                    <i class="fa-solid fa-plus text-amber-300"></i> + Nova Variação
+                                </button>
+                                <button type="button" onclick="aplicarPrecoPrincipalATodasVariacoes()" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
+                                    ⚡ Aplicar Preço Principal
+                                </button>
+                                <button type="button" id="btn-restaurar-variacoes-oficiais" onclick="restaurarVariacoesPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer ml-1">
+                                    Restaurar Padrão
+                                </button>
+                            </div>
                         </div>
-                        <span class="text-[10px] text-emerald-700 block mb-2">Sabores ou tamanhos com <strong>0,00 ou em branco</strong> NÃO aparecerão para o cliente no catálogo.</span>
-                        <div id="edit-prod-lista-variacoes" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                            <!-- Injetado via JS -->
+                        <span class="text-[11px] text-emerald-800 block mb-2.5">
+                            Você pode <strong>digitar o nome</strong> de cada sabor ou tamanho, definir preços individuais e <strong>criar quantas variações desejar</strong>. Sabores com <strong>0,00 ou vazios</strong> ficam ocultos do cliente.
+                        </span>
+                        
+                        <div id="edit-prod-lista-variacoes" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                            <!-- Injetado dinamicamente via JS -->
                         </div>
                     </div>
                 </div>
@@ -4989,7 +5033,7 @@
                         <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-image text-emerald-600 mr-1.5"></i> 2. Foto do Produto
                         </label>
-                        <button type="button" onclick="restaurarFotoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                        <button type="button" id="btn-restaurar-foto-oficial" onclick="restaurarFotoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
                             Restaurar Foto Oficial Herbalife
                         </button>
                     </div>
@@ -5028,7 +5072,7 @@
                         <label class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center">
                             <i class="fa-solid fa-align-left text-emerald-600 mr-1.5"></i> 3. Descrição do Produto
                         </label>
-                        <button type="button" onclick="restaurarDescricaoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
+                        <button type="button" id="btn-restaurar-desc-oficial" onclick="restaurarDescricaoPadraoItem()" class="text-[10px] text-blue-600 hover:underline font-bold cursor-pointer">
                             Restaurar Descrição Padrão
                         </button>
                     </div>
@@ -5040,13 +5084,18 @@
                 <div id="edit-prod-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
 
                 <!-- Botões de Ação -->
-                <div class="pt-2 flex justify-end gap-2.5">
-                    <button type="button" onclick="fecharEditorItemCatalogo()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
-                        Cancelar
+                <div class="pt-2 flex items-center justify-between gap-2.5 flex-wrap">
+                    <button type="button" id="btn-excluir-produto-criado" onclick="excluirProdutoCustomizadoCriado()" class="hidden px-4 py-2.5 rounded-xl text-xs font-black text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Produto
                     </button>
-                    <button type="submit" id="btn-salvar-edicao-item" class="px-6 py-2.5 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-md cursor-pointer flex items-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk text-amber-200"></i> Salvar Alterações
-                    </button>
+                    <div class="flex items-center gap-2.5 ml-auto">
+                        <button type="button" onclick="fecharEditorItemCatalogo()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-salvar-edicao-item" class="px-6 py-2.5 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-md cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk text-amber-200"></i> Salvar Alterações
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -17200,12 +17249,43 @@
         }
         window.filtrarProdutosCatalogoPainel = filtrarProdutosCatalogoPainel;
 
+        function obterTodosProdutosCatalogoParaPainel() {
+            const custom = obterCustomizacaoProdutosConsultor();
+            const produtos = [...CATALOGO_PRODUTOS_BASE];
+
+            if (custom) {
+                Object.keys(custom).forEach(key => {
+                    const item = custom[key];
+                    if (item && item.isCriado) {
+                        const existe = produtos.some(p => p.id === key);
+                        if (!existe) {
+                            produtos.push({
+                                id: key,
+                                sku: item.sku || ('#CUST-' + key.slice(-4)),
+                                nome: item.nome || 'Produto Personalizado',
+                                categoria: item.categoria || 'Especiais do Consultor',
+                                categoriaKey: item.categoriaKey || 'outros',
+                                preco: (item.preco !== undefined && item.preco !== null) ? parseFloat(item.preco) : 0,
+                                imgPadrao: item.img || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg',
+                                descPadrao: item.desc || '',
+                                temVariacoes: !!(item.listaVariacoes && item.listaVariacoes.length > 0),
+                                variacoes: item.listaVariacoes || [],
+                                isCriado: true
+                            });
+                        }
+                    }
+                });
+            }
+            return produtos;
+        }
+        window.obterTodosProdutosCatalogoParaPainel = obterTodosProdutosCatalogoParaPainel;
+
         function renderizarListaProdutosCatalogoPainel() {
             const container = document.getElementById('container-lista-produtos-catalogo');
             if (!container) return;
 
             const custom = obterCustomizacaoProdutosConsultor();
-            let lista = CATALOGO_PRODUTOS_BASE;
+            let lista = obterTodosProdutosCatalogoParaPainel();
 
             if (filtroCategoriaCatalogoPainelAtiva !== 'TODOS') {
                 lista = lista.filter(p => p.categoriaKey === filtroCategoriaCatalogoPainelAtiva);
@@ -17214,7 +17294,12 @@
             if (termoBuscaCatalogoPainelAtivo) {
                 lista = lista.filter(p => {
                     const termo = termoBuscaCatalogoPainelAtivo;
-                    if (p.nome.toLowerCase().includes(termo) || p.sku.toLowerCase().includes(termo) || p.categoria.toLowerCase().includes(termo)) return true;
+                    const cItem = custom[p.id] || {};
+                    const nomeReal = (cItem.nome && cItem.nome.trim()) ? cItem.nome.toLowerCase() : p.nome.toLowerCase();
+                    if (nomeReal.includes(termo) || p.sku.toLowerCase().includes(termo) || p.categoria.toLowerCase().includes(termo)) return true;
+                    if (cItem.listaVariacoes && Array.isArray(cItem.listaVariacoes)) {
+                        return cItem.listaVariacoes.some(v => v.nome && v.nome.toLowerCase().includes(termo));
+                    }
                     if (p.temVariacoes && p.variacoes) {
                         return p.variacoes.some(v => v.nome.toLowerCase().includes(termo) || v.sku.toLowerCase().includes(termo));
                     }
@@ -17227,6 +17312,9 @@
                     <div class="p-8 text-center bg-white rounded-2xl border border-gray-200 text-gray-400">
                         <i class="fa-solid fa-magnifying-glass text-3xl mb-2 block"></i>
                         <p class="font-bold text-sm">Nenhum produto encontrado com este filtro.</p>
+                        <button type="button" onclick="abrirEditorNovoProdutoCatalogo()" class="mt-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-plus-circle"></i> Criar Novo Produto Aqui
+                        </button>
                     </div>
                 `;
                 return;
@@ -17235,14 +17323,21 @@
             container.innerHTML = '';
             lista.forEach(prod => {
                 const cItem = custom[prod.id] || {};
+                const isCriado = !!prod.isCriado || !!cItem.isCriado;
+                const nomeAtual = (cItem.nome && cItem.nome.trim()) ? cItem.nome.trim() : prod.nome;
                 const precoAtual = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '') ? parseFloat(cItem.preco) : prod.preco;
                 const imgAtual = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : prod.imgPadrao;
                 const descAtual = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : prod.descPadrao;
 
+                const nomeCustomizado = !!(cItem.nome && cItem.nome.trim() && cItem.nome.trim() !== prod.nome);
                 const precoCustomizado = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '' && parseFloat(cItem.preco) !== prod.preco);
                 const fotoCustomizada = !!(cItem.img && cItem.img.trim() && cItem.img.trim() !== prod.imgPadrao);
                 const descCustomizada = !!(cItem.desc && cItem.desc.trim() && cItem.desc.trim() !== prod.descPadrao);
-                const temAlgumaCustomizacao = precoCustomizado || fotoCustomizada || descCustomizada || !!(cItem.variacoes && Object.keys(cItem.variacoes).length > 0);
+                const temAlgumaCustomizacao = isCriado || nomeCustomizado || precoCustomizado || fotoCustomizada || descCustomizada || !!(cItem.listaVariacoes && cItem.listaVariacoes.length > 0) || !!(cItem.variacoes && Object.keys(cItem.variacoes).length > 0);
+
+                const qtdVariacoes = (cItem.listaVariacoes && Array.isArray(cItem.listaVariacoes)) 
+                    ? cItem.listaVariacoes.length 
+                    : (prod.temVariacoes && prod.variacoes ? prod.variacoes.length : 0);
 
                 const card = document.createElement('div');
                 card.className = "bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition flex flex-col md:flex-row md:items-center justify-between gap-3.5";
@@ -17250,35 +17345,38 @@
                 card.innerHTML = `
                     <div class="flex items-center gap-3.5 flex-1 min-w-0">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gray-50 border border-gray-200 p-1 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                            <img src="${imgAtual}" alt="${prod.nome}" class="max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='${prod.imgPadrao}'">
+                            <img src="${imgAtual}" alt="${nomeAtual}" class="max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg'">
                             ${fotoCustomizada ? '<span class="absolute bottom-0 inset-x-0 bg-emerald-600 text-white text-[8px] font-black uppercase text-center py-0.2">Foto Própria</span>' : ''}
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-1.5 flex-wrap mb-1">
                                 <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.2 rounded uppercase">${prod.categoria}</span>
                                 <span class="text-[10px] text-gray-400 font-mono">${prod.sku}</span>
-                                ${prod.temVariacoes ? `<span class="bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold px-1.5 py-0.2 rounded"><i class="fa-solid fa-sliders text-[9px]"></i> ${prod.variacoes.length} variações</span>` : ''}
-                                ${temAlgumaCustomizacao ? `<span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-1.5 py-0.2 rounded">Personalizado</span>` : ''}
+                                ${qtdVariacoes > 0 ? `<span class="bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold px-1.5 py-0.2 rounded"><i class="fa-solid fa-sliders text-[9px]"></i> ${qtdVariacoes} opções / sabores</span>` : ''}
+                                ${isCriado ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-1.5 py-0.2 rounded">✨ Criado por Você</span>` : (temAlgumaCustomizacao ? `<span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-1.5 py-0.2 rounded">Personalizado</span>` : '')}
                             </div>
-                            <h4 class="font-black text-sm text-gray-900 truncate">${prod.nome}</h4>
+                            <h4 class="font-black text-sm text-gray-900 truncate flex items-center gap-1.5">
+                                <span>${nomeAtual}</span>
+                                ${nomeCustomizado ? '<span class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1 rounded font-bold">Nome Editado</span>' : ''}
+                            </h4>
                             <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${descAtual}</p>
                             <div class="flex items-center gap-2 mt-1.5 flex-wrap text-xs">
                                 <span class="text-gray-400 text-[11px]">Preço de Venda:</span>
-                                <strong class="text-base font-black ${precoCustomizado ? 'text-emerald-700' : 'text-gray-900'} font-mono">
-                                    R$ ${precoAtual.toFixed(2).replace('.', ',')}
+                                <strong class="text-base font-black ${precoAtual > 0 ? 'text-emerald-700' : 'text-gray-400'} font-mono">
+                                    ${precoAtual > 0 ? ('R$ ' + precoAtual.toFixed(2).replace('.', ',')) : 'R$ 0,00 (Oculto)'}
                                 </strong>
-                                ${precoCustomizado ? `<span class="text-[10px] text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">(Padrão: R$ ${prod.preco.toFixed(2).replace('.', ',')})</span>` : ''}
+                                ${(!isCriado && precoCustomizado) ? `<span class="text-[10px] text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">(Padrão: R$ ${prod.preco.toFixed(2).replace('.', ',')})</span>` : ''}
                             </div>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2 flex-shrink-0 self-end md:self-center">
                         <button type="button" onclick="abrirEditorItemCatalogo('${prod.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                            <i class="fa-solid fa-pen-to-square"></i> Editar Preço / Foto / Descrição
+                            <i class="fa-solid fa-pen-to-square"></i> Editar Nome / Variações / Preço
                         </button>
                         ${temAlgumaCustomizacao ? `
-                            <button type="button" onclick="restaurarProdutoInteiroPadrao('${prod.id}')" title="Restaurar valores oficiais originais Herbalife" class="bg-gray-100 hover:bg-rose-50 text-gray-600 hover:text-rose-700 p-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
-                                <i class="fa-solid fa-rotate-left"></i>
+                            <button type="button" onclick="restaurarProdutoInteiroPadrao('${prod.id}')" title="${isCriado ? 'Excluir este produto criado' : 'Restaurar valores oficiais originais Herbalife'}" class="bg-gray-100 hover:bg-rose-50 text-gray-600 hover:text-rose-700 p-2 rounded-xl text-xs transition border border-gray-200 cursor-pointer">
+                                <i class="fa-solid ${isCriado ? 'fa-trash-can text-rose-600' : 'fa-rotate-left'}"></i>
                             </button>
                         ` : ''}
                     </div>
@@ -17320,7 +17418,6 @@
                 input.value = '';
                 return;
             }
-            // Se o usuário digitou ou colou algo com 1 casa decimal ex: "79,9", completa com zero
             let limpo = val.trim();
             if (/^\d+[.,]\d{1}$/.test(limpo)) {
                 limpo += '0';
@@ -17347,60 +17444,265 @@
         }
         window.formatarMoedaAoSair = formatarMoedaAoSair;
 
-        function abrirEditorItemCatalogo(prodId) {
+        function atualizarTituloModalEnquantoDigita(val) {
+            const t = document.getElementById('edit-prod-nome-titulo');
+            if (t) t.innerText = val.trim() || 'Nome do Produto';
+        }
+        window.atualizarTituloModalEnquantoDigita = atualizarTituloModalEnquantoDigita;
+
+        function criarLinhaVariacaoHtml(nome = '', precoFormatado = '0,00', sku = '') {
+            const div = document.createElement('div');
+            div.className = "item-linha-variacao flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-gray-200 text-xs shadow-2xs hover:border-emerald-300 transition";
+            
+            const nomeEscapado = String(nome || '').replace(/"/g, '&quot;');
+            const skuEscapado = String(sku || '').replace(/"/g, '&quot;');
+
+            div.innerHTML = `
+                <div class="flex-1 min-w-0">
+                    <input type="text" placeholder="Nome do sabor / tamanho (ex: Morango, 100g em Pó)" value="${nomeEscapado}" class="campo-var-nome w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
+                    ${skuEscapado ? `<span class="text-[9px] text-gray-400 font-mono ml-1 block mt-0.5">Código: ${skuEscapado}</span>` : ''}
+                    <input type="hidden" class="campo-var-sku" value="${skuEscapado}">
+                </div>
+                <div class="relative w-28 flex-shrink-0">
+                    <span class="absolute left-2 top-2 text-[10px] text-emerald-700 font-bold">R$</span>
+                    <input type="text" inputmode="decimal" placeholder="0,00" value="${precoFormatado}" oninput="aplicarMascaraMoedaAoDigitar(this)" onblur="formatarMoedaAoSair(this)" class="campo-var-preco w-full pl-6 pr-1.5 py-1.5 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </div>
+                <button type="button" onclick="removerLinhaVariacao(this)" class="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer flex-shrink-0" title="Excluir esta variação">
+                    <i class="fa-solid fa-trash-can text-sm"></i>
+                </button>
+            `;
+            return div;
+        }
+
+        function adicionarNovaVariacaoLinha(nome = '', preco = '') {
+            const listaVar = document.getElementById('edit-prod-lista-variacoes');
+            if (!listaVar) return;
+            const precoGeralTexto = document.getElementById('edit-prod-preco').value || '0,00';
+            const precoInicial = preco ? formatarMoedaValorPtBr(preco) : precoGeralTexto;
+            const linha = criarLinhaVariacaoHtml(nome, precoInicial, '');
+            listaVar.appendChild(linha);
+            const inputNome = linha.querySelector('.campo-var-nome');
+            if (inputNome && !nome) inputNome.focus();
+        }
+        window.adicionarNovaVariacaoLinha = adicionarNovaVariacaoLinha;
+
+        function removerLinhaVariacao(btn) {
+            const linha = btn.closest('.item-linha-variacao');
+            if (linha) {
+                linha.remove();
+            }
+        }
+        window.removerLinhaVariacao = removerLinhaVariacao;
+
+        function restaurarNomePadraoItem() {
+            const prodId = document.getElementById('edit-prod-id').value;
             const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod) return;
+            document.getElementById('edit-prod-nome').value = prod.nome;
+            document.getElementById('edit-prod-nome-titulo').innerText = prod.nome;
+        }
+        window.restaurarNomePadraoItem = restaurarNomePadraoItem;
+
+        function restaurarVariacoesPadraoItem() {
+            const prodId = document.getElementById('edit-prod-id').value;
+            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            if (!prod || !prod.temVariacoes || !prod.variacoes) return;
+
+            const listaVar = document.getElementById('edit-prod-lista-variacoes');
+            listaVar.innerHTML = '';
+            prod.variacoes.forEach((v) => {
+                const linha = criarLinhaVariacaoHtml(v.nome, formatarMoedaValorPtBr(v.preco), v.sku);
+                listaVar.appendChild(linha);
+            });
+        }
+        window.restaurarVariacoesPadraoItem = restaurarVariacoesPadraoItem;
+
+        function aplicarPrecoPrincipalATodasVariacoes() {
+            const precoGeralTexto = document.getElementById('edit-prod-preco').value || '0,00';
+            const inputs = document.querySelectorAll('#edit-prod-lista-variacoes .campo-var-preco');
+            inputs.forEach(input => {
+                input.value = precoGeralTexto;
+            });
+        }
+        window.aplicarPrecoPrincipalATodasVariacoes = aplicarPrecoPrincipalATodasVariacoes;
+
+        function abrirEditorNovoProdutoCatalogo() {
+            if (!consultorAtual) {
+                alert("Por favor, faça login para criar novos produtos no seu catálogo.");
+                return;
+            }
+
+            const idNovo = 'custom_' + Date.now();
+            document.getElementById('edit-prod-id').value = idNovo;
+            document.getElementById('edit-prod-is-novo').value = 'true';
+
+            document.getElementById('edit-prod-badge-cat').innerText = 'NOVO PRODUTO PERSONALIZADO';
+            document.getElementById('edit-prod-sku-sub').innerText = `SKU Gerado: #${idNovo.slice(-6).toUpperCase()}`;
+
+            const catContainer = document.getElementById('edit-prod-container-categoria');
+            if (catContainer) {
+                catContainer.classList.remove('hidden');
+                const catSelect = document.getElementById('edit-prod-categoria-select');
+                if (catSelect) {
+                    catSelect.value = (filtroCategoriaCatalogoPainelAtiva !== 'TODOS') ? filtroCategoriaCatalogoPainelAtiva : 'outros';
+                }
+            }
+
+            // Nome
+            document.getElementById('edit-prod-nome').value = '';
+            document.getElementById('edit-prod-nome-titulo').innerText = 'Novo Produto Personalizado';
+            const btnRestaurarNome = document.getElementById('btn-restaurar-nome-oficial');
+            if (btnRestaurarNome) btnRestaurarNome.classList.add('hidden');
+
+            // Preço
+            document.getElementById('edit-prod-preco').value = '0,00';
+            const btnRestaurarPreco = document.getElementById('btn-restaurar-preco-oficial');
+            if (btnRestaurarPreco) btnRestaurarPreco.classList.add('hidden');
+
+            // Variações
+            const boxVar = document.getElementById('edit-prod-container-variacoes');
+            boxVar.classList.remove('hidden');
+            const listaVar = document.getElementById('edit-prod-lista-variacoes');
+            listaVar.innerHTML = '';
+            adicionarNovaVariacaoLinha();
+
+            const btnRestaurarVar = document.getElementById('btn-restaurar-variacoes-oficiais');
+            if (btnRestaurarVar) btnRestaurarVar.classList.add('hidden');
+
+            // Foto
+            document.getElementById('edit-prod-img-url').value = '';
+            atualizarPreviewFotoItem('');
+            const btnRestaurarFoto = document.getElementById('btn-restaurar-foto-oficial');
+            if (btnRestaurarFoto) btnRestaurarFoto.classList.add('hidden');
+
+            // Descrição
+            document.getElementById('edit-prod-desc').value = '';
+            const btnRestaurarDesc = document.getElementById('btn-restaurar-desc-oficial');
+            if (btnRestaurarDesc) btnRestaurarDesc.classList.add('hidden');
+
+            // Botão excluir
+            const btnExcluir = document.getElementById('btn-excluir-produto-criado');
+            if (btnExcluir) btnExcluir.classList.add('hidden');
+
+            const feedback = document.getElementById('edit-prod-feedback');
+            if (feedback) feedback.classList.add('hidden');
+
+            document.getElementById('modal-editor-item-catalogo').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('edit-prod-nome').focus();
+            }, 100);
+        }
+        window.abrirEditorNovoProdutoCatalogo = abrirEditorNovoProdutoCatalogo;
+
+        function abrirEditorItemCatalogo(prodId) {
+            const todosProdutos = obterTodosProdutosCatalogoParaPainel();
+            const prod = todosProdutos.find(p => p.id === prodId) || CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
             if (!prod) return;
 
             const custom = obterCustomizacaoProdutosConsultor();
             const cItem = custom[prod.id] || {};
+            const isCriado = !!prod.isCriado || !!cItem.isCriado;
 
             document.getElementById('edit-prod-id').value = prod.id;
-            document.getElementById('edit-prod-badge-cat').innerText = prod.categoria.toUpperCase();
-            document.getElementById('edit-prod-nome-titulo').innerText = prod.nome;
+            document.getElementById('edit-prod-is-novo').value = isCriado ? 'true' : 'false';
+
+            // Categoria
+            document.getElementById('edit-prod-badge-cat').innerText = (prod.categoria || 'PRODUTO').toUpperCase();
             document.getElementById('edit-prod-sku-sub').innerText = `Código SKU: ${prod.sku} • Categoria: ${prod.categoria}`;
+
+            const catContainer = document.getElementById('edit-prod-container-categoria');
+            if (catContainer) {
+                if (isCriado) {
+                    catContainer.classList.remove('hidden');
+                    const catSelect = document.getElementById('edit-prod-categoria-select');
+                    if (catSelect) catSelect.value = cItem.categoriaKey || prod.categoriaKey || 'outros';
+                } else {
+                    catContainer.classList.add('hidden');
+                }
+            }
+
+            // Nome do Produto (Editável pelo Consultor)
+            const nomeVal = (cItem.nome && cItem.nome.trim()) ? cItem.nome.trim() : prod.nome;
+            document.getElementById('edit-prod-nome').value = nomeVal;
+            document.getElementById('edit-prod-nome-titulo').innerText = nomeVal;
+
+            const btnRestaurarNome = document.getElementById('btn-restaurar-nome-oficial');
+            if (btnRestaurarNome) {
+                if (isCriado) btnRestaurarNome.classList.add('hidden');
+                else btnRestaurarNome.classList.remove('hidden');
+            }
 
             // Preço Principal Formatado com Vírgula
             const precoVal = (cItem.preco !== undefined && cItem.preco !== null && cItem.preco !== '') ? parseFloat(cItem.preco) : prod.preco;
             document.getElementById('edit-prod-preco').value = formatarMoedaValorPtBr(precoVal);
 
+            const btnRestaurarPreco = document.getElementById('btn-restaurar-preco-oficial');
+            if (btnRestaurarPreco) {
+                if (isCriado) btnRestaurarPreco.classList.add('hidden');
+                else btnRestaurarPreco.classList.remove('hidden');
+            }
+
             // Foto
-            const imgVal = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : prod.imgPadrao;
+            const imgVal = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : (prod.imgPadrao || '');
             document.getElementById('edit-prod-img-url').value = (cItem.img && cItem.img.trim()) ? cItem.img.trim() : '';
             atualizarPreviewFotoItem(imgVal);
 
+            const btnRestaurarFoto = document.getElementById('btn-restaurar-foto-oficial');
+            if (btnRestaurarFoto) {
+                if (isCriado) btnRestaurarFoto.classList.add('hidden');
+                else btnRestaurarFoto.classList.remove('hidden');
+            }
+
             // Descrição
-            const descVal = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : prod.descPadrao;
+            const descVal = (cItem.desc && cItem.desc.trim()) ? cItem.desc.trim() : (prod.descPadrao || '');
             document.getElementById('edit-prod-desc').value = descVal;
 
-            // Variações de Sabores / Tamanhos com Máscara de Moeda
+            const btnRestaurarDesc = document.getElementById('btn-restaurar-desc-oficial');
+            if (btnRestaurarDesc) {
+                if (isCriado) btnRestaurarDesc.classList.add('hidden');
+                else btnRestaurarDesc.classList.remove('hidden');
+            }
+
+            // Variações de Sabores / Tamanhos (Criar, Digitar Nome e Preço)
             const boxVar = document.getElementById('edit-prod-container-variacoes');
+            boxVar.classList.remove('hidden');
             const listaVar = document.getElementById('edit-prod-lista-variacoes');
-            if (prod.temVariacoes && prod.variacoes && prod.variacoes.length > 0) {
-                boxVar.classList.remove('hidden');
-                listaVar.innerHTML = '';
-                prod.variacoes.forEach((v, idx) => {
+            listaVar.innerHTML = '';
+
+            let variacoesParaExibir = [];
+            if (cItem.listaVariacoes && Array.isArray(cItem.listaVariacoes) && cItem.listaVariacoes.length > 0) {
+                variacoesParaExibir = cItem.listaVariacoes;
+            } else if (prod.temVariacoes && prod.variacoes && Array.isArray(prod.variacoes)) {
+                variacoesParaExibir = prod.variacoes.map((v, idx) => {
                     const varCustom = cItem.variacoes ? (cItem.variacoes[v.sku] || cItem.variacoes[v.nome] || cItem.variacoes[idx]) : null;
                     const vPreco = (varCustom && varCustom.preco !== undefined) ? parseFloat(varCustom.preco) : v.preco;
-                    const vPrecoFormatado = formatarMoedaValorPtBr(vPreco);
-                    const vImg = (varCustom && varCustom.img) ? varCustom.img : '';
-
-                    const row = document.createElement('div');
-                    row.className = "flex items-center justify-between gap-2 p-2 bg-white rounded-xl border border-gray-200 text-xs";
-                    row.innerHTML = `
-                        <div class="min-w-0 flex-1">
-                            <strong class="text-gray-900 block truncate text-[11px]">${v.nome}</strong>
-                            <span class="text-[9px] text-gray-400 font-mono">${v.sku}</span>
-                        </div>
-                        <div class="relative w-28 flex-shrink-0">
-                            <span class="absolute left-2 top-1.5 text-[10px] text-emerald-700 font-bold">R$</span>
-                            <input type="text" inputmode="decimal" id="edit-var-preco-${idx}" value="${vPrecoFormatado}" placeholder="0,00" oninput="aplicarMascaraMoedaAoDigitar(this)" onblur="formatarMoedaAoSair(this)" class="w-full pl-6 pr-1.5 py-1 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                        </div>
-                    `;
-                    listaVar.appendChild(row);
+                    const vNome = (varCustom && varCustom.nome) ? varCustom.nome : v.nome;
+                    return {
+                        nome: vNome,
+                        preco: vPreco,
+                        sku: v.sku
+                    };
                 });
-            } else {
-                boxVar.classList.add('hidden');
-                listaVar.innerHTML = '';
+            }
+
+            if (variacoesParaExibir.length > 0) {
+                variacoesParaExibir.forEach(v => {
+                    const linha = criarLinhaVariacaoHtml(v.nome, formatarMoedaValorPtBr(v.preco), v.sku);
+                    listaVar.appendChild(linha);
+                });
+            }
+
+            const btnRestaurarVar = document.getElementById('btn-restaurar-variacoes-oficiais');
+            if (btnRestaurarVar) {
+                if (isCriado || !prod.temVariacoes) btnRestaurarVar.classList.add('hidden');
+                else btnRestaurarVar.classList.remove('hidden');
+            }
+
+            // Botão Excluir Produto (só para produtos criados pelo consultor)
+            const btnExcluir = document.getElementById('btn-excluir-produto-criado');
+            if (btnExcluir) {
+                if (isCriado) btnExcluir.classList.remove('hidden');
+                else btnExcluir.classList.add('hidden');
             }
 
             const feedback = document.getElementById('edit-prod-feedback');
@@ -17416,12 +17718,13 @@
         window.fecharEditorItemCatalogo = fecharEditorItemCatalogo;
 
         function abrirEditorItemCatalogoPorSkuOuNome(sku, id) {
-            let prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === id);
+            const todos = obterTodosProdutosCatalogoParaPainel();
+            let prod = todos.find(p => p.id === id);
             if (!prod && sku) {
-                prod = CATALOGO_PRODUTOS_BASE.find(p => p.sku === sku);
+                prod = todos.find(p => p.sku === sku);
             }
             if (!prod && sku) {
-                prod = CATALOGO_PRODUTOS_BASE.find(p => p.temVariacoes && p.variacoes && p.variacoes.some(v => v.sku === sku));
+                prod = todos.find(p => p.temVariacoes && p.variacoes && p.variacoes.some(v => v.sku === sku));
             }
             if (prod) {
                 abrirEditorItemCatalogo(prod.id);
@@ -17434,7 +17737,8 @@
         function atualizarPreviewFotoItem(url) {
             const preview = document.getElementById('edit-prod-preview-img');
             const prodId = document.getElementById('edit-prod-id').value;
-            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            const todos = obterTodosProdutosCatalogoParaPainel();
+            const prod = todos.find(p => p.id === prodId);
             const fallback = prod ? prod.imgPadrao : 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';
 
             if (!url || !url.trim()) {
@@ -17495,12 +17799,6 @@
             const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
             if (!prod) return;
             document.getElementById('edit-prod-preco').value = formatarMoedaValorPtBr(prod.preco);
-            if (prod.temVariacoes && prod.variacoes) {
-                prod.variacoes.forEach((v, idx) => {
-                    const inputV = document.getElementById(`edit-var-preco-${idx}`);
-                    if (inputV) inputV.value = formatarMoedaValorPtBr(v.preco);
-                });
-            }
         }
         window.restaurarPrecoPadraoItem = restaurarPrecoPadraoItem;
 
@@ -17521,18 +17819,51 @@
         }
         window.restaurarDescricaoPadraoItem = restaurarDescricaoPadraoItem;
 
-        function aplicarPrecoPrincipalATodasVariacoes() {
-            const precoGeralTexto = document.getElementById('edit-prod-preco').value || '0,00';
+        async function excluirProdutoCustomizadoCriado() {
             const prodId = document.getElementById('edit-prod-id').value;
-            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
-            if (!prod || !prod.variacoes) return;
+            const nomeProd = document.getElementById('edit-prod-nome').value || 'este produto';
 
-            prod.variacoes.forEach((v, idx) => {
-                const inputV = document.getElementById(`edit-var-preco-${idx}`);
-                if (inputV) inputV.value = precoGeralTexto;
-            });
+            if (!confirm(`Tem certeza de que deseja excluir o produto "${nomeProd}" do seu catálogo?`)) {
+                return;
+            }
+
+            try {
+                let custom = {};
+                let rawNome = consultorAtual.nome_espaco || '';
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        try { custom = JSON.parse(m[1]); } catch (e) {}
+                    }
+                }
+
+                if (custom.produtosCustom && custom.produtosCustom[prodId]) {
+                    delete custom.produtosCustom[prodId];
+                }
+
+                const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+                if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                    rawNome = rawNome.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova);
+                } else {
+                    rawNome += ' ' + tagNova;
+                }
+
+                consultorAtual.nome_espaco = rawNome;
+                await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+
+                try {
+                    localStorage.setItem('catalogo_custom_produtos_' + consultorAtual.herbalife_id, JSON.stringify(custom.produtosCustom || {}));
+                } catch (e) {}
+
+                alert(`Produto "${nomeProd}" excluído com sucesso!`);
+                fecharEditorItemCatalogo();
+                renderizarListaProdutosCatalogoPainel();
+
+            } catch (err) {
+                alert(`Erro ao excluir: ${err.message}`);
+            }
         }
-        window.aplicarPrecoPrincipalATodasVariacoes = aplicarPrecoPrincipalATodasVariacoes;
+        window.excluirProdutoCustomizadoCriado = excluirProdutoCustomizadoCriado;
 
         async function salvarEdicaoItemCatalogo(event) {
             event.preventDefault();
@@ -17544,29 +17875,63 @@
             const btn = document.getElementById('btn-salvar-edicao-item');
             const feedback = document.getElementById('edit-prod-feedback');
             const prodId = document.getElementById('edit-prod-id').value;
-            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
-            if (!prod) return;
+            const isNovo = (document.getElementById('edit-prod-is-novo').value === 'true');
+
+            const prodBase = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+
+            const novoNome = (document.getElementById('edit-prod-nome').value || '').trim();
+            if (!novoNome) {
+                alert("Por favor, digite o nome do produto.");
+                document.getElementById('edit-prod-nome').focus();
+                return;
+            }
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
 
             try {
-                // Permite valor 0,00 ou em branco para propositalmente ocultar do cliente
                 const valorTexto = document.getElementById('edit-prod-preco').value;
                 const novoPreco = parseMoedaPtBr(valorTexto);
                 const novaImg = (document.getElementById('edit-prod-img-url').value || '').trim();
                 const novaDesc = (document.getElementById('edit-prod-desc').value || '').trim();
 
-                const variacoesCustom = {};
-                if (prod.temVariacoes && prod.variacoes) {
-                    prod.variacoes.forEach((v, idx) => {
-                        const inputV = document.getElementById(`edit-var-preco-${idx}`);
-                        if (inputV) {
-                            const vp = parseMoedaPtBr(inputV.value);
-                            variacoesCustom[v.sku] = { preco: vp };
-                            variacoesCustom[v.nome] = { preco: vp };
-                        }
-                    });
+                // Variações digitadas pelo consultor
+                const linhasVar = document.querySelectorAll('#edit-prod-lista-variacoes .item-linha-variacao');
+                const listaVariacoesSalvar = [];
+                const variacoesCustomMapa = {};
+
+                linhasVar.forEach((linha, idx) => {
+                    const nomeVar = (linha.querySelector('.campo-var-nome')?.value || '').trim();
+                    const precoVar = parseMoedaPtBr(linha.querySelector('.campo-var-preco')?.value);
+                    const skuVar = (linha.querySelector('.campo-var-sku')?.value || '').trim() || (`#VAR-${idx+1}`);
+
+                    if (nomeVar) {
+                        listaVariacoesSalvar.push({
+                            nome: nomeVar,
+                            preco: precoVar,
+                            sku: skuVar
+                        });
+                        variacoesCustomMapa[skuVar] = { preco: precoVar, nome: nomeVar };
+                        variacoesCustomMapa[nomeVar] = { preco: precoVar, nome: nomeVar };
+                        variacoesCustomMapa[idx] = { preco: precoVar, nome: nomeVar };
+                    }
+                });
+
+                // Categoria
+                let categoriaKey = prodBase ? prodBase.categoriaKey : 'outros';
+                let categoriaNome = prodBase ? prodBase.categoria : 'Especiais do Consultor';
+                const catSelect = document.getElementById('edit-prod-categoria-select');
+                if (catSelect && (!prodBase || isNovo)) {
+                    categoriaKey = catSelect.value;
+                    const catMap = {
+                        litrao: 'Litrão do Reset',
+                        shakes: 'Shakes Nutricionais',
+                        chas: 'Chás & NRG',
+                        fibras: 'Fibras & Digestão',
+                        sports: 'Linha 24H & Snacks',
+                        outros: 'Especiais do Consultor'
+                    };
+                    categoriaNome = catMap[categoriaKey] || 'Especiais do Consultor';
                 }
 
                 // Lê custom atual do consultor
@@ -17581,10 +17946,17 @@
 
                 if (!custom.produtosCustom) custom.produtosCustom = {};
                 custom.produtosCustom[prodId] = {
+                    id: prodId,
+                    isCriado: isNovo || (prodBase ? false : true),
+                    nome: novoNome,
+                    categoria: categoriaNome,
+                    categoriaKey: categoriaKey,
                     preco: novoPreco,
                     img: novaImg,
                     desc: novaDesc,
-                    variacoes: variacoesCustom
+                    variacoes: variacoesCustomMapa,
+                    listaVariacoes: listaVariacoesSalvar,
+                    temVariacoes: listaVariacoesSalvar.length > 0
                 };
 
                 const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
@@ -17605,7 +17977,7 @@
                 } catch (e) {}
 
                 feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-950 border border-emerald-400 block shadow-xs";
-                feedback.innerHTML = `✅ Produto "${prod.nome}" atualizado com sucesso! Seu catálogo online já está exibindo os novos dados.`;
+                feedback.innerHTML = `✅ Produto "${novoNome}" salvo com sucesso! Seu catálogo online já foi atualizado com as novas opções.`;
 
                 renderizarListaProdutosCatalogoPainel();
 
@@ -17624,15 +17996,21 @@
         window.salvarEdicaoItemCatalogo = salvarEdicaoItemCatalogo;
 
         async function restaurarProdutoInteiroPadrao(prodId) {
-            const prod = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
-            if (!prod) return;
+            const custom = obterCustomizacaoProdutosConsultor();
+            const cItem = custom[prodId] || {};
+            const prodBase = CATALOGO_PRODUTOS_BASE.find(p => p.id === prodId);
+            const isCriado = !!cItem.isCriado || !prodBase;
+            const nomeProd = cItem.nome || (prodBase ? prodBase.nome : 'este produto');
 
-            if (!confirm(`Deseja restaurar o produto "${prod.nome}" para a foto oficial, preço e descrição padrões da Herbalife?`)) {
+            const mensagemConfirma = isCriado 
+                ? `Deseja excluir o produto "${nomeProd}" do catálogo?`
+                : `Deseja restaurar o produto "${nomeProd}" para o nome oficial, foto, preço e descrição padrões da Herbalife?`;
+
+            if (!confirm(mensagemConfirma)) {
                 return;
             }
 
             try {
-                let custom = {};
                 let rawNome = consultorAtual.nome_espaco || '';
                 if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
                     const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
@@ -17660,11 +18038,11 @@
                     localStorage.setItem('catalogo_custom_produtos_' + consultorAtual.herbalife_id, JSON.stringify(custom.produtosCustom || {}));
                 } catch (e) {}
 
-                alert(`Produto "${prod.nome}" restaurado para os padrões oficiais Herbalife!`);
+                alert(isCriado ? `Produto "${nomeProd}" excluído com sucesso!` : `Produto "${nomeProd}" restaurado para os padrões oficiais Herbalife!`);
                 renderizarListaProdutosCatalogoPainel();
 
             } catch (err) {
-                alert(`Erro ao restaurar: ${err.message}`);
+                alert(`Erro ao processar: ${err.message}`);
             }
         }
         window.restaurarProdutoInteiroPadrao = restaurarProdutoInteiroPadrao;

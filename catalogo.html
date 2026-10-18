@@ -1158,15 +1158,21 @@
             atualizarElementosInterfaceConsultor();
         }
 
-        // Aplica preços, fotos e descrições personalizadas pelo consultor sobre os produtos padrão
+        // Aplica nomes, preços, fotos, descrições e variações personalizadas pelo consultor sobre os produtos
         function aplicarCustomizacaoProdutos(produtosCustom) {
             if (!produtosCustom || typeof produtosCustom !== 'object') return;
 
+            // 1. Atualiza produtos existentes da base
             PRODUTOS_CATALOGO.forEach(p => {
                 const itemCustom = produtosCustom[p.id];
                 if (!itemCustom) return;
 
-                // 1. Preço de Venda
+                // 0. Nome do Produto (Digitado pelo Consultor)
+                if (itemCustom.nome && typeof itemCustom.nome === 'string' && itemCustom.nome.trim()) {
+                    p.nome = itemCustom.nome.trim();
+                }
+
+                // 1. Preço de Venda Principal
                 if (itemCustom.preco !== undefined && itemCustom.preco !== null && itemCustom.preco !== '') {
                     const precoNum = parseFloat(itemCustom.preco);
                     if (!isNaN(precoNum) && precoNum >= 0) {
@@ -1184,8 +1190,16 @@
                     p.desc = itemCustom.desc.trim();
                 }
 
-                // 4. Variações (Sabores, Tamanhos, Preços específicos de cada opção)
-                if (itemCustom.variacoes && p.temVariacoes && p.variacoes && Array.isArray(p.variacoes)) {
+                // 4. Variações (Nomes, Sabores, Tamanhos e Preços)
+                if (itemCustom.listaVariacoes && Array.isArray(itemCustom.listaVariacoes)) {
+                    p.temVariacoes = itemCustom.listaVariacoes.length > 0;
+                    p.variacoes = itemCustom.listaVariacoes.map(v => ({
+                        nome: v.nome,
+                        sku: v.sku || p.sku,
+                        preco: (v.preco !== undefined && v.preco !== null) ? parseFloat(v.preco) : p.preco,
+                        img: v.img || p.img
+                    }));
+                } else if (itemCustom.variacoes && p.temVariacoes && p.variacoes && Array.isArray(p.variacoes)) {
                     p.variacoes.forEach((v, idx) => {
                         const varCustom = itemCustom.variacoes[v.sku] || 
                                           itemCustom.variacoes[v.nome] || 
@@ -1198,11 +1212,46 @@
                                     v.preco = vpNum;
                                 }
                             }
+                            if (varCustom.nome && typeof varCustom.nome === 'string' && varCustom.nome.trim()) {
+                                v.nome = varCustom.nome.trim();
+                            }
                             if (varCustom.img && typeof varCustom.img === 'string' && varCustom.img.trim()) {
                                 v.img = varCustom.img.trim();
                             }
                         }
                     });
+                }
+            });
+
+            // 2. Adiciona produtos novos criados pelo consultor à vitrine pública
+            Object.keys(produtosCustom).forEach(key => {
+                const itemCustom = produtosCustom[key];
+                if (itemCustom && itemCustom.isCriado) {
+                    const jaExiste = PRODUTOS_CATALOGO.some(p => p.id === key);
+                    if (!jaExiste) {
+                        const precoNum = (itemCustom.preco !== undefined && itemCustom.preco !== null) ? parseFloat(itemCustom.preco) : 0;
+                        const temVars = !!(itemCustom.listaVariacoes && itemCustom.listaVariacoes.length > 0);
+                        const varsFormatadas = temVars ? itemCustom.listaVariacoes.map(v => ({
+                            nome: v.nome,
+                            sku: v.sku || (`#CUST-${key.slice(-4)}`),
+                            preco: (v.preco !== undefined && v.preco !== null) ? parseFloat(v.preco) : precoNum,
+                            img: v.img || itemCustom.img || ''
+                        })) : [];
+
+                        PRODUTOS_CATALOGO.push({
+                            id: key,
+                            sku: itemCustom.sku || (`#CUST-${key.slice(-4)}`),
+                            nome: itemCustom.nome || 'Produto Especial',
+                            categoria: itemCustom.categoriaKey || 'outros',
+                            categoriaNome: itemCustom.categoria || 'Especiais do Consultor',
+                            preco: precoNum,
+                            img: itemCustom.img || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg',
+                            desc: itemCustom.desc || '',
+                            temVariacoes: temVars,
+                            variacoes: varsFormatadas,
+                            tipoVariacao: 'Escolha a Opção'
+                        });
+                    }
                 }
             });
         }
