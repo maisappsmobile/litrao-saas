@@ -3847,10 +3847,13 @@
                     <i class="fa-solid fa-calculator text-yellow-300"></i> 1. Calculadora de Doses & Lucro do Litrão
                 </button>
                 <button type="button" onclick="alternarAbaFinanceiro('catalogo')" id="tab-fin-catalogo" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 cursor-pointer">
-                    <i class="fa-solid fa-box-open text-emerald-600"></i> 2. Catálogo Produto por Produto (<span id="fin-cont-produtos-total">32</span>)
+                    <i class="fa-solid fa-box-open text-emerald-600"></i> 2. Catálogo Produto por Produto (<span id="fin-cont-produtos-total">31</span>)
                 </button>
-                <button type="button" onclick="alternarAbaFinanceiro('simulador')" id="tab-fin-simulador" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 cursor-pointer">
-                    <i class="fa-solid fa-chart-line text-blue-600"></i> 3. Simulador de Faturamento Mensal do EVS
+                <button type="button" onclick="alternarAbaFinanceiro('estoque')" id="tab-fin-estoque" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-purple-50 text-gray-700 hover:text-purple-800 cursor-pointer">
+                    <i class="fa-solid fa-boxes-stacked text-purple-600"></i> 3. Estoque & Reposição MyHerbalife (<span id="fin-cont-criticos-badge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>)
+                </button>
+                <button type="button" onclick="alternarAbaFinanceiro('simulador')" id="tab-fin-simulador" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-800 cursor-pointer">
+                    <i class="fa-solid fa-chart-line text-blue-600"></i> 4. Simulador de Faturamento Mensal do EVS
                 </button>
             </div>
 
@@ -4159,6 +4162,7 @@
                     <table class="w-full text-left border-collapse text-xs">
                         <thead class="bg-gray-100 sticky top-0 z-10 text-[10px] uppercase font-black text-gray-600 border-b border-gray-200">
                             <tr>
+                                <th class="p-3 text-center w-16">Foto</th>
                                 <th class="p-3">Produto / SKU</th>
                                 <th class="p-3">Categoria / Porções</th>
                                 <th class="p-3">Custo Pote (R$)</th>
@@ -4181,7 +4185,195 @@
             </div>
 
             <!-- ========================================================== -->
-            <!-- CONTEÚDO DA ABA 3: SIMULADOR DE FATURAMENTO MENSAL DO EVS -->
+            <!-- CONTEÚDO DA ABA 3: ESTOQUE & SUGESTOR DE REPOSIÇÃO MYHERBALIFE -->
+            <!-- ========================================================== -->
+            <div id="aba-fin-estoque-conteudo" class="hidden space-y-5">
+                
+                <!-- Hero Banner & Seletor de Ciclo -->
+                <div class="bg-gradient-to-r from-purple-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-xl border-2 border-purple-400">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div>
+                            <span class="bg-purple-500/30 text-purple-300 border border-purple-400/30 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 mb-2">
+                                <i class="fa-solid fa-boxes-stacked"></i> Gestão do EVS & Qualificação MyHerbalife
+                            </span>
+                            <h3 class="text-xl sm:text-2xl font-black text-white leading-tight flex items-center gap-2">
+                                Estoque Inteligente & Sugestor de Reposição
+                            </h3>
+                            <p class="text-xs text-purple-100/90 mt-1 max-w-2xl leading-relaxed">
+                                O sistema cruza as doses consumidas no seu espaço com o estoque do armário. Saiba exatamente quantos dias de autonomia você ainda tem, quando repor cada pote e quantos <strong>Pontos de Volume (PV)</strong> seu pedido vai gerar no MyHerbalife.
+                            </p>
+                        </div>
+
+                        <!-- Seletor de Ciclo de Reposição -->
+                        <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/15 flex-shrink-0">
+                            <span class="text-[11px] font-bold text-purple-200 block mb-2 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar-days text-purple-400"></i> Ciclo de Reposição Desejado:
+                            </span>
+                            <div class="inline-flex rounded-xl p-1 bg-black/40 border border-white/10 gap-1">
+                                <button type="button" onclick="mudarCicloReposicao(15)" id="btn-ciclo-15" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-gray-300 hover:text-white cursor-pointer">
+                                    15 dias
+                                </button>
+                                <button type="button" onclick="mudarCicloReposicao(30)" id="btn-ciclo-30" class="px-3 py-1.5 rounded-lg text-xs font-black transition bg-purple-600 text-white shadow-xs cursor-pointer">
+                                    30 dias (Recomendado)
+                                </button>
+                                <button type="button" onclick="mudarCicloReposicao(45)" id="btn-ciclo-45" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-gray-300 hover:text-white cursor-pointer">
+                                    45 dias
+                                </button>
+                            </div>
+                            <span id="fin-estoque-info-ritmo" class="text-[10px] text-purple-300/80 block mt-2">
+                                Ritmo atual: <strong class="text-white">10 Litrões/dia</strong> (~300 garrafas no ciclo)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Cards de Métricas em Tempo Real -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-5 pt-5 border-t border-white/10">
+                        <!-- Card 1: Armário Atual -->
+                        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                            <div class="flex items-center justify-between text-cyan-300 mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider">No Armário Hoje</span>
+                                <i class="fa-solid fa-boxes-stacked text-base"></i>
+                            </div>
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="fin-kpi-estoque-total" class="text-2xl font-black text-white font-mono">0</span>
+                                <span class="text-[11px] text-cyan-200">itens contados</span>
+                            </div>
+                            <span class="text-[10px] text-gray-300 block mt-0.5">Potes e insumos disponíveis</span>
+                        </div>
+
+                        <!-- Card 2: Críticos / Acabando -->
+                        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/10 relative overflow-hidden">
+                            <div class="flex items-center justify-between text-rose-300 mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider">Itens Críticos</span>
+                                <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                            </div>
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="fin-kpi-estoque-criticos" class="text-2xl font-black text-rose-300 font-mono">0</span>
+                                <span class="text-[11px] text-rose-200">itens (≤ 3 dias)</span>
+                            </div>
+                            <span class="text-[10px] text-rose-200/80 block mt-0.5">Risco iminente de faltar no EVS</span>
+                        </div>
+
+                        <!-- Card 3: Pontos de Volume (PV) -->
+                        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                            <div class="flex items-center justify-between text-emerald-300 mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider">Volume do Pedido</span>
+                                <i class="fa-solid fa-medal text-base"></i>
+                            </div>
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="fin-kpi-estoque-pv" class="text-2xl font-black text-emerald-300 font-mono">0.00</span>
+                                <span class="text-[11px] text-emerald-200">PV Oficiais</span>
+                            </div>
+                            <span id="fin-kpi-estoque-meta-pv" class="text-[10px] text-emerald-200 block mt-0.5">Metas e Qualificação Herbalife</span>
+                        </div>
+
+                        <!-- Card 4: Investimento Estimado -->
+                        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                            <div class="flex items-center justify-between text-yellow-300 mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider">Investimento Estimado</span>
+                                <i class="fa-solid fa-wallet text-base"></i>
+                            </div>
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="fin-kpi-estoque-custo" class="text-2xl font-black text-yellow-300 font-mono">R$ 0,00</span>
+                            </div>
+                            <span id="fin-kpi-estoque-nivel-desc" class="text-[10px] text-yellow-200/90 block mt-0.5">Com seu nível de desconto ativo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Ações Rápidas do Consultor -->
+                <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" onclick="copiarListaPedidoMyHerbalife()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2.5 rounded-xl text-xs transition shadow-xs flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-copy text-sm text-yellow-300"></i> Copiar Pedido Formatado (WhatsApp / Bloco)
+                        </button>
+                        <button type="button" onclick="abrirPortalMyHerbalife()" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-4 py-2.5 rounded-xl text-xs transition shadow-xs flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i> Fazer Pedido no MyHerbalife.com.br
+                        </button>
+                        <button type="button" onclick="confirmarEntradaMercadoriaPedido()" class="bg-purple-700 hover:bg-purple-800 text-white font-black px-4 py-2.5 rounded-xl text-xs transition shadow-xs flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-dolly text-sm text-yellow-300"></i> Confirmar Entrada de Mercadoria no Estoque
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="salvarConfiguracaoFinanceiroEVS(false)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-black px-3.5 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk text-emerald-600"></i> Salvar Armário
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Visual de Notificação -->
+                <div id="fin-estoque-feedback" class="hidden p-3.5 rounded-2xl text-xs font-bold text-center animate-fade-in"></div>
+
+                <!-- Filtros e Busca de Produtos do Armário -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div class="relative flex-1 max-w-md">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="fin-estoque-busca-input" oninput="filtrarBuscaEstoque(this.value)" placeholder="Buscar por produto, SKU (#0130, #0106...) ou categoria..." class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <!-- Pílulas de Categoria -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                        <button type="button" onclick="filtrarCategoriaEstoque('TODOS')" class="btn-filtro-estoque bg-purple-700 text-white font-black px-3 py-1.5 rounded-xl transition whitespace-nowrap shadow-2xs">Todos</button>
+                        <button type="button" onclick="filtrarCategoriaEstoque('Chás & NRG')" class="btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap">Chás & NRG</button>
+                        <button type="button" onclick="filtrarCategoriaEstoque('Fibras & Aloe')" class="btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap">Fibras & Aloe</button>
+                        <button type="button" onclick="filtrarCategoriaEstoque('Shakes')" class="btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap">Shakes</button>
+                        <button type="button" onclick="filtrarCategoriaEstoque('Proteínas & Nutrição')" class="btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap">Proteínas</button>
+                        <button type="button" onclick="filtrarCategoriaEstoque('Embalagens & Descartáveis')" class="btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap">Embalagens</button>
+                    </div>
+                </div>
+
+                <!-- Tabela de Armário, Autonomia & Sugestor de Reposição -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden shadow-xs max-h-[58vh] overflow-y-auto bg-white">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-gray-100 sticky top-0 z-10 text-[10px] uppercase font-black text-gray-600 border-b border-gray-200">
+                            <tr>
+                                <th class="p-3 text-center w-16">Foto</th>
+                                <th class="p-3">Produto / SKU</th>
+                                <th class="p-3 text-center">PV Unit.</th>
+                                <th class="p-3 text-center">Estoque Armário</th>
+                                <th class="p-3 text-center">Consumo / Dia</th>
+                                <th class="p-3 text-center">Autonomia</th>
+                                <th class="p-3 text-center">Sugestão Compra</th>
+                                <th class="p-3 text-right">Subtotal PV</th>
+                                <th class="p-3 text-right">Custo Estimado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-corpo-estoque-financeiro" class="divide-y divide-gray-100">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                        <tfoot class="bg-purple-50 font-black border-t-2 border-purple-200 text-xs">
+                            <tr>
+                                <td colspan="3" class="p-3 text-purple-950 uppercase">
+                                    <i class="fa-solid fa-calculator text-purple-600 mr-1"></i> Totais do Pedido Sugerido:
+                                </td>
+                                <td class="p-3 text-center text-gray-700 font-mono" id="fin-foot-total-estoque-pecas">0 itens</td>
+                                <td class="p-3 text-center text-gray-400">---</td>
+                                <td class="p-3 text-center text-gray-400">---</td>
+                                <td class="p-3 text-center text-purple-900 font-mono text-sm" id="fin-foot-total-sugerido-potes">0 potes</td>
+                                <td class="p-3 text-right text-emerald-800 font-mono text-sm" id="fin-foot-total-pv">0.00 PV</td>
+                                <td class="p-3 text-right text-purple-900 font-mono text-sm" id="fin-foot-total-custo">R$ 0,00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Dicas Importantes para o Consultor Herbalife -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-4 rounded-2xl flex flex-col md:flex-row items-start gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black flex-shrink-0">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="text-xs text-emerald-950 space-y-1">
+                        <h4 class="font-black text-emerald-900">Como funciona o cálculo de autonomia & reposição inteligente?</h4>
+                        <p class="text-emerald-800 leading-relaxed">
+                            O sistema multiplica a dose padrão de cada produto pela sua meta diária de vendas configurada no simulador (<strong id="fin-dica-garrafas-dia">10 Litrões/dia</strong>). Produtos marcados em <span class="bg-red-100 text-red-800 font-bold px-1.5 py-0.5 rounded">Vermelho (≤ 3 dias)</span> devem ser pedidos imediatamente no MyHerbalife para não interromper os atendimentos do seu espaço. Ao receber a encomenda, clique no botão <strong>"Confirmar Entrada de Mercadoria"</strong> para somar os novos potes ao seu estoque com 1 clique!
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- CONTEÚDO DA ABA 4: SIMULADOR DE FATURAMENTO MENSAL DO EVS -->
             <!-- ========================================================== -->
             <div id="aba-fin-simulador-conteudo" class="hidden space-y-5">
                 
@@ -4376,6 +4568,21 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL DE ZOOM / FOTOS ORIGINAIS DO CATÁLOGO & PRODUTO HERBALIFE          -->
+    <!-- ========================================================================= -->
+    <div id="modal-zoom-foto-produto" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border-2 border-emerald-500 relative max-h-[92vh] overflow-y-auto">
+            <button type="button" onclick="fecharModalZoomFotoProduto()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-black p-1 cursor-pointer z-20">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div id="zoom-foto-conteudo">
+                <!-- Conteúdo dinâmico injetado via JS (visualizarFotoProdutoModal) -->
+            </div>
         </div>
     </div>
 
@@ -14763,57 +14970,62 @@
 
         const CATALOGO_HERBALIFE_DEFAULT = [
             // CHÁS & NRG
-            { id: 'prod_nrg_100', sku: '#0130', nome: 'N-R-G Pó Guaraná 100g', categoria: 'Chás & NRG', peso: '100g', doses: 100, dosePadraoG: 1.0, precoCatalogo: 145.00, precoCusto50: 72.50, precoVenda: 145.00, estoque: 6, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Essencial p/ Litrão' },
-            { id: 'prod_nrg_60', sku: '#0131', nome: 'N-R-G Pó Guaraná 60g', categoria: 'Chás & NRG', peso: '60g', doses: 60, dosePadraoG: 1.0, precoCatalogo: 98.00, precoCusto50: 49.00, precoVenda: 98.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_cha_100', sku: '#0106', nome: 'Herbal Concentrate Chá Original 100g', categoria: 'Chás & NRG', peso: '100g', doses: 59, dosePadraoG: 1.7, precoCatalogo: 245.00, precoCusto50: 122.50, precoVenda: 245.00, estoque: 5, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Mais pedido no Litrão' },
-            { id: 'prod_cha_50_orig', sku: '#0105', nome: 'Herbal Concentrate Chá Original 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_cha_50_limao', sku: '#0255', nome: 'Herbal Concentrate Chá Limão 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_cha_50_canela', sku: '#0256', nome: 'Herbal Concentrate Chá Canela 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 2, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_cha_50_laranja', sku: '#0257', nome: 'Herbal Concentrate Chá Laranja c/ Especiarias 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 2, prazoEntrega: 'Chega em 2 dias', promocao: '' },
+            { id: 'prod_nrg_100', sku: '#0130', nome: 'N-R-G Pó Guaraná 100g', categoria: 'Chás & NRG', peso: '100g', doses: 100, dosePadraoG: 1.0, pv: 17.95, precoCatalogo: 145.00, precoCusto50: 72.50, precoVenda: 145.00, estoque: 6, estoqueMinimo: 3, consumoPorLitrao: 1.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-057k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-18.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Essencial p/ Litrão' },
+            { id: 'prod_nrg_60', sku: '#0131', nome: 'N-R-G Pó Guaraná 60g', categoria: 'Chás & NRG', peso: '60g', doses: 60, dosePadraoG: 1.0, pv: 11.20, precoCatalogo: 98.00, precoCusto50: 49.00, precoVenda: 98.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-058k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-18.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Ideal p/ Venda Fechada' },
+            { id: 'prod_cha_100', sku: '#0106', nome: 'Herbal Concentrate Chá Original 100g', categoria: 'Chás & NRG', peso: '100g', doses: 59, dosePadraoG: 1.7, pv: 34.95, precoCatalogo: 245.00, precoCusto50: 122.50, precoVenda: 245.00, estoque: 5, estoqueMinimo: 3, consumoPorLitrao: 1.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-059k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Mais pedido no Litrão' },
+            { id: 'prod_cha_50_orig', sku: '#0105', nome: 'Herbal Concentrate Chá Original 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, pv: 19.95, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-060k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
+            { id: 'prod_cha_50_limao', sku: '#0255', nome: 'Herbal Concentrate Chá Limão 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, pv: 19.95, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-061k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sabor Cítrico' },
+            { id: 'prod_cha_50_canela', sku: '#0256', nome: 'Herbal Concentrate Chá Canela 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, pv: 19.95, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-062k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Termogênico Quente' },
+            { id: 'prod_cha_50_laranja', sku: '#0257', nome: 'Herbal Concentrate Chá Laranja c/ Especiarias 50g', categoria: 'Chás & NRG', peso: '50g', doses: 29, dosePadraoG: 1.7, pv: 19.95, precoCatalogo: 149.00, precoCusto50: 74.50, precoVenda: 149.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-063k-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-17.jpg', prazoEntrega: 'Chega em 2 dias', promocao: '' },
 
             // FIBRAS & ALOE
-            { id: 'prod_fibra_manga', sku: '#2863', nome: 'Fiber Concentrate Manga 450ml', categoria: 'Fibras & Aloe', peso: '450ml', doses: 30, dosePadraoG: 15.0, precoCatalogo: 155.00, precoCusto50: 77.50, precoVenda: 155.00, estoque: 6, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sabor Mais Vendido' },
-            { id: 'prod_fibra_uva', sku: '#2864', nome: 'Fiber Concentrate Uva 450ml', categoria: 'Fibras & Aloe', peso: '450ml', doses: 30, dosePadraoG: 15.0, precoCatalogo: 155.00, precoCusto50: 77.50, precoVenda: 155.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_fibra_po', sku: '#2865', nome: 'Fiber Powder Fibra Solúvel em Pó 260g', categoria: 'Fibras & Aloe', peso: '260g', doses: 40, dosePadraoG: 6.5, precoCatalogo: 162.00, precoCusto50: 81.00, precoVenda: 162.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sem sabor, para turbinar' },
+            { id: 'prod_fibra_manga', sku: '#2863', nome: 'Fiber Concentrate Manga 450ml', categoria: 'Fibras & Aloe', peso: '450ml', doses: 30, dosePadraoG: 15.0, pv: 21.95, precoCatalogo: 155.00, precoCusto50: 77.50, precoVenda: 155.00, estoque: 6, estoqueMinimo: 3, consumoPorLitrao: 1.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sabor Mais Vendido' },
+            { id: 'prod_fibra_uva', sku: '#2864', nome: 'Fiber Concentrate Uva 450ml', categoria: 'Fibras & Aloe', peso: '450ml', doses: 30, dosePadraoG: 15.0, pv: 21.95, precoCatalogo: 155.00, precoCusto50: 77.50, precoVenda: 155.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.5, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-21.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Queridinho no Litrão' },
+            { id: 'prod_fibra_po', sku: '#2865', nome: 'Fiber Powder Fibra Solúvel em Pó 260g', categoria: 'Fibras & Aloe', peso: '260g', doses: 40, dosePadraoG: 6.5, pv: 20.75, precoCatalogo: 162.00, precoCusto50: 81.00, precoVenda: 162.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-22.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-22.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sem sabor, para turbinar' },
 
             // SHAKES
-            { id: 'prod_shake_baunilha', sku: '#0940', nome: 'Shake Baunilha Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_chocolate', sku: '#0941', nome: 'Shake Chocolate Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_doce_leite', sku: '#0942', nome: 'Shake Doce de Leite 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 5, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Campeão de Vendas EVS' },
-            { id: 'prod_shake_morango', sku: '#0943', nome: 'Shake Morango Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_cookies', sku: '#0944', nome: 'Shake Cookies & Cream 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_banana', sku: '#0945', nome: 'Shake Banana Caramelizada 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_coco', sku: '#0946', nome: 'Shake Coco 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 2, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_pacoca', sku: '#0947', nome: 'Shake Paçoca 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
-            { id: 'prod_shake_milho', sku: '#0948', nome: 'Shake Milho Verde 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 2, prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
+            { id: 'prod_shake_baunilha', sku: '#0940', nome: 'Shake Baunilha Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0940-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Base para Várias Receitas' },
+            { id: 'prod_shake_chocolate', sku: '#0941', nome: 'Shake Chocolate Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Clássico Irresistível' },
+            { id: 'prod_shake_doce_leite', sku: '#0942', nome: 'Shake Doce de Leite 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 5, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Campeão de Vendas EVS' },
+            { id: 'prod_shake_morango', sku: '#0943', nome: 'Shake Morango Cremoso 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
+            { id: 'prod_shake_cookies', sku: '#0944', nome: 'Shake Cookies & Cream 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-8.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Com pedacinhos crocantes' },
+            { id: 'prod_shake_banana', sku: '#0945', nome: 'Shake Banana Caramelizada 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0945-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: '' },
+            { id: 'prod_shake_coco', sku: '#0946', nome: 'Shake Coco 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0946-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sabor Tropical' },
+            { id: 'prod_shake_pacoca', sku: '#0947', nome: 'Shake Paçoca 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Sucesso de Vendas' },
+            { id: 'prod_shake_milho', sku: '#0948', nome: 'Shake Milho Verde 550g', categoria: 'Shakes', peso: '550g', doses: 21, dosePadraoG: 26.0, pv: 23.95, precoCatalogo: 198.00, precoCusto50: 99.00, precoVenda: 198.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0948-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-9.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Edição Especial Curau' },
 
             // PROTEÍNAS & NUTRIÇÃO
-            { id: 'prod_nutrev', sku: '#1639', nome: 'NutreV Bebida Vegetal c/ Proteína 672g', categoria: 'Proteínas & Nutrição', peso: '672g', doses: 21, dosePadraoG: 32.0, precoCatalogo: 115.00, precoCusto50: 57.50, precoVenda: 115.00, estoque: 6, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Par perfeito com o Shake' },
-            { id: 'prod_protein_240', sku: '#0246', nome: 'Protein Powder Pó de Proteína 240g', categoria: 'Proteínas & Nutrição', peso: '240g', doses: 40, dosePadraoG: 6.0, precoCatalogo: 158.00, precoCusto50: 79.00, precoVenda: 158.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Mais saciedade' },
-            { id: 'prod_protein_480', sku: '#0247', nome: 'Protein Powder Pó de Proteína 480g', categoria: 'Proteínas & Nutrição', peso: '480g', doses: 80, dosePadraoG: 6.0, precoCatalogo: 265.00, precoCusto50: 132.50, precoVenda: 265.00, estoque: 2, prazoEntrega: 'Chega em 3 dias', promocao: 'Maior economia' },
-            { id: 'prod_colageno', sku: '#0949', nome: 'Skin Beauty Drink Colágeno Limonada 270g', categoria: 'Proteínas & Nutrição', peso: '270g', doses: 30, dosePadraoG: 9.0, precoCatalogo: 248.00, precoCusto50: 124.00, precoVenda: 248.00, estoque: 3, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Turbina pele e firmeza' },
-            { id: 'prod_cr7', sku: '#1445', nome: 'CR7 Drive Hidroeletrolítico 810g', categoria: 'Proteínas & Nutrição', peso: '810g', doses: 60, dosePadraoG: 13.5, precoCatalogo: 219.00, precoCusto50: 109.50, precoVenda: 219.00, estoque: 2, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Energia esportiva' },
+            { id: 'prod_nutrev', sku: '#1639', nome: 'NutreV Bebida Vegetal c/ Proteína 672g', categoria: 'Proteínas & Nutrição', peso: '672g', doses: 21, dosePadraoG: 32.0, pv: 13.95, precoCatalogo: 115.00, precoCusto50: 57.50, precoVenda: 115.00, estoque: 6, estoqueMinimo: 3, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1639-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-7.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Par perfeito com o Shake' },
+            { id: 'prod_protein_240', sku: '#0246', nome: 'Protein Powder Pó de Proteína 240g', categoria: 'Proteínas & Nutrição', peso: '240g', doses: 40, dosePadraoG: 6.0, pv: 17.95, precoCatalogo: 158.00, precoCusto50: 79.00, precoVenda: 158.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-0246-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Mais saciedade' },
+            { id: 'prod_protein_480', sku: '#0247', nome: 'Protein Powder Pó de Proteína 480g', categoria: 'Proteínas & Nutrição', peso: '480g', doses: 80, dosePadraoG: 6.0, pv: 35.90, precoCatalogo: 265.00, precoCusto50: 132.50, precoVenda: 265.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-31.jpg', prazoEntrega: 'Chega em 3 dias', promocao: 'Maior economia' },
+            { id: 'prod_colageno', sku: '#0949', nome: 'Skin Beauty Drink Colágeno Limonada 270g', categoria: 'Proteínas & Nutrição', peso: '270g', doses: 30, dosePadraoG: 9.0, pv: 27.95, precoCatalogo: 248.00, precoCusto50: 124.00, precoVenda: 248.00, estoque: 3, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-45.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-45.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Turbina pele e firmeza' },
+            { id: 'prod_cr7', sku: '#1445', nome: 'CR7 Drive Hidroeletrolítico 810g', categoria: 'Proteínas & Nutrição', peso: '810g', doses: 60, dosePadraoG: 13.5, pv: 22.95, precoCatalogo: 219.00, precoCusto50: 109.50, precoVenda: 219.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://www.herbalife.com/dmassets/market-reusable-assets/amer/brazil/images/canister/pc-1445-br.png:pdp-w875h783?fmt=webp-alpha', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-37.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Energia esportiva' },
 
             // SNACKS & SOPAS
-            { id: 'prod_nutrisoup', sku: '#1640', nome: 'Nutri Soup Frango com Legumes 416g', categoria: 'Snacks & Sopas', peso: '416g', doses: 16, dosePadraoG: 26.0, precoCatalogo: 172.00, precoCusto50: 86.00, precoVenda: 172.00, estoque: 2, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Opção quente salgada' },
-            { id: 'prod_barra_choc', sku: '#0060', nome: 'Barra de Proteína Chocolate/Amendoim (7 un)', categoria: 'Snacks & Sopas', peso: '245g', doses: 7, dosePadraoG: 35.0, precoCatalogo: 95.00, precoCusto50: 47.50, precoVenda: 95.00, estoque: 4, prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Snack prático de balcão' },
+            { id: 'prod_nutrisoup', sku: '#1640', nome: 'Nutri Soup Frango com Legumes 416g', categoria: 'Snacks & Sopas', peso: '416g', doses: 16, dosePadraoG: 26.0, pv: 21.05, precoCatalogo: 172.00, precoCusto50: 86.00, precoVenda: 172.00, estoque: 2, estoqueMinimo: 1, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-51.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-51.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Opção quente salgada' },
+            { id: 'prod_barra_choc', sku: '#0060', nome: 'Barra de Proteína Chocolate/Amendoim (7 un)', categoria: 'Snacks & Sopas', peso: '245g', doses: 7, dosePadraoG: 35.0, pv: 7.70, precoCatalogo: 95.00, precoCusto50: 47.50, precoVenda: 95.00, estoque: 4, estoqueMinimo: 2, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-53.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-53.jpg', prazoEntrega: 'Pronta Entrega no EVS', promocao: 'Snack prático de balcão' },
 
             // EMBALAGENS & DESCARTÁVEIS EVS
-            { id: 'insumo_garrafa_500', sku: '#EMB-500', nome: 'Garrafa Cristal PET 500ml c/ Tampa Lacre', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, precoCatalogo: 1.60, precoCusto50: 1.60, precoVenda: 0.00, estoque: 150, prazoEntrega: 'Em estoque', promocao: 'Kit Reset 500ml' },
-            { id: 'insumo_garrafa_1000', sku: '#EMB-1000', nome: 'Garrafa Cristal PET 1 Litro c/ Tampa Lacre', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, precoCatalogo: 2.20, precoCusto50: 2.20, precoVenda: 0.00, estoque: 200, prazoEntrega: 'Em estoque', promocao: 'Reset+ e Turbo' },
-            { id: 'insumo_rotulo_adesivo', sku: '#ROT-01', nome: 'Rótulo Adesivo Oficial Litrão do Reset', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, precoCatalogo: 0.45, precoCusto50: 0.45, precoVenda: 0.00, estoque: 300, prazoEntrega: 'Em estoque', promocao: 'Com QR Code consultor' },
-            { id: 'insumo_canudo_gelo', sku: '#DESC-01', nome: 'Canudo Grosso + Gelo e Água Filtrada', categoria: 'Embalagens & Descartáveis', peso: 'Porção', doses: 1, dosePadraoG: 1.0, precoCatalogo: 0.35, precoCusto50: 0.35, precoVenda: 0.00, estoque: 500, prazoEntrega: 'Em estoque', promocao: '' },
-            { id: 'insumo_sacola_delivery', sku: '#SAC-01', nome: 'Sacola Kraft / Embalagem Térmica Delivery', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, precoCatalogo: 0.55, precoCusto50: 0.55, precoVenda: 0.00, estoque: 100, prazoEntrega: 'Em estoque', promocao: 'Para delivery protegido' }
+            { id: 'insumo_garrafa_500', sku: '#EMB-500', nome: 'Garrafa Cristal PET 500ml c/ Tampa Lacre', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, pv: 0.0, precoCatalogo: 1.60, precoCusto50: 1.60, precoVenda: 0.00, estoque: 150, estoqueMinimo: 50, consumoPorLitrao: 0.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', prazoEntrega: 'Em estoque', promocao: 'Kit Reset 500ml' },
+            { id: 'insumo_garrafa_1000', sku: '#EMB-1000', nome: 'Garrafa Cristal PET 1 Litro c/ Tampa Lacre', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, pv: 0.0, precoCatalogo: 2.20, precoCusto50: 2.20, precoVenda: 0.00, estoque: 200, estoqueMinimo: 50, consumoPorLitrao: 1.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', prazoEntrega: 'Em estoque', promocao: 'Reset+ e Turbo' },
+            { id: 'insumo_rotulo_adesivo', sku: '#ROT-01', nome: 'Rótulo Adesivo Oficial Litrão do Reset', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, pv: 0.0, precoCatalogo: 0.45, precoCusto50: 0.45, precoVenda: 0.00, estoque: 300, estoqueMinimo: 50, consumoPorLitrao: 1.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', prazoEntrega: 'Em estoque', promocao: 'Com QR Code consultor' },
+            { id: 'insumo_canudo_gelo', sku: '#DESC-01', nome: 'Canudo Grosso + Gelo e Água Filtrada', categoria: 'Embalagens & Descartáveis', peso: 'Porção', doses: 1, dosePadraoG: 1.0, pv: 0.0, precoCatalogo: 0.35, precoCusto50: 0.35, precoVenda: 0.00, estoque: 500, estoqueMinimo: 100, consumoPorLitrao: 1.0, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', prazoEntrega: 'Em estoque', promocao: '' },
+            { id: 'insumo_sacola_delivery', sku: '#SAC-01', nome: 'Sacola Kraft / Embalagem Térmica Delivery', categoria: 'Embalagens & Descartáveis', peso: 'Unidade', doses: 1, dosePadraoG: 1.0, pv: 0.0, precoCatalogo: 0.55, precoCusto50: 0.55, precoVenda: 0.00, estoque: 100, estoqueMinimo: 30, consumoPorLitrao: 0.5, foto: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', fotoCatalogo: 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg', prazoEntrega: 'Em estoque', promocao: 'Para delivery protegido' }
         ];
 
         let stateFinanceiro = {
             descontoNivel: 0.50,
             receitaAtiva: 'RESET_PLUS_1L',
+            cicloReposicaoDias: 30,
             filtroCategoria: 'TODOS',
+            filtroCategoriaEstoque: 'TODOS',
             termoBusca: '',
+            termoBuscaEstoque: '',
             produtos: JSON.parse(JSON.stringify(CATALOGO_HERBALIFE_DEFAULT)),
             simulador: { garrafasDia: 10, diasMes: 26 }
         };
+        window.CATALOGO_HERBALIFE_DEFAULT = CATALOGO_HERBALIFE_DEFAULT;
+        window.stateFinanceiro = stateFinanceiro;
 
         function isModuloFinanceiroLiberadoParaConsultor() {
             if (!consultorAtual) return false;
@@ -14873,18 +15085,24 @@
         window.fecharModalFinanceiroBloqueado = fecharModalFinanceiroBloqueado;
 
         function alternarAbaFinanceiro(aba) {
-            const abas = ['calculadora', 'catalogo', 'simulador'];
+            const abas = ['calculadora', 'catalogo', 'estoque', 'simulador'];
             abas.forEach(a => {
                 const btn = document.getElementById(`tab-fin-${a}`);
                 const cont = document.getElementById(`aba-fin-${a}-conteudo`);
                 if (a === aba) {
                     if (btn) {
-                        btn.className = "px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-emerald-700 text-white shadow-xs cursor-pointer";
+                        if (a === 'estoque') {
+                            btn.className = "px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-purple-700 text-white shadow-xs cursor-pointer";
+                        } else if (a === 'simulador') {
+                            btn.className = "px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-blue-700 text-white shadow-xs cursor-pointer";
+                        } else {
+                            btn.className = "px-4 py-2.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-emerald-700 text-white shadow-xs cursor-pointer";
+                        }
                     }
                     if (cont) cont.classList.remove('hidden');
                 } else {
                     if (btn) {
-                        btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 cursor-pointer";
+                        btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 cursor-pointer";
                     }
                     if (cont) cont.classList.add('hidden');
                 }
@@ -14892,6 +15110,8 @@
 
             if (aba === 'catalogo') {
                 renderizarTabelaProdutosFinanceiro();
+            } else if (aba === 'estoque') {
+                renderizarModuloEstoqueEReposicao();
             }
         }
         window.alternarAbaFinanceiro = alternarAbaFinanceiro;
@@ -14921,6 +15141,7 @@
             // Recalcula e renderiza
             recalcularCustosFinanceiroEVS();
             renderizarTabelaProdutosFinanceiro();
+            renderizarModuloEstoqueEReposicao();
         }
 
         function mudarDescontoHerbalife(valor) {
@@ -15121,6 +15342,10 @@
 
             const elMargM = document.getElementById('sim-margem-liquida-mes');
             if (elMargM) elMargM.innerText = `Margem Líquida: ${margemRealMes.toFixed(1)}%`;
+
+            if (typeof renderizarModuloEstoqueEReposicao === 'function') {
+                renderizarModuloEstoqueEReposicao();
+            }
         }
         window.atualizarSimuladorMensalEVS = atualizarSimuladorMensalEVS;
 
@@ -15146,7 +15371,7 @@
 
             corpo.innerHTML = '';
             if (lista.length === 0) {
-                corpo.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-gray-400 italic">Nenhum produto encontrado com este filtro.</td></tr>`;
+                corpo.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-gray-400 italic">Nenhum produto encontrado com este filtro.</td></tr>`;
                 return;
             }
 
@@ -15159,9 +15384,20 @@
                 const custoDose = doses > 0 ? (custoPote / doses) : custoPote;
 
                 tr.innerHTML = `
+                    <td class="p-2.5 text-center w-16">
+                        <div onclick="visualizarFotoProdutoModal('${p.id}')" title="Clique para ampliar foto oficial Herbalife" class="relative group cursor-pointer w-12 h-12 mx-auto rounded-xl bg-white border border-gray-200 shadow-2xs hover:shadow-md hover:border-emerald-500 hover:scale-105 transition flex items-center justify-center overflow-hidden p-1">
+                            <img src="${p.foto || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg'}" alt="${p.nome}" class="w-full h-full object-contain" onerror="this.onerror=null;this.src='https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg'">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px]">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                        </div>
+                    </td>
                     <td class="p-3">
-                        <strong class="text-gray-900 block text-xs">${p.nome}</strong>
-                        <span class="text-[10px] text-gray-500 font-mono">${p.sku || '---'} • ${p.peso || ''}</span>
+                        <strong class="text-gray-900 block text-xs hover:text-emerald-700 cursor-pointer" onclick="visualizarFotoProdutoModal('${p.id}')">${p.nome}</strong>
+                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span class="text-[10px] text-gray-500 font-mono">${p.sku || '---'} • ${p.peso || ''}</span>
+                            <span class="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded text-[9px] font-black font-mono">${(p.pv || 0).toFixed(2)} PV</span>
+                        </div>
                     </td>
                     <td class="p-3">
                         <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase block w-max mb-0.5">${p.categoria}</span>
@@ -15209,6 +15445,630 @@
             });
         }
         window.renderizarTabelaProdutosFinanceiro = renderizarTabelaProdutosFinanceiro;
+
+        // =========================================================================
+        // MÓDULO DE ESTOQUE & SUGESTOR INTELIGENTE DE REPOSIÇÃO MYHERBALIFE
+        // =========================================================================
+
+        function renderizarModuloEstoqueEReposicao() {
+            const corpo = document.getElementById('tabela-corpo-estoque-financeiro');
+            if (!corpo) return;
+
+            const desc = stateFinanceiro.descontoNivel || 0.50;
+            const cicloDias = stateFinanceiro.cicloReposicaoDias || 30;
+            const garrafasDia = (stateFinanceiro.simulador && stateFinanceiro.simulador.garrafasDia) ? stateFinanceiro.simulador.garrafasDia : 10;
+            const cat = stateFinanceiro.filtroCategoriaEstoque || 'TODOS';
+            const q = (stateFinanceiro.termoBuscaEstoque || '').toLowerCase().trim();
+
+            // Atualiza texto de ritmo no banner e nas dicas
+            const elRitmo = document.getElementById('fin-estoque-info-ritmo');
+            const totalGarrafasCiclo = garrafasDia * cicloDias;
+            if (elRitmo) elRitmo.innerHTML = `Ritmo atual: <strong class="text-white">${garrafasDia} Litrões/dia</strong> (~${totalGarrafasCiclo} garrafas em ${cicloDias} dias)`;
+            const elDica = document.getElementById('fin-dica-garrafas-dia');
+            if (elDica) elDica.innerText = `${garrafasDia} Litrões/dia`;
+
+            // Botões de ciclo ativo
+            [15, 30, 45].forEach(d => {
+                const btn = document.getElementById(`btn-ciclo-${d}`);
+                if (btn) {
+                    if (d === cicloDias) {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs font-black transition bg-purple-600 text-white shadow-xs cursor-pointer";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-gray-300 hover:text-white cursor-pointer";
+                    }
+                }
+            });
+
+            let lista = stateFinanceiro.produtos;
+            if (cat !== 'TODOS') {
+                lista = lista.filter(p => p.categoria === cat);
+            }
+            if (q) {
+                lista = lista.filter(p => (p.nome || '').toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.categoria || '').toLowerCase().includes(q));
+            }
+
+            corpo.innerHTML = '';
+
+            let totalEstoqueItensGeral = 0;
+            let itensCriticosGeral = 0;
+            let totalPVSugeridoGeral = 0;
+            let investimentoTotalGeral = 0;
+            let totalPotesSugeridosGeral = 0;
+
+            // Percorre todos os produtos para calcular KPIs globais
+            stateFinanceiro.produtos.forEach(p => {
+                const estoqueAtual = parseInt(p.estoque) || 0;
+                totalEstoqueItensGeral += estoqueAtual;
+
+                let consumoDosesDia = 0;
+                if (p.consumoPorLitrao && p.consumoPorLitrao > 0) {
+                    consumoDosesDia = p.consumoPorLitrao * garrafasDia;
+                } else if (p.categoria === 'Shakes') {
+                    consumoDosesDia = 1.0;
+                } else if (p.categoria === 'Proteínas & Nutrição') {
+                    consumoDosesDia = 0.5;
+                }
+
+                const dosesPorPote = p.doses || 1;
+                const potesConsumidosDia = dosesPorPote > 0 ? (consumoDosesDia / dosesPorPote) : 0;
+
+                let diasAutonomia = 999;
+                if (potesConsumidosDia > 0) {
+                    diasAutonomia = Math.floor(estoqueAtual / potesConsumidosDia);
+                }
+
+                if (diasAutonomia <= 3 && potesConsumidosDia > 0) {
+                    itensCriticosGeral++;
+                }
+
+                let potesNecessarios = Math.ceil(potesConsumidosDia * cicloDias);
+                let sugestao = Math.max(0, potesNecessarios - estoqueAtual);
+                if (p.sugestaoManual !== undefined && p.sugestaoManual !== null) {
+                    sugestao = Math.max(0, parseInt(p.sugestaoManual) || 0);
+                }
+
+                const custoUnitario = p.precoCusto50 || (p.precoCatalogo * (1 - desc));
+                const subPV = sugestao * (p.pv || 0);
+                const subCusto = sugestao * custoUnitario;
+
+                totalPVSugeridoGeral += subPV;
+                investimentoTotalGeral += subCusto;
+                totalPotesSugeridosGeral += sugestao;
+            });
+
+            // Atualiza os 4 KPI Cards e badges
+            const elKpiEstoqueTot = document.getElementById('fin-kpi-estoque-total');
+            if (elKpiEstoqueTot) elKpiEstoqueTot.innerText = totalEstoqueItensGeral;
+
+            const elKpiCriticos = document.getElementById('fin-kpi-estoque-criticos');
+            if (elKpiCriticos) elKpiCriticos.innerText = itensCriticosGeral;
+
+            const elBadgeTab = document.getElementById('fin-cont-criticos-badge');
+            if (elBadgeTab) {
+                elBadgeTab.innerText = itensCriticosGeral;
+                if (itensCriticosGeral > 0) {
+                    elBadgeTab.className = "bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black animate-pulse";
+                } else {
+                    elBadgeTab.className = "bg-emerald-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black";
+                }
+            }
+
+            const elKpiPV = document.getElementById('fin-kpi-estoque-pv');
+            if (elKpiPV) elKpiPV.innerText = totalPVSugeridoGeral.toFixed(2);
+
+            const elKpiMetaPV = document.getElementById('fin-kpi-estoque-meta-pv');
+            if (elKpiMetaPV) {
+                if (totalPVSugeridoGeral >= 2500) {
+                    elKpiMetaPV.innerHTML = `<span class="text-emerald-300 font-bold">⭐ 2.500+ PV: Supervisor Ativo!</span>`;
+                } else if (totalPVSugeridoGeral >= 1000) {
+                    elKpiMetaPV.innerHTML = `<span class="text-cyan-300 font-bold">✨ 1.000+ PV: Construtor de Sucesso</span>`;
+                } else if (totalPVSugeridoGeral >= 500) {
+                    elKpiMetaPV.innerHTML = `<span class="text-yellow-300 font-bold">🔥 500+ PV: Produtor Ativo</span>`;
+                } else {
+                    elKpiMetaPV.innerText = `Metas e Qualificação Herbalife`;
+                }
+            }
+
+            const elKpiCusto = document.getElementById('fin-kpi-estoque-custo');
+            if (elKpiCusto) elKpiCusto.innerText = `R$ ${investimentoTotalGeral.toFixed(2).replace('.', ',')}`;
+
+            const elKpiNivel = document.getElementById('fin-kpi-estoque-nivel-desc');
+            if (elKpiNivel) {
+                const pct = Math.round(desc * 100);
+                elKpiNivel.innerText = `Com seu nível de desconto ativo (${pct}%)`;
+            }
+
+            // Totais no Rodapé da Tabela
+            const elFootPecas = document.getElementById('fin-foot-total-estoque-pecas');
+            if (elFootPecas) elFootPecas.innerText = `${totalEstoqueItensGeral} peças`;
+            const elFootPotes = document.getElementById('fin-foot-total-sugerido-potes');
+            if (elFootPotes) elFootPotes.innerText = `${totalPotesSugeridosGeral} potes`;
+            const elFootPV = document.getElementById('fin-foot-total-pv');
+            if (elFootPV) elFootPV.innerText = `${totalPVSugeridoGeral.toFixed(2)} PV`;
+            const elFootCusto = document.getElementById('fin-foot-total-custo');
+            if (elFootCusto) elFootCusto.innerText = `R$ ${investimentoTotalGeral.toFixed(2).replace('.', ',')}`;
+
+            if (lista.length === 0) {
+                corpo.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-gray-400 italic">Nenhum produto encontrado com este filtro de armário.</td></tr>`;
+                return;
+            }
+
+            // Renderiza as linhas da tabela
+            lista.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-50/40 transition border-b border-gray-100";
+
+                const estoqueAtual = parseInt(p.estoque) || 0;
+                let consumoDosesDia = 0;
+                if (p.consumoPorLitrao && p.consumoPorLitrao > 0) {
+                    consumoDosesDia = p.consumoPorLitrao * garrafasDia;
+                } else if (p.categoria === 'Shakes') {
+                    consumoDosesDia = 1.0;
+                } else if (p.categoria === 'Proteínas & Nutrição') {
+                    consumoDosesDia = 0.5;
+                }
+
+                const dosesPorPote = p.doses || 1;
+                const potesConsumidosDia = dosesPorPote > 0 ? (consumoDosesDia / dosesPorPote) : 0;
+
+                let diasAutonomia = 999;
+                if (potesConsumidosDia > 0) {
+                    diasAutonomia = Math.floor(estoqueAtual / potesConsumidosDia);
+                }
+
+                let badgeAutonomia = '';
+                if (potesConsumidosDia === 0) {
+                    badgeAutonomia = `<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold">Sob Demanda</span>`;
+                } else if (diasAutonomia <= 3) {
+                    badgeAutonomia = `
+                        <div class="inline-flex flex-col items-center">
+                            <span class="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 animate-pulse">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> ${diasAutonomia} ${diasAutonomia === 1 ? 'dia' : 'dias'}
+                            </span>
+                            <span class="text-[9px] text-rose-600 font-bold mt-0.5">CRÍTICO</span>
+                        </div>
+                    `;
+                } else if (diasAutonomia <= 7) {
+                    badgeAutonomia = `
+                        <div class="inline-flex flex-col items-center">
+                            <span class="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1">
+                                <i class="fa-solid fa-clock text-amber-600"></i> ${diasAutonomia} dias
+                            </span>
+                            <span class="text-[9px] text-amber-700 font-bold mt-0.5">Atenção</span>
+                        </div>
+                    `;
+                } else {
+                    badgeAutonomia = `
+                        <div class="inline-flex flex-col items-center">
+                            <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1">
+                                <i class="fa-solid fa-check text-emerald-600"></i> ${diasAutonomia > 60 ? '60+ dias' : `${diasAutonomia} dias`}
+                            </span>
+                            <span class="text-[9px] text-emerald-700 font-bold mt-0.5">Seguro</span>
+                        </div>
+                    `;
+                }
+
+                let potesNecessarios = Math.ceil(potesConsumidosDia * cicloDias);
+                let sugestao = Math.max(0, potesNecessarios - estoqueAtual);
+                if (p.sugestaoManual !== undefined && p.sugestaoManual !== null) {
+                    sugestao = Math.max(0, parseInt(p.sugestaoManual) || 0);
+                }
+
+                const custoUnitario = p.precoCusto50 || (p.precoCatalogo * (1 - desc));
+                const subPV = sugestao * (p.pv || 0);
+                const subCusto = sugestao * custoUnitario;
+
+                tr.innerHTML = `
+                    <td class="p-2.5 text-center w-16">
+                        <div onclick="visualizarFotoProdutoModal('${p.id}')" title="Clique para ampliar foto oficial Herbalife" class="relative group cursor-pointer w-12 h-12 mx-auto rounded-xl bg-white border border-gray-200 shadow-2xs hover:shadow-md hover:border-purple-500 hover:scale-105 transition flex items-center justify-center overflow-hidden p-1">
+                            <img src="${p.foto || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg'}" alt="${p.nome}" class="w-full h-full object-contain" onerror="this.onerror=null;this.src='https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg'">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px]">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3">
+                        <strong class="text-gray-900 block text-xs hover:text-purple-700 cursor-pointer" onclick="visualizarFotoProdutoModal('${p.id}')">${p.nome}</strong>
+                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span class="text-[10px] text-gray-500 font-mono">${p.sku || '---'} • ${p.peso || ''}</span>
+                            <span class="bg-gray-100 text-gray-700 px-1.5 py-0.2 rounded text-[9px] font-bold uppercase">${p.categoria}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <span class="bg-purple-100 text-purple-900 px-2 py-0.5 rounded-lg text-xs font-black font-mono">
+                            ${(p.pv || 0).toFixed(2)} PV
+                        </span>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-200">
+                            <button type="button" onclick="ajustarEstoqueRapido('${p.id}', -1)" title="Diminuir 1 pote" class="w-7 h-7 rounded-lg bg-white hover:bg-gray-200 text-gray-700 font-black text-xs flex items-center justify-center shadow-2xs cursor-pointer">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <input type="number" min="0" id="est-input-${p.id}" value="${estoqueAtual}" onchange="ajustarEstoqueRapido('${p.id}', this.value, true)" class="w-12 py-1 text-center font-black text-xs text-gray-900 bg-transparent focus:outline-none">
+                            <button type="button" onclick="ajustarEstoqueRapido('${p.id}', 1)" title="Adicionar 1 pote" class="w-7 h-7 rounded-lg bg-white hover:bg-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center shadow-2xs cursor-pointer">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <span class="text-xs font-bold text-gray-800 font-mono block">
+                            ${potesConsumidosDia > 0 ? `${potesConsumidosDia.toFixed(2)} pote/dia` : '---'}
+                        </span>
+                        <span class="text-[9px] text-gray-400 block">${consumoDosesDia > 0 ? `${consumoDosesDia.toFixed(1)} doses/dia` : 'sob demanda'}</span>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        ${badgeAutonomia}
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1 bg-purple-50 p-1 rounded-xl border border-purple-200">
+                            <button type="button" onclick="ajustarSugestaoManual('${p.id}', -1)" title="Diminuir 1 pote sugerido" class="w-7 h-7 rounded-lg bg-white hover:bg-purple-100 text-purple-700 font-black text-xs flex items-center justify-center shadow-2xs cursor-pointer">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <span class="w-10 py-1 text-center font-black text-sm text-purple-900 font-mono">${sugestao}</span>
+                            <button type="button" onclick="ajustarSugestaoManual('${p.id}', 1)" title="Aumentar 1 pote sugerido" class="w-7 h-7 rounded-lg bg-white hover:bg-purple-100 text-purple-700 font-black text-xs flex items-center justify-center shadow-2xs cursor-pointer">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <strong class="text-xs font-black text-emerald-700 font-mono block">${subPV.toFixed(2)} PV</strong>
+                        <span class="text-[9px] text-gray-400 block">${sugestao}x ${(p.pv || 0).toFixed(2)}</span>
+                    </td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <strong class="text-xs font-black text-purple-950 font-mono block">R$ ${subCusto.toFixed(2).replace('.', ',')}</strong>
+                        <span class="text-[9px] text-gray-400 block">${sugestao}x R$ ${custoUnitario.toFixed(2).replace('.', ',')}</span>
+                    </td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+        window.renderizarModuloEstoqueEReposicao = renderizarModuloEstoqueEReposicao;
+
+        function ajustarEstoqueRapido(prodId, deltaOrValue, isDirect = false) {
+            const p = stateFinanceiro.produtos.find(item => item.id === prodId);
+            if (!p) return;
+            if (isDirect) {
+                p.estoque = Math.max(0, parseInt(deltaOrValue) || 0);
+            } else {
+                p.estoque = Math.max(0, (parseInt(p.estoque) || 0) + deltaOrValue);
+            }
+            salvarConfiguracaoFinanceiroEVS(true);
+            renderizarModuloEstoqueEReposicao();
+            renderizarTabelaProdutosFinanceiro();
+        }
+        window.ajustarEstoqueRapido = ajustarEstoqueRapido;
+
+        function ajustarSugestaoManual(prodId, delta) {
+            const p = stateFinanceiro.produtos.find(item => item.id === prodId);
+            if (!p) return;
+
+            const cicloDias = stateFinanceiro.cicloReposicaoDias || 30;
+            const garrafasDia = (stateFinanceiro.simulador && stateFinanceiro.simulador.garrafasDia) ? stateFinanceiro.simulador.garrafasDia : 10;
+            const estoqueAtual = parseInt(p.estoque) || 0;
+
+            let consumoDosesDia = 0;
+            if (p.consumoPorLitrao && p.consumoPorLitrao > 0) {
+                consumoDosesDia = p.consumoPorLitrao * garrafasDia;
+            } else if (p.categoria === 'Shakes') {
+                consumoDosesDia = 1.0;
+            } else if (p.categoria === 'Proteínas & Nutrição') {
+                consumoDosesDia = 0.5;
+            }
+
+            const dosesPorPote = p.doses || 1;
+            const potesConsumidosDia = dosesPorPote > 0 ? (consumoDosesDia / dosesPorPote) : 0;
+            let potesNecessarios = Math.ceil(potesConsumidosDia * cicloDias);
+            let sugestaoBase = Math.max(0, potesNecessarios - estoqueAtual);
+
+            let atual = p.sugestaoManual !== undefined && p.sugestaoManual !== null ? p.sugestaoManual : sugestaoBase;
+            p.sugestaoManual = Math.max(0, atual + delta);
+
+            renderizarModuloEstoqueEReposicao();
+        }
+        window.ajustarSugestaoManual = ajustarSugestaoManual;
+
+        function mudarCicloReposicao(dias) {
+            stateFinanceiro.cicloReposicaoDias = parseInt(dias) || 30;
+            stateFinanceiro.produtos.forEach(p => { delete p.sugestaoManual; });
+            salvarConfiguracaoFinanceiroEVS(true);
+            renderizarModuloEstoqueEReposicao();
+        }
+        window.mudarCicloReposicao = mudarCicloReposicao;
+
+        function filtrarCategoriaEstoque(cat) {
+            stateFinanceiro.filtroCategoriaEstoque = cat;
+            document.querySelectorAll('.btn-filtro-estoque').forEach(b => {
+                b.className = "btn-filtro-estoque bg-gray-100 text-gray-700 hover:bg-purple-50 font-bold px-3 py-1.5 rounded-xl transition whitespace-nowrap";
+            });
+            if (event && event.target) {
+                event.target.className = "btn-filtro-estoque bg-purple-700 text-white font-black px-3 py-1.5 rounded-xl transition whitespace-nowrap shadow-2xs";
+            }
+            renderizarModuloEstoqueEReposicao();
+        }
+        window.filtrarCategoriaEstoque = filtrarCategoriaEstoque;
+
+        function filtrarBuscaEstoque(query) {
+            stateFinanceiro.termoBuscaEstoque = query;
+            renderizarModuloEstoqueEReposicao();
+        }
+        window.filtrarBuscaEstoque = filtrarBuscaEstoque;
+
+        function copiarListaPedidoMyHerbalife() {
+            const desc = stateFinanceiro.descontoNivel || 0.50;
+            const cicloDias = stateFinanceiro.cicloReposicaoDias || 30;
+            const garrafasDia = (stateFinanceiro.simulador && stateFinanceiro.simulador.garrafasDia) ? stateFinanceiro.simulador.garrafasDia : 10;
+            const hid = consultorAtual ? consultorAtual.herbalife_id : '433005811';
+            const espaco = consultorAtual && consultorAtual.nome_espaco ? consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim() : 'Espaço Saudável EVS';
+
+            let itens = [];
+            let totalPV = 0;
+            let totalCusto = 0;
+            let totalPotes = 0;
+
+            stateFinanceiro.produtos.forEach(p => {
+                const estoqueAtual = parseInt(p.estoque) || 0;
+                let consumoDosesDia = 0;
+                if (p.consumoPorLitrao && p.consumoPorLitrao > 0) {
+                    consumoDosesDia = p.consumoPorLitrao * garrafasDia;
+                } else if (p.categoria === 'Shakes') {
+                    consumoDosesDia = 1.0;
+                } else if (p.categoria === 'Proteínas & Nutrição') {
+                    consumoDosesDia = 0.5;
+                }
+
+                const dosesPorPote = p.doses || 1;
+                const potesConsumidosDia = dosesPorPote > 0 ? (consumoDosesDia / dosesPorPote) : 0;
+                let potesNecessarios = Math.ceil(potesConsumidosDia * cicloDias);
+                let sugestao = Math.max(0, potesNecessarios - estoqueAtual);
+                if (p.sugestaoManual !== undefined && p.sugestaoManual !== null) {
+                    sugestao = Math.max(0, parseInt(p.sugestaoManual) || 0);
+                }
+
+                if (sugestao > 0) {
+                    const custoUnitario = p.precoCusto50 || (p.precoCatalogo * (1 - desc));
+                    const subPV = sugestao * (p.pv || 0);
+                    const subCusto = sugestao * custoUnitario;
+                    totalPV += subPV;
+                    totalCusto += subCusto;
+                    totalPotes += sugestao;
+                    itens.push({
+                        sku: p.sku || '---',
+                        nome: p.nome,
+                        qtd: sugestao,
+                        pv: subPV,
+                        custo: subCusto
+                    });
+                }
+            });
+
+            if (itens.length === 0) {
+                alert("Nenhum item com sugestão de compra no momento. Seu armário está abastecido para os próximos " + cicloDias + " dias!");
+                return;
+            }
+
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+            const pct = Math.round(desc * 100);
+
+            let txt = `📦 *PEDIDO DE REPOSIÇÃO DE ESTOQUE - MYHERBALIFE*\n`;
+            txt += `🏢 *EVS:* ${espaco}\n`;
+            txt += `👤 *Consultor ID:* ${hid}\n`;
+            txt += `📅 *Data:* ${dataHoje}\n`;
+            txt += `🎯 *Ciclo Planejado:* ${cicloDias} dias (${garrafasDia} Litrões/dia)\n`;
+            txt += `🏷️ *Nível de Desconto:* ${pct}%\n`;
+            txt += `----------------------------------------\n`;
+            txt += `*ITENS DO PEDIDO:*\n`;
+
+            itens.forEach(it => {
+                txt += `▪️ *${it.qtd}x* ${it.sku} - ${it.nome} (${it.pv.toFixed(2)} PV)\n`;
+            });
+
+            txt += `----------------------------------------\n`;
+            txt += `📊 *RESUMO DO PEDIDO:*\n`;
+            txt += `📦 *Total de Potes:* ${totalPotes} unidades\n`;
+            txt += `🎯 *Total de Volume:* ${totalPV.toFixed(2)} PV\n`;
+            txt += `💰 *Investimento Estimado:* R$ ${totalCusto.toFixed(2).replace('.', ',')}\n`;
+            txt += `----------------------------------------\n`;
+            txt += `🚀 _Gerado pelo Sistema Litrão do Reset / EVS Pro_\n`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(txt).then(() => {
+                    exibirFeedbackEstoque("📋 Pedido formatado copiado com sucesso! Pronto para colar no WhatsApp ou MyHerbalife.", "sucesso");
+                }).catch(() => {
+                    window.prompt("Copie a lista do pedido abaixo:", txt);
+                });
+            } else {
+                window.prompt("Copie a lista do pedido abaixo:", txt);
+            }
+        }
+        window.copiarListaPedidoMyHerbalife = copiarListaPedidoMyHerbalife;
+
+        function abrirPortalMyHerbalife() {
+            window.open('https://myherbalife.com.br', '_blank');
+        }
+        window.abrirPortalMyHerbalife = abrirPortalMyHerbalife;
+
+        function confirmarEntradaMercadoriaPedido() {
+            const cicloDias = stateFinanceiro.cicloReposicaoDias || 30;
+            const garrafasDia = (stateFinanceiro.simulador && stateFinanceiro.simulador.garrafasDia) ? stateFinanceiro.simulador.garrafasDia : 10;
+
+            let itensParaAdicionar = [];
+            let totalPotesAdicionar = 0;
+
+            stateFinanceiro.produtos.forEach(p => {
+                const estoqueAtual = parseInt(p.estoque) || 0;
+                let consumoDosesDia = 0;
+                if (p.consumoPorLitrao && p.consumoPorLitrao > 0) {
+                    consumoDosesDia = p.consumoPorLitrao * garrafasDia;
+                } else if (p.categoria === 'Shakes') {
+                    consumoDosesDia = 1.0;
+                } else if (p.categoria === 'Proteínas & Nutrição') {
+                    consumoDosesDia = 0.5;
+                }
+
+                const dosesPorPote = p.doses || 1;
+                const potesConsumidosDia = dosesPorPote > 0 ? (consumoDosesDia / dosesPorPote) : 0;
+                let potesNecessarios = Math.ceil(potesConsumidosDia * cicloDias);
+                let sugestao = Math.max(0, potesNecessarios - estoqueAtual);
+                if (p.sugestaoManual !== undefined && p.sugestaoManual !== null) {
+                    sugestao = Math.max(0, parseInt(p.sugestaoManual) || 0);
+                }
+
+                if (sugestao > 0) {
+                    itensParaAdicionar.push({ p, sugestao });
+                    totalPotesAdicionar += sugestao;
+                }
+            });
+
+            if (totalPotesAdicionar === 0) {
+                alert("Não há potes sugeridos para dar entrada no momento.");
+                return;
+            }
+
+            if (!confirm(`Confirmar a chegada de mercadoria?\n\nSerão somados ${totalPotesAdicionar} novos potes ao estoque físico do armário.`)) {
+                return;
+            }
+
+            itensParaAdicionar.forEach(item => {
+                item.p.estoque = (parseInt(item.p.estoque) || 0) + item.sugestao;
+                delete item.p.sugestaoManual;
+            });
+
+            salvarConfiguracaoFinanceiroEVS(true);
+            renderizarModuloEstoqueEReposicao();
+            renderizarTabelaProdutosFinanceiro();
+            exibirFeedbackEstoque(`🎉 Sucesso! ${totalPotesAdicionar} potes foram adicionados ao seu estoque físico do armário. Seu estoque agora está abastecido e seguro!`, "sucesso");
+        }
+        window.confirmarEntradaMercadoriaPedido = confirmarEntradaMercadoriaPedido;
+
+        function exibirFeedbackEstoque(msg, tipo = "sucesso") {
+            const feed = document.getElementById('fin-estoque-feedback');
+            if (!feed) return;
+            if (tipo === "sucesso") {
+                feed.className = "p-3.5 rounded-2xl text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-400 block shadow-xs";
+            } else {
+                feed.className = "p-3.5 rounded-2xl text-xs font-black bg-rose-100 text-rose-950 border border-rose-400 block shadow-xs";
+            }
+            feed.innerHTML = msg;
+            setTimeout(() => { feed.classList.add('hidden'); }, 5000);
+        }
+
+        function visualizarFotoProdutoModal(prodId) {
+            const p = stateFinanceiro.produtos.find(item => item.id === prodId);
+            if (!p) return;
+
+            const modal = document.getElementById('modal-zoom-foto-produto');
+            const cont = document.getElementById('zoom-foto-conteudo');
+            if (!modal || !cont) return;
+
+            const desc = stateFinanceiro.descontoNivel || 0.50;
+            const custoPote = p.precoCusto50 || (p.precoCatalogo * (1 - desc));
+            const doses = p.doses || 1;
+            const custoDose = doses > 0 ? (custoPote / doses) : custoPote;
+
+            const fotoPote = p.foto || 'https://catalogoherbalife.com.br/catalogo/herba/page-1.jpg';
+            const fotoRevista = p.fotoCatalogo || p.foto;
+
+            cont.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center gap-6 pt-2">
+                    <!-- Foto em Alta Resolução -->
+                    <div class="w-full md:w-1/2 flex flex-col items-center">
+                        <div class="w-full max-w-[280px] h-[320px] bg-gradient-to-b from-gray-50 to-gray-100 rounded-3xl p-4 border border-gray-200 flex items-center justify-center shadow-inner relative group overflow-hidden">
+                            <img id="img-zoom-display" src="${fotoPote}" alt="${p.nome}" class="max-w-full max-h-full object-contain drop-shadow-xl transition duration-300 hover:scale-105" onerror="this.onerror=null;this.src='${fotoRevista}'">
+                            <span class="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-xs">
+                                <i class="fa-solid fa-camera"></i> Oficial Herbalife
+                            </span>
+                        </div>
+
+                        <!-- Alternador entre Embalagem e Página do Catálogo Oficial -->
+                        <div class="flex items-center gap-2 mt-3">
+                            <button type="button" onclick="trocarVisualizacaoFotoModal('${fotoPote}', 'embalagem')" id="btn-foto-embalagem" class="px-3 py-1 rounded-xl text-[11px] font-black bg-emerald-600 text-white shadow-2xs cursor-pointer">
+                                <i class="fa-solid fa-box text-xs"></i> Pote Original
+                            </button>
+                            <button type="button" onclick="trocarVisualizacaoFotoModal('${fotoRevista}', 'revista')" id="btn-foto-revista" class="px-3 py-1 rounded-xl text-[11px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer">
+                                <i class="fa-solid fa-book-open text-xs"></i> Página Catálogo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ficha Técnica e Preços do Produto -->
+                    <div class="w-full md:w-1/2 space-y-3.5 text-xs">
+                        <div>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider inline-block mb-1.5">
+                                ${p.categoria}
+                            </span>
+                            <h3 class="text-xl font-black text-gray-900 leading-tight">${p.nome}</h3>
+                            <p class="text-[11px] text-gray-500 font-mono mt-0.5">Código SKU: <strong class="text-gray-800">${p.sku || '---'}</strong> • Peso/Vol: <strong class="text-gray-800">${p.peso || '---'}</strong></p>
+                        </div>
+
+                        <!-- Métricas e Pontos de Volume -->
+                        <div class="grid grid-cols-2 gap-2.5 pt-1">
+                            <div class="bg-purple-50 p-2.5 rounded-2xl border border-purple-200">
+                                <span class="text-[10px] text-purple-700 font-bold uppercase block">Pontos de Volume (PV)</span>
+                                <span class="text-lg font-black text-purple-950 font-mono">${(p.pv || 0).toFixed(2)} PV</span>
+                            </div>
+                            <div class="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200">
+                                <span class="text-[10px] text-emerald-700 font-bold uppercase block">Rendimento Oficial</span>
+                                <span class="text-lg font-black text-emerald-950 font-mono">${doses} porções</span>
+                            </div>
+                        </div>
+
+                        <!-- Tabela Comparativa de Preços -->
+                        <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-600 font-medium">Preço Catálogo Cliente:</span>
+                                <strong class="text-gray-900 font-mono">R$ ${(p.precoCatalogo || 0).toFixed(2).replace('.', ',')}</strong>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-gray-200 pt-1.5">
+                                <span class="text-purple-800 font-bold">Seu Custo (${Math.round(desc * 100)}% Desc.):</span>
+                                <strong class="text-purple-900 font-mono text-sm">R$ ${custoPote.toFixed(2).replace('.', ',')}</strong>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-gray-200 pt-1.5">
+                                <span class="text-emerald-800 font-bold">Custo por Dose no EVS:</span>
+                                <strong class="text-emerald-900 font-mono">R$ ${custoDose.toFixed(2).replace('.', ',')} / dose</strong>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-[11px] text-gray-500 pt-1">
+                            <span>Prazo: <strong class="text-gray-700">${p.prazoEntrega || 'Pronta Entrega'}</strong></span>
+                            ${p.promocao ? `<span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-md">🔥 ${p.promocao}</span>` : ''}
+                        </div>
+
+                        <div class="pt-2 flex gap-2">
+                            <a href="https://catalogoherbalife.com.br/forboss-espaco-fitness" target="_blank" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-2.5 px-3 rounded-xl transition text-center shadow-xs flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-up-right-from-square"></i> Ver no Catálogo Forboss
+                            </a>
+                            <button type="button" onclick="fecharModalZoomFotoProduto()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl transition cursor-pointer">
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+        window.visualizarFotoProdutoModal = visualizarFotoProdutoModal;
+
+        function trocarVisualizacaoFotoModal(url, tipo) {
+            const img = document.getElementById('img-zoom-display');
+            if (img) img.src = url;
+            const btnEmb = document.getElementById('btn-foto-embalagem');
+            const btnRev = document.getElementById('btn-foto-revista');
+            if (tipo === 'embalagem') {
+                if (btnEmb) btnEmb.className = "px-3 py-1 rounded-xl text-[11px] font-black bg-emerald-600 text-white shadow-2xs cursor-pointer";
+                if (btnRev) btnRev.className = "px-3 py-1 rounded-xl text-[11px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer";
+            } else {
+                if (btnRev) btnRev.className = "px-3 py-1 rounded-xl text-[11px] font-black bg-purple-600 text-white shadow-2xs cursor-pointer";
+                if (btnEmb) btnEmb.className = "px-3 py-1 rounded-xl text-[11px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer";
+            }
+        }
+        window.trocarVisualizacaoFotoModal = trocarVisualizacaoFotoModal;
+
+        function fecharModalZoomFotoProduto() {
+            const modal = document.getElementById('modal-zoom-foto-produto');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalZoomFotoProduto = fecharModalZoomFotoProduto;
 
         function filtrarCatalogoProdutos(query) {
             stateFinanceiro.termoBusca = query;
@@ -15369,6 +16229,7 @@
                     frete: parseFloat(document.getElementById('custo-input-frete').value) || 0
                 },
                 precoVendaGarrafa: parseFloat(document.getElementById('preco-venda-garrafa-input').value) || 65.00,
+                cicloReposicaoDias: stateFinanceiro.cicloReposicaoDias || 30,
                 produtos: stateFinanceiro.produtos,
                 simulador: stateFinanceiro.simulador
             };
@@ -15435,6 +16296,7 @@
             if (!parsed) return;
             if (parsed.descontoNivel !== undefined) stateFinanceiro.descontoNivel = parsed.descontoNivel;
             if (parsed.receitaAtiva) stateFinanceiro.receitaAtiva = parsed.receitaAtiva;
+            if (parsed.cicloReposicaoDias !== undefined) stateFinanceiro.cicloReposicaoDias = parsed.cicloReposicaoDias;
             if (parsed.doses) {
                 if (document.getElementById('dose-input-nrg') && parsed.doses.nrg !== undefined) document.getElementById('dose-input-nrg').value = parsed.doses.nrg;
                 if (document.getElementById('dose-input-cha') && parsed.doses.cha !== undefined) document.getElementById('dose-input-cha').value = parsed.doses.cha;
@@ -15454,7 +16316,21 @@
                 document.getElementById('preco-venda-garrafa-input').value = parsed.precoVendaGarrafa;
             }
             if (parsed.produtos && Array.isArray(parsed.produtos) && parsed.produtos.length > 0) {
-                stateFinanceiro.produtos = parsed.produtos;
+                stateFinanceiro.produtos = parsed.produtos.map(p => {
+                    const def = CATALOGO_HERBALIFE_DEFAULT.find(d => d.id === p.id);
+                    if (def) {
+                        return {
+                            ...def,
+                            ...p,
+                            foto: p.foto || def.foto,
+                            fotoCatalogo: p.fotoCatalogo || def.fotoCatalogo,
+                            pv: p.pv !== undefined ? p.pv : def.pv,
+                            estoqueMinimo: p.estoqueMinimo !== undefined ? p.estoqueMinimo : def.estoqueMinimo,
+                            consumoPorLitrao: p.consumoPorLitrao !== undefined ? p.consumoPorLitrao : def.consumoPorLitrao
+                        };
+                    }
+                    return p;
+                });
             }
             if (parsed.simulador) {
                 stateFinanceiro.simulador = parsed.simulador;
