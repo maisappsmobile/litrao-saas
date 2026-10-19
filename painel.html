@@ -5565,10 +5565,41 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex items-center gap-1.5">
                     <span class="text-slate-400 text-[11px] font-bold"><i class="fa-solid fa-users text-slate-500"></i> Grupo:</span>
-                    <select id="kanban-filtro-grupo" onchange="filtrarKanbanPorGrupo(this.value)" class="bg-[#111827] border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-purple-500 cursor-pointer">
+                    <select id="kanban-filtro-grupo" onchange="filtrarKanbanPorGrupo(this.value)" class="bg-[#111827] border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-purple-500 cursor-pointer max-w-[170px] truncate">
                         <option value="">Todos os Grupos</option>
                     </select>
                 </div>
+
+                <!-- Botão Excluir Grupo Inteiro -->
+                <button type="button" id="btn-excluir-grupo-inteiro" onclick="excluirGrupoInteiroCrm()" class="bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer" title="Excluir todos os leads do grupo selecionado">
+                    <i class="fa-solid fa-trash-can text-rose-400"></i> <span>Excluir Grupo</span>
+                </button>
+
+                <!-- Botão Renomear Grupo -->
+                <button type="button" id="btn-renomear-grupo-inteiro" onclick="renomearGrupoInteiroCrm()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer" title="Renomear grupo selecionado">
+                    <i class="fa-solid fa-pen text-amber-400"></i> <span>Renomear</span>
+                </button>
+
+                <!-- Modo de Seleção Múltipla -->
+                <button type="button" id="btn-toggle-selecao-massa" onclick="alternarModoSelecaoMassa()" class="bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/60 text-purple-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-check-double text-purple-400"></i> <span id="txt-toggle-selecao">Selecionar Vários</span>
+                </button>
+
+                <!-- Barra de Ações em Massa (visível quando há seleção) -->
+                <div id="box-acoes-massa-crm" class="hidden flex items-center gap-2 bg-purple-950/80 border border-purple-500/80 px-3 py-1 rounded-xl text-xs shadow-md">
+                    <span id="txt-qtd-selecionados" class="font-black text-purple-200">0 selecionados</span>
+                    <button type="button" onclick="selecionarTodosLeadsVisiveis()" class="text-xs text-cyan-300 hover:underline font-bold cursor-pointer">Todos</button>
+                    <button type="button" onclick="desmarcarTodosLeads()" class="text-xs text-slate-300 hover:underline cursor-pointer">Nenhum</button>
+                    <button type="button" onclick="excluirLeadsSelecionadosEmMassa()" class="bg-rose-600 hover:bg-rose-500 text-white font-black px-2.5 py-1 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer shadow-xs">
+                        <i class="fa-solid fa-trash-can text-xs"></i> Excluir Marcados
+                    </button>
+                </div>
+
+                <!-- Botão Limpar Tudo (Zerar Kanban) -->
+                <button type="button" onclick="limparTodoKanbanCrm()" class="bg-slate-800/50 hover:bg-rose-950/40 border border-slate-700/70 hover:border-rose-800/50 text-slate-400 hover:text-rose-300 font-bold px-2.5 py-1.5 rounded-xl text-[11px] transition cursor-pointer" title="Excluir todos os leads de todas as etapas do Kanban">
+                    <i class="fa-solid fa-dumpster-fire text-rose-500 mr-0.5"></i> Limpar Tudo
+                </button>
+
                 <button type="button" onclick="limparFiltrosKanban()" class="text-slate-400 hover:text-white text-xs underline cursor-pointer ml-1">
                     Limpar
                 </button>
@@ -20295,6 +20326,8 @@
         let crmFiltroBuscaTexto = '';
         let crmFiltroGrupoSelecionado = '';
         let crmLeadIdArrastando = null;
+        let crmModoSelecaoMassa = false;
+        const crmLeadsSelecionados = new Set();
 
         const CRM_MODELOS_SCRIPTS = {
             '1': "Olá {nome}, tudo bem? Vi seu contato no grupo de bem-estar. Me chamo {consultor} e ajudo pessoas a desinchar, eliminar retenção e ter mais energia no dia a dia com a receita do Litrão do Reset. Você já ouviu falar da nossa garrafa turbinada de 1 Litro?",
@@ -20515,9 +20548,14 @@
                 const adminBadge = lead.isAdmin ? `<span class="bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-black px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-crown text-[8px] mr-0.5"></i>Admin</span>` : '';
                 const notasBloco = lead.notas ? `<p class="text-[11px] text-slate-400 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800/80 mt-2 line-clamp-2"><i class="fa-regular fa-comment-dots mr-1 text-slate-500"></i>${lead.notas}</p>` : '';
 
+                const checkboxHtml = crmModoSelecaoMassa ? `
+                    <input type="checkbox" onchange="toggleSelecionarLead('${lead.id}')" ${crmLeadsSelecionados.has(lead.id) ? 'checked' : ''} class="w-4 h-4 rounded text-purple-600 bg-slate-900 border-slate-700 cursor-pointer flex-shrink-0 mr-1" title="Selecionar lead">
+                ` : '';
+
                 card.innerHTML = `
                     <div class="flex items-start justify-between gap-2 mb-2">
                         <div class="flex items-center gap-2 overflow-hidden">
+                            ${checkboxHtml}
                             <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
                                 ${iniciais}
                             </div>
@@ -21061,6 +21099,177 @@
             fecharModalNovoLeadCrm();
         }
         window.salvarLeadManualCrm = salvarLeadManualCrm;
+
+
+        function alternarModoSelecaoMassa() {
+            crmModoSelecaoMassa = !crmModoSelecaoMassa;
+            const btnTxt = document.getElementById('txt-toggle-selecao');
+            const btn = document.getElementById('btn-toggle-selecao-massa');
+            const box = document.getElementById('box-acoes-massa-crm');
+            if (crmModoSelecaoMassa) {
+                if (btnTxt) btnTxt.innerText = "Cancelar Seleção";
+                if (btn) btn.classList.add('bg-purple-600', 'text-white');
+                if (box) box.classList.remove('hidden');
+            } else {
+                if (btnTxt) btnTxt.innerText = "Selecionar Vários";
+                if (btn) btn.classList.remove('bg-purple-600', 'text-white');
+                if (box) box.classList.add('hidden');
+                crmLeadsSelecionados.clear();
+            }
+            atualizarContadorSelecaoMassa();
+            renderizarKanbanCrm();
+        }
+        window.alternarModoSelecaoMassa = alternarModoSelecaoMassa;
+
+        function toggleSelecionarLead(leadId) {
+            if (crmLeadsSelecionados.has(leadId)) {
+                crmLeadsSelecionados.delete(leadId);
+            } else {
+                crmLeadsSelecionados.add(leadId);
+            }
+            atualizarContadorSelecaoMassa();
+        }
+        window.toggleSelecionarLead = toggleSelecionarLead;
+
+        function selecionarTodosLeadsVisiveis() {
+            const leads = obterLeadsCrm();
+            const leadsFiltrados = leads.filter(lead => {
+                if (crmFiltroBuscaTexto) {
+                    const termo = crmFiltroBuscaTexto;
+                    const matchNome = (lead.nome || '').toLowerCase().includes(termo);
+                    const matchTel = (lead.telefone || '').toLowerCase().includes(termo);
+                    const matchNotas = (lead.notas || '').toLowerCase().includes(termo);
+                    if (!matchNome && !matchTel && !matchNotas) return false;
+                }
+                if (crmFiltroGrupoSelecionado) {
+                    if ((lead.grupo || '').trim() !== crmFiltroGrupoSelecionado) return false;
+                }
+                return true;
+            });
+            leadsFiltrados.forEach(l => crmLeadsSelecionados.add(l.id));
+            atualizarContadorSelecaoMassa();
+            renderizarKanbanCrm();
+        }
+        window.selecionarTodosLeadsVisiveis = selecionarTodosLeadsVisiveis;
+
+        function desmarcarTodosLeads() {
+            crmLeadsSelecionados.clear();
+            atualizarContadorSelecaoMassa();
+            renderizarKanbanCrm();
+        }
+        window.desmarcarTodosLeads = desmarcarTodosLeads;
+
+        function atualizarContadorSelecaoMassa() {
+            const txt = document.getElementById('txt-qtd-selecionados');
+            if (txt) txt.innerText = `${crmLeadsSelecionados.size} selecionado(s)`;
+            const box = document.getElementById('box-acoes-massa-crm');
+            if (box && crmModoSelecaoMassa) box.classList.remove('hidden');
+        }
+
+        function excluirLeadsSelecionadosEmMassa() {
+            if (crmLeadsSelecionados.size === 0) {
+                alert("Selecione pelo menos um lead para excluir.");
+                return;
+            }
+            const qtd = crmLeadsSelecionados.size;
+            if (!confirm(`Tem certeza que deseja excluir permanentemente ${qtd} lead(s) selecionado(s) do Kanban?`)) return;
+            let leads = obterLeadsCrm();
+            leads = leads.filter(l => !crmLeadsSelecionados.has(l.id));
+            salvarLeadsCrm(leads);
+            crmLeadsSelecionados.clear();
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            alert(`Sucesso! ${qtd} lead(s) foram excluídos do Kanban.`);
+        }
+        window.excluirLeadsSelecionadosEmMassa = excluirLeadsSelecionadosEmMassa;
+
+        function excluirGrupoInteiroCrm() {
+            const select = document.getElementById('kanban-filtro-grupo');
+            const grupoAtual = select ? select.value : crmFiltroGrupoSelecionado;
+            const leads = obterLeadsCrm();
+
+            if (!grupoAtual) {
+                const gruposDisponiveis = Array.from(new Set(leads.map(l => l.grupo).filter(Boolean)));
+                if (gruposDisponiveis.length === 0) {
+                    alert("Nenhum grupo encontrado no Kanban.");
+                    return;
+                }
+                const listaNomes = gruposDisponiveis.map((g, i) => `${i + 1}. ${g}`).join('\n');
+                const escolha = prompt(`Digite o nome ou número do grupo que deseja excluir completamente:\n\n${listaNomes}`);
+                if (!escolha || !escolha.trim()) return;
+
+                let grupoAlvo = escolha.trim();
+                const numIdx = parseInt(grupoAlvo) - 1;
+                if (!isNaN(numIdx) && gruposDisponiveis[numIdx]) {
+                    grupoAlvo = gruposDisponiveis[numIdx];
+                }
+
+                executarExclusaoGrupo(grupoAlvo);
+            } else {
+                const qtdNoGrupo = leads.filter(l => l.grupo === grupoAtual).length;
+                if (!confirm(`⚠️ ATENÇÃO: Deseja realmente excluir TODOS os ${qtdNoGrupo} leads do grupo:\n"${grupoAtual}"?`)) return;
+                executarExclusaoGrupo(grupoAtual);
+            }
+        }
+        window.excluirGrupoInteiroCrm = excluirGrupoInteiroCrm;
+
+        function executarExclusaoGrupo(nomeGrupo) {
+            let leads = obterLeadsCrm();
+            const qtdAntes = leads.length;
+            leads = leads.filter(l => l.grupo !== nomeGrupo);
+            const excluidos = qtdAntes - leads.length;
+            salvarLeadsCrm(leads);
+            crmFiltroGrupoSelecionado = '';
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            alert(`Sucesso! ${excluidos} lead(s) do grupo "${nomeGrupo}" foram excluídos do Kanban.`);
+        }
+
+        function renomearGrupoInteiroCrm() {
+            const select = document.getElementById('kanban-filtro-grupo');
+            const grupoAtual = select ? select.value : crmFiltroGrupoSelecionado;
+            const leads = obterLeadsCrm();
+
+            if (!grupoAtual) {
+                alert("Selecione um grupo no filtro para renomear.");
+                return;
+            }
+
+            const novoNome = prompt(`Digite o novo nome para o grupo "${grupoAtual}":`, grupoAtual);
+            if (!novoNome || !novoNome.trim() || novoNome.trim() === grupoAtual) return;
+
+            const nomeLimpo = novoNome.trim();
+            let alterados = 0;
+            leads.forEach(l => {
+                if (l.grupo === grupoAtual) {
+                    l.grupo = nomeLimpo;
+                    alterados++;
+                }
+            });
+
+            salvarLeadsCrm(leads);
+            crmFiltroGrupoSelecionado = nomeLimpo;
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            alert(`Sucesso! ${alterados} contatos foram renomeados para "${nomeLimpo}".`);
+        }
+        window.renomearGrupoInteiroCrm = renomearGrupoInteiroCrm;
+
+        function limparTodoKanbanCrm() {
+            const leads = obterLeadsCrm();
+            if (leads.length === 0) {
+                alert("O Kanban já está vazio.");
+                return;
+            }
+            if (!confirm(`⚠️ ATENÇÃO EXTREMA: Deseja realmente apagar TODOS os ${leads.length} contatos de TODAS as etapas do seu Kanban?\n\nEsta ação limpará o quadro por completo.`)) return;
+            salvarLeadsCrm([]);
+            crmLeadsSelecionados.clear();
+            crmFiltroGrupoSelecionado = '';
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            alert("O Kanban foi limpo com sucesso!");
+        }
+        window.limparTodoKanbanCrm = limparTodoKanbanCrm;
 
         function excluirLeadCrm(leadId) {
             if (!confirm("Tem certeza que deseja excluir este lead do Kanban?")) return;
