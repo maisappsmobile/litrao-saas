@@ -347,6 +347,13 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
 // Ouvinte de Mensagens do Popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'disparar_mensagem_para_telefone') {
+    dispararMensagemParaNumero(request.telefone, request.texto)
+      .then(resultado => sendResponse({ sucesso: true, resultado }))
+      .catch(err => sendResponse({ sucesso: false, erro: err.message }));
+    return true;
+  }
+
   if (request.action === 'abrir_drawer_lateral') {
     alternarSidebarLateral(true);
     sendResponse({ sucesso: true });
@@ -804,3 +811,67 @@ setInterval(() => {
     injetarSidebarLateral();
   } catch (_) {}
 }, 2000);
+
+
+// ==========================================
+// MOTOR DE ENVIO INDIVIDUAL POR TELEFONE (DISPARADOR EM MASSA)
+// ==========================================
+async function abrirChatPorTelefone(telLimpo) {
+  // 1. Tenta encontrar a conversa se já estiver aberta na barra lateral
+  const itensConversa = document.querySelectorAll('#pane-side div[role="listitem"], #pane-side div[data-testid="cell-frame-container"]');
+  for (const item of itensConversa) {
+    const span = item.querySelector('span[title]');
+    if (span) {
+      const t = span.getAttribute('title') || '';
+      if (t.replace(/\D/g, '').endsWith(telLimpo.slice(-8))) {
+        item.click();
+        await new Promise(r => setTimeout(r, 1200));
+        return true;
+      }
+    }
+  }
+
+  // 2. Abre via link interno do WhatsApp Web
+  let a = document.getElementById('litrao-nav-anchor');
+  if (!a) {
+    a = document.createElement('a');
+    a.id = 'litrao-nav-anchor';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+  }
+  a.href = `https://web.whatsapp.com/send?phone=${telLimpo}`;
+  a.click();
+
+  // Aguarda o chat carregar (procura a caixa de mensagem por até 12 segundos)
+  for (let i = 0; i < 24; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    // Detecta se apareceu alerta de número inválido
+    const dialogInvalido = document.querySelector('div[data-testid="popup-contents"], div[role="dialog"]');
+    if (dialogInvalido && (dialogInvalido.innerText.includes('inválido') || dialogInvalido.innerText.includes('invalid') || dialogInvalido.innerText.includes('não está no WhatsApp'))) {
+      const btnOk = dialogInvalido.querySelector('button');
+      if (btnOk) btnOk.click();
+      throw new Error('O número não está cadastrado no WhatsApp.');
+    }
+    const inputBox = encontrarInputBoxWhatsApp();
+    if (inputBox) {
+      await new Promise(r => setTimeout(r, 600));
+      return true;
+    }
+  }
+  throw new Error('Tempo limite esgotado ao abrir conversa com +' + telLimpo);
+}
+
+async function dispararMensagemParaNumero(telefone, texto) {
+  const telLimpo = normalizarTelefone(telefone);
+  if (!telLimpo || telLimpo.length < 8) {
+    throw new Error('Número de telefone inválido: ' + telefone);
+  }
+
+  mostrarToastWhatsApp(`📤 <b>Iniciando envio para:</b> +${telLimpo}`, 'info', 2500);
+
+  await abrirChatPorTelefone(telLimpo);
+  await enviarMensagemNoChat(texto);
+
+  mostrarToastWhatsApp(`✅ <b>Mensagem entregue para:</b> +${telLimpo}!`, 'success', 3000);
+  return { sucesso: true, telefone: telLimpo };
+}

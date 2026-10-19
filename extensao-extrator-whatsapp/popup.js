@@ -36,6 +36,9 @@ let contatosExtraidos = [];
 let nomeGrupoAtual = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (window.self !== window.top) {
+    document.body.classList.add('in-iframe');
+  }
   // Controle de Abas
   const navTabs = document.querySelectorAll('.nav-tab');
   navTabs.forEach(tab => {
@@ -661,3 +664,348 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
 });
+
+
+  // ==========================================
+  // MOTOR DE SPINTAX E DISPARADOR EM MASSA (ANTI-BLOQUEIO)
+  // ==========================================
+  const VARIACOES_PADRAO = [
+    {
+      id: 'var_1',
+      texto: '{saudacao} {nome}, {tudo bem?|como vai?|passando rapidinho!} Vi seu contato no grupo e gostaria de te apresentar o método do Litrão do Reset para desinchar, queimar retenção e ter mais disposição. Quer que eu te mande os detalhes? Ref: #{aleatorio}'
+    },
+    {
+      id: 'var_2',
+      texto: '{Oi|Olá|Oie} {nome}! {Tudo certinho por aí?|Como você está?} Chegou uma receita nova e super refrescante do Litrão do Reset essa semana no nosso Espaço. Gostaria de uma dose gratuita de degustação? Ref: #{aleatorio}'
+    },
+    {
+      id: 'var_3',
+      texto: '{saudacao}! {Passando para te desejar uma ótima semana|Lembrei de você hoje}! Como andam suas metas de hidratação e energia? Nosso mix de 1 Litro tem feito muito sucesso por aqui! Ref: #{aleatorio}'
+    }
+  ];
+
+  let textareaFocada = null;
+  let disparoEmAndamento = false;
+  let cancelarDisparoAtual = false;
+
+  function obterVariacoesSalvas() {
+    try {
+      const raw = localStorage.getItem('litrao_disparador_variacoes');
+      return raw ? JSON.parse(raw) : VARIACOES_PADRAO;
+    } catch (_) {
+      return VARIACOES_PADRAO;
+    }
+  }
+
+  function salvarVariacoes(vars) {
+    localStorage.setItem('litrao_disparador_variacoes', JSON.stringify(vars));
+    renderizarVariacoes();
+  }
+
+  function renderizarVariacoes() {
+    const container = document.getElementById('container-variacoes-disparo');
+    if (!container) return;
+    const lista = obterVariacoesSalvas();
+    container.innerHTML = '';
+
+    lista.forEach((item, idx) => {
+      const box = document.createElement('div');
+      box.style.cssText = 'background: #0E1626; border: 1px solid #1E293B; border-radius: 8px; padding: 8px;';
+
+      box.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <span style="font-size: 10px; font-weight: bold; color: #10B981;">Mensagem ${idx + 1} (${String.fromCharCode(65 + idx)}):</span>
+          ${lista.length > 1 ? `<button type="button" class="btn btn-dark btn-small" data-del-var="${idx}" style="padding: 2px 6px; font-size: 10px;">🗑️ Remover</button>` : ''}
+        </div>
+        <textarea rows="3" class="input-variacao-msg" data-idx="${idx}" style="margin-bottom: 0; font-size: 11px;">${item.texto}</textarea>
+      `;
+
+      const txtArea = box.querySelector('textarea');
+      txtArea.addEventListener('focus', () => { textareaFocada = txtArea; });
+      txtArea.addEventListener('input', () => {
+        lista[idx].texto = txtArea.value;
+        localStorage.setItem('litrao_disparador_variacoes', JSON.stringify(lista));
+      });
+
+      if (lista.length > 1) {
+        box.querySelector('[data-del-var]').addEventListener('click', () => {
+          lista.splice(idx, 1);
+          salvarVariacoes(lista);
+        });
+      }
+
+      container.appendChild(box);
+    });
+
+    // Define foco na primeira por padrão
+    const primeiro = container.querySelector('textarea');
+    if (primeiro) textareaFocada = primeiro;
+  }
+
+  renderizarVariacoes();
+
+  // Adicionar Nova Variação
+  const btnAddVar = document.getElementById('btn-add-variacao');
+  if (btnAddVar) {
+    btnAddVar.addEventListener('click', () => {
+      const lista = obterVariacoesSalvas();
+      lista.push({
+        id: 'var_' + Date.now(),
+        texto: '{saudacao} {nome}, {tudo bem?|como vai?|tudo certinho?} Passando para compartilhar novidades do Litrão do Reset! Ref: #{aleatorio}'
+      });
+      salvarVariacoes(lista);
+    });
+  }
+
+  // Inserir Tags no Campo Ativo
+  document.querySelectorAll('.btn-inserir-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag;
+      if (!textareaFocada) {
+        const primeiro = document.querySelector('.input-variacao-msg');
+        if (primeiro) textareaFocada = primeiro;
+      }
+      if (textareaFocada) {
+        const start = textareaFocada.selectionStart || textareaFocada.value.length;
+        const end = textareaFocada.selectionEnd || textareaFocada.value.length;
+        const val = textareaFocada.value;
+        textareaFocada.value = val.substring(0, start) + ' ' + tag + ' ' + val.substring(end);
+        textareaFocada.dispatchEvent(new Event('input'));
+        textareaFocada.focus();
+      }
+    });
+  });
+
+  // Funções de Resolução de Spintax e Tags Inteligentes
+  function resolverSpintax(texto) {
+    if (!texto) return '';
+    const regex = /\{([^{}]+)\}/g;
+    let anterior = '';
+    let atual = texto;
+    while (atual !== anterior) {
+      anterior = atual;
+      atual = atual.replace(regex, (match, opcoesStr) => {
+        if (!opcoesStr.includes('|')) return match;
+        const opcoes = opcoesStr.split('|');
+        return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
+      });
+    }
+    return atual;
+  }
+
+  function resolverTagsInteligentes(texto, contato = {}) {
+    if (!texto) return '';
+    let res = texto;
+
+    // 1. Saudação por Turno
+    const hora = new Date().getHours();
+    let listaSaudacoes = [];
+    if (hora >= 5 && hora < 12) {
+      listaSaudacoes = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
+    } else if (hora >= 12 && hora < 18) {
+      listaSaudacoes = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
+    } else {
+      listaSaudacoes = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
+    }
+    const saudacao = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
+    res = res.replace(/\{saudacao\}/gi, saudacao);
+
+    // 2. Nome
+    let pNome = '';
+    if (contato.nome && !contato.nome.match(/^\+?\d/)) {
+      pNome = contato.nome.trim().split(' ')[0] || '';
+    }
+    if (pNome && pNome.length >= 2) {
+      res = res.replace(/\{nome\}/gi, pNome);
+      res = res.replace(/\{primeiro_nome\}/gi, pNome);
+    } else {
+      res = res.replace(/\{nome\}/gi, '');
+      res = res.replace(/\{primeiro_nome\}/gi, '');
+    }
+
+    // 3. Hash e Código Aleatório Anti-Bloqueio
+    const hash = Math.floor(1000 + Math.random() * 9000);
+    res = res.replace(/\{aleatorio\}/gi, String(hash));
+    res = res.replace(/\{protocolo\}/gi, '#' + hash);
+
+    return res.replace(/\s{2,}/g, ' ').trim();
+  }
+
+  function gerarMensagemFinal(textoTemplate, contato = {}) {
+    let t = resolverTagsInteligentes(textoTemplate, contato);
+    t = resolverSpintax(t);
+    return t;
+  }
+
+  // Testador ao Vivo
+  const btnTestarLive = document.getElementById('btn-testar-spintax-live');
+  const boxPreviewSpintax = document.getElementById('preview-spintax-box');
+
+  if (btnTestarLive && boxPreviewSpintax) {
+    btnTestarLive.addEventListener('click', () => {
+      const lista = obterVariacoesSalvas();
+      if (lista.length === 0) return;
+      const escolhida = lista[Math.floor(Math.random() * lista.length)].texto;
+      const nomesExemplo = ['Mariana', 'Carlos', 'Lucia', 'Jorge', 'Patricia'];
+      const nomeSorteado = nomesExemplo[Math.floor(Math.random() * nomesExemplo.length)];
+      const msgGerada = gerarMensagemFinal(escolhida, { nome: nomeSorteado });
+      boxPreviewSpintax.innerHTML = `💬 <b>Resultado:</b> "${msgGerada}"`;
+    });
+  }
+
+  // Puxar Telefones Extraídos
+  const btnPuxarExtrator = document.getElementById('btn-puxar-extrator-para-disparo');
+  const textareaTelefones = document.getElementById('disparo-massa-telefones');
+
+  if (btnPuxarExtrator && textareaTelefones) {
+    btnPuxarExtrator.addEventListener('click', () => {
+      if (!contatosExtraidos || contatosExtraidos.length === 0) {
+        alert("Nenhum contato extraído recentemente. Vá na aba 'Extrator' e extraia um grupo primeiro!");
+        return;
+      }
+      const tels = contatosExtraidos
+        .map(c => c.telefone)
+        .filter(t => t && t.length >= 8);
+
+      if (tels.length === 0) {
+        alert("Nenhum telefone válido encontrado na extração.");
+        return;
+      }
+      textareaTelefones.value = tels.join('\n');
+      alert(`Sucesso! ${tels.length} telefones importados do Extrator para a lista de disparo!`);
+    });
+  }
+
+  // Iniciar Disparo em Massa
+  const btnIniciarDisparo = document.getElementById('btn-iniciar-disparo');
+  const btnPararDisparo = document.getElementById('btn-parar-disparo');
+  const boxProgressoDisparo = document.getElementById('box-progresso-disparo');
+  const txtProgressoDisparo = document.getElementById('txt-progresso-disparo');
+  const txtContagemDisparo = document.getElementById('txt-contagem-disparo');
+  const fillProgressoDisparo = document.getElementById('fill-progresso-disparo');
+  const txtDelayRegressivo = document.getElementById('txt-delay-regressivo');
+  const selectModoAlternancia = document.getElementById('disparo-modo-alternancia');
+  const inputDelayMin = document.getElementById('disparo-delay-min');
+  const inputDelayMax = document.getElementById('disparo-delay-max');
+
+  if (btnPararDisparo) {
+    btnPararDisparo.addEventListener('click', () => {
+      cancelarDisparoAtual = true;
+      btnPararDisparo.innerText = '⏳ Parando...';
+    });
+  }
+
+  if (btnIniciarDisparo) {
+    btnIniciarDisparo.addEventListener('click', async () => {
+      if (disparoEmAndamento) return;
+
+      const rawTels = textareaTelefones ? textareaTelefones.value.trim() : '';
+      if (!rawTels) {
+        alert("Preencha a lista de telefones (um por linha).");
+        return;
+      }
+
+      const linhasTelefones = rawTels.split('\n').map(l => l.trim()).filter(Boolean);
+      if (linhasTelefones.length === 0) {
+        alert("Nenhum telefone válido encontrado.");
+        return;
+      }
+
+      const variacoes = obterVariacoesSalvas().filter(v => v.texto && v.texto.trim().length > 0);
+      if (variacoes.length === 0) {
+        alert("Adicione pelo menos uma mensagem nas variações.");
+        return;
+      }
+
+      if (!isZap || !tab) {
+        alert("Abra o WhatsApp Web (web.whatsapp.com) para iniciar o disparo.");
+        return;
+      }
+
+      const delayMin = Math.max(5, parseInt(inputDelayMin.value) || 15);
+      const delayMax = Math.max(delayMin, parseInt(inputDelayMax.value) || 35);
+      const modo = selectModoAlternancia ? selectModoAlternancia.value : 'aleatorio';
+
+      disparoEmAndamento = true;
+      cancelarDisparoAtual = false;
+
+      btnIniciarDisparo.disabled = true;
+      btnIniciarDisparo.innerText = '⏳ Disparador Ativo...';
+      if (boxProgressoDisparo) boxProgressoDisparo.style.display = 'block';
+
+      let enviadosSucesso = 0;
+      let errosCount = 0;
+
+      for (let i = 0; i < linhasTelefones.length; i++) {
+        if (cancelarDisparoAtual) {
+          alert(`Disparo interrompido pelo usuário. Total enviado: ${enviadosSucesso}/${linhasTelefones.length}.`);
+          break;
+        }
+
+        const telLinha = linhasTelefones[i];
+        const pct = Math.round(((i) / linhasTelefones.length) * 100);
+        if (fillProgressoDisparo) fillProgressoDisparo.style.width = pct + '%';
+        if (txtContagemDisparo) txtContagemDisparo.innerText = `${i + 1} de ${linhasTelefones.length}`;
+        if (txtProgressoDisparo) txtProgressoDisparo.innerText = `Enviando para ${telLinha}...`;
+
+        // 1. Escolhe a mensagem (aleatória ou em ordem)
+        let templateEscolhido = '';
+        if (modo === 'ordem') {
+          templateEscolhido = variacoes[i % variacoes.length].texto;
+        } else {
+          templateEscolhido = variacoes[Math.floor(Math.random() * variacoes.length)].texto;
+        }
+
+        // 2. Busca nome se existir nos contatos extraídos
+        let nomeContato = '';
+        const achado = contatosExtraidos.find(c => c.telefone && c.telefone.includes(telLinha.replace(/\D/g, '').slice(-8)));
+        if (achado && achado.nome) nomeContato = achado.nome;
+
+        // 3. Resolve Spintax e Tags Inteligentes
+        const msgFinal = gerarMensagemFinal(templateEscolhido, { nome: nomeContato, telefone: telLinha });
+
+        // 4. Envia para o WhatsApp Web
+        try {
+          await garantirContentScript(tab.id);
+          const res = await new Promise(resolve => {
+            chrome.tabs.sendMessage(tab.id, {
+              action: 'disparar_mensagem_para_telefone',
+              telefone: telLinha,
+              texto: msgFinal
+            }, (r) => {
+              if (chrome.runtime.lastError || !r) resolve({ sucesso: false, erro: 'Erro de comunicação com o WhatsApp.' });
+              else resolve(r);
+            });
+          });
+
+          if (res && res.sucesso) {
+            enviadosSucesso++;
+          } else {
+            errosCount++;
+          }
+        } catch (err) {
+          errosCount++;
+        }
+
+        // 5. Delay humanizado se não for o último contato
+        if (i < linhasTelefones.length - 1 && !cancelarDisparoAtual) {
+          const delaySegundos = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
+          for (let s = delaySegundos; s > 0; s--) {
+            if (cancelarDisparoAtual) break;
+            if (txtDelayRegressivo) txtDelayRegressivo.innerText = `⏳ Aguardando ${s}s antes do próximo envio (anti-bloqueio humanizado)...`;
+            await new Promise(r => setTimeout(r, 1000));
+          }
+        }
+      }
+
+      disparoEmAndamento = false;
+      btnIniciarDisparo.disabled = false;
+      btnIniciarDisparo.innerText = '🚀 Iniciar Disparo em Massa com Rotação';
+      if (btnPararDisparo) btnPararDisparo.innerText = '🛑 Parar Disparo';
+      if (boxProgressoDisparo) boxProgressoDisparo.style.display = 'none';
+
+      if (!cancelarDisparoAtual) {
+        alert(`🎉 Disparo em massa finalizado com sucesso!\n\nEnviados: ${enviadosSucesso}\nErros / Não WhatsApp: ${errosCount}`);
+      }
+    });
+  }

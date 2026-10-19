@@ -41,6 +41,9 @@
       color: #FFFFFF;
       border-color: #38BDF8;
     }
+    /* OCULTA HEADER DUPLICADO QUANDO DENTRO DA LATERAL ACOPLADA */
+    body.in-iframe .header { display: none !important; }
+    body.in-iframe .tab-content { max-height: calc(100vh - 55px) !important; }
     /* HEADER */
     .header {
       background: #0D1424;
@@ -456,32 +459,96 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ABA 5: DISPARADOR EM MASSA HUMANIZADO -->
+    <!-- ABA 5: DISPARADOR EM MASSA ANTI-BLOQUEIO (SPINTAX & ROTAÇÃO) -->
     <!-- ========================================== -->
     <div id="tab-disparador" class="tab-pane">
       <div class="card">
-        <div class="card-title">Envio em Massa Humanizado</div>
-        <p class="card-desc">Dispare para listas de contatos com intervalos anti-bloqueio aleatórios.</p>
+        <div class="card-title">
+          <span>Envio em Massa Anti-Bloqueio</span>
+          <span class="tag tag-green">Spintax & Rotação</span>
+        </div>
+        <p class="card-desc">
+          Alterne mensagens automaticamente e use variações <code>{oi|olá|oie}</code> para que nenhuma mensagem enviada seja igual à outra.
+        </p>
 
-        <label>Mensagem a Disparar:</label>
-        <textarea id="disparo-massa-texto" rows="3" placeholder="Olá {nome}, tudo bem?..."></textarea>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div>
-            <label>Delay Mínimo (seg):</label>
-            <input type="number" id="disparo-delay-min" value="15" min="5">
-          </div>
-          <div>
-            <label>Delay Máximo (seg):</label>
-            <input type="number" id="disparo-delay-max" value="35" min="10">
+        <!-- Botões de Inserção Rápida de Tags Anti-Bloqueio -->
+        <div style="margin-bottom: 8px;">
+          <label style="margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+            <span>Atalhos de Variações:</span>
+            <span style="font-size: 9px; color: #38BDF8; font-weight: normal;">Clique para inserir no texto</span>
+          </label>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-dark btn-small btn-inserir-tag" data-tag="{saudacao}" title="Detecta a hora (Bom dia / Boa tarde / Boa noite) com variações">+ {saudacao}</button>
+            <button type="button" class="btn btn-dark btn-small btn-inserir-tag" data-tag="{nome}" title="Primeiro nome do cliente">+ {nome}</button>
+            <button type="button" class="btn btn-dark btn-small btn-inserir-tag" data-tag="{Oi|Olá|Oie|E aí}" title="Variação informal de cumprimento">+ {Oi|Olá|Oie}</button>
+            <button type="button" class="btn btn-dark btn-small btn-inserir-tag" data-tag="{tudo bem?|como vai?|como você está?}" title="Variação de pergunta">+ {tudo bem?|como vai?}</button>
+            <button type="button" class="btn btn-dark btn-small btn-inserir-tag" data-tag="Ref: #{aleatorio}" title="Código único para assinatura digital diferente">+ {Ref #}</button>
           </div>
         </div>
 
-        <label>Lista de Telefones (um por linha):</label>
+        <!-- Múltiplas Mensagens (Alternância / Rotação Automática) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <label style="margin-bottom: 0;">Variações de Mensagem a Disparar:</label>
+          <button type="button" id="btn-add-variacao" class="btn btn-dark btn-small" style="font-size: 10px; padding: 2px 8px;">➕ Nova Variação</button>
+        </div>
+
+        <div id="container-variacoes-disparo" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+          <!-- Injetado dinamicamente via JS -->
+        </div>
+
+        <!-- Testador de Spintax ao Vivo -->
+        <div style="background: #080D1A; border: 1px solid #1E293B; border-radius: 8px; padding: 8px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 10px; font-weight: bold; color: #38BDF8;">🎲 Testar Variação (Como o cliente recebe):</span>
+            <button type="button" id="btn-testar-spintax-live" class="btn btn-dark btn-small" style="padding: 2px 6px; font-size: 10px;">Sortear Agora</button>
+          </div>
+          <div id="preview-spintax-box" style="font-size: 11px; color: #E2E8F0; font-style: italic; background: #0F172A; padding: 6px 8px; border-radius: 6px; min-height: 38px; line-height: 1.4; border-left: 3px solid #38BDF8;">
+            Clique em "Sortear Agora" para testar como o Spintax altera o texto automaticamente.
+          </div>
+        </div>
+
+        <!-- Configurações de Delays e Modo de Alternância -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label>Delay Mínimo (seg):</label>
+            <input type="number" id="disparo-delay-min" value="15" min="5" style="margin-bottom: 0;">
+          </div>
+          <div>
+            <label>Delay Máximo (seg):</label>
+            <input type="number" id="disparo-delay-max" value="35" min="10" style="margin-bottom: 0;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label>Modo de Alternância das Mensagens:</label>
+          <select id="disparo-modo-alternancia" style="margin-bottom: 0;">
+            <option value="aleatorio">🎲 Sortear Aleatoriamente entre as Variações</option>
+            <option value="ordem">🔄 Alternar em Ordem (Msg 1 ➔ Msg 2 ➔ Msg 3...)</option>
+          </select>
+        </div>
+
+        <!-- Lista de Telefones -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <label style="margin-bottom: 0;">Lista de Telefones (um por linha):</label>
+          <button type="button" id="btn-puxar-extrator-para-disparo" class="btn btn-dark btn-small" style="font-size: 10px; padding: 2px 6px;" title="Importa os telefones extraídos do grupo">📥 Puxar do Extrator</button>
+        </div>
         <textarea id="disparo-massa-telefones" rows="3" placeholder="+55 66 98110-7573&#10;+55 65 9943-3220"></textarea>
 
+        <!-- Barra de Progresso do Disparo Ativo -->
+        <div id="box-progresso-disparo" style="display: none; background: #080D1A; border: 1px solid #10B981; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;">
+            <span id="txt-progresso-disparo" style="color: #10B981;">Disparando mensagens...</span>
+            <span id="txt-contagem-disparo" style="color: #38BDF8;">0 / 0</span>
+          </div>
+          <div style="height: 6px; background: #1E293B; border-radius: 3px; overflow: hidden; margin-bottom: 6px;">
+            <div id="fill-progresso-disparo" style="height: 100%; width: 0%; background: #10B981; transition: width 0.3s;"></div>
+          </div>
+          <div id="txt-delay-regressivo" style="font-size: 10px; color: #94A3B8; text-align: center; margin-bottom: 6px;"></div>
+          <button type="button" id="btn-parar-disparo" class="btn btn-small" style="background: #EF4444; color: white; width: 100%;">🛑 Parar Disparo</button>
+        </div>
+
         <button id="btn-iniciar-disparo" class="btn btn-green">
-          🚀 Iniciar Disparo em Massa
+          🚀 Iniciar Disparo em Massa com Rotação
         </button>
       </div>
     </div>
@@ -527,7 +594,7 @@
   <!-- FOOTER -->
   <div class="footer">
     <span>Litrão do Reset • WhatsApp Suite</span>
-    <span id="badge-versao" style="font-weight: bold; color: #10B981;">v2.1.0</span>
+    <span id="badge-versao" style="font-weight: bold; color: #10B981;">v2.3.0</span>
   </div>
 
   <script src="popup.js"></script>
