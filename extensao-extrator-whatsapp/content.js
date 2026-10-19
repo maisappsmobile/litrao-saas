@@ -27,31 +27,74 @@ function obterHeaderConversaAtiva() {
          document.querySelector('header');
 }
 
-// Extrai informações do cabeçalho da conversa aberta
+// Extrai informações do cabeçalho da conversa aberta (Título real e Subtítulo)
 function obterInfoGrupoAtual() {
   const header = obterHeaderConversaAtiva();
   if (!header) return null;
 
   let nomeGrupo = '';
-  const tituloEl = header.querySelector('div[role="button"] span[title]') || 
-                   header.querySelector('span[dir="auto"]') || 
-                   header.querySelector('div[dir="auto"]') ||
-                   header.querySelector('h2');
-  if (tituloEl) {
-    nomeGrupo = tituloEl.getAttribute('title') || tituloEl.innerText || '';
+  let subtitulo = '';
+
+  const infoBtn = header.querySelector('div[role="button"]') || header;
+
+  // Varre todos os elementos com texto dentro da área de informações do cabeçalho
+  const elementosTexto = Array.from(infoBtn.querySelectorAll('span[dir="auto"], span, div[dir="auto"], h2'))
+    .map(el => ({
+      texto: (el.innerText || '').trim(),
+      titulo: (el.getAttribute('title') || '').trim()
+    }))
+    .filter(item => item.texto.length > 0 || item.titulo.length > 0);
+
+  // 1. Identifica o subtítulo: contém vírgula com números de telefone ou termos de status
+  for (const item of elementosTexto) {
+    const val = item.titulo || item.texto;
+    if (val.includes(',') || val.includes('+55') || (/\d{4}/.test(val) && val.includes('-'))) {
+      subtitulo = val;
+      break;
+    }
   }
 
-  let subtitulo = '';
-  const subEl = header.querySelector('span[title*=","]') || 
-                header.querySelector('span[class*="matched-text"]') ||
-                header.querySelector('div[class*="copyable-text"]') ||
-                header.querySelector('span[title]');
-  if (subEl) {
-    subtitulo = subEl.getAttribute('title') || subEl.innerText || '';
+  // 2. Identifica o nome do grupo: NÃO pode ser a lista de contatos/subtítulo
+  for (const item of elementosTexto) {
+    const val = item.texto || item.titulo;
+    if (val && val !== subtitulo && !val.includes(',') && !val.startsWith('+') && val.length >= 2) {
+      nomeGrupo = val;
+      break;
+    }
+  }
+
+  // Se o nome não foi encontrado sem vírgula, busca o primeiro span[dir="auto"] que não seja o subtítulo
+  if (!nomeGrupo) {
+    const dirSpans = infoBtn.querySelectorAll('span[dir="auto"]');
+    for (const s of dirSpans) {
+      const t = (s.innerText || s.getAttribute('title') || '').trim();
+      if (t && t !== subtitulo) {
+        nomeGrupo = t;
+        break;
+      }
+    }
+  }
+
+  // Fallback de segurança: se nomeGrupo ainda contiver vírgula com telefone, procura no drawer lateral ou na lista de chats
+  if (nomeGrupo && (nomeGrupo.includes(',') || /\+\d{2}/.test(nomeGrupo))) {
+    if (!subtitulo) subtitulo = nomeGrupo;
+    const drawerTitulo = document.querySelector('div[data-testid="chat-info-drawer"] span[title]') ||
+                         document.querySelector('div[data-testid="chat-info-drawer"] span[dir="auto"]');
+    if (drawerTitulo) {
+      nomeGrupo = (drawerTitulo.getAttribute('title') || drawerTitulo.innerText || '').trim();
+    } else {
+      // Pega a primeira linha de texto puro do botão de cabeçalho
+      const primeiraLinha = (infoBtn.innerText || '').split('\n')[0].trim();
+      if (primeiraLinha && !primeiraLinha.includes(',')) {
+        nomeGrupo = primeiraLinha;
+      } else {
+        nomeGrupo = 'Grupo WhatsApp';
+      }
+    }
   }
 
   return {
-    nomeGrupo: nomeGrupo.trim(),
+    nomeGrupo: (nomeGrupo && nomeGrupo !== subtitulo) ? nomeGrupo.trim() : 'Grupo WhatsApp',
     subtitulo: subtitulo.trim()
   };
 }

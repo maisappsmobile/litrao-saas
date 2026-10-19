@@ -21024,12 +21024,22 @@
                 // Atualizar existente
                 const lead = leads.find(l => l.id === id);
                 if (lead) {
+                    const grupoAntigo = lead.grupo;
                     lead.nome = nome;
                     lead.telefone = telefone;
                     lead.grupo = grupo;
                     lead.coluna = coluna;
                     lead.notas = notas;
                     lead.dataAtualizado = new Date().toISOString();
+
+                    // Se alterou o nome do grupo e o grupo antigo era o subtítulo ou o mesmo lote, atualiza todos os leads desse grupo
+                    if (grupoAntigo && grupoAntigo !== grupo) {
+                        leads.forEach(l => {
+                            if (l.grupo === grupoAntigo) {
+                                l.grupo = grupo;
+                            }
+                        });
+                    }
                 }
             } else {
                 // Criar novo
