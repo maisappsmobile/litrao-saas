@@ -34,8 +34,12 @@
             <h1 class="text-2xl font-extrabold italic tracking-tighter">RESET<span class="text-brand-yellow text-sm block not-italic font-bold tracking-widest mt-0">SAAS ADMIN</span></h1>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="#" class="flex items-center px-4 py-3 bg-brand-green/50 text-brand-yellow rounded-lg font-semibold transition">
+            <a href="javascript:void(0)" onclick="trocarAbaAdmin('supervisores')" id="tab-btn-supervisores" class="flex items-center px-4 py-3 bg-brand-green/50 text-brand-yellow rounded-lg font-semibold transition cursor-pointer">
                 <i class="fa-solid fa-users mr-3"></i> Supervisores
+            </a>
+            <a href="javascript:void(0)" onclick="trocarAbaAdmin('extrator-crm')" id="tab-btn-extrator-crm" class="flex items-center px-4 py-3 hover:bg-white/10 text-white rounded-lg font-semibold transition cursor-pointer">
+                <i class="fa-brands fa-whatsapp mr-3 text-emerald-400 text-lg"></i> Extrator & CRM WhatsApp
+                <span class="ml-auto text-[9px] font-black uppercase bg-purple-600 text-white px-2 py-0.5 rounded-full">VIP</span>
             </a>
         </nav>
     </aside>
@@ -44,10 +48,14 @@
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
         
         <header class="h-20 bg-white shadow-sm flex items-center justify-between px-8 z-10">
-            <div class="flex items-center text-xl font-bold text-gray-800">
+            <div id="header-titulo" class="flex items-center text-xl font-bold text-gray-800">
                 <i class="fa-solid fa-users text-brand-light mr-3"></i> Gestão de Assinaturas
             </div>
             <div class="flex items-center gap-3">
+                <button type="button" onclick="trocarAbaAdmin('extrator-crm')" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs px-3.5 py-2.5 rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer transition">
+                    <i class="fa-brands fa-whatsapp text-amber-300"></i>
+                    <span>EXTRATOR WHATSAPP</span>
+                </button>
                 <button type="button" onclick="abrirModalConfigPlanosAdmin()" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition">
                     <i class="fa-solid fa-sliders text-amber-300"></i>
                     <span>EDITAR PLANOS & FITCOIN</span>
@@ -66,44 +74,161 @@
 
         <main class="flex-1 overflow-y-auto p-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Ativos</p>
-                        <h3 id="total-ativos" class="text-3xl font-black text-brand-dark">0</h3>
+            <!-- SEÇÃO 1: SUPERVISORES GERAIS (PADRÃO) -->
+            <div id="secao-supervisores">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Ativos</p>
+                            <h3 id="total-ativos" class="text-3xl font-black text-brand-dark">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-green-50 text-brand-light rounded-full flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
                     </div>
-                    <div class="w-14 h-14 bg-green-50 text-brand-light rounded-full flex items-center justify-center text-2xl">
-                        <i class="fa-solid fa-check-circle"></i>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:border-purple-300 transition" onclick="trocarAbaAdmin('extrator-crm')">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Extrator & CRM Liberados</p>
+                            <h3 id="total-crm-liberados-card" class="text-3xl font-black text-purple-700">0</h3>
+                        </div>
+                        <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela e Controles Supervisores -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="relative w-full md:w-96">
+                            <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                            <input type="text" id="filtro-busca-supervisores" oninput="filtrarSupervisores(this.value)" placeholder="Buscar supervisor por nome ou ID..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light transition">
+                        </div>
+                        <button onclick="abrirModal()" class="w-full md:w-auto bg-brand-light hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center cursor-pointer">
+                            <i class="fa-solid fa-plus mr-2"></i> Novo Supervisor
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
+                                    <th class="p-4 font-semibold">Consultor / Espaço</th>
+                                    <th class="p-4 font-semibold">Link Personalizado</th>
+                                    <th class="p-4 font-semibold">WhatsApp</th>
+                                    <th class="p-4 font-semibold text-center">Status / Vencimento</th>
+                                    <th class="p-4 font-semibold text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-corpo" class="text-gray-700">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabela e Controles -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="relative w-full md:w-96">
-                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="text" placeholder="Buscar supervisor..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light transition">
+            <!-- SEÇÃO 2: GESTÃO DO EXTRATOR WHATSAPP & CRM KANBAN -->
+            <div id="secao-extrator-crm" class="hidden space-y-6">
+                <!-- BANNER DE DESTAQUE COM DOWNLOAD DA EXTENSÃO -->
+                <div class="bg-gradient-to-r from-gray-900 via-indigo-950 to-purple-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-indigo-800/50 relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div class="max-w-2xl">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-emerald-500 text-gray-950 font-black text-[10px] uppercase px-3 py-1 rounded-full shadow-xs">
+                                    <i class="fa-brands fa-whatsapp mr-1"></i> Extensão Oficial Manifest V3
+                                </span>
+                                <span class="bg-purple-600 text-white font-black text-[10px] uppercase px-3 py-1 rounded-full">
+                                    Silicon Valley Edition
+                                </span>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                                Extrator de Contatos WhatsApp & CRM Kanban
+                            </h2>
+                            <p class="text-sm text-gray-300 mt-2 leading-relaxed font-medium">
+                                Esta tecnologia exclusiva permite aos seus consultores extrair em massa contatos de qualquer grupo do WhatsApp Web e sincronizar com o <strong>CRM Kanban de Vendas</strong> com funil completo e mensagens validadas de 1 clique.
+                            </p>
+                            <p class="text-xs text-amber-300 mt-2 font-bold">
+                                🔒 <strong>Controle Total do SuperAdmin:</strong> Somente os consultores que você liberar manualmente abaixo terão acesso a esta funcionalidade no painel.
+                            </p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row lg:flex-col gap-3">
+                            <a href="extensao-extrator-whatsapp.zip" download="extensao-extrator-whatsapp.zip" class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-gray-950 font-black py-3.5 px-6 rounded-2xl transition shadow-lg flex items-center justify-center gap-2 text-sm cursor-pointer transform hover:scale-102">
+                                <i class="fa-solid fa-download text-base"></i>
+                                <span>BAIXAR EXTENSÃO (.ZIP)</span>
+                            </a>
+                            <button type="button" onclick="abrirModalInstrucoesExtensao()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-5 rounded-2xl transition text-xs flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-circle-question text-amber-300"></i>
+                                <span>Como Instalar no Chrome/Edge</span>
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="abrirModal()" class="w-full md:w-auto bg-brand-light hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center">
-                        <i class="fa-solid fa-plus mr-2"></i> Novo Supervisor
-                    </button>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                                <th class="p-4 font-semibold">Consultor / Espaço</th>
-                                <th class="p-4 font-semibold">Link Personalizado</th>
-                                <th class="p-4 font-semibold">WhatsApp</th>
-                                <th class="p-4 font-semibold text-center">Status / Vencimento</th>
-                                <th class="p-4 font-semibold text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-corpo" class="text-gray-700">
-                        </tbody>
-                    </table>
+
+                <!-- CARDS DE MÉTRICAS DO EXTRATOR -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase font-extrabold text-gray-400 block">Total Liberados</span>
+                            <h4 id="crm-stat-liberados" class="text-2xl font-black text-emerald-600 mt-0.5">0</h4>
+                            <span class="text-[11px] text-gray-500">Consultores com acesso ativo</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase font-extrabold text-gray-400 block">Total Bloqueados</span>
+                            <h4 id="crm-stat-bloqueados" class="text-2xl font-black text-gray-700 mt-0.5">0</h4>
+                            <span class="text-[11px] text-gray-500">Sem liberação manual</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 text-gray-500 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase font-extrabold text-gray-400 block">SuperAdmin</span>
+                            <h4 class="text-2xl font-black text-purple-700 mt-0.5">Edwan (ID 433005811)</h4>
+                            <span class="text-[11px] text-purple-600 font-bold">Acesso Permanente Irrestrito</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELA DEDICADA DE LIBERAÇÃO MANUAL DO EXTRATOR -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div>
+                            <h3 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-user-gear text-purple-600"></i>
+                                Liberação Manual de Consultores
+                            </h3>
+                            <p class="text-xs text-gray-500">Clique no botão para liberar ou bloquear o acesso do consultor instantaneamente.</p>
+                        </div>
+                        <div class="relative w-full sm:w-80">
+                            <i class="fa-solid fa-search absolute left-4 top-3 text-gray-400 text-xs"></i>
+                            <input type="text" id="filtro-busca-crm" oninput="filtrarTabelaCrm(this.value)" placeholder="Filtrar por nome ou ID..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 transition">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 uppercase tracking-wider font-bold">
+                                    <th class="p-4">Consultor / Espaço</th>
+                                    <th class="p-4">ID Herbalife</th>
+                                    <th class="p-4">WhatsApp</th>
+                                    <th class="p-4 text-center">Status da Ferramenta</th>
+                                    <th class="p-4 text-center">Ação do SuperAdmin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-crm-corpo" class="text-gray-700 divide-y divide-gray-100">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -146,12 +271,84 @@
                         </label>
                         <p class="text-[10px] text-blue-700 mt-1">Permite ao consultor acessar o painel de estatísticas, compartilhamento WhatsApp/E-mail e visitas.</p>
                     </div>
+                    <div class="mt-2 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <label class="flex items-center space-x-2 cursor-pointer select-none">
+                            <input type="checkbox" id="edit-crm-extrator-liberado" class="w-4 h-4 text-emerald-600 rounded">
+                            <span class="text-xs font-bold text-emerald-950"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> Extrator WhatsApp & CRM Kanban Liberado</span>
+                        </label>
+                        <p class="text-[10px] text-emerald-800 mt-1">Permite extrair contatos de grupos do WhatsApp Web e gerenciar leads no Kanban estilo Vale do Silício.</p>
+                    </div>
                 </div>
                 <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="fecharModalEditar()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Cancelar</button>
                     <button type="submit" class="px-5 py-3 bg-brand-light text-white font-bold rounded-xl hover:bg-green-600 transition shadow-md">Salvar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Instruções de Instalação da Extensão -->
+    <div id="modal-instrucoes-extensao" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <button type="button" onclick="fecharModalInstrucoesExtensao()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shadow-sm">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div>
+                    <span class="bg-purple-100 text-purple-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-block">
+                        Guia Rápido SuperAdmin
+                    </span>
+                    <h3 class="text-xl font-black text-gray-900">Como Instalar e Usar a Extensão</h3>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-xs text-gray-700 leading-relaxed">
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <h4 class="font-bold text-gray-900 text-sm mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">1</span>
+                        Baixar e Descompactar
+                    </h4>
+                    <p>Baixe o arquivo <strong>extensao-extrator-whatsapp.zip</strong> e extraia em qualquer pasta (ex: Documentos ou Área de Trabalho).</p>
+                    <div class="mt-2.5">
+                        <a href="extensao-extrator-whatsapp.zip" download="extensao-extrator-whatsapp.zip" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white font-black px-4 py-2 rounded-xl text-xs hover:bg-emerald-700 shadow-sm">
+                            <i class="fa-solid fa-download"></i> Baixar Arquivo ZIP Agora
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <h4 class="font-bold text-gray-900 text-sm mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">2</span>
+                        Ativar no Navegador (Chrome / Edge / Brave)
+                    </h4>
+                    <p>Abra seu navegador e acesse a aba de extensões digitando na barra de endereço:</p>
+                    <div class="bg-gray-950 text-emerald-400 font-mono p-2.5 rounded-xl my-2 text-xs flex items-center justify-between">
+                        <span>chrome://extensions/ &nbsp;(ou edge://extensions/)</span>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                        <li>No canto superior direito, ative a chave <strong>Modo do desenvolvedor</strong>.</li>
+                        <li>Clique em <strong>Carregar sem compactação</strong> (ou <em>Load unpacked</em>).</li>
+                        <li>Selecione a pasta descompactada da extensão.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                    <h4 class="font-bold text-gray-900 text-sm mb-2 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs">3</span>
+                        Extrair no WhatsApp Web
+                    </h4>
+                    <p>Abra o <strong>WhatsApp Web</strong>, clique em qualquer grupo de seu interesse, abra a extensão no topo do navegador e clique em <strong>Extrair Contatos</strong>. Depois, envie diretamente para o seu CRM Kanban do Litrão!</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="fecharModalInstrucoesExtensao()" class="bg-gray-900 hover:bg-black text-white font-bold px-6 py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md">
+                    Entendido, Fechar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -343,6 +540,58 @@
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
         const tableBody = document.getElementById('tabela-corpo');
 
+        let todosConsultoresAdmin = [];
+        let abaAtivaAdmin = 'supervisores';
+
+        function trocarAbaAdmin(aba) {
+            abaAtivaAdmin = aba;
+            const secSup = document.getElementById('secao-supervisores');
+            const secCrm = document.getElementById('secao-extrator-crm');
+            const tabSup = document.getElementById('tab-btn-supervisores');
+            const tabCrm = document.getElementById('tab-btn-extrator-crm');
+            const tituloHeader = document.getElementById('header-titulo');
+
+            if (aba === 'extrator-crm') {
+                if (secSup) secSup.classList.add('hidden');
+                if (secCrm) secCrm.classList.remove('hidden');
+                if (tabSup) {
+                    tabSup.className = "flex items-center px-4 py-3 hover:bg-white/10 text-white rounded-lg font-semibold transition cursor-pointer";
+                }
+                if (tabCrm) {
+                    tabCrm.className = "flex items-center px-4 py-3 bg-brand-green/50 text-brand-yellow rounded-lg font-semibold transition cursor-pointer";
+                }
+                if (tituloHeader) {
+                    tituloHeader.innerHTML = '<i class="fa-brands fa-whatsapp text-emerald-500 mr-3 text-2xl"></i> Extrator de Contatos WhatsApp & CRM Kanban';
+                }
+                renderizarTabelaCrm(todosConsultoresAdmin);
+            } else {
+                if (secSup) secSup.classList.remove('hidden');
+                if (secCrm) secCrm.classList.add('hidden');
+                if (tabSup) {
+                    tabSup.className = "flex items-center px-4 py-3 bg-brand-green/50 text-brand-yellow rounded-lg font-semibold transition cursor-pointer";
+                }
+                if (tabCrm) {
+                    tabCrm.className = "flex items-center px-4 py-3 hover:bg-white/10 text-white rounded-lg font-semibold transition cursor-pointer";
+                }
+                if (tituloHeader) {
+                    tituloHeader.innerHTML = '<i class="fa-solid fa-users text-brand-light mr-3"></i> Gestão de Assinaturas';
+                }
+            }
+        }
+        window.trocarAbaAdmin = trocarAbaAdmin;
+
+        function abrirModalInstrucoesExtensao() {
+            const m = document.getElementById('modal-instrucoes-extensao');
+            if (m) m.classList.remove('hidden');
+        }
+        window.abrirModalInstrucoesExtensao = abrirModalInstrucoesExtensao;
+
+        function fecharModalInstrucoesExtensao() {
+            const m = document.getElementById('modal-instrucoes-extensao');
+            if (m) m.classList.add('hidden');
+        }
+        window.fecharModalInstrucoesExtensao = fecharModalInstrucoesExtensao;
+
         function formatarData(dataISO) {
             if(!dataISO) return 'Sem data';
             const partes = dataISO.split('-');
@@ -364,7 +613,13 @@
             
             if (error) return tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-red-500 font-bold">Erro ao conectar.</td></tr>';
             
+            todosConsultoresAdmin = data || [];
+            renderizarTabelasCompletas(todosConsultoresAdmin);
+        }
+
+        function renderizarTabelasCompletas(data) {
             let ativosCount = 0;
+            let crmLiberadosCount = 0;
             tableBody.innerHTML = '';
             
             if(data.length === 0) return tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8">Nenhum cadastrado.</td></tr>';
@@ -410,6 +665,9 @@
                 }
                 const isFinLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
                 const isCatLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
+                const isCrmLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+
+                if (isCrmLiberado) crmLiberadosCount++;
 
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
@@ -433,16 +691,19 @@
                             <div class="text-[11px] font-bold text-gray-500"><i class="fa-regular fa-calendar mr-1"></i> \${formatarData(item.vencimento)}</div>
                         </td>
                         <td class="p-4 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick="alternarFinanceiroAdmin('\${item.id}', \${!isFinLiberado})" class="\${isFinLiberado ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs" title="\${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}">
+                            <button onclick="alternarCrmExtratorAdmin('\${item.id}', \${!isCrmLiberado})" class="\${isCrmLiberado ? 'bg-purple-100 text-purple-900 border-purple-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs cursor-pointer" title="\${isCrmLiberado ? 'Clique para Bloquear o Extrator & CRM' : 'Clique para Liberar o Extrator & CRM'}">
+                                <i class="fa-brands fa-whatsapp \${isCrmLiberado ? 'text-emerald-600' : 'text-gray-400'} mr-1"></i> \${isCrmLiberado ? 'CRM: Liberado' : 'Liberar CRM'}
+                            </button>
+                            <button onclick="alternarFinanceiroAdmin('\${item.id}', \${!isFinLiberado})" class="\${isFinLiberado ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs cursor-pointer" title="\${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}">
                                 <i class="fa-solid fa-calculator \${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> \${isFinLiberado ? 'Financeiro: Liberado' : 'Liberar Financeiro'}
                             </button>
-                            <button onclick="alternarCatalogoAdmin('\${item.id}', \${!isCatLiberado})" class="\${isCatLiberado ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs" title="\${isCatLiberado ? 'Clique para Bloquear o Catálogo Interativo' : 'Clique para Liberar o Catálogo Interativo'}">
+                            <button onclick="alternarCatalogoAdmin('\${item.id}', \${!isCatLiberado})" class="\${isCatLiberado ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs cursor-pointer" title="\${isCatLiberado ? 'Clique para Bloquear o Catálogo Interativo' : 'Clique para Liberar o Catálogo Interativo'}">
                                 <i class="fa-solid fa-book-open-reader \${isCatLiberado ? 'text-blue-600' : 'text-gray-400'}"></i> \${isCatLiberado ? 'Catálogo: Liberado' : 'Liberar Catálogo'}
                             </button>
-                            <button onclick="abrirModalEditar('\${item.id}', '\${item.status || 'Ativo'}', '\${item.vencimento || ''}', \${isFinLiberado}, \${isCatLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm">
+                            <button onclick="abrirModalEditar('\${item.id}', '\${item.status || 'Ativo'}', '\${item.vencimento || ''}', \${isFinLiberado}, \${isCatLiberado}, \${isCrmLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm cursor-pointer">
                                 <i class="fa-solid fa-pen-to-square"></i> Liberar/Editar
                             </button>
-                            <button onclick="deletar('\${item.id}')" class="text-gray-400 hover:text-red-500 transition p-2 rounded-lg">
+                            <button onclick="deletar('\${item.id}')" class="text-gray-400 hover:text-red-500 transition p-2 rounded-lg cursor-pointer">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -450,10 +711,91 @@
                 `;
             });
             document.getElementById('total-ativos').innerText = ativosCount;
+            const crmBadge = document.getElementById('total-crm-liberados-card');
+            if (crmBadge) crmBadge.innerText = crmLiberadosCount;
+            
+            const statLib = document.getElementById('crm-stat-liberados');
+            if (statLib) statLib.innerText = crmLiberadosCount;
+
+            const statBloq = document.getElementById('crm-stat-bloqueados');
+            if (statBloq) statBloq.innerText = Math.max(0, data.length - crmLiberadosCount);
+
+            renderizarTabelaCrm(data);
         }
 
+        function renderizarTabelaCrm(data) {
+            const corpoCrm = document.getElementById('tabela-crm-corpo');
+            if (!corpoCrm) return;
+
+            corpoCrm.innerHTML = '';
+            if (data.length === 0) {
+                corpoCrm.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const isSuperAdminItem = String(item.herbalife_id || '').trim() === '433005811';
+                const isCrmLiberado = isSuperAdminItem || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+                const nomeLimpo = (item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim();
+
+                corpoCrm.innerHTML += `
+                    <tr class="hover:bg-purple-50/40 transition">
+                        <td class="p-4 font-bold text-gray-900">
+                            \${nomeLimpo}
+                            \${isSuperAdminItem ? '<span class="ml-1 text-[9px] bg-purple-600 text-white font-black px-1.5 py-0.5 rounded uppercase">SuperAdmin</span>' : ''}
+                        </td>
+                        <td class="p-4 font-mono font-bold text-gray-700">\${item.herbalife_id}</td>
+                        <td class="p-4 font-medium"><a href="https://wa.me/\${normalizarNumeroWhatsApp(item.whatsapp)}" target="_blank" class="text-emerald-600 hover:underline"><i class="fa-brands fa-whatsapp"></i> \${item.whatsapp}</a></td>
+                        <td class="p-4 text-center">
+                            \${isCrmLiberado 
+                                ? '<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 font-extrabold px-3 py-1 rounded-full text-[11px] uppercase"><i class="fa-solid fa-circle-check text-emerald-600"></i> Liberado</span>' 
+                                : '<span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-full text-[11px] uppercase"><i class="fa-solid fa-lock text-gray-400"></i> Bloqueado</span>'}
+                        </td>
+                        <td class="p-4 text-center">
+                            \${isSuperAdminItem ? '<span class="text-[11px] text-purple-700 font-black italic">Acesso Vitalício</span>' : \`
+                                <button onclick="alternarCrmExtratorAdmin('\${item.id}', \${!isCrmLiberado})" class="\${isCrmLiberado ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : 'bg-emerald-600 text-white hover:bg-emerald-700'} border px-3.5 py-2 rounded-xl font-black text-xs transition shadow-xs cursor-pointer flex items-center gap-1.5 mx-auto">
+                                    <i class="fa-solid \${isCrmLiberado ? 'fa-lock' : 'fa-lock-open'}"></i>
+                                    \${isCrmLiberado ? 'Bloquear Acesso' : 'Liberar Acesso Manual'}
+                                </button>
+                            \`}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filtrarSupervisores(termo) {
+            const q = (termo || '').toLowerCase().trim();
+            if (!q) {
+                renderizarTabelasCompletas(todosConsultoresAdmin);
+                return;
+            }
+            const filtrados = todosConsultoresAdmin.filter(item => {
+                const nome = (item.nome_espaco || '').toLowerCase();
+                const hid = String(item.herbalife_id || '').toLowerCase();
+                return nome.includes(q) || hid.includes(q);
+            });
+            renderizarTabelasCompletas(filtrados);
+        }
+        window.filtrarSupervisores = filtrarSupervisores;
+
+        function filtrarTabelaCrm(termo) {
+            const q = (termo || '').toLowerCase().trim();
+            if (!q) {
+                renderizarTabelaCrm(todosConsultoresAdmin);
+                return;
+            }
+            const filtrados = todosConsultoresAdmin.filter(item => {
+                const nome = (item.nome_espaco || '').toLowerCase();
+                const hid = String(item.herbalife_id || '').toLowerCase();
+                return nome.includes(q) || hid.includes(q);
+            });
+            renderizarTabelaCrm(filtrados);
+        }
+        window.filtrarTabelaCrm = filtrarTabelaCrm;
+
         // EDICAO
-        function abrirModalEditar(id, status, venc, isFinLiberado, isCatLiberado) {
+        function abrirModalEditar(id, status, venc, isFinLiberado, isCatLiberado, isCrmLiberado) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-status').value = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
             document.getElementById('edit-vencimento').value = venc;
@@ -462,6 +804,9 @@
             }
             if (document.getElementById('edit-catalogo-liberado')) {
                 document.getElementById('edit-catalogo-liberado').checked = !!isCatLiberado;
+            }
+            if (document.getElementById('edit-crm-extrator-liberado')) {
+                document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
             }
             document.getElementById('modal-editar').classList.remove('hidden');
         }
@@ -474,6 +819,7 @@
             const dt = document.getElementById('edit-vencimento').value;
             const finLiberado = document.getElementById('edit-financeiro-liberado') ? document.getElementById('edit-financeiro-liberado').checked : false;
             const catLiberado = document.getElementById('edit-catalogo-liberado') ? document.getElementById('edit-catalogo-liberado').checked : false;
+            const crmLiberado = document.getElementById('edit-crm-extrator-liberado') ? document.getElementById('edit-crm-extrator-liberado').checked : false;
 
             try {
                 const { data: row } = await supabaseClient
@@ -500,6 +846,14 @@
                     raw += ' ' + tagCat;
                 }
 
+                // Atualiza tag CRM & Extrator
+                const tagCrm = `<!--MODULO_CRM_EXTRATOR:${crmLiberado ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CRM_EXTRATOR:')) {
+                    raw = raw.replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/, tagCrm);
+                } else {
+                    raw += ' ' + tagCrm;
+                }
+
                 await supabaseClient.from('consultores').update({
                     status: st,
                     vencimento: dt,
@@ -512,6 +866,40 @@
                 alert("Erro ao salvar: " + err.message);
             }
         }
+
+        async function alternarCrmExtratorAdmin(id, liberar) {
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, herbalife_id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                const hid = row ? row.herbalife_id : id;
+                if (String(hid).trim() === '433005811' && !liberar) {
+                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
+                    return;
+                }
+
+                if (!confirm(`Deseja realmente \${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Extrator WhatsApp & CRM Kanban para o consultor ID \${hid}?`)) {
+                    return;
+                }
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_CRM_EXTRATOR:\${liberar ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CRM_EXTRATOR:')) {
+                    raw = raw.replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                carregarDados();
+            } catch (err) {
+                alert(`Erro ao alterar liberação do CRM: \${err.message}`);
+            }
+        }
+        window.alternarCrmExtratorAdmin = alternarCrmExtratorAdmin;
 
         async function alternarFinanceiroAdmin(id, liberar) {
             try {
@@ -527,12 +915,12 @@
                     return;
                 }
 
-                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Módulo Financeiro do EVS para o consultor ID ${hid}?`)) {
+                if (!confirm(`Deseja realmente \${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Módulo Financeiro do EVS para o consultor ID \${hid}?`)) {
                     return;
                 }
 
                 let raw = (row && row.nome_espaco) || '';
-                const tagNova = `<!--MODULO_FINANCEIRO:${liberar ? 'true' : 'false'}-->`;
+                const tagNova = `<!--MODULO_FINANCEIRO:\${liberar ? 'true' : 'false'}-->`;
                 if (raw.includes('<!--MODULO_FINANCEIRO:')) {
                     raw = raw.replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/, tagNova);
                 } else {
@@ -542,7 +930,7 @@
                 await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
                 carregarDados();
             } catch (err) {
-                alert(`Erro ao alterar liberação: ${err.message}`);
+                alert(`Erro ao alterar liberação: \${err.message}`);
             }
         }
         window.alternarFinanceiroAdmin = alternarFinanceiroAdmin;
@@ -561,12 +949,12 @@
                     return;
                 }
 
-                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Catálogo Digital Interativo para o consultor ID ${hid}?`)) {
+                if (!confirm(`Deseja realmente \${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Catálogo Digital Interativo para o consultor ID \${hid}?`)) {
                     return;
                 }
 
                 let raw = (row && row.nome_espaco) || '';
-                const tagNova = `<!--MODULO_CATALOGO_INTERATIVO:${liberar ? 'true' : 'false'}-->`;
+                const tagNova = `<!--MODULO_CATALOGO_INTERATIVO:\${liberar ? 'true' : 'false'}-->`;
                 if (raw.includes('<!--MODULO_CATALOGO_INTERATIVO:')) {
                     raw = raw.replace(/<!--MODULO_CATALOGO_INTERATIVO:[\s\S]*?-->/, tagNova);
                 } else {
@@ -576,7 +964,7 @@
                 await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
                 carregarDados();
             } catch (err) {
-                alert(`Erro ao alterar liberação: ${err.message}`);
+                alert(`Erro ao alterar liberação: \${err.message}`);
             }
         }
         window.alternarCatalogoAdmin = alternarCatalogoAdmin;
