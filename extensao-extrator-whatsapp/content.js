@@ -1,19 +1,17 @@
 /**
  * Litrão do Reset - Extrator de Contatos WhatsApp Web (Content Script)
- * Executado diretamente na página web.whatsapp.com
+ * Versão 2.0 Silicon Valley - Suporte a Modal Central e Scroll Virtual Completo
  */
 
-console.log("[Litrão Reset Extrator] Content script carregado no WhatsApp Web.");
+console.log("[Litrão Reset Extrator v2.0] Content script carregado no WhatsApp Web.");
 
-// Helper para normalizar telefones para o padrão internacional limpo
+// Normaliza telefones para o padrão internacional limpo (+55...)
 function normalizarTelefone(raw) {
   if (!raw) return '';
-  // Remove espaços, traços, parênteses
   let num = raw.replace(/[^\d+]/g, '');
   if (num.startsWith('+')) {
     num = num.substring(1);
   }
-  // Se for número brasileiro sem código do país
   if (num.length === 10 || num.length === 11) {
     num = '55' + num;
   }
@@ -25,7 +23,6 @@ function obterInfoGrupoAtual() {
   const header = document.querySelector('header');
   if (!header) return null;
 
-  // Título da conversa/grupo
   let nomeGrupo = '';
   const tituloEl = header.querySelector('div[role="button"] span[title]') || 
                    header.querySelector('span[dir="auto"]') || 
@@ -34,7 +31,6 @@ function obterInfoGrupoAtual() {
     nomeGrupo = tituloEl.getAttribute('title') || tituloEl.innerText || '';
   }
 
-  // Subtítulo (geralmente contém a lista de membros abreviada ou contagem)
   let subtitulo = '';
   const subEl = header.querySelector('span[title*=","]') || 
                 header.querySelector('div[class*="copyable-text"]') ||
@@ -45,77 +41,129 @@ function obterInfoGrupoAtual() {
 
   return {
     nomeGrupo: nomeGrupo.trim(),
-    subtitulo: subtitulo.trim(),
-    isGrupo: !!(subtitulo && (subtitulo.includes(',') || subtitulo.toLowerCase().includes('participante') || subtitulo.toLowerCase().includes('membro')))
+    subtitulo: subtitulo.trim()
   };
 }
 
-// Extração Rápida a partir do subtítulo do cabeçalho
-function extrairContatosDoSubtitulo(subtitulo, nomeGrupo) {
-  if (!subtitulo) return [];
-  const partes = subtitulo.split(',').map(s => s.trim());
-  const contatos = [];
-  const agora = new Date().toISOString();
+// Lista todas as conversas/grupos da barra lateral esquerda (PRINT 4)
+function listarTodasConversas() {
+  const lista = [];
+  const nomesVistos = new Set();
 
-  partes.forEach(p => {
-    if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
-    const apenasDigitos = p.replace(/\D/g, '');
-    const isNumero = apenasDigitos.length >= 8;
+  const paneSide = document.querySelector('#pane-side') || 
+                   document.querySelector('div[aria-label="Lista de conversas"]') ||
+                   document.querySelector('div[role="grid"]');
 
-    const telLimpo = isNumero ? normalizarTelefone(p) : '';
-    const nomeExibicao = isNumero ? `Lead WhatsApp (${apenasDigitos.slice(-4)})` : p;
+  if (!paneSide) return [];
 
-    contatos.push({
-      id: 'lead_' + (telLimpo || Math.random().toString(36).substr(2, 9)),
-      nome: nomeExibicao,
-      telefone: telLimpo || p,
-      grupoOrigem: nomeGrupo || 'Grupo WhatsApp',
-      extraidoEm: agora,
-      isAdmin: false,
-      status: 'novo'
-    });
+  const itens = paneSide.querySelectorAll('div[data-testid="cell-frame-container"], div[role="row"], div[role="listitem"]');
+
+  itens.forEach(item => {
+    try {
+      const spanTitulo = item.querySelector('span[title]') || item.querySelector('span[dir="auto"]');
+      if (spanTitulo) {
+        const titulo = (spanTitulo.getAttribute('title') || spanTitulo.innerText || '').trim();
+        if (titulo && !nomesVistos.has(titulo) && titulo.length > 1) {
+          nomesVistos.add(titulo);
+          lista.push({
+            nome: titulo,
+            isGrupo: !!item.querySelector('span[data-icon="default-group"]') || !titulo.match(/^\+?\d[\d\s-]{6,}$/)
+          });
+        }
+      }
+    } catch (_) {}
   });
 
-  return contatos;
+  return lista;
 }
 
-// Extração Completa com Scroll no Painel Lateral de Participantes
-async function extrairParticipantesPainelLateral(nomeGrupo, onProgress) {
-  const header = document.querySelector('header');
-  if (!header) return [];
+// Clica em uma conversa pelo nome na barra lateral
+async function abrirConversaPeloNome(nome) {
+  const paneSide = document.querySelector('#pane-side') || 
+                   document.querySelector('div[aria-label="Lista de conversas"]') ||
+                   document.querySelector('div[role="grid"]');
+  if (!paneSide) return false;
 
-  // Se o painel lateral de informações do grupo não estiver aberto, clica no cabeçalho
-  let drawer = document.querySelector('div[data-testid="chat-info-drawer"]') || 
-               document.querySelector('section[class*="drawer"]') ||
-               document.querySelector('div[class*="chat-info"]');
+  const itens = paneSide.querySelectorAll('div[data-testid="cell-frame-container"], div[role="row"], div[role="listitem"]');
+  for (const item of itens) {
+    const spanTitulo = item.querySelector('span[title]') || item.querySelector('span[dir="auto"]');
+    if (spanTitulo) {
+      const titulo = (spanTitulo.getAttribute('title') || spanTitulo.innerText || '').trim();
+      if (titulo.toLowerCase() === nome.toLowerCase()) {
+        const btn = item.querySelector('div[role="button"]') || item;
+        btn.click();
+        await new Promise(r => setTimeout(r, 1000));
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
-  if (!drawer) {
-    const btnHeader = header.querySelector('div[role="button"]') || header;
-    btnHeader.click();
-    await new Promise(r => setTimeout(r, 1200));
-    drawer = document.querySelector('div[data-testid="chat-info-drawer"]') || 
-             document.querySelector('section') || 
-             document.body;
+// Extrai contatos com Scroll no Modal Central (Print 1) ou no Drawer Lateral
+async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
+  const agora = new Date().toISOString();
+  const mapaContatos = new Map();
+
+  // 1. Procura se já existe um modal central aberto (div[role="dialog"]) - EXATAMENTE O DO PRINT 1
+  let dialog = document.querySelector('div[role="dialog"]');
+
+  // Se não houver modal central aberto, abre o painel lateral clicando no header
+  if (!dialog) {
+    const header = document.querySelector('header');
+    if (header) {
+      const btnHeader = header.querySelector('div[role="button"]') || header;
+      btnHeader.click();
+      await new Promise(r => setTimeout(r, 1200));
+
+      // Verifica se após abrir o drawer tem o botão "Ver todos os membros" ou a contagem
+      const drawer = document.querySelector('div[data-testid="chat-info-drawer"]') || 
+                     document.querySelector('section[class*="drawer"]');
+      if (drawer) {
+        // Tenta encontrar o botão que abre todos os membros no modal central
+        const btnVerTodos = Array.from(drawer.querySelectorAll('div[role="button"], span')).find(el => {
+          const txt = (el.innerText || '').toLowerCase();
+          return txt.includes('ver todos') || txt.includes('outros participantes') || txt.includes('mais membros');
+        });
+        if (btnVerTodos) {
+          btnVerTodos.click();
+          await new Promise(r => setTimeout(r, 1000));
+          dialog = document.querySelector('div[role="dialog"]');
+        }
+      }
+    }
   }
 
-  const mapaContatos = new Map();
-  const agora = new Date().toISOString();
+  // Define o container onde a lista de membros está
+  let containerPrincipal = dialog || 
+                           document.querySelector('div[data-testid="chat-info-drawer"]') || 
+                           document.querySelector('section') || 
+                           document.body;
 
-  // Procura elementos de participantes
-  let tentativasScroll = 0;
-  const maxTentativas = 25;
+  // Localiza o elemento específico que tem a barra de rolagem (overflow-y)
+  let scrollContainer = null;
+  const possiveisScrolls = containerPrincipal.querySelectorAll('div');
+  for (const div of possiveisScrolls) {
+    const style = window.getComputedStyle(div);
+    if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && div.scrollHeight > div.clientHeight + 40) {
+      scrollContainer = div;
+      break;
+    }
+  }
 
-  // Localiza a lista rolável de participantes
-  let containerLista = drawer.querySelector('div[role="region"]') || 
-                       drawer.querySelector('div[class*="overflow-y"]') || 
-                       drawer;
+  if (!scrollContainer && dialog) {
+    scrollContainer = dialog.querySelector('div[tabindex="-1"]') || dialog;
+  }
 
-  while (tentativasScroll < maxTentativas) {
-    tentativasScroll++;
-    
-    // Procura todos os blocos de contatos na lista
-    const itens = drawer.querySelectorAll('div[role="listitem"], div[class*="list-item"], div[data-testid="cell-frame-container"]');
-    
+  // Loop de Scroll Virtual com alta sensibilidade
+  let repeticoesSemNovos = 0;
+  let ultimoTotal = 0;
+  const maxTentativas = 60; // Permite rolar grupos grandes de até 500+ membros
+
+  for (let step = 0; step < maxTentativas; step++) {
+    // Busca todos os itens de contato renderizados no momento
+    const itens = containerPrincipal.querySelectorAll('div[role="listitem"], div[class*="list-item"], div[data-testid="cell-frame-container"]');
+
     itens.forEach(item => {
       try {
         const textoCompleto = item.innerText || '';
@@ -126,13 +174,14 @@ async function extrairParticipantesPainelLateral(nomeGrupo, onProgress) {
         let nomeEncontrado = '';
         let isAdmin = textoCompleto.toLowerCase().includes('admin');
 
+        // Varre as linhas procurando telefone e nome
         linhas.forEach(linha => {
           if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'admin do grupo') return;
           const digitos = linha.replace(/\D/g, '');
           if (digitos.length >= 8 && (linha.startsWith('+') || digitos.length >= 10)) {
             telEncontrado = normalizarTelefone(linha);
-          } else if (!nomeEncontrado && linha.length > 2) {
-            nomeEncontrado = linha;
+          } else if (!nomeEncontrado && !linha.toLowerCase().includes('estou usando') && !linha.toLowerCase().includes('olá!') && linha.length > 2) {
+            nomeEncontrado = linha.replace(/^~/, '').trim();
           }
         });
 
@@ -142,7 +191,8 @@ async function extrairParticipantesPainelLateral(nomeGrupo, onProgress) {
             mapaContatos.set(chave, {
               id: 'lead_' + (telEncontrado || Math.random().toString(36).substr(2, 9)),
               nome: nomeEncontrado || (telEncontrado ? `Contato +${telEncontrado}` : 'Participante'),
-              telefone: telEncontrado,
+              telefone: telEncontrado ? `+${telEncontrado}` : '',
+              grupo: nomeGrupo || 'Grupo WhatsApp',
               grupoOrigem: nomeGrupo || 'Grupo WhatsApp',
               extraidoEm: agora,
               isAdmin: isAdmin,
@@ -157,17 +207,61 @@ async function extrairParticipantesPainelLateral(nomeGrupo, onProgress) {
       onProgress(mapaContatos.size);
     }
 
-    // Scroll para baixo no container de membros
-    const elScroll = drawer.querySelector('div[tabindex="-1"][class*="overflow"]') || containerLista;
-    if (elScroll && elScroll.scrollTop !== undefined) {
-      elScroll.scrollTop += 600;
+    // Verifica se encontrou novos membros neste passo
+    if (mapaContatos.size === ultimoTotal) {
+      repeticoesSemNovos++;
+      if (repeticoesSemNovos >= 4) {
+        // Chegou ao fim do scroll
+        break;
+      }
+    } else {
+      repeticoesSemNovos = 0;
+      ultimoTotal = mapaContatos.size;
     }
-    window.scrollBy(0, 300);
 
-    await new Promise(r => setTimeout(r, 400));
+    // Executa a rolagem suave
+    if (scrollContainer && scrollContainer.scrollTop !== undefined) {
+      scrollContainer.scrollTop += 380;
+    } else {
+      window.scrollBy(0, 300);
+    }
+
+    await new Promise(r => setTimeout(r, 320));
   }
 
-  return Array.from(mapaContatos.values());
+  // Rola de volta para o topo do container
+  if (scrollContainer && scrollContainer.scrollTop !== undefined) {
+    scrollContainer.scrollTop = 0;
+  }
+
+  const listaFinal = Array.from(mapaContatos.values());
+
+  // Se por alguma razão o modal não pegou nenhum, tenta o subtítulo do cabeçalho como fallback
+  if (listaFinal.length === 0) {
+    const info = obterInfoGrupoAtual();
+    if (info && info.subtitulo) {
+      const partes = info.subtitulo.split(',').map(s => s.trim());
+      partes.forEach(p => {
+        if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
+        const digitos = p.replace(/\D/g, '');
+        if (digitos.length >= 8) {
+          const telLimpo = normalizarTelefone(p);
+          listaFinal.push({
+            id: 'lead_' + telLimpo,
+            nome: `Contato +${telLimpo}`,
+            telefone: `+${telLimpo}`,
+            grupo: nomeGrupo || 'Grupo WhatsApp',
+            grupoOrigem: nomeGrupo || 'Grupo WhatsApp',
+            extraidoEm: agora,
+            isAdmin: false,
+            status: 'novo'
+          });
+        }
+      });
+    }
+  }
+
+  return listaFinal;
 }
 
 // Ouvinte de Mensagens do Popup
@@ -178,31 +272,44 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  if (request.action === 'extrair_contatos') {
-    const info = obterInfoGrupoAtual();
-    const nomeGrupo = (info && info.nomeGrupo) ? info.nomeGrupo : 'Grupo do WhatsApp';
+  if (request.action === 'listar_conversas') {
+    const conversas = listarTodasConversas();
+    const infoAtual = obterInfoGrupoAtual();
+    sendResponse({ sucesso: true, conversas, infoAtual });
+    return true;
+  }
 
-    // Executa extração completa
-    extrairParticipantesPainelLateral(nomeGrupo, (qtd) => {
+  if (request.action === 'abrir_conversa') {
+    abrirConversaPeloNome(request.nome).then(sucesso => {
+      sendResponse({ sucesso });
+    });
+    return true;
+  }
+
+  if (request.action === 'extrair_contatos') {
+    let nomeGrupo = request.nomeGrupo;
+    if (!nomeGrupo || nomeGrupo === '__ATUAL__') {
+      const info = obterInfoGrupoAtual();
+      nomeGrupo = (info && info.nomeGrupo) ? info.nomeGrupo : 'Grupo do WhatsApp';
+    }
+
+    extrairTodosOsParticipantes(nomeGrupo, (qtd) => {
       try {
         chrome.runtime.sendMessage({ action: 'progresso_extracao', contagem: qtd });
       } catch (_) {}
     }).then(contatos => {
-      // Se não encontrou pelo painel lateral, tenta pelo subtítulo
-      if (contatos.length === 0 && info && info.subtitulo) {
-        contatos = extrairContatosDoSubtitulo(info.subtitulo, nomeGrupo);
-      }
-
       sendResponse({
         sucesso: true,
         nomeGrupo: nomeGrupo,
         total: contatos.length,
-        contatos: contatos
+        contatos: contatos,
+        leads: contatos,
+        membros: contatos
       });
     }).catch(err => {
       sendResponse({ sucesso: false, erro: err.message });
     });
 
-    return true; // Mantém a porta assíncrona aberta
+    return true;
   }
 });

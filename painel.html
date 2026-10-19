@@ -20750,11 +20750,29 @@
                     // Tenta ler como JSON da extensão
                     if (file.name.endsWith('.json') || conteudo.trim().startsWith('{') || conteudo.trim().startsWith('[')) {
                         const json = JSON.parse(conteudo);
-                        const contatos = Array.isArray(json) ? json : (json.contatos || json.membros || []);
+                        let contatos = [];
+                        if (Array.isArray(json)) {
+                            contatos = json;
+                        } else if (Array.isArray(json.leads)) {
+                            contatos = json.leads;
+                        } else if (Array.isArray(json.contatos)) {
+                            contatos = json.contatos;
+                        } else if (Array.isArray(json.membros)) {
+                            contatos = json.membros;
+                        } else if (Array.isArray(json.participantes)) {
+                            contatos = json.participantes;
+                        } else {
+                            for (const k in json) {
+                                if (Array.isArray(json[k]) && json[k].length > 0) {
+                                    contatos = json[k];
+                                    break;
+                                }
+                            }
+                        }
                         const nomeGrupoArquivo = json.grupo || grupoPadrao || 'Grupo WhatsApp';
 
                         if (!Array.isArray(contatos) || contatos.length === 0) {
-                            alert("Nenhum contato encontrado no arquivo JSON.");
+                            alert("Nenhum contato encontrado no arquivo JSON. Verifique se o arquivo possui contatos.");
                             return;
                         }
 
@@ -20863,10 +20881,29 @@
 
             if (txt.startsWith('{') || txt.startsWith('[')) {
                 try {
-                    const json = JSON.parse(txt);
-                    const contatos = Array.isArray(json) ? json : (json.contatos || json.membros || []);
-                    importarArrayDeContatos(contatos, json.grupo || grupoPadrao, colunaDestino);
-                    return;
+                    let contatos = [];
+                    if (Array.isArray(json)) {
+                        contatos = json;
+                    } else if (Array.isArray(json.leads)) {
+                        contatos = json.leads;
+                    } else if (Array.isArray(json.contatos)) {
+                        contatos = json.contatos;
+                    } else if (Array.isArray(json.membros)) {
+                        contatos = json.membros;
+                    } else if (Array.isArray(json.participantes)) {
+                        contatos = json.participantes;
+                    } else {
+                        for (const k in json) {
+                            if (Array.isArray(json[k]) && json[k].length > 0) {
+                                contatos = json[k];
+                                break;
+                            }
+                        }
+                    }
+                    if (contatos.length > 0) {
+                        importarArrayDeContatos(contatos, json.grupo || grupoPadrao, colunaDestino);
+                        return;
+                    }
                 } catch (e) {}
             }
 
