@@ -20773,32 +20773,81 @@
         window.processarArquivoImportacao = processarArquivoImportacao;
 
         function processarTextoComoCsv(texto, grupoPadrao, colunaDestino) {
-            const linhas = texto.split('\n');
             const novosContatos = [];
+            const telefonesEncontrados = new Set();
+            const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
 
+            // 1. Tenta formato CSV tradicional (colunas separadas por ponto-e-vírgula ou tab)
             linhas.forEach((linha, idx) => {
-                const l = linha.trim();
-                if (!l || (idx === 0 && (l.toLowerCase().includes('telefone') || l.toLowerCase().includes('nome')))) return;
-                const partes = l.split(/[;,\t]/);
+                if (idx === 0 && (linha.toLowerCase().includes('telefone') || linha.toLowerCase().includes('nome'))) return;
+                const partes = linha.split(/[;\t]/);
                 if (partes.length >= 2) {
-                    novosContatos.push({
-                        nome: partes[0].trim(),
-                        telefone: partes[1].trim(),
-                        grupo: partes[2] ? partes[2].trim() : grupoPadrao
-                    });
-                } else if (partes.length === 1 && partes[0].trim()) {
-                    novosContatos.push({
-                        nome: 'Contato',
-                        telefone: partes[0].trim(),
-                        grupo: grupoPadrao
-                    });
+                    const nome = partes[0].trim();
+                    const tel = partes[1].trim();
+                    const telLimpo = tel.replace(/\D/g, '');
+                    if (telLimpo.length >= 8 && !telefonesEncontrados.has(telLimpo)) {
+                        novosContatos.push({
+                            nome: nome || 'Contato',
+                            telefone: tel,
+                            grupo: partes[2] ? partes[2].trim() : grupoPadrao
+                        });
+                        telefonesEncontrados.add(telLimpo);
+                    }
                 }
             });
+
+            // 2. Se não encontrou formato CSV, analisa linhas com telefones e nomes (~Nome) do WhatsApp Desktop
+            if (novosContatos.length === 0) {
+                for (let i = 0; i < linhas.length; i++) {
+                    const linha = linhas[i];
+                    const telMatch = linha.match(/(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9\s?)?\d{4}[-\s.]?\d{4}/);
+                    if (telMatch) {
+                        let telLimpo = telMatch[0].replace(/\D/g, '');
+                        if (!telLimpo.startsWith('55') && (telLimpo.length === 10 || telLimpo.length === 11)) {
+                            telLimpo = '55' + telLimpo;
+                        }
+                        if (telLimpo.length >= 10 && !telefonesEncontrados.has(telLimpo)) {
+                            let nome = 'Contato';
+                            if (i > 0 && (linhas[i - 1].startsWith('~') || !linhas[i - 1].match(/\d{4}/))) {
+                                nome = linhas[i - 1].replace(/^~/, '').trim();
+                            } else if (i + 1 < linhas.length && (linhas[i + 1].startsWith('~') || !linhas[i + 1].match(/\d{4}/))) {
+                                nome = linhas[i + 1].replace(/^~/, '').trim();
+                            }
+                            novosContatos.push({
+                                nome: (nome && nome !== 'Contato') ? nome : `Contato ${telLimpo.slice(-4)}`,
+                                telefone: '+' + telLimpo,
+                                grupo: grupoPadrao
+                            });
+                            telefonesEncontrados.add(telLimpo);
+                        }
+                    }
+                }
+            }
+
+            // 3. Se ainda não encontrou, extrai todos os telefones de números separados por vírgula (cabeçalho do grupo no WhatsApp)
+            if (novosContatos.length === 0) {
+                const regexTodosTelefones = /(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9\s?)?\d{4}[-\s.]?\d{4}/g;
+                const matches = texto.match(regexTodosTelefones) || [];
+                matches.forEach(m => {
+                    let telLimpo = m.replace(/\D/g, '');
+                    if (!telLimpo.startsWith('55') && (telLimpo.length === 10 || telLimpo.length === 11)) {
+                        telLimpo = '55' + telLimpo;
+                    }
+                    if (telLimpo.length >= 10 && !telefonesEncontrados.has(telLimpo)) {
+                        novosContatos.push({
+                            nome: `Contato ${telLimpo.slice(-4)}`,
+                            telefone: '+' + telLimpo,
+                            grupo: grupoPadrao
+                        });
+                        telefonesEncontrados.add(telLimpo);
+                    }
+                });
+            }
 
             if (novosContatos.length > 0) {
                 importarArrayDeContatos(novosContatos, grupoPadrao, colunaDestino);
             } else {
-                alert("Nenhum contato detectado no texto/CSV.");
+                alert("Nenhum telefone detectado no texto colado. Verifique se copiou números ou a lista de contatos do WhatsApp.");
             }
         }
 
