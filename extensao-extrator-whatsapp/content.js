@@ -18,23 +18,34 @@ function normalizarTelefone(raw) {
   return num;
 }
 
+// Obtém o cabeçalho específico da conversa ativa (#main header)
+function obterHeaderConversaAtiva() {
+  return document.querySelector('#main header') || 
+         document.querySelector('header[data-testid="conversation-header"]') ||
+         document.querySelector('#main [role="region"] header') ||
+         document.querySelectorAll('header')[1] ||
+         document.querySelector('header');
+}
+
 // Extrai informações do cabeçalho da conversa aberta
 function obterInfoGrupoAtual() {
-  const header = document.querySelector('header');
+  const header = obterHeaderConversaAtiva();
   if (!header) return null;
 
   let nomeGrupo = '';
   const tituloEl = header.querySelector('div[role="button"] span[title]') || 
                    header.querySelector('span[dir="auto"]') || 
-                   header.querySelector('div[dir="auto"]');
+                   header.querySelector('div[dir="auto"]') ||
+                   header.querySelector('h2');
   if (tituloEl) {
     nomeGrupo = tituloEl.getAttribute('title') || tituloEl.innerText || '';
   }
 
   let subtitulo = '';
   const subEl = header.querySelector('span[title*=","]') || 
+                header.querySelector('span[class*="matched-text"]') ||
                 header.querySelector('div[class*="copyable-text"]') ||
-                header.querySelector('span[class*="matched-text"]');
+                header.querySelector('span[title]');
   if (subEl) {
     subtitulo = subEl.getAttribute('title') || subEl.innerText || '';
   }
@@ -104,13 +115,40 @@ async function abrirConversaPeloNome(nome) {
 async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
   const agora = new Date().toISOString();
   const mapaContatos = new Map();
+  const infoAtual = obterInfoGrupoAtual();
+
+  if (!nomeGrupo || nomeGrupo === '__ATUAL__') {
+    nomeGrupo = (infoAtual && infoAtual.nomeGrupo) ? infoAtual.nomeGrupo : 'Grupo WhatsApp';
+  }
+
+  // Captura imediata preventiva a partir do subtitulo do cabecalho (#main header)
+  if (infoAtual && infoAtual.subtitulo) {
+    const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
+    partes.forEach(p => {
+      if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
+      const digitos = p.replace(/\D/g, '');
+      if (digitos.length >= 8) {
+        const telLimpo = normalizarTelefone(p);
+        mapaContatos.set(telLimpo, {
+          id: 'lead_' + telLimpo,
+          nome: `Contato +${telLimpo}`,
+          telefone: `+${telLimpo}`,
+          grupo: nomeGrupo,
+          grupoOrigem: nomeGrupo,
+          extraidoEm: agora,
+          isAdmin: false,
+          status: 'novo'
+        });
+      }
+    });
+  }
 
   // 1. Procura se já existe um modal central aberto (div[role="dialog"]) - EXATAMENTE O DO PRINT 1
   let dialog = document.querySelector('div[role="dialog"]');
 
   // Se não houver modal central aberto, abre o painel lateral clicando no header
   if (!dialog) {
-    const header = document.querySelector('header');
+    const header = obterHeaderConversaAtiva();
     if (header) {
       const btnHeader = header.querySelector('div[role="button"]') || header;
       btnHeader.click();
@@ -266,6 +304,12 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
 // Ouvinte de Mensagens do Popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'abrir_drawer_lateral') {
+    alternarSidebarLateral(true);
+    sendResponse({ sucesso: true });
+    return true;
+  }
+
   if (request.action === 'verificar_status') {
     const info = obterInfoGrupoAtual();
     sendResponse({ sucesso: true, info });
@@ -611,5 +655,109 @@ function injetarBarraFlutuanteLitrao() {
 setInterval(() => {
   try {
     injetarBarraFlutuanteLitrao();
+  } catch (_) {}
+}, 2000);
+
+
+// ==========================================
+// PAINEL LATERAL ACOPLADO NO WHATSAPP WEB
+// ==========================================
+let sidebarDockAberta = false;
+
+function alternarSidebarLateral(forcarAberto = null) {
+  const dock = document.getElementById('litrao-lateral-dock');
+  const btnAbertura = document.getElementById('litrao-lateral-tab-btn');
+  if (!dock) return;
+
+  sidebarDockAberta = (forcarAberto !== null) ? forcarAberto : !sidebarDockAberta;
+  dock.style.right = sidebarDockAberta ? '0' : '-480px';
+  if (btnAbertura) {
+    btnAbertura.style.display = sidebarDockAberta ? 'none' : 'flex';
+  }
+}
+
+function injetarSidebarLateral() {
+  if (document.getElementById('litrao-lateral-dock')) return;
+
+  // 1. Botao Flutuante de Abertura na borda direita
+  const btnAbertura = document.createElement('div');
+  btnAbertura.id = 'litrao-lateral-tab-btn';
+  btnAbertura.innerHTML = `<span>⚡</span><span>LITRÃO SUITE</span>`;
+  btnAbertura.style.cssText = `
+    position: fixed;
+    right: 0;
+    top: 38%;
+    transform: translateY(-50%);
+    z-index: 999999;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 12px 6px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.4);
+    letter-spacing: 1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  `;
+  btnAbertura.title = "Clique para abrir o Litrão WhatsApp Suite na Lateral da Tela";
+
+  btnAbertura.onmouseover = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1.05)'; };
+  btnAbertura.onmouseout = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1)'; };
+
+  // 2. Container da Sidebar Lateral Acoplada
+  const dock = document.createElement('div');
+  dock.id = 'litrao-lateral-dock';
+  dock.style.cssText = `
+    position: fixed;
+    right: -480px;
+    top: 0;
+    width: 440px;
+    height: 100vh;
+    z-index: 1000000;
+    background: #090D16;
+    box-shadow: -10px 0 35px rgba(0,0,0,0.7);
+    transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #1E293B;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  `;
+
+  dock.innerHTML = `
+    <div style="background: #0D1424; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1E293B;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="background: #10B981; color: white; font-weight: 900; font-size: 10px; padding: 2px 6px; border-radius: 4px;">ZAP PRO</span>
+        <span style="color: #F8FAFC; font-weight: 800; font-size: 12px;">Litrão Suite Lateral</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button id="litrao-dock-btn-telacheia" style="background: #1E293B; color: #94A3B8; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: bold;" title="Abrir em Tela Cheia">⛶ Tela Cheia</button>
+        <button id="litrao-dock-btn-fechar" style="background: #334155; color: #FFF; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-weight: bold;" title="Fechar Lateral">✕</button>
+      </div>
+    </div>
+    <iframe id="litrao-dock-iframe" src="${chrome.runtime.getURL('popup.html')}" style="width: 100%; height: calc(100% - 45px); border: none; background: #090D16;"></iframe>
+  `;
+
+  document.body.appendChild(btnAbertura);
+  document.body.appendChild(dock);
+
+  btnAbertura.addEventListener('click', () => alternarSidebarLateral(true));
+  dock.querySelector('#litrao-dock-btn-fechar').addEventListener('click', () => alternarSidebarLateral(false));
+  dock.querySelector('#litrao-dock-btn-telacheia').addEventListener('click', () => {
+    window.open(chrome.runtime.getURL('popup.html'), '_blank');
+  });
+}
+
+// Injetar a Sidebar Lateral no WhatsApp Web
+setInterval(() => {
+  try {
+    injetarSidebarLateral();
   } catch (_) {}
 }, 2000);

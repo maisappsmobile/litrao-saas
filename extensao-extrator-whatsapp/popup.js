@@ -48,9 +48,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Identifica a aba ativa do WhatsApp Web
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const isZap = tab && tab.url && tab.url.includes('web.whatsapp.com');
+  // Identifica a aba do WhatsApp Web (compativel com Popup, Painel Lateral e Tela Cheia)
+  let tabs = await chrome.tabs.query({ url: '*://web.whatsapp.com/*' });
+  let tab = tabs && tabs[0];
+  if (!tab) {
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (activeTab && activeTab.url && activeTab.url.includes('web.whatsapp.com')) {
+      tab = activeTab;
+    }
+  }
+  const isZap = !!tab;
+
+  // Garantir injecao do content script caso a pagina ainda nao tenha sido recarregada
+  async function garantirContentScript(targetTabId) {
+    if (!targetTabId) return false;
+    try {
+      const resp = await new Promise(resolve => {
+        chrome.tabs.sendMessage(targetTabId, { action: 'verificar_status' }, res => {
+          if (chrome.runtime.lastError || !res) resolve(null);
+          else resolve(res);
+        });
+      });
+      if (resp && resp.sucesso) return true;
+    } catch (_) {}
+
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: targetTabId },
+        files: ['content.js']
+      });
+      await new Promise(r => setTimeout(r, 400));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Acoes dos Botoes de Modo (Lateral e Tela Cheia)
+  const btnModoLateral = document.getElementById('btn-modo-lateral');
+  const btnModoTelaCheia = document.getElementById('btn-modo-telacheia');
+
+  if (btnModoTelaCheia) {
+    btnModoTelaCheia.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') });
+    });
+  }
+
+  if (btnModoLateral) {
+    btnModoLateral.addEventListener('click', async () => {
+      try {
+        if (chrome.sidePanel && chrome.sidePanel.open) {
+          const win = await chrome.windows.getCurrent();
+          await chrome.sidePanel.open({ windowId: win.id });
+          window.close();
+        } else if (tab) {
+          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' });
+          window.close();
+        }
+      } catch (_) {
+        if (tab) {
+          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' });
+          window.close();
+        }
+      }
+    });
+  }
 
   const dotStatus = document.getElementById('dot-status');
   const txtStatus = document.getElementById('txt-status');
@@ -115,7 +177,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  btnExtrair.addEventListener('click', () => {
+  btnExtrair.addEventListener('click', async () => {
+    if (tab) await garantirContentScript(tab.id);
     if (!isZap) return;
     btnExtrair.disabled = true;
     btnExtrair.innerText = '⏳ Rolando lista de participantes...';
