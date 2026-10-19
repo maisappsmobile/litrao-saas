@@ -2,23 +2,26 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Litrão do Reset - Extrator WhatsApp</title>
+  <title>Litrão do Reset - WhatsApp SuperSuite</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
-      width: 380px;
+      width: 420px;
+      min-height: 520px;
       background: #090D16;
       color: #F1F5F9;
-      padding: 16px;
-      font-size: 13px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
     }
+    /* HEADER */
     .header {
+      background: #0D1424;
+      border-bottom: 1px solid #1E293B;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #1E293B;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
     }
     .logo-box {
       display: flex;
@@ -29,285 +32,439 @@
       background: linear-gradient(135deg, #10B981, #059669);
       color: white;
       font-weight: 900;
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 8px;
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 6px;
       letter-spacing: 0.5px;
     }
     .title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: #FFFFFF;
     }
     .subtitle {
-      font-size: 10px;
+      font-size: 9px;
       color: #94A3B8;
     }
-    .status-card {
-      background: #111827;
-      border: 1px solid #1F2937;
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-    }
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #EF4444;
-    }
-    .dot.active {
       background: #10B981;
-      box-shadow: 0 0 10px #10B981;
+      box-shadow: 0 0 8px #10B981;
     }
-    
-    /* SELETOR DE GRUPOS (PRINT 4) */
-    .select-box {
-      margin-bottom: 12px;
-      background: #0F172A;
-      border: 1px solid #1E293B;
-      border-radius: 12px;
+
+    /* BARRA DE ABAS DE NAVEGAÇÃO */
+    .nav-tabs {
+      display: flex;
+      background: #0A0F1D;
+      border-bottom: 1px solid #1E293B;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
       padding: 10px 12px;
-    }
-    .select-label {
-      display: block;
       font-size: 11px;
       font-weight: 700;
       color: #94A3B8;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .select-row {
-      display: flex;
-      gap: 6px;
-    }
-    .group-dropdown {
-      flex: 1;
-      background: #1E293B;
-      color: #F8FAFC;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      outline: none;
       cursor: pointer;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      border: none;
+      background: none;
       white-space: nowrap;
-    }
-    .group-dropdown:focus {
-      border-color: #10B981;
-    }
-    .btn-icon {
-      background: #1E293B;
-      color: #94A3B8;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 0 10px;
-      cursor: pointer;
-      font-size: 13px;
       transition: all 0.2s;
+      border-bottom: 2px solid transparent;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 5px;
     }
-    .btn-icon:hover {
-      background: #334155;
-      color: white;
+    .nav-tab:hover {
+      color: #F1F5F9;
+      background: rgba(255,255,255,0.02);
+    }
+    .nav-tab.active {
+      color: #10B981;
+      border-bottom: 2px solid #10B981;
+      background: rgba(16, 185, 129, 0.05);
     }
 
-    .btn-main {
-      width: 100%;
-      background: linear-gradient(135deg, #10B981, #047857);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    /* CONTEÚDO DAS ABAS */
+    .tab-content {
+      padding: 14px 16px;
+      flex-grow: 1;
+      overflow-y: auto;
+      max-height: 440px;
     }
-    .btn-main:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
+    .tab-pane {
+      display: none;
     }
-    .btn-main:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
+    .tab-pane.active {
+      display: block;
     }
-    .result-box {
-      margin-top: 12px;
+
+    /* CARDS E ELEMENTOS */
+    .card {
       background: #111827;
       border: 1px solid #1E293B;
       border-radius: 12px;
       padding: 12px;
-      display: none;
+      margin-bottom: 12px;
     }
-    .result-stats {
+    .card-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 4px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
     }
-    .stat-num {
-      font-size: 22px;
-      font-weight: 900;
-      color: #10B981;
-    }
-    .stat-label {
+    .card-desc {
       font-size: 10px;
       color: #94A3B8;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    /* FORMULÁRIOS E INPUTS */
+    label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #94A3B8;
+      margin-bottom: 4px;
       text-transform: uppercase;
-      font-weight: 700;
     }
-    .btn-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .btn-sec {
+    input, select, textarea {
+      width: 100%;
       background: #1E293B;
-      color: #F8FAFC;
       border: 1px solid #334155;
+      color: #F8FAFC;
       border-radius: 8px;
-      padding: 9px;
+      padding: 8px 10px;
       font-size: 11px;
-      font-weight: 700;
+      margin-bottom: 10px;
+      outline: none;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #10B981;
+    }
+
+    /* BOTÕES */
+    .btn {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
       cursor: pointer;
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      transition: 0.2s;
+      gap: 6px;
+      transition: all 0.2s;
     }
-    .btn-sec:hover { background: #334155; }
-    .btn-crm {
-      grid-column: span 2;
+    .btn-green {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-green:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-purple {
       background: linear-gradient(135deg, #8B5CF6, #6D28D9);
       color: white;
-      border: none;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
     }
-    .btn-crm:hover { filter: brightness(1.1); }
-    .footer {
-      margin-top: 12px;
-      text-align: center;
+    .btn-purple:hover { filter: brightness(1.1); }
+    .btn-dark {
+      background: #1E293B;
+      color: #E2E8F0;
+      border: 1px solid #334155;
+    }
+    .btn-dark:hover { background: #334155; }
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 10px;
+      width: auto;
+    }
+
+    /* LISTA DE ITENS / MENSAGENS */
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .item-row {
+      background: #0E1626;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .item-title {
+      font-weight: 700;
+      color: #E2E8F0;
+      font-size: 11px;
+    }
+    .item-preview {
       font-size: 10px;
       color: #64748B;
-      border-top: 1px solid #1E293B;
-      padding-top: 8px;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: #1E293B;
-      border-radius: 3px;
-      margin-top: 10px;
+      white-space: nowrap;
       overflow: hidden;
-      display: none;
+      text-overflow: ellipsis;
+      max-width: 220px;
     }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #10B981, #38BDF8);
-      transition: width 0.3s;
+
+    /* TAGS */
+    .tag {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
     }
-    .msg-feedback {
-      margin-top: 8px;
-      font-size: 11px;
-      text-align: center;
-      color: #38BDF8;
-      font-weight: 600;
-      display: none;
+    .tag-blue { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+    .tag-green { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+    .tag-purple { background: rgba(139, 92, 246, 0.15); color: #C084FC; }
+
+    /* FOOTER */
+    .footer {
+      background: #0D1424;
+      border-top: 1px solid #1E293B;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #64748B;
     }
   </style>
 </head>
 <body>
 
+  <!-- HEADER -->
   <div class="header">
     <div class="logo-box">
-      <span class="logo-badge">RESET</span>
+      <span class="logo-badge">ZAP PRO</span>
       <div>
-        <div class="title">Extrator WhatsApp</div>
-        <div class="subtitle">Silicon Valley CRM Edition</div>
+        <div class="title">Litrão WhatsApp Suite</div>
+        <div class="subtitle">Silicon Valley Automation Edition</div>
       </div>
     </div>
-  </div>
-
-  <div class="status-card">
-    <div class="status-row">
+    <div style="display: flex; align-items: center; gap: 6px;">
       <div id="dot-status" class="dot"></div>
-      <span id="txt-status">Verificando WhatsApp Web...</span>
+      <span id="txt-status" style="font-size: 10px; color: #10B981; font-weight: bold;">Conectado</span>
     </div>
   </div>
 
-  <!-- SELETOR DINÂMICO DE GRUPOS E CONVERSAS (PRINT 4) -->
-  <div class="select-box">
-    <label class="select-label">📁 Escolha o Grupo ou Conversa:</label>
-    <div class="select-row">
-      <select id="select-grupos-whatsapp" class="group-dropdown">
-        <option value="__ATUAL__">⚡ Conversa aberta na tela</option>
-      </select>
-      <button id="btn-recarregar-grupos" class="btn-icon" title="Buscar todos os grupos da barra lateral">🔄</button>
-    </div>
-  </div>
+  <!-- NAVEGAÇÃO POR ABAS -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="tab-extrator">📥 Extrator</button>
+    <button class="nav-tab" data-tab="tab-mensagens">🚀 Mensagens</button>
+    <button class="nav-tab" data-tab="tab-sequencias">💬 Sequências</button>
+    <button class="nav-tab" data-tab="tab-audios">🎙️ Áudios</button>
+    <button class="nav-tab" data-tab="tab-disparador">👥 Em Massa</button>
+    <button class="nav-tab" data-tab="tab-autoresponder">🤖 Autoresponder</button>
+    <button class="nav-tab" data-tab="tab-backup">💾 Backup</button>
+  </nav>
 
-  <button id="btn-extrair" class="btn-main" disabled>
-    <span>⚡ Extrair Todos os Contatos</span>
-  </button>
+  <!-- ÁREA DE CONTEÚDO -->
+  <div class="tab-content">
 
-  <div id="progress" class="progress-bar">
-    <div id="progress-fill" class="progress-fill"></div>
-  </div>
-  <div id="msg-feedback" class="msg-feedback"></div>
+    <!-- ========================================== -->
+    <!-- ABA 1: EXTRATOR DE GRUPOS WHATSAPP (PRINT 4) -->
+    <!-- ========================================== -->
+    <div id="tab-extrator" class="tab-pane active">
+      <div class="card">
+        <label>📁 Selecionar Grupo ou Conversa:</label>
+        <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <select id="select-grupos-whatsapp" style="margin-bottom: 0;">
+            <option value="__ATUAL__">⚡ Conversa aberta na tela</option>
+          </select>
+          <button id="btn-recarregar-grupos" class="btn btn-dark btn-small" title="Atualizar conversas">🔄</button>
+        </div>
+        <p class="card-desc">
+          Detecta automaticamente todos os membros rolando a lista completa (inclusive grupos com 51+ membros).
+        </p>
 
-  <div id="result-box" class="result-box">
-    <div class="result-stats">
-      <div>
-        <div id="total-extraidos" class="stat-num">0</div>
-        <div class="stat-label">Total Extraídos</div>
+        <button id="btn-extrair" class="btn btn-green">
+          <span>⚡ Extrair Todos os Contatos</span>
+        </button>
+        <div id="progresso-extracao" style="display: none; margin-top: 8px;">
+          <div style="height: 4px; background: #1E293B; border-radius: 2px; overflow: hidden;">
+            <div id="progresso-fill" style="height: 100%; width: 20%; background: #10B981; transition: width 0.3s;"></div>
+          </div>
+          <span id="progresso-txt" style="display: block; text-align: center; font-size: 10px; color: #38BDF8; margin-top: 4px;">Varrendo membros...</span>
+        </div>
       </div>
-      <div style="text-align: right;">
-        <div id="total-com-tel" class="stat-num" style="color: #38BDF8;">0</div>
-        <div class="stat-label">Telefones Válidos</div>
+
+      <!-- RESULTADO DA EXTRAÇÃO -->
+      <div id="result-box-extrator" class="card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <div>
+            <div id="total-extraidos" style="font-size: 20px; font-weight: 900; color: #10B981;">0</div>
+            <div style="font-size: 9px; color: #94A3B8; text-transform: uppercase;">Total Encontrados</div>
+          </div>
+          <div style="text-align: right;">
+            <div id="total-com-tel" style="font-size: 20px; font-weight: 900; color: #38BDF8;">0</div>
+            <div style="font-size: 9px; color: #94A3B8; text-transform: uppercase;">Telefones Válidos</div>
+          </div>
+        </div>
+
+        <button id="btn-sincronizar-crm" class="btn btn-purple" style="margin-bottom: 6px;">
+          🚀 Sincronizar com Meu Kanban do Litrão
+        </button>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <button id="btn-baixar-json" class="btn btn-dark btn-small">📥 Baixar JSON</button>
+          <button id="btn-baixar-csv" class="btn btn-dark btn-small">📄 Baixar Planilha</button>
+        </div>
       </div>
     </div>
 
-    <div class="btn-group">
-      <button id="btn-enviar-crm" class="btn-sec btn-crm">
-        🚀 Sincronizar com Meu Kanban do Litrão
-      </button>
-      <button id="btn-baixar-json" class="btn-sec">
-        📥 Baixar JSON
-      </button>
-      <button id="btn-baixar-csv" class="btn-sec">
-        📄 Baixar Planilha
-      </button>
-      <button id="btn-copiar" class="btn-sec" style="grid-column: span 2;">
-        📋 Copiar Lista Pronta para o Kanban
-      </button>
+    <!-- ========================================== -->
+    <!-- ABA 2: MENSAGENS RÁPIDAS (1 CLIQUE) -->
+    <!-- ========================================== -->
+    <div id="tab-mensagens" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>Mensagens Rápidas</span>
+          <button id="btn-nova-msg-rapida" class="btn btn-dark btn-small">➕ Nova</button>
+        </div>
+        <p class="card-desc">Envie mensagens validadas de 1 clique direto na conversa do WhatsApp.</p>
+        
+        <!-- Formulário Adicionar Mensagem (Oculto) -->
+        <div id="form-msg-rapida" style="display: none; background: #0E1626; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+          <label>Título do Atalho:</label>
+          <input type="text" id="input-msg-titulo" placeholder="Ex: Convite Litrão">
+          <label>Texto da Mensagem:</label>
+          <textarea id="input-msg-texto" rows="3" placeholder="Use {nome} para o primeiro nome do cliente"></textarea>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-salvar-msg-rapida" class="btn btn-green btn-small">Salvar</button>
+            <button id="btn-cancelar-msg-rapida" class="btn btn-dark btn-small">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="lista-mensagens-rapidas" class="item-list">
+          <!-- Injetado via JS -->
+        </div>
+      </div>
     </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 3: SEQUÊNCIAS DE MENSAGENS (FUNIS) -->
+    <!-- ========================================== -->
+    <div id="tab-sequencias" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>Sequências & Funis Automáticos</span>
+          <button id="btn-nova-sequencia" class="btn btn-dark btn-small">➕ Nova</button>
+        </div>
+        <p class="card-desc">Envie mensagens, áudios e imagens em sequência com delay humanizado.</p>
+
+        <div id="lista-sequencias" class="item-list">
+          <!-- Injetado via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 4: ÁUDIOS NATIVOS (SIMULAÇÃO PTT) -->
+    <!-- ========================================== -->
+    <div id="tab-audios" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>Áudios Gravados na Hora (PTT)</span>
+          <button id="btn-novo-audio" class="btn btn-dark btn-small">➕ Subir Áudio</button>
+        </div>
+        <p class="card-desc">Envia áudios como notas de voz gravadas na hora (com microfone verde, sem encaminhado).</p>
+
+        <input type="file" id="input-audio-file" accept="audio/*" style="display: none;">
+        <div id="lista-audios" class="item-list">
+          <!-- Injetado via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 5: DISPARADOR EM MASSA HUMANIZADO -->
+    <!-- ========================================== -->
+    <div id="tab-disparador" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Envio em Massa Humanizado</div>
+        <p class="card-desc">Dispare para listas de contatos com intervalos anti-bloqueio aleatórios.</p>
+
+        <label>Mensagem a Disparar:</label>
+        <textarea id="disparo-massa-texto" rows="3" placeholder="Olá {nome}, tudo bem?..."></textarea>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div>
+            <label>Delay Mínimo (seg):</label>
+            <input type="number" id="disparo-delay-min" value="15" min="5">
+          </div>
+          <div>
+            <label>Delay Máximo (seg):</label>
+            <input type="number" id="disparo-delay-max" value="35" min="10">
+          </div>
+        </div>
+
+        <label>Lista de Telefones (um por linha):</label>
+        <textarea id="disparo-massa-telefones" rows="3" placeholder="+55 66 98110-7573&#10;+55 65 9943-3220"></textarea>
+
+        <button id="btn-iniciar-disparo" class="btn btn-green">
+          🚀 Iniciar Disparo em Massa
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 6: AUTORESPONDER / CHATBOT -->
+    <!-- ========================================== -->
+    <div id="tab-autoresponder" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>Respostas Automáticas</span>
+          <button id="btn-nova-regra" class="btn btn-dark btn-small">➕ Regra</button>
+        </div>
+        <p class="card-desc">Responde automaticamente quando o cliente mandar palavras-chave específicas.</p>
+
+        <div id="lista-regras-autoresponder" class="item-list">
+          <!-- Injetado via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ABA 7: BACKUP & RESTAURAÇÃO DE MENSAGENS -->
+    <!-- ========================================== -->
+    <div id="tab-backup" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Backup das Suas Mensagens & Funis</div>
+        <p class="card-desc">Exporte ou restaure todo o acervo de mensagens rápidas, áudios e configurações.</p>
+
+        <button id="btn-exportar-backup" class="btn btn-purple" style="margin-bottom: 8px;">
+          💾 Exportar Backup Completo (JSON)
+        </button>
+
+        <input type="file" id="input-importar-backup" accept=".json" style="display: none;">
+        <button id="btn-importar-backup" class="btn btn-dark">
+          📥 Restaurar Backup de Arquivo
+        </button>
+      </div>
+    </div>
+
   </div>
 
+  <!-- FOOTER -->
   <div class="footer">
-    Plataforma Litrão do Reset • SuperAdmin Silicon Valley
+    <span>Litrão do Reset • WhatsApp Suite</span>
+    <span id="badge-versao" style="font-weight: bold; color: #10B981;">v2.1.0</span>
   </div>
 
   <script src="popup.js"></script>

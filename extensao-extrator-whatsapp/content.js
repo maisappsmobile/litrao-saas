@@ -310,6 +310,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ sucesso: false, erro: err.message });
     });
 
+  if (request.action === 'enviar_texto_chat') {
+    const texto = request.texto || '';
+    const inputBox = document.querySelector('div[contenteditable="true"][role="textbox"]') || 
+                     document.querySelector('div[data-testid="conversation-compose-box-input"]') ||
+                     document.querySelector('footer div[contenteditable="true"]');
+    if (inputBox) {
+      inputBox.focus();
+      document.execCommand('insertText', false, texto);
+      inputBox.dispatchEvent(new Event('input', { bubbles: true }));
+      
+      setTimeout(() => {
+        const btnSend = document.querySelector('button[data-testid="compose-btn-send"]') || 
+                        document.querySelector('span[data-icon="send"]')?.closest('button');
+        if (btnSend) {
+          btnSend.click();
+        }
+      }, 300);
+      sendResponse({ sucesso: true });
+    } else {
+      sendResponse({ sucesso: false, erro: 'Abra uma conversa para enviar a mensagem.' });
+    }
     return true;
   }
 });
