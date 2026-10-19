@@ -358,18 +358,50 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ABA 3: SEQUÊNCIAS DE MENSAGENS (FUNIS) -->
+    <!-- ABA 3: SEQUÊNCIAS DE MENSAGENS (1 CLIQUE) -->
     <!-- ========================================== -->
     <div id="tab-sequencias" class="tab-pane">
       <div class="card">
         <div class="card-title">
-          <span>Sequências & Funis Automáticos</span>
-          <button id="btn-nova-sequencia" class="btn btn-dark btn-small">➕ Nova</button>
+          <span>Envios Sequenciais com 1 Clique</span>
+          <button id="btn-nova-sequencia" class="btn btn-dark btn-small">➕ Criar Sequência</button>
         </div>
-        <p class="card-desc">Envie mensagens, áudios e imagens em sequência com delay humanizado.</p>
+        <p class="card-desc">
+          Dispare mensagens em ordem com delay humanizado na conversa aberta com apenas 1 clique.
+        </p>
 
+        <!-- Formulário para Criar/Editar Nova Sequência -->
+        <div id="form-sequencia" style="display: none; background: #0E1626; padding: 12px; border-radius: 10px; border: 1px solid #1E293B; margin-bottom: 12px;">
+          <label>Nome da Sequência:</label>
+          <input type="text" id="input-seq-titulo" placeholder="Ex: Funil Litrão 3 Passos">
+
+          <div style="margin-bottom: 8px;">
+            <label>Passos da Sequência (Mensagens):</label>
+            <div id="container-passos-form" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Passos dinâmicos -->
+            </div>
+            <button id="btn-adicionar-passo" class="btn btn-dark btn-small" style="margin-top: 6px; width: 100%;">
+              ➕ Adicionar Outro Passo
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <button id="btn-salvar-sequencia" class="btn btn-green btn-small">Salvar Sequência</button>
+            <button id="btn-cancelar-sequencia" class="btn btn-dark btn-small">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Indicador de Progresso da Sequência Ativa -->
+        <div id="box-progresso-seq" style="display: none; background: #0E1626; border: 1px solid #10B981; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="font-size: 11px; font-weight: bold; color: #10B981; margin-bottom: 4px;" id="txt-progresso-seq">Enviando passo 1...</div>
+          <div style="height: 4px; background: #1E293B; border-radius: 2px; overflow: hidden;">
+            <div id="fill-progresso-seq" style="height: 100%; width: 30%; background: #10B981; transition: width 0.3s;"></div>
+          </div>
+        </div>
+
+        <!-- Lista de Sequências Salvas -->
         <div id="lista-sequencias" class="item-list">
-          <!-- Injetado via JS -->
+          <!-- Injetado dinamicamente via JS -->
         </div>
       </div>
     </div>

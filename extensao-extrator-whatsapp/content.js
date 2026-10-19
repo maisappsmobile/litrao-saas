@@ -309,28 +309,307 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }).catch(err => {
       sendResponse({ sucesso: false, erro: err.message });
     });
+    return true;
+  }
 
   if (request.action === 'enviar_texto_chat') {
-    const texto = request.texto || '';
-    const inputBox = document.querySelector('div[contenteditable="true"][role="textbox"]') || 
-                     document.querySelector('div[data-testid="conversation-compose-box-input"]') ||
-                     document.querySelector('footer div[contenteditable="true"]');
-    if (inputBox) {
-      inputBox.focus();
-      document.execCommand('insertText', false, texto);
-      inputBox.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      setTimeout(() => {
-        const btnSend = document.querySelector('button[data-testid="compose-btn-send"]') || 
-                        document.querySelector('span[data-icon="send"]')?.closest('button');
-        if (btnSend) {
-          btnSend.click();
-        }
-      }, 300);
+    enviarMensagemNoChat(request.texto || '').then(() => {
       sendResponse({ sucesso: true });
-    } else {
-      sendResponse({ sucesso: false, erro: 'Abra uma conversa para enviar a mensagem.' });
-    }
+    }).catch(err => {
+      sendResponse({ sucesso: false, erro: err.message });
+    });
+    return true;
+  }
+
+  if (request.action === 'executar_sequencia_1clique') {
+    executarSequencia1Clique(request.sequencia).then((resultado) => {
+      sendResponse({ sucesso: true, resultado });
+    }).catch(err => {
+      sendResponse({ sucesso: false, erro: err.message });
+    });
     return true;
   }
 });
+
+// ==========================================
+// NOTIFICAÇÕES VISUAIS SILICON VALLEY (TOAST)
+// ==========================================
+function mostrarToastWhatsApp(msg, tipo = 'info', duracao = 4000) {
+  let toastContainer = document.getElementById('litrao-toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'litrao-toast-container';
+    toastContainer.style.cssText = `
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 99999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    `;
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement('div');
+  const borderCor = tipo === 'success' ? '#10B981' : (tipo === 'error' ? '#EF4444' : '#0284C7');
+  const icone = tipo === 'success' ? '✅' : (tipo === 'error' ? '⚠️' : '⚡');
+  
+  toast.style.cssText = `
+    background: #0F172A;
+    color: #F8FAFC;
+    border-left: 4px solid ${borderCor};
+    border-radius: 8px;
+    padding: 12px 18px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 380px;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+    border: 1px solid #334155;
+  `;
+  toast.innerHTML = `<div style="display:flex;align-items:flex-start;gap:8px;"><span>${icone}</span><div>${msg}</div></div>`;
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 400);
+  }, duracao);
+}
+
+// Localiza o campo de digitação do WhatsApp Web de forma resiliente
+function encontrarInputBoxWhatsApp() {
+  return document.querySelector('#main footer div[contenteditable="true"]') ||
+         document.querySelector('div[contenteditable="true"][role="textbox"]') || 
+         document.querySelector('div[data-testid="conversation-compose-box-input"]') ||
+         document.querySelector('footer div[contenteditable="true"]') ||
+         document.querySelector('div[title="Digite uma mensagem"]') ||
+         document.querySelector('div[contenteditable="true"]');
+}
+
+// Envia uma única mensagem no chat ativo
+async function enviarMensagemNoChat(texto) {
+  const inputBox = encontrarInputBoxWhatsApp();
+  if (!inputBox) {
+    throw new Error('Nenhuma conversa aberta encontrada. Abra o chat do contato no WhatsApp Web.');
+  }
+
+  inputBox.focus();
+  await new Promise(r => setTimeout(r, 120));
+
+  // Limpa e insere texto
+  document.execCommand('selectAll', false, null);
+  document.execCommand('delete', false, null);
+  document.execCommand('insertText', false, texto);
+
+  // Dispara eventos para o React / Draft.js / Lexical do WhatsApp
+  inputBox.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: texto, inputType: 'insertText' }));
+  inputBox.dispatchEvent(new Event('input', { bubbles: true }));
+  inputBox.dispatchEvent(new Event('change', { bubbles: true }));
+
+  await new Promise(r => setTimeout(r, 250));
+
+  // Tenta localizar o botão de envio
+  const btnSend = document.querySelector('#main footer button[data-testid="compose-btn-send"]') || 
+                  document.querySelector('button[data-testid="compose-btn-send"]') || 
+                  document.querySelector('span[data-icon="send"]')?.closest('button') ||
+                  document.querySelector('button[aria-label="Enviar"]') ||
+                  document.querySelector('button[data-tab="11"]');
+
+  if (btnSend) {
+    btnSend.click();
+  } else {
+    // Fallback: Dispara evento da tecla Enter
+    inputBox.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    inputBox.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+  }
+
+  await new Promise(r => setTimeout(r, 300));
+  return true;
+}
+
+// ==========================================
+// MOTOR DE DISPARO SEQUENCIAL COM 1 CLIQUE
+// ==========================================
+let sequenciaEmExecucao = false;
+
+async function executarSequencia1Clique(sequencia) {
+  if (sequenciaEmExecucao) {
+    mostrarToastWhatsApp('Já existe uma sequência sendo enviada no momento. Aguarde o término!', 'error');
+    throw new Error('Sequência já em andamento.');
+  }
+
+  if (!sequencia || !sequencia.passos || sequencia.passos.length === 0) {
+    throw new Error('Sequência vazia ou inválida.');
+  }
+
+  sequenciaEmExecucao = true;
+
+  try {
+    // Detecta o nome do contato aberto
+    const info = obterInfoGrupoAtual();
+    let nomeContato = 'Amigo(a)';
+    if (info && info.nomeGrupo) {
+      const raw = info.nomeGrupo.trim();
+      if (!raw.match(/^\+?\d/)) {
+        nomeContato = raw.split(' ')[0] || raw;
+      }
+    }
+
+    mostrarToastWhatsApp(`⚡ <b>1-Clique: ${sequencia.titulo}</b><br>Iniciando funil para <b>${nomeContato}</b> (${sequencia.passos.length} passos)...`, 'info', 3000);
+
+    for (let i = 0; i < sequencia.passos.length; i++) {
+      const passo = sequencia.passos[i];
+
+      // Substitui variáveis dinâmicas
+      let textoPronto = (passo.texto || '')
+        .replace(/{nome}/gi, nomeContato)
+        .replace(/{primeiro_nome}/gi, nomeContato)
+        .replace(/{chave_pix}/gi, 'pix@litraodoreset.com.br');
+
+      mostrarToastWhatsApp(`📤 <b>Passo ${i + 1}/${sequencia.passos.length}:</b><br>${textoPronto.substring(0, 50)}...`, 'info', 2500);
+
+      await enviarMensagemNoChat(textoPronto);
+
+      // Delay humanizado entre passos se não for o último
+      if (i < sequencia.passos.length - 1 && passo.delay > 0) {
+        mostrarToastWhatsApp(`⏳ Aguardando ${passo.delay}s (digitando naturalmente)...`, 'info', passo.delay * 1000);
+        await new Promise(r => setTimeout(r, passo.delay * 1000));
+      }
+    }
+
+    mostrarToastWhatsApp(`🎉 <b>Sequência enviada com sucesso!</b><br>Todos os passos entregues para <b>${nomeContato}</b>!`, 'success', 5000);
+    return { sucesso: true, passos: sequencia.passos.length, contato: nomeContato };
+  } finally {
+    sequenciaEmExecucao = false;
+  }
+}
+
+// ==========================================
+// BARRA FLUTUANTE 1-CLIQUE NO WHATSAPP WEB
+// ==========================================
+const SEQUENCIAS_FLUTUANTES = [
+  {
+    id: 'seq_1',
+    icone: '🥤',
+    nome: 'Apresentação',
+    titulo: '🥤 Apresentação Completa Litrão (3 Passos)',
+    passos: [
+      { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método do Litrão do Reset!', delay: 3 },
+      { texto: 'Nossa receita turbinada de 1 Litro leva Chá Verde, Fibras e Energia limpa. Ajuda a desinchar, queimar retenção e dá muita disposição!', delay: 4 },
+      { texto: 'Você prefere que eu te mande os sabores ou quer passar no nosso Espaço para provar uma dose gratuita hoje?', delay: 0 }
+    ]
+  },
+  {
+    id: 'seq_2',
+    icone: '🧪',
+    nome: 'Degustação EVS',
+    titulo: '🧪 Convite Degustação Grátis EVS (3 Passos)',
+    passos: [
+      { texto: 'Oi {nome}, tudo bem por aí?', delay: 3 },
+      { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o Litrão do Reset aqui no nosso Espaço Vida Saudável!', delay: 4 },
+      { texto: 'Qual horário fica melhor pra você passar aqui, no almoço ou no final da tarde?', delay: 0 }
+    ]
+  },
+  {
+    id: 'seq_3',
+    icone: '💰',
+    nome: 'Fechamento Pix',
+    titulo: '💰 Fechamento de Venda & Pagamento Pix (2 Passos)',
+    passos: [
+      { texto: 'Maravilha, {nome}! Seu pedido do Kit do Litrão do Reset está registrado!', delay: 3 },
+      { texto: 'Você pode realizar o Pix para a nossa chave: {chave_pix}\nAssim que fizer, me manda o comprovante que já preparo o seu kit bem geladinho!', delay: 0 }
+    ]
+  },
+  {
+    id: 'seq_4',
+    icone: '⏳',
+    nome: 'Reativação',
+    titulo: '⏳ Reativação de Contatos Sumidos (2 Passos)',
+    passos: [
+      { texto: 'Oi {nome}, como você está? Lembrei de você hoje!', delay: 3 },
+      { texto: 'Chegou uma receita nova do Litrão super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
+    ]
+  }
+];
+
+function injetarBarraFlutuanteLitrao() {
+  if (document.getElementById('litrao-quickbar-container')) return;
+
+  const footer = document.querySelector('#main footer');
+  if (!footer) return;
+
+  const bar = document.createElement('div');
+  bar.id = 'litrao-quickbar-container';
+  bar.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #0F172A;
+    border-top: 1px solid #1E293B;
+    border-bottom: 1px solid #1E293B;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 11px;
+    color: #94A3B8;
+    overflow-x: auto;
+    white-space: nowrap;
+    z-index: 100;
+  `;
+
+  let botoesHtml = `<span style="font-weight: 700; color: #38BDF8; display: flex; align-items: center; gap: 4px;">⚡ Litrão 1-Clique:</span>`;
+
+  SEQUENCIAS_FLUTUANTES.forEach((seq, idx) => {
+    botoesHtml += `
+      <button type="button" data-litrao-quick="${idx}" style="
+        background: #1E293B;
+        color: #F8FAFC;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+      " onmouseover="this.style.background='#0284C7'; this.style.borderColor='#38BDF8'" onmouseout="this.style.background='#1E293B'; this.style.borderColor='#334155'">
+        <span>${seq.icone}</span> ${seq.nome}
+      </button>
+    `;
+  });
+
+  bar.innerHTML = botoesHtml;
+
+  // Insere acima do footer do chat
+  footer.parentNode.insertBefore(bar, footer);
+
+  // Associa eventos de 1 clique
+  bar.querySelectorAll('[data-litrao-quick]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.litraoQuick);
+      const seq = SEQUENCIAS_FLUTUANTES[idx];
+      if (seq) {
+        try {
+          await executarSequencia1Clique(seq);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
+  });
+}
+
+// Monitora navegação no chat para injetar a barra automaticamente
+setInterval(() => {
+  try {
+    injetarBarraFlutuanteLitrao();
+  } catch (_) {}
+}, 2000);

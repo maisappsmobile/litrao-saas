@@ -314,6 +314,238 @@ document.addEventListener('DOMContentLoaded', async () => {
     inputMsgTexto.value = '';
   });
 
+
+  // ==========================================
+  // SEQUÊNCIAS DE ENVIOS COM 1 CLIQUE
+  // ==========================================
+  const SEQUENCIAS_PADRAO = [
+    {
+      id: 'seq_1',
+      titulo: '🥤 Apresentação Completa Litrão (3 Passos)',
+      passos: [
+        { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método do Litrão do Reset!', delay: 3 },
+        { texto: 'Nossa receita turbinada de 1 Litro leva Chá Verde, Fibras e Energia limpa. Ajuda a desinchar, queimar retenção e dá muita disposição!', delay: 4 },
+        { texto: 'Você prefere que eu te mande os sabores ou quer passar no nosso Espaço para provar uma dose gratuita hoje?', delay: 0 }
+      ]
+    },
+    {
+      id: 'seq_2',
+      titulo: '🧪 Convite Degustação Grátis EVS (3 Passos)',
+      passos: [
+        { texto: 'Oi {nome}, tudo bem por aí?', delay: 3 },
+        { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o Litrão do Reset aqui no nosso Espaço Vida Saudável!', delay: 4 },
+        { texto: 'Qual horário fica melhor pra você passar aqui, no almoço ou no final da tarde?', delay: 0 }
+      ]
+    },
+    {
+      id: 'seq_3',
+      titulo: '💰 Fechamento de Venda & Pagamento Pix (2 Passos)',
+      passos: [
+        { texto: 'Maravilha, {nome}! Seu pedido do Kit do Litrão do Reset está registrado!', delay: 3 },
+        { texto: 'Você pode realizar o Pix para a nossa chave: {chave_pix}\nAssim que fizer, me manda o comprovante que já preparo o seu kit bem geladinho!', delay: 0 }
+      ]
+    },
+    {
+      id: 'seq_4',
+      titulo: '⏳ Reativação de Contatos Sumidos (2 Passos)',
+      passos: [
+        { texto: 'Oi {nome}, como você está? Lembrei de você hoje!', delay: 3 },
+        { texto: 'Chegou uma receita nova do Litrão super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
+      ]
+    }
+  ];
+
+  const listaSequenciasEl = document.getElementById('lista-sequencias');
+  const btnNovaSequencia = document.getElementById('btn-nova-sequencia');
+  const formSequencia = document.getElementById('form-sequencia');
+  const inputSeqTitulo = document.getElementById('input-seq-titulo');
+  const containerPassosForm = document.getElementById('container-passos-form');
+  const btnAdicionarPasso = document.getElementById('btn-adicionar-passo');
+  const btnSalvarSequencia = document.getElementById('btn-salvar-sequencia');
+  const btnCancelarSequencia = document.getElementById('btn-cancelar-sequencia');
+  const boxProgressoSeq = document.getElementById('box-progresso-seq');
+  const txtProgressoSeq = document.getElementById('txt-progresso-seq');
+  const fillProgressoSeq = document.getElementById('fill-progresso-seq');
+
+  function obterSequenciasSalvas() {
+    try {
+      const raw = localStorage.getItem('litrao_sequencias_1clique');
+      return raw ? JSON.parse(raw) : SEQUENCIAS_PADRAO;
+    } catch (_) {
+      return SEQUENCIAS_PADRAO;
+    }
+  }
+
+  function salvarSequencias(seqs) {
+    localStorage.setItem('litrao_sequencias_1clique', JSON.stringify(seqs));
+    renderizarSequencias();
+  }
+
+  function renderizarSequencias() {
+    if (!listaSequenciasEl) return;
+    const seqs = obterSequenciasSalvas();
+    listaSequenciasEl.innerHTML = '';
+
+    seqs.forEach((s, idx) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.style.flexDirection = 'column';
+      row.style.alignItems = 'stretch';
+      row.style.gap = '6px';
+
+      // Monta as tags dos passos
+      let passosHtml = '';
+      s.passos.forEach((p, pIdx) => {
+        passosHtml += `<span class="tag tag-blue" title="${p.texto}">P${pIdx + 1} (${p.delay}s)</span> `;
+      });
+
+      row.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="item-title">${s.titulo}</div>
+          <button class="btn btn-dark btn-small" data-seq-del="${idx}" title="Excluir Sequência" style="padding: 2px 6px;">🗑️</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+          ${passosHtml}
+        </div>
+        <div style="display: flex; gap: 6px; margin-top: 4px;">
+          <button class="btn btn-green btn-small" data-seq-run="${s.id}" style="width: 100%; font-size: 11px; padding: 7px;">
+            ⚡ Disparar Sequência (1 Clique)
+          </button>
+        </div>
+      `;
+      listaSequenciasEl.appendChild(row);
+    });
+
+    // Eventos do botão de 1 clique
+    listaSequenciasEl.querySelectorAll('[data-seq-run]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const seqId = btn.dataset.seqRun;
+        const seq = seqs.find(s => s.id === seqId);
+        if (!seq) return;
+
+        if (!isZap) {
+          alert("Abra uma conversa no WhatsApp Web para disparar esta sequência.");
+          return;
+        }
+
+        // Feedback no popup
+        btn.disabled = true;
+        btn.innerText = '⏳ Executando Funil...';
+        if (boxProgressoSeq) {
+          boxProgressoSeq.style.display = 'block';
+          txtProgressoSeq.innerText = `Iniciando "${seq.titulo}"...`;
+          fillProgressoSeq.style.width = '20%';
+        }
+
+        chrome.tabs.sendMessage(tab.id, {
+          action: 'executar_sequencia_1clique',
+          sequencia: seq
+        }, (res) => {
+          btn.disabled = false;
+          btn.innerText = '⚡ Disparar Sequência (1 Clique)';
+          if (boxProgressoSeq) {
+            boxProgressoSeq.style.display = 'none';
+          }
+          if (res && res.sucesso) {
+            alert(`✅ Sucesso! Sequência "${seq.titulo}" enviada na conversa!`);
+          } else {
+            alert('Aviso: ' + ((res && res.erro) || 'Verifique se uma conversa está aberta.'));
+          }
+        });
+      });
+    });
+
+    // Eventos de exclusão
+    listaSequenciasEl.querySelectorAll('[data-seq-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.seqDel);
+        seqs.splice(idx, 1);
+        salvarSequencias(seqs);
+      });
+    });
+  }
+
+  renderizarSequencias();
+
+  // Formulário para Nova Sequência
+  if (btnNovaSequencia) {
+    btnNovaSequencia.addEventListener('click', () => {
+      formSequencia.style.display = 'block';
+      inputSeqTitulo.value = '';
+      containerPassosForm.innerHTML = '';
+      adicionarCampoPassoForm('Olá {nome}, tudo bem?', 3);
+      adicionarCampoPassoForm('Passando para te apresentar o Litrão do Reset!', 0);
+      inputSeqTitulo.focus();
+    });
+  }
+
+  function adicionarCampoPassoForm(textoPadrao = '', delayPadrao = 3) {
+    const div = document.createElement('div');
+    div.style.background = '#1E293B';
+    div.style.padding = '8px';
+    div.style.borderRadius = '6px';
+    div.style.border = '1px solid #334155';
+
+    div.innerHTML = `
+      <textarea rows="2" placeholder="Mensagem deste passo (use {nome})" class="passo-texto" style="margin-bottom: 4px;">${textoPadrao}</textarea>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+        <span style="font-size: 10px; color: #94A3B8;">Aguardar após enviar (segundos):</span>
+        <input type="number" value="${delayPadrao}" min="0" max="60" class="passo-delay" style="width: 60px; margin-bottom: 0; padding: 4px;">
+        <button type="button" class="btn btn-dark btn-small btn-remover-passo" style="padding: 2px 6px;">✕</button>
+      </div>
+    `;
+
+    div.querySelector('.btn-remover-passo').addEventListener('click', () => {
+      div.remove();
+    });
+
+    containerPassosForm.appendChild(div);
+  }
+
+  if (btnAdicionarPasso) {
+    btnAdicionarPasso.addEventListener('click', () => {
+      adicionarCampoPassoForm('', 3);
+    });
+  }
+
+  if (btnCancelarSequencia) {
+    btnCancelarSequencia.addEventListener('click', () => {
+      formSequencia.style.display = 'none';
+    });
+  }
+
+  if (btnSalvarSequencia) {
+    btnSalvarSequencia.addEventListener('click', () => {
+      const tit = inputSeqTitulo.value.trim();
+      if (!tit) {
+        alert("Preencha o nome da sequência.");
+        return;
+      }
+      const textos = containerPassosForm.querySelectorAll('.passo-texto');
+      const delays = containerPassosForm.querySelectorAll('.passo-delay');
+
+      const passos = [];
+      textos.forEach((tEl, idx) => {
+        const txt = tEl.value.trim();
+        const del = parseInt(delays[idx].value) || 0;
+        if (txt) {
+          passos.push({ texto: txt, delay: del });
+        }
+      });
+
+      if (passos.length === 0) {
+        alert("Adicione pelo menos 1 passo com mensagem.");
+        return;
+      }
+
+      const seqs = obterSequenciasSalvas();
+      seqs.push({ id: 'seq_' + Date.now(), titulo: tit, passos });
+      salvarSequencias(seqs);
+      formSequencia.style.display = 'none';
+      alert(`Sequência "${tit}" salva com sucesso!`);
+    });
+  }
+
   // ==========================================
   // 3. BACKUP & RESTAURAÇÃO
   // ==========================================
