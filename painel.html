@@ -486,7 +486,7 @@
                         <button type="button" onclick="abrirModuloCrmKanban()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-table-columns text-xs"></i> Abrir CRM Kanban
                         </button>
-                        <button type="button" onclick="abrirModalInstrucoesExtensaoConsultor()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap" title="Instalar Extensão de Grupos">
+                        <button type="button" onclick="baixarExtensaoWhatsapp()" class="w-full sm:w-auto bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-3 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap" title="Baixar e Instalar Extensão de Grupos">
                             <i class="fa-solid fa-puzzle-piece text-xs text-purple-600"></i> Extensão
                         </button>
                     </div>
@@ -20286,6 +20286,732 @@
             const url = `https://wa.me/${ddi}?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
         }
+
+        
+        // =========================================================================
+        // MÓDULO EXTRATOR WHATSAPP & CRM KANBAN (SILICON VALLEY EDITION)
+        // =========================================================================
+        let crmLeadSendoAtendido = null;
+        let crmFiltroBuscaTexto = '';
+        let crmFiltroGrupoSelecionado = '';
+        let crmLeadIdArrastando = null;
+
+        const CRM_MODELOS_SCRIPTS = {
+            '1': "Olá {nome}, tudo bem? Vi seu contato no grupo de bem-estar. Me chamo {consultor} e ajudo pessoas a desinchar, eliminar retenção e ter mais energia no dia a dia com a receita do Litrão do Reset. Você já ouviu falar da nossa garrafa turbinada de 1 Litro?",
+            '2': "Oi {nome}! Passando rapidinho pra te fazer um convite: estamos selecionando algumas pessoas para uma semana de hidratação turbinada e queima acelerada com o método Litrão do Reset. Posso te mandar como funciona sem compromisso?",
+            '3': "Olá {nome}! Tudo bem? Gostaria de te convidar para passar no nosso Espaço e degustar gratuitamente uma dose do Litrão do Reset (nosso mix especial de Chá Verde, Fibras e Energia). Qual dia e horário fica melhor pra você, hoje ou amanhã?",
+            '4': "Oi {nome}, tudo bem? Estamos expandindo a distribuição do Litrão do Reset na sua região e buscando consultores e parceiros com margens de 25% a 50% de lucro. Teria interesse em conhecer o projeto?",
+            '5': "Oi {nome}, como estão as coisas por aí? Lembrei de você hoje porque estamos com uma receita nova do Litrão super refrescante para a semana! Como anda sua rotina de hidratação?"
+        };
+
+        function isModuloCrmExtratorLiberadoParaConsultor() {
+            if (!consultorAtual) return false;
+            const hid = String(consultorAtual.herbalife_id || '').trim();
+            if (hid === '433005811') return true; // SuperAdmin Edwan tem acesso irrestrito permanente
+            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->')) {
+                return true;
+            }
+            return false;
+        }
+        window.isModuloCrmExtratorLiberadoParaConsultor = isModuloCrmExtratorLiberadoParaConsultor;
+
+        function baixarExtensaoWhatsapp(abrirGuia = true) {
+            try {
+                const a = document.createElement('a');
+                a.href = 'extensao-extrator-whatsapp.zip';
+                a.download = 'extensao-extrator-whatsapp.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (err) {
+                console.error("Erro no download direto da extensao:", err);
+            }
+            if (abrirGuia) {
+                abrirModalInstrucoesExtensaoConsultor();
+            }
+        }
+        window.baixarExtensaoWhatsapp = baixarExtensaoWhatsapp;
+
+        function abrirModuloCrmKanban() {
+            if (!isModuloCrmExtratorLiberadoParaConsultor()) {
+                const linkZap = document.getElementById('link-whatsapp-solicitar-crm');
+                if (linkZap && consultorAtual) {
+                    const msg = `Olá Edwan! Gostaria de solicitar a liberação do Módulo de Extrator WhatsApp e CRM Kanban para o meu consultor ID ${consultorAtual.herbalife_id}.`;
+                    linkZap.href = `https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`;
+                }
+                const modalBloq = document.getElementById('modal-crm-bloqueado');
+                if (modalBloq) modalBloq.classList.remove('hidden');
+                return;
+            }
+
+            const modalKanban = document.getElementById('modal-crm-kanban');
+            if (modalKanban) {
+                modalKanban.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                atualizarSelectGruposKanban();
+                renderizarKanbanCrm();
+            }
+        }
+        window.abrirModuloCrmKanban = abrirModuloCrmKanban;
+
+        function fecharModuloCrmKanban() {
+            const modalKanban = document.getElementById('modal-crm-kanban');
+            if (modalKanban) {
+                modalKanban.classList.add('hidden');
+                document.body.style.overflow = '';
+                atualizarMetricasCardsCrm();
+            }
+        }
+        window.fecharModuloCrmKanban = fecharModuloCrmKanban;
+
+        function fecharModalCrmBloqueado() {
+            const modalBloq = document.getElementById('modal-crm-bloqueado');
+            if (modalBloq) modalBloq.classList.add('hidden');
+        }
+        window.fecharModalCrmBloqueado = fecharModalCrmBloqueado;
+
+        function abrirModalInstrucoesExtensaoConsultor() {
+            const modal = document.getElementById('modal-crm-extensao-instrucoes');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalInstrucoesExtensaoConsultor = abrirModalInstrucoesExtensaoConsultor;
+
+        function fecharModalInstrucoesExtensaoConsultor() {
+            const modal = document.getElementById('modal-crm-extensao-instrucoes');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalInstrucoesExtensaoConsultor = fecharModalInstrucoesExtensaoConsultor;
+
+        function getCrmStorageKey() {
+            const hid = consultorAtual ? String(consultorAtual.herbalife_id).trim() : 'geral';
+            return `litrao_crm_leads_${hid}`;
+        }
+
+        function obterLeadsCrm() {
+            try {
+                const key = getCrmStorageKey();
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                console.error("Erro ao ler leads do CRM:", e);
+                return [];
+            }
+        }
+
+        function salvarLeadsCrm(leads) {
+            try {
+                const key = getCrmStorageKey();
+                localStorage.setItem(key, JSON.stringify(leads));
+                atualizarMetricasCardsCrm();
+            } catch (e) {
+                console.error("Erro ao salvar leads no CRM:", e);
+            }
+        }
+
+        function atualizarMetricasCardsCrm() {
+            const leads = obterLeadsCrm();
+            const novos = leads.filter(l => l.coluna === 'novos').length;
+            const abordagem = leads.filter(l => l.coluna === 'abordagem').length;
+            const fechados = leads.filter(l => l.coluna === 'fechado').length;
+
+            const cardNovos = document.getElementById('card-crm-count-novos');
+            const cardAbordagem = document.getElementById('card-crm-count-abordagem');
+            const cardFechados = document.getElementById('card-crm-count-fechados');
+
+            if (cardNovos) cardNovos.innerText = novos;
+            if (cardAbordagem) cardAbordagem.innerText = abordagem;
+            if (cardFechados) cardFechados.innerText = fechados;
+        }
+
+        function atualizarSelectGruposKanban() {
+            const select = document.getElementById('kanban-filtro-grupo');
+            if (!select) return;
+            const leads = obterLeadsCrm();
+            const gruposSet = new Set();
+            leads.forEach(l => {
+                if (l.grupo && l.grupo.trim()) gruposSet.add(l.grupo.trim());
+            });
+
+            const valAtual = select.value;
+            select.innerHTML = '<option value="">Todos os Grupos</option>';
+            Array.from(gruposSet).sort().forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                if (g === valAtual) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function filtrarKanbanCrm(termo) {
+            crmFiltroBuscaTexto = String(termo || '').trim().toLowerCase();
+            renderizarKanbanCrm();
+        }
+        window.filtrarKanbanCrm = filtrarKanbanCrm;
+
+        function filtrarKanbanPorGrupo(grupo) {
+            crmFiltroGrupoSelecionado = String(grupo || '').trim();
+            renderizarKanbanCrm();
+        }
+        window.filtrarKanbanPorGrupo = filtrarKanbanPorGrupo;
+
+        function limparFiltrosKanban() {
+            crmFiltroBuscaTexto = '';
+            crmFiltroGrupoSelecionado = '';
+            const inputBusca = document.getElementById('kanban-input-busca');
+            const selectGrupo = document.getElementById('kanban-filtro-grupo');
+            if (inputBusca) inputBusca.value = '';
+            if (selectGrupo) selectGrupo.value = '';
+            renderizarKanbanCrm();
+        }
+        window.limparFiltrosKanban = limparFiltrosKanban;
+
+        function renderizarKanbanCrm() {
+            const todosLeads = obterLeadsCrm();
+            
+            // Filtros aplicados
+            const leadsFiltrados = todosLeads.filter(l => {
+                if (crmFiltroGrupoSelecionado && l.grupo !== crmFiltroGrupoSelecionado) return false;
+                if (crmFiltroBuscaTexto) {
+                    const matchNome = (l.nome || '').toLowerCase().includes(crmFiltroBuscaTexto);
+                    const matchTel = (l.telefone || '').toLowerCase().includes(crmFiltroBuscaTexto);
+                    const matchNotas = (l.notas || '').toLowerCase().includes(crmFiltroBuscaTexto);
+                    if (!matchNome && !matchTel && !matchNotas) return false;
+                }
+                return true;
+            });
+
+            // Colunas válidas
+            const colunas = ['novos', 'abordagem', 'interessado', 'degustacao', 'fechado', 'futuro'];
+            const contagens = { novos: 0, abordagem: 0, interessado: 0, degustacao: 0, fechado: 0, futuro: 0 };
+
+            // Limpa containers das colunas
+            colunas.forEach(col => {
+                const el = document.getElementById(`col-body-${col}`);
+                if (el) el.innerHTML = '';
+            });
+
+            // Renderiza cada lead
+            leadsFiltrados.forEach(lead => {
+                const colKey = colunas.includes(lead.coluna) ? lead.coluna : 'novos';
+                contagens[colKey]++;
+
+                const container = document.getElementById(`col-body-${colKey}`);
+                if (!container) return;
+
+                const card = document.createElement('div');
+                card.className = "bg-[#111827] border border-slate-700/80 hover:border-purple-500/60 rounded-2xl p-3 shadow-xs transition group cursor-grab select-none";
+                card.draggable = true;
+                card.dataset.id = lead.id;
+                card.ondragstart = (e) => kanbanDragStart(e, lead.id);
+
+                // Iniciais para avatar
+                const partesNome = (lead.nome || 'Lead').trim().split(' ');
+                const iniciais = (partesNome[0][0] + (partesNome.length > 1 ? partesNome[partesNome.length - 1][0] : '')).toUpperCase();
+
+                // Telefone formatado
+                const telExibicao = lead.telefone || 'Sem número';
+                const grupoTag = lead.grupo ? `<span class="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-full truncate max-w-[130px] block" title="${lead.grupo}"><i class="fa-solid fa-users text-[9px] text-purple-400 mr-1"></i>${lead.grupo}</span>` : '';
+                const adminBadge = lead.isAdmin ? `<span class="bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-black px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-crown text-[8px] mr-0.5"></i>Admin</span>` : '';
+                const notasBloco = lead.notas ? `<p class="text-[11px] text-slate-400 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800/80 mt-2 line-clamp-2"><i class="fa-regular fa-comment-dots mr-1 text-slate-500"></i>${lead.notas}</p>` : '';
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
+                                ${iniciais}
+                            </div>
+                            <div class="overflow-hidden">
+                                <h4 class="text-xs font-bold text-white truncate leading-tight">${lead.nome || 'Sem Nome'}</h4>
+                                <span class="text-[10px] text-slate-400 font-mono block truncate">${telExibicao}</span>
+                            </div>
+                        </div>
+                        ${adminBadge}
+                    </div>
+
+                    <div class="flex items-center gap-1 flex-wrap mb-2">
+                        ${grupoTag}
+                    </div>
+
+                    ${notasBloco}
+
+                    <!-- Ações Rápidas do Card -->
+                    <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-1 text-xs">
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="moverLeadColunaRapido('${lead.id}', -1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg flex items-center justify-center transition cursor-pointer" title="Mover para etapa anterior">
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            </button>
+                            <button type="button" onclick="moverLeadColunaRapido('${lead.id}', 1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg flex items-center justify-center transition cursor-pointer" title="Avançar próxima etapa">
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="abrirModalScriptWhatsApp('${lead.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[11px] flex items-center gap-1 transition shadow-xs cursor-pointer" title="Enviar Script no WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-xs"></i> <span>Chamar</span>
+                            </button>
+                            <button type="button" onclick="abrirModalEditarLeadCrm('${lead.id}')" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg flex items-center justify-center transition cursor-pointer" title="Editar anotações">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
+                            </button>
+                            <button type="button" onclick="excluirLeadCrm('${lead.id}')" class="w-7 h-7 bg-slate-800 hover:bg-rose-900/60 text-slate-500 hover:text-rose-300 rounded-lg flex items-center justify-center transition cursor-pointer" title="Excluir Lead">
+                                <i class="fa-solid fa-trash-can text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            // Atualiza contadores das colunas
+            colunas.forEach(col => {
+                const countBadge = document.getElementById(`col-count-${col}`);
+                if (countBadge) countBadge.innerText = contagens[col];
+            });
+
+            // Atualiza métricas no Header
+            const total = todosLeads.length;
+            const statTotal = document.getElementById('kanban-stat-total');
+            const statNovos = document.getElementById('kanban-stat-novos');
+            const statAbordagem = document.getElementById('kanban-stat-abordagem');
+            const statInteressados = document.getElementById('kanban-stat-interessados');
+            const statFechados = document.getElementById('kanban-stat-fechados');
+            const statTaxa = document.getElementById('kanban-stat-taxa');
+
+            if (statTotal) statTotal.innerText = total;
+            if (statNovos) statNovos.innerText = contagens.novos;
+            if (statAbordagem) statAbordagem.innerText = contagens.abordagem;
+            if (statInteressados) statInteressados.innerText = contagens.interessado;
+            if (statFechados) statFechados.innerText = contagens.fechado;
+
+            const taxaConv = total > 0 ? ((contagens.fechado / total) * 100).toFixed(1) : 0;
+            if (statTaxa) statTaxa.innerText = `${taxaConv}%`;
+        }
+        window.renderizarKanbanCrm = renderizarKanbanCrm;
+
+        // DRAG AND DROP HANDLERS
+        function kanbanDragStart(event, leadId) {
+            crmLeadIdArrastando = leadId;
+            event.dataTransfer.setData('text/plain', leadId);
+            event.dataTransfer.effectAllowed = 'move';
+        }
+        window.kanbanDragStart = kanbanDragStart;
+
+        function kanbanDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            event.currentTarget.classList.add('bg-purple-950/20', 'border-2', 'border-dashed', 'border-purple-500/50');
+        }
+        window.kanbanDragOver = kanbanDragOver;
+
+        function kanbanDragLeave(event) {
+            event.currentTarget.classList.remove('bg-purple-950/20', 'border-2', 'border-dashed', 'border-purple-500/50');
+        }
+        window.kanbanDragLeave = kanbanDragLeave;
+
+        function kanbanDrop(event, novaColuna) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('bg-purple-950/20', 'border-2', 'border-dashed', 'border-purple-500/50');
+            const leadId = event.dataTransfer.getData('text/plain') || crmLeadIdArrastando;
+            if (!leadId) return;
+
+            const leads = obterLeadsCrm();
+            const lead = leads.find(l => l.id === leadId);
+            if (lead && lead.coluna !== novaColuna) {
+                lead.coluna = novaColuna;
+                lead.dataAtualizado = new Date().toISOString();
+                salvarLeadsCrm(leads);
+                renderizarKanbanCrm();
+            }
+            crmLeadIdArrastando = null;
+        }
+        window.kanbanDrop = kanbanDrop;
+
+        function moverLeadColunaRapido(leadId, direcao) {
+            const colunas = ['novos', 'abordagem', 'interessado', 'degustacao', 'fechado', 'futuro'];
+            const leads = obterLeadsCrm();
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            const idxAtual = colunas.indexOf(lead.coluna);
+            const novoIdx = idxAtual + direcao;
+
+            if (novoIdx >= 0 && novoIdx < colunas.length) {
+                lead.coluna = colunas[novoIdx];
+                lead.dataAtualizado = new Date().toISOString();
+                salvarLeadsCrm(leads);
+                renderizarKanbanCrm();
+            }
+        }
+        window.moverLeadColunaRapido = moverLeadColunaRapido;
+
+        // MODAL SCRIPTS DE MENSAGEM WHATSAPP
+        function abrirModalScriptWhatsApp(leadId) {
+            const leads = obterLeadsCrm();
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            crmLeadSendoAtendido = lead;
+            const nomeSpan = document.getElementById('script-zap-lead-nome');
+            if (nomeSpan) nomeSpan.innerText = `Contato: ${lead.nome} (${lead.telefone})`;
+
+            const selectModelo = document.getElementById('select-script-modelo');
+            if (selectModelo) selectModelo.value = "1";
+            carregarModeloScriptSelecionado("1");
+
+            const modal = document.getElementById('modal-crm-script-whatsapp');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalScriptWhatsApp = abrirModalScriptWhatsApp;
+
+        function carregarModeloScriptSelecionado(modeloId) {
+            if (!crmLeadSendoAtendido) return;
+            const template = CRM_MODELOS_SCRIPTS[modeloId] || CRM_MODELOS_SCRIPTS['1'];
+            const primeiroNome = (crmLeadSendoAtendido.nome || 'amigo(a)').trim().split(' ')[0];
+            const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || 'Consultor do Litrão';
+
+            const mensagemFormatada = template
+                .replace(/{nome}/g, primeiroNome)
+                .replace(/{consultor}/g, nomeConsultor);
+
+            const textarea = document.getElementById('script-zap-texto-mensagem');
+            if (textarea) textarea.value = mensagemFormatada;
+        }
+        window.carregarModeloScriptSelecionado = carregarModeloScriptSelecionado;
+
+        function dispararMensagemWhatsAppLead() {
+            if (!crmLeadSendoAtendido) return;
+            const textarea = document.getElementById('script-zap-texto-mensagem');
+            const texto = textarea ? textarea.value.trim() : '';
+            if (!texto) {
+                alert("Por favor, digite ou selecione uma mensagem.");
+                return;
+            }
+
+            // Normaliza telefone
+            let telRaw = String(crmLeadSendoAtendido.telefone || '').replace(/\D/g, '');
+            if (!telRaw.startsWith('55') && telRaw.length >= 10 && telRaw.length <= 11) {
+                telRaw = '55' + telRaw;
+            }
+
+            const urlZap = `https://wa.me/${telRaw}?text=${encodeURIComponent(texto)}`;
+            window.open(urlZap, '_blank');
+
+            // Verifica se deve avançar para "Primeira Abordagem"
+            const checkAvancar = document.getElementById('check-avancar-coluna-auto');
+            if (checkAvancar && checkAvancar.checked && crmLeadSendoAtendido.coluna === 'novos') {
+                const leads = obterLeadsCrm();
+                const lead = leads.find(l => l.id === crmLeadSendoAtendido.id);
+                if (lead) {
+                    lead.coluna = 'abordagem';
+                    lead.ultimaMensagem = new Date().toISOString();
+                    salvarLeadsCrm(leads);
+                    renderizarKanbanCrm();
+                }
+            }
+
+            fecharModalScriptWhatsApp();
+        }
+        window.dispararMensagemWhatsAppLead = dispararMensagemWhatsAppLead;
+
+        function fecharModalScriptWhatsApp() {
+            const modal = document.getElementById('modal-crm-script-whatsapp');
+            if (modal) modal.classList.add('hidden');
+            crmLeadSendoAtendido = null;
+        }
+        window.fecharModalScriptWhatsApp = fecharModalScriptWhatsApp;
+
+        // IMPORTAÇÃO DE LEADS
+        function abrirModalImportarCrm() {
+            const modal = document.getElementById('modal-crm-importar');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalImportarCrm = abrirModalImportarCrm;
+
+        function fecharModalImportarCrm() {
+            const modal = document.getElementById('modal-crm-importar');
+            if (modal) modal.classList.add('hidden');
+            const fileInput = document.getElementById('crm-file-input');
+            const txtInput = document.getElementById('crm-input-texto-importar');
+            if (fileInput) fileInput.value = '';
+            if (txtInput) txtInput.value = '';
+        }
+        window.fecharModalImportarCrm = fecharModalImportarCrm;
+
+        function processarArquivoImportacao(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const conteudo = e.target.result;
+                const colunaDestino = document.getElementById('crm-importar-coluna-destino').value || 'novos';
+                const grupoPadrao = document.getElementById('crm-importar-grupo-padrao').value.trim();
+
+                try {
+                    // Tenta ler como JSON da extensão
+                    if (file.name.endsWith('.json') || conteudo.trim().startsWith('{') || conteudo.trim().startsWith('[')) {
+                        const json = JSON.parse(conteudo);
+                        const contatos = Array.isArray(json) ? json : (json.contatos || json.membros || []);
+                        const nomeGrupoArquivo = json.grupo || grupoPadrao || 'Grupo WhatsApp';
+
+                        if (!Array.isArray(contatos) || contatos.length === 0) {
+                            alert("Nenhum contato encontrado no arquivo JSON.");
+                            return;
+                        }
+
+                        importarArrayDeContatos(contatos, nomeGrupoArquivo, colunaDestino);
+                    } else {
+                        // Ler como CSV
+                        processarTextoComoCsv(conteudo, grupoPadrao, colunaDestino);
+                    }
+                } catch (err) {
+                    console.error("Erro ao processar arquivo:", err);
+                    alert("Erro ao ler o arquivo: certifique-se de que é o arquivo .json gerado pela extensão.");
+                }
+            };
+            reader.readAsText(file);
+        }
+        window.processarArquivoImportacao = processarArquivoImportacao;
+
+        function processarTextoComoCsv(texto, grupoPadrao, colunaDestino) {
+            const linhas = texto.split('\n');
+            const novosContatos = [];
+
+            linhas.forEach((linha, idx) => {
+                const l = linha.trim();
+                if (!l || (idx === 0 && (l.toLowerCase().includes('telefone') || l.toLowerCase().includes('nome')))) return;
+                const partes = l.split(/[;,\t]/);
+                if (partes.length >= 2) {
+                    novosContatos.push({
+                        nome: partes[0].trim(),
+                        telefone: partes[1].trim(),
+                        grupo: partes[2] ? partes[2].trim() : grupoPadrao
+                    });
+                } else if (partes.length === 1 && partes[0].trim()) {
+                    novosContatos.push({
+                        nome: 'Contato',
+                        telefone: partes[0].trim(),
+                        grupo: grupoPadrao
+                    });
+                }
+            });
+
+            if (novosContatos.length > 0) {
+                importarArrayDeContatos(novosContatos, grupoPadrao, colunaDestino);
+            } else {
+                alert("Nenhum contato detectado no texto/CSV.");
+            }
+        }
+
+        function confirmarImportacaoTextoCrm() {
+            const txt = document.getElementById('crm-input-texto-importar').value.trim();
+            const grupoPadrao = document.getElementById('crm-importar-grupo-padrao').value.trim() || 'WhatsApp Importados';
+            const colunaDestino = document.getElementById('crm-importar-coluna-destino').value || 'novos';
+
+            if (!txt) {
+                alert("Por favor, selecione um arquivo ou cole os contatos na caixa de texto.");
+                return;
+            }
+
+            if (txt.startsWith('{') || txt.startsWith('[')) {
+                try {
+                    const json = JSON.parse(txt);
+                    const contatos = Array.isArray(json) ? json : (json.contatos || json.membros || []);
+                    importarArrayDeContatos(contatos, json.grupo || grupoPadrao, colunaDestino);
+                    return;
+                } catch (e) {}
+            }
+
+            processarTextoComoCsv(txt, grupoPadrao, colunaDestino);
+        }
+        window.confirmarImportacaoTextoCrm = confirmarImportacaoTextoCrm;
+
+        function importarArrayDeContatos(contatos, grupoNome, colunaDestino) {
+            const leadsExistentes = obterLeadsCrm();
+            const telefonesExistentes = new Set(leadsExistentes.map(l => String(l.telefone).replace(/\D/g, '')));
+
+            let importadosCount = 0;
+            let duplicadosCount = 0;
+
+            contatos.forEach((c, index) => {
+                const telRaw = String(c.telefone || c.numero || '').trim();
+                const telLimpo = telRaw.replace(/\D/g, '');
+
+                if (!telLimpo) return;
+
+                if (telefonesExistentes.has(telLimpo)) {
+                    duplicadosCount++;
+                    return;
+                }
+
+                const nomeFormatado = (c.nome || c.pushname || `Contato ${index + 1}`).replace(/~/g, '').trim();
+                const novoLead = {
+                    id: 'lead_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    nome: nomeFormatado,
+                    telefone: telRaw,
+                    grupo: c.grupo || grupoNome || 'Grupo WhatsApp',
+                    isAdmin: !!(c.isAdmin || c.admin),
+                    coluna: colunaDestino || 'novos',
+                    dataAdicionado: new Date().toISOString(),
+                    notas: c.notas || ''
+                };
+
+                leadsExistentes.push(novoLead);
+                telefonesExistentes.add(telLimpo);
+                importadosCount++;
+            });
+
+            salvarLeadsCrm(leadsExistentes);
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            fecharModalImportarCrm();
+
+            alert(`Sucesso! ${importadosCount} novos contatos adicionados ao Kanban.` + (duplicadosCount > 0 ? ` (${duplicadosCount} contatos duplicados foram ignorados).` : ''));
+        }
+
+        // NOVO LEAD / EDITAR LEAD MANUAL
+        function abrirModalNovoLeadCrm(colunaPadrao) {
+            const modal = document.getElementById('modal-crm-lead-form');
+            const titulo = document.getElementById('modal-lead-form-titulo');
+            const idInput = document.getElementById('lead-edit-id');
+            const nomeInput = document.getElementById('lead-edit-nome');
+            const telInput = document.getElementById('lead-edit-telefone');
+            const grupoInput = document.getElementById('lead-edit-grupo');
+            const colSelect = document.getElementById('lead-edit-coluna');
+            const notasInput = document.getElementById('lead-edit-notas');
+
+            if (titulo) titulo.innerText = "Adicionar Novo Lead";
+            if (idInput) idInput.value = "";
+            if (nomeInput) nomeInput.value = "";
+            if (telInput) telInput.value = "";
+            if (grupoInput) grupoInput.value = "";
+            if (colSelect) colSelect.value = colunaPadrao || "novos";
+            if (notasInput) notasInput.value = "";
+
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalNovoLeadCrm = abrirModalNovoLeadCrm;
+
+        function abrirModalEditarLeadCrm(leadId) {
+            const leads = obterLeadsCrm();
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            const modal = document.getElementById('modal-crm-lead-form');
+            const titulo = document.getElementById('modal-lead-form-titulo');
+            const idInput = document.getElementById('lead-edit-id');
+            const nomeInput = document.getElementById('lead-edit-nome');
+            const telInput = document.getElementById('lead-edit-telefone');
+            const grupoInput = document.getElementById('lead-edit-grupo');
+            const colSelect = document.getElementById('lead-edit-coluna');
+            const notasInput = document.getElementById('lead-edit-notas');
+
+            if (titulo) titulo.innerText = "Editar Lead";
+            if (idInput) idInput.value = lead.id;
+            if (nomeInput) nomeInput.value = lead.nome || "";
+            if (telInput) telInput.value = lead.telefone || "";
+            if (grupoInput) grupoInput.value = lead.grupo || "";
+            if (colSelect) colSelect.value = lead.coluna || "novos";
+            if (notasInput) notasInput.value = lead.notas || "";
+
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalEditarLeadCrm = abrirModalEditarLeadCrm;
+
+        function fecharModalNovoLeadCrm() {
+            const modal = document.getElementById('modal-crm-lead-form');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalNovoLeadCrm = fecharModalNovoLeadCrm;
+
+        function salvarLeadManualCrm(event) {
+            event.preventDefault();
+            const id = document.getElementById('lead-edit-id').value;
+            const nome = document.getElementById('lead-edit-nome').value.trim();
+            const telefone = document.getElementById('lead-edit-telefone').value.trim();
+            const grupo = document.getElementById('lead-edit-grupo').value.trim() || 'Manual';
+            const coluna = document.getElementById('lead-edit-coluna').value;
+            const notas = document.getElementById('lead-edit-notas').value.trim();
+
+            const leads = obterLeadsCrm();
+
+            if (id) {
+                // Atualizar existente
+                const lead = leads.find(l => l.id === id);
+                if (lead) {
+                    lead.nome = nome;
+                    lead.telefone = telefone;
+                    lead.grupo = grupo;
+                    lead.coluna = coluna;
+                    lead.notas = notas;
+                    lead.dataAtualizado = new Date().toISOString();
+                }
+            } else {
+                // Criar novo
+                leads.push({
+                    id: 'lead_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    nome,
+                    telefone,
+                    grupo,
+                    isAdmin: false,
+                    coluna: coluna || 'novos',
+                    dataAdicionado: new Date().toISOString(),
+                    notas
+                });
+            }
+
+            salvarLeadsCrm(leads);
+            atualizarSelectGruposKanban();
+            renderizarKanbanCrm();
+            fecharModalNovoLeadCrm();
+        }
+        window.salvarLeadManualCrm = salvarLeadManualCrm;
+
+        function excluirLeadCrm(leadId) {
+            if (!confirm("Tem certeza que deseja excluir este lead do Kanban?")) return;
+            let leads = obterLeadsCrm();
+            leads = leads.filter(l => l.id !== leadId);
+            salvarLeadsCrm(leads);
+            renderizarKanbanCrm();
+        }
+        window.excluirLeadCrm = excluirLeadCrm;
+
+        // EXPORTAÇÃO CSV
+        function exportarLeadsCrmCsv() {
+            const leads = obterLeadsCrm();
+            if (leads.length === 0) {
+                alert("Nenhum lead cadastrado para exportar.");
+                return;
+            }
+
+            const titulos = ["Nome", "Telefone", "Grupo Origem", "Admin", "Etapa Funil", "Data Cadastro", "Observações"];
+            const linhas = [titulos.join(";")];
+
+            leads.forEach(l => {
+                const linha = [
+                    `"${(l.nome || '').replace(/"/g, '""')}"`,
+                    `"${(l.telefone || '').replace(/"/g, '""')}"`,
+                    `"${(l.grupo || '').replace(/"/g, '""')}"`,
+                    l.isAdmin ? "Sim" : "Não",
+                    l.coluna || "novos",
+                    l.dataAdicionado || "",
+                    `"${(l.notas || '').replace(/"/g, '""')}"`
+                ];
+                linhas.push(linha.join(";"));
+            });
+
+            const csvContent = "\uFEFF" + linhas.join("\r\n"); // BOM para UTF-8 no Excel
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `leads_crm_whatsapp_${consultorAtual ? consultorAtual.herbalife_id : 'export'}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        window.exportarLeadsCrmCsv = exportarLeadsCrmCsv;
+
 
         window.abrirModalCentralNotificacoes = abrirModalCentralNotificacoes;
         window.fecharModalCentralNotificacoes = fecharModalCentralNotificacoes;
