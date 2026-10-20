@@ -347,8 +347,15 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
 // Ouvinte de Mensagens do Popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'disparar_mensagem_para_telefone') {
-    dispararMensagemParaNumero(request.telefone, request.texto)
+  if (request.action === 'disparar_mensagem_para_telefone') {
+    dispararMensagemParaNumero(request.telefone, request.texto, request.midia)
+      .then(resultado => sendResponse({ sucesso: true, resultado }))
+      .catch(err => sendResponse({ sucesso: false, erro: err.message }));
+    return true;
+  }
+
+  if (request.action === 'enviar_midia_chat') {
+    enviarMidiaNoChat(request.midia.base64, request.midia.mimeType, request.legenda || '', request.midia.nome)
       .then(resultado => sendResponse({ sucesso: true, resultado }))
       .catch(err => sendResponse({ sucesso: false, erro: err.message }));
     return true;
@@ -526,6 +533,181 @@ async function enviarMensagemNoChat(texto) {
   return true;
 }
 
+// Converte DataURL Base64 para objeto File nativo
+function base64ParaArquivo(base64Data, nomeArquivo, mimeType) {
+  let mime = mimeType || 'image/jpeg';
+  let b64 = base64Data;
+  if (base64Data && base64Data.includes(',')) {
+    const partes = base64Data.split(',');
+    const matchMime = partes[0].match(/:(.*?);/);
+    if (matchMime) mime = matchMime[1];
+    b64 = partes[1];
+  }
+  const bin = atob(b64);
+  const len = bin.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = bin.charCodeAt(i);
+  }
+  return new File([bytes], nomeArquivo || 'midia_litrao', { type: mime });
+}
+
+// Envia uma imagem ou vídeo no chat ativo com legenda opcional
+async function enviarMidiaNoChat(base64Data, mimeType, legenda = '', nomeArquivo = 'midia') {
+  if (!base64Data) {
+    throw new Error('Nenhum dado de mídia fornecido para envio.');
+  }
+
+  const file = base64ParaArquivo(base64Data, nomeArquivo, mimeType);
+
+  // 1. Garante que uma conversa está aberta
+  const inputBox = encontrarInputBoxWhatsApp();
+  if (!inputBox) {
+    throw new Error('Nenhuma conversa aberta no WhatsApp Web. Abra um chat primeiro.');
+  }
+
+  const isVideo = file.type.includes('video') || (nomeArquivo && nomeArquivo.match(/\.(mp4|mov|webm)$/i));
+  mostrarToastWhatsApp(`📎 <b>Anexando ${isVideo ? 'vídeo' : 'foto'}...</b>`, 'info', 2000);
+
+  // 2. Tenta encontrar o input de arquivo diretamente no DOM
+  let inputArquivo = null;
+  const inputsIniciais = Array.from(document.querySelectorAll('input[type="file"]'));
+  inputArquivo = inputsIniciais.find(i => i.accept && (i.accept.includes('image') || i.accept.includes('video')));
+
+  // Se não encontrar o input pronto, clica no botão de Anexo (+)
+  if (!inputArquivo) {
+    const btnAnexo = document.querySelector('#main footer span[data-icon="plus"]')?.closest('button') ||
+                     document.querySelector('#main footer span[data-icon="clip"]')?.closest('button') ||
+                     document.querySelector('#main footer button[title*="Anexar"]') ||
+                     document.querySelector('#main footer button[aria-label*="Anexar"]') ||
+                     document.querySelector('#main footer button[aria-label*="Attach"]');
+
+    if (btnAnexo) {
+      btnAnexo.click();
+      await new Promise(r => setTimeout(r, 400));
+    }
+
+    // Busca novamente após abrir o menu de anexo
+    const inputsAposMenu = Array.from(document.querySelectorAll('input[type="file"]'));
+    inputArquivo = inputsAposMenu.find(i => i.accept && (i.accept.includes('image') || i.accept.includes('video'))) || inputsAposMenu[0];
+  }
+
+  let abriuModal = false;
+
+  // 3. Aplica o arquivo no input via DataTransfer
+  if (inputArquivo) {
+    try {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      inputArquivo.files = dt.files;
+      inputArquivo.dispatchEvent(new Event('input', { bubbles: true }));
+      inputArquivo.dispatchEvent(new Event('change', { bubbles: true }));
+      abriuModal = true;
+    } catch (e) {
+      console.warn('[Litrão] Falha ao injetar no input de arquivo:', e);
+    }
+  }
+
+  // 4. Fallback: Se o input não funcionou ou modal não abriu, usa ClipboardEvent (Paste)
+  if (!abriuModal) {
+    try {
+      inputBox.focus();
+      const dtPaste = new DataTransfer();
+      dtPaste.items.add(file);
+      const pasteEvt = new ClipboardEvent('paste', {
+        clipboardData: dtPaste,
+        bubbles: true,
+        cancelable: true
+      });
+      inputBox.dispatchEvent(pasteEvt);
+    } catch (e) {
+      console.warn('[Litrão] Falha no fallback de colagem:', e);
+    }
+  }
+
+  // 5. Aguarda o modal de preview da mídia abrir (até 7 segundos)
+  let modalAberto = false;
+  let btnEnviarMidia = null;
+
+  for (let tentativa = 0; tentativa < 28; tentativa++) {
+    await new Promise(r => setTimeout(r, 250));
+
+    btnEnviarMidia = document.querySelector('div[role="dialog"] span[data-icon="send"]')?.closest('button') ||
+                     document.querySelector('div[role="dialog"] span[data-icon="send"]')?.closest('div[role="button"]') ||
+                     document.querySelector('span[data-icon="send"]')?.closest('div[role="button"]') ||
+                     document.querySelector('span[data-icon="send"]')?.closest('button') ||
+                     document.querySelector('button[data-testid="send"]') ||
+                     document.querySelector('div[aria-label="Enviar"][role="button"]');
+
+    const isPreview = document.querySelector('div[role="dialog"]') ||
+                      document.querySelector('div[data-testid="media-editor-controls"]') ||
+                      document.querySelector('div[data-testid="media-caption-input-container"]');
+
+    if (btnEnviarMidia && isPreview) {
+      modalAberto = true;
+      break;
+    }
+  }
+
+  if (!modalAberto && !btnEnviarMidia) {
+    throw new Error('Não foi possível abrir o preview de mídia no WhatsApp Web.');
+  }
+
+  await new Promise(r => setTimeout(r, 400));
+
+  // 6. Insere a legenda se houver
+  if (legenda && legenda.trim().length > 0) {
+    const inputLegenda = document.querySelector('div[role="dialog"] div[contenteditable="true"]') ||
+                         document.querySelector('div[data-testid="media-caption-input-container"] div[contenteditable="true"]') ||
+                         document.querySelector('div[data-testid="media-caption-input"]') ||
+                         document.querySelector('div[aria-label*="legenda" i]') ||
+                         document.querySelector('div[title*="legenda" i]') ||
+                         document.querySelector('div[contenteditable="true"][data-tab="10"]');
+
+    if (inputLegenda) {
+      inputLegenda.focus();
+      await new Promise(r => setTimeout(r, 120));
+      document.execCommand('selectAll', false, null);
+      document.execCommand('delete', false, null);
+      document.execCommand('insertText', false, legenda);
+
+      inputLegenda.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: legenda, inputType: 'insertText' }));
+      inputLegenda.dispatchEvent(new Event('input', { bubbles: true }));
+      inputLegenda.dispatchEvent(new Event('change', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 250));
+    }
+  }
+
+  // 7. Clica no botão de enviar do modal
+  btnEnviarMidia = document.querySelector('div[role="dialog"] span[data-icon="send"]')?.closest('button') ||
+                   document.querySelector('div[role="dialog"] span[data-icon="send"]')?.closest('div[role="button"]') ||
+                   document.querySelector('span[data-icon="send"]')?.closest('div[role="button"]') ||
+                   document.querySelector('span[data-icon="send"]')?.closest('button') ||
+                   document.querySelector('button[data-testid="send"]') ||
+                   document.querySelector('div[aria-label="Enviar"][role="button"]');
+
+  if (btnEnviarMidia) {
+    btnEnviarMidia.click();
+  } else {
+    // Fallback: Pressiona Enter
+    const activeEl = document.activeElement;
+    if (activeEl) {
+      activeEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+      activeEl.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true }));
+    }
+  }
+
+  // 8. Aguarda o modal de envio fechar
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 300));
+    const aindaAberto = document.querySelector('div[role="dialog"] span[data-icon="send"]');
+    if (!aindaAberto) break;
+  }
+
+  await new Promise(r => setTimeout(r, 500));
+  return true;
+}
+
 // ==========================================
 // MOTOR DE DISPARO SEQUENCIAL COM 1 CLIQUE
 // ==========================================
@@ -565,9 +747,14 @@ async function executarSequencia1Clique(sequencia) {
         .replace(/{primeiro_nome}/gi, nomeContato)
         .replace(/{chave_pix}/gi, 'pix@litraodoreset.com.br');
 
-      mostrarToastWhatsApp(`📤 <b>Passo ${i + 1}/${sequencia.passos.length}:</b><br>${textoPronto.substring(0, 50)}...`, 'info', 2500);
+      const tipoPasso = passo.midia ? (passo.midia.tipo === 'video' ? '🎥 Vídeo' : '📷 Foto') : '💬 Texto';
+      mostrarToastWhatsApp(`📤 <b>Passo ${i + 1}/${sequencia.passos.length} (${tipoPasso}):</b><br>${textoPronto.substring(0, 50)}...`, 'info', 2500);
 
-      await enviarMensagemNoChat(textoPronto);
+      if (passo.midia && passo.midia.base64) {
+        await enviarMidiaNoChat(passo.midia.base64, passo.midia.mimeType, textoPronto, passo.midia.nome);
+      } else {
+        await enviarMensagemNoChat(textoPronto);
+      }
 
       // Delay humanizado entre passos se não for o último
       if (i < sequencia.passos.length - 1 && passo.delay > 0) {
@@ -861,17 +1048,23 @@ async function abrirChatPorTelefone(telLimpo) {
   throw new Error('Tempo limite esgotado ao abrir conversa com +' + telLimpo);
 }
 
-async function dispararMensagemParaNumero(telefone, texto) {
+async function dispararMensagemParaNumero(telefone, texto, midia = null) {
   const telLimpo = normalizarTelefone(telefone);
   if (!telLimpo || telLimpo.length < 8) {
     throw new Error('Número de telefone inválido: ' + telefone);
   }
 
-  mostrarToastWhatsApp(`📤 <b>Iniciando envio para:</b> +${telLimpo}`, 'info', 2500);
+  const descTipo = midia ? (midia.tipo === 'video' ? '🎥 vídeo' : '📷 foto') : '💬 texto';
+  mostrarToastWhatsApp(`📤 <b>Iniciando envio (${descTipo}) para:</b> +${telLimpo}`, 'info', 2500);
 
   await abrirChatPorTelefone(telLimpo);
-  await enviarMensagemNoChat(texto);
 
-  mostrarToastWhatsApp(`✅ <b>Mensagem entregue para:</b> +${telLimpo}!`, 'success', 3000);
+  if (midia && midia.base64) {
+    await enviarMidiaNoChat(midia.base64, midia.mimeType, texto, midia.nome);
+  } else {
+    await enviarMensagemNoChat(texto);
+  }
+
+  mostrarToastWhatsApp(`✅ <b>Entrega com sucesso para:</b> +${telLimpo}!`, 'success', 3000);
   return { sucesso: true, telefone: telLimpo };
 }

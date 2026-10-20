@@ -287,11 +287,70 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ==========================================
   const listaMensagensEl = document.getElementById('lista-mensagens-rapidas');
   const btnNovaMsg = document.getElementById('btn-nova-msg-rapida');
+  // ==========================================
+  // UTILITÁRIO: LEITURA DE ARQUIVOS DE MÍDIA
+  // ==========================================
+  function lerArquivoComoBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error('Nenhum arquivo fornecido.'));
+      const reader = new FileReader();
+      reader.onload = () => {
+        let tipo = 'outro';
+        if (file.type.startsWith('image/')) tipo = 'imagem';
+        else if (file.type.startsWith('video/')) tipo = 'video';
+        else if (file.type.startsWith('audio/')) tipo = 'audio';
+
+        resolve({
+          base64: reader.result,
+          mimeType: file.type || 'image/jpeg',
+          nome: file.name,
+          tamanho: file.size,
+          tipo: tipo
+        });
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+
   const formMsg = document.getElementById('form-msg-rapida');
   const btnSalvarMsg = document.getElementById('btn-salvar-msg-rapida');
   const btnCancelarMsg = document.getElementById('btn-cancelar-msg-rapida');
   const inputMsgTitulo = document.getElementById('input-msg-titulo');
   const inputMsgTexto = document.getElementById('input-msg-texto');
+  const btnMsgMidia = document.getElementById('btn-msg-midia');
+  const inputMsgMidia = document.getElementById('input-msg-midia');
+  const previewMsgMidiaBox = document.getElementById('preview-msg-midia-box');
+  const txtMsgMidiaNome = document.getElementById('txt-msg-midia-nome');
+  const btnRemoverMsgMidia = document.getElementById('btn-remover-msg-midia');
+
+  let midiaMsgRapidaTemp = null;
+
+  if (btnMsgMidia && inputMsgMidia) {
+    btnMsgMidia.addEventListener('click', () => inputMsgMidia.click());
+    inputMsgMidia.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        btnMsgMidia.innerText = '⏳ Carregando...';
+        midiaMsgRapidaTemp = await lerArquivoComoBase64(file);
+        if (txtMsgMidiaNome) txtMsgMidiaNome.innerText = `${midiaMsgRapidaTemp.tipo === 'video' ? '🎥' : '📷'} ${file.name}`;
+        if (previewMsgMidiaBox) previewMsgMidiaBox.style.display = 'flex';
+        btnMsgMidia.innerText = 'Trocar';
+      } catch (err) {
+        alert("Erro ao ler mídia: " + err.message);
+      }
+    });
+  }
+
+  if (btnRemoverMsgMidia) {
+    btnRemoverMsgMidia.addEventListener('click', () => {
+      midiaMsgRapidaTemp = null;
+      if (inputMsgMidia) inputMsgMidia.value = '';
+      if (previewMsgMidiaBox) previewMsgMidiaBox.style.display = 'none';
+      if (btnMsgMidia) btnMsgMidia.innerText = 'Escolher Arquivo';
+    });
+  }
 
   function obterMensagensSalvas() {
     try {
@@ -313,9 +372,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     msgs.forEach((m, idx) => {
       const row = document.createElement('div');
       row.className = 'item-row';
+      const badgeMidia = m.midia ? `<span class="tag tag-green" style="margin-left: 4px;">${m.midia.tipo === 'video' ? '🎥 Vídeo' : '📷 Foto'}</span>` : '';
       row.innerHTML = `
-        <div style="overflow: hidden;">
-          <div class="item-title">${m.titulo}</div>
+        <div style="overflow: hidden; flex: 1;">
+          <div class="item-title" style="display: flex; align-items: center;">${m.titulo} ${badgeMidia}</div>
           <div class="item-preview">${m.texto}</div>
         </div>
         <div style="display: flex; gap: 4px; flex-shrink: 0;">
@@ -332,9 +392,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         const idx = btn.dataset.idx;
         const msg = msgs[idx];
         if (isZap && msg) {
-          chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
-            alert(`Mensagem "${msg.titulo}" enviada na conversa ativa!`);
-          });
+          if (msg.midia && msg.midia.base64) {
+            chrome.tabs.sendMessage(tab.id, {
+              action: 'enviar_midia_chat',
+              midia: msg.midia,
+              legenda: msg.texto
+            }, (res) => {
+              if (res && res.sucesso) {
+                alert(`Foto/Vídeo "${msg.titulo}" enviada na conversa ativa!`);
+              } else {
+                alert('Aviso: ' + ((res && res.erro) || 'Verifique se uma conversa está aberta.'));
+              }
+            });
+          } else {
+            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
+              alert(`Mensagem "${msg.titulo}" enviada na conversa ativa!`);
+            });
+          }
         } else {
           navigator.clipboard.writeText(msg.texto);
           alert(`Mensagem copiada para a área de transferência!`);
@@ -356,6 +430,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   btnNovaMsg.addEventListener('click', () => {
     formMsg.style.display = 'block';
+    if (previewMsgMidiaBox) previewMsgMidiaBox.style.display = 'none';
+    midiaMsgRapidaTemp = null;
+    if (inputMsgMidia) inputMsgMidia.value = '';
+    if (btnMsgMidia) btnMsgMidia.innerText = 'Escolher Arquivo';
     inputMsgTitulo.focus();
   });
 
@@ -363,21 +441,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     formMsg.style.display = 'none';
     inputMsgTitulo.value = '';
     inputMsgTexto.value = '';
+    midiaMsgRapidaTemp = null;
+    if (inputMsgMidia) inputMsgMidia.value = '';
+    if (previewMsgMidiaBox) previewMsgMidiaBox.style.display = 'none';
   });
 
   btnSalvarMsg.addEventListener('click', () => {
     const tit = inputMsgTitulo.value.trim();
     const txt = inputMsgTexto.value.trim();
-    if (!tit || !txt) {
-      alert("Preencha título e texto.");
+    if (!tit) {
+      alert("Preencha o título da mensagem.");
       return;
     }
     const msgs = obterMensagensSalvas();
-    msgs.push({ id: 'msg_' + Date.now(), titulo: tit, texto: txt });
+    msgs.push({
+      id: 'msg_' + Date.now(),
+      titulo: tit,
+      texto: txt,
+      midia: midiaMsgRapidaTemp ? Object.assign({}, midiaMsgRapidaTemp) : null
+    });
     salvarMensagens(msgs);
     formMsg.style.display = 'none';
     inputMsgTitulo.value = '';
     inputMsgTexto.value = '';
+    midiaMsgRapidaTemp = null;
+    if (inputMsgMidia) inputMsgMidia.value = '';
+    if (previewMsgMidiaBox) previewMsgMidiaBox.style.display = 'none';
   });
 
 
@@ -462,7 +551,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Monta as tags dos passos
       let passosHtml = '';
       s.passos.forEach((p, pIdx) => {
-        passosHtml += `<span class="tag tag-blue" title="${p.texto}">P${pIdx + 1} (${p.delay}s)</span> `;
+        const iconeMidia = p.midia ? (p.midia.tipo === 'video' ? '🎥 ' : '📷 ') : '';
+        passosHtml += `<span class="tag tag-blue" title="${p.texto || 'Mídia'}">${iconeMidia}P${pIdx + 1} (${p.delay}s)</span> `;
       });
 
       row.innerHTML = `
@@ -545,21 +635,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function adicionarCampoPassoForm(textoPadrao = '', delayPadrao = 3) {
+  function adicionarCampoPassoForm(textoPadrao = '', delayPadrao = 3, midiaPadrao = null) {
     const div = document.createElement('div');
     div.style.background = '#1E293B';
     div.style.padding = '8px';
     div.style.borderRadius = '6px';
     div.style.border = '1px solid #334155';
+    div.stepMidia = midiaPadrao || null;
 
     div.innerHTML = `
-      <textarea rows="2" placeholder="Mensagem deste passo (use {nome})" class="passo-texto" style="margin-bottom: 4px;">${textoPadrao}</textarea>
+      <textarea rows="2" placeholder="Mensagem / Legenda deste passo (use {nome})" class="passo-texto" style="margin-bottom: 4px;">${textoPadrao}</textarea>
+      
+      <!-- Linha de Mídia do Passo -->
+      <div style="background: #0B1120; border: 1px dashed #334155; border-radius: 4px; padding: 4px 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+        <div class="passo-midia-preview" style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+          <span class="passo-midia-status" style="font-size: 10px; color: #64748B;">Nenhuma foto/vídeo</span>
+        </div>
+        <input type="file" accept="image/*,video/*" class="passo-midia-input" style="display: none;">
+        <button type="button" class="btn btn-dark btn-small btn-passo-midia" style="font-size: 9px; padding: 2px 6px;">📎 Anexar Mídia</button>
+        <button type="button" class="btn btn-dark btn-small btn-passo-remover-midia" style="display: none; color: #EF4444; padding: 1px 5px; font-size: 10px;">✕</button>
+      </div>
+
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
         <span style="font-size: 10px; color: #94A3B8;">Aguardar após enviar (segundos):</span>
         <input type="number" value="${delayPadrao}" min="0" max="60" class="passo-delay" style="width: 60px; margin-bottom: 0; padding: 4px;">
-        <button type="button" class="btn btn-dark btn-small btn-remover-passo" style="padding: 2px 6px;">✕</button>
+        <button type="button" class="btn btn-dark btn-small btn-remover-passo" style="padding: 2px 6px;" title="Remover este passo">🗑️</button>
       </div>
     `;
+
+    const btnMidia = div.querySelector('.btn-passo-midia');
+    const inputMidia = div.querySelector('.passo-midia-input');
+    const statusMidia = div.querySelector('.passo-midia-status');
+    const btnRemoverMidia = div.querySelector('.btn-passo-remover-midia');
+
+    function atualizarUiMidia() {
+      if (div.stepMidia) {
+        statusMidia.innerHTML = `<span style="color:#10B981; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${div.stepMidia.tipo === 'video' ? '🎥' : '📷'} ${div.stepMidia.nome}</span>`;
+        btnRemoverMidia.style.display = 'inline-block';
+        btnMidia.innerText = 'Trocar';
+      } else {
+        statusMidia.innerText = 'Nenhuma foto/vídeo';
+        btnRemoverMidia.style.display = 'none';
+        btnMidia.innerText = '📎 Anexar Mídia';
+      }
+    }
+
+    btnMidia.addEventListener('click', () => inputMidia.click());
+
+    inputMidia.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        btnMidia.innerText = '⏳';
+        div.stepMidia = await lerArquivoComoBase64(file);
+        atualizarUiMidia();
+      } catch (err) {
+        alert("Erro ao ler mídia: " + err.message);
+      }
+    });
+
+    btnRemoverMidia.addEventListener('click', () => {
+      div.stepMidia = null;
+      inputMidia.value = '';
+      atualizarUiMidia();
+    });
+
+    atualizarUiMidia();
 
     div.querySelector('.btn-remover-passo').addEventListener('click', () => {
       div.remove();
@@ -587,20 +728,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert("Preencha o nome da sequência.");
         return;
       }
-      const textos = containerPassosForm.querySelectorAll('.passo-texto');
-      const delays = containerPassosForm.querySelectorAll('.passo-delay');
-
       const passos = [];
-      textos.forEach((tEl, idx) => {
-        const txt = tEl.value.trim();
-        const del = parseInt(delays[idx].value) || 0;
-        if (txt) {
-          passos.push({ texto: txt, delay: del });
+      const stepDivs = containerPassosForm.children;
+      for (const stepDiv of stepDivs) {
+        const tEl = stepDiv.querySelector('.passo-texto');
+        const dEl = stepDiv.querySelector('.passo-delay');
+        if (tEl && dEl) {
+          const txt = tEl.value.trim();
+          const del = parseInt(dEl.value) || 0;
+          const mid = stepDiv.stepMidia || null;
+          if (txt || mid) {
+            passos.push({ texto: txt, delay: del, midia: mid });
+          }
         }
-      });
+      }
 
       if (passos.length === 0) {
-        alert("Adicione pelo menos 1 passo com mensagem.");
+        alert("Adicione pelo menos 1 passo com mensagem ou mídia.");
         return;
       }
 
@@ -611,6 +755,165 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert(`Sequência "${tit}" salva com sucesso!`);
     });
   }
+
+  // ==========================================
+  // GALERIA DE MÍDIAS & ÁUDIOS (1 CLIQUE)
+  // ==========================================
+  const btnSubirFotoGaleria = document.getElementById('btn-subir-foto-galeria');
+  const inputGaleriaFoto = document.getElementById('input-galeria-foto');
+  const btnSubirVideoGaleria = document.getElementById('btn-subir-video-galeria');
+  const inputGaleriaVideo = document.getElementById('input-galeria-video');
+  const btnNovoAudio = document.getElementById('btn-novo-audio');
+  const inputAudioFile = document.getElementById('input-audio-file');
+  const listaAudiosEl = document.getElementById('lista-audios');
+
+  function formatarBytes(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function obterMidiasGaleria() {
+    try {
+      const raw = localStorage.getItem('litrao_galeria_midias');
+      return raw ? JSON.parse(raw) : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function salvarMidiasGaleria(midias) {
+    try {
+      localStorage.setItem('litrao_galeria_midias', JSON.stringify(midias));
+    } catch (_) {}
+    if (chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ litrao_galeria_midias: midias });
+    }
+    renderizarGaleriaMidias();
+  }
+
+  function renderizarGaleriaMidias() {
+    if (!listaAudiosEl) return;
+    const midias = obterMidiasGaleria();
+    listaAudiosEl.innerHTML = '';
+
+    if (midias.length === 0) {
+      listaAudiosEl.innerHTML = `
+        <div style="text-align: center; color: #64748B; padding: 14px; font-size: 11px;">
+          Nenhuma foto ou vídeo salva ainda.<br>Clique nos botões acima para subir imagens promocionais, vídeos ou áudios!
+        </div>
+      `;
+      return;
+    }
+
+    midias.forEach((m, idx) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.style.alignItems = 'center';
+      row.style.gap = '8px';
+
+      let thumbHtml = '';
+      if (m.tipo === 'imagem') {
+        thumbHtml = `<img src="${m.base64}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #334155; flex-shrink: 0;">`;
+      } else if (m.tipo === 'video') {
+        thumbHtml = `<div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #1E293B; border-radius: 4px; font-size: 18px; flex-shrink: 0;">🎥</div>`;
+      } else {
+        thumbHtml = `<div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #064E3B; border-radius: 4px; font-size: 18px; flex-shrink: 0;">🎙️</div>`;
+      }
+
+      row.innerHTML = `
+        ${thumbHtml}
+        <div style="flex: 1; min-width: 0;">
+          <div class="item-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.nome}</div>
+          <div class="item-preview">${m.tipo.toUpperCase()} • ${formatarBytes(m.tamanho)}</div>
+        </div>
+        <div style="display: flex; gap: 4px; flex-shrink: 0;">
+          <button class="btn btn-green btn-small" data-galeria-send="${idx}" title="Enviar no chat aberto do WhatsApp">⚡ Enviar</button>
+          <button class="btn btn-dark btn-small" data-galeria-del="${idx}" title="Excluir">🗑️</button>
+        </div>
+      `;
+      listaAudiosEl.appendChild(row);
+    });
+
+    listaAudiosEl.querySelectorAll('[data-galeria-send]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.galeriaSend);
+        const midia = midias[idx];
+        if (!midia) return;
+
+        if (!isZap) {
+          alert("Abra uma conversa no WhatsApp Web para enviar esta mídia.");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = '⏳';
+
+        chrome.tabs.sendMessage(tab.id, {
+          action: 'enviar_midia_chat',
+          midia: midia,
+          legenda: ''
+        }, (res) => {
+          btn.disabled = false;
+          btn.innerText = '⚡ Enviar';
+          if (res && res.sucesso) {
+            alert(`✅ ${midia.nome} enviada no chat aberto!`);
+          } else {
+            alert('Aviso: ' + ((res && res.erro) || 'Verifique se uma conversa está aberta.'));
+          }
+        });
+      });
+    });
+
+    listaAudiosEl.querySelectorAll('[data-galeria-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.galeriaDel);
+        midias.splice(idx, 1);
+        salvarMidiasGaleria(midias);
+      });
+    });
+  }
+
+  async function processarUploadGaleria(file) {
+    if (!file) return;
+    try {
+      const midiaObj = await lerArquivoComoBase64(file);
+      const midias = obterMidiasGaleria();
+      midias.unshift(midiaObj);
+      salvarMidiasGaleria(midias);
+      alert(`🎉 Mídia "${file.name}" salva na sua Galeria!`);
+    } catch (err) {
+      alert("Erro ao processar mídia: " + err.message);
+    }
+  }
+
+  if (btnSubirFotoGaleria && inputGaleriaFoto) {
+    btnSubirFotoGaleria.addEventListener('click', () => inputGaleriaFoto.click());
+    inputGaleriaFoto.addEventListener('change', (e) => {
+      processarUploadGaleria(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
+
+  if (btnSubirVideoGaleria && inputGaleriaVideo) {
+    btnSubirVideoGaleria.addEventListener('click', () => inputGaleriaVideo.click());
+    inputGaleriaVideo.addEventListener('change', (e) => {
+      processarUploadGaleria(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
+
+  if (btnNovoAudio && inputAudioFile) {
+    btnNovoAudio.addEventListener('click', () => inputAudioFile.click());
+    inputAudioFile.addEventListener('change', (e) => {
+      processarUploadGaleria(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
+
+  renderizarGaleriaMidias();
 
   // ==========================================
   // 3. BACKUP & RESTAURAÇÃO
@@ -876,6 +1179,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ==========================================
+  // MÍDIA ANEXA NO DISPARO EM MASSA (FOTO OU VÍDEO)
+  // ==========================================
+  const btnEscolherMidiaDisparo = document.getElementById('btn-escolher-midia-disparo');
+  const inputFileMidiaDisparo = document.getElementById('input-file-midia-disparo');
+  const previewMidiaDisparoBox = document.getElementById('preview-midia-disparo-box');
+  const previewMidiaDisparoThumb = document.getElementById('preview-midia-disparo-thumb');
+  const txtNomeMidiaDisparo = document.getElementById('txt-nome-midia-disparo');
+  const txtInfoMidiaDisparo = document.getElementById('txt-info-midia-disparo');
+  const btnRemoverMidiaDisparo = document.getElementById('btn-remover-midia-disparo');
+
+  let midiaDisparoAtual = null;
+
+  if (btnEscolherMidiaDisparo && inputFileMidiaDisparo) {
+    btnEscolherMidiaDisparo.addEventListener('click', () => inputFileMidiaDisparo.click());
+    inputFileMidiaDisparo.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        btnEscolherMidiaDisparo.innerText = '⏳ Lendo...';
+        midiaDisparoAtual = await lerArquivoComoBase64(file);
+
+        if (txtNomeMidiaDisparo) txtNomeMidiaDisparo.innerText = file.name;
+        if (txtInfoMidiaDisparo) txtInfoMidiaDisparo.innerText = `${midiaDisparoAtual.tipo.toUpperCase()} • ${formatarBytes(file.size)}`;
+
+        if (previewMidiaDisparoThumb) {
+          if (midiaDisparoAtual.tipo === 'imagem') {
+            previewMidiaDisparoThumb.innerHTML = `<img src="${midiaDisparoAtual.base64}" style="width: 100%; height: 100%; object-fit: cover;">`;
+          } else {
+            previewMidiaDisparoThumb.innerHTML = `<span style="font-size: 20px;">🎥</span>`;
+          }
+        }
+
+        if (previewMidiaDisparoBox) previewMidiaDisparoBox.style.display = 'flex';
+        btnEscolherMidiaDisparo.innerText = 'Trocar Mídia';
+      } catch (err) {
+        alert("Erro ao ler mídia: " + err.message);
+      }
+    });
+  }
+
+  if (btnRemoverMidiaDisparo) {
+    btnRemoverMidiaDisparo.addEventListener('click', () => {
+      midiaDisparoAtual = null;
+      if (inputFileMidiaDisparo) inputFileMidiaDisparo.value = '';
+      if (previewMidiaDisparoBox) previewMidiaDisparoBox.style.display = 'none';
+      if (btnEscolherMidiaDisparo) btnEscolherMidiaDisparo.innerText = '📁 Escolher Mídia';
+    });
+  }
+
   // Iniciar Disparo em Massa
   const btnIniciarDisparo = document.getElementById('btn-iniciar-disparo');
   const btnPararDisparo = document.getElementById('btn-parar-disparo');
@@ -912,8 +1265,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const variacoes = obterVariacoesSalvas().filter(v => v.texto && v.texto.trim().length > 0);
-      if (variacoes.length === 0) {
-        alert("Adicione pelo menos uma mensagem nas variações.");
+      if (variacoes.length === 0 && !midiaDisparoAtual) {
+        alert("Adicione pelo menos uma mensagem nas variações ou anexe uma foto/vídeo.");
         return;
       }
 
@@ -946,14 +1299,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pct = Math.round(((i) / linhasTelefones.length) * 100);
         if (fillProgressoDisparo) fillProgressoDisparo.style.width = pct + '%';
         if (txtContagemDisparo) txtContagemDisparo.innerText = `${i + 1} de ${linhasTelefones.length}`;
-        if (txtProgressoDisparo) txtProgressoDisparo.innerText = `Enviando para ${telLinha}...`;
+        const descMidia = midiaDisparoAtual ? (midiaDisparoAtual.tipo === 'video' ? '🎥 ' : '📷 ') : '';
+        if (txtProgressoDisparo) txtProgressoDisparo.innerText = `Enviando ${descMidia}para ${telLinha}...`;
 
         // 1. Escolhe a mensagem (aleatória ou em ordem)
         let templateEscolhido = '';
-        if (modo === 'ordem') {
-          templateEscolhido = variacoes[i % variacoes.length].texto;
-        } else {
-          templateEscolhido = variacoes[Math.floor(Math.random() * variacoes.length)].texto;
+        if (variacoes.length > 0) {
+          if (modo === 'ordem') {
+            templateEscolhido = variacoes[i % variacoes.length].texto;
+          } else {
+            templateEscolhido = variacoes[Math.floor(Math.random() * variacoes.length)].texto;
+          }
         }
 
         // 2. Busca nome se existir nos contatos extraídos
@@ -962,16 +1318,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (achado && achado.nome) nomeContato = achado.nome;
 
         // 3. Resolve Spintax e Tags Inteligentes
-        const msgFinal = gerarMensagemFinal(templateEscolhido, { nome: nomeContato, telefone: telLinha });
+        const msgFinal = templateEscolhido ? gerarMensagemFinal(templateEscolhido, { nome: nomeContato, telefone: telLinha }) : '';
 
-        // 4. Envia para o WhatsApp Web
+        // 4. Envia para o WhatsApp Web (com mídia anexa se presente)
         try {
           await garantirContentScript(tab.id);
           const res = await new Promise(resolve => {
             chrome.tabs.sendMessage(tab.id, {
               action: 'disparar_mensagem_para_telefone',
               telefone: telLinha,
-              texto: msgFinal
+              texto: msgFinal,
+              midia: midiaDisparoAtual
             }, (r) => {
               if (chrome.runtime.lastError || !r) resolve({ sucesso: false, erro: 'Erro de comunicação com o WhatsApp.' });
               else resolve(r);

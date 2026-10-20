@@ -302,7 +302,7 @@
     <button class="nav-tab active" data-tab="tab-extrator">📥 Extrator</button>
     <button class="nav-tab" data-tab="tab-mensagens">🚀 Mensagens</button>
     <button class="nav-tab" data-tab="tab-sequencias">💬 Sequências</button>
-    <button class="nav-tab" data-tab="tab-audios">🎙️ Áudios</button>
+    <button class="nav-tab" data-tab="tab-audios">📷 Mídias</button>
     <button class="nav-tab" data-tab="tab-disparador">👥 Em Massa</button>
     <button class="nav-tab" data-tab="tab-autoresponder">🤖 Autoresponder</button>
     <button class="nav-tab" data-tab="tab-backup">💾 Backup</button>
@@ -377,10 +377,24 @@
         <div id="form-msg-rapida" style="display: none; background: #0E1626; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
           <label>Título do Atalho:</label>
           <input type="text" id="input-msg-titulo" placeholder="Ex: Convite Litrão">
-          <label>Texto da Mensagem:</label>
+          <label>Texto da Mensagem / Legenda:</label>
           <textarea id="input-msg-texto" rows="3" placeholder="Use {nome} para o primeiro nome do cliente"></textarea>
+          
+          <!-- Anexar Mídia Opcional na Mensagem Rápida -->
+          <div style="margin-bottom: 8px; background: #080D1A; padding: 6px 8px; border-radius: 6px; border: 1px solid #1E293B;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: bold; color: #94A3B8;">📷 Anexar Foto ou Vídeo (Opcional):</span>
+              <button type="button" id="btn-msg-midia" class="btn btn-dark btn-small" style="font-size: 9px; padding: 2px 6px;">Escolher Arquivo</button>
+            </div>
+            <input type="file" id="input-msg-midia" accept="image/*,video/*" style="display: none;">
+            <div id="preview-msg-midia-box" style="display: none; align-items: center; gap: 8px;">
+              <span id="txt-msg-midia-nome" style="font-size: 10px; color: #38BDF8; font-weight: bold; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+              <button type="button" id="btn-remover-msg-midia" class="btn btn-dark btn-small" style="color: #EF4444; padding: 1px 5px; font-size: 10px;">✕</button>
+            </div>
+          </div>
+
           <div style="display: flex; gap: 6px;">
-            <button id="btn-salvar-msg-rapida" class="btn btn-green btn-small">Salvar</button>
+            <button id="btn-salvar-msg-rapida" class="btn btn-green btn-small">Salvar Mensagem</button>
             <button id="btn-cancelar-msg-rapida" class="btn btn-dark btn-small">Cancelar</button>
           </div>
         </div>
@@ -441,17 +455,34 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ABA 4: ÁUDIOS NATIVOS (SIMULAÇÃO PTT) -->
+    <!-- ABA 4: GALERIA DE MÍDIAS (FOTOS, VÍDEOS & ÁUDIOS) -->
     <!-- ========================================== -->
     <div id="tab-audios" class="tab-pane">
       <div class="card">
         <div class="card-title">
-          <span>Áudios Gravados na Hora (PTT)</span>
-          <button id="btn-novo-audio" class="btn btn-dark btn-small">➕ Subir Áudio</button>
+          <span>Galeria de Mídias & Áudios</span>
+          <span class="tag tag-green">1 Clique</span>
         </div>
-        <p class="card-desc">Envia áudios como notas de voz gravadas na hora (com microfone verde, sem encaminhado).</p>
+        <p class="card-desc">Envie fotos, vídeos promocionais ou notas de voz diretamente no chat aberto com 1 clique.</p>
 
-        <input type="file" id="input-audio-file" accept="audio/*" style="display: none;">
+        <!-- Botões de Upload Rápido -->
+        <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+          <input type="file" id="input-galeria-foto" accept="image/*" style="display: none;">
+          <button type="button" id="btn-subir-foto-galeria" class="btn btn-dark btn-small" style="flex: 1; font-size: 10px;">
+            📷 Foto
+          </button>
+          
+          <input type="file" id="input-galeria-video" accept="video/*" style="display: none;">
+          <button type="button" id="btn-subir-video-galeria" class="btn btn-dark btn-small" style="flex: 1; font-size: 10px;">
+            🎥 Vídeo
+          </button>
+
+          <input type="file" id="input-audio-file" accept="audio/*" style="display: none;">
+          <button type="button" id="btn-novo-audio" class="btn btn-dark btn-small" style="flex: 1; font-size: 10px;">
+            🎙️ Áudio
+          </button>
+        </div>
+
         <div id="lista-audios" class="item-list">
           <!-- Injetado via JS -->
         </div>
@@ -494,6 +525,32 @@
 
         <div id="container-variacoes-disparo" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
           <!-- Injetado dinamicamente via JS -->
+        </div>
+
+        <!-- Mídia Anexa no Disparo em Massa (Foto ou Vídeo) -->
+        <div style="background: #080D1A; border: 1px solid #1E293B; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <label style="margin-bottom: 0; display: flex; align-items: center; gap: 5px;">
+              <span>📷 Anexar Foto ou Vídeo:</span>
+              <span style="font-size: 9px; color: #10B981; font-weight: normal;">(Opcional)</span>
+            </label>
+            <button type="button" id="btn-escolher-midia-disparo" class="btn btn-dark btn-small" style="font-size: 10px; padding: 2px 8px;">
+              📁 Escolher Mídia
+            </button>
+          </div>
+          <input type="file" id="input-file-midia-disparo" accept="image/*,video/*" style="display: none;">
+          
+          <div id="preview-midia-disparo-box" style="display: none; background: #0F172A; border: 1px dashed #38BDF8; border-radius: 6px; padding: 8px; align-items: center; gap: 10px;">
+            <div id="preview-midia-disparo-thumb" style="width: 44px; height: 44px; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #1E293B; flex-shrink: 0;"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div id="txt-nome-midia-disparo" style="font-size: 11px; font-weight: bold; color: #F1F5F9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+              <div id="txt-info-midia-disparo" style="font-size: 10px; color: #94A3B8;"></div>
+            </div>
+            <button type="button" id="btn-remover-midia-disparo" class="btn btn-dark btn-small" style="color: #EF4444; border-color: #EF4444; padding: 2px 6px; font-size: 11px;" title="Remover mídia">✕</button>
+          </div>
+          <div id="txt-hint-midia-disparo" style="font-size: 10px; color: #64748B; margin-top: 4px;">
+            💡 A imagem ou vídeo será enviada acompanhada da mensagem personalizada como legenda!
+          </div>
         </div>
 
         <!-- Testador de Spintax ao Vivo -->
@@ -594,7 +651,7 @@
   <!-- FOOTER -->
   <div class="footer">
     <span>Litrão do Reset • WhatsApp Suite</span>
-    <span id="badge-versao" style="font-weight: bold; color: #10B981;">v2.3.0</span>
+    <span id="badge-versao" style="font-weight: bold; color: #10B981;">v2.4.0</span>
   </div>
 
   <script src="popup.js"></script>
