@@ -1,9 +1,13 @@
 /**
  * ResetFIT - Automação WhatsApp Pro (Content Script)
- * Versão 2.5.0 - Extrator Inteligente, Mídias, Mensagens Rápidas e Disparador Anti-Bloqueio
+ * Versão 2.5.1 - Extrator Inteligente, Mídias, Mensagens Rápidas e Disparador Anti-Bloqueio
  */
 
-console.log("[ResetFIT Pro v2.5.0] Content script carregado no WhatsApp Web.");
+if (window.__RESETFIT_LOADED__) {
+  console.log("[ResetFIT Pro] Content script já carregado nesta aba.");
+} else {
+  window.__RESETFIT_LOADED__ = true;
+  console.log("[ResetFIT Pro v2.5.1] Content script carregado no WhatsApp Web.");
 
 // Normaliza telefones para o padrão internacional limpo (+55...)
 function normalizarTelefone(raw) {
@@ -284,110 +288,194 @@ async function abrirDadosDoGrupoWhatsApp() {
   return !!(document.querySelector('div[role="dialog"]') || obterDrawerGrupoAberto());
 }
 
-// Localiza o elemento com a barra de rolagem real da lista de membros
-function encontrarScrollContainerReal(container) {
-  if (!container) return null;
-
-  // 1. Procura elementos com scrollHeight significativamente maior que clientHeight e estilo scroll/auto
-  const elementos = Array.from(container.querySelectorAll('*'));
-  const candidatos = elementos.filter(el => {
-    if (el.clientHeight < 120) return false;
-    if (el.scrollHeight <= el.clientHeight + 25) return false;
-    const s = window.getComputedStyle(el);
-    const oy = s.overflowY || s.overflow;
-    return oy === 'auto' || oy === 'scroll' || oy === 'overlay';
-  });
-
-  if (candidatos.length > 0) {
-    // Ordena pelo maior clientHeight (o container principal da lista é o que tem maior altura visível)
-    candidatos.sort((a, b) => b.clientHeight - a.clientHeight);
-    return candidatos[0];
-  }
-
-  // 2. Fallback: qualquer elemento com scrollHeight > clientHeight
-  const comScroll = elementos.filter(el => el.clientHeight > 150 && el.scrollHeight > el.clientHeight + 30);
-  if (comScroll.length > 0) {
-    comScroll.sort((a, b) => b.clientHeight - a.clientHeight);
-    return comScroll[0];
-  }
-
-  if (container.scrollHeight > container.clientHeight + 20) return container;
-  return container.querySelector('section') || container.querySelector('div[tabindex="-1"]') || container;
+// Simula eventos de mouse completos para disparar cliques do React/WhatsApp
+function simularClique(elemento) {
+  if (!elemento) return;
+  try {
+    const opts = { bubbles: true, cancelable: true, view: window };
+    elemento.dispatchEvent(new MouseEvent('mousedown', opts));
+    elemento.dispatchEvent(new MouseEvent('mouseup', opts));
+    elemento.dispatchEvent(new MouseEvent('click', opts));
+    if (typeof elemento.click === 'function') elemento.click();
+  } catch (_) {}
 }
 
-// Extrai linhas de membros de forma universal no Drawer ou no Modal
-function encontrarLinhasDeMembros(container, nomeGrupo = '') {
-  if (!container) return [];
+// Força a rolagem para baixo em todos os containers reais do WhatsApp Web
+function rolarTudoParaBaixo(container, delta = 550) {
+  if (!container) return;
+
+  // 1. O container clássico do WhatsApp Web (div[tabindex="-1"] no drawer/dialog)
+  const tabBox = container.querySelector('div[tabindex="-1"]');
+  if (tabBox) {
+    try {
+      tabBox.scrollTop += delta;
+      tabBox.dispatchEvent(new Event('scroll', { bubbles: true }));
+      tabBox.dispatchEvent(new WheelEvent('wheel', { deltaY: delta, bubbles: true }));
+    } catch (_) {}
+  }
+
+  // 2. Rola qualquer outro elemento dentro do container com scrollHeight > clientHeight
+  const todos = container.querySelectorAll('*');
+  for (const el of todos) {
+    if (el.scrollHeight > el.clientHeight + 15) {
+      try {
+        el.scrollTop += delta;
+        el.dispatchEvent(new Event('scroll', { bubbles: true }));
+        el.dispatchEvent(new WheelEvent('wheel', { deltaY: delta, bubbles: true }));
+      } catch (_) {}
+    }
+  }
+
+  // 3. scrollIntoView no último elemento visível para acionar a virtualização
+  const itens = container.querySelectorAll('div[role="listitem"], div[role="button"], div[data-testid="cell-frame-container"]');
+  if (itens.length > 0) {
+    try {
+      itens[itens.length - 1].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } catch (_) {}
+  }
+}
+
+// Coleta participantes visíveis no DOM com filtros inteligentes
+function coletarMembrosVisiveis(container, nomeGrupo = '') {
+  const encontrados = [];
+  const visitados = new Set();
+  const nomeGrupoLow = (nomeGrupo || '').toLowerCase().trim();
+
+  // Termos de botões e itens institucionais que nunca são pessoas
+  const termosSistema = [
+    'adicionar membro', 'adicionar participantes', 'convidar para o grupo via link',
+    'convidar via link', 'pesquisar membros', 'pesquisar participantes', 'dados do grupo',
+    'mídia, links e docs', 'mensagens temporárias', 'criptografia', 'configurações do grupo',
+    'sair do grupo', 'denunciar grupo', 'adicionar descrição', 'silenciar notificações',
+    'visibilidade de mídia', 'mensagens favoritas', 'criar comunidade', 'desativada',
+    'adicionar etiqueta'
+  ];
 
   const seletores = [
     'div[role="listitem"]',
-    'div[role="button"]',
     'div[data-testid="cell-frame-container"]',
+    'div[role="button"]',
     'div[tabindex="-1"]',
     'div[tabindex="0"]'
   ];
 
-  const todos = Array.from(container.querySelectorAll(seletores.join(', ')));
-  const listaMembros = [];
-  const visitados = new Set();
+  const elementos = Array.from(container.querySelectorAll(seletores.join(', ')));
 
-  // Termos de botões e utilitários do WhatsApp Web que NUNCA são contatos de pessoas
-  const termosBloqueados = [
-    'dados do grupo', 'desativada', 'pesquisar', 'pesquisar...', 'pesquisar membros', 'pesquisar participantes',
-    'adicionar', 'adicionar membro', 'adicionar participantes', 'convidar para o grupo', 'convidar via link',
-    'mídia, links e docs', 'mensagens temporárias', 'criptografia', 'configurações do grupo',
-    'silenciar notificações', 'visibilidade de mídia', 'mensagens favoritas', 'criar comunidade',
-    'sair do grupo', 'denunciar grupo', 'adicionar descrição ao grupo'
-  ];
-
-  const nomeGrupoLow = (nomeGrupo || '').toLowerCase().trim();
-
-  for (const el of todos) {
+  for (const el of elementos) {
     const txt = (el.innerText || '').trim();
     if (!txt) continue;
 
     const txtLow = txt.toLowerCase();
 
-    // Ignora se for o título do próprio grupo ou descrição
+    // Ignora títulos, descrições e botões de ação
     if (nomeGrupoLow && (txtLow === nomeGrupoLow || txtLow.startsWith(nomeGrupoLow))) continue;
+    if (txtLow === 'adicionar' || txtLow === 'pesquisar') continue;
+    if (termosSistema.some(ts => txtLow === ts || txtLow.startsWith(ts))) continue;
 
-    // Ignora botões institucionais e ações
-    if (termosBloqueados.some(tb => txtLow === tb || (txtLow.startsWith(tb) && txtLow.length < tb.length + 5))) continue;
+    // Ignora recipientes que tenham múltiplas fotos de perfil
+    const qtdImgs = el.querySelectorAll('img').length;
+    if (qtdImgs > 1) continue;
 
-    // Um membro real possui:
-    // a) Número de telefone visível no texto
-    const temTel = /\+?\d[\d\s\-().]{7,}\d/.test(txt);
-    // b) Atributo title contendo telefone
-    const temTitleComTel = Array.from(el.querySelectorAll('[title]')).some(t => {
-      const val = t.getAttribute('title') || '';
-      return val.replace(/\D/g, '').length >= 8;
-    });
-    // c) Tag de Admin do grupo
-    const temAdmin = txtLow.includes('admin');
-    // d) É "Você"
     const ehVoce = txtLow.startsWith('você') || txtLow.includes('adicionar etiqueta');
-    // e) Tem avatar e linha de texto válida
-    const temAvatar = !!el.querySelector('img, span[data-icon*="avatar"], span[data-icon*="default-user"]');
+    const isAdmin = txtLow.includes('admin');
 
-    if (temTel || temTitleComTel || temAdmin || ehVoce || (temAvatar && txt.length >= 2 && !txtLow.includes('mídia'))) {
-      const qtdImgs = el.querySelectorAll('img').length;
-      if (qtdImgs <= 1 && !visitados.has(el)) {
-        let jaTemPai = false;
-        for (const ja of listaMembros) {
-          if (ja.contains(el)) { jaTemPai = true; break; }
-        }
-        if (!jaTemPai) {
-          listaMembros.push(el);
-          visitados.add(el);
-        }
+    let telefone = '';
+    let nome = '';
+
+    // 1. Procura número em atributo title
+    const comTitle = el.querySelectorAll('[title]');
+    for (const t of comTitle) {
+      const val = (t.getAttribute('title') || '').trim();
+      const dig = val.replace(/\D/g, '');
+      if (dig.length >= 8 && (val.startsWith('+') || dig.length >= 10)) {
+        telefone = normalizarTelefone(val);
+        break;
+      }
+    }
+
+    // 2. Procura nas linhas de texto do elemento
+    const linhas = txt.split('\n').map(l => l.trim()).filter(Boolean);
+    for (const l of linhas) {
+      if (l.toLowerCase().includes('admin')) continue;
+      if (l.toLowerCase().includes('adicionar etiqueta')) continue;
+      if (l.toLowerCase() === 'você' || l.toLowerCase() === 'you') continue;
+
+      const dig = l.replace(/\D/g, '');
+      if (!telefone && dig.length >= 8 && (l.startsWith('+') || dig.length >= 10)) {
+        telefone = normalizarTelefone(l);
+      } else if (!nome && !l.startsWith('~') && l.length >= 2 && !l.toLowerCase().includes('olá!') && !l.toLowerCase().includes('estou usando')) {
+        nome = l;
+      } else if (!nome && l.startsWith('~')) {
+        nome = l.replace(/^~/, '').trim();
+      }
+    }
+
+    if (ehVoce && !nome) nome = 'Você';
+
+    if (telefone || (nome && nome.length >= 2)) {
+      const chave = telefone || ('contato_' + nome);
+      if (!visitados.has(chave)) {
+        visitados.add(chave);
+        encontrados.push({
+          id: 'lead_' + (telefone || Math.random().toString(36).substr(2, 9)),
+          nome: nome || (telefone ? `Contato +${telefone}` : 'Participante'),
+          telefone: telefone ? `+${telefone}` : '',
+          grupo: nomeGrupo,
+          grupoOrigem: nomeGrupo,
+          isAdmin: isAdmin,
+          status: 'novo'
+        });
       }
     }
   }
 
-  return listaMembros;
+  return encontrados;
 }
 
-// Extrai contatos com Scroll Real no Modal de Membros ou no Drawer Lateral
+// Extrai contatos do subtítulo do cabeçalho (#main header)
+function extrairContatosDoHeader(nomeGrupo) {
+  const contatos = [];
+  const header = document.querySelector('#main header');
+  if (!header) return contatos;
+
+  const spans = header.querySelectorAll('span[title], div[title], span[dir="auto"]');
+  spans.forEach(s => {
+    const txt = (s.getAttribute('title') || s.innerText || '').trim();
+    if (txt.includes(',') || txt.includes('+55')) {
+      const partes = txt.split(',').map(p => p.trim()).filter(Boolean);
+      partes.forEach(p => {
+        if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
+        const dig = p.replace(/\D/g, '');
+        if (dig.length >= 8) {
+          const tel = normalizarTelefone(p);
+          contatos.push({
+            id: 'lead_' + tel,
+            nome: `Contato +${tel}`,
+            telefone: `+${tel}`,
+            grupo: nomeGrupo,
+            grupoOrigem: nomeGrupo,
+            isAdmin: false,
+            status: 'novo'
+          });
+        } else if (p.length >= 2 && !p.toLowerCase().includes('online') && !p.toLowerCase().includes('visto por último')) {
+          contatos.push({
+            id: 'lead_' + Math.random().toString(36).substr(2, 9),
+            nome: p,
+            telefone: '',
+            grupo: nomeGrupo,
+            grupoOrigem: nomeGrupo,
+            isAdmin: false,
+            status: 'novo'
+          });
+        }
+      });
+    }
+  });
+
+  return contatos;
+}
+
+// Extrai contatos com Scroll Universal no WhatsApp Web
 async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
   const agora = new Date().toISOString();
   const mapaContatos = new Map();
@@ -399,82 +487,32 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
   // 1. Garante que os Dados do Grupo estão abertos na tela
   await abrirDadosDoGrupoWhatsApp();
+  await new Promise(r => setTimeout(r, 600));
 
-  // 2. Localiza o drawer ou modal
+  // 2. Localiza o drawer ou modal aberto
   let dialog = document.querySelector('div[role="dialog"]');
   let drawer = obterDrawerGrupoAberto();
 
-  // 3. Se estiver no drawer lateral, tenta abrir a pesquisa dedicada de membros
+  // 3. Tenta clicar no botão "Pesquisar" de membros para isolar a lista
   if (!dialog && drawer) {
-    // Procura o botão "Pesquisar" de membros (presente abaixo do título ou ao lado de "membros")
-    const botoesDrawer = Array.from(drawer.querySelectorAll('div[role="button"], button'));
-    const btnPesquisarMembros = botoesDrawer.find(b => {
-      const t = (b.innerText || '').trim().toLowerCase();
+    const botoes = Array.from(drawer.querySelectorAll('button, div[role="button"], span'));
+    for (const b of botoes) {
+      const txt = (b.innerText || '').trim().toLowerCase();
       const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-      const hasLupa = !!b.querySelector('span[data-icon="search"], span[data-icon="search-alt"]');
-      return (t === 'pesquisar' || aria.includes('pesquisar')) && (hasLupa || t === 'pesquisar');
-    });
-
-    if (btnPesquisarMembros) {
-      try {
-        mostrarToastWhatsApp('🔍 Abrindo lista dedicada de membros...', 'info', 1500);
-        btnPesquisarMembros.click();
-        await new Promise(r => setTimeout(r, 800));
+      if ((txt === 'pesquisar' || aria === 'pesquisar') && !b.closest('header')) {
+        const btnClicavel = b.closest('button, div[role="button"]') || b;
+        simularClique(btnClicavel);
+        await new Promise(r => setTimeout(r, 700));
         dialog = document.querySelector('div[role="dialog"]');
         drawer = obterDrawerGrupoAberto();
-      } catch (_) {}
-    }
-
-    // Procura também botão "Ver todos" se existir
-    const btnVerTodos = Array.from(drawer.querySelectorAll('div[role="button"], span, div')).find(el => {
-      const t = (el.innerText || '').trim().toLowerCase();
-      return (t.startsWith('ver todos') || t.includes('outros participantes') || t.includes('outros membros') || t.includes('mais membros'));
-    });
-
-    if (btnVerTodos) {
-      try {
-        mostrarToastWhatsApp('📋 Abrindo lista completa de todos os membros...', 'info', 1500);
-        btnVerTodos.click();
-        await new Promise(r => setTimeout(r, 1000));
-        dialog = document.querySelector('div[role="dialog"]');
-      } catch (_) {}
+        break;
+      }
     }
   }
 
   let containerPrincipal = dialog || drawer;
 
-  if (!containerPrincipal) {
-    // Fallback: tenta subtítulo do cabeçalho se o drawer não abrir
-    if (infoAtual && infoAtual.subtitulo) {
-      const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
-      partes.forEach(p => {
-        if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
-        const digitos = p.replace(/\D/g, '');
-        if (digitos.length >= 8) {
-          const telLimpo = normalizarTelefone(p);
-          mapaContatos.set(telLimpo, {
-            id: 'lead_' + telLimpo,
-            nome: `Contato +${telLimpo}`,
-            telefone: `+${telLimpo}`,
-            grupo: nomeGrupo,
-            grupoOrigem: nomeGrupo,
-            extraidoEm: agora,
-            isAdmin: false,
-            status: 'novo'
-          });
-        }
-      });
-    }
-
-    if (mapaContatos.size === 0) {
-      mostrarToastWhatsApp('⚠️ Deixe os "Dados do Grupo" abertos no WhatsApp e clique em Extrair Novamente!', 'error', 7000);
-      throw new Error('Não foi possível localizar os membros do grupo. Deixe os Dados do Grupo abertos na tela e tente extrair novamente!');
-    }
-
-    return Array.from(mapaContatos.values());
-  }
-
-  // Identifica a quantidade de membros esperada (ex: "51 membros", "51 participantes")
+  // 4. Identifica a quantidade esperada de membros (ex: 51 membros)
   let totalEsperado = 0;
   const textoGeral = (containerPrincipal?.innerText || '') + ' ' + (document.body.innerText || '');
   const matchMembros = textoGeral.match(/(\d+)\s*(membros|participantes)/i);
@@ -482,141 +520,72 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     totalEsperado = parseInt(matchMembros[1], 10);
   }
 
-  // 4. Localiza o elemento com a barra de rolagem real
-  const scrollContainer = encontrarScrollContainerReal(containerPrincipal);
-  mostrarToastWhatsApp(`⚡ Extraindo participantes com scroll automático...${totalEsperado ? ` (Meta: ${totalEsperado} membros)` : ''}`, 'info', 2500);
+  mostrarToastWhatsApp(`⚡ Extraindo participantes com scroll automático...${totalEsperado ? ` (Meta: ${totalEsperado} membros)` : ''}`, 'info', 3000);
 
-  // 5. Loop de Scroll Virtual para varrer todos os membros
+  // 5. Loop de Scroll Virtual Universal
   let repeticoesSemNovos = 0;
   let ultimoTotal = 0;
-  const maxTentativas = 120;
+  const maxPassos = 80;
 
-  for (let step = 0; step < maxTentativas; step++) {
-    // Busca todas as linhas de membro usando o detector universal com filtro de cabeçalhos
-    const itens = encontrarLinhasDeMembros(containerPrincipal, nomeGrupo);
+  for (let step = 0; step < maxPassos; step++) {
+    const containerAtual = document.querySelector('div[role="dialog"]') || obterDrawerGrupoAberto() || document.body;
+    const membrosVisiveis = coletarMembrosVisiveis(containerAtual, nomeGrupo);
 
-    itens.forEach(item => {
-      try {
-        const textoCompleto = item.innerText || '';
-        const isAdmin = textoCompleto.toLowerCase().includes('admin');
-        const linhas = textoCompleto.split('\n').map(l => l.trim()).filter(Boolean);
-        const ehVoce = linhas.some(l => l.toLowerCase() === 'você' || l.toLowerCase() === 'you');
-
-        let telEncontrado = '';
-        let nomeEncontrado = '';
-
-        // A. Busca número no atributo title de spans ou divs
-        const comTitle = item.querySelectorAll('[title]');
-        for (const el of comTitle) {
-          const t = (el.getAttribute('title') || '').trim();
-          const dig = t.replace(/\D/g, '');
-          if (dig.length >= 8 && (t.startsWith('+') || dig.length >= 10)) {
-            telEncontrado = normalizarTelefone(t);
-            break;
-          }
-        }
-
-        // B. Varre as linhas de texto visíveis
-        for (const linha of linhas) {
-          if (linha.toLowerCase().includes('admin')) continue;
-          if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'you') continue;
-          if (linha.toLowerCase().includes('adicionar etiqueta')) continue;
-
-          const digitos = linha.replace(/\D/g, '');
-          if (!telEncontrado && digitos.length >= 8 && (linha.startsWith('+') || digitos.length >= 10)) {
-            telEncontrado = normalizarTelefone(linha);
-          } else if (!nomeEncontrado && !linha.toLowerCase().includes('estou usando') && !linha.toLowerCase().includes('olá!') && linha.length >= 2) {
-            nomeEncontrado = linha.replace(/^~/, '').trim();
-          }
-        }
-
-        if (ehVoce && !nomeEncontrado) {
-          nomeEncontrado = 'Você';
-        }
-
-        if (telEncontrado || nomeEncontrado) {
-          const chave = telEncontrado || ('contato_' + nomeEncontrado);
-          if (!mapaContatos.has(chave)) {
-            mapaContatos.set(chave, {
-              id: 'lead_' + (telEncontrado || Math.random().toString(36).substr(2, 9)),
-              nome: nomeEncontrado || (telEncontrado ? `Contato +${telEncontrado}` : 'Participante'),
-              telefone: telEncontrado ? `+${telEncontrado}` : '',
-              grupo: nomeGrupo,
-              grupoOrigem: nomeGrupo,
-              extraidoEm: agora,
-              isAdmin: isAdmin,
-              status: 'novo'
-            });
-          }
-        }
-      } catch (_) {}
+    membrosVisiveis.forEach(m => {
+      const chave = m.telefone || ('contato_' + m.nome);
+      if (!mapaContatos.has(chave)) {
+        m.extraidoEm = agora;
+        mapaContatos.set(chave, m);
+      }
     });
 
     if (onProgress) {
       onProgress(mapaContatos.size);
     }
 
-    // Se já alcançamos todos os membros esperados do grupo, podemos finalizar com sucesso!
+    // Se já coletou todos os membros esperados do grupo, encerra com sucesso!
     if (totalEsperado > 0 && mapaContatos.size >= totalEsperado) {
       break;
     }
 
+    // Tenta clicar em "Ver todos" se existir
+    const btnVerTodos = Array.from(containerAtual.querySelectorAll('button, div[role="button"], span')).find(el => {
+      const t = (el.innerText || '').trim().toLowerCase();
+      return t.startsWith('ver todos') || t.includes('outros membros') || t.includes('mais membros') || t.includes('a mais') || /ver mais/i.test(t);
+    });
+    if (btnVerTodos) {
+      const clicavel = btnVerTodos.closest('button, div[role="button"]') || btnVerTodos;
+      simularClique(clicavel);
+      await new Promise(r => setTimeout(r, 600));
+    }
+
+    // Critério de parada: se não surgem novos membros
     if (mapaContatos.size === ultimoTotal) {
       repeticoesSemNovos++;
-      // Só interrompe se tentou várias vezes E já extraiu contatos válidos além dos 3 de cabeçalho
-      if (repeticoesSemNovos >= 12 && (mapaContatos.size > 3 || step > 25)) {
-        break; // Chegou ao fim da lista de membros
+      // Nunca encerra precocemente se ainda não encontrou ninguém e não tentou ao menos 50 passos
+      if (repeticoesSemNovos >= 15 && (mapaContatos.size > 0 || step > 50)) {
+        break;
       }
     } else {
       repeticoesSemNovos = 0;
       ultimoTotal = mapaContatos.size;
     }
 
-    // Rola para baixo para carregar o próximo lote de membros
-    if (scrollContainer) {
-      scrollContainer.scrollTop += 480;
-      scrollContainer.dispatchEvent(new Event('scroll', { bubbles: true }));
-      scrollContainer.dispatchEvent(new WheelEvent('wheel', { deltaY: 480, bubbles: true }));
-    }
-
-    // Rola o último membro visível para garantir a virtualização do WhatsApp
-    if (itens.length > 0) {
-      try {
-        itens[itens.length - 1].scrollIntoView({ behavior: 'smooth', block: 'end' });
-      } catch (_) {}
-    }
+    // Rola todos os containers do drawer para baixo
+    rolarTudoParaBaixo(containerAtual, 550);
 
     await new Promise(r => setTimeout(r, 350));
   }
 
-  // Rola de volta para o topo da lista
-  if (scrollContainer && scrollContainer.scrollTop !== undefined) {
-    scrollContainer.scrollTop = 0;
-  }
-
-  // 6. Captura preventiva adicional do subtítulo do cabeçalho
-  if (infoAtual && infoAtual.subtitulo) {
-    const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
-    partes.forEach(p => {
-      if (p.toLowerCase() === 'você' || p.toLowerCase() === 'you') return;
-      const digitos = p.replace(/\D/g, '');
-      if (digitos.length >= 8) {
-        const telLimpo = normalizarTelefone(p);
-        if (!mapaContatos.has(telLimpo)) {
-          mapaContatos.set(telLimpo, {
-            id: 'lead_' + telLimpo,
-            nome: `Contato +${telLimpo}`,
-            telefone: `+${telLimpo}`,
-            grupo: nomeGrupo,
-            grupoOrigem: nomeGrupo,
-            extraidoEm: agora,
-            isAdmin: false,
-            status: 'novo'
-          });
-        }
-      }
-    });
-  }
+  // 6. Complementa com participantes identificados no cabeçalho (#main header)
+  const contatosHeader = extrairContatosDoHeader(nomeGrupo);
+  contatosHeader.forEach(c => {
+    const chave = c.telefone || ('contato_' + c.nome);
+    if (!mapaContatos.has(chave)) {
+      c.extraidoEm = agora;
+      mapaContatos.set(chave, c);
+    }
+  });
 
   const listaFinal = Array.from(mapaContatos.values());
   const comTel = listaFinal.filter(c => c.telefone && c.telefone.length >= 8);
@@ -644,20 +613,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'abrir_drawer_lateral') {
     alternarSidebarLateral(true);
     sendResponse({ sucesso: true });
-    return true;
+    return false;
   }
 
   if (request.action === 'verificar_status') {
     const info = obterInfoGrupoAtual();
     sendResponse({ sucesso: true, info });
-    return true;
+    return false;
   }
 
   if (request.action === 'listar_conversas') {
     const conversas = listarTodasConversas();
     const infoAtual = obterInfoGrupoAtual();
     sendResponse({ sucesso: true, conversas, infoAtual });
-    return true;
+    return false;
   }
 
   if (request.action === 'abrir_conversa') {
@@ -1348,3 +1317,5 @@ async function dispararMensagemParaNumero(telefone, texto, midia = null) {
   mostrarToastWhatsApp(`✅ <b>Entrega com sucesso para:</b> +${telLimpo}!`, 'success', 3000);
   return { sucesso: true, telefone: telLimpo };
 }
+
+} // Fim da proteção de carga idempotente window.__RESETFIT_LOADED__

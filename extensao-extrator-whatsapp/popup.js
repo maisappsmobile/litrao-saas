@@ -1,5 +1,5 @@
 /**
- * ResetFIT - Automação WhatsApp Pro (Popup Controller v2.5.0)
+ * ResetFIT - Automação WhatsApp Pro (Popup Controller v2.5.1)
  * Inclui: Extrator Completo, Mensagens Rápidas, Sequências, Mídias, Disparo em Massa, Respostas e Backup
  */
 
@@ -105,12 +105,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           await chrome.sidePanel.open({ windowId: win.id });
           window.close();
         } else if (tab) {
-          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' });
+          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' }, () => {
+            if (chrome.runtime.lastError) { /* consome erro */ }
+          });
           window.close();
         }
       } catch (_) {
         if (tab) {
-          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' });
+          chrome.tabs.sendMessage(tab.id, { action: 'abrir_drawer_lateral' }, () => {
+            if (chrome.runtime.lastError) { /* consome erro */ }
+          });
           window.close();
         }
       }
@@ -213,6 +217,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   function carregarGrupos() {
     if (!isZap) return;
     chrome.tabs.sendMessage(tab.id, { action: 'listar_conversas' }, (res) => {
+      if (chrome.runtime.lastError) {
+        // Consome erro para o Chrome não registrar como erro não tratado
+        const _e = chrome.runtime.lastError.message;
+        return;
+      }
       if (!res || !res.sucesso) return;
       cacheConversas = res.conversas || [];
       cacheGrupoAberto = (res.infoAtual && res.infoAtual.nomeGrupo) ? res.infoAtual.nomeGrupo : '';
@@ -254,6 +263,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const val = selectGrupos.value;
     if (val && val !== '__ATUAL__' && isZap) {
       chrome.tabs.sendMessage(tab.id, { action: 'abrir_conversa', nome: val }, () => {
+        if (chrome.runtime.lastError) {
+          const _e = chrome.runtime.lastError.message;
+          return;
+        }
         nomeGrupoAtual = val;
       });
     }
@@ -271,6 +284,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnExtrair.disabled = false;
       btnExtrair.innerText = '⚡ Extrair Novamente';
       progressoExtracao.style.display = 'none';
+
+      if (chrome.runtime.lastError) {
+        const _e = chrome.runtime.lastError.message;
+        alert('Aviso: Atualize a página do WhatsApp (F5) para restabelecer a conexão e tente extrair novamente.');
+        return;
+      }
 
       if (!res || !res.sucesso) {
         alert('Erro ao extrair contatos: ' + ((res && res.erro) || 'Verifique se o grupo está aberto.'));
@@ -477,6 +496,11 @@ document.addEventListener('DOMContentLoaded', async () => {
               midia: msg.midia,
               legenda: msg.texto
             }, (res) => {
+              if (chrome.runtime.lastError) {
+                const _e = chrome.runtime.lastError.message;
+                alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
+                return;
+              }
               if (res && res.sucesso) {
                 alert(`Foto/Vídeo "${msg.titulo}" enviada na conversa ativa!`);
               } else {
@@ -485,6 +509,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
           } else {
             chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
+              if (chrome.runtime.lastError) {
+                const _e = chrome.runtime.lastError.message;
+                alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
+                return;
+              }
               alert(`Mensagem "${msg.titulo}" enviada na conversa ativa!`);
             });
           }
@@ -680,6 +709,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           btn.innerText = '⚡ Disparar Sequência (1 Clique)';
           if (boxProgressoSeq) {
             boxProgressoSeq.style.display = 'none';
+          }
+          if (chrome.runtime.lastError) {
+            const _e = chrome.runtime.lastError.message;
+            alert('Aviso: Atualize a página do WhatsApp (F5) para restabelecer a conexão.');
+            return;
           }
           if (res && res.sucesso) {
             alert(`✅ Sucesso! Sequência "${seq.titulo}" enviada na conversa!`);
@@ -937,6 +971,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, (res) => {
           btn.disabled = false;
           btn.innerText = '⚡ Enviar';
+          if (chrome.runtime.lastError) {
+            const _e = chrome.runtime.lastError.message;
+            alert('Aviso: Atualize a página do WhatsApp (F5) para restabelecer a conexão.');
+            return;
+          }
           if (res && res.sucesso) {
             alert(`✅ ${midia.nome} enviada no chat aberto!`);
           } else {
