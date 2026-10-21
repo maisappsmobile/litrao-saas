@@ -223,6 +223,59 @@ async function abrirDadosDoGrupoWhatsApp() {
   return !!(document.querySelector('div[role="dialog"]') || obterDrawerGrupoAberto());
 }
 
+// Extrai linhas de membros de forma universal no Drawer ou no Modal
+function encontrarLinhasDeMembros(container) {
+  if (!container) return [];
+
+  const seletores = [
+    'div[role="listitem"]',
+    'div[role="button"]',
+    'div[data-testid="cell-frame-container"]',
+    'div[tabindex="-1"]',
+    'div[tabindex="0"]'
+  ];
+
+  const todos = Array.from(container.querySelectorAll(seletores.join(', ')));
+  const listaMembros = [];
+  const visitados = new Set();
+
+  for (const el of todos) {
+    const txt = (el.innerText || '').trim();
+    if (!txt) continue;
+
+    // Ignora títulos do WhatsApp, avisos institucionais e ações do grupo
+    const txtLow = txt.toLowerCase();
+    if (txt === 'Dados do grupo' || txt === 'Desativada' || txt.includes('Pesquisar')) continue;
+    if (txtLow.includes('adicionar membro') || txtLow.includes('convidar para o grupo') || txtLow.includes('convidar via link')) continue;
+    if (txtLow.includes('criar comunidade') || txtLow.includes('sair do grupo') || txtLow.includes('denunciar')) continue;
+    if (txtLow.includes('configurações do grupo') || txtLow.includes('silenciar notificações') || txtLow.includes('visibilidade de mídia')) continue;
+
+    // Um membro tem imagem/avatar OU número de telefone (+55...) OU "Admin do grupo" OU é "Você"
+    const temImg = !!el.querySelector('img, span[data-icon*="avatar"], span[data-icon*="default-user"]');
+    const temTel = /\+?\d[\d\s\-().]{7,}\d/.test(txt);
+    const temAdmin = txtLow.includes('admin');
+    const ehVoce = txtLow.startsWith('você') || txtLow.includes('adicionar etiqueta');
+
+    if (temImg || temTel || temAdmin || ehVoce) {
+      // Ignora containers pais que englobam a lista inteira (múltiplas fotos)
+      const qtdImgs = el.querySelectorAll('img').length;
+      if (qtdImgs <= 1 && !visitados.has(el)) {
+        // Evita duplicatas internas
+        let jaTemPai = false;
+        for (const ja of listaMembros) {
+          if (ja.contains(el)) { jaTemPai = true; break; }
+        }
+        if (!jaTemPai) {
+          listaMembros.push(el);
+          visitados.add(el);
+        }
+      }
+    }
+  }
+
+  return listaMembros;
+}
+
 // Extrai contatos com Scroll Real no Modal de Membros ou no Drawer Lateral
 async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
   const agora = new Date().toISOString();
@@ -236,18 +289,34 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
   // 1. Garante que os Dados do Grupo estão abertos na tela
   await abrirDadosDoGrupoWhatsApp();
 
-  // 2. Verifica se o modal central ou o drawer lateral está aberto
+  // 2. Localiza o drawer ou modal
   let dialog = document.querySelector('div[role="dialog"]');
   let drawer = obterDrawerGrupoAberto();
 
-  // 3. Se estiver no drawer, clica no botão "Ver todos os membros" para abrir o modal completo
+  // 3. Se estiver no drawer, tenta abrir a pesquisa ou clicar em "Ver todos"
   if (!dialog && drawer) {
-    drawer.scrollTop = 350;
-    await new Promise(r => setTimeout(r, 300));
+    // Procura o ícone de lupa de pesquisa ao lado de "51 membros"
+    const containerContador = Array.from(drawer.querySelectorAll('div, span')).find(el => {
+      const t = (el.innerText || '').trim();
+      return /^\d+\s+(membros|participantes)/i.test(t);
+    });
 
+    if (containerContador) {
+      const parentRow = containerContador.closest('div');
+      const btnBusca = parentRow?.querySelector('span[data-icon="search"]')?.closest('button, div[role="button"]') ||
+                       drawer.querySelector('span[data-icon="search"]')?.closest('button, div[role="button"]');
+      if (btnBusca) {
+        try {
+          btnBusca.click();
+          await new Promise(r => setTimeout(r, 600));
+        } catch (_) {}
+      }
+    }
+
+    // Procura botão "Ver todos" se existir
     const btnVerTodos = Array.from(drawer.querySelectorAll('div[role="button"], span, div')).find(el => {
       const t = (el.innerText || '').trim().toLowerCase();
-      return (t.startsWith('ver todos') || t.includes('outros participantes') || t.includes('mais membros') || (t.includes('outros') && t.includes('participante')));
+      return (t.startsWith('ver todos') || t.includes('outros participantes') || t.includes('outros membros') || t.includes('mais membros') || (t.includes('outros') && (t.includes('membro') || t.includes('participante'))));
     });
 
     if (btnVerTodos) {
@@ -258,11 +327,10 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     }
   }
 
-  // 4. O container de membros é ESTRITAMENTE o modal ou o drawer (NUNCA document.body nem #pane-side)
-  const containerPrincipal = dialog || drawer;
+  let containerPrincipal = dialog || drawer;
 
   if (!containerPrincipal) {
-    // Se não conseguiu abrir automaticamente, tenta extrair o que estiver no subtítulo do cabeçalho
+    // Fallback: tenta subtítulo do cabeçalho
     if (infoAtual && infoAtual.subtitulo) {
       const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
       partes.forEach(p => {
@@ -285,14 +353,14 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     }
 
     if (mapaContatos.size === 0) {
-      mostrarToastWhatsApp('⚠️ Clique no nome do grupo no topo do WhatsApp para abrir os participantes e tente extrair novamente!', 'error', 7000);
-      throw new Error('Não foi possível abrir os Dados do Grupo automaticamente. Por favor, clique no nome do grupo no topo do WhatsApp e tente novamente!');
+      mostrarToastWhatsApp('⚠️ Deixe os "Dados do Grupo" abertos no WhatsApp e clique em Extrair Novamente!', 'error', 7000);
+      throw new Error('Não foi possível localizar os membros do grupo. Deixe os Dados do Grupo abertos na tela e tente extrair novamente!');
     }
 
     return Array.from(mapaContatos.values());
   }
 
-  // 5. Localiza o elemento com a barra de rolagem
+  // 4. Localiza o elemento com a barra de rolagem (overflow-y)
   let scrollContainer = null;
   const divs = Array.from(containerPrincipal.querySelectorAll('div'));
   for (const d of divs) {
@@ -308,13 +376,14 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
   mostrarToastWhatsApp('⚡ Extraindo participantes com scroll automático...', 'info', 2000);
 
-  // 6. Loop de Scroll Virtual para varrer todos os membros
+  // 5. Loop de Scroll Virtual para varrer todos os membros
   let repeticoesSemNovos = 0;
   let ultimoTotal = 0;
-  const maxTentativas = 80; // Suporta grupos de até 1.000+ participantes
+  const maxTentativas = 80;
 
   for (let step = 0; step < maxTentativas; step++) {
-    const itens = containerPrincipal.querySelectorAll('div[role="listitem"], div[data-testid="cell-frame-container"]');
+    // Busca todas as linhas de membro usando o detector universal
+    const itens = encontrarLinhasDeMembros(containerPrincipal);
 
     itens.forEach(item => {
       try {
@@ -325,9 +394,9 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
         let nomeEncontrado = '';
 
         // A. Busca número no atributo title de spans ou divs
-        const comTitle = item.querySelectorAll('span[title], div[title]');
+        const comTitle = item.querySelectorAll('[title]');
         for (const el of comTitle) {
-          const t = el.getAttribute('title') || '';
+          const t = (el.getAttribute('title') || '').trim();
           const dig = t.replace(/\D/g, '');
           if (dig.length >= 8 && (t.startsWith('+') || dig.length >= 10)) {
             telEncontrado = normalizarTelefone(t);
@@ -338,16 +407,22 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
         // B. Varre as linhas de texto visíveis
         const linhas = textoCompleto.split('\n').map(l => l.trim()).filter(Boolean);
         linhas.forEach(linha => {
-          if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'you' || linha.toLowerCase().includes('admin do grupo')) return;
+          if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'you') {
+            if (!nomeEncontrado) nomeEncontrado = 'Você';
+            return;
+          }
+          if (linha.toLowerCase().includes('admin do grupo') || linha.toLowerCase().includes('admin da comunidade')) return;
+          if (linha.toLowerCase().includes('adicionar etiqueta')) return;
 
           const digitos = linha.replace(/\D/g, '');
           if (!telEncontrado && digitos.length >= 8 && (linha.startsWith('+') || digitos.length >= 10)) {
             telEncontrado = normalizarTelefone(linha);
-          } else if (!nomeEncontrado && !linha.toLowerCase().includes('estou usando') && !linha.toLowerCase().includes('olá!') && linha.length > 1) {
+          } else if (!nomeEncontrado && !linha.toLowerCase().includes('estou usando') && !linha.toLowerCase().includes('olá!') && linha.length >= 2) {
             nomeEncontrado = linha.replace(/^~/, '').trim();
           }
         });
 
+        // Se o nome não tiver sido identificado, usa o telefone ou identificador padrão
         if (telEncontrado || nomeEncontrado) {
           const chave = telEncontrado || ('contato_' + nomeEncontrado);
           if (!mapaContatos.has(chave)) {
@@ -373,27 +448,27 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     if (mapaContatos.size === ultimoTotal) {
       repeticoesSemNovos++;
       if (repeticoesSemNovos >= 5) {
-        break; // Chegou ao fim de todos os membros
+        break; // Chegou ao fim da lista de membros
       }
     } else {
       repeticoesSemNovos = 0;
       ultimoTotal = mapaContatos.size;
     }
 
-    // Executa a rolagem suave
+    // Rola para baixo para carregar o próximo lote de membros
     if (scrollContainer && scrollContainer.scrollTop !== undefined) {
       scrollContainer.scrollTop += 420;
     }
 
-    await new Promise(r => setTimeout(r, 280));
+    await new Promise(r => setTimeout(r, 300));
   }
 
-  // Rola de volta para o topo do container
+  // Rola de volta para o topo
   if (scrollContainer && scrollContainer.scrollTop !== undefined) {
     scrollContainer.scrollTop = 0;
   }
 
-  // 7. Captura membros adicionais que estejam listados no subtítulo do cabeçalho
+  // 6. Captura preventiva adicional do subtítulo do cabeçalho
   if (infoAtual && infoAtual.subtitulo) {
     const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
     partes.forEach(p => {
@@ -419,7 +494,7 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
   const listaFinal = Array.from(mapaContatos.values());
   const comTel = listaFinal.filter(c => c.telefone && c.telefone.length >= 8);
-  mostrarToastWhatsApp(`🎉 <b>${listaFinal.length} contatos extraídos!</b> (${comTel.length} com WhatsApp)`, 'success', 4000);
+  mostrarToastWhatsApp(`🎉 <b>${listaFinal.length} membros extraídos!</b> (${comTel.length} com WhatsApp)`, 'success', 4000);
 
   return listaFinal;
 }
