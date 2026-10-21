@@ -1,9 +1,9 @@
 /**
- * Litrão do Reset - Extrator de Contatos WhatsApp Web (Content Script)
- * Versão 2.0 Silicon Valley - Suporte a Modal Central e Scroll Virtual Completo
+ * ResetFIT - Automação WhatsApp Pro (Content Script)
+ * Versão 2.5.0 - Extrator Inteligente, Mídias, Mensagens Rápidas e Disparador Anti-Bloqueio
  */
 
-console.log("[Litrão Reset Extrator v2.0] Content script carregado no WhatsApp Web.");
+console.log("[ResetFIT Pro v2.5.0] Content script carregado no WhatsApp Web.");
 
 // Normaliza telefones para o padrão internacional limpo (+55...)
 function normalizarTelefone(raw) {
@@ -99,7 +99,67 @@ function obterInfoGrupoAtual() {
   };
 }
 
-// Lista todas as conversas/grupos da barra lateral esquerda (PRINT 4)
+// Detecta com alta precisão se uma conversa é Grupo ou Contato Individual
+function verificarEhGrupo(item, titulo) {
+  if (!item) return false;
+
+  // 1. Ícones explícitos do WhatsApp Web que indicam grupo ou comunidade
+  if (item.querySelector('span[data-icon="default-group"]') ||
+      item.querySelector('span[data-icon="community-outline"]') ||
+      item.querySelector('span[data-icon="announcement"]') ||
+      item.querySelector('span[data-icon="newsletter"]')) {
+    return true;
+  }
+
+  // 2. Ícone explícito de usuário individual do WhatsApp Web
+  if (item.querySelector('span[data-icon="default-user"]') ||
+      item.querySelector('span[data-icon="default-user-dark"]')) {
+    return false;
+  }
+
+  // 3. Verifica o texto completo da célula da conversa
+  const textoCell = (item.innerText || item.textContent || '');
+
+  // No WhatsApp Web, quando uma mensagem em grupo é enviada por outra pessoa, o texto começa com til e nome (~Autor:)
+  // Ex: "~Fumaça Taxista: Foto", "~Valdivino Dorna: https:..."
+  if (/~[^\n:]{2,30}:/.test(textoCell)) {
+    return true;
+  }
+
+  // Mensagens típicas de atividade do sistema em grupos
+  if (/(adicionou|removeu|saiu do grupo|entrou usando|mudou o nome|mudou a imagem|criou o grupo)/i.test(textoCell)) {
+    return true;
+  }
+
+  // 4. Termos inconfundíveis em nomes de grupos/comunidades
+  const titLow = (titulo || '').toLowerCase();
+  const termosGrupo = [
+    'grupo', 'equipe', 'team', 'vendas', 'compras', 'comunidade', 'comercial',
+    'classificados', 'feira', 'leilao', 'leilão', 'bazar', 'loja', 'oficial',
+    'suporte', 'consultores', 'divulga', 'anuncios', 'anúncios', 'trocas', 'turma',
+    'embaixadores', 'vip', 'clube', 'boas vindas', 'boutique', 'construtora', 'mecanica', 'mecânica',
+    'moda', 'imobiliaria', 'imobiliária', 'garimpo', 'distribuidora', 'academia', 'atacado', 'varejo',
+    'supermercado', 'drogaria', 'foco', 'publicidade'
+  ];
+  if (termosGrupo.some(t => titLow.includes(t))) {
+    return true;
+  }
+
+  // 5. Títulos com múltiplos emojis ou marcadores de formatação comuns em grupos
+  if (/\[.+\]|\(.+\)|[\u{1F300}-\u{1F6FF}]{2,}/u.test(titulo)) {
+    return true;
+  }
+
+  // 6. Se o título for um número de telefone puro (+55...), é contato individual
+  if (/^\+?\d[\d\s-]{6,}$/.test(titulo)) {
+    return false;
+  }
+
+  // 7. Se não teve nenhum indicador de grupo acima, classifica como Contato Individual (ex: "Fagner Brassaroto", "Lucia Braga")
+  return false;
+}
+
+// Lista todas as conversas/grupos da barra lateral esquerda de forma categorizada
 function listarTodasConversas() {
   const lista = [];
   const nomesVistos = new Set();
@@ -119,9 +179,10 @@ function listarTodasConversas() {
         const titulo = (spanTitulo.getAttribute('title') || spanTitulo.innerText || '').trim();
         if (titulo && !nomesVistos.has(titulo) && titulo.length > 1) {
           nomesVistos.add(titulo);
+          const isGrupo = verificarEhGrupo(item, titulo);
           lista.push({
             nome: titulo,
-            isGrupo: !!item.querySelector('span[data-icon="default-group"]') || !titulo.match(/^\+?\d[\d\s-]{6,}$/)
+            isGrupo: isGrupo
           });
         }
       }
@@ -223,8 +284,39 @@ async function abrirDadosDoGrupoWhatsApp() {
   return !!(document.querySelector('div[role="dialog"]') || obterDrawerGrupoAberto());
 }
 
+// Localiza o elemento com a barra de rolagem real da lista de membros
+function encontrarScrollContainerReal(container) {
+  if (!container) return null;
+
+  // 1. Procura elementos com scrollHeight significativamente maior que clientHeight e estilo scroll/auto
+  const elementos = Array.from(container.querySelectorAll('*'));
+  const candidatos = elementos.filter(el => {
+    if (el.clientHeight < 120) return false;
+    if (el.scrollHeight <= el.clientHeight + 25) return false;
+    const s = window.getComputedStyle(el);
+    const oy = s.overflowY || s.overflow;
+    return oy === 'auto' || oy === 'scroll' || oy === 'overlay';
+  });
+
+  if (candidatos.length > 0) {
+    // Ordena pelo maior clientHeight (o container principal da lista é o que tem maior altura visível)
+    candidatos.sort((a, b) => b.clientHeight - a.clientHeight);
+    return candidatos[0];
+  }
+
+  // 2. Fallback: qualquer elemento com scrollHeight > clientHeight
+  const comScroll = elementos.filter(el => el.clientHeight > 150 && el.scrollHeight > el.clientHeight + 30);
+  if (comScroll.length > 0) {
+    comScroll.sort((a, b) => b.clientHeight - a.clientHeight);
+    return comScroll[0];
+  }
+
+  if (container.scrollHeight > container.clientHeight + 20) return container;
+  return container.querySelector('section') || container.querySelector('div[tabindex="-1"]') || container;
+}
+
 // Extrai linhas de membros de forma universal no Drawer ou no Modal
-function encontrarLinhasDeMembros(container) {
+function encontrarLinhasDeMembros(container, nomeGrupo = '') {
   if (!container) return [];
 
   const seletores = [
@@ -239,28 +331,47 @@ function encontrarLinhasDeMembros(container) {
   const listaMembros = [];
   const visitados = new Set();
 
+  // Termos de botões e utilitários do WhatsApp Web que NUNCA são contatos de pessoas
+  const termosBloqueados = [
+    'dados do grupo', 'desativada', 'pesquisar', 'pesquisar...', 'pesquisar membros', 'pesquisar participantes',
+    'adicionar', 'adicionar membro', 'adicionar participantes', 'convidar para o grupo', 'convidar via link',
+    'mídia, links e docs', 'mensagens temporárias', 'criptografia', 'configurações do grupo',
+    'silenciar notificações', 'visibilidade de mídia', 'mensagens favoritas', 'criar comunidade',
+    'sair do grupo', 'denunciar grupo', 'adicionar descrição ao grupo'
+  ];
+
+  const nomeGrupoLow = (nomeGrupo || '').toLowerCase().trim();
+
   for (const el of todos) {
     const txt = (el.innerText || '').trim();
     if (!txt) continue;
 
-    // Ignora títulos do WhatsApp, avisos institucionais e ações do grupo
     const txtLow = txt.toLowerCase();
-    if (txt === 'Dados do grupo' || txt === 'Desativada' || txt.includes('Pesquisar')) continue;
-    if (txtLow.includes('adicionar membro') || txtLow.includes('convidar para o grupo') || txtLow.includes('convidar via link')) continue;
-    if (txtLow.includes('criar comunidade') || txtLow.includes('sair do grupo') || txtLow.includes('denunciar')) continue;
-    if (txtLow.includes('configurações do grupo') || txtLow.includes('silenciar notificações') || txtLow.includes('visibilidade de mídia')) continue;
 
-    // Um membro tem imagem/avatar OU número de telefone (+55...) OU "Admin do grupo" OU é "Você"
-    const temImg = !!el.querySelector('img, span[data-icon*="avatar"], span[data-icon*="default-user"]');
+    // Ignora se for o título do próprio grupo ou descrição
+    if (nomeGrupoLow && (txtLow === nomeGrupoLow || txtLow.startsWith(nomeGrupoLow))) continue;
+
+    // Ignora botões institucionais e ações
+    if (termosBloqueados.some(tb => txtLow === tb || (txtLow.startsWith(tb) && txtLow.length < tb.length + 5))) continue;
+
+    // Um membro real possui:
+    // a) Número de telefone visível no texto
     const temTel = /\+?\d[\d\s\-().]{7,}\d/.test(txt);
+    // b) Atributo title contendo telefone
+    const temTitleComTel = Array.from(el.querySelectorAll('[title]')).some(t => {
+      const val = t.getAttribute('title') || '';
+      return val.replace(/\D/g, '').length >= 8;
+    });
+    // c) Tag de Admin do grupo
     const temAdmin = txtLow.includes('admin');
+    // d) É "Você"
     const ehVoce = txtLow.startsWith('você') || txtLow.includes('adicionar etiqueta');
+    // e) Tem avatar e linha de texto válida
+    const temAvatar = !!el.querySelector('img, span[data-icon*="avatar"], span[data-icon*="default-user"]');
 
-    if (temImg || temTel || temAdmin || ehVoce) {
-      // Ignora containers pais que englobam a lista inteira (múltiplas fotos)
+    if (temTel || temTitleComTel || temAdmin || ehVoce || (temAvatar && txt.length >= 2 && !txtLow.includes('mídia'))) {
       const qtdImgs = el.querySelectorAll('img').length;
       if (qtdImgs <= 1 && !visitados.has(el)) {
-        // Evita duplicatas internas
         let jaTemPai = false;
         for (const ja of listaMembros) {
           if (ja.contains(el)) { jaTemPai = true; break; }
@@ -293,44 +404,47 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
   let dialog = document.querySelector('div[role="dialog"]');
   let drawer = obterDrawerGrupoAberto();
 
-  // 3. Se estiver no drawer, tenta abrir a pesquisa ou clicar em "Ver todos"
+  // 3. Se estiver no drawer lateral, tenta abrir a pesquisa dedicada de membros
   if (!dialog && drawer) {
-    // Procura o ícone de lupa de pesquisa ao lado de "51 membros"
-    const containerContador = Array.from(drawer.querySelectorAll('div, span')).find(el => {
-      const t = (el.innerText || '').trim();
-      return /^\d+\s+(membros|participantes)/i.test(t);
+    // Procura o botão "Pesquisar" de membros (presente abaixo do título ou ao lado de "membros")
+    const botoesDrawer = Array.from(drawer.querySelectorAll('div[role="button"], button'));
+    const btnPesquisarMembros = botoesDrawer.find(b => {
+      const t = (b.innerText || '').trim().toLowerCase();
+      const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+      const hasLupa = !!b.querySelector('span[data-icon="search"], span[data-icon="search-alt"]');
+      return (t === 'pesquisar' || aria.includes('pesquisar')) && (hasLupa || t === 'pesquisar');
     });
 
-    if (containerContador) {
-      const parentRow = containerContador.closest('div');
-      const btnBusca = parentRow?.querySelector('span[data-icon="search"]')?.closest('button, div[role="button"]') ||
-                       drawer.querySelector('span[data-icon="search"]')?.closest('button, div[role="button"]');
-      if (btnBusca) {
-        try {
-          btnBusca.click();
-          await new Promise(r => setTimeout(r, 600));
-        } catch (_) {}
-      }
+    if (btnPesquisarMembros) {
+      try {
+        mostrarToastWhatsApp('🔍 Abrindo lista dedicada de membros...', 'info', 1500);
+        btnPesquisarMembros.click();
+        await new Promise(r => setTimeout(r, 800));
+        dialog = document.querySelector('div[role="dialog"]');
+        drawer = obterDrawerGrupoAberto();
+      } catch (_) {}
     }
 
-    // Procura botão "Ver todos" se existir
+    // Procura também botão "Ver todos" se existir
     const btnVerTodos = Array.from(drawer.querySelectorAll('div[role="button"], span, div')).find(el => {
       const t = (el.innerText || '').trim().toLowerCase();
-      return (t.startsWith('ver todos') || t.includes('outros participantes') || t.includes('outros membros') || t.includes('mais membros') || (t.includes('outros') && (t.includes('membro') || t.includes('participante'))));
+      return (t.startsWith('ver todos') || t.includes('outros participantes') || t.includes('outros membros') || t.includes('mais membros'));
     });
 
     if (btnVerTodos) {
-      mostrarToastWhatsApp('📋 Abrindo lista completa de todos os membros...', 'info', 1800);
-      btnVerTodos.click();
-      await new Promise(r => setTimeout(r, 1200));
-      dialog = document.querySelector('div[role="dialog"]');
+      try {
+        mostrarToastWhatsApp('📋 Abrindo lista completa de todos os membros...', 'info', 1500);
+        btnVerTodos.click();
+        await new Promise(r => setTimeout(r, 1000));
+        dialog = document.querySelector('div[role="dialog"]');
+      } catch (_) {}
     }
   }
 
   let containerPrincipal = dialog || drawer;
 
   if (!containerPrincipal) {
-    // Fallback: tenta subtítulo do cabeçalho
+    // Fallback: tenta subtítulo do cabeçalho se o drawer não abrir
     if (infoAtual && infoAtual.subtitulo) {
       const partes = infoAtual.subtitulo.split(',').map(s => s.trim());
       partes.forEach(p => {
@@ -360,35 +474,33 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     return Array.from(mapaContatos.values());
   }
 
-  // 4. Localiza o elemento com a barra de rolagem (overflow-y)
-  let scrollContainer = null;
-  const divs = Array.from(containerPrincipal.querySelectorAll('div'));
-  for (const d of divs) {
-    const s = window.getComputedStyle(d);
-    if ((s.overflowY === 'auto' || s.overflowY === 'scroll') && d.scrollHeight > d.clientHeight + 20) {
-      scrollContainer = d;
-      break;
-    }
-  }
-  if (!scrollContainer) {
-    scrollContainer = containerPrincipal.querySelector('div[tabindex="-1"]') || containerPrincipal;
+  // Identifica a quantidade de membros esperada (ex: "51 membros", "51 participantes")
+  let totalEsperado = 0;
+  const textoGeral = (containerPrincipal?.innerText || '') + ' ' + (document.body.innerText || '');
+  const matchMembros = textoGeral.match(/(\d+)\s*(membros|participantes)/i);
+  if (matchMembros) {
+    totalEsperado = parseInt(matchMembros[1], 10);
   }
 
-  mostrarToastWhatsApp('⚡ Extraindo participantes com scroll automático...', 'info', 2000);
+  // 4. Localiza o elemento com a barra de rolagem real
+  const scrollContainer = encontrarScrollContainerReal(containerPrincipal);
+  mostrarToastWhatsApp(`⚡ Extraindo participantes com scroll automático...${totalEsperado ? ` (Meta: ${totalEsperado} membros)` : ''}`, 'info', 2500);
 
   // 5. Loop de Scroll Virtual para varrer todos os membros
   let repeticoesSemNovos = 0;
   let ultimoTotal = 0;
-  const maxTentativas = 80;
+  const maxTentativas = 120;
 
   for (let step = 0; step < maxTentativas; step++) {
-    // Busca todas as linhas de membro usando o detector universal
-    const itens = encontrarLinhasDeMembros(containerPrincipal);
+    // Busca todas as linhas de membro usando o detector universal com filtro de cabeçalhos
+    const itens = encontrarLinhasDeMembros(containerPrincipal, nomeGrupo);
 
     itens.forEach(item => {
       try {
         const textoCompleto = item.innerText || '';
         const isAdmin = textoCompleto.toLowerCase().includes('admin');
+        const linhas = textoCompleto.split('\n').map(l => l.trim()).filter(Boolean);
+        const ehVoce = linhas.some(l => l.toLowerCase() === 'você' || l.toLowerCase() === 'you');
 
         let telEncontrado = '';
         let nomeEncontrado = '';
@@ -405,14 +517,10 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
         }
 
         // B. Varre as linhas de texto visíveis
-        const linhas = textoCompleto.split('\n').map(l => l.trim()).filter(Boolean);
-        linhas.forEach(linha => {
-          if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'you') {
-            if (!nomeEncontrado) nomeEncontrado = 'Você';
-            return;
-          }
-          if (linha.toLowerCase().includes('admin do grupo') || linha.toLowerCase().includes('admin da comunidade')) return;
-          if (linha.toLowerCase().includes('adicionar etiqueta')) return;
+        for (const linha of linhas) {
+          if (linha.toLowerCase().includes('admin')) continue;
+          if (linha.toLowerCase() === 'você' || linha.toLowerCase() === 'you') continue;
+          if (linha.toLowerCase().includes('adicionar etiqueta')) continue;
 
           const digitos = linha.replace(/\D/g, '');
           if (!telEncontrado && digitos.length >= 8 && (linha.startsWith('+') || digitos.length >= 10)) {
@@ -420,9 +528,12 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
           } else if (!nomeEncontrado && !linha.toLowerCase().includes('estou usando') && !linha.toLowerCase().includes('olá!') && linha.length >= 2) {
             nomeEncontrado = linha.replace(/^~/, '').trim();
           }
-        });
+        }
 
-        // Se o nome não tiver sido identificado, usa o telefone ou identificador padrão
+        if (ehVoce && !nomeEncontrado) {
+          nomeEncontrado = 'Você';
+        }
+
         if (telEncontrado || nomeEncontrado) {
           const chave = telEncontrado || ('contato_' + nomeEncontrado);
           if (!mapaContatos.has(chave)) {
@@ -445,9 +556,15 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
       onProgress(mapaContatos.size);
     }
 
+    // Se já alcançamos todos os membros esperados do grupo, podemos finalizar com sucesso!
+    if (totalEsperado > 0 && mapaContatos.size >= totalEsperado) {
+      break;
+    }
+
     if (mapaContatos.size === ultimoTotal) {
       repeticoesSemNovos++;
-      if (repeticoesSemNovos >= 5) {
+      // Só interrompe se tentou várias vezes E já extraiu contatos válidos além dos 3 de cabeçalho
+      if (repeticoesSemNovos >= 12 && (mapaContatos.size > 3 || step > 25)) {
         break; // Chegou ao fim da lista de membros
       }
     } else {
@@ -456,14 +573,23 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
     }
 
     // Rola para baixo para carregar o próximo lote de membros
-    if (scrollContainer && scrollContainer.scrollTop !== undefined) {
-      scrollContainer.scrollTop += 420;
+    if (scrollContainer) {
+      scrollContainer.scrollTop += 480;
+      scrollContainer.dispatchEvent(new Event('scroll', { bubbles: true }));
+      scrollContainer.dispatchEvent(new WheelEvent('wheel', { deltaY: 480, bubbles: true }));
     }
 
-    await new Promise(r => setTimeout(r, 300));
+    // Rola o último membro visível para garantir a virtualização do WhatsApp
+    if (itens.length > 0) {
+      try {
+        itens[itens.length - 1].scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } catch (_) {}
+    }
+
+    await new Promise(r => setTimeout(r, 350));
   }
 
-  // Rola de volta para o topo
+  // Rola de volta para o topo da lista
   if (scrollContainer && scrollContainer.scrollTop !== undefined) {
     scrollContainer.scrollTop = 0;
   }
@@ -494,7 +620,7 @@ async function extrairTodosOsParticipantes(nomeGrupo, onProgress) {
 
   const listaFinal = Array.from(mapaContatos.values());
   const comTel = listaFinal.filter(c => c.telefone && c.telefone.length >= 8);
-  mostrarToastWhatsApp(`🎉 <b>${listaFinal.length} membros extraídos!</b> (${comTel.length} com WhatsApp)`, 'success', 4000);
+  mostrarToastWhatsApp(`🎉 <b>${listaFinal.length} participantes extraídos!</b> (${comTel.length} com WhatsApp)`, 'success', 4500);
 
   return listaFinal;
 }
@@ -587,7 +713,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // ==========================================
-// NOTIFICAÇÕES VISUAIS SILICON VALLEY (TOAST)
+// NOTIFICAÇÕES VISUAIS INTELIGENTES (TOAST)
 // ==========================================
 function mostrarToastWhatsApp(msg, tipo = 'info', duracao = 4000) {
   let toastContainer = document.getElementById('litrao-toast-container');
@@ -932,9 +1058,9 @@ const SEQUENCIAS_FLUTUANTES = [
     id: 'seq_1',
     icone: '🥤',
     nome: 'Apresentação',
-    titulo: '🥤 Apresentação Completa Litrão (3 Passos)',
+    titulo: '🥤 Apresentação Completa ResetFIT (3 Passos)',
     passos: [
-      { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método do Litrão do Reset!', delay: 3 },
+      { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método ResetFIT!', delay: 3 },
       { texto: 'Nossa receita turbinada de 1 Litro leva Chá Verde, Fibras e Energia limpa. Ajuda a desinchar, queimar retenção e dá muita disposição!', delay: 4 },
       { texto: 'Você prefere que eu te mande os sabores ou quer passar no nosso Espaço para provar uma dose gratuita hoje?', delay: 0 }
     ]
@@ -946,7 +1072,7 @@ const SEQUENCIAS_FLUTUANTES = [
     titulo: '🧪 Convite Degustação Grátis EVS (3 Passos)',
     passos: [
       { texto: 'Oi {nome}, tudo bem por aí?', delay: 3 },
-      { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o Litrão do Reset aqui no nosso Espaço Vida Saudável!', delay: 4 },
+      { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o ResetFIT aqui no nosso Espaço Vida Saudável!', delay: 4 },
       { texto: 'Qual horário fica melhor pra você passar aqui, no almoço ou no final da tarde?', delay: 0 }
     ]
   },
@@ -956,7 +1082,7 @@ const SEQUENCIAS_FLUTUANTES = [
     nome: 'Fechamento Pix',
     titulo: '💰 Fechamento de Venda & Pagamento Pix (2 Passos)',
     passos: [
-      { texto: 'Maravilha, {nome}! Seu pedido do Kit do Litrão do Reset está registrado!', delay: 3 },
+      { texto: 'Maravilha, {nome}! Seu pedido do Kit ResetFIT está registrado!', delay: 3 },
       { texto: 'Você pode realizar o Pix para a nossa chave: {chave_pix}\nAssim que fizer, me manda o comprovante que já preparo o seu kit bem geladinho!', delay: 0 }
     ]
   },
@@ -967,7 +1093,7 @@ const SEQUENCIAS_FLUTUANTES = [
     titulo: '⏳ Reativação de Contatos Sumidos (2 Passos)',
     passos: [
       { texto: 'Oi {nome}, como você está? Lembrei de você hoje!', delay: 3 },
-      { texto: 'Chegou uma receita nova do Litrão super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
+      { texto: 'Chegou uma receita nova do ResetFIT super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
     ]
   }
 ];
@@ -996,7 +1122,7 @@ function injetarBarraFlutuanteLitrao() {
     z-index: 100;
   `;
 
-  let botoesHtml = `<span style="font-weight: 700; color: #38BDF8; display: flex; align-items: center; gap: 4px;">⚡ Litrão 1-Clique:</span>`;
+  let botoesHtml = `<span style="font-weight: 700; color: #10B981; display: flex; align-items: center; gap: 4px;">⚡ ResetFIT 1-Clique:</span>`;
 
   SEQUENCIAS_FLUTUANTES.forEach((seq, idx) => {
     botoesHtml += `
@@ -1073,7 +1199,7 @@ function injetarSidebarLateral() {
   // 1. Botao Flutuante de Abertura na borda direita
   const btnAbertura = document.createElement('div');
   btnAbertura.id = 'litrao-lateral-tab-btn';
-  btnAbertura.innerHTML = `<span>⚡</span><span>LITRÃO SUITE</span>`;
+  btnAbertura.innerHTML = `<span>⚡</span><span>RESETFIT</span>`;
   btnAbertura.style.cssText = `
     position: fixed;
     right: 0;
@@ -1098,7 +1224,7 @@ function injetarSidebarLateral() {
     align-items: center;
     gap: 6px;
   `;
-  btnAbertura.title = "Clique para abrir o Litrão WhatsApp Suite na Lateral da Tela";
+  btnAbertura.title = "Clique para abrir o ResetFIT na Lateral da Tela";
 
   btnAbertura.onmouseover = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1.05)'; };
   btnAbertura.onmouseout = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1)'; };
@@ -1125,8 +1251,8 @@ function injetarSidebarLateral() {
   dock.innerHTML = `
     <div style="background: #0D1424; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1E293B;">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="background: #10B981; color: white; font-weight: 900; font-size: 10px; padding: 2px 6px; border-radius: 4px;">ZAP PRO</span>
-        <span style="color: #F8FAFC; font-weight: 800; font-size: 12px;">Litrão Suite Lateral</span>
+        <span style="background: #10B981; color: white; font-weight: 900; font-size: 10px; padding: 2px 6px; border-radius: 4px;">RESETFIT</span>
+        <span style="color: #F8FAFC; font-weight: 800; font-size: 12px;">ResetFIT Lateral</span>
       </div>
       <div style="display: flex; align-items: center; gap: 6px;">
         <button id="litrao-dock-btn-telacheia" style="background: #1E293B; color: #94A3B8; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: bold;" title="Abrir em Tela Cheia">⛶ Tela Cheia</button>

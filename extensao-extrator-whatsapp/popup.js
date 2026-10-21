@@ -1,19 +1,19 @@
 /**
- * Litrão do Reset - WhatsApp SuperSuite (Popup Controller v2.1)
- * Inclui: Extrator Completo, Mensagens Rápidas, Sequências, Áudios, Disparo em Massa, Autoresponder e Backup
+ * ResetFIT - Automação WhatsApp Pro (Popup Controller v2.5.0)
+ * Inclui: Extrator Completo, Mensagens Rápidas, Sequências, Mídias, Disparo em Massa, Respostas e Backup
  */
 
-// Mensagens Rápidas Padrão Validadas para o Litrão do Reset
+// Mensagens Rápidas Padrão Validadas para o ResetFIT
 const MENSAGENS_PADRAO = [
   {
     id: 'msg_1',
-    titulo: '🥤 Convite Litrão do Reset',
-    texto: 'Olá {nome}, tudo bem? Passando para te apresentar o método do Litrão do Reset! Nossa garrafa turbinada de 1 Litro que ajuda a desinchar, eliminar retenção e dá energia limpa o dia todo. Quer experimentar essa semana?'
+    titulo: '🥤 Convite ResetFIT',
+    texto: 'Olá {nome}, tudo bem? Passando para te apresentar o método ResetFIT! Nossa garrafa turbinada de 1 Litro que ajuda a desinchar, eliminar retenção e dá energia limpa o dia todo. Quer experimentar essa semana?'
   },
   {
     id: 'msg_2',
     titulo: '🧪 Degustação Grátis no Espaço (EVS)',
-    texto: 'Oi {nome}! Gostaria de te convidar para passar no nosso Espaço Vida Saudável e degustar gratuitamente uma dose do Litrão do Reset! Qual dia fica melhor pra você, hoje ou amanhã?'
+    texto: 'Oi {nome}! Gostaria de te convidar para passar no nosso Espaço Vida Saudável e degustar gratuitamente uma dose do ResetFIT! Qual dia fica melhor pra você, hoje ou amanhã?'
   },
   {
     id: 'msg_3',
@@ -23,7 +23,7 @@ const MENSAGENS_PADRAO = [
   {
     id: 'msg_4',
     titulo: '💰 Tabela de Preços & Pacote Semanal',
-    texto: 'Oi {nome}! O nosso Kit Semanal do Litrão do Reset inclui 5 garrafas completas (mix de Chá Verde, Fibras e Energia). O valor da dose individual é R$ 25,00 ou o pacote semanal completo por apenas R$ 115,00! Como prefere receber?'
+    texto: 'Oi {nome}! O nosso Kit Semanal do ResetFIT inclui 5 garrafas completas (mix de Chá Verde, Fibras e Energia). O valor da dose individual é R$ 25,00 ou o pacote semanal completo por apenas R$ 115,00! Como prefere receber?'
   },
   {
     id: 'msg_5',
@@ -131,6 +131,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ==========================================
   const selectGrupos = document.getElementById('select-grupos-whatsapp');
   const btnRecarregarGrupos = document.getElementById('btn-recarregar-grupos');
+  const btnFiltroTodos = document.getElementById('btn-filtro-todos');
+  const btnFiltroGrupos = document.getElementById('btn-filtro-grupos');
+  const btnFiltroContatos = document.getElementById('btn-filtro-contatos');
   const btnExtrair = document.getElementById('btn-extrair');
   const progressoExtracao = document.getElementById('progresso-extracao');
   const progressoFill = document.getElementById('progresso-fill');
@@ -142,28 +145,104 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnBaixarJson = document.getElementById('btn-baixar-json');
   const btnBaixarCsv = document.getElementById('btn-baixar-csv');
 
+  let cacheConversas = [];
+  let cacheGrupoAberto = '';
+  let filtroConversasAtual = 'todos'; // 'todos' | 'grupos' | 'contatos'
+
+  function atualizarBotoesFiltro() {
+    if (!btnFiltroTodos || !btnFiltroGrupos || !btnFiltroContatos) return;
+    const btns = [
+      { el: btnFiltroTodos, tipo: 'todos' },
+      { el: btnFiltroGrupos, tipo: 'grupos' },
+      { el: btnFiltroContatos, tipo: 'contatos' }
+    ];
+    btns.forEach(b => {
+      if (b.tipo === filtroConversasAtual) {
+        b.el.style.background = '#10B981';
+        b.el.style.color = '#FFFFFF';
+        b.el.style.fontWeight = 'bold';
+        b.el.style.borderColor = '#10B981';
+      } else {
+        b.el.style.background = '#1E293B';
+        b.el.style.color = '#94A3B8';
+        b.el.style.fontWeight = 'normal';
+        b.el.style.borderColor = '#334155';
+      }
+    });
+  }
+
+  function renderizarSelectConversas() {
+    selectGrupos.innerHTML = '';
+
+    // Opção 1: Conversa / Grupo atualmente aberta na tela
+    const optAtual = document.createElement('option');
+    optAtual.value = '__ATUAL__';
+    optAtual.textContent = cacheGrupoAberto ? `⚡ Aberto agora: ${cacheGrupoAberto}` : '⚡ Conversa aberta na tela';
+    selectGrupos.appendChild(optAtual);
+
+    const grupos = cacheConversas.filter(c => c.isGrupo && c.nome !== cacheGrupoAberto);
+    const contatos = cacheConversas.filter(c => !c.isGrupo && c.nome !== cacheGrupoAberto);
+
+    // Adiciona Grupos
+    if ((filtroConversasAtual === 'todos' || filtroConversasAtual === 'grupos') && grupos.length > 0) {
+      const optgroupGrupos = document.createElement('optgroup');
+      optgroupGrupos.label = `👥 Grupos do WhatsApp (${grupos.length})`;
+      grupos.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.nome;
+        opt.textContent = `👥 ${c.nome}`;
+        optgroupGrupos.appendChild(opt);
+      });
+      selectGrupos.appendChild(optgroupGrupos);
+    }
+
+    // Adiciona Contatos Individuais
+    if ((filtroConversasAtual === 'todos' || filtroConversasAtual === 'contatos') && contatos.length > 0) {
+      const optgroupContatos = document.createElement('optgroup');
+      optgroupContatos.label = `👤 Contatos Individuais (${contatos.length})`;
+      contatos.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.nome;
+        opt.textContent = `👤 ${c.nome}`;
+        optgroupContatos.appendChild(opt);
+      });
+      selectGrupos.appendChild(optgroupContatos);
+    }
+  }
+
   function carregarGrupos() {
     if (!isZap) return;
     chrome.tabs.sendMessage(tab.id, { action: 'listar_conversas' }, (res) => {
       if (!res || !res.sucesso) return;
-      selectGrupos.innerHTML = '';
-      const optAtual = document.createElement('option');
-      optAtual.value = '__ATUAL__';
-      const grupoAberto = (res.infoAtual && res.infoAtual.nomeGrupo) ? res.infoAtual.nomeGrupo : '';
-      nomeGrupoAtual = grupoAberto || 'Grupo Selecionado';
-      optAtual.textContent = grupoAberto ? `⚡ Aberto agora: ${grupoAberto}` : '⚡ Conversa aberta na tela';
-      selectGrupos.appendChild(optAtual);
+      cacheConversas = res.conversas || [];
+      cacheGrupoAberto = (res.infoAtual && res.infoAtual.nomeGrupo) ? res.infoAtual.nomeGrupo : '';
+      nomeGrupoAtual = cacheGrupoAberto || 'Grupo Selecionado';
+      renderizarSelectConversas();
+      atualizarBotoesFiltro();
+    });
+  }
 
-      if (res.conversas) {
-        res.conversas.forEach(c => {
-          if (c.nome && c.nome !== grupoAberto) {
-            const opt = document.createElement('option');
-            opt.value = c.nome;
-            opt.textContent = (c.isGrupo ? '👥 ' : '💬 ') + c.nome;
-            selectGrupos.appendChild(opt);
-          }
-        });
-      }
+  if (btnFiltroTodos) {
+    btnFiltroTodos.addEventListener('click', () => {
+      filtroConversasAtual = 'todos';
+      atualizarBotoesFiltro();
+      renderizarSelectConversas();
+    });
+  }
+
+  if (btnFiltroGrupos) {
+    btnFiltroGrupos.addEventListener('click', () => {
+      filtroConversasAtual = 'grupos';
+      atualizarBotoesFiltro();
+      renderizarSelectConversas();
+    });
+  }
+
+  if (btnFiltroContatos) {
+    btnFiltroContatos.addEventListener('click', () => {
+      filtroConversasAtual = 'contatos';
+      atualizarBotoesFiltro();
+      renderizarSelectConversas();
     });
   }
 
@@ -215,14 +294,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Sincronizar com o Kanban do Litrão
+  // Sincronizar com o CRM ResetFIT
   btnSincronizarCrm.addEventListener('click', async () => {
     if (contatosExtraidos.length === 0) return;
 
     btnSincronizarCrm.innerText = '⏳ Sincronizando...';
 
     const pacote = {
-      origem: 'WhatsApp SuperSuite v2.1',
+      origem: 'ResetFIT Pro v2.5.0',
       grupo: nomeGrupoAtual,
       criadoEm: new Date().toISOString(),
       total: contatosExtraidos.length,
@@ -236,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `leads_kanban_${nomeGrupoAtual.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+    a.download = `leads_resetfit_${nomeGrupoAtual.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -250,9 +329,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     navigator.clipboard.writeText(txtClip).catch(() => {});
 
     btnSincronizarCrm.innerText = '✅ Sincronizado!';
-    setTimeout(() => { btnSincronizarCrm.innerText = '🚀 Sincronizar com Meu Kanban do Litrão'; }, 2500);
+    setTimeout(() => { btnSincronizarCrm.innerText = '🚀 Sincronizar com Meu CRM ResetFIT'; }, 2500);
 
-    alert(`Sucesso! ${contatosExtraidos.length} contatos exportados.\n\nO arquivo JSON compatível foi baixado e os contatos foram copiados para a área de transferência!\n\nNo Painel do Consultor -> Abrir CRM Kanban -> Importar Contatos, selecione o arquivo baixado ou cole com Ctrl+V.`);
+    alert(`Sucesso! ${contatosExtraidos.length} contatos exportados.\n\nO arquivo JSON foi baixado e a lista foi copiada para a sua área de transferência!\n\nNo Painel ResetFIT -> Importar Contatos, selecione o arquivo baixado ou cole com Ctrl+V.`);
   });
 
   btnBaixarJson.addEventListener('click', () => {
@@ -476,9 +555,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const SEQUENCIAS_PADRAO = [
     {
       id: 'seq_1',
-      titulo: '🥤 Apresentação Completa Litrão (3 Passos)',
+      titulo: '🥤 Apresentação Completa ResetFIT (3 Passos)',
       passos: [
-        { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método do Litrão do Reset!', delay: 3 },
+        { texto: 'Olá {nome}, tudo bem? Passando para te contar sobre o método ResetFIT!', delay: 3 },
         { texto: 'Nossa receita turbinada de 1 Litro leva Chá Verde, Fibras e Energia limpa. Ajuda a desinchar, queimar retenção e dá muita disposição!', delay: 4 },
         { texto: 'Você prefere que eu te mande os sabores ou quer passar no nosso Espaço para provar uma dose gratuita hoje?', delay: 0 }
       ]
@@ -488,7 +567,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       titulo: '🧪 Convite Degustação Grátis EVS (3 Passos)',
       passos: [
         { texto: 'Oi {nome}, tudo bem por aí?', delay: 3 },
-        { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o Litrão do Reset aqui no nosso Espaço Vida Saudável!', delay: 4 },
+        { texto: 'Estamos selecionando algumas pessoas para provar gratuitamente o ResetFIT aqui no nosso Espaço Vida Saudável!', delay: 4 },
         { texto: 'Qual horário fica melhor pra você passar aqui, no almoço ou no final da tarde?', delay: 0 }
       ]
     },
@@ -496,7 +575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       id: 'seq_3',
       titulo: '💰 Fechamento de Venda & Pagamento Pix (2 Passos)',
       passos: [
-        { texto: 'Maravilha, {nome}! Seu pedido do Kit do Litrão do Reset está registrado!', delay: 3 },
+        { texto: 'Maravilha, {nome}! Seu pedido do Kit ResetFIT está registrado!', delay: 3 },
         { texto: 'Você pode realizar o Pix para a nossa chave: {chave_pix}\nAssim que fizer, me manda o comprovante que já preparo o seu kit bem geladinho!', delay: 0 }
       ]
     },
@@ -505,7 +584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       titulo: '⏳ Reativação de Contatos Sumidos (2 Passos)',
       passos: [
         { texto: 'Oi {nome}, como você está? Lembrei de você hoje!', delay: 3 },
-        { texto: 'Chegou uma receita nova do Litrão super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
+        { texto: 'Chegou uma receita nova do ResetFIT super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
       ]
     }
   ];
@@ -933,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `backup_zapplus_litrao_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `backup_resetfit_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     alert("Backup gerado e baixado com sucesso!");

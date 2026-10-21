@@ -1,5 +1,5 @@
 /**
- * Litrão do Reset - WhatsApp SuperSuite Pro (Background Service Worker)
+ * ResetFIT - Automação WhatsApp Pro (Background Service Worker)
  * Habilita Side Panel (Painel Lateral) nativo do Chrome
  */
 
@@ -11,5 +11,5 @@ if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
 
 // Ouve atalhos de teclado ou comandos de abertura
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("[Litrão SuperSuite] Extensão v2.2 instalada/atualizada com sucesso!");
+  console.log("[ResetFIT Pro] Extensão v2.5.0 instalada/atualizada com sucesso!");
 });

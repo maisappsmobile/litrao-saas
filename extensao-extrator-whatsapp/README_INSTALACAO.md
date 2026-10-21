@@ -1,13 +1,13 @@
-# 🚀 Manual de Instalação Rápida: Extrator de Contatos WhatsApp Web
+# 🚀 Manual de Instalação: ResetFIT - Automação WhatsApp Pro (v2.5.0)
 
-Esta extensão oficial foi desenvolvida para os consultores autorizados do **Litrão do Reset**. Ela permite extrair contatos e participantes de qualquer grupo do WhatsApp Web e sincronizar em 1 clique com o **CRM Kanban de Vendas**.
+Esta extensão oficial foi desenvolvida para os consultores **ResetFIT**. Ela permite extrair participantes de qualquer grupo do WhatsApp Web, enviar mídias (fotos e vídeos), executar sequências de 1 clique, disparar mensagens em massa com rotação anti-bloqueio (spintax) e sincronizar contatos com o CRM.
 
 ---
 
 ## ⚡ Como Instalar no Google Chrome, Microsoft Edge ou Brave (30 Segundos)
 
 1. **Descompacte a Pasta:**
-   Se você baixou o arquivo `.zip`, extraia a pasta `extensao-extrator-whatsapp` em um local seguro do seu computador (ex: Documentos ou Área de Trabalho).
+   Se você baixou o arquivo `.zip`, extraia a pasta `extensao-extrator-whatsapp` em um local do seu computador (ex: `C:\Users\TI\Downloads\extensao-extrator-whatsapp`).
 
 2. **Abra a Página de Extensões do Navegador:**
    * No **Google Chrome**: digite `chrome://extensions/` na barra de endereço.
@@ -15,24 +15,25 @@ Esta extensão oficial foi desenvolvida para os consultores autorizados do **Lit
    * No **Brave**: digite `brave://extensions/` na barra de endereço.
 
 3. **Ative o Modo do Desenvolvedor:**
-   * No canto superior direito da página de extensões, ative a chave **"Modo do desenvolvedor"** (*Developer mode*).
+   * No canto superior direito da página de extensões, ative a chave **"Modo do desenvolvedor"**.
 
 4. **Carregue a Extensão:**
    * Clique no botão **"Carregar sem compactação"** (*Load unpacked*).
    * Selecione a pasta `extensao-extrator-whatsapp`.
 
 5. **Pronto! 🎉**
-   * O ícone do **Litrão do Reset** aparecerá na barra superior do navegador ao lado dos seus favoritos.
-   * Recomendamos clicar no ícone de "quebra-cabeça" do Chrome e fixar o ícone para acesso rápido.
+   * O ícone do **ResetFIT** aparecerá na barra superior do navegador.
+   * Clique no ícone de "quebra-cabeça" do Chrome e fixe o ícone do **ResetFIT** para acesso com 1 clique.
 
 ---
 
-## 📲 Como Usar no Dia a Dia
+## 📲 Como Usar os Recursos Principais
 
 1. Abra o [WhatsApp Web](https://web.whatsapp.com) no seu navegador.
-2. Clique no grupo de onde deseja extrair os contatos (ex: grupos de condomínio, grupos de bairro, academias, clientes, etc.).
-3. Clique no ícone da extensão no topo do navegador.
-4. Clique em **"⚡ Extrair Contatos do Grupo"**.
-5. Aguarde alguns segundos enquanto a extensão faz a leitura segura de todos os participantes.
-6. Clique em **"🚀 Sincronizar com Meu Kanban do Litrão"** ou **"Baixar Planilha"**.
-7. No seu **Painel do Consultor**, abra o **CRM Kanban** e gerencie os leads com mensagens personalizadas em 1 clique!
+2. Abra a conversa ou grupo que deseja trabalhar.
+3. Clique no ícone do **ResetFIT** no navegador ou no botão lateral **⚡ RESETFIT**:
+   - **📥 Extrator de Grupos:** Filtre por Grupos ou Contatos, abra os dados do grupo e clique em "⚡ Extrair Todos os Contatos". O sistema rola a lista inteira e extrai todos os membros.
+   - **🚀 Mensagens Rápidas:** Envie mensagens pré-configuradas com 1 clique na conversa aberta.
+   - **💬 Sequências:** Envie funis com múltiplos passos e delay humanizado.
+   - **📷 Mídias:** Envie fotos, vídeos e notas de áudio diretamente no chat.
+   - **👥 Em Massa:** Envie mensagens com variações anti-bloqueio (`{Oi|Olá|Oie}`) e rotação automática de textos e mídias.
