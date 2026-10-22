@@ -8090,6 +8090,10 @@
                     meuLink.innerText = urlFull;
                     meuLink.href = urlFull;
                 }
+                const directLink = document.getElementById('direct-campo-link');
+                if (directLink) {
+                    directLink.value = urlFull;
+                }
 
                 // Gera o QR code invisível com proteção
                 try {
@@ -14970,6 +14974,12 @@
             const btnMenuSand = document.getElementById('btn-menu-sanduiche');
             if (btnMenuSand) btnMenuSand.classList.add('hidden');
             if (typeof fecharMenuSanduiche === 'function') fecharMenuSanduiche();
+            const directLink = document.getElementById('direct-campo-link');
+            if (directLink) directLink.value = '';
+            const directNome = document.getElementById('direct-campo-nome');
+            if (directNome) directNome.value = '';
+            const directCidade = document.getElementById('direct-campo-cidade');
+            if (directCidade) directCidade.value = '';
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
@@ -16368,22 +16378,49 @@
 
         let abaDirectsAtual = 'todos';
 
+        function obterLinkConsultorAtual() {
+            if (typeof consultorAtual !== 'undefined' && consultorAtual) {
+                const slugOuId = (consultorAtual.slug || consultorAtual.herbalife_id || '').trim();
+                const base = (window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1'))
+                    ? window.location.origin
+                    : 'https://litraodoreset.com.br';
+                return slugOuId ? `${base}/${slugOuId}` : base;
+            }
+            const meuLink = document.getElementById('meu-link');
+            if (meuLink && meuLink.href && !meuLink.href.endsWith('#') && !meuLink.href.includes('undefined')) {
+                return meuLink.href;
+            }
+            return 'https://litraodoreset.com.br';
+        }
+        window.obterLinkConsultorAtual = obterLinkConsultorAtual;
+
         function abrirModalDirectsProspeccao() {
             const modal = document.getElementById('modal-directs-prospeccao');
             if (!modal) return;
 
-            // Preenche o campo de link com o link real do consultor se estiver em branco
+            // Sincroniza SEMPRE com o link oficial do consultor atualmente logado
             const campoLink = document.getElementById('direct-campo-link');
-            if (campoLink && (!campoLink.value || campoLink.value === 'https://litraodoreset.com.br')) {
-                const linkReal = (consultorAtual && (consultorAtual.slug || consultorAtual.herbalife_id))
-                    ? (window.location.origin + '/' + (consultorAtual.slug || consultorAtual.herbalife_id))
-                    : window.location.origin;
-                campoLink.value = linkReal;
+            if (campoLink) {
+                const linkOficial = obterLinkConsultorAtual();
+                const slugOuIdAtual = (consultorAtual && (consultorAtual.slug || consultorAtual.herbalife_id)) ? (consultorAtual.slug || consultorAtual.herbalife_id).trim() : '';
+                // Se estiver vazio, ou for genérico, ou se o campo ainda estiver com o link de outro consultor:
+                if (!campoLink.value || campoLink.value === 'https://litraodoreset.com.br' || (slugOuIdAtual && !campoLink.value.includes(slugOuIdAtual))) {
+                    campoLink.value = linkOficial;
+                }
             }
 
+            // Sugere a cidade/região do consultor logado se o campo estiver vazio
             const campoCidade = document.getElementById('direct-campo-cidade');
-            if (campoCidade && !campoCidade.value && consultorAtual && consultorAtual.cidade) {
-                campoCidade.value = consultorAtual.cidade;
+            if (campoCidade && !campoCidade.value && consultorAtual) {
+                let cid = consultorAtual.cidade || '';
+                if (!cid && consultorAtual.nome_espaco) {
+                    const limpo = consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                    const partes = limpo.split('|');
+                    if (partes.length > 1) {
+                        cid = partes[1].trim();
+                    }
+                }
+                if (cid) campoCidade.value = cid;
             }
 
             modal.classList.remove('hidden');
@@ -16445,10 +16482,14 @@
             const rawCidade = (document.getElementById('direct-campo-cidade')?.value || '').trim();
             const rawLink = (document.getElementById('direct-campo-link')?.value || '').trim();
 
+            const linkDefault = (typeof obterLinkConsultorAtual === 'function')
+                ? obterLinkConsultorAtual()
+                : (window.location.origin || 'https://litraodoreset.com.br');
+
             return {
                 nome: rawNome || 'Consultor(a)',
                 cidade: rawCidade || 'sua região',
-                link: rawLink || window.location.origin
+                link: rawLink || linkDefault
             };
         }
 
