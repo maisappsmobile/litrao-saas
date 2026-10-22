@@ -1639,3 +1639,196 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  // ==========================================
+  // EXTENSÃO RESETFIT: ABA FACEBOOK GRUPOS (SUPERADMIN)
+  // ==========================================
+  function initFacebookExtractorPopup() {
+    const statusAbaFb = document.getElementById('fb-popup-status-aba');
+    const btnExtrairFb = document.getElementById('btn-popup-extrair-facebook');
+    const btnRolarFb = document.getElementById('btn-popup-rolar-facebook');
+    const boxResultadoFb = document.getElementById('fb-popup-resultado-box');
+    const txtQtdFb = document.getElementById('fb-popup-qtd-membros');
+    const listPreviewFb = document.getElementById('fb-popup-lista-preview');
+    const btnSincronizarFb = document.getElementById('btn-popup-sincronizar-facebook');
+    const btnCopiarFb = document.getElementById('btn-popup-copiar-facebook');
+
+    if (!btnExtrairFb) return;
+
+    let leadsFacebookExtraidosPopup = [];
+    let grupoFacebookAtualPopup = 'Grupo Facebook';
+
+    async function verificarAbaFacebookAtual() {
+      if (typeof chrome === 'undefined' || !chrome.tabs || !chrome.tabs.query) return;
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url) return;
+
+        if (tab.url.includes('facebook.com/groups/')) {
+          let nomeLimpo = (tab.title || 'Grupo Facebook').replace(/\s*\|\s*Facebook\s*$/i, '').trim();
+          grupoFacebookAtualPopup = nomeLimpo;
+          if (statusAbaFb) {
+            statusAbaFb.innerHTML = `<span style="color:#38BDF8;">✅ Grupo Detectado:</span> <b>${nomeLimpo}</b>`;
+          }
+          if (btnExtrairFb) {
+            btnExtrairFb.disabled = false;
+            btnExtrairFb.innerText = '⚡ Extrair Membros deste Grupo (1 Clique)';
+          }
+        } else {
+          if (statusAbaFb) {
+            statusAbaFb.innerHTML = `<span style="color:#F59E0B;">⚠️ A aba ativa não é um grupo do Facebook.</span><br><span style="font-size:10px;color:#94A3B8;">Abra a página do grupo no Facebook e clique aqui novamente.</span>`;
+          }
+        }
+      } catch (err) {}
+    }
+
+    verificarAbaFacebookAtual();
+
+    btnExtrairFb.addEventListener('click', async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.id) return;
+
+      btnExtrairFb.disabled = true;
+      btnExtrairFb.innerText = '⏳ Identificando membros...';
+
+      try {
+        const resultado = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            const links = Array.from(document.querySelectorAll('a[role="link"], a[href*="/user/"], a[href*="/groups/"]'));
+            const membrosMap = new Map();
+            const termosIgnorar = [
+              'adicionar', 'mensagem', 'ver tudo', 'amigo', 'grupo', 'facebook',
+              'compartilhar', 'curtir', 'notificações', 'feed', 'gaming', 'convidar',
+              'classificado', 'discussão', 'destaques', 'vídeo', 'eventos', 'sobre'
+            ];
+
+            links.forEach(a => {
+              const href = (a.href || '').split('?')[0];
+              const nome = (a.innerText || '').trim();
+              if (!href || nome.length < 3 || nome.length > 50 || nome.includes('\n')) return;
+              const low = nome.toLowerCase();
+              if (termosIgnorar.some(t => low.includes(t))) return;
+
+              const isPerfil = href.includes('/user/') || href.includes('/profile.php') ||
+                               (href.includes('facebook.com/') && !href.includes('/groups/'));
+              const card = a.closest('div[role="listitem"]') || a.parentElement?.parentElement || {};
+              const cardText = (card.innerText || '').toLowerCase();
+
+              if (!isPerfil && !cardText.includes('administrador') && !cardText.includes('membro')) return;
+
+              const isAdmin = cardText.includes('administrador') || cardText.includes('moderador');
+
+              if (!membrosMap.has(nome)) {
+                membrosMap.set(nome, {
+                  nome: nome,
+                  perfilUrl: isPerfil ? href : `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
+                  cargo: isAdmin ? 'admin' : 'membro'
+                });
+              }
+            });
+
+            return Array.from(membrosMap.values());
+          }
+        });
+
+        const membros = (resultado && resultado[0] && resultado[0].result) ? resultado[0].result : [];
+        leadsFacebookExtraidosPopup = membros;
+
+        btnExtrairFb.disabled = false;
+        btnExtrairFb.innerText = '⚡ Atualizar Extração';
+
+        if (btnRolarFb) btnRolarFb.style.display = 'block';
+        if (boxResultadoFb) boxResultadoFb.style.display = 'block';
+
+        if (txtQtdFb) {
+          const adm = membros.filter(m => m.cargo === 'admin').length;
+          txtQtdFb.innerText = `${membros.length} membros extraídos (${adm} Administradores)`;
+        }
+
+        if (listPreviewFb) {
+          if (membros.length === 0) {
+            listPreviewFb.innerHTML = '<div style="padding:10px;text-align:center;color:#94A3B8;font-size:10px;">Nenhum membro detectado. Você está na aba "Pessoas" do grupo? Role a página para baixo e tente novamente!</div>';
+          } else {
+            listPreviewFb.innerHTML = membros.map(m => `
+              <div style="padding:4px 6px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1E293B;font-size:10px;">
+                <span style="font-weight:700;color:#F1F5F9;">${m.nome}</span>
+                ${m.cargo === 'admin'
+                  ? '<span style="background:rgba(245,158,11,0.2);color:#FBBF24;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:800;">👑 Admin</span>'
+                  : '<span style="color:#64748B;font-size:8px;">Membro</span>'
+                }
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        btnExtrairFb.disabled = false;
+        btnExtrairFb.innerText = '⚡ Tentar Novamente';
+        alert('Erro ao extrair da aba: certifique-se de estar com a página do Facebook aberta.');
+      }
+    });
+
+    if (btnRolarFb) {
+      btnRolarFb.addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.id) return;
+
+        btnRolarFb.innerText = '⏳ Rolando página...';
+        btnRolarFb.disabled = true;
+
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            window.scrollBy(0, 1500);
+          }
+        });
+
+        setTimeout(() => {
+          btnRolarFb.disabled = false;
+          btnRolarFb.innerText = '🔄 Rolar Mais (Carregar Mais)';
+          btnExtrairFb?.click();
+        }, 1000);
+      });
+    }
+
+    if (btnSincronizarFb) {
+      btnSincronizarFb.addEventListener('click', () => {
+        if (!leadsFacebookExtraidosPopup.length) {
+          alert('Nenhum membro extraído para sincronizar.');
+          return;
+        }
+
+        const pacote = {
+          tipo: 'RESETFIT_SINCRONIZAR_FACEBOOK',
+          grupo: grupoFacebookAtualPopup,
+          total: leadsFacebookExtraidosPopup.length,
+          data: new Date().toISOString(),
+          leads: leadsFacebookExtraidosPopup
+        };
+
+        chrome.storage.local.set({ resetfit_fb_pending_import: pacote }, () => {
+          btnSincronizarFb.innerText = '✅ Sincronizado com Sucesso!';
+          btnSincronizarFb.style.background = '#047857';
+          alert(`🎉 SUCESSO!\n\n${leadsFacebookExtraidosPopup.length} contatos do grupo "${grupoFacebookAtualPopup}" foram enviados para o Litrão do Reset!\n\nAbra o seu painel para ver a lista atualizada.`);
+        });
+      });
+    }
+
+    if (btnCopiarFb) {
+      btnCopiarFb.addEventListener('click', () => {
+        if (!leadsFacebookExtraidosPopup.length) {
+          alert('Nenhum membro extraído para copiar.');
+          return;
+        }
+        navigator.clipboard.writeText(JSON.stringify(leadsFacebookExtraidosPopup, null, 2)).then(() => {
+          alert(`✅ ${leadsFacebookExtraidosPopup.length} membros copiados para a área de transferência!`);
+        });
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFacebookExtractorPopup);
+  } else {
+    initFacebookExtractorPopup();
+  }
