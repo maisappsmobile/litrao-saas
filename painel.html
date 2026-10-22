@@ -34,6 +34,51 @@
             }
         }
     </script>
+    <style>
+        /* Barra de Rolagem (Scrollbar) Nítida e Elegante para Modais */
+        .custom-modal-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-modal-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 9999px;
+        }
+        .custom-modal-scrollbar::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 9999px;
+            border: 2px solid #f1f5f9;
+        }
+        .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #7e22ce;
+        }
+        .custom-modal-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #a855f7 #f1f5f9;
+        }
+
+        /* Variante escura para modais do CRM */
+        .custom-modal-scrollbar-dark::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-modal-scrollbar-dark::-webkit-scrollbar-track {
+            background: #0b1120;
+            border-radius: 9999px;
+        }
+        .custom-modal-scrollbar-dark::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 9999px;
+            border: 2px solid #0b1120;
+        }
+        .custom-modal-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+        }
+        .custom-modal-scrollbar-dark {
+            scrollbar-width: thin;
+            scrollbar-color: #6366f1 #0b1120;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
@@ -1409,200 +1454,207 @@
         </div>
 
         <!-- MODAL DE EDIÇÃO DE CONSULTOR (SUPERADMIN) -->
-        <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-200 relative">
-                <button onclick="fecharModalEditarConsultor()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-lg">
-                        <i class="fa-solid fa-user-pen"></i>
+        <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-200 relative flex flex-col max-h-[92vh] overflow-hidden animate-fade-in">
+                <!-- HEADER FIXO -->
+                <div class="flex items-center justify-between p-5 sm:p-6 pb-4 border-b border-gray-100 flex-shrink-0 bg-white">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-lg shadow-2xs">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-gray-900 leading-tight">Editar Consultor</h3>
+                            <p class="text-xs text-gray-500 font-mono mt-0.5" id="superadmin-edit-subtitulo">ID: ---</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-black text-gray-900">Editar Consultor</h3>
-                        <p class="text-xs text-gray-500" id="superadmin-edit-subtitulo">ID: ---</p>
-                    </div>
+                    <button type="button" onclick="fecharModalEditarConsultor()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center text-lg font-bold transition cursor-pointer" title="Fechar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <form id="form-editar-consultor-superadmin" onsubmit="salvarEdicaoConsultorSuperadmin(event)" class="space-y-4">
-                    <input type="hidden" id="superadmin-edit-id">
+                <!-- FORMULÁRIO COM CORPO ROLÁVEL E BARRA DE ROLAGEM DEDICADA -->
+                <form id="form-editar-consultor-superadmin" onsubmit="salvarEdicaoConsultorSuperadmin(event)" class="flex flex-col flex-1 overflow-hidden">
+                    <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 custom-modal-scrollbar">
+                        <input type="hidden" id="superadmin-edit-id">
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">Nome / Espaço</label>
-                        <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Nome / Espaço</label>
+                            <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
 
-                    <!-- CIDADE E ESTADO (UF) DO CONSULTOR -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-purple-50/50 p-3 rounded-2xl border border-purple-200">
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
-                                <span><i class="fa-solid fa-city text-purple-600 mr-1"></i> Cidade do Consultor / Espaço</span>
-                                <span class="text-[10px] text-purple-600 font-extrabold">Aparece no Link</span>
-                            </label>
-                            <input type="text" id="superadmin-edit-cidade" placeholder="Ex: Primavera do Leste, Juína, etc." class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
-                                <span><i class="fa-solid fa-map-location-dot text-purple-600 mr-1"></i> Estado (UF)</span>
-                            </label>
-                            <select id="superadmin-edit-estado" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">Selecione...</option>
-                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
-                                <span>ID Herbalife</span>
-                                <span class="text-[10px] text-purple-600 font-extrabold">Número</span>
-                            </label>
-                            <input type="text" id="superadmin-edit-herbalife-id" required placeholder="Ex: 433005811" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
-                                <span>3 Letras (Herbalife)</span>
-                                <span class="text-[10px] text-emerald-600 font-extrabold">Sponsor</span>
-                            </label>
-                            <input type="text" id="superadmin-edit-letras" maxlength="3" required placeholder="Ex: BRA" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-black text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase tracking-widest text-center">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
-                                <span>Senha do Painel</span>
-                                <span class="text-[10px] text-amber-600 font-extrabold">Acesso</span>
-                            </label>
-                            <input type="text" id="superadmin-edit-senha" placeholder="Ex: 120547" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (DDD + Número)</label>
-                            <input type="text" id="superadmin-edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Status</label>
-                            <select id="superadmin-edit-status" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="Ativo">Ativo</option>
-                                <option value="Pendente">Pendente</option>
-                                <option value="Bloqueado">Bloqueado</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Data de Vencimento</label>
-                            <input type="date" id="superadmin-edit-vencimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div class="flex flex-col justify-end">
-                            <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
-                                <i class="fa-solid fa-infinity"></i> Tornar Vitalício
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- LIBERAÇÃO MANUAL DO MÓDULO FINANCEIRO DO EVS -->
-                    <div class="bg-emerald-50/80 p-3 rounded-2xl border border-emerald-300 flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs">
-                                <i class="fa-solid fa-calculator"></i>
+                        <!-- CIDADE E ESTADO (UF) DO CONSULTOR -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-purple-50/50 p-3 rounded-2xl border border-purple-200">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-city text-purple-600 mr-1"></i> Cidade do Consultor / Espaço</span>
+                                    <span class="text-[10px] text-purple-600 font-extrabold">Aparece no Link</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-cidade" placeholder="Ex: Primavera do Leste, Juína, etc." class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                             </div>
                             <div>
-                                <span class="block text-xs font-black text-emerald-950 uppercase">Módulo Financeiro do EVS</span>
-                                <span class="text-[10px] text-emerald-700 font-medium">Libera calculadora de doses, margem por Litrão e catálogo</span>
+                                <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-map-location-dot text-purple-600 mr-1"></i> Estado (UF)</span>
+                                </label>
+                                <select id="superadmin-edit-estado" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="">Selecione...</option>
+                                    <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                </select>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="superadmin-edit-financeiro-liberado" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                        </label>
-                    </div>
 
-                    <!-- LIBERAÇÃO MANUAL DO CATÁLOGO INTERATIVO HERBALIFE -->
-                    <div class="bg-blue-50/80 p-3 rounded-2xl border border-blue-300 flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-xs">
-                                <i class="fa-solid fa-book-open-reader"></i>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>ID Herbalife</span>
+                                    <span class="text-[10px] text-purple-600 font-extrabold">Número</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-herbalife-id" required placeholder="Ex: 433005811" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                             </div>
                             <div>
-                                <span class="block text-xs font-black text-blue-950 uppercase">Catálogo Digital Interativo</span>
-                                <span class="text-[10px] text-blue-700 font-medium">Libera painel do catálogo, compartilhamento WhatsApp/E-mail e visitas</span>
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>3 Letras (Herbalife)</span>
+                                    <span class="text-[10px] text-emerald-600 font-extrabold">Sponsor</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-letras" maxlength="3" required placeholder="Ex: BRA" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-black text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase tracking-widest text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>Senha do Painel</span>
+                                    <span class="text-[10px] text-amber-600 font-extrabold">Acesso</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-senha" placeholder="Ex: 120547" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="superadmin-edit-catalogo-liberado" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">Slug / Link Personalizado</label>
-                        <input type="text" id="superadmin-edit-slug" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-
-                    <!-- REDES SOCIAIS (SUPERADMIN) -->
-                    <div class="bg-purple-50/50 p-3.5 rounded-2xl border border-purple-200 space-y-2.5">
-                        <span class="block text-xs font-black text-purple-900 uppercase">
-                            <i class="fa-solid fa-share-nodes text-purple-600 mr-1.5"></i> Redes Sociais do Consultor
-                        </span>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Instagram</label>
-                                <input type="text" id="superadmin-edit-ig" placeholder="@usuario" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (DDD + Número)</label>
+                                <input type="text" id="superadmin-edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Facebook</label>
-                                <input type="text" id="superadmin-edit-fb" placeholder="facebook.com/..." class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">TikTok</label>
-                                <input type="text" id="superadmin-edit-tk" placeholder="@tiktok" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Status</label>
+                                <select id="superadmin-edit-status" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Pendente">Pendente</option>
+                                    <option value="Bloqueado">Bloqueado</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- PREÇOS DOS PACOTES DA REGIÃO (SUPERADMIN) -->
-                    <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200 space-y-2.5">
-                        <span class="block text-xs font-black text-amber-900 uppercase">
-                            <i class="fa-solid fa-tags text-amber-600 mr-1.5"></i> Preços dos Pacotes (Kits da Região)
-                        </span>
-                        <p class="text-[10px] text-amber-800">
-                            Preencha para ativar a seção de pacotes na Landing Page deste consultor. Deixe em branco para ocultar.
-                        </p>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET (500ml)</label>
-                                <div class="relative">
-                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
-                                    <input type="text" id="superadmin-edit-preco-reset" placeholder="49,90" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Data de Vencimento</label>
+                                <input type="date" id="superadmin-edit-vencimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div class="flex flex-col justify-end">
+                                <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-infinity"></i> Tornar Vitalício
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- LIBERAÇÃO MANUAL DO MÓDULO FINANCEIRO DO EVS -->
+                        <div class="bg-emerald-50/80 p-3 rounded-2xl border border-emerald-300 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs">
+                                    <i class="fa-solid fa-calculator"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-black text-emerald-950 uppercase">Módulo Financeiro do EVS</span>
+                                    <span class="text-[10px] text-emerald-700 font-medium">Libera calculadora de doses, margem por Litrão e catálogo</span>
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET + (1L)</label>
-                                <div class="relative">
-                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
-                                    <input type="text" id="superadmin-edit-preco-plus" placeholder="65,00" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="superadmin-edit-financeiro-liberado" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- LIBERAÇÃO MANUAL DO CATÁLOGO INTERATIVO HERBALIFE -->
+                        <div class="bg-blue-50/80 p-3 rounded-2xl border border-blue-300 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-xs">
+                                    <i class="fa-solid fa-book-open-reader"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-black text-blue-950 uppercase">Catálogo Digital Interativo</span>
+                                    <span class="text-[10px] text-blue-700 font-medium">Libera painel do catálogo, compartilhamento WhatsApp/E-mail e visitas</span>
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET TURBO</label>
-                                <div class="relative">
-                                    <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
-                                    <input type="text" id="superadmin-edit-preco-turbo" placeholder="79,99" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="superadmin-edit-catalogo-liberado" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Slug / Link Personalizado</label>
+                            <input type="text" id="superadmin-edit-slug" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+
+                        <!-- REDES SOCIAIS (SUPERADMIN) -->
+                        <div class="bg-purple-50/50 p-3.5 rounded-2xl border border-purple-200 space-y-2.5">
+                            <span class="block text-xs font-black text-purple-900 uppercase">
+                                <i class="fa-solid fa-share-nodes text-purple-600 mr-1.5"></i> Redes Sociais do Consultor
+                            </span>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Instagram</label>
+                                    <input type="text" id="superadmin-edit-ig" placeholder="@usuario" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Facebook</label>
+                                    <input type="text" id="superadmin-edit-fb" placeholder="facebook.com/..." class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">TikTok</label>
+                                    <input type="text" id="superadmin-edit-tk" placeholder="@tiktok" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 </div>
                             </div>
                         </div>
+
+                        <!-- PREÇOS DOS PACOTES DA REGIÃO (SUPERADMIN) -->
+                        <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200 space-y-2.5">
+                            <span class="block text-xs font-black text-amber-900 uppercase">
+                                <i class="fa-solid fa-tags text-amber-600 mr-1.5"></i> Preços dos Pacotes (Kits da Região)
+                            </span>
+                            <p class="text-[10px] text-amber-800">
+                                Preencha para ativar a seção de pacotes na Landing Page deste consultor. Deixe em branco para ocultar.
+                            </p>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET (500ml)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                        <input type="text" id="superadmin-edit-preco-reset" placeholder="49,90" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET + (1L)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                        <input type="text" id="superadmin-edit-preco-plus" placeholder="65,00" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-0.5">RESET TURBO</label>
+                                    <div class="relative">
+                                        <span class="absolute left-2.5 top-2 text-[10px] font-black text-gray-400">R$</span>
+                                        <input type="text" id="superadmin-edit-preco-turbo" placeholder="79,99" class="campo-moeda-auto w-full pl-7 pr-2 p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="superadmin-edit-alerta" class="hidden p-3 rounded-xl text-xs font-bold"></div>
                     </div>
 
-                    <div id="superadmin-edit-alerta" class="hidden p-3 rounded-xl text-xs font-bold"></div>
-
-                    <div class="pt-3 flex gap-2">
+                    <!-- FOOTER FIXO COM BOTÕES DE AÇÃO -->
+                    <div class="p-4 sm:p-5 pt-3 border-t border-gray-100 bg-gray-50/90 rounded-b-3xl flex-shrink-0 flex gap-2">
                         <button type="submit" id="btn-salvar-superadmin" class="flex-1 bg-purple-700 hover:bg-purple-800 text-white font-black py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-floppy-disk"></i> Salvar Consultor
                         </button>
-                        <button type="button" onclick="fecharModalEditarConsultor()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-5 py-3 rounded-xl transition cursor-pointer">
+                        <button type="button" onclick="fecharModalEditarConsultor()" class="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 font-bold px-5 py-3 rounded-xl transition cursor-pointer">
                             Cancelar
                         </button>
                     </div>
@@ -5731,8 +5783,8 @@
     <!-- ========================================================================= -->
     <!-- MODAL 3: IMPORTAR CONTATOS DO WHATSAPP (JSON OU TEXTO) -->
     <!-- ========================================================================= -->
-    <div id="modal-crm-importar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
-        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative">
+    <div id="modal-crm-importar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative max-h-[92vh] overflow-y-auto custom-modal-scrollbar-dark">
             <button onclick="fecharModalImportarCrm()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -5807,8 +5859,8 @@
     <!-- ========================================================================= -->
     <!-- MODAL 4: DISPARADOR DE SCRIPTS VALIDADOS WHATSAPP -->
     <!-- ========================================================================= -->
-    <div id="modal-crm-script-whatsapp" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
-        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative">
+    <div id="modal-crm-script-whatsapp" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative max-h-[92vh] overflow-y-auto custom-modal-scrollbar-dark">
             <button onclick="fecharModalScriptWhatsApp()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -5869,8 +5921,8 @@
     <!-- ========================================================================= -->
     <!-- MODAL 5: NOVO / EDITAR LEAD MANUALMENTE -->
     <!-- ========================================================================= -->
-    <div id="modal-crm-lead-form" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
-        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative">
+    <div id="modal-crm-lead-form" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative max-h-[92vh] overflow-y-auto custom-modal-scrollbar-dark">
             <button onclick="fecharModalNovoLeadCrm()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -5931,8 +5983,8 @@
     <!-- ========================================================================= -->
     <!-- MODAL 6: GUIA E DOWNLOAD DA EXTENSÃO DE NAVEGADOR -->
     <!-- ========================================================================= -->
-    <div id="modal-crm-extensao-instrucoes" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
-        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative">
+    <div id="modal-crm-extensao-instrucoes" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        <div class="bg-[#0e1526] text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-700 relative max-h-[92vh] overflow-y-auto custom-modal-scrollbar-dark">
             <button onclick="fecharModalInstrucoesExtensaoConsultor()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
