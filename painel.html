@@ -165,6 +165,12 @@
                             <span>Modelos Directs X1</span>
                         </button>
 
+                        <!-- Extrator Facebook Grupos (SuperAdmin Exclusivo) -->
+                        <button id="btn-abrir-extrator-facebook-superadmin" onclick="abrirModalExtratorFacebookSuperadmin(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Extrator de Leads & Disparador Facebook Grupos (SuperAdmin)">
+                            <i class="fa-brands fa-facebook text-blue-600 w-4 text-center"></i>
+                            <span>Extrator Grupos Facebook</span>
+                        </button>
+
                         <!-- Alterar Senha -->
                         <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Alterar Senha do Painel">
                             <i class="fa-solid fa-key text-slate-500 w-4 text-center"></i>
@@ -762,6 +768,9 @@
                         </div>
                         <button onclick="abrirModalDirectsProspeccao()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-paper-plane text-cyan-300"></i> Directs X1
+                        </button>
+                        <button onclick="abrirModalExtratorFacebookSuperadmin()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md">
+                            <i class="fa-brands fa-facebook text-white text-sm"></i> Extrator Grupos Facebook
                         </button>
                         <button onclick="abrirModalSuperadminCupons()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
                             <i class="fa-solid fa-ticket text-slate-950"></i> Criar Cupom (%)
@@ -1614,6 +1623,296 @@
                 <!-- Container Rolável dos Cards de Modelos de Script (Foco Principal com Altura Livre!) -->
                 <div id="container-cards-directs" class="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-6 space-y-5 bg-slate-50/70">
                     <!-- Cards injetados via JS -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MODAL: EXTRATOR & DISPARADOR FACEBOOK GRUPOS (SUPERADMIN VIP) -->
+        <div id="modal-extrator-facebook-superadmin" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto hidden">
+            <div class="bg-white rounded-3xl max-w-6xl w-full h-[94vh] max-h-[94vh] shadow-2xl relative border border-gray-200 flex flex-col overflow-hidden animate-fade-in my-auto">
+                
+                <!-- HEADER DO MODAL -->
+                <div class="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-gray-100 flex-shrink-0 bg-white pr-12">
+                    <div class="flex items-center justify-between gap-3 flex-wrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-700 text-white flex items-center justify-center font-black text-xl shadow-md flex-shrink-0">
+                                <i class="fa-brands fa-facebook-f"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-lg sm:text-xl font-black text-gray-900 leading-tight">Extrator & Disparador Facebook Grupos X1</h3>
+                                    <span class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                                        SuperAdmin Exclusivo
+                                    </span>
+                                    <span class="bg-blue-100 text-blue-900 font-bold text-[10px] px-2 py-0.5 rounded-full border border-blue-200">
+                                        Atração & Instalação da Plataforma
+                                    </span>
+                                </div>
+                                <p class="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-1">
+                                    Extraia membros e administradores de grupos Herbalife no Facebook, envie abordagens no Messenger e atraia consultores para os <strong>7 dias grátis</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="hidden lg:flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-950 px-3 py-1.5 rounded-xl text-xs font-bold shadow-2xs">
+                            <i class="fa-solid fa-users text-blue-600 text-sm"></i>
+                            <span>Base Ativa: <strong id="fb-header-total-leads">0 leads</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Botão Fechar -->
+                    <button type="button" onclick="fecharModalExtratorFacebookSuperadmin()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-700 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition z-20 shadow-xs" title="Fechar modal">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <!-- BARRA DE NAVEGAÇÃO DE ABAS DO MODAL -->
+                <div class="px-4 py-2 sm:px-6 bg-slate-900 border-b border-slate-800 flex-shrink-0 flex items-center gap-1.5 sm:gap-2 overflow-x-auto text-white">
+                    <button type="button" onclick="trocarAbaExtratorFacebook('leads')" id="tab-fb-btn-leads" class="tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-blue-600 text-white shadow-xs cursor-pointer">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Meus Leads Facebook</span>
+                        <span id="fb-badge-cont-leads" class="bg-white text-blue-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+                    <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" id="tab-fb-btn-extrator" class="tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">
+                        <i class="fa-solid fa-bolt text-yellow-400"></i>
+                        <span>⚡ Extrator de Membros</span>
+                    </button>
+                    <button type="button" onclick="trocarAbaExtratorFacebook('copias')" id="tab-fb-btn-copias" class="tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">
+                        <i class="fa-solid fa-pen-fancy text-emerald-400"></i>
+                        <span>✍️ Cópias Prontas p/ Messenger (5)</span>
+                    </button>
+                    <button type="button" onclick="trocarAbaExtratorFacebook('imagens')" id="tab-fb-btn-imagens" class="tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">
+                        <i class="fa-solid fa-images text-pink-400"></i>
+                        <span>🖼️ Imagens Prontas p/ Envio (4)</span>
+                    </button>
+                </div>
+
+                <!-- CORPO DO MODAL (ROLÁVEL COM CONTEÚDO DAS ABAS) -->
+                <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 bg-slate-50/70">
+                    
+                    <!-- ABA 1: MEUS LEADS FACEBOOK -->
+                    <div id="aba-fb-conteudo-leads" class="space-y-4">
+                        <!-- Cards de Métricas -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+                                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Total de Leads</span>
+                                    <i class="fa-brands fa-facebook text-blue-600"></i>
+                                </div>
+                                <div id="fb-metr-total" class="text-xl sm:text-2xl font-black text-gray-900 mt-1">0</div>
+                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Grupos de Facebook</div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+                                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>A Contactar</span>
+                                    <i class="fa-solid fa-clock text-amber-500"></i>
+                                </div>
+                                <div id="fb-metr-pendentes" class="text-xl sm:text-2xl font-black text-amber-600 mt-1">0</div>
+                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Mensagem pendente</div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+                                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Contatados</span>
+                                    <i class="fa-solid fa-paper-plane text-blue-500"></i>
+                                </div>
+                                <div id="fb-metr-enviadas" class="text-xl sm:text-2xl font-black text-blue-600 mt-1">0</div>
+                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Direct / Messenger enviado</div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+                                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Instalou / Converteu</span>
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                </div>
+                                <div id="fb-metr-convertidos" class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">0</div>
+                                <div class="text-[10px] text-gray-400 font-semibold mt-0.5">Degustando ou ativo</div>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Ferramentas / Filtros -->
+                        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 flex-1">
+                                <div class="relative flex-1 max-w-md">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                                    <input type="text" id="fb-busca-lead" oninput="renderizarTabelaLeadsFacebook()" placeholder="Buscar por nome, cargo ou grupo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 focus:border-blue-500 rounded-xl font-medium focus:outline-none transition">
+                                </div>
+                                <select id="fb-filtro-status" onchange="renderizarTabelaLeadsFacebook()" class="py-1.5 px-3 text-xs bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-700 focus:outline-none">
+                                    <option value="todos">Todos os Status</option>
+                                    <option value="pendente">A Contactar (Pendente)</option>
+                                    <option value="enviado">Mensagem Enviada</option>
+                                    <option value="conversa">Em Conversa</option>
+                                    <option value="instalou">Instalou Plataforma</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                    <i class="fa-solid fa-plus text-xs"></i> Extrair Mais Leads
+                                </button>
+                                <button type="button" onclick="exportarLeadsFacebookCsv()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Exportar leads em arquivo CSV / Excel">
+                                    <i class="fa-solid fa-file-excel text-xs"></i> Exportar
+                                </button>
+                                <button type="button" onclick="limparTodosLeadsFacebook()" class="bg-gray-100 hover:bg-rose-50 text-gray-600 hover:text-rose-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer" title="Limpar todos os contatos">
+                                    <i class="fa-regular fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tabela / Lista de Leads -->
+                        <div id="fb-container-leads-lista" class="space-y-2.5">
+                            <!-- Cards renderizados dinamicamente via JS -->
+                        </div>
+                    </div>
+
+                    <!-- ABA 2: EXTRATOR DE MEMBROS -->
+                    <div id="aba-fb-conteudo-extrator" class="space-y-5 hidden">
+                        <!-- Card 1: Script Automático 1-Clique -->
+                        <div class="bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl border border-blue-400/30 shadow-lg">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black text-lg shadow-sm">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-black text-white">Extrator Automático 1-Clique no Facebook</h4>
+                                        <p class="text-xs text-blue-200">Extrai todos os nomes, fotos e links de perfil diretamente da aba <strong>Pessoas</strong> do grupo.</p>
+                                    </div>
+                                </div>
+                                <span class="bg-yellow-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
+                                    100% Automático
+                                </span>
+                            </div>
+
+                            <!-- Passo a Passo Ilustrado -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4 text-xs">
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                                    <div class="font-black text-yellow-300 mb-1">1. Abra o Grupo</div>
+                                    <p class="text-slate-200 text-[11px] leading-relaxed">No Facebook, entre no grupo Herbalife e clique na aba <strong>"Pessoas"</strong> (como no seu print!).</p>
+                                </div>
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                                    <div class="font-black text-yellow-300 mb-1">2. Copie o Script</div>
+                                    <p class="text-slate-200 text-[11px] leading-relaxed">Clique no botão azul abaixo para copiar o Script Extrator Inteligente.</p>
+                                </div>
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/10">
+                                    <div class="font-black text-yellow-300 mb-1">3. Cole no Console (F12)</div>
+                                    <p class="text-slate-200 text-[11px] leading-relaxed">Aperte <strong>F12</strong> na aba do Facebook, cole no Console e dê Enter. Ele extrai e copia tudo na hora!</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2.5 pt-2">
+                                <button type="button" onclick="copiarScriptExtratorFacebook(this)" class="bg-blue-500 hover:bg-blue-600 text-white font-black px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-md cursor-pointer">
+                                    <i class="fa-solid fa-copy text-sm"></i>
+                                    <span>Copiar Script Extrator do Facebook</span>
+                                </button>
+                                <button type="button" onclick="abrirGrupoFacebookExemplo()" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer border border-white/20">
+                                    <i class="fa-brands fa-facebook"></i>
+                                    <span>Ir para os Grupos no Facebook</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Caixa de Importação Rápida -->
+                        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-sm">
+                                    <i class="fa-solid fa-file-import"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-gray-900">Importar Texto Copiado ou JSON do Extrator</h4>
+                                    <p class="text-xs text-gray-500">Cole aqui o texto copiado da tela de membros do Facebook ou os dados do script.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Grupo do Facebook de Origem:</label>
+                                    <input type="text" id="fb-import-nome-grupo" value="Espaço Vida Saudável Herbalife" placeholder="Ex: Espaço Vida Saudável Herbalife" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Tipo Predominante dos Contatos:</label>
+                                    <select id="fb-import-tipo-padrao" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none">
+                                        <option value="membro">Membros do Grupo (Consultores / EVS)</option>
+                                        <option value="admin">Administradores e Moderadores</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Área para Colar (Texto ou JSON):</label>
+                                <textarea id="fb-import-textarea" rows="6" placeholder="Cole aqui o texto copiado da página de membros do Facebook ou o JSON exportado... (ex: Daniele Denning Padilha Administrador... Edwan Braga... Vanderleia Maria Da Silva Souza...)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-mono text-gray-800 focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
+                            </div>
+
+                            <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+                                <span class="text-[11px] text-gray-400 font-semibold italic">Nossa inteligência limpa botões como 'adicionar amigo', 'entrou há' e extrai só os perfis reais.</span>
+                                <button type="button" onclick="processarTextoImportadoFacebook()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-5 py-2.5 rounded-xl text-xs transition shadow-md flex items-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-bolt"></i>
+                                    <span>Processar & Adicionar aos Meus Leads</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Adicionar Contato Manualmente -->
+                        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-gray-200 shadow-sm space-y-3">
+                            <h4 class="text-xs font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-blue-600"></i> Cadastrar Lead Individual Manualmente:
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                                <div>
+                                    <input type="text" id="fb-manual-nome" placeholder="Nome Completo (ex: Daniele Padilha)" class="w-full p-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800 focus:outline-none">
+                                </div>
+                                <div>
+                                    <input type="text" id="fb-manual-perfil" placeholder="Link do Perfil ou Usuário Facebook" class="w-full p-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:outline-none">
+                                </div>
+                                <div>
+                                    <select id="fb-manual-tipo" class="w-full p-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-700 focus:outline-none">
+                                        <option value="membro">Membro do Grupo</option>
+                                        <option value="admin">Administrador / Mod</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button type="button" onclick="salvarLeadFacebookManual()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold p-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-floppy-disk"></i> Salvar Lead
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 3: CÓPIAS PRONTAS P/ MESSENGER -->
+                    <div id="aba-fb-conteudo-copias" class="space-y-4 hidden">
+                        <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-2xl flex items-center justify-between gap-3 text-blue-950 text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-comment-dots text-blue-600 text-base"></i>
+                                <span>Scripts específicos para envio no <strong>Facebook Messenger</strong> trazendo os consultores para os <strong>7 dias grátis</strong> com o link do SuperAdmin.</span>
+                            </div>
+                            <span class="bg-blue-200 text-blue-900 font-black text-[10px] px-2.5 py-0.5 rounded-md uppercase">
+                                Link Oficial do Edwan
+                            </span>
+                        </div>
+
+                        <!-- Lista de Cards de Cópias Injetados via JS -->
+                        <div id="fb-container-copias-lista" class="space-y-4">
+                            <!-- Injetado via renderizarCopiasFacebook() -->
+                        </div>
+                    </div>
+
+                    <!-- ABA 4: GALERIA DE IMAGENS PRONTAS PARA ENVIO -->
+                    <div id="aba-fb-conteudo-imagens" class="space-y-4 hidden">
+                        <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl flex items-center justify-between gap-3 text-purple-950 text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-images text-purple-600 text-base"></i>
+                                <span>Imagens e criativos visuais oficiais de alta conversão. Baixe ou copie para colar direto no chat do Messenger do Facebook!</span>
+                            </div>
+                            <span class="bg-purple-200 text-purple-900 font-black text-[10px] px-2.5 py-0.5 rounded-md uppercase">
+                                Alta Conversão
+                            </span>
+                        </div>
+
+                        <!-- Grid de Imagens Injetadas via JS -->
+                        <div id="fb-container-imagens-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Injetado via renderizarImagensFacebook() -->
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -8805,6 +9104,15 @@
                 }
             }
 
+            const btnExtratorFb = document.getElementById('btn-abrir-extrator-facebook-superadmin');
+            if (btnExtratorFb) {
+                if (isSA) {
+                    btnExtratorFb.classList.remove('hidden');
+                } else {
+                    btnExtratorFb.classList.add('hidden');
+                }
+            }
+
             // Carrega as configurações personalizadas de planos e FitCoin salvas pelo SuperAdmin
             try {
                 carregarConfiguracoesPlanosSuperadmin();
@@ -14963,6 +15271,8 @@
             if (btnTaxasEntrega) btnTaxasEntrega.classList.add('hidden');
             const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
             if (btnDirects) btnDirects.classList.add('hidden');
+            const btnExtratorFb = document.getElementById('btn-abrir-extrator-facebook-superadmin');
+            if (btnExtratorFb) btnExtratorFb.classList.add('hidden');
             const btnFin = document.getElementById('btn-abrir-financeiro-evs');
             if (btnFin) btnFin.classList.add('hidden');
             const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
@@ -22112,6 +22422,931 @@ ${escapeHtml(textoFinal)}
             URL.revokeObjectURL(url);
         }
         window.exportarLeadsCrmCsv = exportarLeadsCrmCsv;
+
+        // =========================================================================
+        // MÓDULO EXTRATOR & DISPARADOR FACEBOOK GRUPOS X1 (SUPERADMIN EXCLUSIVO)
+        // =========================================================================
+
+        const COPIAS_FACEBOOK_PROSPECCAO = [
+            {
+                id: 'fb_copy_1',
+                titulo: '1. Abordagem Consultor EVS (Alta Conversão - Curiosidade & Modernização)',
+                publico: 'Membros & Consultores EVS',
+                badgeCor: 'bg-blue-100 text-blue-800 border-blue-200',
+                descricao: 'Apresenta a dor de fichas e comandas de papel no balcão e oferece os 7 dias grátis para experimentar a tecnologia.',
+                textoBase: `Olá, {NOME}! Tudo bem? 😊
+
+Vi seu perfil aqui no grupo "{GRUPO}" e achei muito bacana seu trabalho no Espaço!
+
+Como consultor Herbalife também, sei que no dia a dia do EVS controlar fichas de clientes, comanda de Litrão e bioimpedância em caderno dá um trabalho danado...
+
+Por isso nós desenvolvemos uma plataforma web completa feita sob medida para o nosso modelo:
+✅ Gera comandas térmicas 80mm no balcão (tipo cupom fiscal)
+✅ Faz avaliação de bioimpedância profissional com envio automático no WhatsApp do cliente
+✅ Cardápio interativo direto no celular do cliente com QR Code da sua garrafa
+
+Liberei 7 DIAS GRÁTIS de teste completo para você experimentar no seu Espaço:
+👉 {LINK_OFICIAL}
+
+Não precisa colocar cartão de crédito! Dá uma olhada e me diz o que achou. Se precisar de ajuda para cadastrar seus sabores, estou por aqui!`
+            },
+            {
+                id: 'fb_copy_2',
+                titulo: '2. Para Administradores & Moderadores de Grupos (Parceria & Alavancagem)',
+                publico: 'Administradores / Líderes',
+                badgeCor: 'bg-amber-100 text-amber-900 border-amber-200',
+                descricao: 'Específico para administradores do grupo, destacando a autoridade deles e propondo parceria para a equipe.',
+                textoBase: `Olá, {NOME}! Tudo bem? 👏
+
+Parabéns pela condução do grupo "{GRUPO}"! Acompanho as movimentações e vejo como a comunidade é engajada.
+
+Queria te apresentar em primeira mão uma inovação criada exclusivamente para consultores de EVS Herbalife: a plataforma do Litrão do Reset.
+
+Ela digitaliza todo o atendimento do Espaço: comandas térmicas, cartela de fidelidade com FitCoin, acompanhamento corporal por bioimpedância e catálogo interativo de produtos. Consultores que utilizam relatam economia de tempo e aumento de 40% na fidelização de clientes de Litrão!
+
+Como você é líder e referência aqui no grupo, gostaria de te convidar para testar a plataforma por 7 dias como meu(minha) convidado(a) VIP:
+👉 {LINK_OFICIAL}
+
+Dá uma olhada sem compromisso! Se você gostar, podemos inclusive organizar uma condição especial para os consultores da sua equipe.`
+            },
+            {
+                id: 'fb_copy_3',
+                titulo: '3. Foco em Eliminar Caderno e Fichas Perdidas (Dor & Alívio Imediato)',
+                publico: 'Consultores com Fichas no Papel',
+                badgeCor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                descricao: 'Toca direto na dor de perder fichas de clientes de Litrão e ter descontrole de doses.',
+                textoBase: `Oi, {NOME}! Tudo joia? 👋
+
+Você ainda sofre com fichas de papel de clientes rasurando, perdendo ou tendo que somar doses no fim do mês no seu Espaço?
+
+Eu também passava por isso até digitalizarmos tudo! Com o Litrão do Reset, a comanda do cliente sai impressa na maquininha ou fica salva no celular, o cliente acumula pontos e você sabe exatamente o lucro de cada dose servida.
+
+Criei um acesso de cortesia com 7 DIAS GRÁTIS para você ver funcionando na prática no seu Espaço:
+👉 {LINK_OFICIAL}
+
+Você pode testar hoje mesmo no celular ou computador. Vale muito a pena conferir!`
+            },
+            {
+                id: 'fb_copy_4',
+                titulo: '4. Foco em Cardápio Digital & Comanda Térmica (Visual Moderno)',
+                publico: 'EVS Visual / Moderno',
+                badgeCor: 'bg-purple-100 text-purple-800 border-purple-200',
+                descricao: 'Destaca o profissionalismo no balcão e a experiência diferenciada que encanta os clientes.',
+                textoBase: `Olá, {NOME}! Tudo bem? ✨
+
+Olha que ideia bacana para modernizar seu Espaço: quando o cliente chega, ele aponta a câmera para o QR Code da mesa ou da garrafa, escolhe os sabores do Litrão no cardápio digital e o pedido cai direto na sua comanda térmica 80mm!
+
+Passa um profissionalismo gigante e os clientes adoram postar nos stories do Instagram.
+
+Liberamos 7 dias de teste 100% gratuito para consultores da comunidade:
+👉 {LINK_OFICIAL}
+
+Acesse pelo link acima e faça o cadastro gratuito em menos de 1 minuto!`
+            },
+            {
+                id: 'fb_copy_5',
+                titulo: '5. Quebra-Gelo Amigável & Direto (Para Chat Rápido / Áudio)',
+                publico: 'Conversa Rápida & Descontraída',
+                badgeCor: 'bg-sky-100 text-sky-800 border-sky-200',
+                descricao: 'Texto mais curto e natural, perfeito para primeiro contato sem parecer mensagem robótica.',
+                textoBase: `Opa, {NOME}! Tudo bem com você?
+
+Vi seu perfil aqui no grupo "{GRUPO}" e passei para te dar um alô entre colegas de negócio Herbalife!
+
+A gente desenvolveu um aplicativo web muito top para gerenciar os pedidos de Litrão, comandas e bioimpedância no EVS. Vários consultores estão usando e amando a facilidade.
+
+Se você quiser dar uma olhada, tem 7 dias grátis liberados aqui:
+👉 {LINK_OFICIAL}
+
+Um abraço e ótimas vendas aí no seu Espaço!`
+            }
+        ];
+
+        const CRIATIVOS_FACEBOOK_OFICIAIS = [
+            {
+                id: 'criativo_1',
+                titulo: 'Cardápio Mobile & Plataforma Litrão do Reset',
+                descricao: 'Mockup oficial exibindo o cardápio interativo no smartphone e o sistema completo.',
+                arquivo: 'divulgacao_litrao_reset_oficial.png',
+                nomeDownload: 'Divulgacao_Litrao_Reset_Oficial.png',
+                legendaSugerida: 'Dá uma olhada como fica o cardápio interativo do Litrão no celular do cliente! Você pode testar por 7 dias grátis.'
+            },
+            {
+                id: 'criativo_2',
+                titulo: 'Kit Semanal Reset 5 Dias & Desafios',
+                descricao: 'Flyer profissional do Kit Semanal do Reset para atração e fechamento de novos clientes.',
+                arquivo: 'flyer_kit_semanal_reset_base.jpg',
+                nomeDownload: 'Flyer_Kit_Semanal_Reset.jpg',
+                legendaSugerida: 'Nosso sistema também gerencia os pacotes semanais e desafios do Reset de forma 100% automática.'
+            },
+            {
+                id: 'criativo_3',
+                titulo: 'Adesivos da Garrafa com QR Code Exclusivo',
+                descricao: 'Folha A4 pronta para impressão térmica ou adesiva com o link personalizado do consultor.',
+                arquivo: 'adesivo-base.png',
+                nomeDownload: 'Adesivos_Litrao_Reset_A4.png',
+                legendaSugerida: 'O sistema gera a folha com os adesivos da garrafa com o seu próprio QR Code para o cliente pedir recompras.'
+            },
+            {
+                id: 'criativo_4',
+                titulo: 'Comanda Balcão 80mm & Pacotes do Espaço',
+                descricao: 'Visual da comanda de atendimento e pacotes do Litrão do Reset prontos para o balcão.',
+                arquivo: 'pacotes_reset_base.png',
+                nomeDownload: 'Comanda_Pacotes_Reset_EVS.png',
+                legendaSugerida: 'Imprima comandas de 80mm no seu balcão e tenha controle total de cada dose servida!'
+            }
+        ];
+
+        let abaExtratorFacebookAtual = 'leads';
+
+        function obterChaveStorageFacebookLeads() {
+            const id = (consultorAtual && consultorAtual.herbalife_id) ? consultorAtual.herbalife_id.toString().replace(/\D/g, '') : 'superadmin';
+            return 'litrao_facebook_leads_' + id;
+        }
+
+        function obterLinkSuperadminOficial() {
+            if (typeof obterLinkConsultorAtual === 'function') {
+                const l = obterLinkConsultorAtual();
+                if (l && !l.includes('undefined') && l !== 'https://litraodoreset.com.br') return l;
+            }
+            return 'https://litraodoreset.com.br/433005811bra';
+        }
+
+        function obterLeadsFacebookStorage() {
+            const chave = obterChaveStorageFacebookLeads();
+            let dados = null;
+            try {
+                dados = JSON.parse(localStorage.getItem(chave));
+            } catch(e) {
+                dados = null;
+            }
+
+            if (!dados || !Array.isArray(dados) || dados.length === 0) {
+                dados = [
+                    {
+                        id: 'fb_lead_1',
+                        nome: 'Daniele Denning Padilha',
+                        perfilUrl: 'https://www.facebook.com/groups/espacovidasaudavelherbalife',
+                        grupoOrigem: 'Espaço Vida Saudável Herbalife',
+                        cargo: 'admin',
+                        status: 'pendente',
+                        origemTag: 'Facebook Grupos',
+                        dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                        notas: 'Administradora do grupo com 519 membros'
+                    },
+                    {
+                        id: 'fb_lead_2',
+                        nome: 'Vanderleia Maria Da Silva Souza',
+                        perfilUrl: 'https://www.facebook.com/groups/espacovidasaudavelherbalife',
+                        grupoOrigem: 'Espaço Vida Saudável Herbalife',
+                        cargo: 'membro',
+                        status: 'pendente',
+                        origemTag: 'Facebook Grupos',
+                        dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                        notas: 'Membro ativo no grupo Herbalife'
+                    },
+                    {
+                        id: 'fb_lead_3',
+                        nome: 'Carlos Eduardo Silva',
+                        perfilUrl: 'https://www.facebook.com/groups/espacovidasaudavelherbalife',
+                        grupoOrigem: 'Espaço Vida Saudável Herbalife',
+                        cargo: 'membro',
+                        status: 'pendente',
+                        origemTag: 'Facebook Grupos',
+                        dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                        notas: 'Consultor de Espaço Vida Saudável'
+                    }
+                ];
+                salvarLeadsFacebookStorage(dados);
+            }
+            return dados;
+        }
+
+        function salvarLeadsFacebookStorage(leads) {
+            const chave = obterChaveStorageFacebookLeads();
+            localStorage.setItem(chave, JSON.stringify(leads || []));
+        }
+
+        function abrirModalExtratorFacebookSuperadmin() {
+            if (!isSuperAdminLogado()) {
+                alert("⚠️ Acesso restrito ao Super Administrador da plataforma (Edwan Braga).");
+                return;
+            }
+            const modal = document.getElementById('modal-extrator-facebook-superadmin');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            trocarAbaExtratorFacebook('leads');
+            renderizarTabelaLeadsFacebook();
+            renderizarCopiasFacebook();
+            renderizarImagensFacebook();
+        }
+
+        function fecharModalExtratorFacebookSuperadmin() {
+            const modal = document.getElementById('modal-extrator-facebook-superadmin');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function trocarAbaExtratorFacebook(aba) {
+            abaExtratorFacebookAtual = aba;
+
+            const abas = [
+                { id: 'tab-fb-btn-leads', aba: 'leads', contId: 'aba-fb-conteudo-leads' },
+                { id: 'tab-fb-btn-extrator', aba: 'extrator', contId: 'aba-fb-conteudo-extrator' },
+                { id: 'tab-fb-btn-copias', aba: 'copias', contId: 'aba-fb-conteudo-copias' },
+                { id: 'tab-fb-btn-imagens', aba: 'imagens', contId: 'aba-fb-conteudo-imagens' }
+            ];
+
+            abas.forEach(item => {
+                const btn = document.getElementById(item.id);
+                const cont = document.getElementById(item.contId);
+                const ativo = item.aba === aba;
+
+                if (btn) {
+                    if (ativo) {
+                        btn.className = 'tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap bg-blue-600 text-white shadow-xs cursor-pointer';
+                    } else {
+                        btn.className = 'tab-fb-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer';
+                    }
+                }
+
+                if (cont) {
+                    if (ativo) cont.classList.remove('hidden');
+                    else cont.classList.add('hidden');
+                }
+            });
+
+            if (aba === 'leads') {
+                renderizarTabelaLeadsFacebook();
+            } else if (aba === 'copias') {
+                renderizarCopiasFacebook();
+            } else if (aba === 'imagens') {
+                renderizarImagensFacebook();
+            }
+        }
+
+        function renderizarTabelaLeadsFacebook() {
+            const container = document.getElementById('fb-container-leads-lista');
+            const leads = obterLeadsFacebookStorage();
+
+            const termoBusca = (document.getElementById('fb-busca-lead')?.value || '').toLowerCase().trim();
+            const filtroStatus = (document.getElementById('fb-filtro-status')?.value || 'todos').toLowerCase();
+
+            // Métricas gerais
+            const totalLeads = leads.length;
+            const pendentes = leads.filter(l => (l.status || 'pendente') === 'pendente').length;
+            const enviados = leads.filter(l => l.status === 'enviado').length;
+            const convertidos = leads.filter(l => l.status === 'instalou').length;
+
+            const elTotal = document.getElementById('fb-metr-total');
+            const elPendentes = document.getElementById('fb-metr-pendentes');
+            const elEnviadas = document.getElementById('fb-metr-enviadas');
+            const elConvertidos = document.getElementById('fb-metr-convertidos');
+            const elBadge = document.getElementById('fb-badge-cont-leads');
+            const elHeaderTotal = document.getElementById('fb-header-total-leads');
+
+            if (elTotal) elTotal.innerText = totalLeads;
+            if (elPendentes) elPendentes.innerText = pendentes;
+            if (elEnviadas) elEnviadas.innerText = enviados;
+            if (elConvertidos) elConvertidos.innerText = convertidos;
+            if (elBadge) elBadge.innerText = totalLeads;
+            if (elHeaderTotal) elHeaderTotal.innerText = `${totalLeads} leads`;
+
+            if (!container) return;
+
+            // Filtra lista
+            const leadsFiltrados = leads.filter(l => {
+                const matchNome = (l.nome || '').toLowerCase().includes(termoBusca) ||
+                                  (l.grupoOrigem || '').toLowerCase().includes(termoBusca) ||
+                                  (l.cargo || '').toLowerCase().includes(termoBusca);
+                const matchStatus = filtroStatus === 'todos' || (l.status || 'pendente') === filtroStatus;
+                return matchNome && matchStatus;
+            });
+
+            if (leadsFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-2xs">
+                        <i class="fa-brands fa-facebook text-4xl text-gray-300 mb-2"></i>
+                        <h4 class="text-sm font-bold text-gray-700">Nenhum contato encontrado</h4>
+                        <p class="text-xs text-gray-400 mt-1">Use a aba '⚡ Extrator de Membros' para extrair do grupo do Facebook ou adicione manualmente.</p>
+                        <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-bolt"></i> Extrair Agora do Facebook
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const htmlCards = leadsFiltrados.map((lead) => {
+                const isAdmin = (lead.cargo === 'admin' || (lead.cargo || '').toLowerCase().includes('admin'));
+                const cargoBadge = isAdmin
+                    ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1">👑 Administrador(a)</span>`
+                    : `<span class="bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">👤 Membro</span>`;
+
+                let statusBg = 'bg-amber-50 text-amber-800 border-amber-200';
+                if (lead.status === 'enviado') {
+                    statusBg = 'bg-blue-50 text-blue-800 border-blue-200';
+                } else if (lead.status === 'conversa') {
+                    statusBg = 'bg-purple-50 text-purple-800 border-purple-200';
+                } else if (lead.status === 'instalou') {
+                    statusBg = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                }
+
+                const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+
+                return `
+                    <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-200 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-start sm:items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0 shadow-xs">
+                                ${primeiroNome.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="text-sm font-black text-gray-900">${lead.nome}</h4>
+                                    ${cargoBadge}
+                                    <span class="bg-blue-50 text-blue-800 text-[9px] font-bold px-2 py-0.2 rounded-full border border-blue-100 flex items-center gap-1">
+                                        <i class="fa-brands fa-facebook-f text-[8px]"></i> Facebook Grupos
+                                    </span>
+                                </div>
+                                <div class="text-[11px] text-gray-500 flex items-center gap-2 flex-wrap mt-0.5">
+                                    <span class="font-semibold text-gray-600"><i class="fa-solid fa-users-rectangle text-blue-500"></i> ${lead.grupoOrigem || 'Grupo Facebook'}</span>
+                                    <span>•</span>
+                                    <span class="text-gray-400">Adicionado em: ${lead.dataAdicionado || 'Recente'}</span>
+                                    ${lead.notas ? `<span>•</span> <span class="italic text-gray-400 font-medium">${lead.notas}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-wrap justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                            <!-- Dropdown de Status Rápido -->
+                            <select onchange="atualizarStatusLeadFacebook('${lead.id}', this.value)" class="py-1 px-2.5 text-[11px] font-bold rounded-xl border ${statusBg} focus:outline-none cursor-pointer">
+                                <option value="pendente" ${lead.status === 'pendente' ? 'selected' : ''}>⏳ A Contactar</option>
+                                <option value="enviado" ${lead.status === 'enviado' ? 'selected' : ''}>✉️ Mensagem Enviada</option>
+                                <option value="conversa" ${lead.status === 'conversa' ? 'selected' : ''}>💬 Em Conversa</option>
+                                <option value="instalou" ${lead.status === 'instalou' ? 'selected' : ''}>🎉 Instalou Plataforma</option>
+                            </select>
+
+                            <!-- Botão Copiar Copy Personalizada -->
+                            <button type="button" onclick="abrirDropdownCopiesLead('${lead.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer border border-indigo-200 shadow-2xs" title="Copiar Copy Pronta com Nome">
+                                <i class="fa-solid fa-copy text-indigo-600"></i>
+                                <span>Copiar Copy</span>
+                            </button>
+
+                            <!-- Botão Abrir Perfil / Messenger -->
+                            <button type="button" onclick="abrirMessengerLeadFacebook('${lead.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Abrir Messenger ou Perfil no Facebook">
+                                <i class="fa-brands fa-facebook-messenger text-sm"></i>
+                                <span>Abrir Messenger</span>
+                            </button>
+
+                            <!-- Botão Excluir -->
+                            <button type="button" onclick="excluirLeadFacebook('${lead.id}')" class="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer" title="Excluir Lead">
+                                <i class="fa-regular fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = htmlCards;
+        }
+
+        function atualizarStatusLeadFacebook(id, novoStatus) {
+            const leads = obterLeadsFacebookStorage();
+            const lead = leads.find(l => l.id === id);
+            if (!lead) return;
+            lead.status = novoStatus;
+            if (novoStatus === 'enviado' && !lead.dataEnviado) {
+                lead.dataEnviado = new Date().toLocaleDateString('pt-BR');
+            }
+            salvarLeadsFacebookStorage(leads);
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function excluirLeadFacebook(id) {
+            if (!confirm("Deseja realmente remover este contato da sua lista de leads do Facebook?")) return;
+            let leads = obterLeadsFacebookStorage();
+            leads = leads.filter(l => l.id !== id);
+            salvarLeadsFacebookStorage(leads);
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function limparTodosLeadsFacebook() {
+            const leads = obterLeadsFacebookStorage();
+            if (leads.length === 0) {
+                alert("A lista já está vazia.");
+                return;
+            }
+            if (!confirm(`⚠️ ATENÇÃO: Deseja apagar todos os ${leads.length} leads do Facebook da sua base local?`)) return;
+            salvarLeadsFacebookStorage([]);
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function salvarLeadFacebookManual() {
+            const nomeInput = document.getElementById('fb-manual-nome');
+            const perfilInput = document.getElementById('fb-manual-perfil');
+            const tipoSelect = document.getElementById('fb-manual-tipo');
+
+            const nome = (nomeInput?.value || '').trim();
+            const perfil = (perfilInput?.value || '').trim();
+            const tipo = (tipoSelect?.value || 'membro');
+
+            if (!nome) {
+                alert("Por favor, digite o nome do contato.");
+                return;
+            }
+
+            const novoLead = {
+                id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                nome: nome,
+                perfilUrl: perfil || `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
+                grupoOrigem: 'Espaço Vida Saudável Herbalife',
+                cargo: tipo,
+                status: 'pendente',
+                origemTag: 'Facebook Grupos',
+                dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                notas: 'Cadastrado manualmente'
+            };
+
+            const leads = obterLeadsFacebookStorage();
+            leads.unshift(novoLead);
+            salvarLeadsFacebookStorage(leads);
+
+            if (nomeInput) nomeInput.value = '';
+            if (perfilInput) perfilInput.value = '';
+
+            renderizarTabelaLeadsFacebook();
+            trocarAbaExtratorFacebook('leads');
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante('Lead cadastrado com sucesso! ✅', 'sucesso');
+            } else {
+                alert('Lead cadastrado com sucesso!');
+            }
+        }
+
+        function copiarScriptExtratorFacebook(btn) {
+            const script = `(function() {
+    console.log('%c⚡ INICIANDO EXTRATOR DE MEMBROS DO FACEBOOK (LITRÃO DO RESET)...', 'color:#2563eb;font-weight:bold;font-size:14px;');
+    const links = Array.from(document.querySelectorAll('a[role="link"]'));
+    const membrosMap = new Map();
+    const termosIgnorar = ['adicionar', 'mensagem', 'ver tudo', 'amigo', 'grupo', 'facebook', 'compartilhar', 'curtir', 'notificações', 'feed', 'marketplace', 'páginas', 'vídeo', 'gaming'];
+
+    links.forEach(a => {
+        const href = (a.href || '').split('?')[0];
+        const nome = (a.innerText || '').trim();
+        if (!href) return;
+        if (!href.includes('/user/') && !href.includes('/profile.php') && !href.includes('facebook.com/')) return;
+        if (nome.length < 3 || nome.length > 50 || nome.includes('\\n')) return;
+        const nomeLow = nome.toLowerCase();
+        if (termosIgnorar.some(t => nomeLow.includes(t))) return;
+
+        const parenteTexto = (a.closest('div[role="listitem"]') || a.parentElement?.parentElement || {}).innerText || '';
+        const isAdmin = parenteTexto.toLowerCase().includes('administrador') || parenteTexto.toLowerCase().includes('moderador');
+
+        if (!membrosMap.has(nome)) {
+            membrosMap.set(nome, {
+                nome: nome,
+                perfil: href,
+                cargo: isAdmin ? 'admin' : 'membro'
+            });
+        }
+    });
+
+    const resultado = Array.from(membrosMap.values());
+    if (resultado.length === 0) {
+        alert('Nenhum membro identificado nesta rolagem. Role a página do Facebook para baixo para carregar mais membros e execute novamente!');
+        return;
+    }
+
+    const json = JSON.stringify(resultado, null, 2);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).then(() => {
+            alert('✅ SUCESSO! ' + resultado.length + ' membros extraídos e copiados para sua área de transferência!\\n\\nAgora volte ao Litrão do Reset e cole na caixa de texto do importador.');
+        }).catch(() => {
+            prompt('Copie os dados abaixo e cole no Litrão do Reset:', json);
+        });
+    } else {
+        prompt('Copie os dados abaixo e cole no Litrão do Reset:', json);
+    }
+})();`;
+
+            const textoScript = script.trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textoScript).then(() => {
+                    feedbackCopiaScript(btn);
+                }).catch(() => {
+                    fallbackCopiarTexto(textoScript);
+                    feedbackCopiaScript(btn);
+                });
+            } else {
+                fallbackCopiarTexto(textoScript);
+                feedbackCopiaScript(btn);
+            }
+        }
+
+        function feedbackCopiaScript(btn) {
+            if (!btn) return;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-white"></i> <span>Script Copiado! Cole no Console (F12) ✅</span>';
+            btn.classList.add('bg-emerald-600');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('bg-emerald-600');
+            }, 3000);
+        }
+
+        function processarTextoImportadoFacebook() {
+            const textarea = document.getElementById('fb-import-textarea');
+            const inputGrupo = document.getElementById('fb-import-nome-grupo');
+            const selectTipo = document.getElementById('fb-import-tipo-padrao');
+
+            const texto = (textarea?.value || '').trim();
+            const nomeGrupo = (inputGrupo?.value || 'Espaço Vida Saudável Herbalife').trim();
+            const tipoPadrao = (selectTipo?.value || 'membro');
+
+            if (!texto) {
+                alert("Por favor, cole o texto ou JSON extraído do Facebook na área indicada.");
+                return;
+            }
+
+            let novosLeads = [];
+
+            // Tentativa 1: Formato JSON exportado pelo script
+            if (texto.startsWith('[') || texto.startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(texto);
+                    const array = Array.isArray(parsed) ? parsed : [parsed];
+                    array.forEach(item => {
+                        if (item.nome && typeof item.nome === 'string' && item.nome.trim()) {
+                            novosLeads.push({
+                                nome: item.nome.trim(),
+                                perfilUrl: item.perfil || `https://www.facebook.com/search/people/?q=${encodeURIComponent(item.nome.trim())}`,
+                                cargo: item.cargo || tipoPadrao,
+                                grupoOrigem: nomeGrupo
+                            });
+                        }
+                    });
+                } catch(e) {
+                    // Se falhar o parse JSON, cai no parser de texto livre
+                }
+            }
+
+            // Tentativa 2: Parser inteligente de texto livre copiado da página
+            if (novosLeads.length === 0) {
+                const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+                const termosIgnorar = [
+                    'adicionar', 'amigos', 'amigo', 'enviar mensagem', 'mensagem', 'entrou há',
+                    'membro desde', 'pessoas', 'membros', 'administradores e moderadores',
+                    'administradores', 'moderadores', 'ver tudo', 'pesquisar', 'participar',
+                    'online', 'remover', 'bloquear', 'denunciar', 'feed', 'grupos', 'fotos',
+                    'vídeos', 'reels', 'arquivos', 'gerenciar', 'configurações', 'sobre'
+                ];
+
+                let cargoAtualSecao = tipoPadrao;
+
+                linhas.forEach(linha => {
+                    const linhaLow = linha.toLowerCase();
+
+                    // Detecta troca de seção se o texto contiver o cabeçalho
+                    if (linhaLow.includes('administrador') || linhaLow.includes('moderador')) {
+                        cargoAtualSecao = 'admin';
+                        return;
+                    }
+                    if (linhaLow.includes('membros novos') || linhaLow.includes('outros membros') || linhaLow.includes('membros do grupo')) {
+                        cargoAtualSecao = 'membro';
+                        return;
+                    }
+
+                    // Ignora termos de controle e interface
+                    if (termosIgnorar.some(t => linhaLow === t || linhaLow.startsWith(t + ' ') || linhaLow.endsWith(' ' + t))) {
+                        return;
+                    }
+
+                    // Valida se a linha parece um nome de pessoa (entre 2 e 5 palavras, só letras e acentos)
+                    const palavras = linha.split(/\s+/);
+                    if (palavras.length >= 2 && palavras.length <= 5 && linha.length >= 4 && linha.length <= 45) {
+                        // Checa se não possui caracteres especiais ou números
+                        if (!/[0-9@#\$\%&*+=_\/\\<>{}\[\]|~^]/.test(linha) && !linha.includes('.com') && !linha.includes('http')) {
+                            novosLeads.push({
+                                nome: linha,
+                                perfilUrl: `https://www.facebook.com/search/people/?q=${encodeURIComponent(linha)}`,
+                                cargo: cargoAtualSecao,
+                                grupoOrigem: nomeGrupo
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (novosLeads.length === 0) {
+                alert("Não foi possível identificar nomes válidos no texto colado. Certifique-se de copiar a lista de membros ou execute o script do Console!");
+                return;
+            }
+
+            // Mescla com os leads existentes sem duplicar nomes
+            const leadsAtuais = obterLeadsFacebookStorage();
+            const nomesExistentes = new Set(leadsAtuais.map(l => (l.nome || '').toLowerCase().trim()));
+            let adicionados = 0;
+
+            novosLeads.forEach(nl => {
+                const nomeTrim = nl.nome.trim();
+                if (!nomesExistentes.has(nomeTrim.toLowerCase())) {
+                    nomesExistentes.add(nomeTrim.toLowerCase());
+                    leadsAtuais.push({
+                        id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                        nome: nomeTrim,
+                        perfilUrl: nl.perfilUrl,
+                        grupoOrigem: nl.grupoOrigem || nomeGrupo,
+                        cargo: nl.cargo || tipoPadrao,
+                        status: 'pendente',
+                        origemTag: 'Facebook Grupos',
+                        dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                        notas: `Importado de: ${nomeGrupo}`
+                    });
+                    adicionados++;
+                }
+            });
+
+            salvarLeadsFacebookStorage(leadsAtuais);
+
+            if (textarea) textarea.value = '';
+            trocarAbaExtratorFacebook('leads');
+            renderizarTabelaLeadsFacebook();
+
+            const msg = `✅ Sucesso! ${adicionados} novo(s) contato(s) do Facebook foram importados e salvos com a etiqueta "Facebook Grupos"!`;
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(msg, 'sucesso');
+            } else {
+                alert(msg);
+            }
+        }
+
+        function abrirMessengerLeadFacebook(idLead) {
+            const leads = obterLeadsFacebookStorage();
+            const lead = leads.find(l => l.id === idLead);
+            if (!lead) return;
+
+            // Se o status estava pendente, atualiza para mensagem enviada
+            if ((lead.status || 'pendente') === 'pendente') {
+                lead.status = 'enviado';
+                lead.dataEnviado = new Date().toLocaleDateString('pt-BR');
+                salvarLeadsFacebookStorage(leads);
+                renderizarTabelaLeadsFacebook();
+            }
+
+            // Copia uma copy inicial sugerida para o primeiro contato
+            const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+            const copyId = lead.cargo === 'admin' ? 'fb_copy_2' : 'fb_copy_1';
+            const copyObj = COPIAS_FACEBOOK_PROSPECCAO.find(c => c.id === copyId) || COPIAS_FACEBOOK_PROSPECCAO[0];
+            const linkEdwan = obterLinkSuperadminOficial();
+            const msgPersonalizada = copyObj.textoBase
+                .replace(/\{NOME\}/g, primeiroNome)
+                .replace(/\{LINK_OFICIAL\}/g, linkEdwan)
+                .replace(/\{GRUPO\}/g, lead.grupoOrigem || 'Espaço Vida Saudável Herbalife');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(msgPersonalizada).catch(() => {});
+            }
+
+            // Abre o perfil no Facebook
+            const urlDestino = lead.perfilUrl || `https://www.facebook.com/search/people/?q=${encodeURIComponent(lead.nome)}`;
+            window.open(urlDestino, '_blank');
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`Perfil aberto! A mensagem personalizada para ${primeiroNome} foi copiada para sua área de transferência (Ctrl+V)! 🚀`, 'sucesso');
+            }
+        }
+
+        function abrirDropdownCopiesLead(idLead) {
+            const leads = obterLeadsFacebookStorage();
+            const lead = leads.find(l => l.id === idLead);
+            if (!lead) return;
+
+            const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+            const opcoes = COPIAS_FACEBOOK_PROSPECCAO.map((c, i) => `${i + 1}. ${c.titulo}`).join('\n');
+            const escolha = prompt(`Escolha qual script de copy deseja copiar para ${primeiroNome}:\n\n${opcoes}\n\nDigite o número de 1 a 5:`, "1");
+
+            if (!escolha) return;
+            const num = parseInt(escolha.trim()) - 1;
+            if (isNaN(num) || !COPIAS_FACEBOOK_PROSPECCAO[num]) {
+                alert("Opção inválida.");
+                return;
+            }
+
+            copiarCopyFacebook(COPIAS_FACEBOOK_PROSPECCAO[num].id, idLead);
+        }
+
+        function copiarCopyFacebook(idCopy, idLead) {
+            const copyObj = COPIAS_FACEBOOK_PROSPECCAO.find(c => c.id === idCopy) || COPIAS_FACEBOOK_PROSPECCAO[0];
+            const linkEdwan = obterLinkSuperadminOficial();
+
+            let primeiroNome = 'Consultor(a)';
+            let nomeGrupo = 'Espaço Vida Saudável Herbalife';
+
+            if (idLead) {
+                const leads = obterLeadsFacebookStorage();
+                const lead = leads.find(l => l.id === idLead);
+                if (lead) {
+                    primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+                    nomeGrupo = lead.grupoOrigem || nomeGrupo;
+                }
+            }
+
+            const textoFinal = copyObj.textoBase
+                .replace(/\{NOME\}/g, primeiroNome)
+                .replace(/\{LINK_OFICIAL\}/g, linkEdwan)
+                .replace(/\{GRUPO\}/g, nomeGrupo);
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textoFinal).then(() => {
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante(`Copy "${copyObj.titulo}" copiada para a área de transferência! ✅`, 'sucesso');
+                    } else {
+                        alert("Mensagem copiada para a área de transferência!");
+                    }
+                }).catch(() => {
+                    fallbackCopiarTexto(textoFinal);
+                });
+            } else {
+                fallbackCopiarTexto(textoFinal);
+            }
+        }
+
+        function renderizarCopiasFacebook() {
+            const container = document.getElementById('fb-container-copias-lista');
+            if (!container) return;
+
+            const linkOficial = obterLinkSuperadminOficial();
+
+            container.innerHTML = COPIAS_FACEBOOK_PROSPECCAO.map(copy => {
+                const textoPrevia = copy.textoBase
+                    .replace(/\{NOME\}/g, 'Consultor(a)')
+                    .replace(/\{LINK_OFICIAL\}/g, linkOficial)
+                    .replace(/\{GRUPO\}/g, 'Espaço Vida Saudável Herbalife');
+
+                return `
+                    <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="text-sm font-black text-gray-900">${copy.titulo}</h4>
+                                    <span class="${copy.badgeCor} text-[10px] font-black px-2.5 py-0.5 rounded-full border">
+                                        ${copy.publico}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-0.5">${copy.descricao}</p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <button type="button" onclick="copiarCopyFacebook('${copy.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-xs">
+                                    <i class="fa-solid fa-copy"></i>
+                                    <span>Copiar Copy</span>
+                                </button>
+                                <button type="button" onclick="window.open('https://www.facebook.com/messages/', '_blank')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer" title="Abrir Messenger">
+                                    <i class="fa-brands fa-facebook-messenger text-blue-600 text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-gray-200/80 font-sans text-xs text-gray-800 whitespace-pre-line leading-relaxed select-all">
+                            ${textoPrevia}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderizarImagensFacebook() {
+            const container = document.getElementById('fb-container-imagens-grid');
+            if (!container) return;
+
+            container.innerHTML = CRIATIVOS_FACEBOOK_OFICIAIS.map(criativo => {
+                return `
+                    <div class="bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-2xs flex flex-col justify-between group hover:shadow-md transition">
+                        <div class="space-y-3">
+                            <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-gray-100">
+                                <img src="${criativo.arquivo}" alt="${criativo.titulo}" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300">
+                                <a href="${criativo.arquivo}" target="_blank" class="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition" title="Ver em tamanho real">
+                                    <i class="fa-solid fa-up-right-from-square"></i> Ver
+                                </a>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-black text-gray-900 leading-snug">${criativo.titulo}</h4>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">${criativo.descricao}</p>
+                            </div>
+
+                            <div class="bg-blue-50/60 p-2.5 rounded-xl border border-blue-100 text-[11px] text-blue-950 font-medium">
+                                <strong class="text-blue-900">💡 Sugestão de Legenda:</strong>
+                                <p class="italic text-gray-700 mt-0.5">${criativo.legendaSugerida}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mt-3">
+                            <a href="${criativo.arquivo}" download="${criativo.nomeDownload}" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-center">
+                                <i class="fa-solid fa-download"></i> Baixar Imagem
+                            </a>
+                            <button type="button" onclick="copiarImagemCriativoFacebook('${criativo.arquivo}', this)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                <i class="fa-solid fa-copy"></i> Copiar Imagem
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copiarImagemCriativoFacebook(urlImagem, btn) {
+            if (typeof fetch === 'function' && navigator.clipboard && navigator.clipboard.write) {
+                fetch(urlImagem)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const item = new ClipboardItem({ [blob.type]: blob });
+                        return navigator.clipboard.write([item]);
+                    })
+                    .then(() => {
+                        feedbackCopiaImagem(btn, 'Imagem Copiada! (Ctrl+V no Facebook) ✅');
+                    })
+                    .catch(() => {
+                        const fullUrl = window.location.origin + '/' + urlImagem;
+                        fallbackCopiarTexto(fullUrl);
+                        feedbackCopiaImagem(btn, 'Link da Imagem Copiado! ✅');
+                    });
+            } else {
+                const fullUrl = (window.location ? window.location.origin : '') + '/' + urlImagem;
+                fallbackCopiarTexto(fullUrl);
+                feedbackCopiaImagem(btn, 'Link da Imagem Copiado! ✅');
+            }
+        }
+
+        function feedbackCopiaImagem(btn, msg) {
+            if (!btn) return;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> <span class="text-[11px]">${msg}</span>`;
+            btn.classList.add('bg-emerald-600');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('bg-emerald-600');
+            }, 2500);
+        }
+
+        function exportarLeadsFacebookCsv() {
+            const leads = obterLeadsFacebookStorage();
+            if (leads.length === 0) {
+                alert("Nenhum contato cadastrado para exportar.");
+                return;
+            }
+
+            const titulos = ["Nome", "Cargo", "Grupo Facebook Origem", "Status", "Link Perfil", "Etiqueta Origem", "Data Adicionado", "Notas"];
+            const linhas = [titulos.join(";")];
+
+            leads.forEach(l => {
+                const linha = [
+                    `"${(l.nome || '').replace(/"/g, '""')}"`,
+                    `"${(l.cargo || '').replace(/"/g, '""')}"`,
+                    `"${(l.grupoOrigem || '').replace(/"/g, '""')}"`,
+                    `"${(l.status || '').replace(/"/g, '""')}"`,
+                    `"${(l.perfilUrl || '').replace(/"/g, '""')}"`,
+                    `"${(l.origemTag || 'Facebook Grupos').replace(/"/g, '""')}"`,
+                    `"${(l.dataAdicionado || '').replace(/"/g, '""')}"`,
+                    `"${(l.notas || '').replace(/"/g, '""')}"`
+                ];
+                linhas.push(linha.join(";"));
+            });
+
+            const csvContent = "\uFEFF" + linhas.join("\r\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `leads_facebook_grupos_${consultorAtual ? consultorAtual.herbalife_id : 'superadmin'}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function abrirGrupoFacebookExemplo() {
+            window.open('https://www.facebook.com/search/groups/?q=espa%C3%A7o%20vida%20saudavel%20herbalife', '_blank');
+        }
+
+        // Exportações globais de Extrator Facebook SuperAdmin
+        window.abrirModalExtratorFacebookSuperadmin = abrirModalExtratorFacebookSuperadmin;
+        window.fecharModalExtratorFacebookSuperadmin = fecharModalExtratorFacebookSuperadmin;
+        window.trocarAbaExtratorFacebook = trocarAbaExtratorFacebook;
+        window.renderizarTabelaLeadsFacebook = renderizarTabelaLeadsFacebook;
+        window.atualizarStatusLeadFacebook = atualizarStatusLeadFacebook;
+        window.excluirLeadFacebook = excluirLeadFacebook;
+        window.limparTodosLeadsFacebook = limparTodosLeadsFacebook;
+        window.salvarLeadFacebookManual = salvarLeadFacebookManual;
+        window.copiarScriptExtratorFacebook = copiarScriptExtratorFacebook;
+        window.processarTextoImportadoFacebook = processarTextoImportadoFacebook;
+        window.abrirMessengerLeadFacebook = abrirMessengerLeadFacebook;
+        window.abrirDropdownCopiesLead = abrirDropdownCopiesLead;
+        window.copiarCopyFacebook = copiarCopyFacebook;
+        window.renderizarCopiasFacebook = renderizarCopiasFacebook;
+        window.renderizarImagensFacebook = renderizarImagensFacebook;
+        window.copiarImagemCriativoFacebook = copiarImagemCriativoFacebook;
+        window.exportarLeadsFacebookCsv = exportarLeadsFacebookCsv;
+        window.abrirGrupoFacebookExemplo = abrirGrupoFacebookExemplo;
+
 
 
         window.abrirModalCentralNotificacoes = abrirModalCentralNotificacoes;
