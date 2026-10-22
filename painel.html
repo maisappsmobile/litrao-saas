@@ -2057,6 +2057,39 @@
                     <p class="text-xs text-gray-500">Altere os dados desejados e clique em Salvar Alterações.</p>
                 </div>
 
+                <!-- BARRA DE SELEÇÃO RÁPIDA DE CLIENTE (AUTO-PREENCHIMENTO) -->
+                <div id="box-seletor-cliente-auto" class="bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border-2 border-emerald-300/80 p-3.5 rounded-2xl mb-4 shadow-xs">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-base shadow-xs shrink-0">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="block text-xs font-black text-emerald-950 uppercase tracking-wide">
+                                    Selecionar Cliente Cadastrado
+                                </span>
+                                <span class="text-[11px] text-emerald-700 font-semibold block truncate">
+                                    Escolha o cliente para puxar dados cadastrais no automático.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="w-full sm:w-80 shrink-0">
+                            <select id="select-auto-preencher-cliente" onchange="selecionarClienteParaAutoPreenchimento(this.value)" class="w-full p-2.5 bg-white border border-emerald-400 rounded-xl text-xs font-bold text-slate-800 shadow-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer">
+                                <option value="">🔍 Selecione um cliente da lista...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Feedback visual de preenchimento automático -->
+                    <div id="msg-cliente-auto-preenchido" class="hidden mt-2.5 pt-2 border-t border-emerald-200/80 text-[11px] font-bold text-emerald-800 flex items-center justify-between">
+                        <span id="txt-cliente-auto-preenchido" class="flex items-center gap-1.5 truncate">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> Dados preenchidos no automático!
+                        </span>
+                        <button type="button" onclick="limparSelecaoClienteAutoPreenchimento()" class="text-emerald-700 hover:text-emerald-900 underline text-[10px] shrink-0 ml-2 cursor-pointer">
+                            Limpar campos
+                        </button>
+                    </div>
+                </div>
+
                 <form id="form-editar-avaliacao" onsubmit="salvarEdicaoAvaliacao(event)" class="space-y-4">
                     <input type="hidden" id="edit-id">
                     
@@ -2067,11 +2100,12 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Nome do Cliente</label>
-                            <input type="text" id="edit-nome" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            <input type="text" id="edit-nome" list="datalist-clientes-cadastrados" oninput="aoDigitarNomeClienteAuto(this.value)" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none" placeholder="Nome completo...">
+                            <datalist id="datalist-clientes-cadastrados"></datalist>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">WhatsApp</label>
-                            <input type="text" id="edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none">
+                            <input type="text" id="edit-whatsapp" onblur="aoDigitarWhatsappClienteAuto(this.value)" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:ring-2 focus:ring-brand-light focus:outline-none" placeholder="(00) 00000-0000">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Grupo / Turma <span class="text-[10px] text-gray-400 font-normal">(Opcional)</span></label>
@@ -10041,18 +10075,24 @@
         window.abrirCentralPedidosCliente = abrirCentralPedidosCliente;
 
         function abrirNovaAvaliacaoParaCliente(whats, nome) {
-            if (typeof abrirModalNovaAvaliacao === 'function') {
-                abrirModalNovaAvaliacao();
-            } else {
-                const modal = document.getElementById('modal-nova-avaliacao');
-                if (modal) modal.classList.remove('hidden');
-            }
+            abrirNovaAvaliacao();
             setTimeout(() => {
-                const inpNome = document.getElementById('campo-novo-nome') || document.getElementById('nova-avaliacao-nome') || document.querySelector('input[name="nome_cliente"]');
-                if (inpNome && nome) inpNome.value = nome;
-                const inpWhats = document.getElementById('campo-novo-whats') || document.getElementById('nova-avaliacao-whatsapp') || document.querySelector('input[name="whatsapp_cliente"]');
-                if (inpWhats && whats) inpWhats.value = whats;
-            }, 100);
+                const clientes = (typeof extrairClientesUnicos === 'function') ? extrairClientesUnicos() : [];
+                const whatsLimpo = (whats || '').replace(/\D/g, '');
+                const cEncontrado = clientes.find(c => {
+                    if (whatsLimpo && whatsLimpo.length >= 8 && (c.whatsapp || '').replace(/\D/g, '').endsWith(whatsLimpo.slice(-8))) return true;
+                    if (nome && (c.nome || '').toLowerCase().trim() === nome.toLowerCase().trim()) return true;
+                    return false;
+                });
+                if (cEncontrado) {
+                    const sel = document.getElementById('select-auto-preencher-cliente');
+                    if (sel) sel.value = cEncontrado.key;
+                    selecionarClienteParaAutoPreenchimento(cEncontrado.key);
+                } else {
+                    if (nome) document.getElementById('edit-nome').value = nome;
+                    if (whats) document.getElementById('edit-whatsapp').value = whats;
+                }
+            }, 60);
         }
         window.abrirNovaAvaliacaoParaCliente = abrirNovaAvaliacaoParaCliente;
 
@@ -14089,8 +14129,187 @@
             }
 
             configurarCamposDecimaisAuto();
+            const boxSeletor = document.getElementById('box-seletor-cliente-auto');
+            if (boxSeletor) boxSeletor.classList.add('hidden');
+            document.getElementById('msg-cliente-auto-preenchido')?.classList.add('hidden');
             document.getElementById('modal-editar').classList.remove('hidden');
         }
+
+        function popularSeletorClientesAutoPreenchimento(clienteKeyOuId = null) {
+            const sel = document.getElementById('select-auto-preencher-cliente');
+            const dl = document.getElementById('datalist-clientes-cadastrados');
+            if (!sel) return;
+
+            sel.innerHTML = '<option value="">🔍 Selecione um cliente da lista...</option>';
+            if (dl) dl.innerHTML = '';
+
+            const clientes = (typeof extrairClientesUnicos === 'function') ? extrairClientesUnicos() : [];
+            // Ordena alfabeticamente pelo nome do cliente
+            clientes.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' }));
+
+            let keySelecionada = null;
+            if (clienteKeyOuId) {
+                const cEncontrado = clientes.find(c => c.key === clienteKeyOuId || (c.maisRecente && String(c.maisRecente.id) === String(clienteKeyOuId)));
+                if (cEncontrado) keySelecionada = cEncontrado.key;
+            }
+
+            clientes.forEach(c => {
+                if (!c.nome || c.nome === 'Sem Nome' || c.nome.startsWith('[PEDIDO]')) return;
+                const opt = document.createElement('option');
+                opt.value = c.key;
+                const zap = c.whatsapp ? ` • (${c.whatsapp})` : '';
+                const avs = c.total_avaliacoes ? ` • ${c.total_avaliacoes} avaliaç${c.total_avaliacoes === 1 ? 'ão' : 'ões'}` : '';
+                opt.textContent = `${c.nome}${zap}${avs}`;
+                if (keySelecionada && c.key === keySelecionada) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+
+                if (dl) {
+                    const dlOpt = document.createElement('option');
+                    dlOpt.value = c.nome;
+                    dlOpt.label = c.whatsapp || '';
+                    dl.appendChild(dlOpt);
+                }
+            });
+
+            if (keySelecionada) {
+                selecionarClienteParaAutoPreenchimento(keySelecionada);
+            }
+        }
+        window.popularSeletorClientesAutoPreenchimento = popularSeletorClientesAutoPreenchimento;
+
+        function selecionarClienteParaAutoPreenchimento(key) {
+            const boxMsg = document.getElementById('msg-cliente-auto-preenchido');
+            const txtMsg = document.getElementById('txt-cliente-auto-preenchido');
+
+            if (!key) {
+                if (boxMsg) boxMsg.classList.add('hidden');
+                return;
+            }
+
+            const clientes = (typeof extrairClientesUnicos === 'function') ? extrairClientesUnicos() : [];
+            const cliente = clientes.find(c => c.key === key);
+            if (!cliente) return;
+
+            // 1. Nome do Cliente
+            const elNome = document.getElementById('edit-nome');
+            if (elNome) elNome.value = cliente.nome || '';
+
+            // 2. WhatsApp
+            const elWhats = document.getElementById('edit-whatsapp');
+            if (elWhats) elWhats.value = cliente.whatsapp || '';
+
+            // 3. Altura (cm)
+            const elAlt = document.getElementById('edit-altura');
+            if (elAlt && cliente.altura) {
+                elAlt.value = (typeof formatarDecimalBr === 'function') ? formatarDecimalBr(cliente.altura) : cliente.altura;
+            }
+
+            // 4. Data de Nascimento
+            const elNasc = document.getElementById('edit-nascimento');
+            if (elNasc && cliente.data_nascimento) {
+                elNasc.value = cliente.data_nascimento;
+            }
+
+            // 5. Gênero
+            const elGen = document.getElementById('edit-genero');
+            if (elGen && cliente.genero) {
+                elGen.value = cliente.genero;
+            }
+
+            // 6. Grupo / Turma da última avaliação
+            let grupo = '';
+            const mr = cliente.maisRecente;
+            if (mr && mr.como_foi_semana && mr.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                try {
+                    const bioMatch = mr.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                    if (bioMatch && bioMatch[1]) {
+                        const bioObj = JSON.parse(bioMatch[1]);
+                        if (bioObj.grupo) grupo = bioObj.grupo;
+                    }
+                } catch(e) {}
+            }
+            const elGrupo = document.getElementById('edit-grupo');
+            if (elGrupo) elGrupo.value = grupo;
+
+            // 7. Atualiza título do modal
+            const elTitulo = document.getElementById('editar-titulo-nome');
+            if (elTitulo && (!document.getElementById('edit-id')?.value)) {
+                elTitulo.innerText = `Nova Avaliação: ${cliente.nome}`;
+            }
+
+            // 8. Foco automático no campo Peso
+            setTimeout(() => {
+                const campoPeso = document.getElementById('edit-peso');
+                if (campoPeso) campoPeso.focus();
+            }, 60);
+
+            // 9. Feedback visual detalhado com dados da última avaliação
+            if (boxMsg && txtMsg) {
+                let pesoTxt = cliente.peso_atual ? `${(typeof formatarDecimalBr === 'function') ? formatarDecimalBr(cliente.peso_atual) : cliente.peso_atual} kg` : '';
+                let dataTxt = '';
+                if (cliente.ultima_avaliacao) {
+                    const d = new Date(cliente.ultima_avaliacao);
+                    dataTxt = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                }
+                let infoExtra = '';
+                if (pesoTxt && dataTxt) {
+                    infoExtra = ` • Última pesagem: <strong>${pesoTxt}</strong> em ${dataTxt}`;
+                } else if (pesoTxt) {
+                    infoExtra = ` • Última pesagem: <strong>${pesoTxt}</strong>`;
+                }
+                txtMsg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Dados de <strong>${cliente.nome}</strong> puxados no automático!${infoExtra}`;
+                boxMsg.classList.remove('hidden');
+            }
+        }
+        window.selecionarClienteParaAutoPreenchimento = selecionarClienteParaAutoPreenchimento;
+
+        function aoDigitarNomeClienteAuto(nomeDigitado) {
+            if (!nomeDigitado || nomeDigitado.trim().length < 3) return;
+            const nomeLimpo = nomeDigitado.trim().toLowerCase();
+            const clientes = (typeof extrairClientesUnicos === 'function') ? extrairClientesUnicos() : [];
+            const correspondente = clientes.find(c => (c.nome || '').trim().toLowerCase() === nomeLimpo);
+            if (correspondente) {
+                const sel = document.getElementById('select-auto-preencher-cliente');
+                if (sel) sel.value = correspondente.key;
+                selecionarClienteParaAutoPreenchimento(correspondente.key);
+            }
+        }
+        window.aoDigitarNomeClienteAuto = aoDigitarNomeClienteAuto;
+
+        function aoDigitarWhatsappClienteAuto(whatsDigitado) {
+            if (!whatsDigitado) return;
+            const whatsLimpo = whatsDigitado.replace(/\D/g, '');
+            if (whatsLimpo.length < 8) return;
+            const clientes = (typeof extrairClientesUnicos === 'function') ? extrairClientesUnicos() : [];
+            const correspondente = clientes.find(c => (c.whatsapp || '').replace(/\D/g, '').endsWith(whatsLimpo.slice(-8)));
+            if (correspondente) {
+                const nomeAtual = (document.getElementById('edit-nome')?.value || '').trim();
+                if (!nomeAtual || nomeAtual.length < 2) {
+                    const sel = document.getElementById('select-auto-preencher-cliente');
+                    if (sel) sel.value = correspondente.key;
+                    selecionarClienteParaAutoPreenchimento(correspondente.key);
+                }
+            }
+        }
+        window.aoDigitarWhatsappClienteAuto = aoDigitarWhatsappClienteAuto;
+
+        function limparSelecaoClienteAutoPreenchimento() {
+            const sel = document.getElementById('select-auto-preencher-cliente');
+            if (sel) sel.value = '';
+            document.getElementById('edit-nome').value = '';
+            document.getElementById('edit-whatsapp').value = '';
+            document.getElementById('edit-grupo').value = '';
+            document.getElementById('edit-peso').value = '';
+            document.getElementById('edit-altura').value = '170,0';
+            document.getElementById('edit-nascimento').value = '1990-01-01';
+            document.getElementById('edit-genero').value = 'Feminino';
+            document.getElementById('editar-titulo-nome').innerText = 'Nova Avaliação (Lançamento Direto)';
+            document.getElementById('msg-cliente-auto-preenchido')?.classList.add('hidden');
+            document.getElementById('edit-nome')?.focus();
+        }
+        window.limparSelecaoClienteAutoPreenchimento = limparSelecaoClienteAutoPreenchimento;
 
         function abrirNovaAvaliacao() {
             const now = new Date();
@@ -14131,76 +14350,20 @@
             document.getElementById('edit-bio-agua').value = '';
 
             configurarCamposDecimaisAuto();
+
+            // Mostra e popula a barra de seleção de cliente existente
+            const boxSeletor = document.getElementById('box-seletor-cliente-auto');
+            if (boxSeletor) boxSeletor.classList.remove('hidden');
+            document.getElementById('msg-cliente-auto-preenchido')?.classList.add('hidden');
+            popularSeletorClientesAutoPreenchimento();
+
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
         // Nova Avaliação preservando os dados cadastrais fixos do cliente (poupa tempo!)
         function abrirNovaAvaliacaoDoCliente(idReferencia) {
-            const clienteRef = todasAvaliacoesCache.find(a => a.id == idReferencia);
-            if (!clienteRef) return;
-
-            const now = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            document.getElementById('edit-data-avaliacao').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-
-            // Novo ID vazio para criar novo registro
-            document.getElementById('edit-id').value = '';
-            document.getElementById('editar-titulo-nome').innerText = `Nova Avaliação: ${limparNomeCliente(clienteRef.nome_cliente) || 'Cliente'}`;
-            
-            // Dados Fixos preenchidos automaticamente
-            document.getElementById('edit-nome').value = limparNomeCliente(clienteRef.nome_cliente) || '';
-            document.getElementById('edit-whatsapp').value = clienteRef.whatsapp_cliente || '';
-            document.getElementById('edit-altura').value = formatarDecimalBr(clienteRef.altura || '170');
-            document.getElementById('edit-nascimento').value = clienteRef.data_nascimento || '1990-01-01';
-            document.getElementById('edit-genero').value = clienteRef.genero || 'Feminino';
-
-            // Grupo / Turma se tiver no histórico
-            let grupoEncontrado = '';
-            if (clienteRef.como_foi_semana && clienteRef.como_foi_semana.includes('<!--BIO_DADOS:')) {
-                try {
-                    const match = clienteRef.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
-                    if (match && match[1]) {
-                        const bio = JSON.parse(match[1]);
-                        grupoEncontrado = bio.grupo || '';
-                    }
-                } catch(e) {}
-            }
-            document.getElementById('edit-grupo').value = grupoEncontrado;
-
-            // Limpa dados dinâmicos da nova pesagem
-            document.getElementById('edit-peso').value = '';
-            document.getElementById('edit-busto').value = '';
-            document.getElementById('edit-cintura').value = '';
-            document.getElementById('edit-abdomen').value = '';
-            document.getElementById('edit-quadril').value = '';
-            document.getElementById('edit-intestino').value = 'true';
-            document.getElementById('edit-agua').value = 'true';
-            document.getElementById('edit-foco').value = '9';
-
-            document.getElementById('edit-braco-dir').value = '';
-            document.getElementById('edit-braco-esq').value = '';
-            document.getElementById('edit-coxa-dir').value = '';
-            document.getElementById('edit-coxa-esq').value = '';
-            document.getElementById('edit-pant-dir').value = '';
-            document.getElementById('edit-pant-esq').value = '';
-            document.getElementById('edit-pa').value = '';
-            document.getElementById('edit-glicemia').value = '';
-
-            document.getElementById('edit-bio-gordura').value = '';
-            document.getElementById('edit-bio-musculo').value = '';
-            document.getElementById('edit-bio-visceral').value = '';
-            document.getElementById('edit-bio-tmb').value = '';
-            document.getElementById('edit-bio-idade').value = '';
-            document.getElementById('edit-bio-agua').value = '';
-
-            configurarCamposDecimaisAuto();
-            document.getElementById('modal-editar').classList.remove('hidden');
-
-            // Foca diretamente no campo de peso da nova avaliação
-            setTimeout(() => {
-                const el = document.getElementById('edit-peso');
-                if (el) el.focus();
-            }, 100);
+            abrirNovaAvaliacao();
+            popularSeletorClientesAutoPreenchimento(idReferencia);
         }
 
         function fecharEditar() {
