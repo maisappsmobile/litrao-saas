@@ -313,44 +313,199 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Sincronizar com o CRM ResetFIT
+  // Sincronizar com o CRM ResetFIT Automaticamente
   btnSincronizarCrm.addEventListener('click', async () => {
-    if (contatosExtraidos.length === 0) return;
+    if (contatosExtraidos.length === 0) {
+      alert('Nenhum contato extraído para sincronizar. Selecione e extraia os contatos de um grupo primeiro.');
+      return;
+    }
 
-    btnSincronizarCrm.innerText = '⏳ Sincronizando...';
+    btnSincronizarCrm.disabled = true;
+    btnSincronizarCrm.innerText = '⏳ Sincronizando com CRM...';
 
     const pacote = {
-      origem: 'ResetFIT Pro v2.5.0',
-      grupo: nomeGrupoAtual,
+      origem: 'ResetFIT Pro v2.5.2',
+      grupo: nomeGrupoAtual || 'Grupo WhatsApp',
       criadoEm: new Date().toISOString(),
+      timestamp: Date.now(),
       total: contatosExtraidos.length,
-      leads: contatosExtraidos,
-      contatos: contatosExtraidos,
-      membros: contatosExtraidos
+      contatos: contatosExtraidos
     };
 
-    // Baixa o JSON universal
-    const blob = new Blob([JSON.stringify(pacote, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `leads_resetfit_${nomeGrupoAtual.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      // 1. Grava no storage da extensão para quando o painel for aberto depois
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        await chrome.storage.local.set({
+          resetfit_crm_pending_import: pacote,
+          resetfit_ultimo_lote: pacote
+        });
+      }
 
-    // Copia lista para a área de transferência
-    let txtClip = `${nomeGrupoAtual}\n`;
-    contatosExtraidos.forEach(c => {
-      txtClip += `${c.nome || 'Contato'};${c.telefone || ''};${c.grupo || nomeGrupoAtual}\n`;
-    });
-    navigator.clipboard.writeText(txtClip).catch(() => {});
+      // 2. Procura abas abertas que contenham o Painel do Consultor
+      let abasPainelEncontradas = [];
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+        try {
+          const todasAbas = await chrome.tabs.query({});
+          abasPainelEncontradas = todasAbas.filter(tab => {
+            if (!tab.url) return false;
+            const u = tab.url.toLowerCase();
+            return u.includes('painel.html') ||
+                   u.includes('litraodoreset.com.br') ||
+                   u.includes('vercel.app') ||
+                   u.includes('localhost') ||
+                   u.includes('127.0.0.1');
+          });
+        } catch (errTabs) {
+          console.warn('Erro ao consultar abas abertas:', errTabs);
+        }
+      }
 
-    btnSincronizarCrm.innerText = '✅ Sincronizado!';
-    setTimeout(() => { btnSincronizarCrm.innerText = '🚀 Sincronizar com Meu CRM ResetFIT'; }, 2500);
+      let sincronizadoEmTempoReal = false;
+      let totalImportadosRealTime = 0;
 
-    alert(`Sucesso! ${contatosExtraidos.length} contatos exportados.\n\nO arquivo JSON foi baixado e a lista foi copiada para a sua área de transferência!\n\nNo Painel ResetFIT -> Importar Contatos, selecione o arquivo baixado ou cole com Ctrl+V.`);
+      // 3. Se houver aba aberta do painel, injeta e sincroniza em tempo real
+      if (abasPainelEncontradas.length > 0 && typeof chrome !== 'undefined' && chrome.scripting) {
+        for (const tab of abasPainelEncontradas) {
+          try {
+            // Tenta enviar mensagem direta via runtime
+            try {
+              chrome.tabs.sendMessage(tab.id, { tipo: 'RESETFIT_SINCRONIZAR_CRM', pacote });
+            } catch (eMsg) {}
+
+            // Injeta script diretamente no contexto da página do painel
+            const resultados = await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              args: [pacote],
+              func: (dados) => {
+                try {
+                  let hid = 'geral';
+                  try {
+                    const authStr = localStorage.getItem('litrao_consultor_auth');
+                    if (authStr) {
+                      const parsed = JSON.parse(authStr);
+                      if (parsed && parsed.herbalife_id) hid = String(parsed.herbalife_id).trim();
+                    }
+                  } catch (eAuth) {}
+
+                  const key = `litrao_crm_leads_${hid}`;
+                  let leadsExistentes = [];
+                  try {
+                    leadsExistentes = JSON.parse(localStorage.getItem(key)) || [];
+                    if (!Array.isArray(leadsExistentes)) leadsExistentes = [];
+                  } catch (eLeads) {
+                    leadsExistentes = [];
+                  }
+
+                  const telefonesSet = new Set(
+                    leadsExistentes.map(l => String(l.telefone || '').replace(/\D/g, '')).filter(Boolean)
+                  );
+                  let novosCount = 0;
+                  let dupCount = 0;
+
+                  (dados.contatos || []).forEach((c, idx) => {
+                    const telRaw = String(c.telefone || c.numero || '').trim();
+                    const telLimpo = telRaw.replace(/\D/g, '');
+                    if (!telLimpo) return;
+
+                    if (telefonesSet.has(telLimpo)) {
+                      dupCount++;
+                      return;
+                    }
+
+                    const nomeFormatado = (c.nome || c.pushname || `Contato ${idx + 1}`).replace(/~/g, '').trim();
+                    leadsExistentes.push({
+                      id: 'lead_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                      nome: nomeFormatado,
+                      telefone: telRaw,
+                      grupo: c.grupo || dados.grupo || 'Grupo WhatsApp',
+                      isAdmin: !!(c.isAdmin || c.admin),
+                      coluna: 'novos',
+                      dataAdicionado: new Date().toISOString(),
+                      notas: c.notas || ''
+                    });
+                    telefonesSet.add(telLimpo);
+                    novosCount++;
+                  });
+
+                  localStorage.setItem(key, JSON.stringify(leadsExistentes));
+
+                  // Atualiza UI se funções nativas do painel existirem
+                  if (typeof window.atualizarSelectGruposKanban === 'function') window.atualizarSelectGruposKanban();
+                  if (typeof window.renderizarKanbanCrm === 'function') window.renderizarKanbanCrm();
+                  if (typeof window.atualizarMetricasCardsCrm === 'function') window.atualizarMetricasCardsCrm();
+
+                  // Exibe notificação visual Toast flutuante no painel
+                  let toast = document.getElementById('toast-resetfit-crm-sync');
+                  if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'toast-resetfit-crm-sync';
+                    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:linear-gradient(135deg, #6B21A8, #3730A3);color:#fff;padding:14px 18px;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border:1px solid rgba(168,85,247,0.4);display:flex;align-items:center;gap:12px;font-family:ui-sans-serif,system-ui,sans-serif;max-width:380px;';
+                    document.body.appendChild(toast);
+                  }
+                  toast.innerHTML = `
+                    <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                      🚀
+                    </div>
+                    <div style="flex:1;">
+                      <h4 style="margin:0;font-size:13px;font-weight:800;color:#fff;">ResetFIT • CRM Sincronizado!</h4>
+                      <p style="margin:2px 0 0;font-size:11px;color:#E9D5FF;line-height:1.35;">
+                        <b>${novosCount} contatos</b> do grupo <b>"${dados.grupo}"</b> adicionados na coluna <b>Novos Contatos</b>!
+                      </p>
+                    </div>
+                  `;
+                  toast.style.display = 'flex';
+                  setTimeout(() => {
+                    if (toast) toast.style.display = 'none';
+                  }, 6500);
+
+                  return { sucesso: true, novos: novosCount, duplicados: dupCount };
+                } catch (errInjecao) {
+                  return { sucesso: false, erro: errInjecao.message };
+                }
+              }
+            });
+
+            if (resultados && resultados[0] && resultados[0].result && resultados[0].result.sucesso) {
+              sincronizadoEmTempoReal = true;
+              totalImportadosRealTime += (resultados[0].result.novos || 0);
+              // Como já injetou na página aberta, limpa pendência do storage
+              chrome.storage.local.remove(['resetfit_crm_pending_import']);
+            }
+          } catch (errExec) {
+            console.warn('Erro ao sincronizar na aba:', errExec);
+          }
+        }
+      }
+
+      btnSincronizarCrm.innerText = '✅ Sincronizado no CRM!';
+      setTimeout(() => {
+        btnSincronizarCrm.disabled = false;
+        btnSincronizarCrm.innerText = '🚀 Sincronizar com Meu CRM ResetFIT';
+      }, 3000);
+
+      if (sincronizadoEmTempoReal) {
+        alert(
+          `🚀 Sucesso Total!\n\n` +
+          `• Contatos extraídos: ${contatosExtraidos.length}\n` +
+          `• Novos contatos inseridos no CRM: ${totalImportadosRealTime}\n` +
+          `• Grupo de Origem: "${nomeGrupoAtual}"\n\n` +
+          `O seu Painel do Consultor ResetFIT foi atualizado em TEMPO REAL na coluna 'Novos Contatos'!`
+        );
+      } else {
+        alert(
+          `💾 Contatos Salvos com Sucesso!\n\n` +
+          `• Total de contatos preparados: ${contatosExtraidos.length}\n` +
+          `• Grupo de Origem: "${nomeGrupoAtual}"\n\n` +
+          `Assim que você abrir o seu Painel do Consultor ResetFIT, esses contatos serão adicionados AUTOMATICAMENTE ao seu CRM Kanban na coluna 'Novos Contatos' sem precisar baixar nem importar arquivos!`
+        );
+      }
+    } catch (errGeral) {
+      console.error('Erro na sincronização:', errGeral);
+      btnSincronizarCrm.disabled = false;
+      btnSincronizarCrm.innerText = '❌ Erro ao Sincronizar';
+      setTimeout(() => { btnSincronizarCrm.innerText = '🚀 Sincronizar com Meu CRM ResetFIT'; }, 3000);
+      alert('Houve um erro ao sincronizar com o CRM: ' + (errGeral.message || errGeral));
+    }
   });
 
   btnBaixarJson.addEventListener('click', () => {

@@ -1,6 +1,6 @@
-# 🚀 Manual de Instalação: ResetFIT - Automação WhatsApp Pro (v2.5.0)
+# 🚀 Manual de Instalação: ResetFIT - Automação WhatsApp Pro (v2.5.2)
 
-Esta extensão oficial foi desenvolvida para os consultores **ResetFIT**. Ela permite extrair participantes de qualquer grupo do WhatsApp Web, enviar mídias (fotos e vídeos), executar sequências de 1 clique, disparar mensagens em massa com rotação anti-bloqueio (spintax) e sincronizar contatos com o CRM.
+Esta extensão oficial foi desenvolvida para os consultores **ResetFIT**. Ela permite extrair participantes de qualquer grupo do WhatsApp Web, sincronizar automaticamente 1-clique com o CRM Kanban do Painel do Consultor, enviar mídias (fotos e vídeos), executar sequências de 1 clique, disparar mensagens em massa com rotação anti-bloqueio (spintax) e painel lateral.
 
 ---
 

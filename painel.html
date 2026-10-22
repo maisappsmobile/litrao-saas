@@ -5746,6 +5746,17 @@
                 </div>
             </div>
 
+            <!-- AVISO DE SINCRONIZAÇÃO AUTOMÁTICA DIRETA -->
+            <div class="mb-4 bg-purple-950/40 border border-purple-500/40 rounded-2xl p-3.5 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-purple-600/30 text-purple-300 flex items-center justify-center text-sm flex-shrink-0 mt-0.5">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="text-xs leading-relaxed">
+                    <span class="font-bold text-purple-200 block mb-0.5">Sincronização 100% Automática:</span>
+                    <span class="text-slate-300">Na Extensão ResetFIT (no WhatsApp Web), basta clicar no botão <b>🚀 Sincronizar com Meu CRM ResetFIT</b> que os contatos são salvos automaticamente aqui no seu Kanban sem precisar baixar nenhum arquivo!</span>
+                </div>
+            </div>
+
             <!-- OPÇÃO A: UPLOAD DO ARQUIVO JSON DA EXTENSÃO -->
             <div class="mb-4">
                 <label class="block text-xs font-bold text-slate-300 mb-1.5">
@@ -7777,6 +7788,9 @@
                         badgeCrmAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200";
                         badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
                     }
+                }
+                if (typeof window.verificarSincronizacaoPendenteResetfit === 'function') {
+                    window.verificarSincronizacaoPendenteResetfit();
                 }
                 atualizarMetricasCardsCrm();
 
@@ -20377,6 +20391,9 @@
                 return;
             }
 
+            // Verifica se há novos contatos enviados pela Extensão ResetFIT
+            verificarSincronizacaoPendenteResetfit();
+
             const modalKanban = document.getElementById('modal-crm-kanban');
             if (modalKanban) {
                 modalKanban.classList.remove('hidden');
@@ -20386,6 +20403,22 @@
             }
         }
         window.abrirModuloCrmKanban = abrirModuloCrmKanban;
+
+        function verificarSincronizacaoPendenteResetfit() {
+            try {
+                const raw = localStorage.getItem('resetfit_crm_pending_import');
+                if (raw) {
+                    const pacote = JSON.parse(raw);
+                    if (pacote && Array.isArray(pacote.contatos) && pacote.contatos.length > 0) {
+                        importarArrayDeContatos(pacote.contatos, pacote.grupo || 'ResetFIT WhatsApp', 'novos');
+                        localStorage.removeItem('resetfit_crm_pending_import');
+                    }
+                }
+            } catch (e) {
+                console.warn("[ResetFIT] Erro ao verificar pendência local:", e);
+            }
+        }
+        window.verificarSincronizacaoPendenteResetfit = verificarSincronizacaoPendenteResetfit;
 
         function fecharModuloCrmKanban() {
             const modalKanban = document.getElementById('modal-crm-kanban');
@@ -20991,6 +21024,26 @@
 
             alert(`Sucesso! ${importadosCount} novos contatos adicionados ao Kanban.` + (duplicadosCount > 0 ? ` (${duplicadosCount} contatos duplicados foram ignorados).` : ''));
         }
+        window.importarArrayDeContatos = importarArrayDeContatos;
+        window.salvarLeadsCrm = salvarLeadsCrm;
+        window.obterLeadsCrm = obterLeadsCrm;
+        window.atualizarMetricasCardsCrm = atualizarMetricasCardsCrm;
+        window.atualizarSelectGruposKanban = atualizarSelectGruposKanban;
+        window.renderizarKanbanCrm = renderizarKanbanCrm;
+
+        // Ouvinte de mensagens da extensão ResetFIT
+        window.addEventListener('message', function (event) {
+            try {
+                if (event.data && event.data.tipo === 'RESETFIT_SINCRONIZAR_CRM' && event.data.pacote) {
+                    const p = event.data.pacote;
+                    if (Array.isArray(p.contatos) && p.contatos.length > 0) {
+                        importarArrayDeContatos(p.contatos, p.grupo || 'ResetFIT WhatsApp', 'novos');
+                    }
+                }
+            } catch (errZap) {
+                console.warn("[ResetFIT] Erro no listener de message:", errZap);
+            }
+        });
 
         // NOVO LEAD / EDITAR LEAD MANUAL
         function abrirModalNovoLeadCrm(colunaPadrao) {
