@@ -228,11 +228,15 @@
                     </button>
                 </p>
             </div>
-            <div class="mt-4 md:mt-0 text-center">
+            <div class="mt-4 md:mt-0 text-center md:text-right flex flex-col md:items-end">
                 <p class="text-xs text-slate-400 uppercase font-bold mb-0.5">Vencimento da Licença</p>
                 <div id="dash-vencimento" class="text-xl font-black text-slate-800">00/00/0000</div>
                 <div id="dash-vencimento-alerta" class="hidden text-[11px] font-black text-amber-600 animate-pulse mt-0.5">
                     ⏰ Teste Grátis expira em breve!
+                </div>
+                <div id="dash-mensalidade-container" class="mt-1 flex items-center justify-center md:justify-end gap-1.5 flex-wrap">
+                    <span id="dash-plano-badge" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full">Plano: Start Pro</span>
+                    <span id="dash-mensalidade-badge" class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2 py-0.5 rounded-full" title="Mensalidade calculada no automático com adicionais">R$ 99,00/mês</span>
                 </div>
             </div>
         </div>
@@ -299,245 +303,225 @@
                 </div>
             </div>
 
-            <!-- GRADE PRINCIPAL (3 FERRAMENTAS DO DIA A DIA) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
+            <!-- GRADE PRINCIPAL UNIFICADA (6 FERRAMENTAS DO CONSULTOR) - COMPACTA E DIRETA -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 mb-5">
                 
                 <!-- 1. MEU CATÁLOGO DIGITAL -->
-                <div id="card-modulo-catalogo-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between group">
+                <div id="card-modulo-catalogo-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-book-open-reader"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-book-open-reader"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-blue-700 transition leading-tight truncate">
+                                        Meu Catálogo Digital
+                                    </h3>
+                                    <span class="text-[10px] text-blue-700 font-bold uppercase tracking-wider block truncate">Vitrine WhatsApp</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                                    Vitrine do Cliente
-                                </span>
-                                <span id="badge-catalogo-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200">
-                                    <i class="fa-solid fa-lock mr-1"></i> Restrito
-                                </span>
-                            </div>
+                            <span id="badge-catalogo-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200 shrink-0">
+                                <i class="fa-solid fa-lock mr-1"></i> Restrito
+                            </span>
                         </div>
-
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-blue-700 transition leading-snug">
-                            Meu Catálogo Digital
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-4 font-medium">
-                            Compartilhe pelo WhatsApp, acompanhe visualizações e personalize preços, fotos e descrições dos produtos.
-                        </p>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
-                        <button type="button" onclick="abrirModuloCatalogoInterativo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-sliders text-xs"></i> Gerenciar Meu Catálogo
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <button type="button" onclick="abrirModuloCatalogoInterativo()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-sliders text-[11px]"></i> Gerenciar Catálogo
                         </button>
-                        <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-3.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap" title="Ver Catálogo no Navegador">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-blue-600"></i> Ver ao Vivo
+                        <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Ver Catálogo ao Vivo">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-blue-600"></i> Ver
                         </button>
                     </div>
                 </div>
 
                 <!-- 2. RADAR DE CLIENTES & ALERTAS -->
-                <div id="card-radar-notificacoes-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
+                <div id="card-radar-notificacoes-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-bell"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-amber-800 transition leading-tight truncate">
+                                        Radar de Clientes & Alertas
+                                    </h3>
+                                    <span class="text-[10px] text-amber-700 font-bold uppercase tracking-wider block truncate">Notificações Inteligentes</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span class="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Radar Ativo
-                                </span>
-                                <span id="badge-radar-total-pendencias" class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-black px-2 py-0.5 rounded-full">
-                                    0 Alertas
-                                </span>
-                            </div>
+                            <span id="badge-radar-total-pendencias" class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                0 Alertas
+                            </span>
                         </div>
 
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-amber-800 transition leading-snug">
-                            Radar de Clientes & Alertas
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-3 font-medium">
-                            Notificações para chamar clientes no WhatsApp: sumidos (+30d), bioimpedâncias pendentes, pedidos e aniversários.
-                        </p>
-
-                        <!-- Pílulas de Contadores Interativos -->
-                        <div class="grid grid-cols-4 gap-1.5 mb-4">
-                            <button type="button" onclick="abrirModalCentralNotificacoes('bio')" class="bg-slate-50 hover:bg-cyan-50 border border-slate-200/70 hover:border-cyan-200 p-2 rounded-xl text-center transition cursor-pointer">
-                                <span id="card-radar-count-bio" class="block text-sm font-black text-slate-900">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Bio</span>
+                        <!-- Mini Contadores Inline Compactos -->
+                        <div class="grid grid-cols-4 gap-1.5 my-2">
+                            <button type="button" onclick="abrirModalCentralNotificacoes('bio')" class="bg-slate-50 hover:bg-cyan-50 border border-slate-200/80 hover:border-cyan-200 py-1 px-1.5 rounded-lg text-center transition cursor-pointer flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Bio</span>
+                                <span id="card-radar-count-bio" class="text-xs font-black text-slate-900">0</span>
                             </button>
-                            <button type="button" onclick="abrirModalCentralNotificacoes('sumidos')" class="bg-slate-50 hover:bg-rose-50 border border-slate-200/70 hover:border-rose-200 p-2 rounded-xl text-center transition cursor-pointer">
-                                <span id="card-radar-count-sumidos" class="block text-sm font-black text-slate-900">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Sumidos</span>
+                            <button type="button" onclick="abrirModalCentralNotificacoes('sumidos')" class="bg-slate-50 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 py-1 px-1.5 rounded-lg text-center transition cursor-pointer flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Sumidos</span>
+                                <span id="card-radar-count-sumidos" class="text-xs font-black text-slate-900">0</span>
                             </button>
-                            <button type="button" onclick="abrirModalCentralNotificacoes('pedidos')" class="bg-slate-50 hover:bg-emerald-50 border border-slate-200/70 hover:border-emerald-200 p-2 rounded-xl text-center transition cursor-pointer">
-                                <span id="card-radar-count-pedidos" class="block text-sm font-black text-slate-900">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Pedidos</span>
+                            <button type="button" onclick="abrirModalCentralNotificacoes('pedidos')" class="bg-slate-50 hover:bg-emerald-50 border border-slate-200/80 hover:border-emerald-200 py-1 px-1.5 rounded-lg text-center transition cursor-pointer flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Pedidos</span>
+                                <span id="card-radar-count-pedidos" class="text-xs font-black text-slate-900">0</span>
                             </button>
-                            <button type="button" onclick="abrirModalCentralNotificacoes('aniversarios')" class="bg-slate-50 hover:bg-amber-50 border border-slate-200/70 hover:border-amber-200 p-2 rounded-xl text-center transition cursor-pointer">
-                                <span id="card-radar-count-aniversarios" class="block text-sm font-black text-slate-900">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Níver</span>
+                            <button type="button" onclick="abrirModalCentralNotificacoes('aniversarios')" class="bg-slate-50 hover:bg-amber-50 border border-slate-200/80 hover:border-amber-200 py-1 px-1.5 rounded-lg text-center transition cursor-pointer flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Níver</span>
+                                <span id="card-radar-count-aniversarios" class="text-xs font-black text-slate-900">0</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <button type="button" onclick="abrirModalCentralNotificacoes()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-bell text-xs"></i> Abrir Central de Alertas
+                    <div class="pt-2.5 border-t border-slate-100 mt-auto">
+                        <button type="button" onclick="abrirModalCentralNotificacoes()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-bell text-[11px]"></i> Abrir Central de Alertas
                         </button>
                     </div>
                 </div>
 
                 <!-- 3. FINANCEIRO & CUSTOS DE DOSES -->
-                <div id="card-modulo-financeiro-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
+                <div id="card-modulo-financeiro-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-calculator"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-calculator"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-800 transition leading-tight truncate">
+                                        Financeiro & Custos de Doses
+                                    </h3>
+                                    <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block truncate">Controle EVS & Margem</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                                    Controle EVS
-                                </span>
-                                <span id="badge-financeiro-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200">
-                                    <i class="fa-solid fa-lock mr-1"></i> Restrito
-                                </span>
-                            </div>
+                            <span id="badge-financeiro-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 17,90/mês
+                            </span>
                         </div>
-
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-emerald-800 transition leading-snug">
-                            Financeiro & Custos de Doses
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-4 font-medium">
-                            Calculadora exata de custo por dose (NRG, Chá, Fibra, Shake, Garrafa), controle de potes no armário e margem de lucro por Litrão.
-                        </p>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <button type="button" onclick="abrirModuloFinanceiroEVS()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-calculator text-xs"></i> Abrir Calculadora & Estoque
+                    <div class="pt-2.5 border-t border-slate-100 mt-auto">
+                        <button id="btn-abrir-card-financeiro" type="button" onclick="abrirModuloFinanceiroEVS()" class="w-full bg-slate-900 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear Módulo • R$ 17,90/mês
                         </button>
                     </div>
                 </div>
 
-            </div>
-
-            <!-- SEÇÃO DE CRESCIMENTO & VENDAS (2 CARDS ELEGANTES) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
-                
                 <!-- 4. MODELOS DE DIRECT & SCRIPTS X1 -->
-                <div id="card-prospeccao-x1-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between group">
+                <div id="card-prospeccao-x1-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-paper-plane"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-indigo-800 transition leading-tight truncate">
+                                        Modelos de Direct & Scripts
+                                    </h3>
+                                    <span class="text-[10px] text-indigo-700 font-bold uppercase tracking-wider block truncate">WhatsApp • Insta • Face</span>
+                                </div>
                             </div>
-                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                                WhatsApp • Instagram • Facebook
+                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0">
+                                Prospecção
                             </span>
                         </div>
-
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-indigo-800 transition leading-snug">
-                            Modelos de Direct para Consultores & EVS
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-4 font-medium">
-                            Scripts prontos de alta conversão para abordar consultores e donos de Espaço Vida Saudável nas redes sociais e convidá-los para os 7 dias grátis.
-                        </p>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <button type="button" onclick="abrirModalDirectsProspeccao()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-comment-dots text-xs"></i> Abrir Scripts de Direct
+                    <div class="pt-2.5 border-t border-slate-100 mt-auto">
+                        <button type="button" onclick="abrirModalDirectsProspeccao()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-comment-dots text-[11px]"></i> Abrir Scripts de Direct
                         </button>
                     </div>
                 </div>
 
                 <!-- 5. INDIQUE UM CONSULTOR (15% OFF) -->
-                <div id="card-vip-indique-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group">
+                <div id="card-vip-indique-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group">
                     <div id="card-vip-box" class="w-full">
-                        <div class="flex items-center justify-between mb-4">
-                            <div id="card-vip-icone" class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-crown"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="card-vip-icone" class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-crown"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-purple-800 transition leading-tight truncate">
+                                        Indique um Consultor (15% OFF)
+                                    </h3>
+                                    <span class="text-[10px] text-purple-700 font-bold uppercase tracking-wider block truncate">Cupons de Desconto</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span id="badge-vip-status" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                                    Benefício Master VIP
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span id="badge-vip-status" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                                    Master VIP
                                 </span>
-                                <span id="badge-vip-bloqueado" class="hidden bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
-                                    <i class="fa-solid fa-lock mr-1"></i> Bloqueado
+                                <span id="badge-vip-bloqueado" class="hidden bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-lock"></i>
                                 </span>
                             </div>
                         </div>
-
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-purple-800 transition leading-snug">
-                            Indique um Consultor (15% OFF)
-                        </h3>
-                        <p id="txt-vip-desc" class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-4 font-medium">
-                            Gere cupons oficiais de 15% de desconto para cadastrar seus novos consultores na sua equipe.
-                        </p>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100">
-                        <button id="btn-abrir-cupom-vip" onclick="abrirModalCupomVip()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-ticket text-xs"></i> Criar Cupom de 15%
+                    <div class="pt-2.5 border-t border-slate-100 mt-auto">
+                        <button id="btn-abrir-cupom-vip" onclick="abrirModalCupomVip()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-ticket text-[11px]"></i> Criar Cupom de 15%
                         </button>
                     </div>
                 </div>
 
-            
-                <!-- 6. EXTRATOR WHATSAPP & CRM KANBAN (SILICON VALLEY) -->
-                <div id="card-modulo-crm-extrator-container" class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group">
+                <!-- 6. EXTRATOR WHATSAPP & CRM KANBAN -->
+                <div id="card-modulo-crm-extrator-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group">
                     <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-xl shadow-2xs group-hover:scale-105 transition">
-                                <i class="fa-solid fa-layer-group"></i>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-purple-700 transition leading-tight truncate">
+                                        Extrator & CRM WhatsApp
+                                    </h3>
+                                    <span class="text-[10px] text-purple-700 font-bold uppercase tracking-wider block truncate">Funil Kanban & Grupos</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                    <i class="fa-brands fa-whatsapp text-emerald-600"></i> Extrator & Funil
-                                </span>
-                                <span id="badge-crm-extrator-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200">
-                                    <i class="fa-solid fa-lock mr-1"></i> Restrito
-                                </span>
-                            </div>
+                            <span id="badge-crm-extrator-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 9,90/mês
+                            </span>
                         </div>
 
-                        <h3 class="text-lg font-black text-slate-900 group-hover:text-purple-700 transition leading-snug">
-                            Extrator & CRM Kanban WhatsApp
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 mb-3 font-medium">
-                            Extraia contatos de grupos com nossa extensão e organize seu funil em um Kanban estilo Vale do Silício com scripts validados de 1 clique.
-                        </p>
-
-                        <!-- Pílulas de Contadores Rápidos de Leads -->
-                        <div class="grid grid-cols-3 gap-1.5 mb-4">
-                            <div class="bg-slate-50 border border-slate-200/70 p-2 rounded-xl text-center">
-                                <span id="card-crm-count-novos" class="block text-sm font-black text-blue-600">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Novos</span>
+                        <!-- Mini Contadores Inline Compactos -->
+                        <div class="grid grid-cols-3 gap-1.5 my-2">
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Novos</span>
+                                <span id="card-crm-count-novos" class="text-xs font-black text-blue-600">0</span>
                             </div>
-                            <div class="bg-slate-50 border border-slate-200/70 p-2 rounded-xl text-center">
-                                <span id="card-crm-count-abordagem" class="block text-sm font-black text-amber-600">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Em Contato</span>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Contato</span>
+                                <span id="card-crm-count-abordagem" class="text-xs font-black text-amber-600">0</span>
                             </div>
-                            <div class="bg-slate-50 border border-slate-200/70 p-2 rounded-xl text-center">
-                                <span id="card-crm-count-fechados" class="block text-sm font-black text-emerald-600">0</span>
-                                <span class="block text-[9px] font-bold text-slate-500 uppercase truncate">Fechados</span>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Fechados</span>
+                                <span id="card-crm-count-fechados" class="text-xs font-black text-emerald-600">0</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
-                        <button type="button" onclick="abrirModuloCrmKanban()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-table-columns text-xs"></i> Abrir CRM Kanban
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <button id="btn-abrir-card-crm" type="button" onclick="abrirModuloCrmKanban()" class="flex-1 bg-slate-900 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear • R$ 9,90/mês
                         </button>
-                        <button type="button" onclick="baixarExtensaoWhatsapp()" class="w-full sm:w-auto bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-3 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap" title="Baixar e Instalar Extensão de Grupos">
-                            <i class="fa-solid fa-puzzle-piece text-xs text-purple-600"></i> Extensão
+                        <button type="button" onclick="baixarExtensaoWhatsapp()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Baixar Extensão de Grupos">
+                            <i class="fa-solid fa-puzzle-piece text-[11px] text-purple-600"></i> Extensão
                         </button>
                     </div>
                 </div>
 
-</div>
+            </div>
 
             <!-- 6. CARD SUPERADMIN EXCLUSIVO (APENAS ID 433005811) -->
             <div id="card-superadmin-container" class="hidden">
@@ -1560,14 +1544,47 @@
                                     <i class="fa-solid fa-calculator"></i>
                                 </div>
                                 <div>
-                                    <span class="block text-xs font-black text-emerald-950 uppercase">Módulo Financeiro do EVS</span>
+                                    <span class="block text-xs font-black text-emerald-950 uppercase">Módulo Financeiro do EVS (+ R$ 17,90/mês)</span>
                                     <span class="text-[10px] text-emerald-700 font-medium">Libera calculadora de doses, margem por Litrão e catálogo</span>
                                 </div>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="superadmin-edit-financeiro-liberado" class="sr-only peer">
+                                <input type="checkbox" id="superadmin-edit-financeiro-liberado" onchange="atualizarResumoMensalidadeSuperadminModal()" class="sr-only peer">
                                 <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                             </label>
+                        </div>
+
+                        <!-- LIBERAÇÃO MANUAL DO EXTRATOR WHATSAPP & CRM KANBAN -->
+                        <div class="bg-purple-50/80 p-3 rounded-2xl border border-purple-300 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-sm shadow-xs">
+                                    <i class="fa-solid fa-table-columns"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-black text-purple-950 uppercase">Extrator WhatsApp & CRM Kanban (+ R$ 9,90/mês)</span>
+                                    <span class="text-[10px] text-purple-700 font-medium">Libera funil kanban, sincronização de grupos e scripts</span>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="superadmin-edit-crm-liberado" onchange="atualizarResumoMensalidadeSuperadminModal()" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- RESUMO DA MENSALIDADE CALCULADA NO AUTOMÁTICO -->
+                        <div class="bg-slate-900 text-white p-3 rounded-2xl flex items-center justify-between shadow-xs">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center text-sm shrink-0">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-[11px] font-black uppercase text-slate-300">Mensalidade Total Calculada:</span>
+                                    <span id="superadmin-edit-resumo-calculo" class="text-[10px] text-slate-400">Base R$ 99,00</span>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span id="superadmin-edit-total-mensalidade" class="text-sm font-black text-emerald-400">R$ 99,00/mês</span>
+                            </div>
                         </div>
 
                         <!-- LIBERAÇÃO MANUAL DO CATÁLOGO INTERATIVO HERBALIFE -->
@@ -4621,7 +4638,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- MODAL 2: AVISO DE MÓDULO FINANCEIRO BLOQUEADO (SOLICITAÇÃO SUPERADMIN)     -->
+    <!-- MODAL 2: AVISO DE MÓDULO FINANCEIRO BLOQUEADO (R$ 17,90/MÊS)                -->
     <!-- ========================================================================= -->
     <div id="modal-financeiro-bloqueado" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border-4 border-emerald-500 relative text-center">
@@ -4631,20 +4648,29 @@
             <div class="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm border border-emerald-300">
                 <i class="fa-solid fa-calculator"></i>
             </div>
-            <span class="inline-block bg-amber-100 text-amber-900 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
-                <i class="fa-solid fa-lock mr-1"></i> Acesso Restrito ao Módulo Financeiro
+            <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-950 border border-emerald-300 font-black text-[11px] uppercase tracking-wider px-3.5 py-1 rounded-full mb-2">
+                <i class="fa-solid fa-lock text-emerald-700"></i> MÓDULO ADICIONAL • R$ 17,90 / MÊS
             </span>
             <h3 class="text-xl font-black text-gray-900 leading-tight mb-2">
                 Módulo Financeiro & Custos de Doses
             </h3>
-            <p class="text-xs text-gray-600 leading-relaxed mb-5">
-                A calculadora inteligente de custos por dose, controle de margem por garrafa e gestão de catálogo de insumos encontra-se <strong>restrita para o seu ID</strong>.
-                <br><br>
-                Este recurso é liberado manualmente pelo <strong>SuperAdmin Edwan (ID 433005811)</strong>. Toque no botão abaixo para solicitar sua liberação imediata via WhatsApp.
+
+            <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 mb-4 text-left">
+                <div class="flex items-center justify-between text-xs font-bold text-emerald-950 mb-1">
+                    <span>Acréscimo na Mensalidade:</span>
+                    <span class="text-sm font-black text-emerald-700">+ R$ 17,90/mês</span>
+                </div>
+                <p class="text-[11px] text-emerald-900/80 leading-relaxed font-medium">
+                    Calculadora inteligente de custo por dose (Shake, Chá, NRG, Fibra, Garrafa), controle de potes em estoque e margem de lucro real por Litrão. O acréscimo de <strong>R$ 17,90/mês</strong> é lançado automaticamente na sua fatura.
+                </p>
+            </div>
+
+            <p class="text-xs text-gray-600 leading-relaxed mb-4">
+                Toque no botão abaixo para solicitar a liberação imediata ao <strong>SuperAdmin Edwan</strong> no WhatsApp.
             </p>
             <div class="space-y-2.5">
-                <a id="link-whatsapp-solicitar-financeiro" href="https://wa.me/5566981411234?text=Ol%C3%A1%20Edwan!%20Gostaria%20de%20solicitar%20a%20libera%C3%A7%C3%A3o%20do%20M%C3%B3dulo%20Financeiro%20do%20EVS%20no%20meu%20painel." target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> SOLICITAR LIBERAÇÃO NO WHATSAPP
+                <a id="link-whatsapp-solicitar-financeiro" href="https://wa.me/5566981411234?text=Ol%C3%A1%20Edwan!%20Gostaria%20de%20ativar%20o%20M%C3%B3dulo%20Financeiro%20do%20EVS%20(adicional%20autom%C3%A1tico%20de%20R$%2017,90/m%C3%AAs)%20para%20o%20meu%20consultor." target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> ATIVAR NO WHATSAPP (R$ 17,90/MÊS)
                 </a>
                 <button type="button" onclick="fecharModalFinanceiroBloqueado()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
                     Fechar
@@ -5497,7 +5523,7 @@
 
     
     <!-- ========================================================================= -->
-    <!-- MODAL 1: ACESSO BLOQUEADO AO CRM KANBAN & EXTRATOR WHATSAPP -->
+    <!-- MODAL 1: ACESSO BLOQUEADO AO CRM KANBAN & EXTRATOR WHATSAPP (R$ 9,90/MÊS)    -->
     <!-- ========================================================================= -->
     <div id="modal-crm-bloqueado" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border-4 border-purple-500 relative text-center">
@@ -5507,20 +5533,29 @@
             <div class="w-16 h-16 bg-purple-100 text-purple-700 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm border border-purple-200">
                 <i class="fa-solid fa-layer-group"></i>
             </div>
-            <span class="inline-block bg-purple-100 text-purple-900 border border-purple-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
-                <i class="fa-solid fa-lock mr-1"></i> Acesso Restrito ao CRM & Extrator
+            <span class="inline-flex items-center gap-1.5 bg-purple-100 text-purple-950 border border-purple-300 font-black text-[11px] uppercase tracking-wider px-3.5 py-1 rounded-full mb-2">
+                <i class="fa-solid fa-lock text-purple-700"></i> MÓDULO ADICIONAL • R$ 9,90 / MÊS
             </span>
             <h3 class="text-xl font-black text-gray-900 leading-tight mb-2">
                 Extrator WhatsApp & CRM Kanban
             </h3>
-            <p class="text-xs text-gray-600 leading-relaxed mb-5">
-                A ferramenta de extração de contatos de grupos do WhatsApp e o Funil Kanban estilo Vale do Silício encontram-se <strong>restritos para o seu ID</strong>.
-                <br><br>
-                Este módulo é liberado manualmente pelo <strong>SuperAdmin Edwan (ID 433005811)</strong>. Toque no botão abaixo para solicitar sua liberação via WhatsApp.
+
+            <div class="bg-purple-50/90 border border-purple-200 rounded-2xl p-3.5 mb-4 text-left">
+                <div class="flex items-center justify-between text-xs font-bold text-purple-950 mb-1">
+                    <span>Acréscimo na Mensalidade:</span>
+                    <span class="text-sm font-black text-purple-700">+ R$ 9,90/mês</span>
+                </div>
+                <p class="text-[11px] text-purple-900/80 leading-relaxed font-medium">
+                    Extrator de centenas de contatos de grupos com 1 clique, funil Kanban Silicon Valley com arrastar e soltar e scripts validados de conversão. O acréscimo de <strong>R$ 9,90/mês</strong> é lançado automaticamente na sua fatura.
+                </p>
+            </div>
+
+            <p class="text-xs text-gray-600 leading-relaxed mb-4">
+                Toque no botão abaixo para solicitar a liberação imediata ao <strong>SuperAdmin Edwan</strong> no WhatsApp.
             </p>
             <div class="space-y-2.5">
-                <a id="link-whatsapp-solicitar-crm" href="https://wa.me/5566981411234?text=Ol%C3%A1%20Edwan!%20Gostaria%20de%20solicitar%20a%20libera%C3%A7%C3%A3o%20do%20M%C3%B3dulo%20de%20Extrator%20WhatsApp%20e%20CRM%20Kanban%20para%20o%20meu%20consultor." target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> SOLICITAR LIBERAÇÃO NO WHATSAPP
+                <a id="link-whatsapp-solicitar-crm" href="https://wa.me/5566981411234?text=Ol%C3%A1%20Edwan!%20Gostaria%20de%20ativar%20o%20M%C3%B3dulo%20Extrator%20WhatsApp%20e%20CRM%20Kanban%20(adicional%20autom%C3%A1tico%20de%20R$%209,90/m%C3%AAs)%20para%20o%20meu%20consultor." target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> ATIVAR NO WHATSAPP (R$ 9,90/MÊS)
                 </a>
                 <button type="button" onclick="fecharModalCrmBloqueado()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
                     Fechar
@@ -5535,8 +5570,11 @@
     <div id="modal-crm-kanban" class="fixed inset-0 bg-[#070b14] text-slate-100 z-50 flex flex-col hidden overflow-hidden select-none">
         <!-- HEADER SILICON VALLEY -->
         <header class="bg-[#0c1220] border-b border-slate-800/80 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 flex-shrink-0 shadow-lg">
-            <!-- Esquerda: Título e Badges -->
+            <!-- Esquerda: Botão Voltar + Título e Badges -->
             <div class="flex items-center gap-3">
+                <button type="button" onclick="fecharModuloCrmKanban()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-purple-600 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer flex-shrink-0 border border-slate-700 shadow-xs" title="Voltar ao Painel do Consultor">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-purple-500/20 text-lg flex-shrink-0">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
@@ -5587,6 +5625,9 @@
 
             <!-- Direita: Ações do Cabeçalho -->
             <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="fecharModuloCrmKanban()" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-purple-900/50 cursor-pointer" title="Voltar ao Painel do Consultor">
+                    <i class="fa-solid fa-arrow-left text-xs"></i> <span>Voltar ao Painel</span>
+                </button>
                 <button type="button" onclick="abrirModalImportarCrm()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm shadow-purple-600/30 cursor-pointer">
                     <i class="fa-solid fa-file-import text-xs"></i> <span>Importar Contatos</span>
                 </button>
@@ -7806,60 +7847,84 @@
                 const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
                 if (btnCat) btnCat.classList.remove('hidden');
 
-                // Atualiza badge de acesso do card financeiro
+                // Atualiza status, badges e botões dos cards de ferramentas
+                const isFinLib = isModuloFinanceiroLiberadoParaConsultor();
+                const isCrmLib = isModuloCrmExtratorLiberadoParaConsultor();
+                const isCatLib = isModuloCatalogoLiberadoParaConsultor();
+                const isSuperAdminUser = String(consultorAtual.herbalife_id).trim() === '433005811';
+
+                // 1. Badge e Botão Financeiro
                 const badgeFinAcesso = document.getElementById('badge-financeiro-acesso-status');
-                if (badgeFinAcesso && consultorAtual) {
-                    const isFinLib = isModuloFinanceiroLiberadoParaConsultor();
-                    if (String(consultorAtual.herbalife_id).trim() === '433005811') {
-                        badgeFinAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200";
-                        badgeFinAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin • Total';
+                const btnFinCard = document.getElementById('btn-abrir-card-financeiro');
+                if (badgeFinAcesso) {
+                    if (isSuperAdminUser) {
+                        badgeFinAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
+                        badgeFinAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin';
                     } else if (isFinLib) {
-                        badgeFinAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200";
+                        badgeFinAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0";
                         badgeFinAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado';
                     } else {
-                        badgeFinAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200";
-                        badgeFinAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
+                        badgeFinAcesso.className = "bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0";
+                        badgeFinAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 17,90/mês';
+                    }
+                }
+                if (btnFinCard) {
+                    if (isSuperAdminUser || isFinLib) {
+                        btnFinCard.className = "w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnFinCard.innerHTML = '<i class="fa-solid fa-calculator text-[11px]"></i> Abrir Calculadora & Custos';
+                    } else {
+                        btnFinCard.className = "w-full bg-slate-900 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnFinCard.innerHTML = '<i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear Módulo • R$ 17,90/mês';
                     }
                 }
 
-                // Atualiza badge de acesso do card catálogo interativo
-                
-                // Atualiza badge de acesso do card CRM Kanban & Extrator WhatsApp
+                // 2. Badge e Botão CRM Kanban & Extrator
                 const badgeCrmAcesso = document.getElementById('badge-crm-extrator-acesso-status');
                 const btnCrmTopo = document.getElementById('btn-abrir-crm-kanban');
+                const btnCrmCard = document.getElementById('btn-abrir-card-crm');
                 if (btnCrmTopo) btnCrmTopo.classList.remove('hidden');
-                if (badgeCrmAcesso && consultorAtual) {
-                    const isCrmLib = isModuloCrmExtratorLiberadoParaConsultor();
-                    if (String(consultorAtual.herbalife_id).trim() === '433005811') {
-                        badgeCrmAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200";
-                        badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin • Total';
+                if (badgeCrmAcesso) {
+                    if (isSuperAdminUser) {
+                        badgeCrmAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
+                        badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin';
                     } else if (isCrmLib) {
-                        badgeCrmAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200";
+                        badgeCrmAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0";
                         badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado';
                     } else {
-                        badgeCrmAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200";
-                        badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
+                        badgeCrmAcesso.className = "bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0";
+                        badgeCrmAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 9,90/mês';
                     }
                 }
+                if (btnCrmCard) {
+                    if (isSuperAdminUser || isCrmLib) {
+                        btnCrmCard.className = "flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnCrmCard.innerHTML = '<i class="fa-solid fa-table-columns text-[11px]"></i> Abrir CRM Kanban';
+                    } else {
+                        btnCrmCard.className = "flex-1 bg-slate-900 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnCrmCard.innerHTML = '<i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear • R$ 9,90/mês';
+                    }
+                }
+
+                // 3. Badge Catálogo
+                const badgeCatAcesso = document.getElementById('badge-catalogo-acesso-status');
+                if (badgeCatAcesso) {
+                    if (isSuperAdminUser) {
+                        badgeCatAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin';
+                    } else if (isCatLib) {
+                        badgeCatAcesso.className = "bg-blue-50 text-blue-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-blue-200 shrink-0";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-blue-600"></i> Liberado';
+                    } else {
+                        badgeCatAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 shrink-0";
+                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
+                    }
+                }
+
                 if (typeof window.verificarSincronizacaoPendenteResetfit === 'function') {
                     window.verificarSincronizacaoPendenteResetfit();
                 }
                 atualizarMetricasCardsCrm();
 
-                const badgeCatAcesso = document.getElementById('badge-catalogo-acesso-status');
-                if (badgeCatAcesso && consultorAtual) {
-                    const isCatLib = isModuloCatalogoLiberadoParaConsultor();
-                    if (String(consultorAtual.herbalife_id).trim() === '433005811') {
-                        badgeCatAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200";
-                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin • Total';
-                    } else if (isCatLib) {
-                        badgeCatAcesso.className = "bg-blue-50 text-blue-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-blue-200";
-                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-blue-600"></i> Liberado';
-                    } else {
-                        badgeCatAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200";
-                        badgeCatAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
-                    }
-                }
                 const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
                 if (btnDirects) btnDirects.classList.remove('hidden');
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
@@ -7891,6 +7956,27 @@
                         dashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
                     } else {
                         dashVenc.innerText = "Vitalício";
+                    }
+                }
+
+                // Cálculo automático da mensalidade com adicionais
+                if (typeof calcularMensalidadeConsultor === 'function') {
+                    const mInfo = calcularMensalidadeConsultor(consultorAtual);
+                    const elPlano = document.getElementById('dash-plano-badge');
+                    const elMens = document.getElementById('dash-mensalidade-badge');
+                    if (elPlano && elMens) {
+                        if (mInfo.isSuperAdmin) {
+                            elPlano.innerText = "SuperAdmin • Total";
+                            elMens.innerText = "Isento";
+                            elMens.className = "bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full";
+                        } else {
+                            elPlano.innerText = `Plano: ${mInfo.planoNome}`;
+                            elMens.innerText = `R$ ${mInfo.total.toFixed(2).replace('.', ',')}/mês`;
+                            let detalhe = `Base: R$ ${mInfo.base.toFixed(2).replace('.', ',')}`;
+                            if (mInfo.temFinanceiro) detalhe += ` + Financeiro: R$ 17,90`;
+                            if (mInfo.temCrm) detalhe += ` + CRM: R$ 9,90`;
+                            elMens.title = detalhe;
+                        }
                     }
                 }
 
@@ -8627,6 +8713,8 @@
 
                 const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
                 const isCatLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
+                const isCrmLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+                const mInfoConsultor = (typeof calcularMensalidadeConsultor === 'function') ? calcularMensalidadeConsultor(c) : null;
 
                 tr.innerHTML = `
                     <td class="p-3 sm:p-4 font-bold text-gray-900">
@@ -8636,8 +8724,11 @@
                             </div>
                             <div class="min-w-0">
                                 <span class="font-extrabold text-gray-900 block truncate text-xs sm:text-sm">${(c.nome_espaco || 'Consultor Sem Nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</span>
-                                ${isTrial ? `<span class="inline-flex items-center text-[10px] bg-amber-100 text-amber-900 px-2 py-0.2 rounded-full font-bold mt-0.5"><i class="fa-solid fa-gift mr-1 text-amber-600"></i> Período 7 Dias Grátis</span>` : ''}
-                                ${isVitalicio ? `<span class="inline-flex items-center text-[10px] bg-emerald-100 text-emerald-900 px-2 py-0.2 rounded-full font-black mt-0.5"><i class="fa-solid fa-infinity mr-1 text-emerald-600"></i> Plano Vitalício</span>` : ''}
+                                <div class="flex items-center gap-1 flex-wrap mt-0.5">
+                                    ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `<span class="inline-flex items-center text-[10px] bg-purple-50 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded font-black" title="Base: R$ ${mInfoConsultor.base.toFixed(2)} ${mInfoConsultor.temFinanceiro ? '+ Fin. R$ 17,90' : ''} ${mInfoConsultor.temCrm ? '+ CRM R$ 9,90' : ''}">R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês</span>` : ''}
+                                    ${isTrial ? `<span class="inline-flex items-center text-[10px] bg-amber-100 text-amber-900 px-2 py-0.2 rounded-full font-bold"><i class="fa-solid fa-gift mr-1 text-amber-600"></i> 7 Dias Grátis</span>` : ''}
+                                    ${isVitalicio ? `<span class="inline-flex items-center text-[10px] bg-emerald-100 text-emerald-900 px-2 py-0.2 rounded-full font-black"><i class="fa-solid fa-infinity mr-1 text-emerald-600"></i> Vitalício</span>` : ''}
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -8679,8 +8770,11 @@
                     </td>
                     <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                         <div class="inline-flex items-center gap-1.5">
-                            <button onclick="alternarLiberacaoFinanceiro('${c.id}', ${!isFinLiberado})" title="${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro'}" class="${isFinLiberado ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid fa-calculator ${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> ${isFinLiberado ? 'Financeiro: Liberado' : 'Liberar Financeiro'}
+                            <button onclick="alternarLiberacaoFinanceiro('${c.id}', ${!isFinLiberado})" title="${isFinLiberado ? 'Clique para Bloquear o Módulo Financeiro' : 'Clique para Liberar o Módulo Financeiro (+ R$ 17,90/mês)'}" class="${isFinLiberado ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-calculator ${isFinLiberado ? 'text-emerald-600' : 'text-gray-400'}"></i> ${isFinLiberado ? 'Fin: Liberado' : 'Liberar Fin'}
+                            </button>
+                            <button onclick="alternarLiberacaoCrm('${c.id}', ${!isCrmLiberado})" title="${isCrmLiberado ? 'Clique para Bloquear o Extrator WhatsApp & CRM Kanban' : 'Clique para Liberar o Extrator WhatsApp & CRM Kanban (+ R$ 9,90/mês)'}" class="${isCrmLiberado ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-table-columns ${isCrmLiberado ? 'text-purple-600' : 'text-gray-400'}"></i> ${isCrmLiberado ? 'CRM: Liberado' : 'Liberar CRM'}
                             </button>
                             <button onclick="alternarLiberacaoCatalogo('${c.id}', ${!isCatLiberado})" title="${isCatLiberado ? 'Clique para Bloquear o Catálogo Interativo' : 'Clique para Liberar o Catálogo Interativo'}" class="${isCatLiberado ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-gray-100 text-gray-700 border-gray-300'} hover:opacity-80 border font-bold px-2 py-1.5 rounded-xl text-[11px] transition shadow-2xs flex items-center gap-1 cursor-pointer">
                                 <i class="fa-solid fa-book-open-reader ${isCatLiberado ? 'text-blue-600' : 'text-gray-400'}"></i> ${isCatLiberado ? 'Catálogo: Liberado' : 'Liberar Catálogo'}
@@ -8713,9 +8807,17 @@
             const chkFinEdit = document.getElementById('superadmin-edit-financeiro-liberado');
             if (chkFinEdit) chkFinEdit.checked = !!isFinConsultor;
 
+            const isCrmConsultor = String(consultor.herbalife_id).trim() === '433005811' || (consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+            const chkCrmEdit = document.getElementById('superadmin-edit-crm-liberado');
+            if (chkCrmEdit) chkCrmEdit.checked = !!isCrmConsultor;
+
             const isCatConsultor = String(consultor.herbalife_id).trim() === '433005811' || (consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
             const chkCatEdit = document.getElementById('superadmin-edit-catalogo-liberado');
             if (chkCatEdit) chkCatEdit.checked = !!isCatConsultor;
+
+            if (typeof atualizarResumoMensalidadeSuperadminModal === 'function') {
+                atualizarResumoMensalidadeSuperadminModal();
+            }
 
             document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • Letras: ${letrasHerbalife || '---'} • Senha: ${senhaPainel || '---'}`;
             
@@ -8851,10 +8953,10 @@
                 nomeEspacoBase += ` <!--SENHA:${senhaEdit}-->`;
             }
 
-            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO e MODULO_CATALOGO_INTERATIVO para não duplicar
+            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO e MODULO_CRM_EXTRATOR para não duplicar
             const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
@@ -8863,6 +8965,10 @@
             // Tag de Liberação do Módulo Financeiro do EVS
             const isFinCheck = document.getElementById('superadmin-edit-financeiro-liberado') ? document.getElementById('superadmin-edit-financeiro-liberado').checked : false;
             nomeEspacoBase += ` <!--MODULO_FINANCEIRO:${isFinCheck ? 'true' : 'false'}-->`;
+
+            // Tag de Liberação do Extrator WhatsApp & CRM Kanban
+            const isCrmCheck = document.getElementById('superadmin-edit-crm-liberado') ? document.getElementById('superadmin-edit-crm-liberado').checked : false;
+            nomeEspacoBase += ` <!--MODULO_CRM_EXTRATOR:${isCrmCheck ? 'true' : 'false'}-->`;
 
             // Tag de Liberação do Catálogo Interativo Digital
             const isCatCheck = document.getElementById('superadmin-edit-catalogo-liberado') ? document.getElementById('superadmin-edit-catalogo-liberado').checked : false;
@@ -9029,6 +9135,86 @@
             }
             return 'plano1';
         }
+
+        function calcularMensalidadeConsultor(consultor) {
+            if (!consultor) return { base: 99.00, financeiro: 0, crm: 0, total: 99.00, isSuperAdmin: false, planoNome: 'Start Pro', temFinanceiro: false, temCrm: false };
+            const hid = String(consultor.herbalife_id || '').trim();
+            if (hid === '433005811') {
+                return { base: 0, financeiro: 0, crm: 0, total: 0, isSuperAdmin: true, planoNome: 'SuperAdmin Total', temFinanceiro: true, temCrm: true };
+            }
+            
+            // Identifica plano
+            let base = 99.00;
+            let planoNome = 'Start Pro';
+            const espaco = (consultor.nome_espaco || '').toLowerCase();
+            const venc = consultor.vencimento || '';
+            
+            if (espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3') || espaco.includes('master_vip')) {
+                base = 49.00;
+                planoNome = 'Master VIP';
+            } else if (espaco.includes('plano 2') || espaco.includes('vitalicio') || espaco.includes('vitalício') || espaco.includes('plano:plano2') || (venc && parseInt(venc.split('-')[0], 10) >= 2035)) {
+                base = 25.00;
+                planoNome = 'Vitalício Smart';
+            }
+            
+            // Adicionais
+            const isFinLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+            const isCrmLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+            
+            const finValor = isFinLib ? 17.90 : 0.00;
+            const crmValor = isCrmLib ? 9.90 : 0.00;
+            const total = base + finValor + crmValor;
+            
+            return {
+                base,
+                planoNome,
+                temFinanceiro: isFinLib,
+                financeiro: finValor,
+                temCrm: isCrmLib,
+                crm: crmValor,
+                total: parseFloat(total.toFixed(2)),
+                isSuperAdmin: false
+            };
+        }
+        window.calcularMensalidadeConsultor = calcularMensalidadeConsultor;
+
+        function atualizarResumoMensalidadeSuperadminModal() {
+            const id = document.getElementById('superadmin-edit-id')?.value;
+            const consultor = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache)
+                ? todosConsultoresCache.find(c => String(c.id) === String(id))
+                : null;
+            if (!consultor) return;
+
+            const isFin = document.getElementById('superadmin-edit-financeiro-liberado')?.checked;
+            const isCrm = document.getElementById('superadmin-edit-crm-liberado')?.checked;
+
+            // Simula objeto atualizado para cálculo dinâmico em tempo real
+            const consultorSimulado = {
+                ...consultor,
+                nome_espaco: (consultor.nome_espaco || '')
+                    .replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/g, '')
+                    .replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/g, '') +
+                    ` <!--MODULO_FINANCEIRO:${isFin ? 'true' : 'false'}--> <!--MODULO_CRM_EXTRATOR:${isCrm ? 'true' : 'false'}-->`
+            };
+
+            const info = calcularMensalidadeConsultor(consultorSimulado);
+            const elResumo = document.getElementById('superadmin-edit-resumo-calculo');
+            const elTotal = document.getElementById('superadmin-edit-total-mensalidade');
+
+            if (elResumo && elTotal) {
+                if (info.isSuperAdmin) {
+                    elResumo.innerText = "Acesso irrestrito Master";
+                    elTotal.innerText = "Isento";
+                } else {
+                    let desc = `Base: R$ ${info.base.toFixed(2).replace('.', ',')} (${info.planoNome})`;
+                    if (isFin) desc += ` + Fin. R$ 17,90`;
+                    if (isCrm) desc += ` + CRM R$ 9,90`;
+                    elResumo.innerText = desc;
+                    elTotal.innerText = `R$ ${info.total.toFixed(2).replace('.', ',')}/mês`;
+                }
+            }
+        }
+        window.atualizarResumoMensalidadeSuperadminModal = atualizarResumoMensalidadeSuperadminModal;
 
         function isConsultorMasterVip() {
             if (isConsultorSuperAdmin()) return true;
@@ -16154,7 +16340,7 @@
             const linkWhats = document.getElementById('link-whatsapp-solicitar-financeiro');
             if (consultorAtual && linkWhats) {
                 const hid = consultorAtual.herbalife_id || '---';
-                const msg = `Olá Edwan! Gostaria de solicitar a liberação do *Módulo Financeiro do EVS & Custos de Doses* no meu painel do Litrão do Reset (ID Herbalife: ${hid}). Poderia liberar meu acesso manual?`;
+                const msg = `Olá Edwan! Gostaria de solicitar a liberação do *Módulo Financeiro do EVS & Custos de Doses (R$ 17,90/mês)* no meu painel ResetFIT (ID Herbalife: ${hid}). Poderia liberar meu acesso?`;
                 linkWhats.href = `https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`;
             }
             if (modal) {
@@ -17457,7 +17643,39 @@
                 alert(`Erro ao alterar liberação: ${err.message}`);
             }
         }
-        // =========================================================================
+        window.alternarLiberacaoFinanceiro = alternarLiberacaoFinanceiro;
+
+        async function alternarLiberacaoCrm(id, liberar) {
+            const consultor = (typeof todosConsultoresCache !== 'undefined' ? todosConsultoresCache : []).find(c => String(c.id) === String(id));
+            const hid = consultor ? consultor.herbalife_id : id;
+
+            if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR (+ R$ 9,90/mês)' : 'BLOQUEAR'} o Extrator WhatsApp & CRM Kanban para o consultor ID ${hid}?`)) {
+                return;
+            }
+
+            try {
+                const { data: row } = await supabaseClient
+                    .from('consultores')
+                    .select('id, nome_espaco')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                let raw = (row && row.nome_espaco) || '';
+                const tagNova = `<!--MODULO_CRM_EXTRATOR:${liberar ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_CRM_EXTRATOR:')) {
+                    raw = raw.replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/, tagNova);
+                } else {
+                    raw += ' ' + tagNova;
+                }
+
+                await supabaseClient.from('consultores').update({ nome_espaco: raw }).eq('id', id);
+                alert(`Extrator WhatsApp & CRM Kanban ${liberar ? 'LIBERADO' : 'BLOQUEADO'} com sucesso para o consultor ${hid}!`);
+                await carregarConsultoresSuperadmin();
+            } catch (err) {
+                alert(`Erro ao alterar liberação do CRM: ${err.message}`);
+            }
+        }
+        window.alternarLiberacaoCrm = alternarLiberacaoCrm;
         // MÓDULO DO MEU CATÁLOGO DIGITAL INTERATIVO (HERBALIFE & LITRÃO DO RESET)
         // =========================================================================
         function isModuloCatalogoLiberadoParaConsultor() {
@@ -20435,7 +20653,7 @@
             if (!isModuloCrmExtratorLiberadoParaConsultor()) {
                 const linkZap = document.getElementById('link-whatsapp-solicitar-crm');
                 if (linkZap && consultorAtual) {
-                    const msg = `Olá Edwan! Gostaria de solicitar a liberação do Módulo de Extrator WhatsApp e CRM Kanban para o meu consultor ID ${consultorAtual.herbalife_id}.`;
+                    const msg = `Olá Edwan! Gostaria de solicitar a liberação do *Módulo de Extrator WhatsApp e CRM Kanban (R$ 9,90/mês)* no meu painel ResetFIT (ID Herbalife: ${consultorAtual.herbalife_id}).`;
                     linkZap.href = `https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`;
                 }
                 const modalBloq = document.getElementById('modal-crm-bloqueado');
