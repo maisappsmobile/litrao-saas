@@ -83,51 +83,109 @@
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
     <!-- CABEÇALHO -->
-    <header class="bg-white shadow-sm border-b-4 border-brand-light">
-        <div class="w-full max-w-[96%] xl:max-w-[1650px] 2xl:max-w-[1800px] mx-auto p-4 flex justify-between items-center">
-            <img src="reset-logo.png" alt="Reset Metabólico" class="h-10">
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <span class="text-xs font-bold text-gray-500 uppercase hidden sm:inline">Área do Consultor</span>
+    <header class="bg-white shadow-sm border-b-4 border-brand-light sticky top-0 z-40">
+        <div class="w-full max-w-[96%] xl:max-w-[1650px] 2xl:max-w-[1800px] mx-auto p-3 sm:p-4 flex justify-between items-center gap-2">
+            <a href="painel.html" class="flex-shrink-0 flex items-center">
+                <img src="reset-logo.png" alt="Reset Metabólico" class="h-9 sm:h-10">
+            </a>
 
-                <!-- Central de Notificações Inteligentes (Radar de Clientes) -->
-                <button id="btn-central-notificacoes" onclick="abrirModalCentralNotificacoes()" class="relative text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Central de Notificações Inteligentes (Bioimpedâncias pendentes, clientes sumidos e pedidos)">
-                    <i class="fa-solid fa-bell text-amber-500 text-sm"></i>
-                    <span class="hidden sm:inline">Radar & Alertas</span>
-                    <span id="badge-contador-notificacoes-topo" class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-2xs">0</span>
-                </button>
+            <!-- AÇÕES DO CONSULTOR (VISÍVEIS APENAS APÓS LOGIN) -->
+            <div id="header-botoes-consultor" class="flex items-center space-x-1.5 sm:space-x-2.5">
+                <span class="text-xs font-bold text-gray-400 uppercase hidden lg:inline mr-1">Área do Consultor</span>
 
-                <!-- Atalho PWA / Instalar App -->
-                <button id="btn-instalar-app-consultor" onclick="iniciarInstalacaoApp()" class="btn-instalar-app-trigger text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Instalar Aplicativo no Celular ou PC (PWA)">
-                    <i class="fa-solid fa-download text-emerald-600"></i> <span class="hidden sm:inline">Instalar App</span>
+                <!-- 1. BOTÃO CRM -->
+                <button id="btn-abrir-crm-kanban" onclick="abrirModuloCrmKanban()" class="text-xs font-black bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="CRM & Extrator WhatsApp">
+                    <i class="fa-solid fa-layer-group text-purple-600 text-sm"></i>
+                    <span class="inline">CRM</span>
                 </button>
 
-                <button id="btn-abrir-perfil" onclick="abrirModalPerfil()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Editar Meu Perfil">
-                    <i class="fa-solid fa-user-gear text-emerald-600"></i> <span class="hidden sm:inline">Meu Perfil</span>
+                <!-- 2. BOTÃO COPIAR LINK -->
+                <button id="btn-copiar-link-topo" onclick="copiarLink()" class="text-xs font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="Copiar Meu Link Oficial">
+                    <i class="fa-regular fa-copy text-emerald-600 text-sm"></i>
+                    <span id="btn-copiar-link-texto" class="inline">COPIAR LINK</span>
                 </button>
-                <button id="btn-abrir-precos-kits" onclick="abrirModalConfigPrecosKits()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Configurar Preços dos Pacotes (Kits) da Minha Região">
-                    <i class="fa-solid fa-tags text-amber-500"></i> <span class="hidden sm:inline">Preços dos Pacotes</span>
+
+                <!-- 3. BOTÃO CATÁLOGO -->
+                <button id="btn-abrir-catalogo-interativo" onclick="abrirModuloCatalogoInterativo()" class="text-xs font-black bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="Meu Catálogo Interativo Digital">
+                    <i class="fa-solid fa-book-open-reader text-blue-600 text-sm"></i>
+                    <span class="inline">Catálogo</span>
                 </button>
-                <button id="btn-abrir-taxas-entrega" onclick="abrirModalConfigTaxasEntrega()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Configurar Taxas de Entrega / Delivery (Única, por Bairros ou Grátis)">
-                    <i class="fa-solid fa-motorcycle text-blue-600"></i> <span class="hidden sm:inline">Taxas de Entrega</span>
-                </button>
-                <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Alterar Senha do Painel">
-                    <i class="fa-solid fa-key text-slate-500"></i> <span class="hidden sm:inline">Alterar Senha</span>
-                </button>
-                <button id="btn-abrir-directs-prospeccao" onclick="abrirModalDirectsProspeccao()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Modelos de Direct & Scripts X1 para Redes Sociais">
-                    <i class="fa-solid fa-paper-plane text-indigo-600"></i> <span class="hidden md:inline">Directs X1</span>
-                </button>
-                <button id="btn-abrir-financeiro-evs" onclick="abrirModuloFinanceiroEVS()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Módulo Financeiro do EVS & Custos de Doses">
-                    <i class="fa-solid fa-calculator text-emerald-600"></i> <span class="hidden md:inline">Financeiro & Doses</span>
-                </button>
-                <button id="btn-abrir-crm-kanban" onclick="abrirModuloCrmKanban()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="CRM Kanban & Extrator WhatsApp">
-                    <i class="fa-solid fa-layer-group text-purple-600"></i> <span class="hidden md:inline">CRM & Extrator WhatsApp</span>
-                </button>
-                <button id="btn-abrir-catalogo-interativo" onclick="abrirModuloCatalogoInterativo()" class="text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs hidden cursor-pointer" title="Meu Catálogo Interativo Digital & Compartilhamento">
-                    <i class="fa-solid fa-book-open-reader text-blue-600"></i> <span class="hidden md:inline">Meu Catálogo Digital</span>
-                </button>
-                <button id="btn-logout" onclick="logout()" class="text-xs font-bold bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-500 px-3 py-1.5 rounded-xl transition border border-slate-200/90 hidden cursor-pointer">
-                    <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Sair
-                </button>
+
+                <!-- 4. MENU SANDUÍCHE (☰) -->
+                <div class="relative inline-block text-left" id="container-menu-sanduiche">
+                    <button id="btn-menu-sanduiche" type="button" onclick="toggleMenuSanduiche(event)" class="text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="Mais Opções do Menu">
+                        <i class="fa-solid fa-bars text-slate-800 text-sm"></i>
+                        <span class="hidden sm:inline font-bold">Menu</span>
+                        <span id="badge-contador-notificacoes-topo" class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-2xs hidden">0</span>
+                    </button>
+
+                    <!-- DROPDOWN DO MENU SANDUÍCHE -->
+                    <div id="dropdown-menu-sanduiche" class="hidden absolute right-0 mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50">
+                        <div class="px-3.5 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-slate-400">Mais Opções</span>
+                            <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">ResetFIT</span>
+                        </div>
+
+                        <!-- Radar & Alertas -->
+                        <button id="btn-central-notificacoes" onclick="abrirModalCentralNotificacoes(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-800 transition flex items-center justify-between cursor-pointer rounded-lg hidden" title="Central de Notificações Inteligentes (Bioimpedâncias pendentes, clientes sumidos e pedidos)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-bell text-amber-500 w-4 text-center"></i>
+                                <span>Radar & Alertas</span>
+                            </div>
+                            <span id="badge-contador-notificacoes-menu" class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full hidden">0</span>
+                        </button>
+
+                        <!-- Financeiro & Custos de Doses -->
+                        <button id="btn-abrir-financeiro-evs" onclick="abrirModuloFinanceiroEVS(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Módulo Financeiro do EVS & Custos de Doses">
+                            <i class="fa-solid fa-calculator text-emerald-600 w-4 text-center"></i>
+                            <span>Financeiro & Doses</span>
+                        </button>
+
+                        <!-- Meu Perfil -->
+                        <button id="btn-abrir-perfil" onclick="abrirModalPerfil(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Editar Meu Perfil">
+                            <i class="fa-solid fa-user-gear text-emerald-600 w-4 text-center"></i>
+                            <span>Meu Perfil</span>
+                        </button>
+
+                        <!-- Preços dos Pacotes -->
+                        <button id="btn-abrir-precos-kits" onclick="abrirModalConfigPrecosKits(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Configurar Preços dos Pacotes (Kits) da Minha Região">
+                            <i class="fa-solid fa-tags text-amber-500 w-4 text-center"></i>
+                            <span>Preços dos Pacotes</span>
+                        </button>
+
+                        <!-- Taxas de Entrega -->
+                        <button id="btn-abrir-taxas-entrega" onclick="abrirModalConfigTaxasEntrega(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Configurar Taxas de Entrega / Delivery (Única, por Bairros ou Grátis)">
+                            <i class="fa-solid fa-motorcycle text-blue-600 w-4 text-center"></i>
+                            <span>Taxas de Entrega</span>
+                        </button>
+
+                        <!-- Modelos Directs X1 -->
+                        <button id="btn-abrir-directs-prospeccao" onclick="abrirModalDirectsProspeccao(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Modelos de Direct & Scripts X1 para Redes Sociais">
+                            <i class="fa-solid fa-paper-plane text-indigo-600 w-4 text-center"></i>
+                            <span>Modelos Directs X1</span>
+                        </button>
+
+                        <!-- Alterar Senha -->
+                        <button id="btn-abrir-alterar-senha" onclick="abrirModalAlterarSenha(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Alterar Senha do Painel">
+                            <i class="fa-solid fa-key text-slate-500 w-4 text-center"></i>
+                            <span>Alterar Senha</span>
+                        </button>
+
+                        <!-- Instalar App PWA -->
+                        <button id="btn-instalar-app-consultor" onclick="iniciarInstalacaoApp(); fecharMenuSanduiche();" class="btn-instalar-app-trigger w-full text-left px-3.5 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-50 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Instalar Aplicativo no Celular ou PC (PWA)">
+                            <i class="fa-solid fa-download text-emerald-600 w-4 text-center"></i>
+                            <span>Instalar App PWA</span>
+                        </button>
+
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Sair -->
+                        <button id="btn-logout" onclick="logout(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Sair da Conta">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-rose-600 w-4 text-center"></i>
+                            <span>Sair</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -241,21 +299,9 @@
             </div>
         </div>
 
-        <!-- BARRA DO LINK OFICIAL (SLIM BAR FULL WIDTH) -->
-        <div class="bg-white rounded-2xl shadow-xs p-3.5 sm:p-4 mb-5 flex flex-col sm:flex-row items-center justify-between gap-3 border border-slate-200/90">
-            <div class="flex items-center space-x-2.5 min-w-0 w-full sm:w-auto">
-                <span class="inline-flex items-center text-slate-800 font-black px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs whitespace-nowrap">
-                    <i class="fa-solid fa-link text-emerald-600 mr-1.5"></i> Seu Link Oficial:
-                </span>
-                <a href="#" id="meu-link" target="_blank" class="text-blue-600 font-bold truncate hover:underline text-xs sm:text-sm">...</a>
-            </div>
-            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end flex-shrink-0">
-                <button onclick="copiarLink()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-black transition flex items-center justify-center shadow-xs cursor-pointer whitespace-nowrap">
-                    <i class="fa-regular fa-copy mr-1.5"></i> COPIAR LINK
-                </button>
-                <span id="msg-copiado" class="text-emerald-700 text-xs font-bold hidden whitespace-nowrap"><i class="fa-solid fa-check mr-1"></i> Copiado!</span>
-            </div>
-        </div>
+        <!-- LINK OFICIAL EM MEMÓRIA / DOM (ATALHO FIXO NO CABEÇALHO DO MENU) -->
+        <a href="#" id="meu-link" target="_blank" class="hidden"></a>
+        <span id="msg-copiado" class="hidden"></span>
 
         <!-- AVISO DE LINK REDIRECIONADO POR ATRASO DE PAGAMENTO (+20 DIAS) -->
         <div id="alerta-link-redirecionado" class="hidden bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white rounded-2xl p-4 sm:p-5 mb-5 shadow-lg border-2 border-red-300 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -277,6 +323,70 @@
                 <button onclick="abrirModalPromocao()" class="w-full md:w-auto bg-yellow-400 hover:bg-yellow-300 text-red-950 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-bolt"></i> Regularizar Acesso
                 </button>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- MÓDULOS DE GESTÃO RÁPIDA (CLIENTES, ANIVERSÁRIOS, RELATÓRIOS & DADOS)      -->
+        <!-- ========================================================================= -->
+        <div id="grid-modulos-gestao" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- MÓDULO 1: CLIENTES -->
+            <div onclick="abrirModuloClientes()" class="bg-gradient-to-br from-emerald-600 to-green-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-200">Módulo Gestão</span>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-users mr-2 text-xl text-yellow-300"></i> Clientes
+                    </h4>
+                    <p class="text-xs text-emerald-100 mt-1">
+                        <span id="badge-total-clientes" class="font-black text-white bg-white/20 px-2 py-0.5 rounded-full">0</span> clientes cadastrados
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- MÓDULO 2: ANIVERSÁRIOS -->
+            <div id="card-modulo-aniversarios" onclick="abrirModuloAniversarios()" class="bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span class="text-[11px] uppercase tracking-wider font-bold text-purple-200">Relacionamento VIP</span>
+                        <span id="badge-aniversarios-bloqueado" class="hidden bg-amber-400 text-purple-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
+                            <i class="fa-solid fa-lock mr-0.5"></i> Restrito no Teste
+                        </span>
+                    </div>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-cake-candles mr-2 text-xl text-yellow-300"></i> Aniversários
+                    </h4>
+                    <p id="desc-modulo-aniversarios" class="text-xs text-purple-100 mt-1">
+                        <span id="badge-niver-hoje" class="font-black text-white bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-full">0 hoje</span>
+                        <span id="badge-niver-mes" class="ml-1 text-[11px] opacity-90">| 0 no mês</span>
+                    </p>
+                </div>
+                <div id="icone-modulo-aniversarios" class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg relative z-10">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+            </div>
+
+            <!-- MÓDULO 3: RELATÓRIOS & DADOS (EXPORTAR / IMPORTAR) -->
+            <div id="card-modulo-relatorios" onclick="abrirModuloRelatorios()" class="bg-gradient-to-br from-slate-700 to-gray-900 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
+                <div>
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span class="text-[11px] uppercase tracking-wider font-bold text-gray-300">Planilhas & Dados</span>
+                        <span id="badge-relatorios-bloqueado" class="hidden bg-amber-400 text-gray-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
+                            <i class="fa-solid fa-lock mr-0.5"></i> Restrito no Teste
+                        </span>
+                    </div>
+                    <h4 class="text-lg font-black flex items-center mt-0.5">
+                        <i class="fa-solid fa-file-excel mr-2 text-xl text-emerald-400"></i> Relatórios & Dados
+                    </h4>
+                    <p id="desc-modulo-relatorios" class="text-xs text-gray-300 mt-1">
+                        Exportar e Importar Planilhas (CSV / Excel)
+                    </p>
+                </div>
+                <div id="icone-modulo-relatorios" class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
+                    <i class="fa-solid fa-right-left"></i>
+                </div>
             </div>
         </div>
 
@@ -1867,67 +1977,7 @@
             </div>
         </div>
 
-        <!-- BARRA DE GESTÃO E MÓDULOS RÁPIDOS (CLIENTES, ANIVERSÁRIOS, RELATÓRIOS) -->
-        <div id="grid-modulos-gestao" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- MÓDULO 1: CLIENTES -->
-            <div onclick="abrirModuloClientes()" class="bg-gradient-to-br from-emerald-600 to-green-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
-                <div>
-                    <span class="text-[11px] uppercase tracking-wider font-bold text-emerald-200">Módulo Gestão</span>
-                    <h4 class="text-lg font-black flex items-center mt-0.5">
-                        <i class="fa-solid fa-users mr-2 text-xl text-yellow-300"></i> Clientes
-                    </h4>
-                    <p class="text-xs text-emerald-100 mt-1">
-                        <span id="badge-total-clientes" class="font-black text-white bg-white/20 px-2 py-0.5 rounded-full">0</span> clientes cadastrados
-                    </p>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </div>
-            </div>
 
-            <!-- MÓDULO 2: ANIVERSÁRIOS -->
-            <div id="card-modulo-aniversarios" onclick="abrirModuloAniversarios()" class="bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex items-center gap-1.5 mb-0.5">
-                        <span class="text-[11px] uppercase tracking-wider font-bold text-purple-200">Relacionamento VIP</span>
-                        <span id="badge-aniversarios-bloqueado" class="hidden bg-amber-400 text-purple-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
-                            <i class="fa-solid fa-lock mr-0.5"></i> Restrito no Teste
-                        </span>
-                    </div>
-                    <h4 class="text-lg font-black flex items-center mt-0.5">
-                        <i class="fa-solid fa-cake-candles mr-2 text-xl text-yellow-300"></i> Aniversários
-                    </h4>
-                    <p id="desc-modulo-aniversarios" class="text-xs text-purple-100 mt-1">
-                        <span id="badge-niver-hoje" class="font-black text-white bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-full">0 hoje</span>
-                        <span id="badge-niver-mes" class="ml-1 text-[11px] opacity-90">| 0 no mês</span>
-                    </p>
-                </div>
-                <div id="icone-modulo-aniversarios" class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg relative z-10">
-                    <i class="fa-solid fa-gift"></i>
-                </div>
-            </div>
-
-            <!-- MÓDULO 3: RELATÓRIOS & DADOS (EXPORTAR / IMPORTAR) -->
-            <div id="card-modulo-relatorios" onclick="abrirModuloRelatorios()" class="bg-gradient-to-br from-slate-700 to-gray-900 text-white p-5 rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-between group">
-                <div>
-                    <div class="flex items-center gap-1.5 mb-0.5">
-                        <span class="text-[11px] uppercase tracking-wider font-bold text-gray-300">Planilhas & Dados</span>
-                        <span id="badge-relatorios-bloqueado" class="hidden bg-amber-400 text-gray-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
-                            <i class="fa-solid fa-lock mr-0.5"></i> Restrito no Teste
-                        </span>
-                    </div>
-                    <h4 class="text-lg font-black flex items-center mt-0.5">
-                        <i class="fa-solid fa-file-excel mr-2 text-xl text-emerald-400"></i> Relatórios & Dados
-                    </h4>
-                    <p id="desc-modulo-relatorios" class="text-xs text-gray-300 mt-1">
-                        Exportar e Importar Planilhas (CSV / Excel)
-                    </p>
-                </div>
-                <div id="icone-modulo-relatorios" class="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition text-lg">
-                    <i class="fa-solid fa-right-left"></i>
-                </div>
-            </div>
-        </div>
 
         <!-- MODAL: FICHA COMPLETA DE BIOIMPEDÂNCIA & RELATÓRIO DO RESET -->
         <div id="modal-ficha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
@@ -7880,6 +7930,12 @@
                 if (btnFin) btnFin.classList.remove('hidden');
                 const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
                 if (btnCat) btnCat.classList.remove('hidden');
+                const btnCrmTopo = document.getElementById('btn-abrir-crm-kanban');
+                if (btnCrmTopo) btnCrmTopo.classList.remove('hidden');
+                const btnCopiarTopo = document.getElementById('btn-copiar-link-topo');
+                if (btnCopiarTopo) btnCopiarTopo.classList.remove('hidden');
+                const btnMenuSanduiche = document.getElementById('btn-menu-sanduiche');
+                if (btnMenuSanduiche) btnMenuSanduiche.classList.remove('hidden');
 
                 // Atualiza status, badges e botões dos cards de ferramentas
                 const isFinLib = isModuloFinanceiroLiberadoParaConsultor();
@@ -8068,12 +8124,85 @@
         }
 
         function copiarLink() {
-            const link = document.getElementById('meu-link').href;
+            const linkEl = document.getElementById('meu-link');
+            let link = (linkEl && linkEl.href && !linkEl.href.endsWith('#')) ? linkEl.href : '';
+            if (!link && typeof consultorAtual !== 'undefined' && consultorAtual) {
+                link = window.location.origin + '/' + (consultorAtual.slug || consultorAtual.herbalife_id);
+            }
+            if (!link) return;
+
             navigator.clipboard.writeText(link).then(() => {
-                document.getElementById('msg-copiado').classList.remove('hidden');
-                setTimeout(() => { document.getElementById('msg-copiado').classList.add('hidden'); }, 3000);
+                const msgCopiado = document.getElementById('msg-copiado');
+                if (msgCopiado) {
+                    msgCopiado.classList.remove('hidden');
+                    setTimeout(() => { msgCopiado.classList.add('hidden'); }, 3000);
+                }
+
+                const btnTopo = document.getElementById('btn-copiar-link-topo');
+                const btnTexto = document.getElementById('btn-copiar-link-texto');
+                if (btnTopo && btnTexto) {
+                    const originalHtml = btnTopo.innerHTML;
+                    btnTopo.innerHTML = '<i class="fa-solid fa-check text-emerald-600 text-sm"></i> <span class="inline text-emerald-800 font-black">COPIADO!</span>';
+                    btnTopo.classList.add('bg-emerald-200', 'border-emerald-400');
+                    setTimeout(() => {
+                        btnTopo.innerHTML = originalHtml;
+                        btnTopo.classList.remove('bg-emerald-200', 'border-emerald-400');
+                    }, 2500);
+                }
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('Link oficial copiado para a área de transferência!', 'sucesso');
+                }
+            }).catch(err => {
+                console.error("Erro ao copiar link:", err);
+                try {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = link;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    const btnTexto = document.getElementById('btn-copiar-link-texto');
+                    if (btnTexto) {
+                        btnTexto.innerText = "COPIADO!";
+                        setTimeout(() => { btnTexto.innerText = "COPIAR LINK"; }, 2500);
+                    }
+                } catch(e) {
+                    console.error("Fallback de cópia falhou:", e);
+                }
             });
         }
+        window.copiarLink = copiarLink;
+
+        // ==========================================
+        // CONTROLE DO MENU SANDUÍCHE (☰) DO TOPO
+        // ==========================================
+        function toggleMenuSanduiche(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const dropdown = document.getElementById('dropdown-menu-sanduiche');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+        window.toggleMenuSanduiche = toggleMenuSanduiche;
+
+        function fecharMenuSanduiche() {
+            const dropdown = document.getElementById('dropdown-menu-sanduiche');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        }
+        window.fecharMenuSanduiche = fecharMenuSanduiche;
+
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('container-menu-sanduiche');
+            if (container && !container.contains(e.target)) {
+                fecharMenuSanduiche();
+            }
+        });
 
         let dadosDataURLAdesivos = null;
         let dadosDataURLTiquetes = null;
@@ -14755,6 +14884,17 @@
             if (btnTaxasEntrega) btnTaxasEntrega.classList.add('hidden');
             const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
             if (btnDirects) btnDirects.classList.add('hidden');
+            const btnFin = document.getElementById('btn-abrir-financeiro-evs');
+            if (btnFin) btnFin.classList.add('hidden');
+            const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
+            if (btnCat) btnCat.classList.add('hidden');
+            const btnCrm = document.getElementById('btn-abrir-crm-kanban');
+            if (btnCrm) btnCrm.classList.add('hidden');
+            const btnCopiar = document.getElementById('btn-copiar-link-topo');
+            if (btnCopiar) btnCopiar.classList.add('hidden');
+            const btnMenuSand = document.getElementById('btn-menu-sanduiche');
+            if (btnMenuSand) btnMenuSand.classList.add('hidden');
+            if (typeof fecharMenuSanduiche === 'function') fecharMenuSanduiche();
             document.getElementById('login-senha').value = '';
             ocultarErroLogin();
         }
@@ -20470,7 +20610,7 @@
                                  dadosRadarNotificacoes.pedidos.length +
                                  dadosRadarNotificacoes.aniversarios.length;
 
-            // 1. Badge do Sininho no Topo
+            // 1. Badge do Sininho no Topo (Menu Sanduíche e Item Interno)
             const badgeTopo = document.getElementById('badge-contador-notificacoes-topo');
             if (badgeTopo) {
                 badgeTopo.innerText = totalAlertas;
@@ -20479,6 +20619,15 @@
                     badgeTopo.classList.add('animate-pulse');
                 } else {
                     badgeTopo.classList.add('hidden');
+                }
+            }
+            const badgeMenu = document.getElementById('badge-contador-notificacoes-menu');
+            if (badgeMenu) {
+                badgeMenu.innerText = totalAlertas;
+                if (totalAlertas > 0) {
+                    badgeMenu.classList.remove('hidden');
+                } else {
+                    badgeMenu.classList.add('hidden');
                 }
             }
 
