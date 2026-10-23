@@ -3591,6 +3591,117 @@
                         </div>
                     </div>
 
+                    <!-- CARD: GERADOR DE FOTO DE PERFIL PARA WHATSAPP & REDES SOCIAIS -->
+                    <div id="box-ferramenta-foto-perfil" class="bg-gradient-to-br from-white to-emerald-50/40 rounded-3xl shadow-xl p-5 sm:p-7 border-2 border-emerald-500 transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                            <div class="flex items-start space-x-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-xl shadow-md flex-shrink-0">
+                                    <i class="fa-solid fa-circle-user"></i>
+                                </div>
+                                <div>
+                                    <div class="inline-flex items-center space-x-1.5 bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-id-badge text-emerald-600 text-[9px]"></i>
+                                        <span>Avatar Oficial (1:1 Quadrado / Circular)</span>
+                                    </div>
+                                    <h3 class="font-black text-lg sm:text-2xl text-brand-dark leading-tight">
+                                        Foto de Perfil Oficial com Seu WhatsApp
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        Gera sua imagem oficial para <strong>perfil do WhatsApp, Instagram ou Facebook</strong> com as 5 garrafas do Reset e seu WhatsApp estampado na faixa verde!
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button onclick="gerarFotoPerfilPersonalizada()" id="btn-gerar-perfil" class="bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg transition transform hover:scale-102 flex items-center justify-center cursor-pointer whitespace-nowrap text-sm">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> GERAR FOTO DE PERFIL
+                            </button>
+                        </div>
+
+                        <!-- CAMPOS PERSONALIZÁVEIS: WHATSAPP E CIDADE -->
+                        <div class="mb-4 bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para a Foto de Perfil:
+                                    </label>
+                                    <input type="text" id="perfil-input-whatsapp" oninput="gerarFotoPerfilPersonalizadaDebounce()" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Opcional - Abaixo do número):
+                                    </label>
+                                    <input type="text" id="perfil-input-cidade" oninput="gerarFotoPerfilPersonalizadaDebounce()" placeholder="Ex: Juína - MT (ou deixe em branco)" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-[11px] text-emerald-800 bg-white/80 p-2.5 rounded-xl border border-emerald-200/60">
+                                <i class="fa-solid fa-lightbulb text-amber-500 text-xs"></i>
+                                <span><strong>Dica de Ouro:</strong> Use esta foto como foto de perfil no seu WhatsApp Business ou pessoal. Transmite autoridade visual imediata e qualquer pessoa que visualizar seu perfil já vê seu WhatsApp e as 5 garrafas do protocolo!</span>
+                            </div>
+                        </div>
+
+                        <!-- PRÉVIA DA FOTO DE PERFIL (VISUALIZAÇÃO, BAIXAR, COPIAR E COMPARTILHAR) -->
+                        <div id="preview-box-perfil" class="hidden mt-4 pt-4 border-t border-emerald-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-black text-brand-dark flex items-center">
+                                    <i class="fa-solid fa-eye text-emerald-600 mr-1.5"></i> Pré-visualização da Sua Foto de Perfil Oficial:
+                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Resolução 926x926 PNG</span>
+                                    <button type="button" onclick="toggleMinimizarPreview('perfil')" id="btn-toggle-preview-perfil" class="text-[11px] bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-2.5 py-1 rounded-lg font-bold transition flex items-center cursor-pointer shadow-xs">
+                                        <i id="icone-toggle-preview-perfil" class="fa-solid fa-chevron-up mr-1 text-[10px]"></i> <span id="label-toggle-preview-perfil">Minimizar</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="conteudo-preview-perfil" class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                                <!-- VISUALIZADORES: QUADRADO E RECORTE CIRCULAR DE WHATSAPP -->
+                                <div class="md:col-span-5 flex flex-col items-center justify-center space-y-3 bg-gray-900 border border-gray-200 rounded-2xl p-4 shadow-inner">
+                                    <div class="relative w-full flex items-center justify-center">
+                                        <img id="img-preview-perfil" src="" alt="Foto de Perfil Reset Personalizada" class="w-full max-w-[280px] h-auto aspect-square object-contain rounded-2xl shadow-lg border border-gray-700">
+                                    </div>
+                                    <!-- SIMULADOR CIRCULAR DE AVATAR DO WHATSAPP -->
+                                    <div class="flex items-center space-x-3 bg-gray-800/90 px-3.5 py-2 rounded-xl border border-gray-700/80 w-full justify-center">
+                                        <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#25D366] shadow-md flex-shrink-0">
+                                            <img id="img-preview-perfil-circle" src="" alt="Avatar WhatsApp" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="text-[11px] text-gray-300">
+                                            <div class="font-bold text-white flex items-center">
+                                                <i class="fa-brands fa-whatsapp text-[#25D366] mr-1"></i> Preview Avatar WhatsApp
+                                            </div>
+                                            <span class="text-[10px] text-gray-400">Enquadramento circular perfeito</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AÇÕES E INSTRUÇÕES -->
+                                <div class="md:col-span-7 flex flex-col justify-between space-y-3">
+                                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl text-xs text-emerald-950 leading-relaxed font-medium">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-black text-emerald-900 block text-xs sm:text-sm">
+                                                ✅ Foto de Perfil Pronta para Download!
+                                            </span>
+                                            <span class="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Formato Oficial</span>
+                                        </div>
+                                        Seu número de WhatsApp foi aplicado na cor <strong>branca com alto contraste</strong> na barra verde do rodapé. A imagem está calibrada nas dimensões exatas para perfil do WhatsApp, garantindo que nenhum elemento seja cortado no avatar circular.
+                                    </div>
+
+                                    <!-- BOTÕES DE AÇÃO DA FOTO DE PERFIL -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <button onclick="baixarFotoPerfil(this)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer transform hover:scale-101">
+                                            <i class="fa-solid fa-download mr-2 text-yellow-300 text-sm"></i> Baixar Foto de Perfil (PNG)
+                                        </button>
+                                        <button onclick="copiarFotoPerfil(this)" class="bg-amber-400 hover:bg-amber-500 text-brand-dark font-black py-3 px-3.5 rounded-xl transition flex items-center justify-center text-xs shadow-md cursor-pointer transform hover:scale-101">
+                                            <i class="fa-solid fa-copy mr-1.5 text-sm"></i> Copiar Imagem
+                                        </button>
+                                        <button onclick="compartilharArquivoGerado('perfil')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-black py-2.5 px-3 rounded-xl transition flex items-center justify-center text-xs shadow-sm cursor-pointer sm:col-span-2">
+                                            <i class="fa-brands fa-whatsapp mr-1.5 text-sm"></i> Enviar Foto no WhatsApp
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- BOTÃO INFERIOR DE MINIMIZAR -->
                     <div class="mt-4 pt-3 flex justify-center">
                         <button onclick="toggleMateriaisApoio(event)" class="text-xs bg-white/15 hover:bg-white/25 text-white font-bold py-2 px-5 rounded-xl transition flex items-center shadow-sm cursor-pointer">
@@ -6837,12 +6948,14 @@
         </div>
     </div>
 
-    <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS E FLYER -->
+    <!-- CANVAS OCULTO PARA DESENHAR OS ADESIVOS, FLYER E FOTO DE PERFIL -->
     <div style="display:none;">
         <img id="img-base" src="adesivo-base.png?v=4" crossorigin="anonymous">
         <canvas id="canvas-a4"></canvas>
         <img id="img-base-flyer" src="flyer_kit_semanal_reset_base.jpg?v=10" crossorigin="anonymous">
         <canvas id="canvas-flyer"></canvas>
+        <img id="img-base-perfil" src="perfil_whatsapp_reset_base.png?v=1" crossorigin="anonymous">
+        <canvas id="canvas-perfil"></canvas>
         <div id="qrcode-temp"></div>
     </div>
 
@@ -8792,6 +8905,7 @@
                     verificarAcessoMasterVip();
                     atualizarKitMateriaisApoioVip();
                     preencherCamposFlyer();
+                    preencherCamposPerfil();
                 } catch (saErr) {
                     console.warn("Erro ao verificar SuperAdmin ou VIP:", saErr);
                 }
@@ -8957,6 +9071,7 @@
         let dadosDataURLAdesivos = null;
         let dadosDataURLTiquetes = null;
         let dadosDataURLFlyer = null;
+        let dadosDataURLPerfil = null;
 
         function toggleMinimizarPreview(tipo) {
             const cont = document.getElementById(`conteudo-preview-${tipo}`);
@@ -8985,6 +9100,9 @@
             } else if (tipo === 'flyer') {
                 dataUrl = dadosDataURLFlyer;
                 titulo = 'Flyer Oficial Kit Semanal';
+            } else if (tipo === 'perfil') {
+                dataUrl = dadosDataURLPerfil;
+                titulo = 'Foto de Perfil Oficial';
             }
             if (!dataUrl) return;
 
@@ -9018,6 +9136,9 @@
             } else if (tipo === 'flyer') {
                 dataUrl = dadosDataURLFlyer;
                 nome = `Flyer_Kit_Reset_${consultorAtual?.herbalife_id || 'consultor'}.jpg`;
+            } else if (tipo === 'perfil') {
+                dataUrl = dadosDataURLPerfil;
+                nome = `Foto_Perfil_Reset_${consultorAtual?.herbalife_id || 'consultor'}.png`;
             }
             if (!dataUrl) return;
             const link = document.createElement('a');
@@ -9270,12 +9391,23 @@
                 nomeArquivo = `Flyer_Kit_Reset_${consultorAtual?.herbalife_id || 'consultor'}.jpg`;
                 titulo = 'Flyer Oficial - Peça seu Kit Semanal do Reset';
                 mimeType = 'image/jpeg';
+            } else if (tipo === 'perfil') {
+                if (!dadosDataURLPerfil) {
+                    gerarFotoPerfilPersonalizada();
+                    await new Promise(r => setTimeout(r, 600));
+                }
+                dataUrl = dadosDataURLPerfil;
+                nomeArquivo = `Foto_Perfil_Reset_${consultorAtual?.herbalife_id || 'consultor'}.png`;
+                titulo = 'Foto de Perfil Oficial - Litrão do Reset';
+                mimeType = 'image/png';
             }
             if (!dataUrl) return;
 
             const textoCopy = (tipo === 'flyer') 
                 ? obterCopyCompartilhamentoFlyer(consultorAtual) 
-                : `${titulo} - Peça já o seu Litrão do Reset!`;
+                : (tipo === 'perfil')
+                    ? `Foto de Perfil Oficial do Litrão do Reset! 🌿 WhatsApp: ${consultorAtual?.whatsapp || ''}`
+                    : `${titulo} - Peça já o seu Litrão do Reset!`;
 
             // Copia automaticamente para a área de transferência para garantir que o consultor sempre tenha a copy pronta
             if (tipo === 'flyer' && navigator.clipboard && navigator.clipboard.writeText) {
@@ -9489,6 +9621,245 @@
             }, 300);
         }
         window.gerarFlyerPersonalizado = gerarFlyerPersonalizado;
+
+        /* ==========================================================================
+           GERADOR DE FOTO DE PERFIL OFICIAL COM WHATSAPP & CIDADE
+           ========================================================================== */
+        function preencherCamposPerfil() {
+            if (!consultorAtual) return;
+            const inWhats = document.getElementById('perfil-input-whatsapp');
+            const inCidade = document.getElementById('perfil-input-cidade');
+            if (inWhats && !inWhats.value) {
+                inWhats.value = formatarWhatsParaExibicao(consultorAtual.whatsapp || '');
+            }
+            if (inCidade && !inCidade.value) {
+                const cidDetectada = extrairCidadeConsultor(consultorAtual);
+                inCidade.value = cidDetectada || "Juína - MT";
+            }
+        }
+        window.preencherCamposPerfil = preencherCamposPerfil;
+
+        function desenharArtePerfilNoCanvas(canvas, imgBase, { whatsTexto, cidadeTexto }) {
+            canvas.width = imgBase.naturalWidth || imgBase.width || 926;
+            canvas.height = imgBase.naturalHeight || imgBase.height || 926;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Limpa o canvas e renderiza a arte base oficial circular/quadrada
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
+
+            const escalaX = canvas.width / 926.0;
+            const escalaY = canvas.height / 926.0;
+
+            ctx.save();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+            ctx.shadowOffsetX = 1.5 * escalaX;
+            ctx.shadowOffsetY = 1.5 * escalaY;
+
+            const centroX = 550 * escalaX;
+
+            if (cidadeTexto && cidadeTexto.trim()) {
+                // Layout 2 linhas: WhatsApp (superior) + Cidade / Região (inferior)
+                const tamanhoWhats = Math.round(38 * escalaX);
+                const centroYWhats = 769 * escalaY;
+                ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.shadowBlur = 3.5 * escalaX;
+                ctx.fillText(whatsTexto, centroX, centroYWhats);
+
+                const tamanhoCidade = Math.round(22 * escalaX);
+                const centroYCidade = 807 * escalaY;
+                ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.shadowBlur = 2.5 * escalaX;
+                ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
+            } else {
+                // Layout 1 linha: Apenas WhatsApp em destaque centralizado na faixa verde
+                const tamanhoWhats = Math.round(46 * escalaX);
+                const centroYUnico = 786 * escalaY;
+                ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.shadowBlur = 4 * escalaX;
+                ctx.fillText(whatsTexto, centroX, centroYUnico);
+            }
+
+            ctx.restore();
+        }
+        window.desenharArtePerfilNoCanvas = desenharArtePerfilNoCanvas;
+
+        let timerPerfilDebounce = null;
+        function gerarFotoPerfilPersonalizadaDebounce() {
+            clearTimeout(timerPerfilDebounce);
+            timerPerfilDebounce = setTimeout(() => {
+                gerarFotoPerfilPersonalizada();
+            }, 250);
+        }
+        window.gerarFotoPerfilPersonalizadaDebounce = gerarFotoPerfilPersonalizadaDebounce;
+
+        function gerarFotoPerfilPersonalizada() {
+            const btn = document.getElementById('btn-gerar-perfil');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2 text-yellow-300"></i> GERANDO FOTO DE PERFIL...';
+            }
+
+            preencherCamposPerfil();
+
+            setTimeout(() => {
+                try {
+                    const imgBase = document.getElementById('img-base-perfil');
+                    const canvas = document.getElementById('canvas-perfil');
+                    if (!imgBase || !canvas) throw new Error("Elementos de imagem/canvas de perfil não encontrados");
+
+                    const inWhats = document.getElementById('perfil-input-whatsapp');
+                    const inCidade = document.getElementById('perfil-input-cidade');
+
+                    let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (consultorAtual?.whatsapp || "66992822020");
+                    let whatsTexto = formatarWhatsParaExibicao(numWhats);
+                    let cidadeTexto = (inCidade && inCidade.value.trim()) ? inCidade.value.trim() : '';
+
+                    const executarDesenho = (imagemFonte) => {
+                        desenharArtePerfilNoCanvas(canvas, imagemFonte, {
+                            whatsTexto,
+                            cidadeTexto
+                        });
+
+                        dadosDataURLPerfil = canvas.toDataURL("image/png");
+
+                        // Atualiza pré-visualizações
+                        const previewBox = document.getElementById('preview-box-perfil');
+                        const previewImg = document.getElementById('img-preview-perfil');
+                        const previewCircle = document.getElementById('img-preview-perfil-circle');
+                        const contPerfil = document.getElementById('conteudo-preview-perfil');
+                        const iconePerfil = document.getElementById('icone-toggle-preview-perfil');
+                        const labelPerfil = document.getElementById('label-toggle-preview-perfil');
+
+                        if (previewImg && previewBox) {
+                            previewImg.src = dadosDataURLPerfil;
+                            if (previewCircle) previewCircle.src = dadosDataURLPerfil;
+                            previewBox.classList.remove('hidden');
+                            if (contPerfil) contPerfil.classList.remove('hidden');
+                            if (iconePerfil) iconePerfil.className = 'fa-solid fa-chevron-up mr-1 text-[10px]';
+                            if (labelPerfil) labelPerfil.innerText = 'Minimizar';
+                            previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('Foto de perfil gerada com seu WhatsApp! ✅', 'sucesso');
+                        }
+
+                        if (btn) {
+                            btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl text-yellow-300"></i> FOTO DE PERFIL GERADA!';
+                            setTimeout(() => {
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> ATUALIZAR FOTO DE PERFIL';
+                            }, 2500);
+                        }
+                    };
+
+                    if (imgBase.complete && imgBase.naturalWidth > 0) {
+                        executarDesenho(imgBase);
+                    } else {
+                        const imgTemp = new Image();
+                        imgTemp.crossOrigin = "anonymous";
+                        imgTemp.onload = () => executarDesenho(imgTemp);
+                        imgTemp.onerror = () => {
+                            throw new Error("Não foi possível carregar a imagem perfil_whatsapp_reset_base.png");
+                        };
+                        imgTemp.src = "perfil_whatsapp_reset_base.png?v=1";
+                    }
+                } catch(err) {
+                    console.error("Erro ao gerar foto de perfil:", err);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> GERAR FOTO DE PERFIL';
+                    }
+                    alert("Erro ao processar imagem de perfil: " + err.message);
+                }
+            }, 300);
+        }
+        window.gerarFotoPerfilPersonalizada = gerarFotoPerfilPersonalizada;
+
+        async function copiarFotoPerfil(btn) {
+            const canvas = document.getElementById('canvas-perfil');
+            if (!canvas) return;
+
+            try {
+                if (canvas.toBlob && navigator.clipboard && window.ClipboardItem) {
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            const item = new ClipboardItem({ "image/png": blob });
+                            await navigator.clipboard.write([item]);
+                            if (btn) {
+                                const orig = btn.innerHTML;
+                                btn.innerHTML = '<i class="fa-solid fa-check mr-1.5 text-brand-dark"></i> FOTO COPIADA! ✅';
+                                btn.classList.add('bg-emerald-400');
+                                setTimeout(() => {
+                                    btn.innerHTML = orig;
+                                    btn.classList.remove('bg-emerald-400');
+                                }, 2500);
+                            }
+                            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                                mostrarNotificacaoFlutuante('Foto copiada para a área de transferência! Cole direto no WhatsApp ou editor. ✅', 'sucesso');
+                            }
+                        } catch(clipErr) {
+                            console.warn("Falha no ClipboardItem:", clipErr);
+                            baixarFotoPerfil(btn);
+                        }
+                    }, 'image/png');
+                } else {
+                    baixarFotoPerfil(btn);
+                }
+            } catch(e) {
+                console.error("Erro ao copiar foto de perfil:", e);
+                baixarFotoPerfil(btn);
+            }
+        }
+        window.copiarFotoPerfil = copiarFotoPerfil;
+
+        function baixarFotoPerfil(btn) {
+            const canvas = document.getElementById('canvas-perfil');
+            const hid = consultorAtual ? consultorAtual.herbalife_id : 'consultor';
+            const nomeArquivo = `Foto_Perfil_Reset_${hid}.png`;
+
+            if (canvas && typeof canvas.toBlob === 'function') {
+                canvas.toBlob(blob => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = nomeArquivo;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(() => URL.revokeObjectURL(url), 4000);
+                        if (btn) {
+                            const orig = btn.innerHTML;
+                            btn.innerHTML = '<i class="fa-solid fa-check mr-1.5"></i> Baixada! ✅';
+                            setTimeout(() => { btn.innerHTML = orig; }, 2500);
+                        }
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('Foto de perfil baixada em alta resolução! Salva em Downloads. ✅', 'sucesso');
+                        }
+                    } else if (dadosDataURLPerfil) {
+                        const a = document.createElement('a');
+                        a.href = dadosDataURLPerfil;
+                        a.download = nomeArquivo;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                }, 'image/png');
+            } else if (dadosDataURLPerfil) {
+                const a = document.createElement('a');
+                a.href = dadosDataURLPerfil;
+                a.download = nomeArquivo;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+        window.baixarFotoPerfil = baixarFotoPerfil;
 
         function gerarAdesivos() {
             const btn = document.getElementById('btn-adesivo');
@@ -17039,7 +17410,7 @@
                 cont.classList.remove('hidden');
                 if (label) label.innerText = 'Minimizar';
                 if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
-                try { preencherCamposFlyer(); } catch(e) {}
+                try { preencherCamposFlyer(); preencherCamposPerfil(); } catch(e) {}
             } else {
                 cont.classList.add('hidden');
                 if (label) label.innerText = 'Abrir Materiais';
