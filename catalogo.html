@@ -2024,6 +2024,20 @@
                                 }
                             } catch (e) { console.warn("Erro ao ler custom:", e); }
                         }
+
+                        // Aplica Preços Regionais dos Kits salvos pelo consultor (<!--PRECOS_KITS:...-->)
+                        if (rawNome.includes('<!--PRECOS_KITS:')) {
+                            try {
+                                const mp = rawNome.match(/<!--PRECOS_KITS:([\s\S]*?)-->/);
+                                if (mp && mp[1]) {
+                                    const pk = JSON.parse(mp[1]);
+                                    if (pk) {
+                                        consultorAtual.precosKits = pk;
+                                        aplicarPrecosKitsCatalogo(pk);
+                                    }
+                                }
+                            } catch (ePrecos) { console.warn("Erro ao ler precos kits:", ePrecos); }
+                        }
                     }
                 } catch (err) {
                     console.warn("Erro ao buscar consultor:", err);
@@ -2040,7 +2054,43 @@
                 }
             } catch (e) {}
 
+            try {
+                const localPrecosKey = 'litrao_precos_kits_' + consultorAtual.herbalife_id;
+                const localPrecos = localStorage.getItem(localPrecosKey);
+                if (localPrecos && !consultorAtual.precosKits) {
+                    const pk = JSON.parse(localPrecos);
+                    if (pk) aplicarPrecosKitsCatalogo(pk);
+                }
+            } catch (e) {}
+
             atualizarElementosInterfaceConsultor();
+        }
+
+        function aplicarPrecosKitsCatalogo(pk) {
+            if (!pk || !Array.isArray(PRODUTOS_CATALOGO)) return;
+            const parseNum = (val) => {
+                if (!val) return 0;
+                const limpo = String(val).replace('R$', '').trim().replace(/\./g, '').replace(',', '.');
+                const n = parseFloat(limpo);
+                return isNaN(n) ? 0 : n;
+            };
+
+            const pReset = parseNum(pk.reset);
+            const pPlus = parseNum(pk.reset_plus || pk.resetPlus);
+            const pTurbo = parseNum(pk.reset_turbo || pk.resetTurbo);
+
+            PRODUTOS_CATALOGO.forEach(prod => {
+                if (prod.id === 'reset-kit5' && pReset > 0) {
+                    prod.preco = pReset;
+                }
+                if (prod.id === 'reset-kit10' && pPlus > 0) {
+                    prod.preco = (pPlus * 2) > 0 ? (pPlus * 2) : 199;
+                }
+            });
+
+            if (typeof renderizarVitrineProdutos === 'function') {
+                renderizarVitrineProdutos(PRODUTOS_CATALOGO);
+            }
         }
 
         // Aplica nomes, preços, fotos, descrições e variações personalizadas pelo consultor sobre os produtos
