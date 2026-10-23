@@ -78,6 +78,30 @@
             scrollbar-width: thin;
             scrollbar-color: #6366f1 #0b1120;
         }
+
+        /* Estilos de Arrastar e Soltar dos Cards de Ferramentas */
+        .card-ferramenta-arrastavel {
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+            cursor: grab;
+            position: relative;
+        }
+        .card-ferramenta-arrastavel:active {
+            cursor: grabbing;
+        }
+        .card-ferramenta-arrastavel.is-dragging {
+            opacity: 0.35 !important;
+            transform: scale(0.97) translateY(-2px) !important;
+            border: 2px dashed #10b981 !important;
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.25) !important;
+            z-index: 40 !important;
+        }
+        .drag-handle-card {
+            cursor: grab;
+            touch-action: none;
+        }
+        .drag-handle-card:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
@@ -421,7 +445,14 @@
                         Suas Ferramentas de Trabalho
                     </h2>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="badge-instrucao-arrastar-cards" class="text-[11px] text-slate-500 font-medium inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1 rounded-xl transition select-none cursor-default" title="Clique e arraste qualquer card para mudar sua posição no painel">
+                        <i class="fa-solid fa-up-down-left-right text-emerald-600 text-xs"></i>
+                        <span>Arraste os cards para reordenar</span>
+                    </span>
+                    <button type="button" id="btn-restaurar-ordem-cards" onclick="restaurarOrdemPadraoCardsFerramentas()" class="hidden text-[11px] text-slate-400 hover:text-rose-600 transition font-bold px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer" title="Voltar para a ordem original do sistema">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Ordem Padrão
+                    </button>
                     <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
                         <i class="fa-solid fa-arrow-up-right-from-square text-blue-600"></i> Abrir Catálogo ao Vivo
                     </button>
@@ -432,7 +463,7 @@
             <div id="grid-ferramentas-liberadas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 mb-5">
                 
                 <!-- 1. MEU CATÁLOGO DIGITAL -->
-                <div id="card-modulo-catalogo-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between group">
+                <div id="card-modulo-catalogo-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -446,9 +477,14 @@
                                     <span class="text-[10px] text-blue-700 font-bold uppercase tracking-wider block truncate">Vitrine WhatsApp</span>
                                 </div>
                             </div>
-                            <span id="badge-catalogo-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200 shrink-0">
-                                <i class="fa-solid fa-lock mr-1"></i> Restrito
-                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-catalogo-acesso-status" class="bg-slate-100 text-slate-600 text-[10px] font-black px-2 py-0.5 rounded-full border border-slate-200 shrink-0">
+                                    <i class="fa-solid fa-lock mr-1"></i> Restrito
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -463,7 +499,7 @@
                 </div>
 
                 <!-- 2. RADAR DE CLIENTES & ALERTAS -->
-                <div id="card-radar-notificacoes-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
+                <div id="card-radar-notificacoes-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -477,9 +513,14 @@
                                     <span class="text-[10px] text-amber-700 font-bold uppercase tracking-wider block truncate">Notificações Inteligentes</span>
                                 </div>
                             </div>
-                            <span id="badge-radar-total-pendencias" class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
-                                0 Alertas
-                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-radar-total-pendencias" class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                    0 Alertas
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Mini Contadores Inline Compactos -->
@@ -511,7 +552,7 @@
                 </div>
 
                 <!-- 3. FINANCEIRO & CUSTOS DE DOSES -->
-                <div id="card-modulo-financeiro-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
+                <div id="card-modulo-financeiro-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -525,9 +566,14 @@
                                     <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block truncate">Controle EVS & Margem</span>
                                 </div>
                             </div>
-                            <span id="badge-financeiro-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
-                                <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 17,90/mês
-                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-financeiro-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                    <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 17,90/mês
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -539,7 +585,7 @@
                 </div>
 
                 <!-- 4. MODELOS DE DIRECT & SCRIPTS X1 -->
-                <div id="card-prospeccao-x1-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between group">
+                <div id="card-prospeccao-x1-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -553,9 +599,14 @@
                                     <span class="text-[10px] text-indigo-700 font-bold uppercase tracking-wider block truncate">WhatsApp • Insta • Face</span>
                                 </div>
                             </div>
-                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0">
-                                Prospecção
-                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0">
+                                    Prospecção
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -567,7 +618,7 @@
                 </div>
 
                 <!-- 5. INDIQUE UM CONSULTOR (15% OFF) -->
-                <div id="card-vip-indique-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group">
+                <div id="card-vip-indique-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between group">
                     <div id="card-vip-box" class="w-full">
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -581,13 +632,18 @@
                                     <span class="text-[10px] text-purple-700 font-bold uppercase tracking-wider block truncate">Cupons de Desconto</span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
-                                <span id="badge-vip-status" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
-                                    Master VIP
-                                </span>
-                                <span id="badge-vip-bloqueado" class="hidden bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full">
-                                    <i class="fa-solid fa-lock"></i>
-                                </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <span id="badge-vip-status" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                                        Master VIP
+                                    </span>
+                                    <span id="badge-vip-bloqueado" class="hidden bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </span>
+                                </div>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -600,7 +656,7 @@
                 </div>
 
                 <!-- 6. EXTRATOR WHATSAPP & CRM KANBAN -->
-                <div id="card-modulo-crm-extrator-container" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group">
+                <div id="card-modulo-crm-extrator-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -614,10 +670,42 @@
                                     <span class="text-[10px] text-purple-700 font-bold uppercase tracking-wider block truncate">Funil Kanban & Grupos</span>
                                 </div>
                             </div>
-                            <span id="badge-crm-extrator-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
-                                <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 9,90/mês
-                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-crm-extrator-acesso-status" class="bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+                                    <i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 9,90/mês
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Mini Contadores Inline Compactos -->
+                        <div class="grid grid-cols-3 gap-1.5 my-2">
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Novos</span>
+                                <span id="card-crm-count-novos" class="text-xs font-black text-blue-600">0</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Contato</span>
+                                <span id="card-crm-count-abordagem" class="text-xs font-black text-amber-600">0</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Fechados</span>
+                                <span id="card-crm-count-fechados" class="text-xs font-black text-emerald-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <button id="btn-abrir-card-crm" type="button" onclick="abrirModuloCrmKanban()" class="flex-1 bg-slate-900 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear • R$ 9,90/mês
+                        </button>
+                        <button type="button" onclick="baixarExtensaoWhatsapp()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Baixar Extensão de Grupos">
+                            <i class="fa-solid fa-puzzle-piece text-[11px] text-purple-600"></i> Extensão
+                        </button>
+                    </div>
+                </div>
 
                         <!-- Mini Contadores Inline Compactos -->
                         <div class="grid grid-cols-3 gap-1.5 my-2">
@@ -9015,9 +9103,247 @@
         });
 
         // =========================================================================
-        // ORGANIZAÇÃO INTELIGENTE DAS FERRAMENTAS DE TRABALHO
-        // (Cards Liberados ficam logo abaixo da BioImpedância; Bloqueados ficam no bloco de expansão)
+        // MOTOR DE ARRASTAR E SOLTAR (DRAG & DROP) DAS FERRAMENTAS DE TRABALHO
         // =========================================================================
+        let cardFerramentaArrastando = null;
+        let touchPosicaoInicialX = 0;
+        let touchPosicaoInicialY = 0;
+        let touchArrastandoAtivo = false;
+        let timerNotificacaoOrdem = null;
+
+        function obterChaveStorageOrdemCards() {
+            const hid = (consultorAtual && consultorAtual.herbalife_id) ? String(consultorAtual.herbalife_id).trim() : 'padrao';
+            return `litrao_ordem_cards_ferramentas_${hid}`;
+        }
+
+        function obterOrdemCardsFerramentasSalva() {
+            try {
+                const chave = obterChaveStorageOrdemCards();
+                const dado = localStorage.getItem(chave);
+                if (dado) {
+                    const parsed = JSON.parse(dado);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch(e) {
+                console.warn("Erro ao ler ordem dos cards:", e);
+            }
+            return null;
+        }
+
+        function salvarOrdemCardsFerramentas(ordemIds) {
+            if (!Array.isArray(ordemIds) || ordemIds.length === 0) return;
+            try {
+                const chave = obterChaveStorageOrdemCards();
+                localStorage.setItem(chave, JSON.stringify(ordemIds));
+                atualizarVisibilidadeBotaoResetOrdem();
+            } catch(e) {
+                console.warn("Erro ao salvar ordem dos cards:", e);
+            }
+        }
+
+        function restaurarOrdemPadraoCardsFerramentas() {
+            try {
+                const chave = obterChaveStorageOrdemCards();
+                localStorage.removeItem(chave);
+                atualizarVisibilidadeBotaoResetOrdem();
+                organizarPosicionamentoFerramentasTrabalho();
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('Ordem original dos cards restaurada! ✅', 'sucesso');
+                }
+            } catch(e) {
+                console.warn("Erro ao resetar ordem dos cards:", e);
+            }
+        }
+        window.restaurarOrdemPadraoCardsFerramentas = restaurarOrdemPadraoCardsFerramentas;
+
+        function atualizarVisibilidadeBotaoResetOrdem() {
+            const btnReset = document.getElementById('btn-restaurar-ordem-cards');
+            if (!btnReset) return;
+            const ordem = obterOrdemCardsFerramentasSalva();
+            if (ordem && ordem.length > 0) {
+                btnReset.classList.remove('hidden');
+            } else {
+                btnReset.classList.add('hidden');
+            }
+        }
+
+        function salvarOrdemAtualGridFerramentas(notificar = false) {
+            const gridLiberadas = document.getElementById('grid-ferramentas-liberadas');
+            if (!gridLiberadas) return;
+
+            const novaOrdem = Array.from(gridLiberadas.children)
+                .map(c => c.id)
+                .filter(id => id && id.startsWith('card-'));
+
+            if (novaOrdem.length > 0) {
+                salvarOrdemCardsFerramentas(novaOrdem);
+                if (notificar) {
+                    clearTimeout(timerNotificacaoOrdem);
+                    timerNotificacaoOrdem = setTimeout(() => {
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('Nova ordem dos cards salva no seu painel! ✅', 'sucesso');
+                        }
+                    }, 250);
+                }
+            }
+        }
+
+        function inicializarDragAndDropCardsFerramentas() {
+            const gridLiberadas = document.getElementById('grid-ferramentas-liberadas');
+            if (!gridLiberadas) return;
+
+            const cards = Array.from(gridLiberadas.children).filter(el => el && el.id);
+            cards.forEach(card => {
+                card.classList.add('card-ferramenta-arrastavel');
+                card.setAttribute('draggable', 'true');
+
+                // Garante que botões e links não iniciem drag involuntário
+                const elementosInterativos = card.querySelectorAll('button, a, input, select');
+                elementosInterativos.forEach(el => {
+                    el.setAttribute('draggable', 'false');
+                });
+
+                // Remove listeners antigos antes de adicionar
+                card.removeEventListener('dragstart', tratarCardDragStart);
+                card.removeEventListener('dragover', tratarCardDragOver);
+                card.removeEventListener('dragend', tratarCardDragEnd);
+                card.removeEventListener('drop', tratarCardDrop);
+
+                card.addEventListener('dragstart', tratarCardDragStart);
+                card.addEventListener('dragover', tratarCardDragOver);
+                card.addEventListener('dragend', tratarCardDragEnd);
+                card.addEventListener('drop', tratarCardDrop);
+
+                // Touch para dispositivos móveis
+                card.removeEventListener('touchstart', tratarCardTouchStart);
+                card.removeEventListener('touchmove', tratarCardTouchMove);
+                card.removeEventListener('touchend', tratarCardTouchEnd);
+
+                card.addEventListener('touchstart', tratarCardTouchStart, { passive: false });
+                card.addEventListener('touchmove', tratarCardTouchMove, { passive: false });
+                card.addEventListener('touchend', tratarCardTouchEnd);
+            });
+        }
+
+        function tratarCardDragStart(e) {
+            if (e.target.closest('button, a, input, select, textarea')) {
+                e.preventDefault();
+                return;
+            }
+
+            cardFerramentaArrastando = e.currentTarget;
+            e.dataTransfer.setData('text/plain', cardFerramentaArrastando.id);
+            e.dataTransfer.effectAllowed = 'move';
+
+            setTimeout(() => {
+                if (cardFerramentaArrastando) {
+                    cardFerramentaArrastando.classList.add('is-dragging');
+                }
+            }, 10);
+        }
+
+        function tratarCardDragOver(e) {
+            e.preventDefault();
+            if (!cardFerramentaArrastando) return;
+            e.dataTransfer.dropEffect = 'move';
+
+            const target = e.currentTarget;
+            if (target === cardFerramentaArrastando) return;
+
+            const grid = target.parentElement;
+            if (!grid || grid.id !== 'grid-ferramentas-liberadas') return;
+
+            const cards = Array.from(grid.children).filter(el => el.classList.contains('card-ferramenta-arrastavel'));
+            const indexArrastando = cards.indexOf(cardFerramentaArrastando);
+            const indexAlvo = cards.indexOf(target);
+
+            if (indexArrastando < 0 || indexAlvo < 0) return;
+
+            if (indexArrastando < indexAlvo) {
+                grid.insertBefore(cardFerramentaArrastando, target.nextSibling);
+            } else {
+                grid.insertBefore(cardFerramentaArrastando, target);
+            }
+        }
+
+        function tratarCardDrop(e) {
+            e.preventDefault();
+            salvarOrdemAtualGridFerramentas(true);
+        }
+
+        function tratarCardDragEnd(e) {
+            if (cardFerramentaArrastando) {
+                cardFerramentaArrastando.classList.remove('is-dragging');
+            }
+            cardFerramentaArrastando = null;
+            salvarOrdemAtualGridFerramentas(true);
+        }
+
+        function tratarCardTouchStart(e) {
+            if (e.target.closest('button, a, input, select, textarea')) {
+                touchArrastandoAtivo = false;
+                return;
+            }
+
+            const touch = e.touches[0];
+            touchPosicaoInicialX = touch.clientX;
+            touchPosicaoInicialY = touch.clientY;
+            cardFerramentaArrastando = e.currentTarget;
+            touchArrastandoAtivo = false;
+        }
+
+        function tratarCardTouchMove(e) {
+            if (!cardFerramentaArrastando) return;
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - touchPosicaoInicialX);
+            const deltaY = Math.abs(touch.clientY - touchPosicaoInicialY);
+
+            if (!touchArrastandoAtivo) {
+                // Se o usuário tocou no ícone de arrasto ou moveu mais de 12px
+                const tocouNoGrip = e.target.closest('.drag-handle-card');
+                if (tocouNoGrip || (deltaX > 12 && deltaX > deltaY)) {
+                    touchArrastandoAtivo = true;
+                    cardFerramentaArrastando.classList.add('is-dragging');
+                }
+            }
+
+            if (touchArrastandoAtivo) {
+                e.preventDefault();
+
+                const elAbaixo = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!elAbaixo) return;
+
+                const cardAlvo = elAbaixo.closest('.card-ferramenta-arrastavel');
+                if (cardAlvo && cardAlvo !== cardFerramentaArrastando && cardAlvo.parentElement === cardFerramentaArrastando.parentElement) {
+                    const grid = cardAlvo.parentElement;
+                    const cards = Array.from(grid.children).filter(el => el.classList.contains('card-ferramenta-arrastavel'));
+                    const idxArrastando = cards.indexOf(cardFerramentaArrastando);
+                    const idxAlvo = cards.indexOf(cardAlvo);
+
+                    if (idxArrastando >= 0 && idxAlvo >= 0) {
+                        if (idxArrastando < idxAlvo) {
+                            grid.insertBefore(cardFerramentaArrastando, cardAlvo.nextSibling);
+                        } else {
+                            grid.insertBefore(cardFerramentaArrastando, cardAlvo);
+                        }
+                    }
+                }
+            }
+        }
+
+        function tratarCardTouchEnd(e) {
+            if (cardFerramentaArrastando) {
+                cardFerramentaArrastando.classList.remove('is-dragging');
+            }
+            if (touchArrastandoAtivo) {
+                salvarOrdemAtualGridFerramentas(true);
+            }
+            cardFerramentaArrastando = null;
+            touchArrastandoAtivo = false;
+        }
+
         function organizarPosicionamentoFerramentasTrabalho() {
             const gridLiberadas = document.getElementById('grid-ferramentas-liberadas');
             const gridBloqueados = document.getElementById('grid-modulos-bloqueados');
@@ -9029,45 +9355,56 @@
             const isCatLib = typeof isModuloCatalogoLiberadoParaConsultor === 'function' ? isModuloCatalogoLiberadoParaConsultor() : false;
             const isSuperAdminUser = consultorAtual && String(consultorAtual.herbalife_id).trim() === '433005811';
 
-            // Cards sempre liberados por padrão:
             const cardRadar = document.getElementById('card-radar-notificacoes-container');
-            if (cardRadar) gridLiberadas.appendChild(cardRadar);
-
             const cardDirects = document.getElementById('card-prospeccao-x1-container');
-            if (cardDirects) gridLiberadas.appendChild(cardDirects);
-
             const cardVip = document.getElementById('card-vip-indique-container');
-            if (cardVip) gridLiberadas.appendChild(cardVip);
-
-            // 1. Catálogo Digital
             const cardCat = document.getElementById('card-modulo-catalogo-container');
-            if (cardCat) {
-                if (isSuperAdminUser || isCatLib) {
-                    gridLiberadas.appendChild(cardCat);
-                } else {
-                    gridBloqueados.appendChild(cardCat);
-                }
-            }
-
-            // 2. Extrator & CRM WhatsApp
             const cardCrm = document.getElementById('card-modulo-crm-extrator-container');
-            if (cardCrm) {
-                if (isSuperAdminUser || isCrmLib) {
-                    gridLiberadas.appendChild(cardCrm);
-                } else {
-                    gridBloqueados.appendChild(cardCrm);
-                }
+            const cardFin = document.getElementById('card-modulo-financeiro-container');
+
+            const listaLiberados = [];
+            const listaBloqueados = [];
+
+            // 1. Radar, Directs e Indique Consultor sempre liberados por padrão
+            if (cardRadar) listaLiberados.push(cardRadar);
+            if (cardDirects) listaLiberados.push(cardDirects);
+            if (cardVip) listaLiberados.push(cardVip);
+
+            // 2. Meu Catálogo Digital
+            if (cardCat) {
+                if (isSuperAdminUser || isCatLib) listaLiberados.push(cardCat);
+                else listaBloqueados.push(cardCat);
             }
 
-            // 3. Financeiro & Custos de Doses
-            const cardFin = document.getElementById('card-modulo-financeiro-container');
-            if (cardFin) {
-                if (isSuperAdminUser || isFinLib) {
-                    gridLiberadas.appendChild(cardFin);
-                } else {
-                    gridBloqueados.appendChild(cardFin);
-                }
+            // 3. Extrator & CRM WhatsApp
+            if (cardCrm) {
+                if (isSuperAdminUser || isCrmLib) listaLiberados.push(cardCrm);
+                else listaBloqueados.push(cardCrm);
             }
+
+            // 4. Financeiro & Custos de Doses
+            if (cardFin) {
+                if (isSuperAdminUser || isFinLib) listaLiberados.push(cardFin);
+                else listaBloqueados.push(cardFin);
+            }
+
+            // Move os cards bloqueados para a seção de módulos adicionais
+            listaBloqueados.forEach(c => gridBloqueados.appendChild(c));
+
+            // Aplica a ordem personalizada salva se existir
+            const ordemSalva = obterOrdemCardsFerramentasSalva();
+            if (ordemSalva && Array.isArray(ordemSalva) && ordemSalva.length > 0) {
+                listaLiberados.sort((a, b) => {
+                    let idxA = ordemSalva.indexOf(a.id);
+                    let idxB = ordemSalva.indexOf(b.id);
+                    if (idxA === -1) idxA = 999;
+                    if (idxB === -1) idxB = 999;
+                    return idxA - idxB;
+                });
+            }
+
+            // Anexa os cards liberados no grid na ordem correta
+            listaLiberados.forEach(c => gridLiberadas.appendChild(c));
 
             // Visibilidade do container de módulos adicionais bloqueados
             if (containerBloqueados) {
@@ -9077,8 +9414,14 @@
                     containerBloqueados.classList.add('hidden');
                 }
             }
+
+            atualizarVisibilidadeBotaoResetOrdem();
+            inicializarDragAndDropCardsFerramentas();
         }
         window.organizarPosicionamentoFerramentasTrabalho = organizarPosicionamentoFerramentasTrabalho;
+        window.inicializarDragAndDropCardsFerramentas = inicializarDragAndDropCardsFerramentas;
+        window.obterOrdemCardsFerramentasSalva = obterOrdemCardsFerramentasSalva;
+        window.salvarOrdemCardsFerramentas = salvarOrdemCardsFerramentas;
 
         let dadosDataURLAdesivos = null;
         let dadosDataURLTiquetes = null;
