@@ -1731,8 +1731,20 @@
 
                         <!-- Barra de Ferramentas / Filtros -->
                         <div class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 flex-1">
-                                <div class="relative flex-1 max-w-md">
+                            <div class="flex items-center gap-2 flex-1 flex-wrap">
+                                <!-- Alternador de Visualização (Kanban vs Lista) -->
+                                <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-gray-200 shrink-0">
+                                    <button type="button" id="btn-modo-fb-kanban" onclick="alternarModoVisualizacaoFb('kanban')" class="px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-blue-600 text-white shadow-xs cursor-pointer">
+                                        <i class="fa-solid fa-table-columns"></i>
+                                        <span>Quadro Kanban</span>
+                                    </button>
+                                    <button type="button" id="btn-modo-fb-lista" onclick="alternarModoVisualizacaoFb('lista')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer">
+                                        <i class="fa-solid fa-list-ul"></i>
+                                        <span>Lista</span>
+                                    </button>
+                                </div>
+
+                                <div class="relative flex-1 min-w-[180px] max-w-md">
                                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-gray-400"></i>
                                     <input type="text" id="fb-busca-lead" oninput="renderizarTabelaLeadsFacebook()" placeholder="Buscar por nome, cargo ou grupo..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 focus:border-blue-500 rounded-xl font-medium focus:outline-none transition">
                                 </div>
@@ -1757,8 +1769,67 @@
                             </div>
                         </div>
 
+                        <!-- QUADRO KANBAN DE PROSPECÇÃO FACEBOOK X1 -->
+                        <div id="fb-kanban-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 items-start">
+                            <!-- Coluna 1: A Contactar -->
+                            <div class="bg-amber-50/50 rounded-2xl p-3 border border-amber-200/80 shadow-2xs flex flex-col">
+                                <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-amber-200">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                                        <span class="text-xs font-black text-amber-950 uppercase tracking-wider truncate">⏳ A Contactar</span>
+                                    </div>
+                                    <span id="fb-col-badge-pendente" class="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black px-2 py-0.5 rounded-full shadow-2xs shrink-0">0</span>
+                                </div>
+                                <div id="fb-col-body-pendente" ondragover="fbKanbanDragOver(event)" ondragleave="fbKanbanDragLeave(event)" ondrop="fbKanbanDrop(event, 'pendente')" class="space-y-2.5 min-h-[460px] max-h-[66vh] overflow-y-auto pr-1">
+                                    <!-- Cards carregados via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Coluna 2: Mensagem Enviada -->
+                            <div class="bg-blue-50/50 rounded-2xl p-3 border border-blue-200/80 shadow-2xs flex flex-col">
+                                <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-blue-200">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0"></span>
+                                        <span class="text-xs font-black text-blue-950 uppercase tracking-wider truncate">✉️ Mensagem Enviada</span>
+                                    </div>
+                                    <span id="fb-col-badge-enviado" class="bg-blue-100 text-blue-900 border border-blue-300 text-[11px] font-black px-2 py-0.5 rounded-full shadow-2xs shrink-0">0</span>
+                                </div>
+                                <div id="fb-col-body-enviado" ondragover="fbKanbanDragOver(event)" ondragleave="fbKanbanDragLeave(event)" ondrop="fbKanbanDrop(event, 'enviado')" class="space-y-2.5 min-h-[460px] max-h-[66vh] overflow-y-auto pr-1">
+                                    <!-- Cards carregados via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Coluna 3: Em Conversa -->
+                            <div class="bg-purple-50/50 rounded-2xl p-3 border border-purple-200/80 shadow-2xs flex flex-col">
+                                <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-purple-200">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+                                        <span class="text-xs font-black text-purple-950 uppercase tracking-wider truncate">💬 Em Conversa</span>
+                                    </div>
+                                    <span id="fb-col-badge-conversa" class="bg-purple-100 text-purple-900 border border-purple-300 text-[11px] font-black px-2 py-0.5 rounded-full shadow-2xs shrink-0">0</span>
+                                </div>
+                                <div id="fb-col-body-conversa" ondragover="fbKanbanDragOver(event)" ondragleave="fbKanbanDragLeave(event)" ondrop="fbKanbanDrop(event, 'conversa')" class="space-y-2.5 min-h-[460px] max-h-[66vh] overflow-y-auto pr-1">
+                                    <!-- Cards carregados via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Coluna 4: Instalou Plataforma -->
+                            <div class="bg-emerald-50/50 rounded-2xl p-3 border border-emerald-200/80 shadow-2xs flex flex-col">
+                                <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-emerald-200">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                        <span class="text-xs font-black text-emerald-950 uppercase tracking-wider truncate">🎉 Instalou Plataforma</span>
+                                    </div>
+                                    <span id="fb-col-badge-instalou" class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[11px] font-black px-2 py-0.5 rounded-full shadow-2xs shrink-0">0</span>
+                                </div>
+                                <div id="fb-col-body-instalou" ondragover="fbKanbanDragOver(event)" ondragleave="fbKanbanDragLeave(event)" ondrop="fbKanbanDrop(event, 'instalou')" class="space-y-2.5 min-h-[460px] max-h-[66vh] overflow-y-auto pr-1">
+                                    <!-- Cards carregados via JS -->
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Tabela / Lista de Leads -->
-                        <div id="fb-container-leads-lista" class="space-y-2.5">
+                        <div id="fb-container-leads-lista" class="space-y-2.5 hidden">
                             <!-- Cards renderizados dinamicamente via JS -->
                         </div>
                     </div>
@@ -22805,8 +22876,91 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             }
         }
 
+        let modoVisualizacaoFbAtual = 'kanban';
+        let fbLeadIdArrastando = null;
+
+        function alternarModoVisualizacaoFb(modo) {
+            modoVisualizacaoFbAtual = modo;
+            const btnKanban = document.getElementById('btn-modo-fb-kanban');
+            const btnLista = document.getElementById('btn-modo-fb-lista');
+            const containerKanban = document.getElementById('fb-kanban-container');
+            const containerLista = document.getElementById('fb-container-leads-lista');
+
+            if (modo === 'kanban') {
+                if (btnKanban) {
+                    btnKanban.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-blue-600 text-white shadow-xs cursor-pointer';
+                }
+                if (btnLista) {
+                    btnLista.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer';
+                }
+                if (containerKanban) containerKanban.classList.remove('hidden');
+                if (containerLista) containerLista.classList.add('hidden');
+            } else {
+                if (btnKanban) {
+                    btnKanban.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer';
+                }
+                if (btnLista) {
+                    btnLista.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 bg-blue-600 text-white shadow-xs cursor-pointer';
+                }
+                if (containerKanban) containerKanban.classList.add('hidden');
+                if (containerLista) containerLista.classList.remove('hidden');
+            }
+
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function fbKanbanDragStart(event, leadId) {
+            fbLeadIdArrastando = leadId;
+            event.dataTransfer.setData('text/plain', leadId);
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function fbKanbanDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            const dropZone = event.currentTarget;
+            if (dropZone) {
+                dropZone.classList.add('bg-blue-100/70', 'ring-2', 'ring-blue-400');
+            }
+        }
+
+        function fbKanbanDragLeave(event) {
+            const dropZone = event.currentTarget;
+            if (dropZone) {
+                dropZone.classList.remove('bg-blue-100/70', 'ring-2', 'ring-blue-400');
+            }
+        }
+
+        function fbKanbanDrop(event, novaEtapa) {
+            event.preventDefault();
+            const dropZone = event.currentTarget;
+            if (dropZone) {
+                dropZone.classList.remove('bg-blue-100/70', 'ring-2', 'ring-blue-400');
+            }
+            const leadId = event.dataTransfer.getData('text/plain') || fbLeadIdArrastando;
+            if (!leadId) return;
+            atualizarStatusLeadFacebook(leadId, novaEtapa);
+        }
+
+        function moverLeadFacebookEtapaRelativa(leadId, delta) {
+            const etapas = ['pendente', 'enviado', 'conversa', 'instalou'];
+            const leads = obterLeadsFacebookStorage();
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+            let idxAtual = etapas.indexOf(lead.status || 'pendente');
+            if (idxAtual === -1) idxAtual = 0;
+            const novoIdx = idxAtual + delta;
+            if (novoIdx >= 0 && novoIdx < etapas.length) {
+                atualizarStatusLeadFacebook(leadId, etapas[novoIdx]);
+            }
+        }
+
+        function moverLeadFacebookEtapa(leadId, novaEtapa) {
+            atualizarStatusLeadFacebook(leadId, novaEtapa);
+        }
+
         function renderizarTabelaLeadsFacebook() {
-            const container = document.getElementById('fb-container-leads-lista');
+            const containerLista = document.getElementById('fb-container-leads-lista');
             const leads = obterLeadsFacebookStorage();
 
             const termoBusca = (document.getElementById('fb-busca-lead')?.value || '').toLowerCase().trim();
@@ -22816,6 +22970,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             const totalLeads = leads.length;
             const pendentes = leads.filter(l => (l.status || 'pendente') === 'pendente').length;
             const enviados = leads.filter(l => l.status === 'enviado').length;
+            const emConversa = leads.filter(l => l.status === 'conversa').length;
             const convertidos = leads.filter(l => l.status === 'instalou').length;
 
             const elTotal = document.getElementById('fb-metr-total');
@@ -22832,9 +22987,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             if (elBadge) elBadge.innerText = totalLeads;
             if (elHeaderTotal) elHeaderTotal.innerText = `${totalLeads} leads`;
 
-            if (!container) return;
-
-            // Filtra lista
+            // Filtra lista de leads
             const leadsFiltrados = leads.filter(l => {
                 const matchNome = (l.nome || '').toLowerCase().includes(termoBusca) ||
                                   (l.grupoOrigem || '').toLowerCase().includes(termoBusca) ||
@@ -22843,91 +22996,208 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 return matchNome && matchStatus;
             });
 
-            if (leadsFiltrados.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-2xs">
-                        <i class="fa-brands fa-facebook text-4xl text-gray-300 mb-2"></i>
-                        <h4 class="text-sm font-bold text-gray-700">Nenhum contato encontrado</h4>
-                        <p class="text-xs text-gray-400 mt-1">Use a aba '⚡ Extrator de Membros' para extrair do grupo do Facebook ou adicione manualmente.</p>
-                        <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition inline-flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-bolt"></i> Extrair Agora do Facebook
-                        </button>
-                    </div>
-                `;
-                return;
-            }
+            // 1. RENDERIZAÇÃO DO QUADRO KANBAN
+            const colPendente = document.getElementById('fb-col-body-pendente');
+            const colEnviado = document.getElementById('fb-col-body-enviado');
+            const colConversa = document.getElementById('fb-col-body-conversa');
+            const colInstalou = document.getElementById('fb-col-body-instalou');
 
-            const htmlCards = leadsFiltrados.map((lead) => {
+            const badgePendente = document.getElementById('fb-col-badge-pendente');
+            const badgeEnviado = document.getElementById('fb-col-badge-enviado');
+            const badgeConversa = document.getElementById('fb-col-badge-conversa');
+            const badgeInstalou = document.getElementById('fb-col-badge-instalou');
+
+            const leadsPorEtapa = {
+                pendente: [],
+                enviado: [],
+                conversa: [],
+                instalou: []
+            };
+
+            leadsFiltrados.forEach(lead => {
+                const st = (lead.status || 'pendente');
+                if (leadsPorEtapa[st]) {
+                    leadsPorEtapa[st].push(lead);
+                } else {
+                    leadsPorEtapa['pendente'].push(lead);
+                }
+            });
+
+            if (badgePendente) badgePendente.innerText = leadsPorEtapa.pendente.length;
+            if (badgeEnviado) badgeEnviado.innerText = leadsPorEtapa.enviado.length;
+            if (badgeConversa) badgeConversa.innerText = leadsPorEtapa.conversa.length;
+            if (badgeInstalou) badgeInstalou.innerText = leadsPorEtapa.instalou.length;
+
+            const gerarCardKanbanHtml = (lead, etapa) => {
                 const isAdmin = (lead.cargo === 'admin' || (lead.cargo || '').toLowerCase().includes('admin'));
                 const cargoBadge = isAdmin
-                    ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1">👑 Administrador(a)</span>`
-                    : `<span class="bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">👤 Membro</span>`;
+                    ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded-full inline-flex items-center gap-0.5"><i class="fa-solid fa-crown text-[8px] text-amber-600"></i> Admin</span>`
+                    : `<span class="bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full inline-flex items-center gap-0.5">👤 Membro</span>`;
 
-                let statusBg = 'bg-amber-50 text-amber-800 border-amber-200';
-                if (lead.status === 'enviado') {
-                    statusBg = 'bg-blue-50 text-blue-800 border-blue-200';
-                } else if (lead.status === 'conversa') {
-                    statusBg = 'bg-purple-50 text-purple-800 border-purple-200';
-                } else if (lead.status === 'instalou') {
-                    statusBg = 'bg-emerald-50 text-emerald-800 border-emerald-200';
-                }
+                const partesNome = (lead.nome || 'Consultor').trim().split(' ');
+                const iniciais = (partesNome[0][0] + (partesNome.length > 1 ? partesNome[partesNome.length - 1][0] : '')).toUpperCase();
 
-                const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+                const btnVoltar = etapa !== 'pendente'
+                    ? `<button type="button" onclick="event.stopPropagation(); moverLeadFacebookEtapaRelativa('${lead.id}', -1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center justify-center transition cursor-pointer" title="Mover para etapa anterior"><i class="fa-solid fa-chevron-left text-[9px]"></i></button>`
+                    : '';
+
+                const btnAvancar = etapa !== 'instalou'
+                    ? `<button type="button" onclick="event.stopPropagation(); moverLeadFacebookEtapaRelativa('${lead.id}', 1)" class="w-6 h-6 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg flex items-center justify-center transition cursor-pointer" title="Avançar próxima etapa"><i class="fa-solid fa-chevron-right text-[9px]"></i></button>`
+                    : '';
 
                 return `
-                    <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-200 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex items-start sm:items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0 shadow-xs">
-                                ${primeiroNome.substring(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="text-sm font-black text-gray-900">${lead.nome}</h4>
-                                    ${cargoBadge}
-                                    <span class="bg-blue-50 text-blue-800 text-[9px] font-bold px-2 py-0.2 rounded-full border border-blue-100 flex items-center gap-1">
-                                        <i class="fa-brands fa-facebook-f text-[8px]"></i> Facebook Grupos
-                                    </span>
+                    <div class="bg-white rounded-2xl p-3 border border-gray-200/90 hover:border-blue-500 shadow-2xs hover:shadow-md transition space-y-2 cursor-grab active:cursor-grabbing select-none group relative" draggable="true" ondragstart="fbKanbanDragStart(event, '${lead.id}')">
+                        <div class="flex items-start justify-between gap-1.5">
+                            <div class="flex items-center gap-2 min-w-0 flex-1">
+                                <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-[11px] flex items-center justify-center flex-shrink-0 shadow-2xs">
+                                    ${iniciais}
                                 </div>
-                                <div class="text-[11px] text-gray-500 flex items-center gap-2 flex-wrap mt-0.5">
-                                    <span class="font-semibold text-gray-600"><i class="fa-solid fa-users-rectangle text-blue-500"></i> ${lead.grupoOrigem || 'Grupo Facebook'}</span>
-                                    <span>•</span>
-                                    <span class="text-gray-400">Adicionado em: ${lead.dataAdicionado || 'Recente'}</span>
-                                    ${lead.notas ? `<span>•</span> <span class="italic text-gray-400 font-medium">${lead.notas}</span>` : ''}
+                                <div class="min-w-0 flex-1">
+                                    <h5 class="text-xs font-black text-gray-900 truncate leading-tight" title="${lead.nome}">${lead.nome}</h5>
+                                    <div class="flex items-center gap-1 mt-0.5 flex-wrap">
+                                        ${cargoBadge}
+                                    </div>
                                 </div>
                             </div>
+                            <button type="button" onclick="event.stopPropagation(); excluirLeadFacebook('${lead.id}')" class="text-gray-300 hover:text-rose-600 p-1 rounded transition cursor-pointer shrink-0" title="Excluir Lead">
+                                <i class="fa-regular fa-trash-can text-[11px]"></i>
+                            </button>
                         </div>
 
-                        <div class="flex items-center gap-2 flex-wrap justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                            <!-- Dropdown de Status Rápido -->
-                            <select onchange="atualizarStatusLeadFacebook('${lead.id}', this.value)" class="py-1 px-2.5 text-[11px] font-bold rounded-xl border ${statusBg} focus:outline-none cursor-pointer">
-                                <option value="pendente" ${lead.status === 'pendente' ? 'selected' : ''}>⏳ A Contactar</option>
-                                <option value="enviado" ${lead.status === 'enviado' ? 'selected' : ''}>✉️ Mensagem Enviada</option>
-                                <option value="conversa" ${lead.status === 'conversa' ? 'selected' : ''}>💬 Em Conversa</option>
-                                <option value="instalou" ${lead.status === 'instalou' ? 'selected' : ''}>🎉 Instalou Plataforma</option>
-                            </select>
+                        <div class="text-[10px] text-gray-500 flex items-center gap-1.5 overflow-hidden">
+                            <i class="fa-solid fa-users-rectangle text-blue-500 text-[10px] shrink-0"></i>
+                            <span class="truncate font-medium text-gray-600" title="${lead.grupoOrigem || 'Grupo Facebook'}">${lead.grupoOrigem || 'Grupo Facebook'}</span>
+                        </div>
 
-                            <!-- Botão Copiar Copy Personalizada -->
-                            <button type="button" onclick="abrirDropdownCopiesLead('${lead.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer border border-indigo-200 shadow-2xs" title="Copiar Copy Pronta com Nome">
-                                <i class="fa-solid fa-copy text-indigo-600"></i>
-                                <span>Copiar Copy</span>
-                            </button>
-
-                            <!-- Botão Abrir Perfil / Messenger -->
-                            <button type="button" onclick="abrirMessengerLeadFacebook('${lead.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Abrir Messenger ou Perfil no Facebook">
-                                <i class="fa-brands fa-facebook-messenger text-sm"></i>
-                                <span>Abrir Messenger</span>
-                            </button>
-
-                            <!-- Botão Excluir -->
-                            <button type="button" onclick="excluirLeadFacebook('${lead.id}')" class="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer" title="Excluir Lead">
-                                <i class="fa-regular fa-trash-can text-xs"></i>
-                            </button>
+                        <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-1">
+                            <div class="flex items-center gap-1">
+                                ${btnVoltar}
+                                ${btnAvancar}
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="event.stopPropagation(); abrirDropdownCopiesLead('${lead.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer border border-indigo-200" title="Copiar Copy Pronta">
+                                    <i class="fa-solid fa-copy text-[10px]"></i> <span>Copy</span>
+                                </button>
+                                <button type="button" onclick="event.stopPropagation(); abrirMessengerLeadFacebook('${lead.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] transition flex items-center gap-1 cursor-pointer shadow-2xs whitespace-nowrap" title="Abrir Messenger e Copiar Copy">
+                                    <i class="fa-brands fa-facebook-messenger text-[11px]"></i> <span>Direct</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
-            }).join('');
+            };
 
-            container.innerHTML = htmlCards;
+            const htmlVazioColuna = `<div class="py-8 text-center text-gray-400 text-xs italic">Nenhum contato nesta etapa</div>`;
+
+            if (colPendente) {
+                colPendente.innerHTML = leadsPorEtapa.pendente.length > 0
+                    ? leadsPorEtapa.pendente.map(l => gerarCardKanbanHtml(l, 'pendente')).join('')
+                    : htmlVazioColuna;
+            }
+            if (colEnviado) {
+                colEnviado.innerHTML = leadsPorEtapa.enviado.length > 0
+                    ? leadsPorEtapa.enviado.map(l => gerarCardKanbanHtml(l, 'enviado')).join('')
+                    : htmlVazioColuna;
+            }
+            if (colConversa) {
+                colConversa.innerHTML = leadsPorEtapa.conversa.length > 0
+                    ? leadsPorEtapa.conversa.map(l => gerarCardKanbanHtml(l, 'conversa')).join('')
+                    : htmlVazioColuna;
+            }
+            if (colInstalou) {
+                colInstalou.innerHTML = leadsPorEtapa.instalou.length > 0
+                    ? leadsPorEtapa.instalou.map(l => gerarCardKanbanHtml(l, 'instalou')).join('')
+                    : htmlVazioColuna;
+            }
+
+            // 2. RENDERIZAÇÃO DA LISTA (Modo 'lista')
+            if (containerLista) {
+                if (leadsFiltrados.length === 0) {
+                    containerLista.innerHTML = `
+                        <div class="bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-2xs">
+                            <i class="fa-brands fa-facebook text-4xl text-gray-300 mb-2"></i>
+                            <h4 class="text-sm font-bold text-gray-700">Nenhum contato encontrado</h4>
+                            <p class="text-xs text-gray-400 mt-1">Use a aba '⚡ Extrator de Membros' para extrair do grupo do Facebook ou adicione manualmente.</p>
+                            <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-bolt"></i> Extrair Agora do Facebook
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const htmlCards = leadsFiltrados.map((lead) => {
+                    const isAdmin = (lead.cargo === 'admin' || (lead.cargo || '').toLowerCase().includes('admin'));
+                    const cargoBadge = isAdmin
+                        ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1">👑 Administrador(a)</span>`
+                        : `<span class="bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">👤 Membro</span>`;
+
+                    let statusBg = 'bg-amber-50 text-amber-800 border-amber-200';
+                    if (lead.status === 'enviado') {
+                        statusBg = 'bg-blue-50 text-blue-800 border-blue-200';
+                    } else if (lead.status === 'conversa') {
+                        statusBg = 'bg-purple-50 text-purple-800 border-purple-200';
+                    } else if (lead.status === 'instalou') {
+                        statusBg = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                    }
+
+                    const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+
+                    return `
+                        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-200 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-start sm:items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    ${primeiroNome.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="text-sm font-black text-gray-900">${lead.nome}</h4>
+                                        ${cargoBadge}
+                                        <span class="bg-blue-50 text-blue-800 text-[9px] font-bold px-2 py-0.2 rounded-full border border-blue-100 flex items-center gap-1">
+                                            <i class="fa-brands fa-facebook-f text-[8px]"></i> Facebook Grupos
+                                        </span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 flex items-center gap-2 flex-wrap mt-0.5">
+                                        <span class="font-semibold text-gray-600"><i class="fa-solid fa-users-rectangle text-blue-500"></i> ${lead.grupoOrigem || 'Grupo Facebook'}</span>
+                                        <span>•</span>
+                                        <span class="text-gray-400">Adicionado em: ${lead.dataAdicionado || 'Recente'}</span>
+                                        ${lead.notas ? `<span>•</span> <span class="italic text-gray-400 font-medium">${lead.notas}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-wrap justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                                <!-- Dropdown de Status Rápido -->
+                                <select onchange="atualizarStatusLeadFacebook('${lead.id}', this.value)" class="py-1 px-2.5 text-[11px] font-bold rounded-xl border ${statusBg} focus:outline-none cursor-pointer">
+                                    <option value="pendente" ${(lead.status || 'pendente') === 'pendente' ? 'selected' : ''}>⏳ A Contactar</option>
+                                    <option value="enviado" ${lead.status === 'enviado' ? 'selected' : ''}>✉️ Mensagem Enviada</option>
+                                    <option value="conversa" ${lead.status === 'conversa' ? 'selected' : ''}>💬 Em Conversa</option>
+                                    <option value="instalou" ${lead.status === 'instalou' ? 'selected' : ''}>🎉 Instalou Plataforma</option>
+                                </select>
+
+                                <!-- Botão Copiar Copy Personalizada -->
+                                <button type="button" onclick="abrirDropdownCopiesLead('${lead.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer border border-indigo-200 shadow-2xs" title="Copiar Copy Pronta com Nome">
+                                    <i class="fa-solid fa-copy text-indigo-600"></i>
+                                    <span>Copiar Copy</span>
+                                </button>
+
+                                <!-- Botão Abrir Perfil / Messenger -->
+                                <button type="button" onclick="abrirMessengerLeadFacebook('${lead.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Abrir Messenger ou Perfil no Facebook">
+                                    <i class="fa-brands fa-facebook-messenger text-sm"></i>
+                                    <span>Abrir Messenger</span>
+                                </button>
+
+                                <!-- Botão Excluir -->
+                                <button type="button" onclick="excluirLeadFacebook('${lead.id}')" class="text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer" title="Excluir Lead">
+                                    <i class="fa-regular fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                containerLista.innerHTML = htmlCards;
+            }
         }
 
         function atualizarStatusLeadFacebook(id, novoStatus) {
@@ -23534,6 +23804,13 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.copiarTextoAllowPasting = copiarTextoAllowPasting;
         window.colarTextoDaAreaDeTransferencia = colarTextoDaAreaDeTransferencia;
         window.copiarBookmarkletFacebook = copiarBookmarkletFacebook;
+        window.alternarModoVisualizacaoFb = alternarModoVisualizacaoFb;
+        window.fbKanbanDragStart = fbKanbanDragStart;
+        window.fbKanbanDragOver = fbKanbanDragOver;
+        window.fbKanbanDragLeave = fbKanbanDragLeave;
+        window.fbKanbanDrop = fbKanbanDrop;
+        window.moverLeadFacebookEtapa = moverLeadFacebookEtapa;
+        window.moverLeadFacebookEtapaRelativa = moverLeadFacebookEtapaRelativa;
 
 
 
