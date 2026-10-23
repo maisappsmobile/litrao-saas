@@ -8909,6 +8909,15 @@
                     preencherCamposFlyer();
                     preencherCamposPerfil();
                     sincronizarPrecosKitsEmTodaPlataforma(null, false);
+                    setTimeout(() => {
+                        try {
+                            if (typeof gerarAdesivosFacebookPersonalizado === 'function') {
+                                gerarAdesivosFacebookPersonalizado();
+                            }
+                        } catch(adErr) {
+                            console.warn("Erro ao pre-gerar adesivos:", adErr);
+                        }
+                    }, 500);
                 } catch (saErr) {
                     console.warn("Erro ao verificar SuperAdmin ou VIP:", saErr);
                 }
@@ -9108,7 +9117,19 @@
                 dataUrl = dadosDataURLPerfil;
                 titulo = 'Foto de Perfil Oficial';
             }
-            if (!dataUrl) return;
+            if (!dataUrl) {
+                if (tipo === 'adesivos' || !tipo) {
+                    if (typeof gerarAdesivosFacebookPersonalizado === 'function') {
+                        gerarAdesivosFacebookPersonalizado((url) => {
+                            if (url) {
+                                dadosDataURLAdesivos = url;
+                                imprimirArquivoGerado('adesivos');
+                            }
+                        });
+                    }
+                }
+                return;
+            }
 
             const win = window.open('', '_blank');
             win.document.write(`
@@ -9147,7 +9168,21 @@
                 dataUrl = dadosDataURLPacotes;
                 nome = `Comanda_Pacotes_Reset_${consultorAtual?.herbalife_id || 'consultor'}.png`;
             }
-            if (!dataUrl) return;
+            if (!dataUrl) {
+                if (tipo === 'adesivos' || !tipo) {
+                    if (typeof gerarAdesivosFacebookPersonalizado === 'function') {
+                        gerarAdesivosFacebookPersonalizado((url) => {
+                            if (url) {
+                                const link = document.createElement('a');
+                                link.download = nome;
+                                link.href = url;
+                                link.click();
+                            }
+                        });
+                    }
+                }
+                return;
+            }
             const link = document.createElement('a');
             link.download = nome;
             link.href = dataUrl;
@@ -9393,6 +9428,213 @@
             }
         }
         window.copiarImagemPacotesPersonalizadoFacebook = copiarImagemPacotesPersonalizadoFacebook;
+
+        /* ==========================================================================
+           MOTOR OFICIAL DE GERAÇÃO DE ADESIVOS A4 COM QR CODE DO CONSULTOR
+           ========================================================================== */
+        function obterElementoQrCodeConsultor(callback) {
+            let qrTemp = document.getElementById('qrcode-temp');
+            if (!qrTemp) {
+                qrTemp = document.createElement('div');
+                qrTemp.id = 'qrcode-temp';
+                qrTemp.style.display = 'none';
+                document.body.appendChild(qrTemp);
+            }
+
+            const encontrarQrPronto = () => {
+                const c = qrTemp.querySelector('canvas');
+                if (c && c.width > 0) return c;
+                const img = qrTemp.querySelector('img');
+                if (img && img.src && (img.src.startsWith('data:image') || img.src.startsWith('blob:') || img.src.startsWith('http'))) return img;
+                return null;
+            };
+
+            const pronto = encontrarQrPronto();
+            if (pronto) {
+                if (typeof callback === 'function') callback(pronto);
+                return pronto;
+            }
+
+            // Se ainda não gerou, gera agora com a URL oficial do consultor
+            let urlDestino = 'https://litraodoreset.com.br';
+            try {
+                const c = consultorAtual || {};
+                const base = (window.location && window.location.origin && !window.location.origin.includes('file:')) ? window.location.origin : 'https://litraodoreset.com.br';
+                const id = c.slug || c.herbalife_id || 'superadmin';
+                urlDestino = `${base}/${id}`;
+            } catch(e) {}
+
+            if (typeof QRCode !== 'undefined') {
+                qrTemp.innerHTML = "";
+                new QRCode(qrTemp, {
+                    text: urlDestino,
+                    width: 400,
+                    height: 400,
+                    colorDark : "#1e3a24",
+                    colorLight : "#ffffff",
+                    correctLevel : (QRCode && QRCode.CorrectLevel) ? QRCode.CorrectLevel.H : 2
+                });
+
+                setTimeout(() => {
+                    const el = encontrarQrPronto();
+                    if (typeof callback === 'function') callback(el);
+                }, 200);
+                return null;
+            }
+
+            if (typeof callback === 'function') callback(null);
+            return null;
+        }
+        window.obterElementoQrCodeConsultor = obterElementoQrCodeConsultor;
+
+        function desenharArteAdesivosNoCanvas(canvas, imgBase, qrFonte) {
+            if (!canvas || !imgBase) return false;
+            const ctx = canvas.getContext('2d');
+            const largura = imgBase.naturalWidth || imgBase.width || 1024;
+            const altura = imgBase.naturalHeight || imgBase.height || 710;
+
+            canvas.width = largura;
+            canvas.height = altura;
+            ctx.clearRect(0, 0, largura, altura);
+            ctx.drawImage(imgBase, 0, 0, largura, altura);
+
+            if (!qrFonte) {
+                console.warn("QR Code fonte não disponível para adesivos.");
+                return false;
+            }
+
+            // MAPEAMENTO GEOMÉTRICO CALIBRADO (1024x710)
+            // Imagem base oficial: 5 colunas x 2 linhas
+            const escalaX = largura / 1024.0;
+            const escalaY = altura / 710.0;
+
+            // Centros X exatos de cada coluna (5 colunas em 1024px):
+            // Col 0: 102.4 | Col 1: 307.2 | Col 2: 512.0 | Col 3: 716.8 | Col 4: 921.6
+            const centrosXOriginal = [102.4, 307.2, 512.0, 716.8, 921.6];
+            
+            // Centros Y exatos posicionados na área branca livre (abaixo do texto dos benefícios e acima das ondas):
+            // Linha 0 (superior): 288.0 | Linha 1 (inferior): 643.0
+            const centrosYOriginal = [288.0, 643.0];
+
+            // Tamanho nítido do QR Code calibrado para caber perfeitamente sem cobrir letras (64px)
+            const qrSize = Math.round(64 * escalaX);
+            const paddingFundo = Math.round(3 * escalaX); // Borda branca suave de respiro
+
+            for (let l = 0; l < 2; l++) {
+                const centerY = centrosYOriginal[l] * escalaY;
+                const y = Math.round(centerY - (qrSize / 2));
+
+                for (let c = 0; c < 5; c++) {
+                    const centerX = centrosXOriginal[c] * escalaX;
+                    const x = Math.round(centerX - (qrSize / 2));
+
+                    // 1. Fundo branco limpo para leitura perfeita pela câmera
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(x - paddingFundo, y - paddingFundo, qrSize + (paddingFundo * 2), qrSize + (paddingFundo * 2));
+
+                    // 2. Desenha o QR Code
+                    ctx.drawImage(qrFonte, x, y, qrSize, qrSize);
+                }
+            }
+            return true;
+        }
+        window.desenharArteAdesivosNoCanvas = desenharArteAdesivosNoCanvas;
+
+        function gerarAdesivosFacebookPersonalizado(callback) {
+            let canvas = document.getElementById('canvas-a4');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'canvas-a4';
+                canvas.style.display = 'none';
+                document.body.appendChild(canvas);
+            }
+
+            const executarDesenhoComQr = (qrEl) => {
+                const imgBase = document.getElementById('img-base');
+
+                const aplicarNoCanvas = (img) => {
+                    try {
+                        const ok = desenharArteAdesivosNoCanvas(canvas, img, qrEl);
+                        if (ok) {
+                            dadosDataURLAdesivos = canvas.toDataURL("image/png", 1.0);
+
+                            // Atualiza imagem no Card 3 do Modal do Facebook
+                            const fbImg = document.getElementById('fb-img-criativo_3');
+                            if (fbImg) fbImg.src = dadosDataURLAdesivos;
+
+                            // Atualiza badge no Card 3
+                            const fbBadge = document.getElementById('fb-badge-criativo_3');
+                            if (fbBadge) {
+                                const hid = consultorAtual?.herbalife_id || 'consultor';
+                                fbBadge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Folha A4 com Seu QR Code (ID: ${hid})`;
+                            }
+
+                            // Atualiza imagem do visualizador em tela cheia se estiver aberto nele
+                            if (criativoIdVisualizadorAtivo === 'criativo_3') {
+                                const modalImg = document.getElementById('modal-visualizador-img-fb');
+                                if (modalImg) modalImg.src = dadosDataURLAdesivos;
+                            }
+
+                            // Sincroniza prévia dos Materiais de Apoio se o elemento existir
+                            const previewImg = document.getElementById('img-preview-adesivos');
+                            if (previewImg) previewImg.src = dadosDataURLAdesivos;
+                        }
+                    } catch(err) {
+                        console.error("Erro ao gerar adesivos canvas:", err);
+                    }
+                    if (typeof callback === 'function') callback(dadosDataURLAdesivos);
+                };
+
+                if (imgBase && imgBase.complete && (imgBase.naturalWidth > 0 || imgBase.width > 0)) {
+                    aplicarNoCanvas(imgBase);
+                } else {
+                    const imgTemp = new Image();
+                    imgTemp.crossOrigin = "anonymous";
+                    imgTemp.onload = () => aplicarNoCanvas(imgTemp);
+                    imgTemp.src = "adesivo-base.png?v=4";
+                }
+            };
+
+            obterElementoQrCodeConsultor(executarDesenhoComQr);
+        }
+        window.gerarAdesivosFacebookPersonalizado = gerarAdesivosFacebookPersonalizado;
+
+        async function copiarImagemAdesivosPersonalizadoFacebook(btn) {
+            if (!dadosDataURLAdesivos) {
+                gerarAdesivosFacebookPersonalizado();
+                await new Promise(r => setTimeout(r, 400));
+            }
+            const canvas = document.getElementById('canvas-a4');
+            if (canvas && typeof canvas.toBlob === 'function' && navigator.clipboard && window.ClipboardItem) {
+                canvas.toBlob(async blob => {
+                    if (blob) {
+                        try {
+                            const item = new ClipboardItem({ 'image/png': blob });
+                            await navigator.clipboard.write([item]);
+                            if (btn) {
+                                const orig = btn.innerHTML;
+                                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado! ✅';
+                                btn.classList.add('bg-emerald-600');
+                                setTimeout(() => {
+                                    btn.innerHTML = orig;
+                                    btn.classList.remove('bg-emerald-600');
+                                }, 2500);
+                            }
+                            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                                mostrarNotificacaoFlutuante('Folha de Adesivos com seu QR Code copiada! (Ctrl+V) ✅', 'sucesso');
+                            }
+                        } catch(e) {
+                            baixarCriativoFacebook('criativo_3', btn);
+                        }
+                    }
+                }, 'image/png');
+            } else if (dadosDataURLAdesivos) {
+                copiarImagemCriativoFacebook(dadosDataURLAdesivos, btn);
+            } else {
+                baixarCriativoFacebook('criativo_3', btn);
+            }
+        }
+        window.copiarImagemAdesivosPersonalizadoFacebook = copiarImagemAdesivosPersonalizadoFacebook;
 
         let timerSincronizarPrecos = null;
         function sincronizarPrecosKitsEmTodaPlataforma(novosPrecos, salvarNoBanco = false) {
@@ -10162,82 +10404,40 @@
 
         function gerarAdesivos() {
             const btn = document.getElementById('btn-adesivo');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO ADESIVOS...';
-            
-            setTimeout(() => {
-                const imgBase = document.getElementById('img-base');
-                const canvas = document.getElementById('canvas-a4');
-                const ctx = canvas.getContext('2d');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO ADESIVOS...';
 
-                canvas.width = imgBase.width;
-                canvas.height = imgBase.height;
-                ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
+            gerarAdesivosFacebookPersonalizado((dataUrl) => {
+                if (dataUrl) {
+                    const previewImg = document.getElementById('img-preview-adesivos');
+                    const previewBox = document.getElementById('preview-box-adesivos');
+                    const contAdesivos = document.getElementById('conteudo-preview-adesivos');
+                    const iconeAd = document.getElementById('icone-toggle-preview-adesivos');
+                    const labelAd = document.getElementById('label-toggle-preview-adesivos');
 
-                const qrImg = document.querySelector('#qrcode-temp img');
-                if(!qrImg || !qrImg.src) {
-                    alert("Aguarde o QR Code carregar e tente de novo.");
-                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS';
-                    return;
-                }
+                    if (previewImg && previewBox) {
+                        previewImg.src = dataUrl;
+                        previewBox.classList.remove('hidden');
+                        if (contAdesivos) contAdesivos.classList.remove('hidden');
+                        if (iconeAd) iconeAd.className = 'fa-solid fa-chevron-up mr-1 text-[10px]';
+                        if (labelAd) labelAd.innerText = 'Minimizar';
+                        previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
 
-                // MAPEAMENTO GEOMÉTRICO CALIBRADO (1024x710)
-                // Imagem base oficial: 5 colunas x 2 linhas
-                const escalaX = canvas.width / 1024.0;
-                const escalaY = canvas.height / 710.0;
-
-                // Centros X exatos de cada coluna (5 colunas em 1024px):
-                // Col 0: 102.4 | Col 1: 307.2 | Col 2: 512.0 | Col 3: 716.8 | Col 4: 921.6
-                const centrosXOriginal = [102.4, 307.2, 512.0, 716.8, 921.6];
-                
-                // Centros Y exatos posicionados na área branca livre (abaixo do texto dos benefícios e acima das ondas):
-                // Linha 0 (superior): 288.0 | Linha 1 (inferior): 643.0
-                const centrosYOriginal = [288.0, 643.0];
-
-                // Tamanho nítido do QR Code calibrado para caber perfeitamente sem cobrir letras (62px)
-                const qrSize = Math.round(62 * escalaX);
-                const paddingFundo = 3; // Borda branca suave de respiro
-
-                for(let l = 0; l < 2; l++) {
-                    const centerY = centrosYOriginal[l] * escalaY;
-                    const y = Math.round(centerY - (qrSize / 2));
-
-                    for(let c = 0; c < 5; c++) {
-                        const centerX = centrosXOriginal[c] * escalaX;
-                        const x = Math.round(centerX - (qrSize / 2));
-
-                        // 1. Fundo branco limpo para leitura perfeita pela câmera
-                        ctx.fillStyle = "#ffffff";
-                        ctx.fillRect(x - paddingFundo, y - paddingFundo, qrSize + (paddingFundo * 2), qrSize + (paddingFundo * 2));
-
-                        // 2. Desenha o QR Code
-                        ctx.drawImage(qrImg, x, y, qrSize, qrSize);
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl text-green-700"></i> PRONTO PARA USO!';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> ATUALIZAR ADESIVOS';
+                        }, 2500);
+                    }
+                } else {
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2 text-xl text-amber-500"></i> TENTAR NOVAMENTE';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> GERAR ADESIVOS';
+                        }, 2500);
                     }
                 }
-
-                // Salva o DataURL gerado para prévia, impressão, download e compartilhamento
-                dadosDataURLAdesivos = canvas.toDataURL("image/png", 1.0);
-
-                // Atualiza a prévia visual abaixo do card
-                const previewImg = document.getElementById('img-preview-adesivos');
-                const previewBox = document.getElementById('preview-box-adesivos');
-                const contAdesivos = document.getElementById('conteudo-preview-adesivos');
-                const iconeAd = document.getElementById('icone-toggle-preview-adesivos');
-                const labelAd = document.getElementById('label-toggle-preview-adesivos');
-
-                if (previewImg && previewBox) {
-                    previewImg.src = dadosDataURLAdesivos;
-                    previewBox.classList.remove('hidden');
-                    if (contAdesivos) contAdesivos.classList.remove('hidden');
-                    if (iconeAd) iconeAd.className = 'fa-solid fa-chevron-up mr-1 text-[10px]';
-                    if (labelAd) labelAd.innerText = 'Minimizar';
-                    previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-
-                btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl text-green-700"></i> PRONTO PARA USO!';
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2 text-xl"></i> ATUALIZAR ADESIVOS';
-                }, 2500);
-            }, 600);
+            });
         }
 
         /* ==========================================================================
@@ -24678,27 +24878,50 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
             container.innerHTML = CRIATIVOS_FACEBOOK_OFICIAIS.map(criativo => {
                 const isFlyer = criativo.id === 'criativo_2';
+                const isAdesivos = criativo.id === 'criativo_3';
                 const isPacotes = criativo.id === 'criativo_4';
-                const imgId = isFlyer ? 'id="fb-img-criativo_2"' : (isPacotes ? 'id="fb-img-criativo_4"' : '');
+
+                const imgId = isFlyer
+                    ? 'id="fb-img-criativo_2"'
+                    : (isAdesivos
+                        ? 'id="fb-img-criativo_3"'
+                        : (isPacotes ? 'id="fb-img-criativo_4"' : ''));
+
+                const srcImagem = (isFlyer && dadosDataURLFlyer)
+                    ? dadosDataURLFlyer
+                    : ((isAdesivos && dadosDataURLAdesivos)
+                        ? dadosDataURLAdesivos
+                        : ((isPacotes && dadosDataURLPacotes)
+                            ? dadosDataURLPacotes
+                            : criativo.arquivo));
+
                 const btnCopiarAction = isFlyer
                     ? `copiarImagemFlyerPersonalizadoFacebook(this)`
-                    : (isPacotes ? `copiarImagemPacotesPersonalizadoFacebook(this)` : `copiarImagemCriativoFacebook('${criativo.arquivo}', this)`);
+                    : (isAdesivos
+                        ? `copiarImagemAdesivosPersonalizadoFacebook(this)`
+                        : (isPacotes
+                            ? `copiarImagemPacotesPersonalizadoFacebook(this)`
+                            : `copiarImagemCriativoFacebook('${criativo.arquivo}', this)`));
 
                 const badgeFlyer = isFlyer ? `
                     <div id="fb-badge-criativo_2" class="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
                         <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> Personalizado c/ Preços, WhatsApp & Cidade
                     </div>
+                ` : (isAdesivos ? `
+                    <div id="fb-badge-criativo_3" class="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
+                        <i class="fa-solid fa-qrcode text-emerald-600"></i> Folha A4 com Seu QR Code Exclusivo
+                    </div>
                 ` : (isPacotes ? `
                     <div id="fb-badge-criativo_4" class="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
                         <i class="fa-solid fa-tags text-emerald-600"></i> Preços da Região: R$ ${precosPadrao.reset} / ${precosPadrao.reset_plus} / ${precosPadrao.reset_turbo}
                     </div>
-                ` : '');
+                ` : ''));
 
                 return `
                     <div class="bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-2xs flex flex-col justify-between group hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-gray-100">
-                                <img ${imgId} src="${criativo.arquivo}" alt="${criativo.titulo}" onclick="verImagemCriativoFacebook('${criativo.id}')" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300 cursor-pointer" title="Clique para ampliar e baixar">
+                                <img ${imgId} src="${srcImagem}" alt="${criativo.titulo}" onclick="verImagemCriativoFacebook('${criativo.id}')" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300 cursor-pointer" title="Clique para ampliar e baixar">
                                 <button type="button" onclick="verImagemCriativoFacebook('${criativo.id}')" class="absolute top-2.5 right-2.5 bg-slate-900/80 hover:bg-emerald-600 text-white text-[11px] font-black px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1.5 transition cursor-pointer shadow-md" title="Ver em tela cheia com botão de download">
                                     <i class="fa-solid fa-expand"></i>
                                     <span>Ver / Baixar</span>
@@ -24731,10 +24954,11 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 `;
             }).join('');
 
-            // Dispara imediatamente a geração do flyer e dos pacotes personalizados com os dados do consultor!
+            // Dispara imediatamente a geração do flyer, pacotes e adesivos personalizados com os dados do consultor!
             setTimeout(() => {
                 gerarFlyerFacebookPersonalizado(false);
                 gerarPacotesFacebookPersonalizado();
+                gerarAdesivosFacebookPersonalizado();
             }, 100);
         }
 
@@ -24888,6 +25112,48 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 }
             }
 
+            if (criativoId === 'criativo_3') {
+                const canvas = document.getElementById('canvas-a4');
+                const hid = consultorAtual ? consultorAtual.herbalife_id : 'consultor';
+                const nomeArquivo = `Adesivos_Litrao_Reset_${hid}_${cidadeSlug}.png`;
+
+                const salvarBlobOuDataUrl = () => {
+                    if (canvas && typeof canvas.toBlob === 'function') {
+                        canvas.toBlob(blob => {
+                            if (blob) {
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = nomeArquivo;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                setTimeout(() => URL.revokeObjectURL(url), 4000);
+                                feedbackBtn('Adesivos Baixados! ✅');
+                                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                                    mostrarNotificacaoFlutuante('Folha de Adesivos com seu QR Code salva em Downloads! ✅', 'sucesso');
+                                }
+                            } else if (dadosDataURLAdesivos) {
+                                executarDownloadDataUrl(dadosDataURLAdesivos, nomeArquivo);
+                                feedbackBtn('Adesivos Baixados! ✅');
+                            }
+                        }, 'image/png');
+                    } else if (dadosDataURLAdesivos) {
+                        executarDownloadDataUrl(dadosDataURLAdesivos, nomeArquivo);
+                        feedbackBtn('Adesivos Baixados! ✅');
+                    }
+                };
+
+                if (!dadosDataURLAdesivos) {
+                    gerarAdesivosFacebookPersonalizado(() => {
+                        salvarBlobOuDataUrl();
+                    });
+                    return;
+                }
+                salvarBlobOuDataUrl();
+                return;
+            }
+
             if (criativoId === 'criativo_4') {
                 const canvas = document.getElementById('canvas-pacotes');
                 const nomeArquivo = `Comanda_Pacotes_Reset_${cidadeSlug}.png`;
@@ -25000,6 +25266,17 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 const whats = consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : '(66) 98141-1234';
                 titulo = 'Flyer Oficial Kit Semanal (Personalizado)';
                 subtitulo = `WhatsApp: ${whats} • Cidade: ${cid} • Pronto para Baixar em Alta Resolução`;
+            } else if (idCriativo === 'criativo_3') {
+                if (dadosDataURLAdesivos) {
+                    imgUrl = dadosDataURLAdesivos;
+                } else {
+                    const canvas = document.getElementById('canvas-a4');
+                    if (canvas && canvas.width > 0) imgUrl = canvas.toDataURL("image/png");
+                    else imgUrl = 'adesivo-base.png';
+                }
+                const hid = consultorAtual?.herbalife_id || 'consultor';
+                titulo = 'Adesivos da Garrafa com QR Code Exclusivo';
+                subtitulo = `Folha A4 com 10 Adesivos • QR Code Personalizado ID: ${hid} • Pronto para Imprimir e Baixar`;
             } else if (idCriativo === 'criativo_4') {
                 if (dadosDataURLPacotes) {
                     imgUrl = dadosDataURLPacotes;
@@ -25025,6 +25302,25 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             if (modal) {
                 modal.classList.remove('hidden');
             }
+
+            // Atualiza texto do botão de download no modal de acordo com o formato
+            const btnBaixarTxt = document.querySelector('#modal-visualizador-btn-baixar span');
+            if (btnBaixarTxt) {
+                if (idCriativo === 'criativo_2') {
+                    btnBaixarTxt.innerText = 'BAIXAR AGORA (JPG)';
+                } else {
+                    btnBaixarTxt.innerText = 'BAIXAR AGORA (PNG)';
+                }
+            }
+
+            // Se for criativo_3 e ainda não tiver adesivos gerados com QR code, gera agora e atualiza a imagem em tela cheia!
+            if (idCriativo === 'criativo_3' && !dadosDataURLAdesivos) {
+                gerarAdesivosFacebookPersonalizado(() => {
+                    if (criativoIdVisualizadorAtivo === 'criativo_3' && imgAlvo && dadosDataURLAdesivos) {
+                        imgAlvo.src = dadosDataURLAdesivos;
+                    }
+                });
+            }
         }
 
         function fecharModalVisualizadorImagemFb() {
@@ -25039,6 +25335,8 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         function copiarImagemAtivaVisualizadorFb(btn) {
             if (criativoIdVisualizadorAtivo === 'criativo_2') {
                 copiarImagemFlyerPersonalizadoFacebook(btn);
+            } else if (criativoIdVisualizadorAtivo === 'criativo_3') {
+                copiarImagemAdesivosPersonalizadoFacebook(btn);
             } else if (criativoIdVisualizadorAtivo === 'criativo_4') {
                 copiarImagemPacotesPersonalizadoFacebook(btn);
             } else {
@@ -25075,6 +25373,12 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             let alvo = urlImagem;
             if (urlImagem.includes('flyer_kit_semanal') && dadosDataURLFlyer) {
                 alvo = dadosDataURLFlyer;
+            }
+            if (urlImagem.includes('adesivo-base') && dadosDataURLAdesivos) {
+                alvo = dadosDataURLAdesivos;
+            }
+            if (urlImagem.includes('pacotes_reset') && dadosDataURLPacotes) {
+                alvo = dadosDataURLPacotes;
             }
 
             if (typeof fetch === 'function' && navigator.clipboard && navigator.clipboard.write) {
@@ -25211,6 +25515,10 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.fecharModalVisualizadorImagemFb = fecharModalVisualizadorImagemFb;
         window.baixarImagemAtivaVisualizadorFb = baixarImagemAtivaVisualizadorFb;
         window.copiarImagemAtivaVisualizadorFb = copiarImagemAtivaVisualizadorFb;
+        window.gerarAdesivosFacebookPersonalizado = gerarAdesivosFacebookPersonalizado;
+        window.copiarImagemAdesivosPersonalizadoFacebook = copiarImagemAdesivosPersonalizadoFacebook;
+        window.desenharArteAdesivosNoCanvas = desenharArteAdesivosNoCanvas;
+        window.obterElementoQrCodeConsultor = obterElementoQrCodeConsultor;
 
 
 
