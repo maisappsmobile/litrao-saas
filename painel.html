@@ -2098,6 +2098,46 @@
                             </span>
                         </div>
 
+                        <!-- BARRA DE PERSONALIZAÇÃO AUTOMÁTICA DOS DADOS DO CONSULTOR (WHATSAPP & CIDADE) -->
+                        <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border-2 border-emerald-400 p-4 sm:p-5 rounded-3xl shadow-xs text-emerald-950 space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <h4 class="text-sm font-black text-emerald-950">Seus Dados no Flyer Oficial do Kit Semanal</h4>
+                                            <span class="bg-emerald-200 text-emerald-950 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                WhatsApp & Cidade Aplicados
+                                            </span>
+                                        </div>
+                                        <p class="text-[11px] text-emerald-800 mt-0.5">
+                                            Seu WhatsApp e Cidade são desenhados em alta resolução no espaço verde do flyer. Altere aqui para atualizar na hora!
+                                        </p>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="gerarFlyerFacebookPersonalizado(true)" id="btn-fb-atualizar-flyer" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs self-stretch sm:self-auto justify-center whitespace-nowrap">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i> Atualizar Flyer
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2.5 border-t border-emerald-200/90">
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para o Flyer:
+                                    </label>
+                                    <input type="text" id="fb-flyer-input-whatsapp" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="(66) 98141-1234" class="w-full px-3.5 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Abaixo do número):
+                                    </label>
+                                    <input type="text" id="fb-flyer-input-cidade" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="Juína - MT" class="w-full px-3.5 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Grid de Imagens Injetadas via JS -->
                         <div id="fb-container-imagens-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Injetado via renderizarImagensFacebook() -->
@@ -9030,15 +9070,38 @@
 
         function extrairCidadeConsultor(consultor) {
             if (!consultor) return '';
+            // 1. Campo explícito cidade
+            if (consultor.cidade && consultor.cidade.trim()) {
+                let cid = consultor.cidade.trim();
+                if (consultor.estado && !cid.toLowerCase().includes(consultor.estado.toLowerCase())) {
+                    return `${cid} - ${consultor.estado.trim().toUpperCase()}`;
+                }
+                return cid;
+            }
+            // 2. Extraído dos dados de perfil
+            try {
+                if (typeof extrairDadosPerfilConsultor === 'function') {
+                    const perfil = extrairDadosPerfilConsultor(consultor);
+                    if (perfil && perfil.cidade && perfil.cidade.trim()) {
+                        let c = perfil.cidade.trim();
+                        if (perfil.estado && !c.toLowerCase().includes(perfil.estado.toLowerCase())) {
+                            return `${c} - ${perfil.estado.trim().toUpperCase()}`;
+                        }
+                        return c;
+                    }
+                }
+            } catch (e) {}
+            // 3. Extraído do nome_espaco
             let rawEspaco = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
             if (rawEspaco.includes('|')) {
                 return rawEspaco.split('|')[1].trim();
             }
+            // 4. Extraído do endereço
             if (consultor.endereco) {
                 let end = consultor.endereco.split('-')[0].replace('/MT', ' - MT').replace('/', ' - ').trim();
                 return end;
             }
-            return '';
+            return 'Juína - MT';
         }
 
         function preencherCamposFlyer() {
@@ -9050,7 +9113,7 @@
             }
             if (inCidade && !inCidade.value) {
                 const cidDetectada = extrairCidadeConsultor(consultorAtual);
-                inCidade.value = cidDetectada || "Primavera do Leste - MT";
+                inCidade.value = cidDetectada || "Juína - MT";
             }
             atualizarPreviewCopyFlyer();
         }
@@ -23673,19 +23736,46 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             const container = document.getElementById('fb-container-imagens-grid');
             if (!container) return;
 
+            // Inicializa campos de personalização com os dados do consultor se estiverem vazios
+            const inWhats = document.getElementById('fb-flyer-input-whatsapp');
+            const inCidade = document.getElementById('fb-flyer-input-cidade');
+
+            let whatsPadrao = consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : '(66) 98141-1234';
+            let cidPadrao = extrairCidadeConsultor(consultorAtual) || 'Juína - MT';
+
+            if (inWhats && !inWhats.value) inWhats.value = whatsPadrao;
+            if (inCidade && !inCidade.value) inCidade.value = cidPadrao;
+
             container.innerHTML = CRIATIVOS_FACEBOOK_OFICIAIS.map(criativo => {
+                const isFlyer = criativo.id === 'criativo_2';
+                const imgId = isFlyer ? 'id="fb-img-criativo_2"' : '';
+                const linkVerId = isFlyer ? 'id="fb-link-ver-criativo_2"' : '';
+                const linkBaixarId = isFlyer ? 'id="fb-link-baixar-criativo_2"' : '';
+                const btnCopiarAction = isFlyer
+                    ? `copiarImagemFlyerPersonalizadoFacebook(this)`
+                    : `copiarImagemCriativoFacebook('${criativo.arquivo}', this)`;
+
+                const badgeFlyer = isFlyer ? `
+                    <div id="fb-badge-criativo_2" class="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
+                        <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> Personalizado c/ WhatsApp & Cidade
+                    </div>
+                ` : '';
+
                 return `
                     <div class="bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-2xs flex flex-col justify-between group hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-gray-100">
-                                <img src="${criativo.arquivo}" alt="${criativo.titulo}" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300">
-                                <a href="${criativo.arquivo}" target="_blank" class="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition" title="Ver em tamanho real">
+                                <img ${imgId} src="${criativo.arquivo}" alt="${criativo.titulo}" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300">
+                                <a ${linkVerId} href="${criativo.arquivo}" target="_blank" class="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition cursor-pointer" title="Ver em tamanho real">
                                     <i class="fa-solid fa-up-right-from-square"></i> Ver
                                 </a>
                             </div>
 
                             <div>
-                                <h4 class="text-xs sm:text-sm font-black text-gray-900 leading-snug">${criativo.titulo}</h4>
+                                <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                                    <h4 class="text-xs sm:text-sm font-black text-gray-900 leading-snug">${criativo.titulo}</h4>
+                                    ${badgeFlyer}
+                                </div>
                                 <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">${criativo.descricao}</p>
                             </div>
 
@@ -23696,36 +23786,228 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mt-3">
-                            <a href="${criativo.arquivo}" download="${criativo.nomeDownload}" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-center">
+                            <a ${linkBaixarId} href="${criativo.arquivo}" download="${criativo.nomeDownload}" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-center">
                                 <i class="fa-solid fa-download"></i> Baixar Imagem
                             </a>
-                            <button type="button" onclick="copiarImagemCriativoFacebook('${criativo.arquivo}', this)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                            <button type="button" onclick="${btnCopiarAction}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
                                 <i class="fa-solid fa-copy"></i> Copiar Imagem
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+
+            // Dispara imediatamente a geração do flyer personalizado com os dados do consultor!
+            setTimeout(() => {
+                gerarFlyerFacebookPersonalizado(false);
+            }, 100);
+        }
+
+        function gerarFlyerFacebookPersonalizado(notificar) {
+            const inWhats = document.getElementById('fb-flyer-input-whatsapp');
+            const inCidade = document.getElementById('fb-flyer-input-cidade');
+
+            let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : "(66) 98141-1234");
+            let whatsTexto = formatarWhatsParaExibicao(numWhats);
+
+            let cidadeTexto = (inCidade && inCidade.value.trim()) ? inCidade.value.trim() : (extrairCidadeConsultor(consultorAtual) || "Juína - MT");
+
+            if (inWhats && !inWhats.value) inWhats.value = whatsTexto;
+            if (inCidade && !inCidade.value) inCidade.value = cidadeTexto;
+
+            let canvas = document.getElementById('canvas-flyer');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'canvas-flyer';
+                document.body.appendChild(canvas);
+                canvas.style.display = 'none';
+            }
+
+            const desenharNoCanvas = (img) => {
+                try {
+                    canvas.width = img.naturalWidth || img.width || 682;
+                    canvas.height = img.naturalHeight || img.height || 1024;
+                    const ctx = canvas.getContext('2d');
+
+                    // 1. Desenha imagem de alta resolução base
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // 2. Coordenadas calibradas da pílula verde (682x1024)
+                    const escalaX = canvas.width / 682;
+                    const escalaY = canvas.height / 1024;
+                    const centroX = 275 * escalaX;
+
+                    ctx.save();
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    if (cidadeTexto) {
+                        // Linha 1: WhatsApp (cor branca, negrito 900)
+                        const tamanhoWhats = Math.round(21 * escalaX);
+                        const centroYWhats = 944 * escalaY;
+                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+                        ctx.shadowBlur = 3 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(whatsTexto, centroX, centroYWhats);
+
+                        // Linha 2: Cidade / Região (cor branca, negrito 800)
+                        const tamanhoCidade = Math.round(12.5 * escalaX);
+                        const centroYCidade = 970 * escalaY;
+                        ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+                        ctx.shadowBlur = 2 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
+                    } else {
+                        const tamanhoWhats = Math.round(26 * escalaX);
+                        const centroYUnico = 958 * escalaY;
+                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+                        ctx.shadowBlur = 4 * escalaX;
+                        ctx.shadowOffsetX = 1 * escalaX;
+                        ctx.shadowOffsetY = 1 * escalaY;
+                        ctx.fillText(whatsTexto, centroX, centroYUnico);
+                    }
+
+                    ctx.restore();
+
+                    // Salva dataURL de alta qualidade
+                    dadosDataURLFlyer = canvas.toDataURL("image/jpeg", 0.95);
+
+                    // Atualiza elementos do Card 2 no Modal do Facebook
+                    const imgEl = document.getElementById('fb-img-criativo_2');
+                    const linkVer = document.getElementById('fb-link-ver-criativo_2');
+                    const linkBaixar = document.getElementById('fb-link-baixar-criativo_2');
+                    const badgeCustom = document.getElementById('fb-badge-criativo_2');
+
+                    if (imgEl) imgEl.src = dadosDataURLFlyer;
+                    if (linkVer) linkVer.href = dadosDataURLFlyer;
+                    if (linkBaixar) {
+                        linkBaixar.href = dadosDataURLFlyer;
+                        const hid = consultorAtual ? consultorAtual.herbalife_id : 'edwan';
+                        linkBaixar.download = `Flyer_Kit_Semanal_Reset_${hid}.jpg`;
+                    }
+                    if (badgeCustom) {
+                        badgeCustom.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ${whatsTexto} • ${cidadeTexto}`;
+                    }
+
+                    // Sincroniza também os inputs do box principal de flyer se estiver na tela
+                    const inWhatsPrincipal = document.getElementById('flyer-input-whatsapp');
+                    const inCidadePrincipal = document.getElementById('flyer-input-cidade');
+                    const imgPreviewPrincipal = document.getElementById('img-preview-flyer');
+                    if (inWhatsPrincipal && !inWhatsPrincipal.value) inWhatsPrincipal.value = whatsTexto;
+                    if (inCidadePrincipal && !inCidadePrincipal.value) inCidadePrincipal.value = cidadeTexto;
+                    if (imgPreviewPrincipal) imgPreviewPrincipal.src = dadosDataURLFlyer;
+
+                    if (notificar) {
+                        const btn = document.getElementById('btn-fb-atualizar-flyer');
+                        if (btn) {
+                            const original = btn.innerHTML;
+                            btn.innerHTML = '<i class="fa-solid fa-check text-white"></i> Atualizado! ✅';
+                            btn.classList.replace('bg-emerald-600', 'bg-blue-600');
+                            setTimeout(() => {
+                                btn.innerHTML = original;
+                                btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+                            }, 2500);
+                        }
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('Flyer atualizado com WhatsApp & Cidade! ✅', 'sucesso');
+                        }
+                    }
+                } catch(err) {
+                    console.error("Erro ao desenhar flyer:", err);
+                }
+            };
+
+            const imgBase = document.getElementById('img-base-flyer');
+            if (imgBase && imgBase.complete && imgBase.naturalWidth > 0) {
+                desenharNoCanvas(imgBase);
+            } else {
+                const imgTemp = new Image();
+                imgTemp.crossOrigin = "anonymous";
+                imgTemp.onload = () => desenharNoCanvas(imgTemp);
+                imgTemp.src = "flyer_kit_semanal_reset_base.jpg?v=3";
+            }
+        }
+
+        function copiarImagemFlyerPersonalizadoFacebook(btn) {
+            const canvas = document.getElementById('canvas-flyer');
+            if (canvas && typeof canvas.toBlob === 'function' && navigator.clipboard && navigator.clipboard.write) {
+                canvas.toBlob(blob => {
+                    if (blob) {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        navigator.clipboard.write([item]).then(() => {
+                            feedbackCopiaImagem(btn, 'Flyer Personalizado Copiado! (Ctrl+V) ✅');
+                        }).catch(() => {
+                            if (dadosDataURLFlyer) {
+                                copiarImagemCriativoFacebook(dadosDataURLFlyer, btn);
+                            }
+                        });
+                    } else if (dadosDataURLFlyer) {
+                        copiarImagemCriativoFacebook(dadosDataURLFlyer, btn);
+                    }
+                }, 'image/png');
+            } else if (dadosDataURLFlyer) {
+                copiarImagemCriativoFacebook(dadosDataURLFlyer, btn);
+            } else {
+                copiarImagemCriativoFacebook('flyer_kit_semanal_reset_base.jpg', btn);
+            }
         }
 
         function copiarImagemCriativoFacebook(urlImagem, btn) {
+            let alvo = urlImagem;
+            if (urlImagem.includes('flyer_kit_semanal') && dadosDataURLFlyer) {
+                alvo = dadosDataURLFlyer;
+            }
+
             if (typeof fetch === 'function' && navigator.clipboard && navigator.clipboard.write) {
-                fetch(urlImagem)
+                fetch(alvo)
                     .then(res => res.blob())
                     .then(blob => {
-                        const item = new ClipboardItem({ [blob.type]: blob });
-                        return navigator.clipboard.write([item]);
-                    })
-                    .then(() => {
-                        feedbackCopiaImagem(btn, 'Imagem Copiada! (Ctrl+V no Facebook) ✅');
+                        // Se não for PNG, converte para PNG via Canvas para compatibilidade total com Clipboard API do Chrome
+                        if (blob.type !== 'image/png') {
+                            const img = new Image();
+                            const urlObj = URL.createObjectURL(blob);
+                            img.onload = () => {
+                                const c = document.createElement('canvas');
+                                c.width = img.naturalWidth || img.width;
+                                c.height = img.naturalHeight || img.height;
+                                const ctx = c.getContext('2d');
+                                ctx.drawImage(img, 0, 0);
+                                c.toBlob(pngBlob => {
+                                    URL.revokeObjectURL(urlObj);
+                                    if (pngBlob) {
+                                        const item = new ClipboardItem({ 'image/png': pngBlob });
+                                        navigator.clipboard.write([item]).then(() => {
+                                            feedbackCopiaImagem(btn, 'Imagem Copiada! (Ctrl+V no Facebook) ✅');
+                                        }).catch(() => {
+                                            fallbackCopiarTexto(alvo);
+                                            feedbackCopiaImagem(btn, 'Link da Imagem Copiado! ✅');
+                                        });
+                                    }
+                                }, 'image/png');
+                            };
+                            img.src = urlObj;
+                        } else {
+                            const item = new ClipboardItem({ 'image/png': blob });
+                            return navigator.clipboard.write([item]).then(() => {
+                                feedbackCopiaImagem(btn, 'Imagem Copiada! (Ctrl+V no Facebook) ✅');
+                            });
+                        }
                     })
                     .catch(() => {
-                        const fullUrl = window.location.origin + '/' + urlImagem;
+                        const fullUrl = alvo.startsWith('data:') ? alvo : ((window.location ? window.location.origin : '') + '/' + alvo);
                         fallbackCopiarTexto(fullUrl);
                         feedbackCopiaImagem(btn, 'Link da Imagem Copiado! ✅');
                     });
             } else {
-                const fullUrl = (window.location ? window.location.origin : '') + '/' + urlImagem;
+                const fullUrl = alvo.startsWith('data:') ? alvo : ((window.location ? window.location.origin : '') + '/' + alvo);
                 fallbackCopiarTexto(fullUrl);
                 feedbackCopiaImagem(btn, 'Link da Imagem Copiado! ✅');
             }
@@ -23811,6 +24093,8 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.fbKanbanDrop = fbKanbanDrop;
         window.moverLeadFacebookEtapa = moverLeadFacebookEtapa;
         window.moverLeadFacebookEtapaRelativa = moverLeadFacebookEtapaRelativa;
+        window.gerarFlyerFacebookPersonalizado = gerarFlyerFacebookPersonalizado;
+        window.copiarImagemFlyerPersonalizadoFacebook = copiarImagemFlyerPersonalizadoFacebook;
 
 
 
