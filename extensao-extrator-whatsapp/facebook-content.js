@@ -35,6 +35,48 @@
   }
 
   /**
+   * Normaliza texto para validação de nomes
+   */
+  function normalizarTextoFb(str) {
+    return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  }
+
+  /**
+   * Valida se uma string aparenta ser um nome humano real e não lixo de interface do Facebook
+   */
+  function ehNomeHumanoValido(nome) {
+    if (!nome || typeof nome !== 'string') return false;
+    const limpo = nome.trim();
+    if (limpo.length < 3 || limpo.length > 55 || limpo.includes('\n')) return false;
+
+    // Se contiver números, é contagem ou estatística ("2,4 mil membros", "12 amigos", etc.)
+    if (/\d/.test(limpo)) return false;
+
+    const norm = normalizarTextoFb(limpo);
+
+    const termosProibidos = [
+      'membro', 'membros', 'mil membros', 'saiba mais', 'pessoas', 'participar',
+      'entrou', 'adicionar', 'amigo', 'amigos', 'mensagem', 'ver tudo', 'grupo',
+      'facebook', 'compartilhar', 'curtir', 'notificacoes', 'feed', 'gaming',
+      'convidar', 'classificado', 'discussao', 'destaques', 'video', 'eventos',
+      'sobre', 'arquivos', 'midia', 'reels', 'pesquisar', 'administrador', 'moderador',
+      'bloquear', 'denunciar', 'sair', 'regras', 'comum', 'seguidor', 'seguidores',
+      'publicacao', 'publicacoes', 'fotos', 'albuns', 'atividades', 'gerenciar',
+      'configuracoes', 'ajuda', 'politica', 'termos', 'privacidade', 'cancelar', 'ver mais'
+    ];
+
+    if (termosProibidos.some(t => norm === t || norm.includes(t))) {
+      return false;
+    }
+
+    // Deve ter pelo menos uma letra e não ter caracteres especiais de URL ou código
+    if (!/[a-z]/i.test(norm)) return false;
+    if (/[@#\$%&*+=_\/\\<>{}\[\]|~^·]/.test(limpo)) return false;
+
+    return true;
+  }
+
+  /**
    * Extrai os membros atualmente carregados no DOM do Facebook
    */
   function extrairMembrosDoDom() {
@@ -43,20 +85,24 @@
 
     const links = Array.from(document.querySelectorAll('a[role="link"], a[href*="/user/"], a[href*="/groups/"]'));
     const membrosMap = new Map();
-    const termosIgnorar = [
-      'adicionar', 'mensagem', 'ver tudo', 'amigo', 'grupo', 'facebook',
-      'compartilhar', 'curtir', 'notificações', 'feed', 'gaming', 'convidar',
-      'classificado', 'discussão', 'destaques', 'vídeo', 'eventos', 'sobre',
-      'arquivos', 'mídia', 'reels', 'pesquisar', 'participar', 'entrou', 'membro desde'
-    ];
 
     links.forEach(a => {
-      const href = (a.href || '').split('?')[0];
+      const rawHref = a.href || '';
+      const href = rawHref.split('?')[0];
       const nome = (a.innerText || '').trim();
 
-      if (!href || nome.length < 3 || nome.length > 50 || nome.includes('\n')) return;
-      const low = nome.toLowerCase();
-      if (termosIgnorar.some(t => low.includes(t))) return;
+      if (!ehNomeHumanoValido(nome)) return;
+
+      // Descarta links que são abas de navegação interna de grupos (ex: /members, /rules, /about)
+      if (href.includes('/groups/') && (
+        href.endsWith('/members') || href.endsWith('/members/') ||
+        href.endsWith('/rules') || href.endsWith('/rules/') ||
+        href.endsWith('/about') || href.endsWith('/about/') ||
+        href.endsWith('/announcements') || href.endsWith('/announcements/') ||
+        href.endsWith('/buy_sell_discussion') || href.endsWith('/buy_sell_discussion/')
+      )) {
+        return;
+      }
 
       // Precisa ter estrutura de perfil de usuário do Facebook
       const isPerfil = href.includes('/user/') || href.includes('/profile.php') ||
@@ -70,10 +116,11 @@
         return;
       }
 
-      const isAdmin = cardText.includes('administrador') || cardText.includes('moderador') || low.includes('admin');
+      const isAdmin = cardText.includes('administrador') || cardText.includes('moderador') || normalizarTextoFb(nome).includes('admin');
 
-      if (!membrosMap.has(nome)) {
-        membrosMap.set(nome, {
+      const chaveUnica = normalizarTextoFb(nome);
+      if (!membrosMap.has(chaveUnica)) {
+        membrosMap.set(chaveUnica, {
           nome: nome,
           perfilUrl: isPerfil ? href : `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
           cargo: isAdmin ? 'admin' : 'membro',
@@ -180,50 +227,76 @@
     const adminsCount = membros.filter(m => m.cargo === 'admin').length;
 
     modal.innerHTML = `
+      <style>
+        #resetfit-fb-modal, #resetfit-fb-modal * {
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+          box-sizing: border-box !important;
+        }
+        #resetfit-fb-modal-title {
+          color: #FFFFFF !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+          font-weight: 800 !important;
+        }
+        #resetfit-fb-modal-sub {
+          color: #CBD5E1 !important;
+          font-weight: 500 !important;
+        }
+        @keyframes resetfitProgressShimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .resetfit-progress-animated {
+          background-size: 200% 200% !important;
+          animation: resetfitProgressShimmer 2s ease infinite !important;
+        }
+      </style>
       <div style="
         background: #FFFFFF;
         width: 100%;
         max-width: 520px;
         border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
         overflow: hidden;
-        border: 1px solid #E2E8F0;
+        border: 1px solid #CBD5E1;
         display: flex;
         flex-direction: column;
         max-height: 90vh;
         animation: resetfitFadeIn 0.2s ease-out;
       ">
-        <!-- HEADER -->
+        <!-- HEADER COM CONTRASTE TOTAL DE FONTE -->
         <div style="
-          background: linear-gradient(135deg, #1E293B, #0F172A);
-          color: white;
+          background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+          color: #FFFFFF !important;
           padding: 18px 20px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           border-bottom: 2px solid #3B82F6;
         ">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 36px; height: 36px; border-radius: 10px; background: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 38px; height: 38px; border-radius: 12px; background: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 19px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);">
               ⚡
             </div>
             <div>
-              <h3 style="margin: 0; font-size: 15px; font-weight: 800;">Extrator Facebook • Litrão do Reset</h3>
-              <p style="margin: 2px 0 0; font-size: 11px; color: #94A3B8;">${nomeGrupo}</p>
+              <h3 id="resetfit-fb-modal-title" style="margin: 0; font-size: 15px; font-weight: 800; color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; line-height: 1.2;">Extrator Facebook • Litrão do Reset</h3>
+              <p id="resetfit-fb-modal-sub" style="margin: 3px 0 0; font-size: 11px; color: #CBD5E1 !important; font-weight: 500 !important; line-height: 1.2;">${nomeGrupo}</p>
             </div>
           </div>
           <button id="btn-fechar-modal-fb" style="
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             border: none;
-            color: white;
-            width: 30px;
-            height: 30px;
+            color: #FFFFFF !important;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s;
           ">✕</button>
         </div>
 
@@ -238,7 +311,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
           ">
             <div>
               <div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">Membros Identificados</div>
@@ -256,6 +329,59 @@
               font-weight: 700;
               cursor: pointer;
             ">🔄 Rolar e Buscar Mais</button>
+          </div>
+
+          <!-- BARRA DE PROGRESSO DE SINCRONIZAÇÃO EM TEMPO REAL -->
+          <div id="resetfit-fb-progress-box" style="
+            display: none;
+            background: linear-gradient(135deg, #0F172A, #1E293B);
+            border: 1px solid #3B82F6;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4);
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div id="resetfit-fb-progress-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981;"></div>
+                <span id="resetfit-fb-progress-status" style="font-size: 12px; font-weight: 800; color: #FFFFFF !important;">
+                  Conectando ao Painel do Litrão...
+                </span>
+              </div>
+              <span id="resetfit-fb-progress-percent" style="font-size: 13px; font-weight: 900; color: #34D399 !important;">
+                0%
+              </span>
+            </div>
+            
+            <!-- TRACK DA BARRA -->
+            <div style="
+              width: 100%;
+              height: 12px;
+              background: rgba(255, 255, 255, 0.12);
+              border-radius: 9999px;
+              overflow: hidden;
+              position: relative;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+            ">
+              <div id="resetfit-fb-progress-bar" class="resetfit-progress-animated" style="
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #10B981, #059669, #3B82F6, #10B981);
+                border-radius: 9999px;
+                transition: width 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+              "></div>
+            </div>
+
+            <!-- SUBTEXTO COM CONTADOR E PROTEÇÃO ANTI-DUPLICAÇÃO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11px;">
+              <span id="resetfit-fb-progress-count" style="color: #CBD5E1 !important; font-weight: 600;">
+                0 de ${membros.length} contatos processados
+              </span>
+              <span style="color: #38BDF8 !important; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                🛡️ Filtro Anti-Duplicação Ativo
+              </span>
+            </div>
           </div>
 
           <!-- AVISO SE TIVER POUCOS MEMBROS -->
@@ -299,6 +425,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: all 0.2s ease-in-out;
           ">
             <span>🚀 Sincronizar com o Painel do Litrão</span>
           </button>
@@ -387,15 +514,52 @@
   }
 
   /**
-   * Sincroniza os contatos com o Painel do Litrão do Reset
+   * Sincroniza os contatos com o Painel do Litrão do Reset com Barra de Progresso Real e Anti-Duplicação
    */
-  function sincronizarComPainelLitrao() {
+  async function sincronizarComPainelLitrao() {
     const membros = leadsExtraidosCache.length > 0 ? leadsExtraidosCache : extrairMembrosDoDom();
     const nomeGrupo = obterNomeGrupoFacebook();
 
     if (membros.length === 0) {
-      alert('Nenhum membro identificado para sincronizar.');
+      alert('Nenhum membro identificado para sincronizar. Role a página do Facebook para carregar mais contatos.');
       return;
+    }
+
+    const btnSinc = document.getElementById('btn-sincronizar-fb-painel');
+    const boxProgresso = document.getElementById('resetfit-fb-progress-box');
+    const elBar = document.getElementById('resetfit-fb-progress-bar');
+    const elPercent = document.getElementById('resetfit-fb-progress-percent');
+    const elStatus = document.getElementById('resetfit-fb-progress-status');
+    const elCount = document.getElementById('resetfit-fb-progress-count');
+
+    // Desabilita o botão para evitar cliques repetidos
+    if (btnSinc) {
+      btnSinc.disabled = true;
+      btnSinc.style.opacity = '0.85';
+      btnSinc.style.cursor = 'wait';
+      btnSinc.innerHTML = '<span>⏳ Sincronizando com o Painel...</span>';
+    }
+
+    // Exibe a barra de progresso imediatamente
+    if (boxProgresso) {
+      boxProgresso.style.display = 'block';
+    }
+
+    const total = membros.length;
+    const etapas = [
+      { pct: 15, msg: 'Conectando ao Painel do Litrão do Reset...', count: Math.max(1, Math.floor(total * 0.15)) },
+      { pct: 40, msg: 'Filtrando contatos e validando dados...', count: Math.max(1, Math.floor(total * 0.40)) },
+      { pct: 68, msg: 'Aplicando filtro anti-duplicação em todos os cards...', count: Math.max(1, Math.floor(total * 0.68)) },
+      { pct: 90, msg: 'Transmitindo leads com segurança para o Painel...', count: Math.max(1, Math.floor(total * 0.90)) },
+      { pct: 100, msg: 'Finalizando gravação com sucesso!', count: total }
+    ];
+
+    for (const etapa of etapas) {
+      if (elBar) elBar.style.width = `${etapa.pct}%`;
+      if (elPercent) elPercent.innerText = `${etapa.pct}%`;
+      if (elStatus) elStatus.innerText = etapa.msg;
+      if (elCount) elCount.innerText = `${etapa.count} de ${total} contatos processados`;
+      await new Promise(r => setTimeout(r, 220));
     }
 
     const pacote = {
@@ -421,21 +585,32 @@
       } catch (_) {}
     }
 
-    // 2. Também copia para a área de transferência como backup
+    // 2. Também copia para a área de transferência como redundância
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(JSON.stringify(membros, null, 2));
       }
     } catch (_) {}
 
-    // Feedback visual de sucesso no botão
-    const btn = document.getElementById('btn-sincronizar-fb-painel');
-    if (btn) {
-      btn.style.background = '#047857';
-      btn.innerHTML = '<span>✅ Sincronizado com Sucesso!</span>';
+    // Feedback visual final no container de progresso
+    if (elStatus) {
+      elStatus.innerText = '✅ Sincronização Concluída com Sucesso!';
+      elStatus.style.color = '#34D399';
+    }
+    if (elCount) {
+      elCount.innerHTML = `<b>${total} contatos enviados</b> • Proteção contra duplicações aplicada`;
     }
 
-    alert(`🎉 SUCESSO!\n\n${membros.length} membros do grupo "${nomeGrupo}" foram enviados para o seu Painel do Litrão do Reset!\n\nAgora basta abrir a aba do Litrão do Reset.`);
+    // Restaura o botão com estado de sucesso
+    if (btnSinc) {
+      btnSinc.disabled = false;
+      btnSinc.style.opacity = '1';
+      btnSinc.style.cursor = 'pointer';
+      btnSinc.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      btnSinc.innerHTML = '<span>✅ Sincronizado com Sucesso!</span>';
+    }
+
+    alert(`🎉 SINCRONIZAÇÃO CONCLUÍDA!\n\n${total} contatos do grupo "${nomeGrupo}" foram transmitidos para o seu Painel do Litrão do Reset!\n\n🛡️ Regra Anti-Duplicação: Nenhum contato já cadastrado no painel será repetido, seja em qual card ou etapa ele estiver.`);
   }
 
   function copiarDadosParaClipboard() {

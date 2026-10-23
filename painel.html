@@ -24280,7 +24280,19 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         let abaExtratorFacebookAtual = 'leads';
 
         function obterChaveStorageFacebookLeads() {
-            const id = (consultorAtual && consultorAtual.herbalife_id) ? consultorAtual.herbalife_id.toString().replace(/\D/g, '') : 'superadmin';
+            let id = 'superadmin';
+            if (consultorAtual && consultorAtual.herbalife_id) {
+                id = consultorAtual.herbalife_id.toString().replace(/\D/g, '');
+            } else {
+                try {
+                    const authStr = localStorage.getItem('litrao_consultor_auth');
+                    if (authStr) {
+                        const parsed = JSON.parse(authStr);
+                        if (parsed.id) id = String(parsed.id).replace(/\D/g, '');
+                        else if (parsed.herbalife_id) id = String(parsed.herbalife_id).replace(/\D/g, '');
+                    }
+                } catch(e) {}
+            }
             return 'litrao_facebook_leads_' + id;
         }
 
@@ -25026,28 +25038,52 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 return;
             }
 
-            // Mescla com os leads existentes sem duplicar nomes
+            // Mescla com os leads existentes sem duplicar em QUALQUER etapa do Kanban
             const leadsAtuais = obterLeadsFacebookStorage();
-            const nomesExistentes = new Set(leadsAtuais.map(l => (l.nome || '').toLowerCase().trim()));
+            
+            const normalizarNomeFb = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+            const extrairIdPerfil = (url) => {
+                if (!url) return '';
+                const limpa = String(url).split('?')[0].replace(/\/+$/, '').toLowerCase();
+                const mId = String(url).match(/[?&]id=(\d+)/i) || String(url).match(/\/user\/(\d+)/i);
+                if (mId) return 'id_' + mId[1];
+                const mUser = limpa.match(/facebook\.com\/([a-zA-Z0-9\.\_\-]+)/i);
+                if (mUser && !['groups', 'events', 'watch', 'pages', 'search', 'people'].includes(mUser[1])) return 'user_' + mUser[1];
+                return limpa;
+            };
+
+            const nomesExistentesSet = new Set(leadsAtuais.map(l => normalizarNomeFb(l.nome)).filter(Boolean));
+            const perfisExistentesSet = new Set(leadsAtuais.map(l => extrairIdPerfil(l.perfilUrl)).filter(Boolean));
+            
             let adicionados = 0;
+            let ignoradosExistentes = 0;
 
             novosLeads.forEach(nl => {
                 const nomeTrim = nl.nome.trim();
-                if (!nomesExistentes.has(nomeTrim.toLowerCase())) {
-                    nomesExistentes.add(nomeTrim.toLowerCase());
-                    leadsAtuais.push({
-                        id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                        nome: nomeTrim,
-                        perfilUrl: nl.perfilUrl,
-                        grupoOrigem: nl.grupoOrigem || nomeGrupo,
-                        cargo: nl.cargo || tipoPadrao,
-                        status: 'pendente',
-                        origemTag: 'Facebook Grupos',
-                        dataAdicionado: new Date().toLocaleDateString('pt-BR'),
-                        notas: `Importado de: ${nomeGrupo}`
-                    });
-                    adicionados++;
+                const nomeNorm = normalizarNomeFb(nomeTrim);
+                const perfilNorm = extrairIdPerfil(nl.perfilUrl);
+
+                // Se já existir por nome normalizado OU por perfil em QUALQUER status/card, NÃO DUPLICA!
+                if (nomesExistentesSet.has(nomeNorm) || (perfilNorm && perfisExistentesSet.has(perfilNorm))) {
+                    ignoradosExistentes++;
+                    return;
                 }
+
+                nomesExistentesSet.add(nomeNorm);
+                if (perfilNorm) perfisExistentesSet.add(perfilNorm);
+
+                leadsAtuais.push({
+                    id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    nome: nomeTrim,
+                    perfilUrl: nl.perfilUrl,
+                    grupoOrigem: nl.grupoOrigem || nomeGrupo,
+                    cargo: nl.cargo || tipoPadrao,
+                    status: 'pendente',
+                    origemTag: 'Facebook Grupos',
+                    dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                    notas: `Importado de: ${nomeGrupo}`
+                });
+                adicionados++;
             });
 
             salvarLeadsFacebookStorage(leadsAtuais);
@@ -25056,7 +25092,8 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             trocarAbaExtratorFacebook('leads');
             renderizarTabelaLeadsFacebook();
 
-            const msg = `✅ Sucesso! ${adicionados} novo(s) contato(s) do Facebook foram importados e salvos com a etiqueta "Facebook Grupos"!`;
+            const dupMsg = ignoradosExistentes > 0 ? ` (${ignoradosExistentes} contato(s) já cadastrados foram mantidos em suas etapas sem duplicação)` : '';
+            const msg = `✅ Sucesso! ${adicionados} novo(s) contato(s) adicionados ao Kanban!${dupMsg}`;
             if (typeof mostrarNotificacaoFlutuante === 'function') {
                 mostrarNotificacaoFlutuante(msg, 'sucesso');
             } else {

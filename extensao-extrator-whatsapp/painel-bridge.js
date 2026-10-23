@@ -171,42 +171,100 @@
   }
 
   /**
-   * Identifica a chave correta do localStorage para os leads do Facebook do SuperAdmin
+   * Normaliza um nome para comparação estrita (remove acentos, pontuação, múltiplos espaços e minúsculas)
    */
-  function obterFacebookStorageKey() {
-    let hid = '433005811';
+  function normalizarNomeParaComparacao(nome) {
+    if (!nome) return '';
+    return String(nome)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '')
+      .trim();
+  }
+
+  /**
+   * Extrai identificador único do perfil do Facebook para comparação estrita
+   */
+  function extrairIdentificadorPerfilFb(url) {
+    if (!url) return '';
+    const raw = String(url).trim();
+    const matchId = raw.match(/[?&]id=(\d+)/i) || raw.match(/\/user\/(\d+)/i);
+    if (matchId) return 'id_' + matchId[1];
+    const limpa = raw.split('?')[0].replace(/\/+$/, '').toLowerCase();
+    const matchUser = limpa.match(/facebook\.com\/([a-zA-Z0-9\.\_\-]+)/i);
+    if (matchUser && !['groups', 'events', 'watch', 'pages', 'search', 'people'].includes(matchUser[1])) {
+      return 'user_' + matchUser[1];
+    }
+    return limpa;
+  }
+
+  /**
+   * Identifica a chave correta do localStorage para os leads do Facebook do SuperAdmin ou Consultor
+   */
+  function obterFacebookStorageKeys() {
+    const keys = new Set(['litrao_facebook_leads_433005811', 'litrao_facebook_leads_superadmin']);
     try {
       const authStr = localStorage.getItem('litrao_consultor_auth');
       if (authStr) {
         const parsed = JSON.parse(authStr);
-        if (parsed && parsed.herbalife_id) {
-          hid = String(parsed.herbalife_id).trim();
+        if (parsed.id) {
+          const limpo = String(parsed.id).replace(/\D/g, '');
+          if (limpo) keys.add(`litrao_facebook_leads_${limpo}`);
+        }
+        if (parsed.herbalife_id) {
+          const limpoH = String(parsed.herbalife_id).replace(/\D/g, '');
+          if (limpoH) keys.add(`litrao_facebook_leads_${limpoH}`);
+        }
+      }
+      // Procura qualquer chave já gravada que comece com litrao_facebook_leads_
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('litrao_facebook_leads_')) {
+          keys.add(k);
         }
       }
     } catch (e) {}
-    return `litrao_facebook_leads_${hid}`;
+    return Array.from(keys);
   }
 
   /**
-   * Processa o lote de contatos do Facebook e injeta na base do SuperAdmin
+   * Processa o lote de contatos do Facebook e injeta na base do SuperAdmin com Desduplicação Estrita Universal
    */
   function processarPacoteFacebookLeads(pacote) {
     if (!pacote || !Array.isArray(pacote.leads) || pacote.leads.length === 0) {
       return { sucesso: false, erro: 'Pacote sem contatos' };
     }
 
-    const storageKey = obterFacebookStorageKey();
+    const storageKeys = obterFacebookStorageKeys();
+    const chavePrincipal = storageKeys[0] || 'litrao_facebook_leads_433005811';
+
     let leadsExistentes = [];
     try {
-      const raw = localStorage.getItem(storageKey);
-      leadsExistentes = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(leadsExistentes)) leadsExistentes = [];
+      // Tenta ler da chave principal ou da primeira que contenha dados
+      for (const k of storageKeys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            leadsExistentes = parsed;
+            break;
+          }
+        }
+      }
     } catch (e) {
       leadsExistentes = [];
     }
 
-    const nomesExistentes = new Set(
-      leadsExistentes.map(l => String(l.nome || '').toLowerCase().trim()).filter(Boolean)
+    // REGRA DE OURO ANTI-DUPLICAÇÃO:
+    // Mapeia TODOS os contatos que já existem no painel, INDEPENDENTE da coluna/card em que estejam
+    // (pendente, enviado, conversa, instalou). Nenhum contato existente pode ser duplicado!
+    const nomesExistentesSet = new Set(
+      leadsExistentes.map(l => normalizarNomeParaComparacao(l.nome)).filter(Boolean)
+    );
+
+    const perfisExistentesSet = new Set(
+      leadsExistentes.map(l => extrairIdentificadorPerfilFb(l.perfilUrl)).filter(Boolean)
     );
 
     let novosCount = 0;
@@ -217,7 +275,11 @@
       const nomeTrim = String(l.nome || '').trim();
       if (!nomeTrim) return;
 
-      if (nomesExistentes.has(nomeTrim.toLowerCase())) {
+      const nomeNorm = normalizarNomeParaComparacao(nomeTrim);
+      const perfilNorm = extrairIdentificadorPerfilFb(l.perfilUrl);
+
+      // Se já existir por nome OU por identificador de perfil em QUALQUER etapa do CRM, NÃO DUPLICA!
+      if (nomesExistentesSet.has(nomeNorm) || (perfilNorm && perfisExistentesSet.has(perfilNorm))) {
         duplicadosCount++;
         return;
       }
@@ -235,12 +297,17 @@
       };
 
       leadsExistentes.unshift(novoLead);
-      nomesExistentes.add(nomeTrim.toLowerCase());
+      if (nomeNorm) nomesExistentesSet.add(nomeNorm);
+      if (perfilNorm) perfisExistentesSet.add(perfilNorm);
       novosCount++;
     });
 
     try {
-      localStorage.setItem(storageKey, JSON.stringify(leadsExistentes));
+      const jsonFinal = JSON.stringify(leadsExistentes);
+      // Grava em todas as chaves pertinentes para garantir sincronia absoluta com painel.html
+      storageKeys.forEach(k => {
+        try { localStorage.setItem(k, jsonFinal); } catch (_) {}
+      });
     } catch (errSalvar) {
       console.error('[ResetFIT Bridge] Erro ao gravar leads do Facebook:', errSalvar);
       return { sucesso: false, erro: errSalvar.message };
@@ -260,7 +327,7 @@
       script.remove();
     } catch(e) {}
 
-    if (novosCount > 0) {
+    if (novosCount > 0 || duplicadosCount > 0) {
       exibirToastFacebookSincronizacao(novosCount, grupoNome, duplicadosCount);
     }
 
@@ -273,11 +340,11 @@
       if (!toast) {
         toast = document.createElement('div');
         toast.id = 'toast-resetfit-fb-bridge';
-        toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:linear-gradient(135deg, #1D4ED8, #4338CA);color:#fff;padding:14px 18px;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border:1px solid rgba(96,165,250,0.4);display:flex;align-items:center;gap:12px;font-family:ui-sans-serif,system-ui,sans-serif;max-width:380px;';
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:linear-gradient(135deg, #1D4ED8, #4338CA);color:#fff;padding:14px 18px;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);border:1px solid rgba(96,165,250,0.4);display:flex;align-items:center;gap:12px;font-family:ui-sans-serif,system-ui,sans-serif;max-width:400px;';
         document.body.appendChild(toast);
       }
 
-      const dupMsg = duplicadosCount > 0 ? `<br><span style="font-size:10px;opacity:0.8;">(${duplicadosCount} contatos já existentes foram mantidos)</span>` : '';
+      const dupMsg = duplicadosCount > 0 ? `<br><span style="font-size:10px;opacity:0.9;color:#BAE6FD;">🛡️ <b>${duplicadosCount} contatos já existentes</b> foram mantidos intactos em suas etapas (sem repetição).</span>` : '';
 
       toast.innerHTML = `
         <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
@@ -286,7 +353,7 @@
         <div style="flex:1;">
           <h4 style="margin:0;font-size:13px;font-weight:800;color:#fff;">Facebook • Sincronização Concluída!</h4>
           <p style="margin:2px 0 0;font-size:11px;color:#DBEAFE;line-height:1.35;">
-            <b>${novosCount} contatos</b> do grupo <b>"${grupoNome}"</b> foram adicionados aos seus Leads do Facebook!${dupMsg}
+            <b>${novosCount} novos contatos</b> do grupo <b>"${grupoNome}"</b> adicionados aos seus Leads do Facebook!${dupMsg}
           </p>
         </div>
       `;
@@ -339,6 +406,22 @@
         sendResponse(resultadoFb);
       }
       return true;
+    });
+  }
+
+  // Escuta alterações de storage para atualizar imediatamente qualquer aba aberta do painel
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local') {
+        if (changes.resetfit_fb_pending_import && changes.resetfit_fb_pending_import.newValue) {
+          console.log('[ResetFIT Bridge] onChanged detectou novos leads do Facebook!');
+          checarImportacaoPendente();
+        }
+        if (changes.resetfit_crm_pending_import && changes.resetfit_crm_pending_import.newValue) {
+          console.log('[ResetFIT Bridge] onChanged detectou novos contatos do CRM!');
+          checarImportacaoPendente();
+        }
+      }
     });
   }
 
