@@ -2136,6 +2136,41 @@
                                     <input type="text" id="fb-flyer-input-cidade" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="Juína - MT" class="w-full px-3.5 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
                                 </div>
                             </div>
+
+                            <!-- PREÇOS DOS 3 PACOTES GRAVADOS NO FLYER DO FACEBOOK -->
+                            <div class="pt-2 border-t border-emerald-200/90">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-black uppercase text-emerald-950 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-tags text-emerald-600"></i> Preços dos 3 Pacotes Gravados no Flyer:
+                                    </span>
+                                    <span class="text-[10px] text-emerald-800 font-bold bg-emerald-100/90 px-2 py-0.5 rounded-full">
+                                        Preços da sua Região
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">1. Reset (500ml)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="fb-flyer-input-preco-reset" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="52,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">2. Reset + (1 Litro)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="fb-flyer-input-preco-plus" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="67,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">3. Reset Turbo (1L Turbo)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="fb-flyer-input-preco-turbo" oninput="gerarFlyerFacebookPersonalizado(false)" placeholder="84,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Grid de Imagens Injetadas via JS -->
@@ -3405,19 +3440,56 @@
                             </button>
                         </div>
 
-                        <!-- CAMPOS PERSONALIZÁVEIS DE WHATSAPP E CIDADE -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
-                            <div>
-                                <label class="block text-xs font-black text-emerald-950 mb-1">
-                                    <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para o Flyer:
-                                </label>
-                                <input type="text" id="flyer-input-whatsapp" oninput="atualizarPreviewCopyFlyer()" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                        <!-- CAMPOS PERSONALIZÁVEIS: WHATSAPP, CIDADE E PREÇOS DOS PACOTES -->
+                        <div class="mb-4 bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> WhatsApp para o Flyer:
+                                    </label>
+                                    <input type="text" id="flyer-input-whatsapp" oninput="gerarFlyerPersonalizadoDebounce(); atualizarPreviewCopyFlyer();" placeholder="(00) 00000-0000" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-emerald-950 mb-1">
+                                        <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Abaixo do número):
+                                    </label>
+                                    <input type="text" id="flyer-input-cidade" oninput="gerarFlyerPersonalizadoDebounce(); atualizarPreviewCopyFlyer();" placeholder="Ex: Juína - MT" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-black text-emerald-950 mb-1">
-                                    <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Cidade / Região (Aparecerá abaixo do número):
-                                </label>
-                                <input type="text" id="flyer-input-cidade" oninput="atualizarPreviewCopyFlyer()" placeholder="Ex: Primavera do Leste - MT" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+
+                            <!-- PREÇOS DOS 3 PACOTES IMPRESSOS NO FLYER -->
+                            <div class="pt-2.5 border-t border-emerald-200/90">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-black uppercase text-emerald-950 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-tags text-emerald-600"></i> Preços dos 3 Pacotes Gravados no Flyer:
+                                    </span>
+                                    <span class="text-[10px] text-emerald-800 font-bold bg-emerald-100/90 px-2 py-0.5 rounded-full">
+                                        Carregados dos Preços Salvos da sua Região
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-700 mb-0.5">1. Reset (500ml)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="flyer-input-preco-reset" oninput="gerarFlyerPersonalizadoDebounce(); atualizarPreviewCopyFlyer();" placeholder="52,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-700 mb-0.5">2. Reset + (1 Litro)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="flyer-input-preco-plus" oninput="gerarFlyerPersonalizadoDebounce(); atualizarPreviewCopyFlyer();" placeholder="67,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-700 mb-0.5">3. Reset Turbo (1L Turbo)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
+                                            <input type="text" id="flyer-input-preco-turbo" oninput="gerarFlyerPersonalizadoDebounce(); atualizarPreviewCopyFlyer();" placeholder="84,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -6743,7 +6815,7 @@
     <div style="display:none;">
         <img id="img-base" src="adesivo-base.png?v=4" crossorigin="anonymous">
         <canvas id="canvas-a4"></canvas>
-        <img id="img-base-flyer" src="flyer_kit_semanal_reset_base.jpg?v=2" crossorigin="anonymous">
+        <img id="img-base-flyer" src="flyer_kit_semanal_reset_base.jpg?v=10" crossorigin="anonymous">
         <canvas id="canvas-flyer"></canvas>
         <div id="qrcode-temp"></div>
     </div>
@@ -8957,19 +9029,142 @@
         }
         window.obterLinkLojaConsultor = obterLinkLojaConsultor;
 
+        function formatarValorPrecoLimpo(val) {
+            if (!val && val !== 0) return '';
+            let limpo = String(val).trim().replace('R$', '').trim();
+            if (!limpo) return '';
+            if (!limpo.includes(',') && !limpo.includes('.')) {
+                limpo += ',00';
+            } else if (limpo.includes('.') && !limpo.includes(',')) {
+                limpo = limpo.replace('.', ',');
+            }
+            const partes = limpo.split(',');
+            if (partes.length === 2 && partes[1].length === 1) {
+                limpo = partes[0] + ',' + partes[1] + '0';
+            }
+            return limpo;
+        }
+        window.formatarValorPrecoLimpo = formatarValorPrecoLimpo;
+
+        function obterPrecosKitsConsultor(consultor = consultorAtual) {
+            let precos = {
+                reset: '52,90',
+                reset_plus: '67,90',
+                reset_turbo: '84,90'
+            };
+
+            const inResetFlyer = document.getElementById('flyer-input-preco-reset')?.value;
+            const inPlusFlyer = document.getElementById('flyer-input-preco-plus')?.value;
+            const inTurboFlyer = document.getElementById('flyer-input-preco-turbo')?.value;
+            if (inResetFlyer) precos.reset = formatarValorPrecoLimpo(inResetFlyer);
+            if (inPlusFlyer) precos.reset_plus = formatarValorPrecoLimpo(inPlusFlyer);
+            if (inTurboFlyer) precos.reset_turbo = formatarValorPrecoLimpo(inTurboFlyer);
+
+            if (consultor && consultor.nome_espaco && consultor.nome_espaco.includes('<!--PRECOS_KITS:')) {
+                try {
+                    const m = consultor.nome_espaco.match(/<!--PRECOS_KITS:(.*?)-->/);
+                    if (m && m[1]) {
+                        const parsed = JSON.parse(m[1]) || {};
+                        if (parsed.reset && !inResetFlyer) precos.reset = formatarValorPrecoLimpo(parsed.reset);
+                        if ((parsed.reset_plus || parsed.resetPlus) && !inPlusFlyer) precos.reset_plus = formatarValorPrecoLimpo(parsed.reset_plus || parsed.resetPlus);
+                        if ((parsed.reset_turbo || parsed.resetTurbo) && !inTurboFlyer) precos.reset_turbo = formatarValorPrecoLimpo(parsed.reset_turbo || parsed.resetTurbo);
+                    }
+                } catch (_) {}
+            }
+
+            const inResetCfg = document.getElementById('cfg-preco-reset')?.value;
+            const inPlusCfg = document.getElementById('cfg-preco-plus')?.value;
+            const inTurboCfg = document.getElementById('cfg-preco-turbo')?.value;
+            if (inResetCfg && !inResetFlyer) precos.reset = formatarValorPrecoLimpo(inResetCfg);
+            if (inPlusCfg && !inPlusFlyer) precos.reset_plus = formatarValorPrecoLimpo(inPlusCfg);
+            if (inTurboCfg && !inTurboFlyer) precos.reset_turbo = formatarValorPrecoLimpo(inTurboCfg);
+
+            return precos;
+        }
+        window.obterPrecosKitsConsultor = obterPrecosKitsConsultor;
+
+        function desenharArteFlyerNoCanvas(canvas, imgBase, { whatsTexto, cidadeTexto, precoReset, precoPlus, precoTurbo }) {
+            canvas.width = imgBase.naturalWidth || imgBase.width || 682;
+            canvas.height = imgBase.naturalHeight || imgBase.height || 1024;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Desenha imagem de alta resolução base limpa
+            ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
+
+            const escalaX = canvas.width / 682;
+            const escalaY = canvas.height / 1024;
+
+            ctx.save();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // 2. DESENHO DOS 3 PREÇOS DOS PACOTES (CARDS DA DIREITA)
+            // X central do valor dentro do box: 570
+            // Caixa 1 (RESET 5 DIAS): Y = 590
+            // Caixa 2 (RESET +): Y = 752
+            // Caixa 3 (RESET TURBO): Y = 909
+            const posXPreco = 570 * escalaX;
+            const tamanhoPreco = Math.round(34 * escalaX);
+
+            ctx.font = `900 ${tamanhoPreco}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+            ctx.shadowBlur = 3 * escalaX;
+            ctx.shadowOffsetX = 1 * escalaX;
+            ctx.shadowOffsetY = 1 * escalaY;
+
+            if (precoReset) {
+                ctx.fillText(precoReset, posXPreco, 590 * escalaY);
+            }
+            if (precoPlus) {
+                ctx.fillText(precoPlus, posXPreco, 752 * escalaY);
+            }
+            if (precoTurbo) {
+                ctx.fillText(precoTurbo, posXPreco, 909 * escalaY);
+            }
+
+            // 3. DESENHO DE WHATSAPP E CIDADE (RODAPÉ VERDE)
+            const centroX = 275 * escalaX;
+
+            if (cidadeTexto) {
+                // Linha 1: WhatsApp (cor branca, negrito 900)
+                const tamanhoWhats = Math.round(21 * escalaX);
+                const centroYWhats = 944 * escalaY;
+                ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.fillText(whatsTexto, centroX, centroYWhats);
+
+                // Linha 2: Cidade / Região (cor branca, negrito 800)
+                const tamanhoCidade = Math.round(12.5 * escalaX);
+                const centroYCidade = 970 * escalaY;
+                ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.shadowBlur = 2 * escalaX;
+                ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
+            } else {
+                const tamanhoWhats = Math.round(26 * escalaX);
+                const centroYUnico = 958 * escalaY;
+                ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
+                ctx.shadowBlur = 4 * escalaX;
+                ctx.fillText(whatsTexto, centroX, centroYUnico);
+            }
+
+            ctx.restore();
+        }
+        window.desenharArteFlyerNoCanvas = desenharArteFlyerNoCanvas;
+
         function obterCopyCompartilhamentoFlyer(consultor) {
             const cons = consultor || consultorAtual || {};
             const linkWhats = obterLinkWhatsAppConsultor(cons);
             const linkLoja = obterLinkLojaConsultor(cons);
+            const precos = obterPrecosKitsConsultor(cons);
 
             let msg = `🔥 *EXAGEROU UM POUQUINHO NO FIM DE SEMANA? O SEU CORPO PRECISA DE UM RESET!* 🌿✨\n\n`;
             msg += `Acabe com a retenção de líquidos, sensação de inchaço e cansaço! O *Litrão do Reset* é a estratégia perfeita para desintoxicar o organismo, acelerar seu metabolismo e recuperar sua energia com foco total. 💧🚀\n\n`;
             msg += `🥤 *ESCOLHA O SEU PROTOCOLO DA SEMANA (5 GARRAFAS - 1 POR DIA):*\n\n`;
-            msg += `1️⃣ *RESET (Kit com 5 Garrafas de 500ml)* — R$ 49,90\n`;
+            msg += `1️⃣ *RESET (Kit com 5 Garrafas de 500ml)* — R$ ${precos.reset}\n`;
             msg += `🍃 5 Dias: Desintoxicação diária, leveza e renovação do metabolismo.\n\n`;
-            msg += `2️⃣ *RESET + (Kit com 5 Garrafas de 1 Litro)* — R$ 65,00 ⭐ *(Mais Vendido)*\n`;
+            msg += `2️⃣ *RESET + (Kit com 5 Garrafas de 1 Litro)* — R$ ${precos.reset_plus} ⭐ *(Mais Vendido)*\n`;
             msg += `🔥 5 Dias: Saciedade prolongada, queima acelerada e desinchaço profundo!\n\n`;
-            msg += `3️⃣ *RESET TURBO (Kit com 5 Garrafas de 1 Litro Turbo)* — R$ 79,99 ⚡\n`;
+            msg += `3️⃣ *RESET TURBO (Kit com 5 Garrafas de 1 Litro Turbo)* — R$ ${precos.reset_turbo} ⚡\n`;
             msg += `🚀 5 Dias: Máxima potência! Mais energia, queima potencializada e foco absoluto!\n\n`;
             msg += `🛵 *Entregamos geladinho na sua casa ou trabalho todos os dias!*\n\n`;
             msg += `👇 *GARANTA O SEU AGORA MESMO:*\n\n`;
@@ -9153,6 +9348,10 @@
             if (!consultorAtual) return;
             const inWhats = document.getElementById('flyer-input-whatsapp');
             const inCidade = document.getElementById('flyer-input-cidade');
+            const inReset = document.getElementById('flyer-input-preco-reset');
+            const inPlus = document.getElementById('flyer-input-preco-plus');
+            const inTurbo = document.getElementById('flyer-input-preco-turbo');
+
             if (inWhats && !inWhats.value) {
                 inWhats.value = formatarWhatsParaExibicao(consultorAtual.whatsapp || '');
             }
@@ -9160,9 +9359,24 @@
                 const cidDetectada = extrairCidadeConsultor(consultorAtual);
                 inCidade.value = cidDetectada || "Juína - MT";
             }
+
+            const precos = obterPrecosKitsConsultor(consultorAtual);
+            if (inReset && !inReset.value) inReset.value = precos.reset;
+            if (inPlus && !inPlus.value) inPlus.value = precos.reset_plus;
+            if (inTurbo && !inTurbo.value) inTurbo.value = precos.reset_turbo;
+
             atualizarPreviewCopyFlyer();
         }
         window.preencherCamposFlyer = preencherCamposFlyer;
+
+        let timerFlyerDebounce = null;
+        function gerarFlyerPersonalizadoDebounce() {
+            clearTimeout(timerFlyerDebounce);
+            timerFlyerDebounce = setTimeout(() => {
+                gerarFlyerPersonalizado();
+            }, 250);
+        }
+        window.gerarFlyerPersonalizadoDebounce = gerarFlyerPersonalizadoDebounce;
 
         function gerarFlyerPersonalizado() {
             const btn = document.getElementById('btn-gerar-flyer');
@@ -9179,78 +9393,35 @@
                     const canvas = document.getElementById('canvas-flyer');
                     if (!imgBase || !canvas) throw new Error("Elementos do canvas não encontrados");
 
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = imgBase.naturalWidth || imgBase.width || 682;
-                    canvas.height = imgBase.naturalHeight || imgBase.height || 1024;
-
-                    // 1. Desenha o flyer base de alta resolução
-                    ctx.drawImage(imgBase, 0, 0, canvas.width, canvas.height);
-
-                    // 2. Extrai dados dos campos com fallback para o consultor atual
+                    // 1. Extrai dados dos campos com fallback para o consultor atual
                     const inWhats = document.getElementById('flyer-input-whatsapp');
                     const inCidade = document.getElementById('flyer-input-cidade');
+                    const inReset = document.getElementById('flyer-input-preco-reset');
+                    const inPlus = document.getElementById('flyer-input-preco-plus');
+                    const inTurbo = document.getElementById('flyer-input-preco-turbo');
 
                     let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (consultorAtual?.whatsapp || "66992822020");
                     let whatsTexto = formatarWhatsParaExibicao(numWhats);
-
                     let cidadeTexto = (inCidade && inCidade.value.trim()) ? inCidade.value.trim() : extrairCidadeConsultor(consultorAtual);
 
-                    // 3. Posição perfeitamente calibrada para a pílula verde ao lado do ícone de WhatsApp
-                    // Dimensões do flyer original: 682 x 1024
-                    // A área útil interna verde: X de 120 até 430 (largura 310), Y de 924 até 992 (altura 68)
-                    // Centro exato X: 275 px
-                    const escalaX = canvas.width / 682;
-                    const escalaY = canvas.height / 1024;
-                    const centroX = 275 * escalaX;
+                    const precos = obterPrecosKitsConsultor(consultorAtual);
+                    let precoReset = (inReset && inReset.value.trim()) ? formatarValorPrecoLimpo(inReset.value) : precos.reset;
+                    let precoPlus = (inPlus && inPlus.value.trim()) ? formatarValorPrecoLimpo(inPlus.value) : precos.reset_plus;
+                    let precoTurbo = (inTurbo && inTurbo.value.trim()) ? formatarValorPrecoLimpo(inTurbo.value) : precos.reset_turbo;
 
-                    ctx.save();
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
+                    // 2. Desenha o flyer com WhatsApp, Cidade e os 3 Preços dos pacotes
+                    desenharArteFlyerNoCanvas(canvas, imgBase, {
+                        whatsTexto,
+                        cidadeTexto,
+                        precoReset,
+                        precoPlus,
+                        precoTurbo
+                    });
 
-                    if (cidadeTexto) {
-                        // LAYOUT DUPLO: WhatsApp em cima + Cidade embaixo
-                        
-                        // Linha 1: WhatsApp (cor branca, negrito)
-                        const tamanhoWhats = Math.round(21 * escalaX);
-                        const centroYWhats = 944 * escalaY;
-                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
-                        ctx.shadowBlur = 3 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(whatsTexto, centroX, centroYWhats);
-
-                        // Linha 2: Cidade / Região (cor branca, clean)
-                        const tamanhoCidade = Math.round(12.5 * escalaX);
-                        const centroYCidade = 970 * escalaY;
-                        ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
-                        ctx.shadowBlur = 2 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
-
-                    } else {
-                        // LAYOUT ÚNICO: Apenas o WhatsApp centralizado verticalmente
-                        const tamanhoWhats = Math.round(26 * escalaX);
-                        const centroYUnico = 958 * escalaY;
-                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
-                        ctx.shadowBlur = 4 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(whatsTexto, centroX, centroYUnico);
-                    }
-
-                    ctx.restore();
-
-                    // 5. Salva imagem em alta qualidade JPG
+                    // 3. Salva imagem em alta qualidade JPG
                     dadosDataURLFlyer = canvas.toDataURL("image/jpeg", 0.95);
 
-                    // 6. Atualiza prévia na tela
+                    // 4. Atualiza prévia na tela
                     const previewBox = document.getElementById('preview-box-flyer');
                     const previewImg = document.getElementById('img-preview-flyer');
                     const contFlyer = document.getElementById('conteudo-preview-flyer');
@@ -9266,6 +9437,10 @@
                         previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
 
+                    // Sincroniza também com o Card 2 do Facebook se existir na página
+                    const fbImgEl = document.getElementById('fb-img-criativo_2');
+                    if (fbImgEl) fbImgEl.src = dadosDataURLFlyer;
+
                     try {
                         atualizarPreviewCopyFlyer();
                     } catch(e) {}
@@ -9274,7 +9449,7 @@
                         btn.innerHTML = '<i class="fa-solid fa-check mr-2 text-xl text-yellow-300"></i> FLYER GERADO COM SUCESSO!';
                         setTimeout(() => {
                             btn.disabled = false;
-                            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> ATUALIZAR FLYER COM MEU WHATSAPP';
+                            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2 text-base text-yellow-300"></i> ATUALIZAR FLYER COM MEUS DADOS';
                         }, 2500);
                     }
                 } catch(err) {
@@ -16076,6 +16251,28 @@
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                 consultorAtual.nome_espaco = rawEspaco;
+
+                // Sincroniza imediatamente com os geradores de Flyer (Materiais de Apoio e Facebook)
+                try {
+                    const novosPrecos = obterPrecosKitsConsultor(consultorAtual);
+                    const elReset = document.getElementById('flyer-input-preco-reset');
+                    const elPlus = document.getElementById('flyer-input-preco-plus');
+                    const elTurbo = document.getElementById('flyer-input-preco-turbo');
+                    if (elReset) elReset.value = novosPrecos.reset;
+                    if (elPlus) elPlus.value = novosPrecos.reset_plus;
+                    if (elTurbo) elTurbo.value = novosPrecos.reset_turbo;
+
+                    const fbReset = document.getElementById('fb-flyer-input-preco-reset');
+                    const fbPlus = document.getElementById('fb-flyer-input-preco-plus');
+                    const fbTurbo = document.getElementById('fb-flyer-input-preco-turbo');
+                    if (fbReset) fbReset.value = novosPrecos.reset;
+                    if (fbPlus) fbPlus.value = novosPrecos.reset_plus;
+                    if (fbTurbo) fbTurbo.value = novosPrecos.reset_turbo;
+
+                    if (typeof gerarFlyerPersonalizado === 'function') gerarFlyerPersonalizado();
+                    if (typeof gerarFlyerFacebookPersonalizado === 'function') gerarFlyerFacebookPersonalizado(false);
+                } catch(e) {}
+
                 alert("✅ Preços dos pacotes salvos com sucesso! A seção de pacotes da sua landing page agora está ativa com os valores da sua região.");
                 fecharModalConfigPrecosKits();
             } catch(err) {
@@ -23784,12 +23981,19 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             // Inicializa campos de personalização com os dados do consultor se estiverem vazios
             const inWhats = document.getElementById('fb-flyer-input-whatsapp');
             const inCidade = document.getElementById('fb-flyer-input-cidade');
+            const inReset = document.getElementById('fb-flyer-input-preco-reset');
+            const inPlus = document.getElementById('fb-flyer-input-preco-plus');
+            const inTurbo = document.getElementById('fb-flyer-input-preco-turbo');
 
             let whatsPadrao = consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : '(66) 98141-1234';
             let cidPadrao = extrairCidadeConsultor(consultorAtual) || 'Juína - MT';
+            const precosPadrao = obterPrecosKitsConsultor(consultorAtual);
 
             if (inWhats && !inWhats.value) inWhats.value = whatsPadrao;
             if (inCidade && !inCidade.value) inCidade.value = cidPadrao;
+            if (inReset && !inReset.value) inReset.value = precosPadrao.reset;
+            if (inPlus && !inPlus.value) inPlus.value = precosPadrao.reset_plus;
+            if (inTurbo && !inTurbo.value) inTurbo.value = precosPadrao.reset_turbo;
 
             container.innerHTML = CRIATIVOS_FACEBOOK_OFICIAIS.map(criativo => {
                 const isFlyer = criativo.id === 'criativo_2';
@@ -23800,7 +24004,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
                 const badgeFlyer = isFlyer ? `
                     <div id="fb-badge-criativo_2" class="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
-                        <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> Personalizado c/ WhatsApp & Cidade
+                        <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> Personalizado c/ Preços, WhatsApp & Cidade
                     </div>
                 ` : '';
 
@@ -23850,14 +24054,25 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         function gerarFlyerFacebookPersonalizado(notificar) {
             const inWhats = document.getElementById('fb-flyer-input-whatsapp');
             const inCidade = document.getElementById('fb-flyer-input-cidade');
+            const inReset = document.getElementById('fb-flyer-input-preco-reset');
+            const inPlus = document.getElementById('fb-flyer-input-preco-plus');
+            const inTurbo = document.getElementById('fb-flyer-input-preco-turbo');
 
             let numWhats = (inWhats && inWhats.value.trim()) ? inWhats.value.trim() : (consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : "(66) 98141-1234");
             let whatsTexto = formatarWhatsParaExibicao(numWhats);
 
             let cidadeTexto = (inCidade && inCidade.value.trim()) ? inCidade.value.trim() : (extrairCidadeConsultor(consultorAtual) || "Juína - MT");
 
+            const precosPadrao = obterPrecosKitsConsultor(consultorAtual);
+            let precoReset = (inReset && inReset.value.trim()) ? formatarValorPrecoLimpo(inReset.value) : precosPadrao.reset;
+            let precoPlus = (inPlus && inPlus.value.trim()) ? formatarValorPrecoLimpo(inPlus.value) : precosPadrao.reset_plus;
+            let precoTurbo = (inTurbo && inTurbo.value.trim()) ? formatarValorPrecoLimpo(inTurbo.value) : precosPadrao.reset_turbo;
+
             if (inWhats && !inWhats.value) inWhats.value = whatsTexto;
             if (inCidade && !inCidade.value) inCidade.value = cidadeTexto;
+            if (inReset && !inReset.value) inReset.value = precoReset;
+            if (inPlus && !inPlus.value) inPlus.value = precoPlus;
+            if (inTurbo && !inTurbo.value) inTurbo.value = precoTurbo;
 
             let canvas = document.getElementById('canvas-flyer');
             if (!canvas) {
@@ -23869,57 +24084,14 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
             const desenharNoCanvas = (img) => {
                 try {
-                    canvas.width = img.naturalWidth || img.width || 682;
-                    canvas.height = img.naturalHeight || img.height || 1024;
-                    const ctx = canvas.getContext('2d');
-
-                    // 1. Desenha imagem de alta resolução base
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    // 2. Coordenadas calibradas da pílula verde (682x1024)
-                    const escalaX = canvas.width / 682;
-                    const escalaY = canvas.height / 1024;
-                    const centroX = 275 * escalaX;
-
-                    ctx.save();
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-
-                    if (cidadeTexto) {
-                        // Linha 1: WhatsApp (cor branca, negrito 900)
-                        const tamanhoWhats = Math.round(21 * escalaX);
-                        const centroYWhats = 944 * escalaY;
-                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-                        ctx.shadowBlur = 3 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(whatsTexto, centroX, centroYWhats);
-
-                        // Linha 2: Cidade / Região (cor branca, negrito 800)
-                        const tamanhoCidade = Math.round(12.5 * escalaX);
-                        const centroYCidade = 970 * escalaY;
-                        ctx.font = `800 ${tamanhoCidade}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
-                        ctx.shadowBlur = 2 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(cidadeTexto.toUpperCase(), centroX, centroYCidade);
-                    } else {
-                        const tamanhoWhats = Math.round(26 * escalaX);
-                        const centroYUnico = 958 * escalaY;
-                        ctx.font = `900 ${tamanhoWhats}px "Montserrat", "Segoe UI", Arial, sans-serif`;
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-                        ctx.shadowBlur = 4 * escalaX;
-                        ctx.shadowOffsetX = 1 * escalaX;
-                        ctx.shadowOffsetY = 1 * escalaY;
-                        ctx.fillText(whatsTexto, centroX, centroYUnico);
-                    }
-
-                    ctx.restore();
+                    // Desenha WhatsApp, Cidade e os 3 Preços salvos do consultor
+                    desenharArteFlyerNoCanvas(canvas, img, {
+                        whatsTexto,
+                        cidadeTexto,
+                        precoReset,
+                        precoPlus,
+                        precoTurbo
+                    });
 
                     // Salva dataURL de alta qualidade
                     dadosDataURLFlyer = canvas.toDataURL("image/jpeg", 0.95);
@@ -23930,15 +24102,22 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
                     if (imgEl) imgEl.src = dadosDataURLFlyer;
                     if (badgeCustom) {
-                        badgeCustom.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ${whatsTexto} • ${cidadeTexto}`;
+                        badgeCustom.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ${whatsTexto} • ${cidadeTexto} • R$ ${precoReset} / ${precoPlus} / ${precoTurbo}`;
                     }
 
                     // Sincroniza também os inputs do box principal de flyer se estiver na tela
                     const inWhatsPrincipal = document.getElementById('flyer-input-whatsapp');
                     const inCidadePrincipal = document.getElementById('flyer-input-cidade');
+                    const inResetPrincipal = document.getElementById('flyer-input-preco-reset');
+                    const inPlusPrincipal = document.getElementById('flyer-input-preco-plus');
+                    const inTurboPrincipal = document.getElementById('flyer-input-preco-turbo');
                     const imgPreviewPrincipal = document.getElementById('img-preview-flyer');
+
                     if (inWhatsPrincipal && !inWhatsPrincipal.value) inWhatsPrincipal.value = whatsTexto;
                     if (inCidadePrincipal && !inCidadePrincipal.value) inCidadePrincipal.value = cidadeTexto;
+                    if (inResetPrincipal && !inResetPrincipal.value) inResetPrincipal.value = precoReset;
+                    if (inPlusPrincipal && !inPlusPrincipal.value) inPlusPrincipal.value = precoPlus;
+                    if (inTurboPrincipal && !inTurboPrincipal.value) inTurboPrincipal.value = precoTurbo;
                     if (imgPreviewPrincipal) imgPreviewPrincipal.src = dadosDataURLFlyer;
 
                     if (notificar) {
@@ -23953,7 +24132,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                             }, 2500);
                         }
                         if (typeof mostrarNotificacaoFlutuante === 'function') {
-                            mostrarNotificacaoFlutuante('Flyer atualizado com WhatsApp & Cidade! ✅', 'sucesso');
+                            mostrarNotificacaoFlutuante('Flyer atualizado com Preços, WhatsApp & Cidade! ✅', 'sucesso');
                         }
                     }
                 } catch(err) {
@@ -23968,7 +24147,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 const imgTemp = new Image();
                 imgTemp.crossOrigin = "anonymous";
                 imgTemp.onload = () => desenharNoCanvas(imgTemp);
-                imgTemp.src = "flyer_kit_semanal_reset_base.jpg?v=3";
+                imgTemp.src = "flyer_kit_semanal_reset_base.jpg?v=10";
             }
         }
 
