@@ -2149,6 +2149,51 @@
             </div>
         </div>
 
+        <!-- MODAL VISUALIZADOR DE IMAGEM EM TELA CHEIA (FACEBOOK CRIATIVOS) -->
+        <div id="modal-visualizador-imagem-fb" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] flex flex-col items-center justify-between p-3 sm:p-5 hidden animate-fade-in" onclick="if(event.target === this) fecharModalVisualizadorImagemFb()">
+            <!-- HEADER DA IMAGEM COM BOTÃO VERDE DE DOWNLOAD GIGANTE -->
+            <div class="w-full max-w-4xl bg-slate-900 border-2 border-emerald-500 p-3.5 sm:p-4 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl flex-shrink-0">
+                <div class="flex items-center gap-3 text-left w-full sm:w-auto">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-visualizador-titulo-fb" class="text-xs sm:text-sm font-black text-white leading-tight">Flyer Oficial Kit Semanal</h3>
+                        <p class="text-[11px] text-emerald-400 font-semibold mt-0.5" id="modal-visualizador-subtitulo-fb">Personalizado c/ WhatsApp & Cidade • Alta Resolução</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+                    <!-- BOTÃO BAIXAR AGORA (GRANDE, VERDE) -->
+                    <button type="button" id="modal-visualizador-btn-baixar" onclick="baixarImagemAtivaVisualizadorFb(this)" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition flex items-center gap-2 shadow-xl cursor-pointer">
+                        <i class="fa-solid fa-download text-base"></i>
+                        <span>BAIXAR AGORA (JPG)</span>
+                    </button>
+                    <!-- BOTÃO COPIAR -->
+                    <button type="button" id="modal-visualizador-btn-copiar" onclick="copiarImagemAtivaVisualizadorFb(this)" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold px-4 py-2.5 rounded-2xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Copiar Imagem</span>
+                    </button>
+                    <!-- BOTÃO FECHAR -->
+                    <button type="button" onclick="fecharModalVisualizadorImagemFb()" class="bg-slate-800 hover:bg-rose-900/80 text-slate-300 hover:text-white font-black px-3.5 py-2.5 rounded-2xl text-xs transition cursor-pointer flex items-center gap-1" title="Fechar visualizador">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                        <span>Fechar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTAINER DA IMAGEM CENTRALIZADA -->
+            <div class="flex-1 flex items-center justify-center w-full max-w-4xl py-3 overflow-hidden">
+                <img id="modal-visualizador-img-fb" src="" alt="Criativo Facebook" class="max-h-[74vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl border border-slate-800 bg-slate-950 p-2">
+            </div>
+
+            <!-- RODAPÉ INFORMATIVO -->
+            <div class="w-full max-w-4xl text-center py-1 text-[11px] text-slate-400 flex items-center justify-between flex-wrap gap-2 px-2 flex-shrink-0">
+                <span><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Litrão do Reset • Material Oficial SuperAdmin</span>
+                <span class="text-emerald-300 font-medium">Dica: Clique no botão verde acima para salvar na sua pasta Downloads</span>
+            </div>
+        </div>
+
         <!-- MODAL DE EDIÇÃO DE CONSULTOR (SUPERADMIN) -->
         <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
             <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-200 relative flex flex-col max-h-[92vh] overflow-hidden animate-fade-in">
@@ -23749,8 +23794,6 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             container.innerHTML = CRIATIVOS_FACEBOOK_OFICIAIS.map(criativo => {
                 const isFlyer = criativo.id === 'criativo_2';
                 const imgId = isFlyer ? 'id="fb-img-criativo_2"' : '';
-                const linkVerId = isFlyer ? 'id="fb-link-ver-criativo_2"' : '';
-                const linkBaixarId = isFlyer ? 'id="fb-link-baixar-criativo_2"' : '';
                 const btnCopiarAction = isFlyer
                     ? `copiarImagemFlyerPersonalizadoFacebook(this)`
                     : `copiarImagemCriativoFacebook('${criativo.arquivo}', this)`;
@@ -23765,10 +23808,11 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     <div class="bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-2xs flex flex-col justify-between group hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-gray-100">
-                                <img ${imgId} src="${criativo.arquivo}" alt="${criativo.titulo}" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300">
-                                <a ${linkVerId} href="${criativo.arquivo}" target="_blank" class="absolute top-2.5 right-2.5 bg-black/60 hover:bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center gap-1 transition cursor-pointer" title="Ver em tamanho real">
-                                    <i class="fa-solid fa-up-right-from-square"></i> Ver
-                                </a>
+                                <img ${imgId} src="${criativo.arquivo}" alt="${criativo.titulo}" onclick="verImagemCriativoFacebook('${criativo.id}')" class="w-full h-full object-contain p-2 group-hover:scale-102 transition duration-300 cursor-pointer" title="Clique para ampliar e baixar">
+                                <button type="button" onclick="verImagemCriativoFacebook('${criativo.id}')" class="absolute top-2.5 right-2.5 bg-slate-900/80 hover:bg-emerald-600 text-white text-[11px] font-black px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1.5 transition cursor-pointer shadow-md" title="Ver em tela cheia com botão de download">
+                                    <i class="fa-solid fa-expand"></i>
+                                    <span>Ver / Baixar</span>
+                                </button>
                             </div>
 
                             <div>
@@ -23786,10 +23830,10 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mt-3">
-                            <a ${linkBaixarId} href="${criativo.arquivo}" download="${criativo.nomeDownload}" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-center">
+                            <button type="button" onclick="baixarCriativoFacebook('${criativo.id}', this)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-center">
                                 <i class="fa-solid fa-download"></i> Baixar Imagem
-                            </a>
-                            <button type="button" onclick="${btnCopiarAction}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                            </button>
+                            <button type="button" onclick="${btnCopiarAction}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
                                 <i class="fa-solid fa-copy"></i> Copiar Imagem
                             </button>
                         </div>
@@ -23882,17 +23926,9 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
                     // Atualiza elementos do Card 2 no Modal do Facebook
                     const imgEl = document.getElementById('fb-img-criativo_2');
-                    const linkVer = document.getElementById('fb-link-ver-criativo_2');
-                    const linkBaixar = document.getElementById('fb-link-baixar-criativo_2');
                     const badgeCustom = document.getElementById('fb-badge-criativo_2');
 
                     if (imgEl) imgEl.src = dadosDataURLFlyer;
-                    if (linkVer) linkVer.href = dadosDataURLFlyer;
-                    if (linkBaixar) {
-                        linkBaixar.href = dadosDataURLFlyer;
-                        const hid = consultorAtual ? consultorAtual.herbalife_id : 'edwan';
-                        linkBaixar.download = `Flyer_Kit_Semanal_Reset_${hid}.jpg`;
-                    }
                     if (badgeCustom) {
                         badgeCustom.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> ${whatsTexto} • ${cidadeTexto}`;
                     }
@@ -23933,6 +23969,170 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 imgTemp.crossOrigin = "anonymous";
                 imgTemp.onload = () => desenharNoCanvas(imgTemp);
                 imgTemp.src = "flyer_kit_semanal_reset_base.jpg?v=3";
+            }
+        }
+
+        let criativoIdVisualizadorAtivo = 'criativo_2';
+
+        function baixarCriativoFacebook(criativoId, btn) {
+            const hid = consultorAtual ? consultorAtual.herbalife_id : 'superadmin';
+            const cidadeConsultor = extrairCidadeConsultor(consultorAtual) || 'Juina_MT';
+            const cidadeSlug = cidadeConsultor.replace(/[^a-zA-Z0-9]/g, '_');
+
+            // Feedback visual no botão que disparou a ação
+            const feedbackBtn = (texto = 'Baixado! ✅') => {
+                if (!btn) return;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>${texto}</span>`;
+                btn.classList.add('bg-emerald-600', 'text-white');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2500);
+            };
+
+            if (criativoId === 'criativo_2') {
+                const canvas = document.getElementById('canvas-flyer');
+                const nomeArquivo = `Flyer_Kit_Semanal_Reset_${cidadeSlug}.jpg`;
+
+                if (canvas && typeof canvas.toBlob === 'function') {
+                    canvas.toBlob(blob => {
+                        if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = nomeArquivo;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            setTimeout(() => URL.revokeObjectURL(url), 4000);
+                            feedbackBtn('Flyer Baixado! ✅');
+                            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                                mostrarNotificacaoFlutuante('Flyer baixado com sucesso! Salvo na sua pasta Downloads. ✅', 'sucesso');
+                            }
+                        } else if (dadosDataURLFlyer) {
+                            executarDownloadDataUrl(dadosDataURLFlyer, nomeArquivo);
+                            feedbackBtn('Flyer Baixado! ✅');
+                        }
+                    }, 'image/jpeg', 0.95);
+                    return;
+                } else if (dadosDataURLFlyer) {
+                    executarDownloadDataUrl(dadosDataURLFlyer, nomeArquivo);
+                    feedbackBtn('Flyer Baixado! ✅');
+                    return;
+                }
+            }
+
+            // Para os outros criativos do catálogo oficial
+            const criativo = CRIATIVOS_FACEBOOK_OFICIAIS.find(c => c.id === criativoId) || CRIATIVOS_FACEBOOK_OFICIAIS[0];
+            const nomeArquivo = criativo.nomeDownload || `Criativo_Reset_${criativo.id}.jpg`;
+
+            fetch(criativo.arquivo)
+                .then(r => r.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nomeArquivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 4000);
+                    feedbackBtn('Imagem Baixada! ✅');
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante(`Download concluído: ${criativo.titulo} ✅`, 'sucesso');
+                    }
+                })
+                .catch(() => {
+                    const a = document.createElement('a');
+                    a.href = criativo.arquivo;
+                    a.download = nomeArquivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    feedbackBtn('Baixando... ✅');
+                });
+        }
+
+        function executarDownloadDataUrl(dataUrl, nomeArquivo) {
+            fetch(dataUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nomeArquivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 4000);
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante('Download salvo na sua pasta Downloads! ✅', 'sucesso');
+                    }
+                })
+                .catch(() => {
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = nomeArquivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+        }
+
+        function verImagemCriativoFacebook(idCriativo) {
+            criativoIdVisualizadorAtivo = idCriativo;
+            const modal = document.getElementById('modal-visualizador-imagem-fb');
+            const imgAlvo = document.getElementById('modal-visualizador-img-fb');
+            const titAlvo = document.getElementById('modal-visualizador-titulo-fb');
+            const subAlvo = document.getElementById('modal-visualizador-subtitulo-fb');
+
+            let imgUrl = '';
+            let titulo = '';
+            let subtitulo = '';
+
+            if (idCriativo === 'criativo_2') {
+                if (dadosDataURLFlyer) {
+                    imgUrl = dadosDataURLFlyer;
+                } else {
+                    const canvas = document.getElementById('canvas-flyer');
+                    if (canvas) imgUrl = canvas.toDataURL("image/jpeg", 0.95);
+                    else imgUrl = 'flyer_kit_semanal_reset_base.jpg';
+                }
+                const cid = extrairCidadeConsultor(consultorAtual) || 'Juína - MT';
+                const whats = consultorAtual?.whatsapp ? formatarWhatsParaExibicao(consultorAtual.whatsapp) : '(66) 98141-1234';
+                titulo = 'Flyer Oficial Kit Semanal (Personalizado)';
+                subtitulo = `WhatsApp: ${whats} • Cidade: ${cid} • Pronto para Baixar em Alta Resolução`;
+            } else {
+                const c = CRIATIVOS_FACEBOOK_OFICIAIS.find(x => x.id === idCriativo) || CRIATIVOS_FACEBOOK_OFICIAIS[0];
+                imgUrl = c.arquivo;
+                titulo = c.titulo;
+                subtitulo = c.descricao || 'Criativo Oficial Litrão do Reset';
+            }
+
+            if (titAlvo) titAlvo.innerText = titulo;
+            if (subAlvo) subAlvo.innerText = subtitulo;
+            if (imgAlvo) imgAlvo.src = imgUrl;
+
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function fecharModalVisualizadorImagemFb() {
+            const modal = document.getElementById('modal-visualizador-imagem-fb');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function baixarImagemAtivaVisualizadorFb(btn) {
+            baixarCriativoFacebook(criativoIdVisualizadorAtivo, btn);
+        }
+
+        function copiarImagemAtivaVisualizadorFb(btn) {
+            if (criativoIdVisualizadorAtivo === 'criativo_2') {
+                copiarImagemFlyerPersonalizadoFacebook(btn);
+            } else {
+                const criativo = CRIATIVOS_FACEBOOK_OFICIAIS.find(c => c.id === criativoIdVisualizadorAtivo) || CRIATIVOS_FACEBOOK_OFICIAIS[0];
+                copiarImagemCriativoFacebook(criativo.arquivo, btn);
             }
         }
 
@@ -24095,6 +24295,11 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.moverLeadFacebookEtapaRelativa = moverLeadFacebookEtapaRelativa;
         window.gerarFlyerFacebookPersonalizado = gerarFlyerFacebookPersonalizado;
         window.copiarImagemFlyerPersonalizadoFacebook = copiarImagemFlyerPersonalizadoFacebook;
+        window.baixarCriativoFacebook = baixarCriativoFacebook;
+        window.verImagemCriativoFacebook = verImagemCriativoFacebook;
+        window.fecharModalVisualizadorImagemFb = fecharModalVisualizadorImagemFb;
+        window.baixarImagemAtivaVisualizadorFb = baixarImagemAtivaVisualizadorFb;
+        window.copiarImagemAtivaVisualizadorFb = copiarImagemAtivaVisualizadorFb;
 
 
 
