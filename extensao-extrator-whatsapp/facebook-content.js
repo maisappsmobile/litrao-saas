@@ -109,9 +109,9 @@
     container.id = 'resetfit-fb-floating-container';
     container.style.cssText = `
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 999999;
+      bottom: 25px;
+      right: 85px;
+      z-index: 2147483647;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     `;
 

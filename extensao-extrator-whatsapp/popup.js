@@ -123,10 +123,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const dotStatus = document.getElementById('dot-status');
   const txtStatus = document.getElementById('txt-status');
-  if (!isZap) {
+  const isFb = tab && tab.url && tab.url.includes('facebook.com');
+
+  if (isFb) {
+    dotStatus.style.background = '#38BDF8';
+    dotStatus.style.boxShadow = '0 0 8px #38BDF8';
+    txtStatus.innerText = 'Facebook Conectado';
+    txtStatus.style.color = '#38BDF8';
+  } else if (!isZap) {
     dotStatus.style.background = '#EF4444';
     dotStatus.style.boxShadow = 'none';
-    txtStatus.innerText = 'Abra o WhatsApp Web';
+    txtStatus.innerText = 'Abra o WhatsApp ou Facebook';
     txtStatus.style.color = '#EF4444';
   }
 
@@ -255,9 +262,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (isZap) carregarGrupos();
+  let ehExtracaoFacebook = false;
 
-  btnRecarregarGrupos.addEventListener('click', carregarGrupos);
+  if (isZap) {
+    carregarGrupos();
+  } else if (isFb) {
+    let nomeLimpo = (tab.title || 'Grupo Facebook').replace(/\s*\|\s*Facebook\s*$/i, '').trim();
+    nomeGrupoAtual = nomeLimpo;
+    if (selectGrupos) {
+      selectGrupos.innerHTML = `<option value="${nomeLimpo}" selected>📘 Facebook: ${nomeLimpo}</option>`;
+    }
+  }
+
+  btnRecarregarGrupos.addEventListener('click', () => {
+    if (isZap) carregarGrupos();
+    else if (isFb) {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([t]) => {
+        if (t) {
+          let nomeLimpo = (t.title || 'Grupo Facebook').replace(/\s*\|\s*Facebook\s*$/i, '').trim();
+          nomeGrupoAtual = nomeLimpo;
+          if (selectGrupos) selectGrupos.innerHTML = `<option value="${nomeLimpo}" selected>📘 Facebook: ${nomeLimpo}</option>`;
+        }
+      });
+    }
+  });
 
   selectGrupos.addEventListener('change', () => {
     const val = selectGrupos.value;
@@ -272,9 +300,134 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  async function executarExtracaoFacebookDireta() {
+    ehExtracaoFacebook = true;
+    btnExtrair.disabled = true;
+    btnExtrair.innerText = '⏳ Rolando página do Facebook...';
+    progressoExtracao.style.display = 'block';
+    progressoFill.style.width = '30%';
+    progressoTxt.innerText = 'Rolando membros no Facebook...';
+
+    const [tabAtiva] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tabAtiva || !tabAtiva.id) {
+      alert('Erro: aba do Facebook não encontrada.');
+      btnExtrair.disabled = false;
+      btnExtrair.innerText = '⚡ Extrair Todos os Contatos';
+      progressoExtracao.style.display = 'none';
+      return;
+    }
+
+    try {
+      // 1. Rola a página 3 vezes para carregar mais membros
+      for (let r = 0; r < 3; r++) {
+        await chrome.scripting.executeScript({
+          target: { tabId: tabAtiva.id },
+          func: () => { window.scrollBy(0, 1500); }
+        });
+        progressoFill.style.width = (40 + r * 15) + '%';
+        await new Promise(res => setTimeout(res, 600));
+      }
+
+      progressoTxt.innerText = 'Identificando membros e cargos...';
+      progressoFill.style.width = '85%';
+
+      // 2. Extrai membros do DOM do Facebook
+      const resultado = await chrome.scripting.executeScript({
+        target: { tabId: tabAtiva.id },
+        func: () => {
+          const h1 = document.querySelector('h1');
+          let nomeGrupo = (h1 && h1.innerText && h1.innerText.trim()) ? h1.innerText.trim() : (document.title || '').replace(/\s*\|\s*Facebook\s*$/i, '').trim();
+          if (!nomeGrupo) nomeGrupo = 'Grupo Facebook Herbalife';
+
+          const links = Array.from(document.querySelectorAll('a[role="link"], a[href*="/user/"], a[href*="/groups/"]'));
+          const membrosMap = new Map();
+          const termosIgnorar = [
+            'adicionar', 'mensagem', 'ver tudo', 'amigo', 'grupo', 'facebook',
+            'compartilhar', 'curtir', 'notificações', 'feed', 'gaming', 'convidar',
+            'classificado', 'discussão', 'destaques', 'vídeo', 'eventos', 'sobre',
+            'membros', 'pessoas', 'arquivos'
+          ];
+
+          links.forEach(a => {
+            const href = (a.href || '').split('?')[0];
+            const nome = (a.innerText || '').trim();
+            if (!href || nome.length < 3 || nome.length > 50 || nome.includes('\n')) return;
+            const low = nome.toLowerCase();
+            if (termosIgnorar.some(t => low.includes(t))) return;
+
+            const isPerfil = href.includes('/user/') || href.includes('/profile.php') ||
+                             (href.includes('facebook.com/') && !href.includes('/groups/'));
+            const card = a.closest('div[role="listitem"]') || a.parentElement?.parentElement || {};
+            const cardText = (card.innerText || '').toLowerCase();
+
+            if (!isPerfil && !cardText.includes('administrador') && !cardText.includes('membro')) return;
+
+            const isAdmin = cardText.includes('administrador') || cardText.includes('moderador') || low.includes('admin');
+
+            if (!membrosMap.has(nome)) {
+              membrosMap.set(nome, {
+                nome: nome,
+                telefone: '',
+                perfilUrl: isPerfil ? href : `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
+                cargo: isAdmin ? 'admin' : 'membro',
+                grupoOrigem: nomeGrupo,
+                grupo: nomeGrupo
+              });
+            }
+          });
+
+          return {
+            nomeGrupo: nomeGrupo,
+            membros: Array.from(membrosMap.values())
+          };
+        }
+      });
+
+      const res = (resultado && resultado[0] && resultado[0].result) ? resultado[0].result : { nomeGrupo: 'Grupo Facebook', membros: [] };
+      contatosExtraidos = res.membros || [];
+      nomeGrupoAtual = res.nomeGrupo || 'HERBALIFE BRASIL';
+
+      btnExtrair.disabled = false;
+      btnExtrair.innerText = '⚡ Extrair Novamente';
+      progressoExtracao.style.display = 'none';
+
+      const admCount = contatosExtraidos.filter(c => c.cargo === 'admin').length;
+      totalExtraidos.innerText = contatosExtraidos.length;
+      totalComTel.innerText = `${admCount} Admins`;
+
+      resultBoxExtrator.style.display = 'block';
+
+      if (btnSincronizarCrm) {
+        btnSincronizarCrm.innerHTML = '🚀 Sincronizar com Meus Leads no Litrão do Reset';
+      }
+
+      alert(`✅ SUCESSO!\n\n${contatosExtraidos.length} membros extraídos do grupo "${nomeGrupoAtual}" (${admCount} Administradores)!\n\nClique no botão verde "Sincronizar" abaixo para enviar ao seu Painel.`);
+    } catch (err) {
+      btnExtrair.disabled = false;
+      btnExtrair.innerText = '⚡ Extrair Todos os Contatos';
+      progressoExtracao.style.display = 'none';
+      alert('Erro ao extrair da aba do Facebook: ' + err.message);
+    }
+  }
+
   btnExtrair.addEventListener('click', async () => {
+    if (!tab) {
+      const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
+      tab = t;
+    }
+
+    if (tab && tab.url && tab.url.includes('facebook.com')) {
+      await executarExtracaoFacebookDireta();
+      return;
+    }
+
     if (tab) await garantirContentScript(tab.id);
-    if (!isZap) return;
+    if (!isZap) {
+      alert('Abra o WhatsApp Web ou o Facebook no navegador para extrair os membros!');
+      return;
+    }
+
+    ehExtracaoFacebook = false;
     btnExtrair.disabled = true;
     btnExtrair.innerText = '⏳ Rolando lista de participantes...';
     progressoExtracao.style.display = 'block';
@@ -320,11 +473,54 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    if (ehExtracaoFacebook) {
+      btnSincronizarCrm.disabled = true;
+      btnSincronizarCrm.innerText = '⏳ Sincronizando com Litrão do Reset...';
+
+      const pacoteFb = {
+        origem: 'ResetFIT Pro v2.6.0',
+        tipo: 'RESETFIT_SINCRONIZAR_FACEBOOK',
+        grupo: nomeGrupoAtual || 'Grupo Facebook',
+        total: contatosExtraidos.length,
+        leads: contatosExtraidos,
+        data: new Date().toISOString()
+      };
+
+      try {
+        await chrome.storage.local.set({
+          resetfit_fb_pending_import: pacoteFb
+        });
+
+        // Tenta enviar mensagem para abas do painel
+        const todasAbas = await chrome.tabs.query({});
+        for (const tabP of todasAbas) {
+          if (!tabP.url) continue;
+          const u = tabP.url.toLowerCase();
+          if (u.includes('painel.html') || u.includes('litraodoreset.com.br') || u.includes('vercel.app') || u.includes('localhost') || u.includes('127.0.0.1')) {
+            try {
+              chrome.tabs.sendMessage(tabP.id, { tipo: 'RESETFIT_SINCRONIZAR_FACEBOOK', pacote: pacoteFb });
+            } catch(e) {}
+          }
+        }
+
+        btnSincronizarCrm.disabled = false;
+        btnSincronizarCrm.innerText = '✅ Sincronizado no Litrão do Reset!';
+        btnSincronizarCrm.style.background = '#047857';
+        alert(`🎉 SUCESSO!\n\n${contatosExtraidos.length} membros do grupo "${nomeGrupoAtual}" foram enviados para o Litrão do Reset!\n\nAbra o seu painel para ver a lista atualizada.`);
+        return;
+      } catch(errFb) {
+        btnSincronizarCrm.disabled = false;
+        btnSincronizarCrm.innerText = '🚀 Sincronizar Novamente';
+        alert('Erro ao sincronizar: ' + errFb.message);
+        return;
+      }
+    }
+
     btnSincronizarCrm.disabled = true;
     btnSincronizarCrm.innerText = '⏳ Sincronizando com CRM...';
 
     const pacote = {
-      origem: 'ResetFIT Pro v2.5.2',
+      origem: 'ResetFIT Pro v2.6.0',
       grupo: nomeGrupoAtual || 'Grupo WhatsApp',
       criadoEm: new Date().toISOString(),
       timestamp: Date.now(),
