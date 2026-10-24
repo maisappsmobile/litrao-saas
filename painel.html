@@ -292,11 +292,16 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row lg:flex-col items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-                    <button onclick="abrirModalPromocao()" class="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 px-6 rounded-2xl shadow-md transition transform hover:scale-[1.02] flex items-center justify-center text-sm uppercase tracking-wide cursor-pointer">
-                        <i class="fa-solid fa-bolt mr-2 text-slate-950 text-base"></i> Escolher Plano no PIX
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full">
+                        <button onclick="abrirModalPromocao()" class="flex-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 px-5 rounded-2xl shadow-md transition transform hover:scale-[1.02] flex items-center justify-center text-xs sm:text-sm uppercase tracking-wide cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-bolt mr-2 text-slate-950 text-base"></i> Escolher Plano no PIX
+                        </button>
+                        <a href="planos.html" target="_blank" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-4 rounded-2xl border border-white/20 transition flex items-center justify-center text-xs uppercase tracking-wide cursor-pointer text-center whitespace-nowrap" title="Ir para a Página Oficial de Vendas de Planos">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5 text-amber-300"></i> Página de Vendas
+                        </a>
+                    </div>
                     <span class="text-[11px] text-slate-400 font-bold flex items-center">
-                        <i class="fa-solid fa-lock mr-1 text-[10px]"></i> 3 Planos Disponíveis • Liberação Imediata
+                        <i class="fa-solid fa-lock mr-1 text-[10px]"></i> Planos Mensais, Anuais & Vitalícios • Liberação Imediata
                     </span>
                 </div>
             </div>
@@ -4045,126 +4050,24 @@
                         Aproveite a condição de boas-vindas com liberação imediata via PIX.
                     </p>
 
-                    <!-- BOTÃO EXCLUSIVO SUPERADMIN (APENAS APARECE PARA O ID 433005811) -->
-                    <div id="btn-configurar-planos-superadmin" class="hidden mt-2.5">
-                        <button type="button" onclick="abrirModalConfiguracaoPlanosSuperadmin()" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs px-4 py-2 rounded-xl shadow-md border border-purple-400 transition cursor-pointer">
-                            <i class="fa-solid fa-gears text-amber-300"></i>
-                            <span>EDITAR PLANOS & FITCOIN (SUPERADMIN EXCLUSIVO)</span>
-                        </button>
+                    <!-- BOTÕES DE AÇÃO: SUPERADMIN E PÁGINA DE VENDAS -->
+                    <div class="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
+                        <div id="btn-configurar-planos-superadmin" class="hidden">
+                            <button type="button" onclick="abrirModalConfiguracaoPlanosSuperadmin()" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs px-4 py-2 rounded-xl shadow-md border border-purple-400 transition cursor-pointer">
+                                <i class="fa-solid fa-gears text-amber-300"></i>
+                                <span>EDITAR PLANOS & FITCOIN (SUPERADMIN EXCLUSIVO)</span>
+                            </button>
+                        </div>
+                        <a href="planos.html" target="_blank" class="inline-flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 font-black text-xs px-3.5 py-2 rounded-xl transition shadow-xs cursor-pointer" title="Abrir página oficial de vendas de planos">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-purple-600"></i>
+                            <span>Ir Direto para a Página de Vendas (planos.html)</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- SELETOR DOS 3 PLANOS EM CARDS -->
-                <div class="my-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    
-                    <!-- PLANO 1: ENTRADA LEVE (R$ 199 + R$ 99/mês) -->
-                    <div id="card-plano1" onclick="selecionarPlano('plano1')" class="cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-emerald-500 bg-emerald-50/70 shadow-lg ring-2 ring-emerald-400/50 scale-[1.02]">
-                        <div>
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-emerald-800">PLANO 1</span>
-                            <h4 id="card-plano1-nome" class="text-base font-black text-gray-900 mt-0.5">Start Pro</h4>
-                            <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Entrada super acessível para iniciar agora.</p>
-                            <div class="mt-3">
-                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span id="card-plano1-adesao" class="text-2xl font-black text-emerald-600 block leading-tight">R$ 199,00</span>
-                                <span id="card-plano1-mensalidade" class="inline-block mt-1 bg-emerald-100 text-emerald-900 font-black text-[11px] px-2 py-0.5 rounded-md">
-                                    + R$ 99,00/mês
-                                </span>
-                            </div>
-
-                            <!-- ITENS INCLUSOS NO PLANO 1 -->
-                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-emerald-200/80 pt-2.5">
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Página Exclusiva & Link Próprio</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Até 30 Avaliações / mês</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> 15 Tíquetes Bônus (Sacola A4) / mês</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Relatório Visual em Foto (PNG)</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i> Central de Aniversariantes Básica</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem exportação Excel / CSV</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem importação em massa (CSV)</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem Backup Geral / Restauração</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem criação de cupons 15% OFF</li>
-                            </ul>
-                        </div>
-                        <div class="mt-3 pt-2.5 border-t border-emerald-200 text-center">
-                            <span id="badge-selecionado-plano1" class="text-xs font-black text-emerald-700 flex items-center justify-center">
-                                <i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Selecionado
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- PLANO 2: VITALÍCIO ECONÔMICO (R$ 497 + R$ 25/mês) -->
-                    <div id="card-plano2" onclick="selecionarPlano('plano2')" class="cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-gray-200 bg-white hover:border-amber-300">
-                        <div class="absolute -top-2.5 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
-                            ⭐ MAIS POPULAR
-                        </div>
-                        <div>
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-amber-800">PLANO 2</span>
-                            <h4 id="card-plano2-nome" class="text-base font-black text-gray-900 mt-0.5">Vitalício Smart</h4>
-                            <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Menor mensalidade contínua com adesão vitalícia.</p>
-                            <div class="mt-3">
-                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span id="card-plano2-adesao" class="text-2xl font-black text-amber-600 block leading-tight">R$ 497,00</span>
-                                <span id="card-plano2-mensalidade" class="inline-block mt-1 bg-amber-200/70 text-amber-900 font-black text-[11px] px-2 py-0.5 rounded-md">
-                                    + R$ 25,00/mês
-                                </span>
-                            </div>
-
-                            <!-- ITENS INCLUSOS NO PLANO 2 -->
-                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-gray-100 pt-2.5">
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Página Exclusiva & Link Próprio</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> <strong>Avaliações ILIMITADAS</strong></li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> <strong>Tíquetes ILIMITADOS (Sacola A4)</strong></li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Relatório Visual em Foto (PNG) Completo</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Central de Aniversariantes Completa</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Exportação para Planilha Excel (CSV)</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem importação em massa (CSV)</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-amber-600 text-xs"></i> Backup Geral dos Seus Dados</li>
-                                <li class="flex items-center gap-1.5 text-gray-400"><i class="fa-solid fa-circle-xmark text-gray-300 text-xs"></i> Sem criação de cupons 15% OFF</li>
-                            </ul>
-                        </div>
-                        <div class="mt-3 pt-2.5 border-t border-gray-100 text-center">
-                            <span id="badge-selecionado-plano2" class="text-xs font-bold text-gray-400 flex items-center justify-center">
-                                Clique para escolher
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- PLANO 3: ELITE VIP (R$ 1.299 + R$ 49/mês) -->
-                    <div id="card-plano3" onclick="selecionarPlano('plano3')" class="cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-gray-200 bg-white hover:border-purple-300">
-                        <div class="absolute -top-2.5 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
-                            👑 ELITE MASTER
-                        </div>
-                        <div>
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-purple-800">PLANO 3</span>
-                            <h4 id="card-plano3-nome" class="text-base font-black text-gray-900 mt-0.5">Master VIP</h4>
-                            <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">Licença premium com mensalidade ultra reduzida.</p>
-                            <div class="mt-3">
-                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
-                                <span id="card-plano3-adesao" class="text-2xl font-black text-purple-700 block leading-tight">R$ 1.299,00</span>
-                                <span id="card-plano3-mensalidade" class="inline-block mt-1 bg-purple-100 text-purple-900 font-black text-[11px] px-2 py-0.5 rounded-md">
-                                    + R$ 49,00/mês
-                                </span>
-                            </div>
-
-                            <!-- ITENS INCLUSOS NO PLANO 3 -->
-                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-gray-100 pt-2.5">
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Página Exclusiva & Link Próprio</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> <strong>Avaliações ILIMITADAS</strong></li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> <strong>Tíquetes ILIMITADOS (Sacola A4)</strong></li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Relatório Visual em Foto (Alta Resolução)</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Central de Aniversariantes VIP</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Exportação para Planilha Excel (CSV)</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> <strong>Importação em Massa de Planilhas (CSV)</strong></li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-purple-600 text-xs"></i> Backup Completo & Restauração de Dados</li>
-                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-crown text-purple-600 text-xs"></i> 🎟️ <strong>Criar Cupons 15% OFF p/ Novos Consultores</strong></li>
-                            </ul>
-                        </div>
-                        <div class="mt-3 pt-2.5 border-t border-gray-100 text-center">
-                            <span id="badge-selecionado-plano3" class="text-xs font-bold text-gray-400 flex items-center justify-center">
-                                Clique para escolher
-                            </span>
-                        </div>
-                    </div>
-
+                <!-- SELETOR DINÂMICO DE PLANOS EM CARDS -->
+                <div id="container-cards-planos-promocao" class="my-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Renderizado dinamicamente via renderizarCardsPlanosPromocaoModal() -->
                 </div>
 
                 <!-- CAMPO DE CUPOM PROMOCIONAL EXCLUSIVO -->
@@ -4777,87 +4680,32 @@
                         </div>
                     </div>
 
-                    <!-- SEÇÃO: PLANO 1 (START PRO) -->
-                    <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-4 text-left">
-                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-200">
-                            <span class="text-xs font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-circle-check text-emerald-600"></i> PLANO 1 (Start Pro)
-                            </span>
-                            <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded-md">Entrada</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div class="sm:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
-                                <input type="text" id="cfg-p1-nome" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                            </div>
+                    <!-- GERENCIADOR DINÂMICO DE PLANOS (SUPERADMIN) -->
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 p-4 rounded-2xl border-2 border-purple-400/50 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
-                                <input type="number" step="0.01" min="1" id="cfg-p1-adesao" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-black text-sm text-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                <h4 class="text-sm font-black text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-layer-group"></i> Gerenciador de Planos & Períodos
+                                </h4>
+                                <p class="text-[11px] text-purple-200 mt-0.5">
+                                    Crie, edite planos com <b>vírgula automática</b>, períodos em <b>anos</b> e escolha quais aparecem na <b>Página de Vendas</b>.
+                                </p>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
-                                <input type="number" step="0.01" min="0" id="cfg-p1-mensalidade" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl font-black text-sm text-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
-                                <input type="text" id="cfg-p1-desc" required class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <a href="planos.html" target="_blank" class="flex-1 sm:flex-initial bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-2 rounded-xl text-xs transition border border-white/20 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs" title="Abrir Página de Vendas dos Planos">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-300"></i>
+                                    <span>Ver Página de Vendas</span>
+                                </a>
+                                <button type="button" onclick="adicionarNovoPlanoSuperadmin()" class="flex-1 sm:flex-initial bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black px-4 py-2 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-plus-circle text-sm"></i>
+                                    <span>+ Criar Novo Plano</span>
+                                </button>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- SEÇÃO: PLANO 2 (VITALÍCIO SMART) -->
-                    <div class="bg-amber-50/70 border-2 border-amber-300 rounded-2xl p-4 text-left">
-                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-amber-200">
-                            <span class="text-xs font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-star text-amber-500"></i> PLANO 2 (Vitalício Smart)
-                            </span>
-                            <span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-md">Mais Popular</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div class="sm:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
-                                <input type="text" id="cfg-p2-nome" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
-                                <input type="number" step="0.01" min="1" id="cfg-p2-adesao" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-black text-sm text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
-                                <input type="number" step="0.01" min="0" id="cfg-p2-mensalidade" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl font-black text-sm text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
-                                <input type="text" id="cfg-p2-desc" required class="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SEÇÃO: PLANO 3 (MASTER VIP) -->
-                    <div class="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-4 text-left">
-                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-200">
-                            <span class="text-xs font-black text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-crown text-purple-600"></i> PLANO 3 (Master VIP)
-                            </span>
-                            <span class="text-[10px] bg-purple-200 text-purple-900 font-bold px-2 py-0.5 rounded-md">Elite VIP</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div class="sm:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome do Plano</label>
-                                <input type="text" id="cfg-p3-nome" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-bold text-xs text-gray-800 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Taxa Adesão (R$)</label>
-                                <input type="number" step="0.01" min="1" id="cfg-p3-adesao" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-purple-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Mensalidade (R$)</label>
-                                <input type="number" step="0.01" min="0" id="cfg-p3-mensalidade" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl font-black text-sm text-purple-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Texto Descritivo da Mensalidade</label>
-                                <input type="text" id="cfg-p3-desc" required class="w-full p-2.5 bg-white border border-purple-300 rounded-xl text-xs text-gray-700 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            </div>
+                        <!-- CONTAINER DOS CARDS DINÂMICOS DE PLANOS COM VÍRGULA AUTOMÁTICA -->
+                        <div id="container-planos-superadmin-lista" class="space-y-4">
+                            <!-- Injetado dinamicamente via renderizarPlanosEditorSuperadmin() -->
                         </div>
                     </div>
 
@@ -7229,39 +7077,171 @@
         }
         window.verificarTrialPromocao = verificarTrialPromocao;
 
-        // DADOS E PAYLOADS DOS 3 PLANOS OFICIAIS (MUTÁVEL VIA SUPERADMIN)
-        let DADOS_PLANOS = {
-            plano1: {
+        // =========================================================================
+        // MÁSCARA MONETÁRIA BRASILEIRA COM VÍRGULA AUTOMÁTICA
+        // =========================================================================
+        function formatarFloatParaMoeda(num) {
+            const n = parseFloat(num) || 0;
+            return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        window.formatarFloatParaMoeda = formatarFloatParaMoeda;
+
+        function converterMoedaParaFloat(str) {
+            if (typeof str === 'number') return str;
+            if (!str) return 0;
+            const limpo = String(str).replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, '');
+            return parseFloat(limpo) || 0;
+        }
+        window.converterMoedaParaFloat = converterMoedaParaFloat;
+
+        function aplicarMascaraMoedaInput(input) {
+            if (!input) return;
+            if (input.__mascaraMoedaAtiva__) return;
+            input.__mascaraMoedaAtiva__ = true;
+
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/\D/g, '');
+                if (!val) {
+                    this.value = '0,00';
+                    return;
+                }
+                let num = parseFloat(val) / 100;
+                this.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            });
+
+            input.addEventListener('blur', function() {
+                let val = this.value.replace(/\D/g, '');
+                let num = (parseFloat(val) || 0) / 100;
+                this.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            });
+        }
+        window.aplicarMascaraMoedaInput = aplicarMascaraMoedaInput;
+
+        // =========================================================================
+        // ESTRUTURA DINÂMICA DE PLANOS (MENSAIS, ANUAIS, BIENAIS E VITALÍCIOS)
+        // =========================================================================
+        let PLANOS_SISTEMA = [
+            {
                 id: 'plano1',
                 nome: 'Start Pro',
-                adesao: 'R$ 199,00',
                 valorAdesaoNum: 199.00,
-                mensalidade: 'R$ 99,00/mês',
+                periodicidade: 'mensal', // mensal, trimestral, semestral, anual, bienal, vitalicio
+                diasCiclo: 30,
                 valorMensalidadeNum: 99.00,
                 descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
-                payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3'
+                tagDestaque: 'Entrada',
+                corTema: 'emerald',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Até 30 Avaliações / mês',
+                    '15 Tíquetes Bônus (Sacola A4) / mês',
+                    'Relatório Visual em Foto (PNG)',
+                    'Central de Aniversariantes Básica'
+                ]
             },
-            plano2: {
+            {
                 id: 'plano2',
                 nome: 'Vitalício Smart',
-                adesao: 'R$ 497,00',
                 valorAdesaoNum: 497.00,
-                mensalidade: 'R$ 25,00/mês',
+                periodicidade: 'mensal',
+                diasCiclo: 30,
                 valorMensalidadeNum: 25.00,
                 descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
-                payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406497.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET49763049BD6'
+                tagDestaque: 'Mais Popular',
+                corTema: 'amber',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes ILIMITADOS (Sacola A4)',
+                    'Relatório Visual em Foto (PNG) Completo',
+                    'Central de Aniversariantes Completa',
+                    'Exportação para Planilha Excel (CSV)',
+                    'Backup Geral dos Seus Dados'
+                ]
             },
-            plano3: {
+            {
                 id: 'plano3',
                 nome: 'Master VIP',
-                adesao: 'R$ 1.299,00',
                 valorAdesaoNum: 1299.00,
-                mensalidade: 'R$ 49,00/mês',
+                periodicidade: 'mensal',
+                diasCiclo: 30,
                 valorMensalidadeNum: 49.00,
-                descricaoMensalidade: 'Mensalidade de apenas R$ 49,00 após 30 dias',
-                payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com52040000530398654071299.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62130509RESET129963049F23'
+                descricaoMensalidade: 'Licença premium com mensalidade ultra reduzida',
+                tagDestaque: 'Elite VIP',
+                corTema: 'purple',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes ILIMITADOS (Sacola A4)',
+                    'Relatório Visual em Foto (Alta Resolução)',
+                    'Central de Aniversariantes VIP',
+                    'Exportação para Planilha Excel (CSV)',
+                    'Importação em Massa de Planilhas (CSV)',
+                    'Backup Completo & Restauração de Dados',
+                    'Criar Cupons 15% OFF p/ Novos Consultores'
+                ]
+            },
+            {
+                id: 'plano_anual_1',
+                nome: 'Plano Anual Super Smart',
+                valorAdesaoNum: 590.00,
+                periodicidade: 'anual',
+                diasCiclo: 365,
+                valorMensalidadeNum: 290.00,
+                descricaoMensalidade: 'Anuidade de R$ 290,00 após 1 ano (12 meses)',
+                tagDestaque: 'Economia Anual',
+                corTema: 'blue',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Acesso Anual Completo (365 dias)',
+                    'Sem preocupação com boletos mensais',
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS o ano todo',
+                    'Tíquetes e Sorteios ILIMITADOS',
+                    'Suporte Prioritário VIP no WhatsApp'
+                ]
             }
-        };
+        ];
+
+        // DADOS E PAYLOADS DOS PLANOS (MUTÁVEL VIA SUPERADMIN COM RETROCOMPATIBILIDADE)
+        let DADOS_PLANOS = {};
+
+        function sincronizarPlanosSistemaComDadosPlanos() {
+            PLANOS_SISTEMA.forEach(p => {
+                const adNum = parseFloat(p.valorAdesaoNum) || 0;
+                const recNum = parseFloat(p.valorMensalidadeNum) || 0;
+                let sufixo = '/mês';
+                if (p.periodicidade === 'anual') sufixo = '/ano';
+                else if (p.periodicidade === 'semestral') sufixo = '/semestre';
+                else if (p.periodicidade === 'trimestral') sufixo = '/trimestre';
+                else if (p.periodicidade === 'bienal') sufixo = ' a cada 2 anos';
+                else if (p.periodicidade === 'vitalicio') sufixo = ' (Taxa Única)';
+
+                DADOS_PLANOS[p.id] = {
+                    id: p.id,
+                    nome: p.nome,
+                    adesao: `R$ ${formatarFloatParaMoeda(adNum)}`,
+                    valorAdesaoNum: adNum,
+                    periodicidade: p.periodicidade || 'mensal',
+                    diasCiclo: p.diasCiclo || (p.periodicidade === 'anual' ? 365 : p.periodicidade === 'semestral' ? 180 : p.periodicidade === 'trimestral' ? 90 : p.periodicidade === 'bienal' ? 730 : 30),
+                    mensalidade: p.periodicidade === 'vitalicio' ? 'Taxa Única (Sem mensalidade)' : `R$ ${formatarFloatParaMoeda(recNum)}${sufixo}`,
+                    valorMensalidadeNum: recNum,
+                    descricaoMensalidade: p.descricaoMensalidade || '',
+                    tagDestaque: p.tagDestaque || '',
+                    corTema: p.corTema || 'emerald',
+                    exibirNaPaginaVendas: p.exibirNaPaginaVendas !== false,
+                    recursos: p.recursos || [],
+                    payloadPix: gerarPixPayloadDinamico(adNum, `RESET${Math.round(adNum)}`)
+                };
+            });
+        }
+        window.sincronizarPlanosSistemaComDadosPlanos = sincronizarPlanosSistemaComDadosPlanos;
+
+        // Inicializa DADOS_PLANOS
+        sincronizarPlanosSistemaComDadosPlanos();
 
         let planoSelecionadoAtual = 'plano1'; // Padrão: Plano 1 (Start Pro R$ 199 + R$ 99/mês)
         let cupomAtivoModal = null; // Armazena dados do cupom { codigo, mensalidade, carenciaDias, dataFormatada, dataIso }
@@ -7450,31 +7430,119 @@
         }
         window.aplicarCupomPlano = aplicarCupomPlano;
 
+        function renderizarCardsPlanosPromocaoModal() {
+            const container = document.getElementById('container-cards-planos-promocao');
+            if (!container) return;
+
+            sincronizarPlanosSistemaComDadosPlanos();
+
+            const planosVisiveis = PLANOS_SISTEMA.filter(p => p.exibirNaPaginaVendas !== false);
+            if (planosVisiveis.length === 0) {
+                container.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500 text-xs font-bold">Nenhum plano disponível no momento.</div>';
+                return;
+            }
+
+            // Se o plano atual selecionado não está visível, seleciona o primeiro visível
+            if (!planosVisiveis.some(p => p.id === planoSelecionadoAtual)) {
+                planoSelecionadoAtual = planosVisiveis[0].id;
+            }
+
+            const gridCols = planosVisiveis.length === 1 ? 'max-w-md mx-auto grid-cols-1' : planosVisiveis.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3';
+            container.className = `my-4 grid ${gridCols} gap-3`;
+
+            const coresMap = {
+                emerald: { border: 'border-emerald-500', selBg: 'bg-emerald-50/70', ring: 'ring-emerald-400/50', badgeSel: 'text-emerald-700', txtAdesao: 'text-emerald-600', tagRec: 'bg-emerald-100 text-emerald-900', check: 'text-emerald-600' },
+                amber: { border: 'border-amber-500', selBg: 'bg-amber-50/70', ring: 'ring-amber-400/50', badgeSel: 'text-amber-700', txtAdesao: 'text-amber-600', tagRec: 'bg-amber-200/80 text-amber-900', check: 'text-amber-600' },
+                purple: { border: 'border-purple-500', selBg: 'bg-purple-50/70', ring: 'ring-purple-400/50', badgeSel: 'text-purple-700', txtAdesao: 'text-purple-700', tagRec: 'bg-purple-100 text-purple-900', check: 'text-purple-600' },
+                blue: { border: 'border-blue-500', selBg: 'bg-blue-50/70', ring: 'ring-blue-400/50', badgeSel: 'text-blue-700', txtAdesao: 'text-blue-600', tagRec: 'bg-blue-100 text-blue-900', check: 'text-blue-600' },
+                rose: { border: 'border-rose-500', selBg: 'bg-rose-50/70', ring: 'ring-rose-400/50', badgeSel: 'text-rose-700', txtAdesao: 'text-rose-600', tagRec: 'bg-rose-100 text-rose-900', check: 'text-rose-600' }
+            };
+
+            container.innerHTML = planosVisiveis.map(p => {
+                const isSel = p.id === planoSelecionadoAtual;
+                const c = coresMap[p.corTema] || coresMap.emerald;
+                const periodo = p.periodicidade || 'mensal';
+                const sufixo = periodo === 'anual' ? '/ano' : periodo === 'semestral' ? '/semestre' : periodo === 'trimestral' ? '/trimestre' : periodo === 'bienal' ? ' a cada 2 anos' : periodo === 'vitalicio' ? '' : '/mês';
+
+                let tagDestaqueHtml = '';
+                if (p.tagDestaque) {
+                    tagDestaqueHtml = `
+                        <div class="absolute -top-2.5 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
+                            ⭐ ${p.tagDestaque}
+                        </div>
+                    `;
+                }
+
+                let badgeRecorrenciaHtml = '';
+                if (periodo === 'vitalicio' || p.valorMensalidadeNum === 0) {
+                    badgeRecorrenciaHtml = `
+                        <span class="inline-block mt-1 bg-purple-100 text-purple-900 font-black text-[11px] px-2 py-0.5 rounded-md">
+                            👑 Taxa Única (Sem Mensalidades)
+                        </span>
+                    `;
+                } else {
+                    badgeRecorrenciaHtml = `
+                        <span class="inline-block mt-1 ${c.tagRec} font-black text-[11px] px-2 py-0.5 rounded-md">
+                            + R$ ${formatarFloatParaMoeda(p.valorMensalidadeNum)}${sufixo}
+                        </span>
+                    `;
+                }
+
+                const recursosList = p.recursos && p.recursos.length > 0 ? p.recursos : [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Sorteios de Tíquetes',
+                    'Relatório Visual em Foto',
+                    'Suporte no WhatsApp'
+                ];
+
+                return `
+                    <div id="card-${p.id}" onclick="selecionarPlano('${p.id}')" class="cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between ${isSel ? `${c.border} ${c.selBg} shadow-lg ring-2 ${c.ring} scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300'}">
+                        ${tagDestaqueHtml}
+                        <div>
+                            <span class="block text-[10px] font-black uppercase tracking-wider text-gray-500">${periodo.toUpperCase()}</span>
+                            <h4 id="card-${p.id}-nome" class="text-base font-black text-gray-900 mt-0.5">${p.nome}</h4>
+                            <p class="text-[11px] text-gray-600 mt-1 font-medium leading-snug">${p.descricaoMensalidade || ''}</p>
+                            <div class="mt-3">
+                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Taxa de Adesão:</span>
+                                <span id="card-${p.id}-adesao" class="text-2xl font-black ${c.txtAdesao} block leading-tight">R$ ${formatarFloatParaMoeda(p.valorAdesaoNum)}</span>
+                                <span id="card-${p.id}-mensalidade">${badgeRecorrenciaHtml}</span>
+                            </div>
+
+                            <ul class="mt-3.5 space-y-1.5 text-[11px] font-bold text-gray-700 text-left border-t border-gray-100 pt-2.5">
+                                ${recursosList.map(r => `<li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check ${c.check} text-xs"></i> ${r}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 text-center">
+                            <span id="badge-selecionado-${p.id}" class="text-xs ${isSel ? `font-black ${c.badgeSel}` : 'font-bold text-gray-400'} flex items-center justify-center">
+                                ${isSel ? '<i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Selecionado' : 'Clique para escolher'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        window.renderizarCardsPlanosPromocaoModal = renderizarCardsPlanosPromocaoModal;
+
         function selecionarPlano(planoKey) {
-            if (!DADOS_PLANOS[planoKey]) return;
+            if (!DADOS_PLANOS[planoKey]) {
+                const primeiro = Object.keys(DADOS_PLANOS)[0];
+                if (primeiro) planoKey = primeiro;
+                else return;
+            }
             planoSelecionadoAtual = planoKey;
             const p = DADOS_PLANOS[planoKey];
 
-            // Atualiza classes visuais dos 3 cards dinamicamente
-            ['plano1', 'plano2', 'plano3'].forEach(k => {
-                const card = document.getElementById(`card-${k}`) || document.getElementById(`card-plano-${k.replace('plano', '')}`);
-                const badge = document.getElementById(`badge-selecionado-${k}`) || document.getElementById(`badge-selecionado-plano-${k.replace('plano', '')}`);
+            // Atualiza classes visuais de todos os cards
+            Object.keys(DADOS_PLANOS).forEach(k => {
+                const card = document.getElementById(`card-${k}`);
+                const badge = document.getElementById(`badge-selecionado-${k}`);
                 if (!card || !badge) return;
 
                 if (k === planoKey) {
-                    if (k === 'plano1') {
-                        card.className = "cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-emerald-500 bg-emerald-50/80 shadow-lg ring-2 ring-emerald-400/50 scale-[1.02]";
-                        badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Selecionado`;
-                        badge.className = "text-xs font-black text-emerald-700 flex items-center justify-center";
-                    } else if (k === 'plano2') {
-                        card.className = "cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-amber-500 bg-amber-50/80 shadow-lg ring-2 ring-amber-400/50 scale-[1.02]";
-                        badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5 text-amber-600"></i> Selecionado`;
-                        badge.className = "text-xs font-black text-amber-700 flex items-center justify-center";
-                    } else if (k === 'plano3') {
-                        card.className = "cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-purple-500 bg-purple-50/80 shadow-lg ring-2 ring-purple-400/50 scale-[1.02]";
-                        badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5 text-purple-600"></i> Selecionado`;
-                        badge.className = "text-xs font-black text-purple-700 flex items-center justify-center";
-                    }
+                    card.className = "cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-emerald-500 bg-emerald-50/80 shadow-lg ring-2 ring-emerald-400/50 scale-[1.02]";
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Selecionado`;
+                    badge.className = "text-xs font-black text-emerald-700 flex items-center justify-center";
                 } else {
                     card.className = "cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs scale-100";
                     badge.innerHTML = `Clique para escolher`;
@@ -7488,7 +7556,7 @@
             const inputPayload = document.getElementById('modal-pix-payload-input');
 
             // Preço base numérico dinâmico
-            const valorBase = DADOS_PLANOS[planoKey]?.valorAdesaoNum || 199.00;
+            const valorBase = p.valorAdesaoNum || 199.00;
 
             let valorFinal = valorBase;
             let payloadPixFinal = p.payloadPix || gerarPixPayloadDinamico(valorBase, `RESET${Math.round(valorBase)}`);
@@ -7503,7 +7571,7 @@
                         <div class="flex flex-col items-center">
                             <span class="text-xs text-red-500 line-through font-bold">${p.adesao}</span>
                             <span class="text-2xl sm:text-3xl font-black text-emerald-700 leading-tight">
-                                R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                R$ ${formatarFloatParaMoeda(valorFinal)}
                             </span>
                             <span class="text-[10px] font-black uppercase bg-emerald-600 text-white px-2 py-0.5 rounded-full mt-0.5">
                                 ${cupomAtivoModal.descontoPorcentagem}% OFF APLICADO
@@ -7529,8 +7597,8 @@
                     `;
                 } else {
                     txtMensalidade.innerHTML = `
-                        <span>${p.descricaoMensalidade}</span>
-                        ${cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0 ? '<span class="block text-[10px] text-teal-800 font-bold mt-0.5">* Mensalidade contratual fixa (sem alteração por cupons).</span>' : ''}
+                        <span>${p.descricaoMensalidade || ''}</span>
+                        ${cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0 ? '<span class="block text-[10px] text-teal-800 font-bold mt-0.5">* Mensalidade/Anuidade contratual fixa (sem alteração por cupons).</span>' : ''}
                     `;
                 }
             }
@@ -8192,42 +8260,235 @@
             dataVitalicio: '2036-12-31'
         };
 
-        // ==========================================
-        // MÓDULO EXCLUSIVO SUPERADMIN: CONFIGURAÇÃO DE PLANOS & FITCOIN
-        // ==========================================
+        // =========================================================================
+        // MÓDULO EXCLUSIVO SUPERADMIN: GESTÃO DINÂMICA DE PLANOS, CICLOS & FITCOIN
+        // =========================================================================
+        function renderizarPlanosEditorSuperadmin() {
+            const container = document.getElementById('container-planos-superadmin-lista');
+            if (!container) return;
+
+            if (!PLANOS_SISTEMA || PLANOS_SISTEMA.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 bg-purple-50 border-2 border-dashed border-purple-300 rounded-2xl text-center text-purple-900">
+                        <p class="font-bold text-sm mb-2">Nenhum plano cadastrado no momento.</p>
+                        <button type="button" onclick="adicionarNovoPlanoSuperadmin()" class="bg-purple-700 hover:bg-purple-800 text-white font-black text-xs px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-plus-circle mr-1"></i> Criar Primeiro Plano
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = PLANOS_SISTEMA.map((p, index) => {
+                const periodo = p.periodicidade || 'mensal';
+                const adesaoStr = formatarFloatParaMoeda(p.valorAdesaoNum || 0);
+                const mensalidadeStr = formatarFloatParaMoeda(p.valorMensalidadeNum || 0);
+                const isExibir = p.exibirNaPaginaVendas !== false;
+
+                let labelRecorrencia = 'Mensalidade (R$)';
+                if (periodo === 'anual') labelRecorrencia = 'Anuidade (R$)';
+                else if (periodo === 'bienal') labelRecorrencia = 'Cobrança a cada 2 Anos (R$)';
+                else if (periodo === 'semestral') labelRecorrencia = 'Semestralidade (R$)';
+                else if (periodo === 'trimestral') labelRecorrencia = 'Trimestralidade (R$)';
+                else if (periodo === 'vitalicio') labelRecorrencia = 'Taxa Única (Sem Mensalidade)';
+
+                const cores = [
+                    { val: 'emerald', label: 'Esmeralda (Verde)' },
+                    { val: 'amber', label: 'Âmbar (Dourado)' },
+                    { val: 'purple', label: 'Roxo (VIP)' },
+                    { val: 'blue', label: 'Azul (Corporativo)' },
+                    { val: 'rose', label: 'Rosa (Destaque)' }
+                ];
+
+                return `
+                    <div id="card-editor-plano-${p.id}" class="bg-white border-2 border-purple-200 hover:border-purple-400 rounded-2xl p-4 sm:p-5 shadow-sm transition space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-purple-100">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-purple-100 text-purple-900 font-black text-[11px] px-2.5 py-1 rounded-lg">
+                                    #${index + 1} (${p.id})
+                                </span>
+                                <span class="text-xs font-black text-gray-800">${p.nome || 'Plano Sem Nome'}</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-xl border border-purple-300 transition text-[11px] font-black text-purple-950">
+                                    <input type="checkbox" id="cfg-p-${p.id}-exibir" ${isExibir ? 'checked' : ''} class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 cursor-pointer">
+                                    <i class="fa-solid fa-eye ${isExibir ? 'text-emerald-600' : 'text-gray-400'}"></i>
+                                    <span>Exibir na Página de Vendas</span>
+                                </label>
+
+                                ${PLANOS_SISTEMA.length > 1 ? `
+                                    <button type="button" onclick="removerPlanoSuperadmin('${p.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-2 rounded-xl text-xs font-bold transition cursor-pointer" title="Excluir este plano">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Campos do Plano -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-left">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Nome do Plano *</label>
+                                <input type="text" id="cfg-p-${p.id}-nome" value="${p.nome || ''}" required class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-black text-xs text-gray-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none" placeholder="Ex: Start Pro">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Período / Ciclo de Pagamento *</label>
+                                <select id="cfg-p-${p.id}-periodicidade" onchange="atualizarLabelRecorrenciaPlano('${p.id}')" class="w-full p-2.5 bg-gray-50 border border-purple-300 rounded-xl font-black text-xs text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                    <option value="mensal" ${periodo === 'mensal' ? 'selected' : ''}>Mensal (30 dias)</option>
+                                    <option value="trimestral" ${periodo === 'trimestral' ? 'selected' : ''}>Trimestral (90 dias)</option>
+                                    <option value="semestral" ${periodo === 'semestral' ? 'selected' : ''}>Semestral (180 dias)</option>
+                                    <option value="anual" ${periodo === 'anual' ? 'selected' : ''}>Anual (1 ano / 365 dias)</option>
+                                    <option value="bienal" ${periodo === 'bienal' ? 'selected' : ''}>2 Anos (730 dias)</option>
+                                    <option value="vitalicio" ${periodo === 'vitalicio' ? 'selected' : ''}>Vitalício (Pagamento Único)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Taxa de Adesão / Ativação *</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs font-bold text-gray-500">R$</span>
+                                    <input type="text" inputmode="numeric" id="cfg-p-${p.id}-adesao" value="${adesaoStr}" required class="input-mascara-moeda w-full pl-8 pr-3 py-2 bg-emerald-50 border border-emerald-300 rounded-xl font-black text-sm text-emerald-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="0,00">
+                                </div>
+                                <span class="text-[9px] text-gray-500 mt-0.5 block">Vírgula automática</span>
+                            </div>
+
+                            <div>
+                                <label id="lbl-recorrencia-${p.id}" class="block text-[10px] font-bold text-gray-700 uppercase mb-1">${labelRecorrencia} *</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs font-bold text-gray-500">R$</span>
+                                    <input type="text" inputmode="numeric" id="cfg-p-${p.id}-mensalidade" value="${mensalidadeStr}" ${periodo === 'vitalicio' ? 'disabled' : ''} class="input-mascara-moeda w-full pl-8 pr-3 py-2 bg-purple-50 border border-purple-300 rounded-xl font-black text-sm text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none disabled:bg-gray-100 disabled:text-gray-400" placeholder="0,00">
+                                </div>
+                                <span class="text-[9px] text-gray-500 mt-0.5 block">Vírgula automática</span>
+                            </div>
+                        </div>
+
+                        <!-- Linha 2: Destaques, Cor e Descrição -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left pt-1">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Tag de Destaque (Badge)</label>
+                                <input type="text" id="cfg-p-${p.id}-tag" value="${p.tagDestaque || ''}" class="w-full p-2 bg-gray-50 border border-gray-300 rounded-xl font-bold text-xs text-gray-800 focus:bg-white focus:outline-none" placeholder="Ex: Mais Popular, Economia Anual">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Cor do Card</label>
+                                <select id="cfg-p-${p.id}-cor" class="w-full p-2 bg-gray-50 border border-gray-300 rounded-xl font-bold text-xs text-gray-800 focus:bg-white focus:outline-none">
+                                    ${cores.map(c => `<option value="${c.val}" ${p.corTema === c.val ? 'selected' : ''}>${c.label}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Descrição do Ciclo / Mensalidade</label>
+                                <input type="text" id="cfg-p-${p.id}-desc" value="${p.descricaoMensalidade || ''}" class="w-full p-2 bg-gray-50 border border-gray-300 rounded-xl font-bold text-xs text-gray-800 focus:bg-white focus:outline-none" placeholder="Ex: Anuidade de R$ 290,00 após 1 ano...">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Aplica máscara de moeda em tempo real com vírgula automática em todos os inputs
+            container.querySelectorAll('.input-mascara-moeda').forEach(input => {
+                aplicarMascaraMoedaInput(input);
+            });
+        }
+        window.renderizarPlanosEditorSuperadmin = renderizarPlanosEditorSuperadmin;
+
+        function atualizarLabelRecorrenciaPlano(planoId) {
+            const select = document.getElementById(`cfg-p-${planoId}-periodicidade`);
+            const label = document.getElementById(`lbl-recorrencia-${planoId}`);
+            const inputRec = document.getElementById(`cfg-p-${planoId}-mensalidade`);
+            const inputDesc = document.getElementById(`cfg-p-${planoId}-desc`);
+            if (!select || !label) return;
+
+            const val = select.value;
+            if (val === 'anual') {
+                label.innerText = 'Anuidade (R$) *';
+                if (inputRec) inputRec.disabled = false;
+                if (inputDesc && (!inputDesc.value || inputDesc.value.includes('Mensalidade'))) {
+                    inputDesc.value = 'Anuidade após 1 ano de acesso';
+                }
+            } else if (val === 'bienal') {
+                label.innerText = 'Cobrança a cada 2 Anos (R$) *';
+                if (inputRec) inputRec.disabled = false;
+                if (inputDesc && (!inputDesc.value || inputDesc.value.includes('Mensalidade'))) {
+                    inputDesc.value = 'Renovação a cada 2 anos (730 dias)';
+                }
+            } else if (val === 'semestral') {
+                label.innerText = 'Semestralidade (R$) *';
+                if (inputRec) inputRec.disabled = false;
+                if (inputDesc && (!inputDesc.value || inputDesc.value.includes('Mensalidade'))) {
+                    inputDesc.value = 'Semestralidade após 180 dias';
+                }
+            } else if (val === 'trimestral') {
+                label.innerText = 'Trimestralidade (R$) *';
+                if (inputRec) inputRec.disabled = false;
+                if (inputDesc && (!inputDesc.value || inputDesc.value.includes('Mensalidade'))) {
+                    inputDesc.value = 'Trimestralidade após 90 dias';
+                }
+            } else if (val === 'vitalicio') {
+                label.innerText = 'Taxa Única (Sem Mensalidade) *';
+                if (inputRec) {
+                    inputRec.value = '0,00';
+                    inputRec.disabled = true;
+                }
+                if (inputDesc) inputDesc.value = 'Pagamento único vitalício sem mensalidades';
+            } else {
+                label.innerText = 'Mensalidade (R$) *';
+                if (inputRec) inputRec.disabled = false;
+            }
+        }
+        window.atualizarLabelRecorrenciaPlano = atualizarLabelRecorrenciaPlano;
+
+        function adicionarNovoPlanoSuperadmin() {
+            const novoId = 'plano_' + Date.now();
+            PLANOS_SISTEMA.push({
+                id: novoId,
+                nome: 'Novo Plano',
+                valorAdesaoNum: 390.00,
+                periodicidade: 'anual',
+                diasCiclo: 365,
+                valorMensalidadeNum: 190.00,
+                descricaoMensalidade: 'Anuidade de R$ 190,00 após 1 ano',
+                tagDestaque: 'Novo',
+                corTema: 'blue',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes e Sorteios ILIMITADOS',
+                    'Relatório Visual em Foto',
+                    'Suporte Prioritário no WhatsApp'
+                ]
+            });
+            renderizarPlanosEditorSuperadmin();
+
+            // Rola suavemente até o novo card
+            const el = document.getElementById(`card-editor-plano-${novoId}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        window.adicionarNovoPlanoSuperadmin = adicionarNovoPlanoSuperadmin;
+
+        function removerPlanoSuperadmin(planoId) {
+            if (PLANOS_SISTEMA.length <= 1) {
+                alert("O sistema precisa de pelo menos 1 plano cadastrado.");
+                return;
+            }
+            if (!confirm("Deseja realmente excluir este plano da lista?")) return;
+
+            PLANOS_SISTEMA = PLANOS_SISTEMA.filter(p => p.id !== planoId);
+            delete DADOS_PLANOS[planoId];
+
+            renderizarPlanosEditorSuperadmin();
+        }
+        window.removerPlanoSuperadmin = removerPlanoSuperadmin;
+
         function abrirModalConfiguracaoPlanosSuperadmin() {
             if (!isSuperAdminLogado()) {
                 alert("Acesso restrito exclusivamente ao SuperAdmin do Litrão do Reset.");
                 return;
             }
 
-            // Preenche os campos com os valores atuais de DADOS_PLANOS
-            const p1 = DADOS_PLANOS.plano1;
-            const p2 = DADOS_PLANOS.plano2;
-            const p3 = DADOS_PLANOS.plano3;
-
-            const inP1Nome = document.getElementById('cfg-p1-nome');
-            const inP1Adesao = document.getElementById('cfg-p1-adesao');
-            const inP1Mensal = document.getElementById('cfg-p1-mensalidade');
-            const inP1Desc = document.getElementById('cfg-p1-desc');
-
-            const inP2Nome = document.getElementById('cfg-p2-nome');
-            const inP2Adesao = document.getElementById('cfg-p2-adesao');
-            const inP2Mensal = document.getElementById('cfg-p2-mensalidade');
-            const inP2Desc = document.getElementById('cfg-p2-desc');
-
-            const inP3Nome = document.getElementById('cfg-p3-nome');
-            const inP3Adesao = document.getElementById('cfg-p3-adesao');
-            const inP3Mensal = document.getElementById('cfg-p3-mensalidade');
-            const inP3Desc = document.getElementById('cfg-p3-desc');
-
-            const inFitDesc = document.getElementById('cfg-fit-desconto');
-            const inFitPar = document.getElementById('cfg-fit-paridade');
-            const inFitCart = document.getElementById('cfg-fit-carteira');
-            const inFitMint = document.getElementById('cfg-fit-mint');
-            const inFitChave = document.getElementById('cfg-fit-pix-chave');
-            const inFitTitular = document.getElementById('cfg-fit-pix-titular');
-
+            // Preenche tempos
             const inTrialNovos = document.getElementById('cfg-novos-trial-dias');
             const inCicloP1 = document.getElementById('cfg-p1-dias-ciclo');
             const inDataVit = document.getElementById('cfg-vitalicio-data');
@@ -8236,20 +8497,13 @@
             if (inCicloP1) inCicloP1.value = CONFIG_TEMPO_PLANOS.diasCicloPlano1 ?? 30;
             if (inDataVit) inDataVit.value = CONFIG_TEMPO_PLANOS.dataVitalicio || '2036-12-31';
 
-            if (inP1Nome) inP1Nome.value = p1.nome || 'Start Pro';
-            if (inP1Adesao) inP1Adesao.value = p1.valorAdesaoNum || 199.00;
-            if (inP1Mensal) inP1Mensal.value = p1.valorMensalidadeNum || 99.00;
-            if (inP1Desc) inP1Desc.value = p1.descricaoMensalidade || 'Mensalidade de R$ 99,00 após 30 dias';
-
-            if (inP2Nome) inP2Nome.value = p2.nome || 'Vitalício Smart';
-            if (inP2Adesao) inP2Adesao.value = p2.valorAdesaoNum || 497.00;
-            if (inP2Mensal) inP2Mensal.value = p2.valorMensalidadeNum || 25.00;
-            if (inP2Desc) inP2Desc.value = p2.descricaoMensalidade || 'Mensalidade de apenas R$ 25,00 após 30 dias';
-
-            if (inP3Nome) inP3Nome.value = p3.nome || 'Master VIP';
-            if (inP3Adesao) inP3Adesao.value = p3.valorAdesaoNum || 1299.00;
-            if (inP3Mensal) inP3Mensal.value = p3.valorMensalidadeNum || 49.00;
-            if (inP3Desc) inP3Desc.value = p3.descricaoMensalidade || 'Mensalidade de apenas R$ 49,00 após 30 dias';
+            // Preenche FitCoin & Pix
+            const inFitDesc = document.getElementById('cfg-fit-desconto');
+            const inFitPar = document.getElementById('cfg-fit-paridade');
+            const inFitCart = document.getElementById('cfg-fit-carteira');
+            const inFitMint = document.getElementById('cfg-fit-mint');
+            const inFitChave = document.getElementById('cfg-fit-pix-chave');
+            const inFitTitular = document.getElementById('cfg-fit-pix-titular');
 
             if (inFitDesc) inFitDesc.value = FITCOIN_SOLANA_CONFIG.discountPercent || 22;
             if (inFitPar) inFitPar.value = FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10;
@@ -8257,6 +8511,9 @@
             if (inFitMint) inFitMint.value = FITCOIN_SOLANA_CONFIG.mintAddress || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK';
             if (inFitChave) inFitChave.value = FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com';
             if (inFitTitular) inFitTitular.value = FITCOIN_SOLANA_CONFIG.pixTitular || 'LUCIA SANTANA S. BRAGA';
+
+            // Renderiza lista de planos com máscara de moeda
+            renderizarPlanosEditorSuperadmin();
 
             const modal = document.getElementById('modal-configuracao-planos-superadmin');
             if (modal) modal.classList.remove('hidden');
@@ -8286,7 +8543,7 @@
                     btnSalvar.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando Configurações...';
                 }
 
-                // Captura parâmetros de tempo
+                // 1. Captura parâmetros de tempo
                 const trialNovos = parseInt(document.getElementById('cfg-novos-trial-dias')?.value, 10) || 7;
                 const cicloP1 = parseInt(document.getElementById('cfg-p1-dias-ciclo')?.value, 10) || 30;
                 const dataVit = (document.getElementById('cfg-vitalicio-data')?.value || '2036-12-31').trim();
@@ -8297,62 +8554,84 @@
                     dataVitalicio: dataVit
                 };
 
-                // Captura novos dados
-                const p1Adesao = parseFloat(document.getElementById('cfg-p1-adesao')?.value) || 199.00;
-                const p1Mensal = parseFloat(document.getElementById('cfg-p1-mensalidade')?.value) || 99.00;
-                const p1Nome = (document.getElementById('cfg-p1-nome')?.value || 'Start Pro').trim();
-                const p1Desc = (document.getElementById('cfg-p1-desc')?.value || `Mensalidade de R$ ${p1Mensal.toFixed(2)} após 30 dias`).trim();
+                // 2. Captura planos dinâmicos a partir do DOM
+                const novosPlanosSistema = [];
+                for (const plano of PLANOS_SISTEMA) {
+                    const pid = plano.id;
+                    const inNome = document.getElementById(`cfg-p-${pid}-nome`);
+                    if (!inNome) continue;
 
-                const p2Adesao = parseFloat(document.getElementById('cfg-p2-adesao')?.value) || 497.00;
-                const p2Mensal = parseFloat(document.getElementById('cfg-p2-mensalidade')?.value) || 25.00;
-                const p2Nome = (document.getElementById('cfg-p2-nome')?.value || 'Vitalício Smart').trim();
-                const p2Desc = (document.getElementById('cfg-p2-desc')?.value || `Mensalidade de apenas R$ ${p2Mensal.toFixed(2)} após 30 dias`).trim();
+                    const nome = inNome.value.trim() || plano.nome;
+                    const inAdesao = document.getElementById(`cfg-p-${pid}-adesao`);
+                    const valorAdesaoNum = inAdesao ? converterMoedaParaFloat(inAdesao.value) : (plano.valorAdesaoNum || 0);
 
-                const p3Adesao = parseFloat(document.getElementById('cfg-p3-adesao')?.value) || 1299.00;
-                const p3Mensal = parseFloat(document.getElementById('cfg-p3-mensalidade')?.value) || 49.00;
-                const p3Nome = (document.getElementById('cfg-p3-nome')?.value || 'Master VIP').trim();
-                const p3Desc = (document.getElementById('cfg-p3-desc')?.value || `Mensalidade de apenas R$ ${p3Mensal.toFixed(2)} após 30 dias`).trim();
+                    const inPeriodo = document.getElementById(`cfg-p-${pid}-periodicidade`);
+                    const periodicidade = inPeriodo ? inPeriodo.value : (plano.periodicidade || 'mensal');
 
+                    const inRecorrencia = document.getElementById(`cfg-p-${pid}-mensalidade`);
+                    const valorMensalidadeNum = inRecorrencia ? converterMoedaParaFloat(inRecorrencia.value) : (plano.valorMensalidadeNum || 0);
+
+                    const inTag = document.getElementById(`cfg-p-${pid}-tag`);
+                    const tagDestaque = inTag ? inTag.value.trim() : (plano.tagDestaque || '');
+
+                    const inCor = document.getElementById(`cfg-p-${pid}-cor`);
+                    const corTema = inCor ? inCor.value : (plano.corTema || 'emerald');
+
+                    const inDesc = document.getElementById(`cfg-p-${pid}-desc`);
+                    let descricaoMensalidade = inDesc ? inDesc.value.trim() : (plano.descricaoMensalidade || '');
+                    if (!descricaoMensalidade) {
+                        if (periodicidade === 'anual') {
+                            descricaoMensalidade = `Anuidade de R$ ${formatarFloatParaMoeda(valorMensalidadeNum)} após 1 ano`;
+                        } else if (periodicidade === 'vitalicio') {
+                            descricaoMensalidade = `Pagamento único vitalício sem mensalidades`;
+                        } else {
+                            descricaoMensalidade = `Mensalidade de R$ ${formatarFloatParaMoeda(valorMensalidadeNum)} após 30 dias`;
+                        }
+                    }
+
+                    const inExibir = document.getElementById(`cfg-p-${pid}-exibir`);
+                    const exibirNaPaginaVendas = inExibir ? inExibir.checked : true;
+
+                    let diasCiclo = 30;
+                    if (periodicidade === 'anual') diasCiclo = 365;
+                    else if (periodicidade === 'bienal') diasCiclo = 730;
+                    else if (periodicidade === 'semestral') diasCiclo = 180;
+                    else if (periodicidade === 'trimestral') diasCiclo = 90;
+                    else if (periodicidade === 'vitalicio') diasCiclo = 3650;
+
+                    novosPlanosSistema.push({
+                        id: pid,
+                        nome,
+                        valorAdesaoNum,
+                        periodicidade,
+                        diasCiclo,
+                        valorMensalidadeNum,
+                        descricaoMensalidade,
+                        tagDestaque,
+                        corTema,
+                        exibirNaPaginaVendas,
+                        recursos: plano.recursos || [
+                            'Página Exclusiva & Link Próprio',
+                            'Avaliações ILIMITADAS',
+                            'Tíquetes e Sorteios ILIMITADOS',
+                            'Relatório Visual em Foto',
+                            'Suporte Prioritário no WhatsApp'
+                        ]
+                    });
+                }
+
+                if (novosPlanosSistema.length > 0) {
+                    PLANOS_SISTEMA = novosPlanosSistema;
+                }
+                sincronizarPlanosSistemaComDadosPlanos();
+
+                // 3. Captura FitCoin & Pix
                 const fitDesc = parseFloat(document.getElementById('cfg-fit-desconto')?.value) || 22;
                 const fitPar = parseFloat(document.getElementById('cfg-fit-paridade')?.value) || 10;
                 const fitCart = (document.getElementById('cfg-fit-carteira')?.value || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy').trim();
                 const fitMint = (document.getElementById('cfg-fit-mint')?.value || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK').trim();
                 const fitChave = (document.getElementById('cfg-fit-pix-chave')?.value || 'maisappsmobile@gmail.com').trim();
                 const fitTitular = (document.getElementById('cfg-fit-pix-titular')?.value || 'LUCIA SANTANA S. BRAGA').trim();
-
-                // Atualiza em memória
-                DADOS_PLANOS.plano1 = {
-                    id: 'plano1',
-                    nome: p1Nome,
-                    adesao: `R$ ${p1Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    valorAdesaoNum: p1Adesao,
-                    mensalidade: `R$ ${p1Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
-                    valorMensalidadeNum: p1Mensal,
-                    descricaoMensalidade: p1Desc,
-                    payloadPix: gerarPixPayloadDinamico(p1Adesao, `RESET${Math.round(p1Adesao)}`)
-                };
-
-                DADOS_PLANOS.plano2 = {
-                    id: 'plano2',
-                    nome: p2Nome,
-                    adesao: `R$ ${p2Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    valorAdesaoNum: p2Adesao,
-                    mensalidade: `R$ ${p2Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
-                    valorMensalidadeNum: p2Mensal,
-                    descricaoMensalidade: p2Desc,
-                    payloadPix: gerarPixPayloadDinamico(p2Adesao, `RESET${Math.round(p2Adesao)}`)
-                };
-
-                DADOS_PLANOS.plano3 = {
-                    id: 'plano3',
-                    nome: p3Nome,
-                    adesao: `R$ ${p3Adesao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    valorAdesaoNum: p3Adesao,
-                    mensalidade: `R$ ${p3Mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`,
-                    valorMensalidadeNum: p3Mensal,
-                    descricaoMensalidade: p3Desc,
-                    payloadPix: gerarPixPayloadDinamico(p3Adesao, `RESET${Math.round(p3Adesao)}`)
-                };
 
                 FITCOIN_SOLANA_CONFIG = {
                     walletReceiver: fitCart,
@@ -8364,16 +8643,18 @@
                 };
 
                 const configExport = {
+                    planosSistema: PLANOS_SISTEMA,
                     planos: DADOS_PLANOS,
                     fitcoin: FITCOIN_SOLANA_CONFIG,
                     tempo: CONFIG_TEMPO_PLANOS,
                     atualizadoEm: new Date().toISOString()
                 };
 
-                // 1. Salva em localStorage
+                // 4. Salva no localStorage
+                localStorage.setItem('cfg_planos_sistema', JSON.stringify(PLANOS_SISTEMA));
                 localStorage.setItem('cfg_planos_superadmin', JSON.stringify(configExport));
 
-                // 2. Salva no Supabase na linha do SuperAdmin
+                // 5. Salva no Supabase na linha do SuperAdmin
                 if (consultorAtual && String(consultorAtual.herbalife_id || '').trim() === '433005811') {
                     let rawEspaco = consultorAtual.nome_espaco || '';
                     const tagNova = `<!--CONFIG_PLANOS:${JSON.stringify(configExport)}-->`;
@@ -8400,13 +8681,12 @@
                     }
                 }
 
-                // 3. Atualiza na tela
+                // 6. Atualiza na tela e nos modais
                 aplicarConfiguracoesPlanosNaTela();
-                selecionarPlano(planoSelecionadoAtual || 'plano1');
 
                 if (feedback) {
                     feedback.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border-2 border-emerald-400 block animate-fade-in";
-                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-sm"></i> <strong>Configurações salvas com sucesso!</strong> Valores e tempos de planos atualizados em todo o sistema.';
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-sm"></i> <strong>Configurações salvas com sucesso!</strong> Planos dinâmicos, períodos e valores sincronizados.';
                 }
 
                 setTimeout(() => {
@@ -8438,38 +8718,91 @@
                 dataVitalicio: '2036-12-31'
             };
 
-            DADOS_PLANOS = {
-                plano1: {
+            PLANOS_SISTEMA = [
+                {
                     id: 'plano1',
                     nome: 'Start Pro',
-                    adesao: 'R$ 199,00',
                     valorAdesaoNum: 199.00,
-                    mensalidade: 'R$ 99,00/mês',
+                    periodicidade: 'mensal',
+                    diasCiclo: 30,
                     valorMensalidadeNum: 99.00,
                     descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
-                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3'
+                    tagDestaque: 'Entrada',
+                    corTema: 'emerald',
+                    exibirNaPaginaVendas: true,
+                    recursos: [
+                        'Página Exclusiva & Link Próprio',
+                        'Até 30 Avaliações / mês',
+                        '15 Tíquetes Bônus (Sacola A4) / mês',
+                        'Relatório Visual em Foto (PNG)',
+                        'Central de Aniversariantes Básica'
+                    ]
                 },
-                plano2: {
+                {
                     id: 'plano2',
                     nome: 'Vitalício Smart',
-                    adesao: 'R$ 497,00',
                     valorAdesaoNum: 497.00,
-                    mensalidade: 'R$ 25,00/mês',
+                    periodicidade: 'mensal',
+                    diasCiclo: 30,
                     valorMensalidadeNum: 25.00,
                     descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
-                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406497.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET49763049BD6'
+                    tagDestaque: 'Mais Popular',
+                    corTema: 'amber',
+                    exibirNaPaginaVendas: true,
+                    recursos: [
+                        'Página Exclusiva & Link Próprio',
+                        'Avaliações ILIMITADAS',
+                        'Tíquetes ILIMITADOS (Sacola A4)',
+                        'Relatório Visual em Foto (PNG) Completo',
+                        'Central de Aniversariantes Completa',
+                        'Exportação para Planilha Excel (CSV)',
+                        'Backup Geral dos Seus Dados'
+                    ]
                 },
-                plano3: {
+                {
                     id: 'plano3',
                     nome: 'Master VIP',
-                    adesao: 'R$ 1.299,00',
                     valorAdesaoNum: 1299.00,
-                    mensalidade: 'R$ 49,00/mês',
+                    periodicidade: 'mensal',
+                    diasCiclo: 30,
                     valorMensalidadeNum: 49.00,
-                    descricaoMensalidade: 'Mensalidade de apenas R$ 49,00 após 30 dias',
-                    payloadPix: '00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com52040000530398654071299.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62130509RESET129963049F23'
+                    descricaoMensalidade: 'Licença premium com mensalidade ultra reduzida',
+                    tagDestaque: 'Elite VIP',
+                    corTema: 'purple',
+                    exibirNaPaginaVendas: true,
+                    recursos: [
+                        'Página Exclusiva & Link Próprio',
+                        'Avaliações ILIMITADAS',
+                        'Tíquetes ILIMITADOS (Sacola A4)',
+                        'Relatório Visual em Foto (Alta Resolução)',
+                        'Central de Aniversariantes VIP',
+                        'Exportação para Planilha Excel (CSV)',
+                        'Importação em Massa de Planilhas (CSV)',
+                        'Backup Completo & Restauração de Dados',
+                        'Criar Cupons 15% OFF p/ Novos Consultores'
+                    ]
+                },
+                {
+                    id: 'plano_anual_1',
+                    nome: 'Plano Anual Super Smart',
+                    valorAdesaoNum: 590.00,
+                    periodicidade: 'anual',
+                    diasCiclo: 365,
+                    valorMensalidadeNum: 290.00,
+                    descricaoMensalidade: 'Anuidade de R$ 290,00 após 1 ano (12 meses)',
+                    tagDestaque: 'Economia Anual',
+                    corTema: 'blue',
+                    exibirNaPaginaVendas: true,
+                    recursos: [
+                        'Acesso Anual Completo (365 dias)',
+                        'Sem preocupação com boletos mensais',
+                        'Página Exclusiva & Link Próprio',
+                        'Avaliações ILIMITADAS o ano todo',
+                        'Tíquetes e Sorteios ILIMITADOS',
+                        'Suporte Prioritário VIP no WhatsApp'
+                    ]
                 }
-            };
+            ];
 
             FITCOIN_SOLANA_CONFIG = {
                 walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
@@ -8481,9 +8814,10 @@
             };
 
             localStorage.removeItem('cfg_planos_superadmin');
+            localStorage.removeItem('cfg_planos_sistema');
+            sincronizarPlanosSistemaComDadosPlanos();
             aplicarConfiguracoesPlanosNaTela();
             abrirModalConfiguracaoPlanosSuperadmin();
-            selecionarPlano(planoSelecionadoAtual || 'plano1');
             alert("Valores restaurados para o padrão original!");
         }
         window.restaurarPadroesPlanosSuperadmin = restaurarPadroesPlanosSuperadmin;
@@ -8494,7 +8828,29 @@
                 const local = localStorage.getItem('cfg_planos_superadmin');
                 if (local) {
                     const parsed = JSON.parse(local);
-                    if (parsed.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsed.planos);
+                    if (parsed.planosSistema && Array.isArray(parsed.planosSistema)) {
+                        PLANOS_SISTEMA = parsed.planosSistema;
+                    } else if (parsed.planos) {
+                        // Migração de plano legado se necessário
+                        if (parsed.planos.plano1 && PLANOS_SISTEMA.find(p => p.id === 'plano1')) {
+                            const p1 = PLANOS_SISTEMA.find(p => p.id === 'plano1');
+                            p1.nome = parsed.planos.plano1.nome || p1.nome;
+                            p1.valorAdesaoNum = parsed.planos.plano1.valorAdesaoNum ?? p1.valorAdesaoNum;
+                            p1.valorMensalidadeNum = parsed.planos.plano1.valorMensalidadeNum ?? p1.valorMensalidadeNum;
+                        }
+                        if (parsed.planos.plano2 && PLANOS_SISTEMA.find(p => p.id === 'plano2')) {
+                            const p2 = PLANOS_SISTEMA.find(p => p.id === 'plano2');
+                            p2.nome = parsed.planos.plano2.nome || p2.nome;
+                            p2.valorAdesaoNum = parsed.planos.plano2.valorAdesaoNum ?? p2.valorAdesaoNum;
+                            p2.valorMensalidadeNum = parsed.planos.plano2.valorMensalidadeNum ?? p2.valorMensalidadeNum;
+                        }
+                        if (parsed.planos.plano3 && PLANOS_SISTEMA.find(p => p.id === 'plano3')) {
+                            const p3 = PLANOS_SISTEMA.find(p => p.id === 'plano3');
+                            p3.nome = parsed.planos.plano3.nome || p3.nome;
+                            p3.valorAdesaoNum = parsed.planos.plano3.valorAdesaoNum ?? p3.valorAdesaoNum;
+                            p3.valorMensalidadeNum = parsed.planos.plano3.valorMensalidadeNum ?? p3.valorMensalidadeNum;
+                        }
+                    }
                     if (parsed.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsed.fitcoin);
                     if (parsed.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsed.tempo);
                 }
@@ -8504,12 +8860,15 @@
                     const match = consultorAtual.nome_espaco.match(/<!--CONFIG_PLANOS:([\s\S]*?)-->/);
                     if (match && match[1]) {
                         const parsedRemote = JSON.parse(match[1]);
-                        if (parsedRemote.planos) DADOS_PLANOS = Object.assign(DADOS_PLANOS, parsedRemote.planos);
+                        if (parsedRemote.planosSistema && Array.isArray(parsedRemote.planosSistema)) {
+                            PLANOS_SISTEMA = parsedRemote.planosSistema;
+                        }
                         if (parsedRemote.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsedRemote.fitcoin);
                         if (parsedRemote.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsedRemote.tempo);
                     }
                 }
 
+                sincronizarPlanosSistemaComDadosPlanos();
                 aplicarConfiguracoesPlanosNaTela();
             } catch (e) {
                 console.warn("Aviso ao carregar configurações de planos:", e);
@@ -8518,29 +8877,8 @@
         window.carregarConfiguracoesPlanosSuperadmin = carregarConfiguracoesPlanosSuperadmin;
 
         function aplicarConfiguracoesPlanosNaTela() {
-            // Atualiza Card 1
-            const p1Nome = document.getElementById('card-plano1-nome');
-            const p1Adesao = document.getElementById('card-plano1-adesao');
-            const p1Mensal = document.getElementById('card-plano1-mensalidade');
-            if (p1Nome && DADOS_PLANOS.plano1) p1Nome.innerText = DADOS_PLANOS.plano1.nome;
-            if (p1Adesao && DADOS_PLANOS.plano1) p1Adesao.innerText = DADOS_PLANOS.plano1.adesao;
-            if (p1Mensal && DADOS_PLANOS.plano1) p1Mensal.innerText = `+ ${DADOS_PLANOS.plano1.mensalidade}`;
-
-            // Atualiza Card 2
-            const p2Nome = document.getElementById('card-plano2-nome');
-            const p2Adesao = document.getElementById('card-plano2-adesao');
-            const p2Mensal = document.getElementById('card-plano2-mensalidade');
-            if (p2Nome && DADOS_PLANOS.plano2) p2Nome.innerText = DADOS_PLANOS.plano2.nome;
-            if (p2Adesao && DADOS_PLANOS.plano2) p2Adesao.innerText = DADOS_PLANOS.plano2.adesao;
-            if (p2Mensal && DADOS_PLANOS.plano2) p2Mensal.innerText = `+ ${DADOS_PLANOS.plano2.mensalidade}`;
-
-            // Atualiza Card 3
-            const p3Nome = document.getElementById('card-plano3-nome');
-            const p3Adesao = document.getElementById('card-plano3-adesao');
-            const p3Mensal = document.getElementById('card-plano3-mensalidade');
-            if (p3Nome && DADOS_PLANOS.plano3) p3Nome.innerText = DADOS_PLANOS.plano3.nome;
-            if (p3Adesao && DADOS_PLANOS.plano3) p3Adesao.innerText = DADOS_PLANOS.plano3.adesao;
-            if (p3Mensal && DADOS_PLANOS.plano3) p3Mensal.innerText = `+ ${DADOS_PLANOS.plano3.mensalidade}`;
+            sincronizarPlanosSistemaComDadosPlanos();
+            renderizarCardsPlanosPromocaoModal();
 
             // Atualiza Chave Pix e Titular exibidos no box do Pix Facilitado
             const elChavePix = document.getElementById('txt-chave-pix-facilitada');

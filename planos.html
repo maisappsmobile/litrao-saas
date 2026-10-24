@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos & Licenças Oficiais - Litrão do Reset</title>
+    <meta name="description" content="Conheça e assine os planos oficiais do Litrão do Reset: planos mensais, anuais e vitalícios com automação, avaliações corporais ilimitadas e sorteios.">
+
+    <!-- Bibliotecas externas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#0f2412',
+                        'brand-light': '#82b434',
+                        'brand-yellow': '#ffa700',
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .glass-header {
+            background: rgba(15, 36, 18, 0.92);
+            backdrop-filter: blur(12px);
+        }
+        .gradient-card-hero {
+            background: linear-gradient(135deg, rgba(130, 180, 52, 0.12) 0%, rgba(255, 167, 0, 0.08) 100%);
+        }
+        .animate-bounce-subtle {
+            animation: bounceSubtle 2.5s infinite;
+        }
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-light selection:text-slate-950">
+
+    <!-- CABEÇALHO OFICIAL -->
+    <header class="glass-header sticky top-0 z-40 border-b border-emerald-900/60 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="painel.html" class="flex items-center gap-2 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-light to-brand-yellow flex items-center justify-center text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition transform">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl sm:text-2xl font-black italic tracking-tighter text-white block leading-none">
+                            LITRÃO<span class="text-brand-yellow">RESET</span>
+                        </span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Página Oficial de Vendas</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="painel.html" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar ao Painel
+                </a>
+                <a href="assinar.html" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition transform hover:scale-105">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Criar Conta Grátis</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <main class="flex-1">
+        <section class="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
+            <!-- Glow de fundo -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-emerald-500/10 blur-[130px] -z-10 rounded-full pointer-events-none"></div>
+
+            <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider mb-6 animate-bounce-subtle">
+                <i class="fa-solid fa-crown text-amber-400"></i> Planos & Licenciamento Oficial 2026
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
+                Potencialize Seu Negócio com o <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">Litrão do Reset</span>
+            </h1>
+
+            <p class="mt-5 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                Tenha sua própria página de captura personalizada, avaliações de bem-estar automáticas, sorteios de sacola e funil de vendas ativo 24 horas por dia.
+            </p>
+
+            <!-- FILTRO DE PERIODICIDADE -->
+            <div class="mt-10 flex items-center justify-center">
+                <div class="bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 flex items-center gap-1 shadow-xl">
+                    <button type="button" onclick="filtrarPeriodoPlanos('todos')" id="btn-filtro-todos" class="btn-filtro-periodo active px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer bg-emerald-500 text-slate-950 shadow-sm">
+                        Todos os Planos
+                    </button>
+                    <button type="button" onclick="filtrarPeriodoPlanos('anual')" id="btn-filtro-anual" class="btn-filtro-periodo px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-fire text-amber-400"></i>
+                        <span>Anuais (Maior Economia)</span>
+                    </button>
+                    <button type="button" onclick="filtrarPeriodoPlanos('mensal')" id="btn-filtro-mensal" class="btn-filtro-periodo px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer">
+                        Mensais
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTAINER DOS CARDS DINÂMICOS -->
+            <div id="container-planos-vendas" class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto text-left">
+                <!-- Injetado dinamicamente via renderizarPlanosPaginaVendas() -->
+                <div class="col-span-full py-16 text-center text-slate-400 font-bold">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl text-emerald-400 mb-3 block"></i>
+                    Carregando planos disponíveis...
+                </div>
+            </div>
+
+            <!-- SELO DE SEGURANÇA E BENEFÍCIOS -->
+            <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto pt-10 border-t border-slate-800/80 text-left">
+                <div class="flex items-center gap-3.5 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-white">Liberação Imediata</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Ativação instantânea via Pix ou Solana FitCoin.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3.5 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-white">Suporte VIP Humano</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Atendimento prioritário no WhatsApp dos consultores.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3.5 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-white">Segurança Total</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Dados protegidos em nuvem com backup contínuo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO FAQ (PERGUNTAS FREQUENTES) -->
+        <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-slate-800">
+            <h2 class="text-2xl sm:text-3xl font-black text-white text-center mb-8">
+                Perguntas Frequentes
+            </h2>
+
+            <div class="space-y-4 text-left">
+                <details class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 transition group">
+                    <summary class="font-bold text-sm text-white cursor-pointer list-none flex items-center justify-between">
+                        <span>Como funciona o plano com pagamento anual?</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-emerald-400 group-open:rotate-180 transition transform"></i>
+                    </summary>
+                    <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                        Ao escolher o plano anual, você garante 365 dias de acesso ininterrupto ao sistema do Litrão do Reset sem se preocupar com faturas mensais, aproveitando a maior economia do ano com suporte VIP prioritário.
+                    </p>
+                </details>
+
+                <details class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 transition group">
+                    <summary class="font-bold text-sm text-white cursor-pointer list-none flex items-center justify-between">
+                        <span>Como posso pagar usando a moeda FitCoin ($FIT)?</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-emerald-400 group-open:rotate-180 transition transform"></i>
+                    </summary>
+                    <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                        Ao clicar em "Contratar", selecione a opção FitCoin no checkout. Você recebe <strong>22% de desconto imediato</strong> sobre o valor do plano e transfere os tokens diretamente pela rede Solana para nossa carteira oficial BragaPay.
+                    </p>
+                </details>
+
+                <details class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 transition group">
+                    <summary class="font-bold text-sm text-white cursor-pointer list-none flex items-center justify-between">
+                        <span>Após o pagamento no Pix, como libero meu acesso?</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-emerald-400 group-open:rotate-180 transition transform"></i>
+                    </summary>
+                    <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                        Após pagar pelo app do seu banco, basta clicar no botão verde <strong>"Enviar Comprovante no WhatsApp Oficial"</strong> no próprio checkout. Nossa equipe valida na hora e ativa seu plano imediatamente!
+                    </p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-8 px-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 Litrão do Reset - Todos os direitos reservados. Ecossistema independente de ferramentas para consultores.</p>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/5566981411234?text=Ol%C3%A1%2C%20gostaria%20de%20tirar%20d%C3%BAvidas%20sobre%20os%20planos%20do%20Litr%C3%A3o%20do%20Reset." target="_blank" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Suporte
+                </a>
+                <a href="painel.html" class="hover:text-slate-300">Acessar Painel</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE CHECKOUT & PAGAMENTO DINÂMICO (PIX + FITCOIN) -->
+    <div id="modal-checkout-plano" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto text-slate-100">
+            <button type="button" onclick="fecharModalCheckout()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Cabeçalho do Checkout -->
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-800">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">Checkout Seguro</span>
+                    <h3 id="checkout-plano-nome" class="text-xl font-black text-white leading-tight">Plano Selecionado</h3>
+                </div>
+            </div>
+
+            <!-- Resumo do Valor -->
+            <div class="my-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] text-slate-400 font-bold block uppercase">Valor de Ativação / Adesão:</span>
+                    <span id="checkout-plano-valor" class="text-2xl font-black text-emerald-400 block leading-tight">R$ 0,00</span>
+                    <span id="checkout-plano-recorrencia" class="text-[11px] text-slate-400 font-medium block mt-0.5">+ R$ 0,00/mês</span>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+                        <i class="fa-solid fa-check"></i> Pix Instantâneo
+                    </span>
+                </div>
+            </div>
+
+            <!-- Seletor de Método: Pix ou FitCoin -->
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button type="button" onclick="selecionarMetodoCheckout('pix')" id="btn-metodo-pix" class="bg-emerald-500 text-slate-950 font-black p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border-2 border-emerald-400">
+                    <i class="fa-brands fa-pix"></i> Pix Oficial
+                </button>
+                <button type="button" onclick="selecionarMetodoCheckout('fitcoin')" id="btn-metodo-fitcoin" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-black p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-amber-400/30">
+                    <i class="fa-solid fa-coins"></i> FitCoin (22% OFF)
+                </button>
+            </div>
+
+            <!-- ÁREA DO PIX -->
+            <div id="area-checkout-pix" class="space-y-4">
+                <div class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-inner">
+                    <div id="checkout-qrcode-pix" class="flex items-center justify-center"></div>
+                    <span class="text-[10px] text-slate-600 font-bold mt-2">Aponte a câmera do seu banco para pagar</span>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Chave Pix Copia e Cola / Chave Direta:</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="checkout-input-chave-pix" readonly class="w-full p-2.5 bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs rounded-xl focus:outline-none">
+                        <button type="button" onclick="copiarChavePixCheckout()" id="btn-copiar-pix-checkout" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <span id="checkout-pix-titular" class="text-[10px] text-slate-400 mt-1 block">Titular: LUCIA SANTANA S. BRAGA</span>
+                </div>
+            </div>
+
+            <!-- ÁREA DO FITCOIN -->
+            <div id="area-checkout-fitcoin" class="space-y-3 hidden">
+                <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-2xl text-left">
+                    <div class="flex items-center justify-between text-xs font-black text-amber-300">
+                        <span>Desconto FitCoin:</span>
+                        <span>22% OFF APLICADO!</span>
+                    </div>
+                    <div class="mt-2 text-sm font-black text-white flex items-center justify-between">
+                        <span>Total em $FIT Solana:</span>
+                        <span id="checkout-fitcoin-total" class="text-amber-400 text-lg">0 $FIT</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Carteira Solana Recebedora (BragaPay):</label>
+                    <input type="text" id="checkout-input-carteira-solana" readonly class="w-full p-2.5 bg-slate-950 border border-slate-700 text-emerald-400 font-mono text-xs rounded-xl focus:outline-none">
+                </div>
+            </div>
+
+            <!-- BOTÃO DE ENVIO DO COMPROVANTE VIA WHATSAPP -->
+            <div class="pt-4 mt-4 border-t border-slate-800 space-y-2">
+                <a id="btn-enviar-comprovante-whatsapp" href="#" target="_blank" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer transform hover:scale-[1.01]">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Enviar Comprovante no WhatsApp Oficial</span>
+                </a>
+                <p class="text-[10px] text-center text-slate-400">
+                    Ativação garantida pela equipe técnica após envio do comprovante.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE INTELIGÊNCIA & SINCRONIZAÇÃO DOS PLANOS -->
+    <script>
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZ2NqemhlY3BtaHNhdnBwanluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Mjk3OTMsImV4cCI6MjA4OTAwNTc5M30.d_dM1b0L97_WJqF3-uXl5q5t7YxG5iXl1mJk5hN7p9s";
+        const SUPABASE_URL = "https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1";
+
+        let PLANOS_SISTEMA = [
+            {
+                id: 'plano1',
+                nome: 'Start Pro',
+                valorAdesaoNum: 199.00,
+                periodicidade: 'mensal',
+                diasCiclo: 30,
+                valorMensalidadeNum: 99.00,
+                descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
+                tagDestaque: 'Entrada',
+                corTema: 'emerald',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Até 30 Avaliações / mês',
+                    '15 Tíquetes Bônus (Sacola A4) / mês',
+                    'Relatório Visual em Foto (PNG)',
+                    'Central de Aniversariantes Básica'
+                ]
+            },
+            {
+                id: 'plano2',
+                nome: 'Vitalício Smart',
+                valorAdesaoNum: 497.00,
+                periodicidade: 'mensal',
+                diasCiclo: 30,
+                valorMensalidadeNum: 25.00,
+                descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
+                tagDestaque: 'Mais Popular',
+                corTema: 'amber',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes ILIMITADOS (Sacola A4)',
+                    'Relatório Visual em Foto (PNG) Completo',
+                    'Central de Aniversariantes Completa',
+                    'Exportação para Planilha Excel (CSV)',
+                    'Backup Geral dos Seus Dados'
+                ]
+            },
+            {
+                id: 'plano3',
+                nome: 'Master VIP',
+                valorAdesaoNum: 1299.00,
+                periodicidade: 'mensal',
+                diasCiclo: 30,
+                valorMensalidadeNum: 49.00,
+                descricaoMensalidade: 'Licença premium com mensalidade ultra reduzida',
+                tagDestaque: 'Elite VIP',
+                corTema: 'purple',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes ILIMITADOS (Sacola A4)',
+                    'Relatório Visual em Foto (Alta Resolução)',
+                    'Central de Aniversariantes VIP',
+                    'Exportação para Planilha Excel (CSV)',
+                    'Importação em Massa de Planilhas (CSV)',
+                    'Backup Completo & Restauração de Dados',
+                    'Criar Cupons 15% OFF p/ Novos Consultores'
+                ]
+            },
+            {
+                id: 'plano_anual_1',
+                nome: 'Plano Anual Super Smart',
+                valorAdesaoNum: 590.00,
+                periodicidade: 'anual',
+                diasCiclo: 365,
+                valorMensalidadeNum: 290.00,
+                descricaoMensalidade: 'Anuidade de R$ 290,00 após 1 ano (12 meses)',
+                tagDestaque: 'Economia Anual',
+                corTema: 'blue',
+                exibirNaPaginaVendas: true,
+                recursos: [
+                    'Acesso Anual Completo (365 dias)',
+                    'Sem preocupação com boletos mensais',
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS o ano todo',
+                    'Tíquetes e Sorteios ILIMITADOS',
+                    'Suporte Prioritário VIP no WhatsApp'
+                ]
+            }
+        ];
+
+        let FITCOIN_CONFIG = {
+            walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+            mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
+            discountPercent: 22,
+            tokensPerBrl: 10,
+            pixChave: 'maisappsmobile@gmail.com',
+            pixTitular: 'LUCIA SANTANA S. BRAGA'
+        };
+
+        let planoCheckoutAtual = null;
+        let filtroPeriodoAtual = 'todos';
+
+        function formatarMoeda(num) {
+            return (parseFloat(num) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Carrega configurações personalizadas do Supabase ou localStorage
+        async function carregarDadosPlanos() {
+            try {
+                // 1. Tenta carregar do localStorage
+                const local = localStorage.getItem('cfg_planos_superadmin');
+                if (local) {
+                    const parsed = JSON.parse(local);
+                    if (parsed.planosSistema && Array.isArray(parsed.planosSistema)) {
+                        PLANOS_SISTEMA = parsed.planosSistema;
+                    }
+                    if (parsed.fitcoin) FITCOIN_CONFIG = Object.assign(FITCOIN_CONFIG, parsed.fitcoin);
+                }
+
+                // 2. Busca do Supabase do SuperAdmin oficial (433005811)
+                const res = await fetch(`${SUPABASE_URL}/consultores?herbalife_id=eq.433005811`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (res.ok) {
+                    const rows = await res.json();
+                    if (rows && rows.length > 0 && rows[0].nome_espaco && rows[0].nome_espaco.includes('<!--CONFIG_PLANOS:')) {
+                        const match = rows[0].nome_espaco.match(/<!--CONFIG_PLANOS:([\s\S]*?)-->/);
+                        if (match && match[1]) {
+                            const parsedRemote = JSON.parse(match[1]);
+                            if (parsedRemote.planosSistema && Array.isArray(parsedRemote.planosSistema)) {
+                                PLANOS_SISTEMA = parsedRemote.planosSistema;
+                            }
+                            if (parsedRemote.fitcoin) FITCOIN_CONFIG = Object.assign(FITCOIN_CONFIG, parsedRemote.fitcoin);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Aviso ao carregar dados remotos dos planos:", err);
+            } finally {
+                renderizarPlanosPaginaVendas();
+            }
+        }
+
+        function filtrarPeriodoPlanos(tipo) {
+            filtroPeriodoAtual = tipo;
+            document.querySelectorAll('.btn-filtro-periodo').forEach(btn => {
+                btn.className = 'btn-filtro-periodo px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer';
+            });
+
+            const btnAtivo = document.getElementById(`btn-filtro-${tipo}`);
+            if (btnAtivo) {
+                btnAtivo.className = 'btn-filtro-periodo active px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer bg-emerald-500 text-slate-950 shadow-sm';
+            }
+
+            renderizarPlanosPaginaVendas();
+        }
+
+        function renderizarPlanosPaginaVendas() {
+            const container = document.getElementById('container-planos-vendas');
+            if (!container) return;
+
+            // Filtra planos marcados para exibição
+            let planos = PLANOS_SISTEMA.filter(p => p.exibirNaPaginaVendas !== false);
+
+            if (filtroPeriodoAtual === 'anual') {
+                planos = planos.filter(p => p.periodicidade === 'anual' || p.periodicidade === 'bienal');
+            } else if (filtroPeriodoAtual === 'mensal') {
+                planos = planos.filter(p => p.periodicidade === 'mensal' || p.periodicidade === 'trimestral' || p.periodicidade === 'semestral');
+            }
+
+            if (planos.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-600"></i>
+                        <p class="font-bold text-sm">Nenhum plano disponível nesta categoria no momento.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const gridCols = planos.length === 1 ? 'max-w-md mx-auto grid-cols-1' : planos.length === 2 ? 'max-w-4xl mx-auto grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+            container.className = `mt-12 grid ${gridCols} gap-6 max-w-7xl mx-auto text-left`;
+
+            const temas = {
+                emerald: { border: 'border-emerald-500/50 hover:border-emerald-400', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', btn: 'from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700', check: 'text-emerald-400' },
+                amber: { border: 'border-amber-500/50 hover:border-amber-400', badge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', btn: 'from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700', check: 'text-amber-400' },
+                purple: { border: 'border-purple-500/50 hover:border-purple-400', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', btn: 'from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800', check: 'text-purple-400' },
+                blue: { border: 'border-blue-500/50 hover:border-blue-400', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', btn: 'from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700', check: 'text-blue-400' },
+                rose: { border: 'border-rose-500/50 hover:border-rose-400', badge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', btn: 'from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700', check: 'text-rose-400' }
+            };
+
+            container.innerHTML = planos.map(p => {
+                const t = temas[p.corTema] || temas.emerald;
+                const periodo = p.periodicidade || 'mensal';
+                const adesao = formatarMoeda(p.valorAdesaoNum || 0);
+                const recorrencia = formatarMoeda(p.valorMensalidadeNum || 0);
+
+                let labelSufixo = '/mês';
+                if (periodo === 'anual') labelSufixo = '/ano';
+                else if (periodo === 'bienal') labelSufixo = ' a cada 2 anos';
+                else if (periodo === 'semestral') labelSufixo = '/semestre';
+                else if (periodo === 'trimestral') labelSufixo = '/trimestre';
+
+                let badgeRecorrencia = '';
+                if (periodo === 'vitalicio' || p.valorMensalidadeNum === 0) {
+                    badgeRecorrencia = '<span class="inline-block mt-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">👑 Taxa Única (Sem Mensalidades)</span>';
+                } else {
+                    badgeRecorrencia = `<span class="inline-block mt-1 ${t.badge} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase">+ R$ ${recorrencia}${labelSufixo}</span>`;
+                }
+
+                let badgeDestaque = '';
+                if (p.tagDestaque) {
+                    badgeDestaque = `
+                        <div class="absolute -top-3 right-4 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md">
+                            ⭐ ${p.tagDestaque}
+                        </div>
+                    `;
+                }
+
+                const recursos = p.recursos && p.recursos.length > 0 ? p.recursos : [
+                    'Página Exclusiva & Link Próprio',
+                    'Avaliações ILIMITADAS',
+                    'Tíquetes e Sorteios ILIMITADOS',
+                    'Relatório Visual em Foto',
+                    'Suporte Prioritário no WhatsApp'
+                ];
+
+                return `
+                    <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-7 border-2 ${t.border} transition transform hover:-translate-y-1 shadow-xl flex flex-col justify-between relative group">
+                        ${badgeDestaque}
+                        <div>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">${periodo.toUpperCase()}</span>
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">Ativação Imediata</span>
+                            </div>
+
+                            <h3 class="text-xl sm:text-2xl font-black text-white mt-1 group-hover:text-amber-300 transition">${p.nome}</h3>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">${p.descricaoMensalidade || ''}</p>
+
+                            <div class="mt-5 pt-4 border-t border-slate-800">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase block">Taxa de Adesão / Ativação:</span>
+                                <div class="flex items-baseline gap-1 mt-0.5">
+                                    <span class="text-xs text-slate-400 font-bold">R$</span>
+                                    <span class="text-3xl sm:text-4xl font-black text-white leading-none">${adesao}</span>
+                                </div>
+                                <div class="mt-1">${badgeRecorrencia}</div>
+                            </div>
+
+                            <div class="mt-6 pt-5 border-t border-slate-800/80">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-300 block mb-3">Vantagens Inclusas:</span>
+                                <ul class="space-y-2 text-xs font-semibold text-slate-300">
+                                    ${recursos.map(r => `<li class="flex items-start gap-2"><i class="fa-solid fa-circle-check ${t.check} mt-0.5 text-xs shrink-0"></i> <span>${r}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-7 pt-4 border-t border-slate-800/60">
+                            <button type="button" onclick="abrirCheckoutPlano('${p.id}')" class="w-full bg-gradient-to-r ${t.btn} text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer hover:shadow-emerald-500/20">
+                                <i class="fa-brands fa-pix text-sm"></i>
+                                <span>Contratar Agora no Pix</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Abertura do Checkout
+        function abrirCheckoutPlano(planoId) {
+            const plano = PLANOS_SISTEMA.find(p => p.id === planoId);
+            if (!plano) return;
+            planoCheckoutAtual = plano;
+
+            const modal = document.getElementById('modal-checkout-plano');
+            const elNome = document.getElementById('checkout-plano-nome');
+            const elValor = document.getElementById('checkout-plano-valor');
+            const elRec = document.getElementById('checkout-plano-recorrencia');
+            const elChavePix = document.getElementById('checkout-input-chave-pix');
+            const elTitular = document.getElementById('checkout-pix-titular');
+            const elCarteira = document.getElementById('checkout-input-carteira-solana');
+            const elTotalFit = document.getElementById('checkout-fitcoin-total');
+
+            const valorAdesao = plano.valorAdesaoNum || 0;
+            const periodo = plano.periodicidade || 'mensal';
+            let sufixo = '/mês';
+            if (periodo === 'anual') sufixo = '/ano';
+            else if (periodo === 'bienal') sufixo = ' a cada 2 anos';
+            else if (periodo === 'semestral') sufixo = '/semestre';
+
+            if (elNome) elNome.innerText = plano.nome;
+            if (elValor) elValor.innerText = `R$ ${formatarMoeda(valorAdesao)}`;
+            if (elRec) {
+                if (periodo === 'vitalicio' || plano.valorMensalidadeNum === 0) {
+                    elRec.innerText = '👑 Taxa Única Vitalícia (Sem mensalidades)';
+                } else {
+                    elRec.innerText = `+ R$ ${formatarMoeda(plano.valorMensalidadeNum)}${sufixo}`;
+                }
+            }
+
+            const chavePix = FITCOIN_CONFIG.pixChave || 'maisappsmobile@gmail.com';
+            if (elChavePix) elChavePix.value = chavePix;
+            if (elTitular) elTitular.innerText = `Titular: ${FITCOIN_CONFIG.pixTitular || 'LUCIA SANTANA S. BRAGA'}`;
+            if (elCarteira) elCarteira.value = FITCOIN_CONFIG.walletReceiver || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
+
+            // Cálculo FitCoin com 22% de desconto
+            const desc = FITCOIN_CONFIG.discountPercent || 22;
+            const valorComDesconto = valorAdesao * (1 - (desc / 100));
+            const tokensFit = Math.round(valorComDesconto * (FITCOIN_CONFIG.tokensPerBrl || 10));
+            if (elTotalFit) elTotalFit.innerText = `${tokensFit.toLocaleString('pt-BR')} $FIT`;
+
+            // Gera QR Code Pix
+            gerarQRCodePixModal(chavePix, valorAdesao, plano.nome);
+
+            // Configura link do WhatsApp
+            configurarBotaoWhatsapp(plano, valorAdesao);
+
+            selecionarMetodoCheckout('pix');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function fecharModalCheckout() {
+            const modal = document.getElementById('modal-checkout-plano');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function selecionarMetodoCheckout(metodo) {
+            const areaPix = document.getElementById('area-checkout-pix');
+            const areaFit = document.getElementById('area-checkout-fitcoin');
+            const btnPix = document.getElementById('btn-metodo-pix');
+            const btnFit = document.getElementById('btn-metodo-fitcoin');
+
+            if (metodo === 'fitcoin') {
+                if (areaPix) areaPix.classList.add('hidden');
+                if (areaFit) areaFit.classList.remove('hidden');
+                if (btnFit) btnFit.className = 'bg-amber-400 text-slate-950 font-black p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border-2 border-amber-300';
+                if (btnPix) btnPix.className = 'bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-slate-700';
+            } else {
+                if (areaPix) areaPix.classList.remove('hidden');
+                if (areaFit) areaFit.classList.add('hidden');
+                if (btnPix) btnPix.className = 'bg-emerald-500 text-slate-950 font-black p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border-2 border-emerald-400';
+                if (btnFit) btnFit.className = 'bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold p-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-amber-400/30';
+            }
+        }
+
+        function gerarQRCodePixModal(chavePix, valor, nomePlano) {
+            const qrContainer = document.getElementById('checkout-qrcode-pix');
+            if (!qrContainer) return;
+            qrContainer.innerHTML = '';
+
+            // Texto EMV simplificado ou Chave direta
+            const payload = `00020126460014BR.GOV.BCB.PIX0124${chavePix}520400005303986540${valor.toFixed(2).length < 10 ? '0' : ''}${valor.toFixed(2).length}${valor.toFixed(2)}5802BR5921LUCIA SANTANA S BRAGA6005JUINA62070503***6304`;
+
+            try {
+                new QRCode(qrContainer, {
+                    text: payload || chavePix,
+                    width: 170,
+                    height: 170,
+                    colorDark: "#022c22",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (e) {
+                console.warn("Falha ao desenhar QRCode:", e);
+                qrContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-700 font-bold">Chave Pix: ${chavePix}</div>`;
+            }
+        }
+
+        function copiarChavePixCheckout() {
+            const input = document.getElementById('checkout-input-chave-pix');
+            const btn = document.getElementById('btn-copiar-pix-checkout');
+            if (!input) return;
+
+            navigator.clipboard.writeText(input.value).then(() => {
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                    btn.classList.add('bg-emerald-400');
+                    setTimeout(() => {
+                        btn.innerHTML = orig;
+                        btn.classList.remove('bg-emerald-400');
+                    }, 2000);
+                }
+            }).catch(() => {
+                input.select();
+                document.execCommand('copy');
+                alert("Chave Pix copiada!");
+            });
+        }
+
+        function configurarBotaoWhatsapp(plano, valor) {
+            const btn = document.getElementById('btn-enviar-comprovante-whatsapp');
+            if (!btn) return;
+
+            const msg = encodeURIComponent(
+                `Olá! Acabei de realizar o pagamento do plano *${plano.nome}* no valor de *R$ ${formatarMoeda(valor)}* para a ativação da minha licença no *Litrão do Reset*.\n\nSeguem os detalhes e o comprovante para ativação imediata!`
+            );
+            btn.href = `https://wa.me/5566981411234?text=${msg}`;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarDadosPlanos();
+        });
+    </script>
+</body>
+</html>
