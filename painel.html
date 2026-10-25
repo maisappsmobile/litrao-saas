@@ -2340,6 +2340,16 @@
                                     <option value="conversa">Em Conversa</option>
                                     <option value="instalou">Instalou Plataforma</option>
                                 </select>
+                                <select id="fb-filtro-publico" onchange="renderizarTabelaLeadsFacebook()" class="py-1.5 px-3 text-xs bg-purple-50 border border-purple-200 rounded-xl font-bold text-purple-900 focus:outline-none" title="Filtrar por Público / Grupo / Cidade">
+                                    <option value="todos">🎯 Todos os Públicos</option>
+                                    <option value="Consultor">👔 Consultor</option>
+                                    <option value="Cliente">🥤 Cliente</option>
+                                    <option value="Público Geral">🌐 Público Geral</option>
+                                </select>
+                                <button type="button" onclick="abrirModalGerenciarPublicosKanban()" class="py-1.5 px-2.5 text-xs bg-purple-100 hover:bg-purple-200 text-purple-900 rounded-xl font-black transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Criar ou Adicionar Novo Público / Cidade">
+                                    <i class="fa-solid fa-tags text-purple-700 text-xs"></i>
+                                    <span>+ Público</span>
+                                </button>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
                                 <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
@@ -2631,7 +2641,7 @@
                             <h4 class="text-xs font-black text-gray-800 uppercase tracking-wide flex items-center gap-2">
                                 <i class="fa-solid fa-user-plus text-blue-600"></i> Cadastrar Lead Individual Manualmente:
                             </h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
                                 <div>
                                     <input type="text" id="fb-manual-nome" placeholder="Nome Completo (ex: Daniele Padilha)" class="w-full p-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800 focus:outline-none">
                                 </div>
@@ -2643,6 +2653,14 @@
                                         <option value="membro">Membro do Grupo</option>
                                         <option value="admin">Administrador / Mod</option>
                                     </select>
+                                </div>
+                                <div>
+                                    <input type="text" list="fb-manual-publicos-list" id="fb-manual-publico" placeholder="Público / Cidade (ex: Consultor, Cuiabá)" class="w-full p-2 text-xs bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800 focus:outline-none" value="Consultor">
+                                    <datalist id="fb-manual-publicos-list">
+                                        <option value="Consultor">
+                                        <option value="Cliente">
+                                        <option value="Público Geral">
+                                    </datalist>
                                 </div>
                                 <div>
                                     <button type="button" onclick="salvarLeadFacebookManual()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold p-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
@@ -25925,6 +25943,27 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             localStorage.setItem(chave, JSON.stringify(leads || []));
         }
 
+        function obterPublicosFacebookStorage() {
+            const publicosPadrao = ['Consultor', 'Cliente', 'Público Geral'];
+            try {
+                const raw = localStorage.getItem('litrao_facebook_publicos');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return Array.from(new Set([...publicosPadrao, ...parsed.map(p => (p || '').trim()).filter(Boolean)]));
+                    }
+                }
+            } catch(e) {}
+            return publicosPadrao;
+        }
+
+        function salvarPublicosFacebookStorage(lista) {
+            try {
+                const unicos = Array.from(new Set((lista || []).map(p => (p || '').trim()).filter(Boolean)));
+                localStorage.setItem('litrao_facebook_publicos', JSON.stringify(unicos));
+            } catch(e) {}
+        }
+
         function abrirModalExtratorFacebookSuperadmin() {
             if (!isSuperAdminLogado()) {
                 alert("⚠️ Acesso restrito ao Super Administrador da plataforma (Edwan Braga).");
@@ -26072,6 +26111,40 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
             const termoBusca = (document.getElementById('fb-busca-lead')?.value || '').toLowerCase().trim();
             const filtroStatus = (document.getElementById('fb-filtro-status')?.value || 'todos').toLowerCase();
+            const filtroPublico = (document.getElementById('fb-filtro-publico')?.value || 'todos').toLowerCase().trim();
+
+            // Atualiza dinamicamente as opções do filtro de públicos com base nos públicos existentes
+            const selPublicoFiltro = document.getElementById('fb-filtro-publico');
+            if (selPublicoFiltro) {
+                const publicosSet = new Set(['Consultor', 'Cliente', 'Público Geral']);
+                try {
+                    const rawPubs = localStorage.getItem('litrao_facebook_publicos');
+                    if (rawPubs) {
+                        const parsed = JSON.parse(rawPubs);
+                        if (Array.isArray(parsed)) parsed.forEach(p => p && publicosSet.add(p.trim()));
+                    }
+                } catch(e) {}
+                leads.forEach(l => {
+                    if (l.publico && l.publico.trim()) publicosSet.add(l.publico.trim());
+                });
+
+                const valorAtual = selPublicoFiltro.value || 'todos';
+                const optsHtml = [
+                    '<option value="todos">🎯 Todos os Públicos</option>',
+                    ...Array.from(publicosSet).map(p => {
+                        let icone = '🎯';
+                        if (p.toLowerCase().includes('consultor')) icone = '👔';
+                        else if (p.toLowerCase().includes('cliente')) icone = '🥤';
+                        else if (p.toLowerCase().includes('geral')) icone = '🌐';
+                        else icone = '📍';
+                        const isSel = p.toLowerCase() === valorAtual.toLowerCase() ? 'selected' : '';
+                        return `<option value="${p}" ${isSel}>${icone} ${p}</option>`;
+                    })
+                ].join('');
+                if (selPublicoFiltro.innerHTML !== optsHtml) {
+                    selPublicoFiltro.innerHTML = optsHtml;
+                }
+            }
 
             // Métricas gerais
             const totalLeads = leads.length;
@@ -26094,13 +26167,16 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             if (elBadge) elBadge.innerText = totalLeads;
             if (elHeaderTotal) elHeaderTotal.innerText = `${totalLeads} leads`;
 
-            // Filtra lista de leads
+            // Filtra lista de leads considerando busca, status e público
             const leadsFiltrados = leads.filter(l => {
+                const pubLead = (l.publico || 'Consultor').trim();
                 const matchNome = (l.nome || '').toLowerCase().includes(termoBusca) ||
                                   (l.grupoOrigem || '').toLowerCase().includes(termoBusca) ||
-                                  (l.cargo || '').toLowerCase().includes(termoBusca);
+                                  (l.cargo || '').toLowerCase().includes(termoBusca) ||
+                                  pubLead.toLowerCase().includes(termoBusca);
                 const matchStatus = filtroStatus === 'todos' || (l.status || 'pendente') === filtroStatus;
-                return matchNome && matchStatus;
+                const matchPublico = filtroPublico === 'todos' || pubLead.toLowerCase() === filtroPublico;
+                return matchNome && matchStatus && matchPublico;
             });
 
             // 1. RENDERIZAÇÃO DO QUADRO KANBAN
@@ -26141,6 +26217,25 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded-full inline-flex items-center gap-0.5"><i class="fa-solid fa-crown text-[8px] text-amber-600"></i> Admin</span>`
                     : `<span class="bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full inline-flex items-center gap-0.5">👤 Membro</span>`;
 
+                const pubLead = (lead.publico || 'Consultor').trim();
+                let badgePublicoCor = 'bg-purple-100 text-purple-900 border-purple-200';
+                let iconePublico = 'fa-tag';
+                if (pubLead.toLowerCase().includes('consultor')) {
+                    badgePublicoCor = 'bg-blue-100 text-blue-900 border-blue-200';
+                    iconePublico = 'fa-user-tie';
+                } else if (pubLead.toLowerCase().includes('cliente')) {
+                    badgePublicoCor = 'bg-emerald-100 text-emerald-900 border-emerald-200';
+                    iconePublico = 'fa-bottle-water';
+                } else if (pubLead.toLowerCase().includes('geral')) {
+                    badgePublicoCor = 'bg-slate-100 text-slate-800 border-slate-200';
+                    iconePublico = 'fa-globe';
+                } else {
+                    badgePublicoCor = 'bg-amber-100 text-amber-900 border-amber-300';
+                    iconePublico = 'fa-location-dot';
+                }
+
+                const publicoBadge = `<span onclick="event.stopPropagation(); alterarPublicoLeadFacebookPrompt('${lead.id}')" title="Público / Grupo: ${pubLead}. Clique para alterar." class="${badgePublicoCor} border text-[9px] font-black px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 cursor-pointer hover:opacity-80 transition"><i class="fa-solid ${iconePublico} text-[8px]"></i> ${pubLead}</span>`;
+
                 const partesNome = (lead.nome || 'Consultor').trim().split(' ');
                 const iniciais = (partesNome[0][0] + (partesNome.length > 1 ? partesNome[partesNome.length - 1][0] : '')).toUpperCase();
 
@@ -26163,6 +26258,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                                     <h5 class="text-xs font-black text-gray-900 truncate leading-tight" title="${lead.nome}">${lead.nome}</h5>
                                     <div class="flex items-center gap-1 mt-0.5 flex-wrap">
                                         ${cargoBadge}
+                                        ${publicoBadge}
                                     </div>
                                 </div>
                             </div>
@@ -26248,6 +26344,25 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                         statusBg = 'bg-emerald-50 text-emerald-800 border-emerald-200';
                     }
 
+                    const pubLead = (lead.publico || 'Consultor').trim();
+                    let badgePublicoCor = 'bg-purple-100 text-purple-900 border-purple-200';
+                    let iconePublico = 'fa-tag';
+                    if (pubLead.toLowerCase().includes('consultor')) {
+                        badgePublicoCor = 'bg-blue-100 text-blue-900 border-blue-200';
+                        iconePublico = 'fa-user-tie';
+                    } else if (pubLead.toLowerCase().includes('cliente')) {
+                        badgePublicoCor = 'bg-emerald-100 text-emerald-900 border-emerald-200';
+                        iconePublico = 'fa-bottle-water';
+                    } else if (pubLead.toLowerCase().includes('geral')) {
+                        badgePublicoCor = 'bg-slate-100 text-slate-800 border-slate-200';
+                        iconePublico = 'fa-globe';
+                    } else {
+                        badgePublicoCor = 'bg-amber-100 text-amber-900 border-amber-300';
+                        iconePublico = 'fa-location-dot';
+                    }
+
+                    const publicoBadge = `<span onclick="event.stopPropagation(); alterarPublicoLeadFacebookPrompt('${lead.id}')" title="Público / Grupo: ${pubLead}. Clique para alterar." class="${badgePublicoCor} border text-[9px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1 cursor-pointer hover:opacity-80 transition"><i class="fa-solid ${iconePublico} text-[8px]"></i> ${pubLead}</span>`;
+
                     const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
 
                     return `
@@ -26260,6 +26375,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <h4 class="text-sm font-black text-gray-900">${lead.nome}</h4>
                                         ${cargoBadge}
+                                        ${publicoBadge}
                                         <span class="bg-blue-50 text-blue-800 text-[9px] font-bold px-2 py-0.2 rounded-full border border-blue-100 flex items-center gap-1">
                                             <i class="fa-brands fa-facebook-f text-[8px]"></i> Facebook Grupos
                                         </span>
@@ -26342,10 +26458,12 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             const nomeInput = document.getElementById('fb-manual-nome');
             const perfilInput = document.getElementById('fb-manual-perfil');
             const tipoSelect = document.getElementById('fb-manual-tipo');
+            const publicoInput = document.getElementById('fb-manual-publico');
 
             const nome = (nomeInput?.value || '').trim();
             const perfil = (perfilInput?.value || '').trim();
             const tipo = (tipoSelect?.value || 'membro');
+            const publico = (publicoInput?.value || '').trim() || 'Consultor';
 
             if (!nome) {
                 alert("Por favor, digite o nome do contato.");
@@ -26358,6 +26476,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 perfilUrl: perfil || `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
                 grupoOrigem: 'Espaço Vida Saudável Herbalife',
                 cargo: tipo,
+                publico: publico,
                 status: 'pendente',
                 origemTag: 'Facebook Grupos',
                 dataAdicionado: new Date().toLocaleDateString('pt-BR'),
@@ -26368,8 +26487,15 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             leads.unshift(novoLead);
             salvarLeadsFacebookStorage(leads);
 
+            const publicosSalvos = obterPublicosFacebookStorage();
+            if (!publicosSalvos.some(p => p.toLowerCase() === publico.toLowerCase())) {
+                publicosSalvos.push(publico);
+                salvarPublicosFacebookStorage(publicosSalvos);
+            }
+
             if (nomeInput) nomeInput.value = '';
             if (perfilInput) perfilInput.value = '';
+            if (publicoInput) publicoInput.value = 'Consultor';
 
             renderizarTabelaLeadsFacebook();
             trocarAbaExtratorFacebook('leads');
@@ -26377,6 +26503,65 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 mostrarNotificacaoFlutuante('Lead cadastrado com sucesso! ✅', 'sucesso');
             } else {
                 alert('Lead cadastrado com sucesso!');
+            }
+        }
+
+        function alterarPublicoLeadFacebookPrompt(leadId) {
+            const leads = obterLeadsFacebookStorage();
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            const publicos = obterPublicosFacebookStorage();
+            const publicoAtual = lead.publico || 'Consultor';
+            
+            const listaPubsTexto = publicos.map((p, idx) => `[${idx + 1}] ${p}`).join('\n');
+            const resposta = prompt(`🎯 Definir Público / Grupo para "${lead.nome}":\n\nPúblicos salvos:\n${listaPubsTexto}\n\n👉 Digite o NÚMERO da opção acima OU digite o nome de um NOVO PÚBLICO (ex: cidade "Cuiabá", "VIP", "Cliente"):`, publicoAtual);
+            if (!resposta) return;
+
+            let novoPublico = resposta.trim();
+            const numEscolhido = parseInt(novoPublico, 10);
+            if (!isNaN(numEscolhido) && numEscolhido >= 1 && numEscolhido <= publicos.length) {
+                novoPublico = publicos[numEscolhido - 1];
+            }
+
+            if (!novoPublico) return;
+
+            lead.publico = novoPublico;
+            salvarLeadsFacebookStorage(leads);
+
+            if (!publicos.some(p => p.toLowerCase() === novoPublico.toLowerCase())) {
+                publicos.push(novoPublico);
+                salvarPublicosFacebookStorage(publicos);
+            }
+
+            renderizarTabelaLeadsFacebook();
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`Público alterado para "${novoPublico}"! 🎯`, 'sucesso');
+            }
+        }
+
+        function abrirModalGerenciarPublicosKanban() {
+            const publicos = obterPublicosFacebookStorage();
+            const resposta = prompt(`🎯 GERENCIAR PÚBLICOS E CIDADES DO KANBAN\n\nPúblicos existentes:\n• ${publicos.join('\n• ')}\n\n👉 Digite o nome de um novo público ou cidade para criar (ex: "Cuiabá", "Barra do Garças", "Nutricionistas"):`);
+            if (!resposta || !resposta.trim()) return;
+
+            const publicoFormatado = resposta.trim();
+            if (!publicos.some(p => p.toLowerCase() === publicoFormatado.toLowerCase())) {
+                publicos.push(publicoFormatado);
+                salvarPublicosFacebookStorage(publicos);
+            }
+
+            const selPublicoFiltro = document.getElementById('fb-filtro-publico');
+            if (selPublicoFiltro) {
+                renderizarTabelaLeadsFacebook();
+                selPublicoFiltro.value = publicoFormatado;
+                renderizarTabelaLeadsFacebook();
+            } else {
+                renderizarTabelaLeadsFacebook();
+            }
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`Público "${publicoFormatado}" criado e selecionado! 🎯`, 'sucesso');
             }
         }
 
@@ -27434,6 +27619,10 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.excluirLeadFacebook = excluirLeadFacebook;
         window.limparTodosLeadsFacebook = limparTodosLeadsFacebook;
         window.salvarLeadFacebookManual = salvarLeadFacebookManual;
+        window.alterarPublicoLeadFacebookPrompt = alterarPublicoLeadFacebookPrompt;
+        window.abrirModalGerenciarPublicosKanban = abrirModalGerenciarPublicosKanban;
+        window.obterPublicosFacebookStorage = obterPublicosFacebookStorage;
+        window.salvarPublicosFacebookStorage = salvarPublicosFacebookStorage;
         window.copiarScriptExtratorFacebook = copiarScriptExtratorFacebook;
         window.processarTextoImportadoFacebook = processarTextoImportadoFacebook;
         window.abrirMessengerLeadFacebook = abrirMessengerLeadFacebook;

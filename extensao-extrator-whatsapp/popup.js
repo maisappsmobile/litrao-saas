@@ -1987,6 +1987,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
+    // Gerenciador de Público no Popup
+    const selPublicoFb = document.getElementById('fb-popup-select-publico');
+    const boxNovoPubFb = document.getElementById('fb-popup-box-novo-publico');
+    const inNovoPubFb = document.getElementById('fb-popup-input-novo-publico');
+    const btnSalvarPubFb = document.getElementById('btn-salvar-publico-popup');
+    const badgePubFb = document.getElementById('fb-popup-badge-publico');
+
+    if (selPublicoFb) {
+      selPublicoFb.addEventListener('change', () => {
+        if (selPublicoFb.value === '__CRIAR_NOVO__') {
+          if (boxNovoPubFb) boxNovoPubFb.style.display = 'flex';
+          if (inNovoPubFb) { inNovoPubFb.focus(); inNovoPubFb.value = ''; }
+        } else {
+          if (boxNovoPubFb) boxNovoPubFb.style.display = 'none';
+          if (badgePubFb) badgePubFb.innerText = selPublicoFb.value;
+        }
+      });
+    }
+
+    if (btnSalvarPubFb) {
+      btnSalvarPubFb.addEventListener('click', () => {
+        const val = inNovoPubFb ? inNovoPubFb.value.trim() : '';
+        if (!val) {
+          alert('Digite o nome do público ou cidade!');
+          return;
+        }
+        let optExistente = Array.from(selPublicoFb.options).find(o => o.value === val);
+        if (!optExistente) {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.innerText = `🎯 ${val}`;
+          selPublicoFb.insertBefore(opt, selPublicoFb.lastElementChild);
+        }
+        selPublicoFb.value = val;
+        if (badgePubFb) badgePubFb.innerText = val;
+        if (boxNovoPubFb) boxNovoPubFb.style.display = 'none';
+      });
+    }
+
     if (btnSincronizarFb) {
       btnSincronizarFb.addEventListener('click', () => {
         if (!leadsFacebookExtraidosPopup.length) {
@@ -1994,18 +2033,29 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         }
 
+        let publicoEscolhido = 'Consultor';
+        if (selPublicoFb && selPublicoFb.value && selPublicoFb.value !== '__CRIAR_NOVO__') {
+          publicoEscolhido = selPublicoFb.value;
+        } else if (inNovoPubFb && inNovoPubFb.value.trim()) {
+          publicoEscolhido = inNovoPubFb.value.trim();
+        }
+
         const pacote = {
           tipo: 'RESETFIT_SINCRONIZAR_FACEBOOK',
           grupo: grupoFacebookAtualPopup,
+          publico: publicoEscolhido,
           total: leadsFacebookExtraidosPopup.length,
           data: new Date().toISOString(),
-          leads: leadsFacebookExtraidosPopup
+          leads: leadsFacebookExtraidosPopup.map(l => ({
+            ...l,
+            publico: publicoEscolhido
+          }))
         };
 
         chrome.storage.local.set({ resetfit_fb_pending_import: pacote }, () => {
-          btnSincronizarFb.innerText = '✅ Sincronizado com Sucesso!';
+          btnSincronizarFb.innerText = `✅ Sincronizado (${publicoEscolhido})!`;
           btnSincronizarFb.style.background = '#047857';
-          alert(`🎉 SUCESSO!\n\n${leadsFacebookExtraidosPopup.length} contatos do grupo "${grupoFacebookAtualPopup}" foram enviados para o Litrão do Reset!\n\nAbra o seu painel para ver a lista atualizada.`);
+          alert(`🎉 SUCESSO!\n\n${leadsFacebookExtraidosPopup.length} contatos do grupo "${grupoFacebookAtualPopup}" foram enviados para o público "${publicoEscolhido}" no Kanban!\n\nAbra o seu painel para ver a lista atualizada.`);
         });
       });
     }

@@ -202,6 +202,44 @@
   /**
    * Abre o modal flutuante de extração na tela do Facebook
    */
+  // =========================================================================
+  // GESTÃO DE PÚBLICOS E CATEGORIAS (CONSULTOR, CLIENTE, CIDADES, ETC)
+  // =========================================================================
+  function obterPublicosSalvosFacebook() {
+    const padroes = ['Consultor', 'Cliente', 'Público Geral'];
+    try {
+      const raw = localStorage.getItem('resetfit_fb_publicos_lista');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          parsed.forEach(p => {
+            const pTrim = String(p || '').trim();
+            if (pTrim && !padroes.includes(pTrim)) padroes.push(pTrim);
+          });
+        }
+      }
+    } catch(e) {}
+    return padroes;
+  }
+
+  function salvarNovoPublicoStorage(novoPublico) {
+    if (!novoPublico || !novoPublico.trim()) return;
+    const lista = obterPublicosSalvosFacebook();
+    const nomeLimpo = novoPublico.trim();
+    if (!lista.includes(nomeLimpo)) {
+      lista.push(nomeLimpo);
+      try {
+        localStorage.setItem('resetfit_fb_publicos_lista', JSON.stringify(lista));
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ resetfit_fb_publicos_lista: lista });
+        }
+      } catch(e) {}
+    }
+    try {
+      localStorage.setItem('resetfit_fb_ultimo_publico_selecionado', nomeLimpo);
+    } catch(e) {}
+  }
+
   function abrirModalExtracaoFacebook() {
     let modal = document.getElementById('resetfit-fb-modal');
     if (!modal) {
@@ -225,6 +263,22 @@
     const membros = extrairMembrosDoDom();
     const nomeGrupo = obterNomeGrupoFacebook();
     const adminsCount = membros.filter(m => m.cargo === 'admin').length;
+
+    const publicosLista = obterPublicosSalvosFacebook();
+    let publicoAtivo = 'Consultor';
+    try {
+      publicoAtivo = localStorage.getItem('resetfit_fb_ultimo_publico_selecionado') || 'Consultor';
+    } catch(e) {}
+
+    const publicosOptionsHtml = publicosLista.map(p => {
+      const isSel = p === publicoAtivo ? 'selected' : '';
+      let icone = '🎯';
+      if (p.toLowerCase().includes('consultor')) icone = '👔';
+      else if (p.toLowerCase().includes('cliente')) icone = '🥤';
+      else if (p.toLowerCase().includes('geral')) icone = '🌐';
+      else icone = '📍';
+      return `<option value="${p}" ${isSel}>${icone} ${p}</option>`;
+    }).join('');
 
     modal.innerHTML = `
       <style>
@@ -329,6 +383,102 @@
               font-weight: 700;
               cursor: pointer;
             ">🔄 Rolar e Buscar Mais</button>
+          </div>
+
+          <!-- SELEÇÃO / CRIAÇÃO DE PÚBLICO DE DESTINO NO KANBAN -->
+          <div style="
+            background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
+            border: 1.5px solid #86EFAC;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.05);
+          ">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
+                🎯 Público / Grupo de Destino no Kanban:
+              </span>
+              <span id="resetfit-fb-badge-publico-ativo" style="
+                background: #16A34A;
+                color: #FFFFFF;
+                font-size: 10px;
+                font-weight: 800;
+                padding: 2px 8px;
+                border-radius: 9999px;
+              ">${publicoAtivo}</span>
+            </div>
+            
+            <p style="margin: 0 0 8px; font-size: 11px; color: #15803D; font-weight: 500; line-height: 1.3;">
+              Antes de sincronizar, escolha ou crie o público onde estes contatos entrarão no seu Kanban (ex: <b>Consultor</b>, <b>Cliente</b>, ou o nome da sua <b>Cidade</b>):
+            </p>
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <!-- Seletor de Públicos Cadastrados / Pré-definidos -->
+              <select id="resetfit-fb-select-publico" style="
+                flex: 1;
+                padding: 8px 10px;
+                border-radius: 10px;
+                border: 1.5px solid #86EFAC;
+                background: #FFFFFF;
+                color: #14532D;
+                font-size: 12px;
+                font-weight: 700;
+                outline: none;
+                cursor: pointer;
+              ">
+                ${publicosOptionsHtml}
+                <option value="__CRIAR_NOVO__">➕ + Criar Novo Público ou Cidade...</option>
+              </select>
+
+              <!-- Botão rápido para digitar novo público -->
+              <button type="button" id="btn-toggle-novo-publico-fb" style="
+                background: #FFFFFF;
+                color: #16A34A;
+                border: 1.5px solid #86EFAC;
+                padding: 8px 12px;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.2s;
+              ">
+                ✏️ Outro Nome
+              </button>
+            </div>
+
+            <!-- Campo dinâmico para digitar novo público / cidade customizada -->
+            <div id="resetfit-fb-container-novo-publico" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #86EFAC;">
+              <label style="display: block; font-size: 10px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 4px;">
+                Nome do Novo Público / Cidade / Espaço:
+              </label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="resetfit-fb-input-novo-publico" placeholder="Ex: Consultores Cuiabá, Clientes Detox, Barra do Garças..." style="
+                  flex: 1;
+                  padding: 7px 10px;
+                  border-radius: 10px;
+                  border: 1.5px solid #16A34A;
+                  background: #FFFFFF;
+                  color: #0F172A;
+                  font-size: 12px;
+                  font-weight: 700;
+                  outline: none;
+                ">
+                <button type="button" id="btn-salvar-novo-publico-fb" style="
+                  background: #16A34A;
+                  color: #FFFFFF;
+                  border: none;
+                  padding: 7px 12px;
+                  border-radius: 10px;
+                  font-size: 11px;
+                  font-weight: 800;
+                  cursor: pointer;
+                  white-space: nowrap;
+                ">
+                  Salvar
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- BARRA DE PROGRESSO DE SINCRONIZAÇÃO EM TEMPO REAL -->
@@ -470,6 +620,58 @@
     document.getElementById('btn-copiar-fb-json')?.addEventListener('click', () => {
       copiarDadosParaClipboard();
     });
+
+    // Eventos de Seleção e Criação de Público / Cidade
+    const selPublico = document.getElementById('resetfit-fb-select-publico');
+    const boxNovoPub = document.getElementById('resetfit-fb-container-novo-publico');
+    const inNovoPub = document.getElementById('resetfit-fb-input-novo-publico');
+    const btnSalvarPub = document.getElementById('btn-salvar-novo-publico-fb');
+    const btnTogglePub = document.getElementById('btn-toggle-novo-publico-fb');
+    const badgeAtivo = document.getElementById('resetfit-fb-badge-publico-ativo');
+
+    if (selPublico) {
+      selPublico.addEventListener('change', () => {
+        if (selPublico.value === '__CRIAR_NOVO__') {
+          if (boxNovoPub) boxNovoPub.style.display = 'block';
+          if (inNovoPub) { inNovoPub.focus(); inNovoPub.value = ''; }
+        } else {
+          if (boxNovoPub) boxNovoPub.style.display = 'none';
+          if (badgeAtivo) badgeAtivo.innerText = selPublico.value;
+          try { localStorage.setItem('resetfit_fb_ultimo_publico_selecionado', selPublico.value); } catch(e) {}
+        }
+      });
+    }
+
+    if (btnTogglePub) {
+      btnTogglePub.addEventListener('click', () => {
+        if (boxNovoPub) {
+          const aberto = boxNovoPub.style.display === 'block';
+          boxNovoPub.style.display = aberto ? 'none' : 'block';
+          if (!aberto && inNovoPub) inNovoPub.focus();
+        }
+      });
+    }
+
+    if (btnSalvarPub) {
+      btnSalvarPub.addEventListener('click', () => {
+        const val = inNovoPub ? inNovoPub.value.trim() : '';
+        if (!val) {
+          alert('Digite o nome do público ou cidade (ex: Consultor, Cliente, Cuiabá)!');
+          return;
+        }
+        salvarNovoPublicoStorage(val);
+        let optExistente = Array.from(selPublico.options).find(o => o.value === val);
+        if (!optExistente) {
+          const novaOpt = document.createElement('option');
+          novaOpt.value = val;
+          novaOpt.innerText = `🎯 ${val}`;
+          selPublico.insertBefore(novaOpt, selPublico.lastElementChild);
+        }
+        selPublico.value = val;
+        if (badgeAtivo) badgeAtivo.innerText = val;
+        if (boxNovoPub) boxNovoPub.style.display = 'none';
+      });
+    }
   }
 
   function renderizarListaPreviewMembros(membros) {
@@ -532,12 +734,23 @@
     const elStatus = document.getElementById('resetfit-fb-progress-status');
     const elCount = document.getElementById('resetfit-fb-progress-count');
 
+    // Identifica o público selecionado pelo usuário
+    const selPublico = document.getElementById('resetfit-fb-select-publico');
+    const inNovoPub = document.getElementById('resetfit-fb-input-novo-publico');
+    let publicoEscolhido = 'Consultor';
+    if (selPublico && selPublico.value && selPublico.value !== '__CRIAR_NOVO__') {
+      publicoEscolhido = selPublico.value;
+    } else if (inNovoPub && inNovoPub.value.trim()) {
+      publicoEscolhido = inNovoPub.value.trim();
+      salvarNovoPublicoStorage(publicoEscolhido);
+    }
+
     // Desabilita o botão para evitar cliques repetidos
     if (btnSinc) {
       btnSinc.disabled = true;
       btnSinc.style.opacity = '0.85';
       btnSinc.style.cursor = 'wait';
-      btnSinc.innerHTML = '<span>⏳ Sincronizando com o Painel...</span>';
+      btnSinc.innerHTML = `<span>⏳ Sincronizando para "${publicoEscolhido}"...</span>`;
     }
 
     // Exibe a barra de progresso imediatamente
@@ -547,11 +760,11 @@
 
     const total = membros.length;
     const etapas = [
-      { pct: 15, msg: 'Conectando ao Painel do Litrão do Reset...', count: Math.max(1, Math.floor(total * 0.15)) },
-      { pct: 40, msg: 'Filtrando contatos e validando dados...', count: Math.max(1, Math.floor(total * 0.40)) },
-      { pct: 68, msg: 'Aplicando filtro anti-duplicação em todos os cards...', count: Math.max(1, Math.floor(total * 0.68)) },
-      { pct: 90, msg: 'Transmitindo leads com segurança para o Painel...', count: Math.max(1, Math.floor(total * 0.90)) },
-      { pct: 100, msg: 'Finalizando gravação com sucesso!', count: total }
+      { pct: 15, msg: `Conectando ao Painel do Litrão (${publicoEscolhido})...`, count: Math.max(1, Math.floor(total * 0.15)) },
+      { pct: 40, msg: `Segmentando contatos no público "${publicoEscolhido}"...`, count: Math.max(1, Math.floor(total * 0.40)) },
+      { pct: 68, msg: 'Aplicando filtro anti-duplicação estrito em todos os cards...', count: Math.max(1, Math.floor(total * 0.68)) },
+      { pct: 90, msg: `Transmitindo leads para o grupo "${publicoEscolhido}" no Kanban...`, count: Math.max(1, Math.floor(total * 0.90)) },
+      { pct: 100, msg: `Gravação concluída no público "${publicoEscolhido}"!`, count: total }
     ];
 
     for (const etapa of etapas) {
@@ -565,15 +778,19 @@
     const pacote = {
       tipo: 'RESETFIT_SINCRONIZAR_FACEBOOK',
       grupo: nomeGrupo,
+      publico: publicoEscolhido,
       total: membros.length,
       data: new Date().toISOString(),
-      leads: membros
+      leads: membros.map(m => ({
+        ...m,
+        publico: publicoEscolhido
+      }))
     };
 
     // 1. Salva no chrome.storage.local para sincronização com o painel
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.set({ resetfit_fb_pending_import: pacote }, () => {
-        console.log('[ResetFIT Facebook] Pacote gravado em storage local.');
+        console.log('[ResetFIT Facebook] Pacote gravado em storage local:', pacote);
       });
 
       // Dispara mensagem em tempo real para abas abertas
@@ -588,17 +805,17 @@
     // 2. Também copia para a área de transferência como redundância
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(JSON.stringify(membros, null, 2));
+        navigator.clipboard.writeText(JSON.stringify(pacote, null, 2));
       }
     } catch (_) {}
 
     // Feedback visual final no container de progresso
     if (elStatus) {
-      elStatus.innerText = '✅ Sincronização Concluída com Sucesso!';
+      elStatus.innerText = `✅ Sincronizado com Sucesso para "${publicoEscolhido}"!`;
       elStatus.style.color = '#34D399';
     }
     if (elCount) {
-      elCount.innerHTML = `<b>${total} contatos enviados</b> • Proteção contra duplicações aplicada`;
+      elCount.innerHTML = `<b>${total} contatos enviados</b> para <b>"${publicoEscolhido}"</b> • Proteção contra duplicações ativa`;
     }
 
     // Restaura o botão com estado de sucesso
@@ -607,10 +824,10 @@
       btnSinc.style.opacity = '1';
       btnSinc.style.cursor = 'pointer';
       btnSinc.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-      btnSinc.innerHTML = '<span>✅ Sincronizado com Sucesso!</span>';
+      btnSinc.innerHTML = `<span>✅ Sincronizado (${publicoEscolhido})!</span>`;
     }
 
-    alert(`🎉 SINCRONIZAÇÃO CONCLUÍDA!\n\n${total} contatos do grupo "${nomeGrupo}" foram transmitidos para o seu Painel do Litrão do Reset!\n\n🛡️ Regra Anti-Duplicação: Nenhum contato já cadastrado no painel será repetido, seja em qual card ou etapa ele estiver.`);
+    alert(`🎉 SINCRONIZAÇÃO CONCLUÍDA!\n\n${total} contatos do grupo "${nomeGrupo}" foram transmitidos para o seu Painel do Litrão do Reset!\n\n🎯 Público/Grupo no Kanban: "${publicoEscolhido}"\n🛡️ Regra Anti-Duplicação: Nenhum contato já cadastrado no painel será repetido, independente do card ou etapa em que esteja.`);
   }
 
   function copiarDadosParaClipboard() {

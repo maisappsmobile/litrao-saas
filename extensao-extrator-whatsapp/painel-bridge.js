@@ -270,6 +270,19 @@
     let novosCount = 0;
     let duplicadosCount = 0;
     const grupoNome = pacote.grupo || 'Grupo Facebook';
+    const publicoPacote = pacote.publico || 'Consultor';
+
+    // Registra o público no histórico do painel para popular os filtros do Kanban
+    try {
+      const publicosSalvos = new Set(['Consultor', 'Cliente', 'Público Geral']);
+      const rawPub = localStorage.getItem('litrao_facebook_publicos');
+      if (rawPub) {
+        const parsed = JSON.parse(rawPub);
+        if (Array.isArray(parsed)) parsed.forEach(p => publicosSalvos.add(p));
+      }
+      if (publicoPacote) publicosSalvos.add(publicoPacote);
+      localStorage.setItem('litrao_facebook_publicos', JSON.stringify(Array.from(publicosSalvos)));
+    } catch(ePub) {}
 
     pacote.leads.forEach(l => {
       const nomeTrim = String(l.nome || '').trim();
@@ -277,9 +290,19 @@
 
       const nomeNorm = normalizarNomeParaComparacao(nomeTrim);
       const perfilNorm = extrairIdentificadorPerfilFb(l.perfilUrl);
+      const publicoFinal = l.publico || publicoPacote || 'Consultor';
 
       // Se já existir por nome OU por identificador de perfil em QUALQUER etapa do CRM, NÃO DUPLICA!
-      if (nomesExistentesSet.has(nomeNorm) || (perfilNorm && perfisExistentesSet.has(perfilNorm))) {
+      const leadExistente = leadsExistentes.find(exist => 
+        normalizarNomeParaComparacao(exist.nome) === nomeNorm || 
+        (perfilNorm && extrairIdentificadorPerfilFb(exist.perfilUrl) === perfilNorm)
+      );
+
+      if (leadExistente) {
+        // Se o lead existente ainda não tiver público, anexa o público agora
+        if (!leadExistente.publico || leadExistente.publico === 'Público Geral') {
+          leadExistente.publico = publicoFinal;
+        }
         duplicadosCount++;
         return;
       }
@@ -289,11 +312,12 @@
         nome: nomeTrim,
         perfilUrl: l.perfilUrl || `https://www.facebook.com/search/people/?q=${encodeURIComponent(nomeTrim)}`,
         grupoOrigem: l.grupoOrigem || grupoNome,
+        publico: publicoFinal,
         cargo: l.cargo || 'membro',
         status: 'pendente',
         origemTag: 'Facebook Grupos',
         dataAdicionado: new Date().toLocaleDateString('pt-BR'),
-        notas: `Extraído via Extensão ResetFIT (${grupoNome})`
+        notas: `Extraído via Extensão ResetFIT (${grupoNome}) • Público: ${publicoFinal}`
       };
 
       leadsExistentes.unshift(novoLead);
@@ -328,13 +352,13 @@
     } catch(e) {}
 
     if (novosCount > 0 || duplicadosCount > 0) {
-      exibirToastFacebookSincronizacao(novosCount, grupoNome, duplicadosCount);
+      exibirToastFacebookSincronizacao(novosCount, grupoNome, duplicadosCount, publicoPacote);
     }
 
-    return { sucesso: true, novos: novosCount, duplicados: duplicadosCount };
+    return { sucesso: true, novos: novosCount, duplicados: duplicadosCount, publico: publicoPacote };
   }
 
-  function exibirToastFacebookSincronizacao(novosCount, grupoNome, duplicadosCount) {
+  function exibirToastFacebookSincronizacao(novosCount, grupoNome, duplicadosCount, publicoPacote = 'Consultor') {
     try {
       let toast = document.getElementById('toast-resetfit-fb-bridge');
       if (!toast) {
@@ -353,7 +377,7 @@
         <div style="flex:1;">
           <h4 style="margin:0;font-size:13px;font-weight:800;color:#fff;">Facebook • Sincronização Concluída!</h4>
           <p style="margin:2px 0 0;font-size:11px;color:#DBEAFE;line-height:1.35;">
-            <b>${novosCount} novos contatos</b> do grupo <b>"${grupoNome}"</b> adicionados aos seus Leads do Facebook!${dupMsg}
+            <b>${novosCount} novos contatos</b> adicionados ao grupo <b>"${publicoPacote}"</b> no Kanban (origem: <i>${grupoNome}</i>)!${dupMsg}
           </p>
         </div>
       `;
