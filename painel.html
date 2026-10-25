@@ -2364,6 +2364,38 @@
                             </div>
                         </div>
 
+                        <!-- BARRA DE SELEÇÃO E AÇÕES EM MASSA (ESCOLHER TODOS OU QUANTOS QUISER) -->
+                        <div id="fb-barra-acoes-massa" class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-3 sm:p-3.5 rounded-2xl border border-blue-400/40 shadow-md flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <label class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl cursor-pointer transition select-none border border-white/15">
+                                    <input type="checkbox" id="fb-check-selecionar-todos" onchange="selecionarTodosLeadsFbFiltrados(this.checked)" class="w-4 h-4 rounded text-blue-500 focus:ring-blue-400 cursor-pointer accent-blue-600">
+                                    <span class="text-xs font-black" id="fb-label-selecionar-todos">Selecionar Todos (<span id="fb-cont-total-filtrados">0</span>)</span>
+                                </label>
+                                <span id="fb-badge-cont-selecionados" class="bg-blue-600/80 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-check text-xs"></i>
+                                    <span id="fb-txt-selecionados">0 selecionados</span>
+                                </span>
+                                <button type="button" id="btn-desmarcar-fb" onclick="desmarcarTodosLeadsFb()" class="text-xs text-blue-200 hover:text-white underline cursor-pointer hidden">
+                                    Desmarcar todos
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button" id="btn-massa-publico" onclick="mudarPublicoLeadsFbEmMassa()" disabled class="bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Mudar público ou cidade de todos os contatos selecionados">
+                                    <i class="fa-solid fa-tags"></i>
+                                    <span>Mudar Público</span>
+                                </button>
+                                <button type="button" id="btn-massa-status" onclick="mudarStatusLeadsFbEmMassa()" disabled class="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Mudar etapa / status de todos os contatos selecionados">
+                                    <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                                    <span>Mudar Etapa</span>
+                                </button>
+                                <button type="button" id="btn-massa-excluir" onclick="excluirLeadsFbEmMassa()" disabled class="bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Excluir contatos selecionados">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    <span>Excluir</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- QUADRO KANBAN DE PROSPECÇÃO FACEBOOK X1 -->
                         <div id="fb-kanban-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 items-start">
                             <!-- Coluna 1: A Contactar -->
@@ -26105,6 +26137,9 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             atualizarStatusLeadFacebook(leadId, novaEtapa);
         }
 
+        window.fbLeadsSelecionadosIds = window.fbLeadsSelecionadosIds || new Set();
+        window.fbLimiteExibicaoLista = window.fbLimiteExibicaoLista || 100;
+
         function renderizarTabelaLeadsFacebook() {
             const containerLista = document.getElementById('fb-container-leads-lista');
             const leads = obterLeadsFacebookStorage();
@@ -26179,6 +26214,47 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 return matchNome && matchStatus && matchPublico;
             });
 
+            // Atualiza barra de ações em massa
+            const elContTotalMassa = document.getElementById('fb-cont-total-filtrados');
+            const elTxtSel = document.getElementById('fb-txt-selecionados');
+            const elCheckTodos = document.getElementById('fb-check-selecionar-todos');
+            const btnDesmarcar = document.getElementById('btn-desmarcar-fb');
+            const btnMassaPub = document.getElementById('btn-massa-publico');
+            const btnMassaSt = document.getElementById('btn-massa-status');
+            const btnMassaExc = document.getElementById('btn-massa-excluir');
+
+            if (elContTotalMassa) elContTotalMassa.innerText = leadsFiltrados.length;
+            
+            const totalSelecionadosGeral = window.fbLeadsSelecionadosIds.size;
+            let totalFiltradosSelecionados = 0;
+            leadsFiltrados.forEach(l => {
+                if (window.fbLeadsSelecionadosIds.has(l.id)) totalFiltradosSelecionados++;
+            });
+
+            if (elTxtSel) {
+                elTxtSel.innerText = `${totalSelecionadosGeral} selecionado${totalSelecionadosGeral === 1 ? '' : 's'}`;
+            }
+
+            if (elCheckTodos) {
+                elCheckTodos.checked = leadsFiltrados.length > 0 && totalFiltradosSelecionados === leadsFiltrados.length;
+                elCheckTodos.indeterminate = totalFiltradosSelecionados > 0 && totalFiltradosSelecionados < leadsFiltrados.length;
+            }
+
+            if (btnDesmarcar) {
+                if (totalSelecionadosGeral > 0) btnDesmarcar.classList.remove('hidden');
+                else btnDesmarcar.classList.add('hidden');
+            }
+
+            [btnMassaPub, btnMassaSt, btnMassaExc].forEach(btn => {
+                if (btn) {
+                    if (totalSelecionadosGeral > 0) {
+                        btn.removeAttribute('disabled');
+                    } else {
+                        btn.setAttribute('disabled', 'true');
+                    }
+                }
+            });
+
             // 1. RENDERIZAÇÃO DO QUADRO KANBAN
             const colPendente = document.getElementById('fb-col-body-pendente');
             const colEnviado = document.getElementById('fb-col-body-enviado');
@@ -26238,6 +26314,7 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
                 const partesNome = (lead.nome || 'Consultor').trim().split(' ');
                 const iniciais = (partesNome[0][0] + (partesNome.length > 1 ? partesNome[partesNome.length - 1][0] : '')).toUpperCase();
+                const isSelecionado = window.fbLeadsSelecionadosIds.has(lead.id);
 
                 const btnVoltar = etapa !== 'pendente'
                     ? `<button type="button" onclick="event.stopPropagation(); moverLeadFacebookEtapaRelativa('${lead.id}', -1)" class="w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center justify-center transition cursor-pointer" title="Mover para etapa anterior"><i class="fa-solid fa-chevron-left text-[9px]"></i></button>`
@@ -26248,9 +26325,10 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     : '';
 
                 return `
-                    <div class="bg-white rounded-2xl p-3 border border-gray-200/90 hover:border-blue-500 shadow-2xs hover:shadow-md transition space-y-2 cursor-grab active:cursor-grabbing select-none group relative" draggable="true" ondragstart="fbKanbanDragStart(event, '${lead.id}')">
+                    <div class="bg-white rounded-2xl p-3 border ${isSelecionado ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/20' : 'border-gray-200/90 hover:border-blue-500'} shadow-2xs hover:shadow-md transition space-y-2 cursor-grab active:cursor-grabbing select-none group relative" draggable="true" ondragstart="fbKanbanDragStart(event, '${lead.id}')">
                         <div class="flex items-start justify-between gap-1.5">
                             <div class="flex items-center gap-2 min-w-0 flex-1">
+                                <input type="checkbox" ${isSelecionado ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleSelecaoLeadFb('${lead.id}', this.checked)" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600 shrink-0" title="Selecionar contato">
                                 <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-[11px] flex items-center justify-center flex-shrink-0 shadow-2xs">
                                     ${iniciais}
                                 </div>
@@ -26329,7 +26407,9 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     return;
                 }
 
-                const htmlCards = leadsFiltrados.map((lead) => {
+                const leadsExibidosLista = leadsFiltrados.slice(0, window.fbLimiteExibicaoLista || 100);
+
+                const htmlCards = leadsExibidosLista.map((lead) => {
                     const isAdmin = (lead.cargo === 'admin' || (lead.cargo || '').toLowerCase().includes('admin'));
                     const cargoBadge = isAdmin
                         ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1">👑 Administrador(a)</span>`
@@ -26364,10 +26444,14 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     const publicoBadge = `<span onclick="event.stopPropagation(); alterarPublicoLeadFacebookPrompt('${lead.id}')" title="Público / Grupo: ${pubLead}. Clique para alterar." class="${badgePublicoCor} border text-[9px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1 cursor-pointer hover:opacity-80 transition"><i class="fa-solid ${iconePublico} text-[8px]"></i> ${pubLead}</span>`;
 
                     const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
+                    const isSelecionado = window.fbLeadsSelecionadosIds.has(lead.id);
 
                     return `
-                        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-gray-200 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="bg-white rounded-2xl p-3.5 sm:p-4 border ${isSelecionado ? 'border-blue-500 bg-blue-50/25 ring-2 ring-blue-500/20' : 'border-gray-200'} shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-start sm:items-center gap-3">
+                                <div class="flex items-center shrink-0 pr-0.5">
+                                    <input type="checkbox" ${isSelecionado ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleSelecaoLeadFb('${lead.id}', this.checked)" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600" title="Selecionar contato">
+                                </div>
                                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0 shadow-xs">
                                     ${primeiroNome.substring(0, 2).toUpperCase()}
                                 </div>
@@ -26419,7 +26503,198 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     `;
                 }).join('');
 
-                containerLista.innerHTML = htmlCards;
+                let htmlPaginacao = '';
+                if (leadsFiltrados.length > leadsExibidosLista.length) {
+                    htmlPaginacao = `
+                        <div class="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-4 border border-blue-200 text-center space-y-2.5">
+                            <p class="text-xs text-gray-600 font-bold">
+                                Exibindo <span class="text-blue-600 font-black">${leadsExibidosLista.length}</span> de <span class="text-slate-900 font-black">${leadsFiltrados.length}</span> contatos
+                            </p>
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <button type="button" onclick="fbCarregarMaisLeadsLista(100)" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer shadow-xs">
+                                    + 100 Contatos
+                                </button>
+                                <button type="button" onclick="fbCarregarMaisLeadsLista(500)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer shadow-xs">
+                                    + 500 Contatos
+                                </button>
+                                <button type="button" onclick="fbCarregarMaisLeadsLista(999999)" class="bg-white hover:bg-gray-100 text-gray-800 font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer border border-gray-300">
+                                    Carregar Todos (${leadsFiltrados.length})
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                containerLista.innerHTML = htmlCards + htmlPaginacao;
+            }
+        }
+
+        function fbCarregarMaisLeadsLista(qtd) {
+            window.fbLimiteExibicaoLista = (window.fbLimiteExibicaoLista || 100) + qtd;
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function toggleSelecaoLeadFb(leadId, checked) {
+            if (!window.fbLeadsSelecionadosIds) window.fbLeadsSelecionadosIds = new Set();
+            if (checked) {
+                window.fbLeadsSelecionadosIds.add(leadId);
+            } else {
+                window.fbLeadsSelecionadosIds.delete(leadId);
+            }
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function selecionarTodosLeadsFbFiltrados(checked) {
+            if (!window.fbLeadsSelecionadosIds) window.fbLeadsSelecionadosIds = new Set();
+            const leads = obterLeadsFacebookStorage();
+            const termoBusca = (document.getElementById('fb-busca-lead')?.value || '').toLowerCase().trim();
+            const filtroStatus = (document.getElementById('fb-filtro-status')?.value || 'todos').toLowerCase();
+            const filtroPublico = (document.getElementById('fb-filtro-publico')?.value || 'todos').toLowerCase().trim();
+
+            const leadsFiltrados = leads.filter(l => {
+                const pubLead = (l.publico || 'Consultor').trim();
+                const matchNome = (l.nome || '').toLowerCase().includes(termoBusca) ||
+                                  (l.grupoOrigem || '').toLowerCase().includes(termoBusca) ||
+                                  (l.cargo || '').toLowerCase().includes(termoBusca) ||
+                                  pubLead.toLowerCase().includes(termoBusca);
+                const matchStatus = filtroStatus === 'todos' || (l.status || 'pendente') === filtroStatus;
+                const matchPublico = filtroPublico === 'todos' || pubLead.toLowerCase() === filtroPublico;
+                return matchNome && matchStatus && matchPublico;
+            });
+
+            if (checked) {
+                leadsFiltrados.forEach(l => window.fbLeadsSelecionadosIds.add(l.id));
+            } else {
+                leadsFiltrados.forEach(l => window.fbLeadsSelecionadosIds.delete(l.id));
+            }
+
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function desmarcarTodosLeadsFb() {
+            if (window.fbLeadsSelecionadosIds) {
+                window.fbLeadsSelecionadosIds.clear();
+            }
+            renderizarTabelaLeadsFacebook();
+        }
+
+        function mudarPublicoLeadsFbEmMassa() {
+            const selecionadosIds = Array.from(window.fbLeadsSelecionadosIds || []);
+            if (selecionadosIds.length === 0) {
+                alert('Selecione pelo menos um contato para mudar o público.');
+                return;
+            }
+
+            const publicos = obterPublicosFacebookStorage();
+            const listaPubsTexto = publicos.map((p, idx) => `[${idx + 1}] ${p}`).join('\n');
+            const msg = `🎯 MUDAR PÚBLICO EM MASSA\n\nVocê tem ${selecionadosIds.length} contato(s) selecionado(s).\n\nPúblicos salvos:\n${listaPubsTexto}\n\n👉 Digite o NÚMERO da opção desejada OU digite um NOVO PÚBLICO/CIDADE (ex: "Cuiabá", "VIP", "Cliente", "Barra do Garças"):`;
+            const resposta = prompt(msg, publicos[0] || 'Consultor');
+            if (!resposta) return;
+
+            let novoPublico = resposta.trim();
+            const num = parseInt(novoPublico, 10);
+            if (!isNaN(num) && num >= 1 && num <= publicos.length) {
+                novoPublico = publicos[num - 1];
+            }
+            if (!novoPublico) return;
+
+            const leads = obterLeadsFacebookStorage();
+            let alterados = 0;
+            leads.forEach(l => {
+                if (window.fbLeadsSelecionadosIds.has(l.id)) {
+                    l.publico = novoPublico;
+                    alterados++;
+                }
+            });
+
+            salvarLeadsFacebookStorage(leads);
+
+            if (!publicos.some(p => p.toLowerCase() === novoPublico.toLowerCase())) {
+                publicos.push(novoPublico);
+                salvarPublicosFacebookStorage(publicos);
+            }
+
+            window.fbLeadsSelecionadosIds.clear();
+            renderizarTabelaLeadsFacebook();
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`🎯 ${alterados} contatos movidos para o público "${novoPublico}"!`, 'sucesso');
+            } else {
+                alert(`Sucesso! ${alterados} contatos movidos para "${novoPublico}".`);
+            }
+        }
+
+        function mudarStatusLeadsFbEmMassa() {
+            const selecionadosIds = Array.from(window.fbLeadsSelecionadosIds || []);
+            if (selecionadosIds.length === 0) {
+                alert('Selecione pelo menos um contato para mudar de etapa.');
+                return;
+            }
+
+            const msg = `🔄 MUDAR ETAPA/STATUS EM MASSA\n\nVocê tem ${selecionadosIds.length} contato(s) selecionado(s).\n\nEscolha para qual etapa deseja mover:\n[1] ⏳ A Contactar (Pendente)\n[2] ✉️ Mensagem Enviada\n[3] 💬 Em Conversa\n[4] 🎉 Instalou Plataforma\n\n👉 Digite o NÚMERO da etapa (1 a 4):`;
+            const resposta = prompt(msg, '2');
+            if (!resposta) return;
+
+            const mapaEtapas = {
+                '1': 'pendente',
+                '2': 'enviado',
+                '3': 'conversa',
+                '4': 'instalou'
+            };
+            const novaEtapa = mapaEtapas[resposta.trim()];
+            if (!novaEtapa) {
+                alert('Opção inválida! Digite 1, 2, 3 ou 4.');
+                return;
+            }
+
+            const leads = obterLeadsFacebookStorage();
+            let alterados = 0;
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+            leads.forEach(l => {
+                if (window.fbLeadsSelecionadosIds.has(l.id)) {
+                    l.status = novaEtapa;
+                    if (novaEtapa === 'enviado' && !l.dataEnviado) {
+                        l.dataEnviado = dataHoje;
+                    }
+                    alterados++;
+                }
+            });
+
+            salvarLeadsFacebookStorage(leads);
+            window.fbLeadsSelecionadosIds.clear();
+            renderizarTabelaLeadsFacebook();
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`🔄 ${alterados} contatos movidos para a nova etapa!`, 'sucesso');
+            } else {
+                alert(`Sucesso! ${alterados} contatos atualizados.`);
+            }
+        }
+
+        function excluirLeadsFbEmMassa() {
+            const selecionadosIds = Array.from(window.fbLeadsSelecionadosIds || []);
+            if (selecionadosIds.length === 0) {
+                alert('Selecione pelo menos um contato para excluir.');
+                return;
+            }
+
+            if (!confirm(`⚠️ ATENÇÃO: Deseja realmente remover os ${selecionadosIds.length} contatos selecionados?`)) {
+                return;
+            }
+
+            let leads = obterLeadsFacebookStorage();
+            const totalAntes = leads.length;
+            leads = leads.filter(l => !window.fbLeadsSelecionadosIds.has(l.id));
+            const removidos = totalAntes - leads.length;
+
+            salvarLeadsFacebookStorage(leads);
+            window.fbLeadsSelecionadosIds.clear();
+            renderizarTabelaLeadsFacebook();
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`🗑️ ${removidos} contatos removidos com sucesso!`, 'sucesso');
+            } else {
+                alert(`${removidos} contatos removidos.`);
             }
         }
 
@@ -27623,6 +27898,13 @@ Um abraço e ótimas vendas aí no seu Espaço!`
         window.abrirModalGerenciarPublicosKanban = abrirModalGerenciarPublicosKanban;
         window.obterPublicosFacebookStorage = obterPublicosFacebookStorage;
         window.salvarPublicosFacebookStorage = salvarPublicosFacebookStorage;
+        window.toggleSelecaoLeadFb = toggleSelecaoLeadFb;
+        window.selecionarTodosLeadsFbFiltrados = selecionarTodosLeadsFbFiltrados;
+        window.desmarcarTodosLeadsFb = desmarcarTodosLeadsFb;
+        window.mudarPublicoLeadsFbEmMassa = mudarPublicoLeadsFbEmMassa;
+        window.mudarStatusLeadsFbEmMassa = mudarStatusLeadsFbEmMassa;
+        window.excluirLeadsFbEmMassa = excluirLeadsFbEmMassa;
+        window.fbCarregarMaisLeadsLista = fbCarregarMaisLeadsLista;
         window.copiarScriptExtratorFacebook = copiarScriptExtratorFacebook;
         window.processarTextoImportadoFacebook = processarTextoImportadoFacebook;
         window.abrirMessengerLeadFacebook = abrirMessengerLeadFacebook;
