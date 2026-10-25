@@ -1337,6 +1337,17 @@
             if (typeof atualizarDdiWhatsApp === 'function') {
                 atualizarDdiWhatsApp();
             }
+
+            // Le parametro de cupom da URL (?cupom=XYZ) e preenche automaticamente
+            const urlParams = new URLSearchParams(window.location.search);
+            const cupomUrl = urlParams.get('cupom');
+            if (cupomUrl) {
+                const inCupom = document.getElementById('cupom');
+                if (inCupom) {
+                    inCupom.value = cupomUrl.toUpperCase().trim();
+                    inCupom.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+                }
+            }
         });
     </script>
 </body>
