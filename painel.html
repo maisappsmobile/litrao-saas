@@ -381,6 +381,225 @@
 
 
         <!-- ========================================================================= -->
+        <!-- CENTRAL MESTRE DE CONFIGURAÇÕES & ATALHOS RÁPIDOS (EXCLUSIVO SUPERADMIN)   -->
+        <!-- ========================================================================= -->
+        <div id="central-configuracoes-superadmin-topo" class="hidden mb-6 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-2xl border-2 border-purple-500/60 relative overflow-hidden">
+            <!-- Glow decorativo -->
+            <div class="absolute -top-24 -right-24 w-80 h-80 bg-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-amber-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <!-- Cabeçalho da Central -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-purple-800/60 mb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black text-[10px] uppercase px-3 py-0.5 rounded-full mb-1.5 shadow-sm">
+                            <i class="fa-solid fa-crown"></i> SuperAdmin Master • ID 433005811
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
+                            <i class="fa-solid fa-sliders text-amber-400"></i> Central Mestre de Configurações
+                        </h2>
+                        <p class="text-xs sm:text-sm text-purple-200 mt-1">
+                            Acesse e configure qualquer recurso da plataforma em 1 clique, sem precisar procurar em outros menus.
+                        </p>
+                    </div>
+
+                    <!-- Campo de Busca em Tempo Real -->
+                    <div class="w-full lg:w-80">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-purple-300 text-xs"></i>
+                            <input type="text" id="busca-configuracoes-atalhos" oninput="filtrarAtalhosConfiguracoesSuperadmin(this.value)" placeholder="🔍 O que deseja configurar agora? (ex: planos, preços, consultores, cupom)..." class="w-full pl-9 pr-3.5 py-2.5 bg-slate-950/80 border border-purple-400/50 rounded-2xl text-xs sm:text-sm text-white placeholder-purple-300/70 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-slate-950 shadow-inner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade de Cards de Configuração Rápidas (10 Atalhos Principais) -->
+                <div id="grid-atalhos-configuracoes-superadmin" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5 text-left">
+                    
+                    <!-- 1. Planos & Preços -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-purple-400/50 hover:border-amber-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalConfiguracaoPlanosSuperadmin()" data-keywords="planos precos virgula adesao anuidade mensalidade ciclo tempo fitcoin">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-amber-300 transition">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-amber-300 transition leading-snug">
+                                Planos & Preços
+                            </h4>
+                            <p class="text-[11px] text-purple-200/80 mt-1 leading-snug">
+                                Criar planos, mudar taxas com vírgula automática e periodicidade anual.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 mt-3 pt-2 border-t border-purple-800/40 uppercase">
+                            <span>Abrir Editor</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 2. Página de Vendas Oficial -->
+                    <a href="planos.html" target="_blank" class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-amber-400/60 hover:border-amber-300 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between group" data-keywords="pagina vendas planos checkout pix landing page dores">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-crown"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-amber-300 transition leading-snug">
+                                Página de Vendas
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Página oficial pública com as dores resolvidas e checkout direto Pix.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-400 mt-3 pt-2 border-t border-slate-800 uppercase">
+                            <span>Ver Página</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </span>
+                    </a>
+
+                    <!-- 3. Lista de Consultores -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-emerald-500/50 hover:border-emerald-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirGestaoConsultoresDireto()" data-keywords="consultores lista cadastro modulos status liberar senhas">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-emerald-200 transition">
+                                <i class="fa-solid fa-users-gear"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-emerald-300 transition leading-snug">
+                                Gestão de Consultores
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Ver todos os consultores cadastrados em cards ou tabela e liberar acessos.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-400 mt-3 pt-2 border-t border-emerald-900/40 uppercase">
+                            <span>Ver Consultores</span> <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 4. Preços dos Litrões & Kits -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-blue-500/50 hover:border-blue-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalConfigPrecosKits()" data-keywords="precos kits litroes 1l 2l tabela valores pacotes">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-blue-200 transition">
+                                <i class="fa-solid fa-tags"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-blue-300 transition leading-snug">
+                                Preços dos Kits & Litrões
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Definir preços de venda do Litrão 1L, 2L e pacotes de 5, 10 e 15 dias.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-blue-400 mt-3 pt-2 border-t border-blue-900/40 uppercase">
+                            <span>Ajustar Preços</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 5. Cupons de Desconto -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-yellow-500/50 hover:border-yellow-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalSuperadminCupons()" data-keywords="cupons desconto promocao porcentagem 15% off novos">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-yellow-200 transition">
+                                <i class="fa-solid fa-ticket"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-yellow-300 transition leading-snug">
+                                Cupons de Desconto
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Criar cupons promocionais (15% OFF) para novos consultores ativarem.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-yellow-400 mt-3 pt-2 border-t border-yellow-900/40 uppercase">
+                            <span>Gerenciar Cupons</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 6. Taxas de Entrega -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-teal-500/50 hover:border-teal-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalConfigTaxasEntrega()" data-keywords="taxas entrega delivery frete motoboy bairros gratis">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-teal-200 transition">
+                                <i class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-teal-300 transition leading-snug">
+                                Taxas de Entrega
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Configurar entrega grátis, taxa fixa ou taxas específicas por bairro.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-teal-400 mt-3 pt-2 border-t border-teal-900/40 uppercase">
+                            <span>Configurar Taxas</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 7. Módulo Financeiro EVS -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-emerald-600/50 hover:border-emerald-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModuloFinanceiroEVS()" data-keywords="financeiro doses custo fiados lucro herbalife desconto">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-600/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-emerald-200 transition">
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-emerald-300 transition leading-snug">
+                                Financeiro & Doses EVS
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Custo exato de cada dose, controle de clientes fiados e lucro real.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-400 mt-3 pt-2 border-t border-emerald-900/40 uppercase">
+                            <span>Abrir Financeiro</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 8. Extrator Facebook Grupos -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-blue-600/50 hover:border-blue-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalExtratorFacebookSuperadmin()" data-keywords="extrator facebook grupos prospeccao leads contatos disparador">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-300 border border-blue-600/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-blue-200 transition">
+                                <i class="fa-brands fa-facebook"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-blue-300 transition leading-snug">
+                                Extrator Facebook
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Extração de contatos em grupos e mensagens automáticas para prospecção.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-blue-400 mt-3 pt-2 border-t border-blue-900/40 uppercase">
+                            <span>Abrir Extrator</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 9. Directs X1 & Scripts -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-indigo-500/50 hover:border-indigo-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalDirectsProspeccao()" data-keywords="directs scripts mensagens modelos abordagem prospecção whatsapp instagram">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-indigo-200 transition">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-indigo-300 transition leading-snug">
+                                Directs & Scripts X1
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Scripts validados de abordagem no Instagram e WhatsApp para novos consultores.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-indigo-400 mt-3 pt-2 border-t border-indigo-900/40 uppercase">
+                            <span>Ver Scripts</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 10. Materiais de Apoio & Flyers com Preço -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-rose-500/50 hover:border-rose-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirSecaoMateriaisApoioDireto()" data-keywords="materiais flyers imagens preco whatsapp fotos divulgacao apoio">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-rose-200 transition">
+                                <i class="fa-solid fa-images"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-rose-300 transition leading-snug">
+                                Materiais & Flyers
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Flyers automáticos com seus preços e gerador do número do WhatsApp na imagem.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-rose-400 mt-3 pt-2 border-t border-rose-900/40 uppercase">
+                            <span>Ver Materiais</span> <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
         <!-- CARD BIOIMPEDÂNCIA ON-LINE (PRINT 1 - ACIMA DOS MÓDULOS DE GESTÃO)          -->
         <!-- ========================================================================= -->
         <div id="card-bioimpedancia-topo" class="w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/90 relative overflow-hidden group mb-6 hover:shadow-md hover:border-blue-300 transition-all">
@@ -11268,7 +11487,16 @@
         function verificarSuperAdmin() {
             const cardContainer = document.getElementById('card-superadmin-container');
             const btnModalSuperAdmin = document.getElementById('btn-configurar-planos-superadmin');
+            const centralTopo = document.getElementById('central-configuracoes-superadmin-topo');
             const isSA = isSuperAdminLogado();
+
+            if (centralTopo) {
+                if (isSA) {
+                    centralTopo.classList.remove('hidden');
+                } else {
+                    centralTopo.classList.add('hidden');
+                }
+            }
 
             if (cardContainer) {
                 if (isSA) {
@@ -11303,6 +11531,51 @@
                 console.warn("Aviso ao inicializar configurações de planos:", e);
             }
         }
+
+        function filtrarAtalhosConfiguracoesSuperadmin(termo) {
+            const t = (termo || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.card-atalho-cfg');
+            cards.forEach(card => {
+                const kw = (card.getAttribute('data-keywords') || '').toLowerCase();
+                const txt = card.innerText.toLowerCase();
+                if (!t || kw.includes(t) || txt.includes(t)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+        window.filtrarAtalhosConfiguracoesSuperadmin = filtrarAtalhosConfiguracoesSuperadmin;
+
+        function abrirGestaoConsultoresDireto() {
+            const secao = document.getElementById('secao-superadmin-conteudo');
+            const container = document.getElementById('card-superadmin-container');
+            if (container && container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+            }
+            if (secao && secao.classList.contains('hidden')) {
+                toggleSecaoSuperadmin();
+            } else if (secao) {
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        window.abrirGestaoConsultoresDireto = abrirGestaoConsultoresDireto;
+
+        function abrirSecaoMateriaisApoioDireto() {
+            const cont = document.getElementById('conteudo-materiais-apoio');
+            const label = document.getElementById('label-toggle-materiais');
+            const icone = document.getElementById('icone-toggle-materiais');
+            if (cont && cont.classList.contains('hidden')) {
+                cont.classList.remove('hidden');
+                if (label) label.innerText = 'Minimizar';
+                if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
+                try { preencherCamposFlyer(); preencherCamposPerfil(); sincronizarPrecosKitsEmTodaPlataforma(null, false); } catch(e) {}
+            }
+            if (cont) {
+                cont.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        window.abrirSecaoMateriaisApoioDireto = abrirSecaoMateriaisApoioDireto;
 
         function toggleSecaoSuperadmin() {
             const secao = document.getElementById('secao-superadmin-conteudo');
