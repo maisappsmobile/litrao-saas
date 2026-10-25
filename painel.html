@@ -1743,6 +1743,123 @@
                     </div>
                 </div>
 
+                <!-- ================================================================= -->
+                <!-- SEÇÃO: CRIAR PROMOÇÃO COM CUPOM (NOME, PERÍODO, VALOR OU PORCENTAGEM) -->
+                <!-- ================================================================= -->
+                <div class="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-yellow-50/90 p-4 sm:p-5 rounded-2xl border-2 border-amber-300 shadow-xs mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg shadow-xs shrink-0">
+                                <i class="fa-solid fa-ticket"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                                        Criar Promoção com Cupom para Clientes
+                                    </h4>
+                                    <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.2 rounded-full uppercase shadow-2xs">
+                                        Novo
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-0.5">
+                                    Crie cupons promocionais para seus clientes comprarem os pacotes com desconto na sua Landing Page e Catálogo.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Ativar Promoção -->
+                        <div class="flex items-center gap-2.5 shrink-0 bg-white/80 border border-amber-300/80 px-3 py-1.5 rounded-xl shadow-2xs">
+                            <span class="text-xs font-black text-slate-800" id="label-toggle-promo-kits">Ativar Promoção:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="cfg-promo-ativa" onchange="alternarCamposPromocaoKits(); atualizarPreviewPrecosKits();" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Campos da Promoção (Expansível ao ativar ou configurar) -->
+                    <div id="container-campos-promo-kits" class="hidden pt-3 border-t border-amber-200/90 space-y-3.5">
+                        
+                        <!-- Linha 1: Nome da Promoção e Código do Cupom -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[11px] font-black text-slate-800 uppercase tracking-wide mb-1">
+                                    Nome da Promoção / Campanha *
+                                </label>
+                                <input type="text" id="cfg-promo-nome" oninput="atualizarPreviewPrecosKits()" placeholder="Ex: Festival Detox de Verão, Semana Reset VIP" class="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-black text-slate-800 uppercase tracking-wide mb-1">
+                                    Código do Cupom *
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-xs text-amber-600 font-black"><i class="fa-solid fa-tag"></i></span>
+                                    <input type="text" id="cfg-promo-cupom" oninput="this.value = this.value.toUpperCase(); atualizarPreviewPrecosKits();" placeholder="Ex: RESET10, VERAO5, VIP15" class="w-full pl-8 pr-3 py-2.5 bg-white border border-amber-300 rounded-xl text-xs font-black text-slate-900 uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Linha 2: Período (Início e Término) e Desconto (Tipo e Valor) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <!-- Data Início -->
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">
+                                    <i class="fa-regular fa-calendar text-amber-600 mr-1"></i> Data de Início
+                                </label>
+                                <input type="date" id="cfg-promo-inicio" onchange="atualizarPreviewPrecosKits()" class="w-full p-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                            </div>
+
+                            <!-- Data Término (Validade) -->
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">
+                                    <i class="fa-solid fa-calendar-check text-amber-600 mr-1"></i> Data Término (Validade) *
+                                </label>
+                                <input type="date" id="cfg-promo-fim" onchange="atualizarPreviewPrecosKits()" class="w-full p-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                            </div>
+
+                            <!-- Tipo de Desconto (% ou R$) -->
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">
+                                    <i class="fa-solid fa-calculator text-amber-600 mr-1"></i> Tipo de Desconto *
+                                </label>
+                                <select id="cfg-promo-tipo" onchange="alternarPrefixoValorPromo(); atualizarPreviewPrecosKits();" class="w-full p-2 bg-white border border-amber-300 rounded-xl text-xs font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                                    <option value="porcentagem">Porcentagem (%)</option>
+                                    <option value="valor_fixo">Valor em Dinheiro (R$)</option>
+                                </select>
+                            </div>
+
+                            <!-- Valor do Desconto -->
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">
+                                    <i class="fa-solid fa-percent text-amber-600 mr-1"></i> Valor do Desconto *
+                                </label>
+                                <div class="relative">
+                                    <span id="prefixo-valor-promo" class="absolute left-3 top-2 text-xs font-black text-amber-700">%</span>
+                                    <input type="text" id="cfg-promo-valor" oninput="atualizarPreviewPrecosKits();" placeholder="10" class="w-full pl-8 pr-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Linha 3: Onde se Aplica e Aviso -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-amber-200/70">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] font-black text-slate-700 whitespace-nowrap">Pacotes Participantes:</span>
+                                <select id="cfg-promo-aplica-em" onchange="atualizarPreviewPrecosKits()" class="p-1.5 bg-white border border-amber-300 rounded-xl text-xs font-black text-slate-800 focus:outline-none shadow-2xs">
+                                    <option value="todos">Todos os 3 Pacotes</option>
+                                    <option value="reset_plus_turbo">Apenas RESET + e RESET TURBO</option>
+                                    <option value="reset_turbo">Apenas RESET TURBO</option>
+                                </select>
+                            </div>
+                            <div class="inline-flex items-center gap-1.5 text-[11px] text-amber-950 font-bold bg-amber-200/60 px-3 py-1 rounded-xl border border-amber-300">
+                                <i class="fa-solid fa-bullhorn text-amber-700"></i>
+                                <span>Gera banner e badge com o cupom na Landing Page e no Catálogo!</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <!-- Preview em Tempo Real dos 3 Cards (Idêntico ao Print 1 / Print 2) -->
                 <div class="mb-6">
                     <div class="flex items-center justify-between mb-2.5">
@@ -4843,22 +4960,66 @@
                     Você tem liberdade total para criar qualquer cupom promocional com o percentual, quantidade de usos e condições que desejar.
                 </p>
                 <form id="form-superadmin-cupom" onsubmit="salvarCupomSuperadmin(event)" class="space-y-3.5">
+                    <!-- Nome da Promoção / Campanha -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Nome da Promoção / Campanha *</label>
+                        <input type="text" id="sa-cupom-nome" placeholder="Ex: Black Friday dos Consultores, Semana VIP" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-bold text-sm text-gray-900 focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                    </div>
+
+                    <!-- Código do Cupom e Tipo de Desconto -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Código do Cupom *</label>
                             <input type="text" id="sa-cupom-codigo" required placeholder="Ex: PROMO20, VIP50" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-mono font-black text-sm uppercase focus:ring-2 focus:ring-purple-600 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Desconto na Adesão (%) *</label>
-                            <input type="number" id="sa-cupom-desconto" min="1" max="100" required value="15" placeholder="Ex: 15, 20, 50, 100" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-bold text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Tipo de Desconto *</label>
+                            <select id="sa-cupom-tipo-desconto" onchange="alternarPrefixoCupomSuperadmin()" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                                <option value="porcentagem">Porcentagem (%)</option>
+                                <option value="valor_fixo">Valor em Dinheiro (R$)</option>
+                            </select>
                         </div>
                     </div>
+
+                    <!-- Valor do Desconto e Planos Aplicáveis -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Valor do Desconto *</label>
+                            <div class="relative">
+                                <span id="sa-prefixo-cupom-desconto" class="absolute left-3 top-2.5 text-xs font-black text-gray-500">%</span>
+                                <input type="number" step="0.01" min="1" id="sa-cupom-desconto" required value="15" placeholder="15" class="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl font-bold text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Planos Onde se Aplica</label>
+                            <select id="sa-cupom-planos" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                                <option value="todos">Todos os Planos</option>
+                                <option value="anual">Apenas Planos Anuais</option>
+                                <option value="mensal">Apenas Planos Mensais</option>
+                                <option value="vitalicio">Apenas Vitalício</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Período: Início e Fim da Promoção -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Data Início da Promoção</label>
+                            <input type="date" id="sa-cupom-inicio" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Data Término (Validade)</label>
+                            <input type="date" id="sa-cupom-fim" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold text-gray-800 focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Limite de Utilizações e Carência -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Limite de Utilizações</label>
                             <select id="sa-cupom-limite" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-600 focus:outline-none">
-                                <option value="1">1 Uso Único (Esgota após usar)</option>
                                 <option value="ilimitado">Ilimitado (Vários consultores)</option>
+                                <option value="1">1 Uso Único (Esgota após usar)</option>
                             </select>
                         </div>
                         <div>
@@ -4871,7 +5032,7 @@
                         O cupom gerado poderá ser utilizado na tela de contratação de planos pelos consultores e também na tela oficial de cadastro.
                     </div>
                     <button type="submit" id="btn-sa-criar-cupom" class="w-full bg-slate-900 hover:bg-black text-amber-300 font-black py-3.5 px-4 rounded-xl shadow-xl transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer">
-                        <i class="fa-solid fa-plus-circle text-base"></i> ATIVAR E GRAVAR CUPOM NO SISTEMA
+                        <i class="fa-solid fa-plus-circle text-base"></i> ATIVAR E GRAVAR PROMOÇÃO NO SISTEMA
                     </button>
                     <div id="sa-cupom-feedback" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
                 </form>
@@ -13077,19 +13238,39 @@
         }
         window.fecharModalSuperadminCupons = fecharModalSuperadminCupons;
 
+        function alternarPrefixoCupomSuperadmin() {
+            const tipo = document.getElementById('sa-cupom-tipo-desconto')?.value || 'porcentagem';
+            const pref = document.getElementById('sa-prefixo-cupom-desconto');
+            const inDesc = document.getElementById('sa-cupom-desconto');
+            if (pref) pref.innerText = tipo === 'valor_fixo' ? 'R$' : '%';
+            if (inDesc && tipo === 'valor_fixo' && inDesc.value === '15') inDesc.value = '50';
+            else if (inDesc && tipo === 'porcentagem' && inDesc.value === '50') inDesc.value = '15';
+        }
+        window.alternarPrefixoCupomSuperadmin = alternarPrefixoCupomSuperadmin;
+
         async function salvarCupomSuperadmin(e) {
             if (e && e.preventDefault) e.preventDefault();
             const btn = document.getElementById('btn-sa-criar-cupom');
             const feed = document.getElementById('sa-cupom-feedback');
+            const inNome = document.getElementById('sa-cupom-nome');
             const inCod = document.getElementById('sa-cupom-codigo');
+            const inTipo = document.getElementById('sa-cupom-tipo-desconto');
             const inDesc = document.getElementById('sa-cupom-desconto');
+            const inPlanos = document.getElementById('sa-cupom-planos');
+            const inInicio = document.getElementById('sa-cupom-inicio');
+            const inFim = document.getElementById('sa-cupom-fim');
             const inLim = document.getElementById('sa-cupom-limite');
             const inCar = document.getElementById('sa-cupom-carencia');
 
             if (!inCod || !inDesc) return;
             const codigo = inCod.value.trim().toUpperCase();
-            const desconto = parseInt(inDesc.value, 10) || 15;
-            const limite = inLim ? inLim.value : '1';
+            const nomePromo = (inNome?.value || '').trim() || 'Promoção de Adesão';
+            const tipoDesconto = inTipo?.value || 'porcentagem';
+            const desconto = parseFloat(inDesc.value) || 15;
+            const planos = inPlanos?.value || 'todos';
+            const dataInicio = inInicio?.value || '';
+            const dataFim = inFim?.value || '';
+            const limite = inLim ? inLim.value : 'ilimitado';
             const carencia = inCar ? (parseInt(inCar.value, 10) || 0) : 0;
 
             if (!codigo) {
@@ -13098,12 +13279,17 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Gravando no Sistema...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Gravando Promoção...`;
 
             try {
                 const cupomObj = {
                     codigo: codigo,
+                    nome: nomePromo,
+                    tipoDesconto: tipoDesconto,
                     desconto: desconto,
+                    planos: planos,
+                    dataInicio: dataInicio,
+                    dataFim: dataFim,
                     limite: limite,
                     carenciaDias: carencia,
                     criador: 'SUPERADMIN',
@@ -13129,16 +13315,20 @@
                     consultorAtual.nome_espaco = novoEspaco;
                 }
 
+                const descFormatado = tipoDesconto === 'valor_fixo' ? `R$ ${desconto.toFixed(2)} OFF` : `${desconto}% OFF`;
+                const validadeTxt = dataFim ? ` • Validade: até ${dataFim.split('-').reverse().join('/')}` : '';
+
                 if (feed) {
                     feed.className = "p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border-2 border-emerald-400 block animate-fade-in";
                     feed.innerHTML = `
                         <div class="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-800">
-                            <i class="fa-solid fa-circle-check text-emerald-600"></i> CUPOM "${codigo}" CRIADO COM ${desconto}% OFF!
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> PROMOÇÃO "${nomePromo}" (CUPOM ${codigo}) ATIVADA COM ${descFormatado}!
                         </div>
-                        <p class="mt-1 text-emerald-950 font-semibold text-[11px]">Válido para adesão de planos e novos cadastros.</p>
+                        <p class="mt-1 text-emerald-950 font-semibold text-[11px]">Válido para adesão de planos (${planos})${validadeTxt}.</p>
                     `;
                 }
 
+                if (inNome) inNome.value = '';
                 inCod.value = `PROMO${Math.floor(1000 + Math.random() * 9000)}`;
                 await carregarListaCuponsAtivos();
 
@@ -13175,6 +13365,7 @@
                 // Inclui sempre o cupom nativo MEUPRESIDENTE
                 cuponsEncontrados.push({
                     codigo: 'MEUPRESIDENTE',
+                    nome: 'Promoção Presidente',
                     desconto: 'Mensalidade R$ 20 + 60 Dias Carência',
                     limite: '1 uso único',
                     criador: 'SISTEMA'
@@ -13202,11 +13393,17 @@
                 cuponsEncontrados.forEach(cup => {
                     const div = document.createElement('div');
                     div.className = "flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs hover:border-purple-300 transition";
-                    const descTxt = typeof cup.desconto === 'number' ? `${cup.desconto}% OFF` : cup.desconto;
+                    let descTxt = cup.desconto;
+                    if (typeof cup.desconto === 'number') {
+                        descTxt = cup.tipoDesconto === 'valor_fixo' ? `R$ ${cup.desconto.toFixed(2)} OFF` : `${cup.desconto}% OFF`;
+                    }
+                    const nomeTxt = cup.nome ? `<strong class="text-gray-900">${cup.nome}</strong> • ` : '';
+                    const periodoTxt = cup.dataFim ? ` • Validade: até ${cup.dataFim.split('-').reverse().join('/')}` : '';
+
                     div.innerHTML = `
                         <div>
                             <span class="font-mono font-black text-purple-900 block text-xs">${cup.codigo}</span>
-                            <span class="text-[10px] text-gray-500">${descTxt} • Limite: ${cup.limite || '1'} • Criado por: ${cup.criador || '---'}</span>
+                            <span class="text-[10px] text-gray-600">${nomeTxt}<span class="font-bold text-emerald-700">${descTxt}</span>${periodoTxt}</span>
                         </div>
                         <button onclick="navigator.clipboard.writeText('${cup.codigo}'); alert('Código ${cup.codigo} copiado!');" class="bg-purple-100 hover:bg-purple-200 text-purple-900 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer">
                             <i class="fa-regular fa-copy mr-1"></i> Copiar
@@ -18578,7 +18775,73 @@
 
         /* ==========================================================================
            GESTÃO DEDICADA DA TABELA DE PREÇOS DOS PACOTES (KITS DA REGIÃO)
+           E CRIAÇÃO DE PROMOÇÕES COM CUPOM (NOME, PERÍODO, VALOR OU PORCENTAGEM)
            ========================================================================== */
+        function alternarCamposPromocaoKits() {
+            const chk = document.getElementById('cfg-promo-ativa');
+            const container = document.getElementById('container-campos-promo-kits');
+            const label = document.getElementById('label-toggle-promo-kits');
+            const inCupom = document.getElementById('cfg-promo-cupom');
+            const inFim = document.getElementById('cfg-promo-fim');
+            const inValor = document.getElementById('cfg-promo-valor');
+
+            if (!chk || !container) return;
+
+            if (chk.checked) {
+                container.classList.remove('hidden');
+                if (label) {
+                    label.innerText = 'Promoção Ativada:';
+                    label.className = 'text-xs font-black text-emerald-700';
+                }
+                // Sugestões automáticas se vazios
+                if (inCupom && !inCupom.value) inCupom.value = 'PROMO10';
+                if (inValor && !inValor.value) inValor.value = '10';
+                if (inFim && !inFim.value) {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 7);
+                    inFim.value = d.toISOString().split('T')[0];
+                }
+            } else {
+                container.classList.add('hidden');
+                if (label) {
+                    label.innerText = 'Ativar Promoção:';
+                    label.className = 'text-xs font-black text-slate-800';
+                }
+            }
+        }
+        window.alternarCamposPromocaoKits = alternarCamposPromocaoKits;
+
+        function alternarPrefixoValorPromo() {
+            const tipo = document.getElementById('cfg-promo-tipo')?.value || 'porcentagem';
+            const prefixo = document.getElementById('prefixo-valor-promo');
+            if (prefixo) {
+                prefixo.innerText = tipo === 'valor_fixo' ? 'R$' : '%';
+            }
+        }
+        window.alternarPrefixoValorPromo = alternarPrefixoValorPromo;
+
+        function calcularValorComDescontoPromo(valOriginalStr, promo) {
+            if (!valOriginalStr) return null;
+            const limpo = valOriginalStr.toString().replace(/\./g, '').replace(',', '.');
+            const num = parseFloat(limpo);
+            if (isNaN(num) || num <= 0) return null;
+
+            if (!promo || !promo.ativa || !promo.desconto || promo.desconto <= 0) return null;
+
+            let valFinal = num;
+            if (promo.tipo === 'valor_fixo') {
+                valFinal = Math.max(1, num - promo.desconto);
+            } else {
+                valFinal = Math.max(1, num * (1 - (promo.desconto / 100)));
+            }
+            return {
+                originalNum: num,
+                originalFormatado: (num).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                finalNum: valFinal,
+                finalFormatado: (valFinal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            };
+        }
+
         function abrirModalConfigPrecosKits() {
             const modal = document.getElementById('modal-config-precos-kits');
             if (!modal) return;
@@ -18594,6 +18857,15 @@
                 } catch(_) {}
             }
 
+            // Carrega Promoção de Kits se houver
+            let promoObj = {};
+            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--PROMO_KITS:')) {
+                try {
+                    const mPromo = consultorAtual.nome_espaco.match(/<!--PROMO_KITS:([\s\S]*?)-->/);
+                    if (mPromo && mPromo[1]) promoObj = JSON.parse(mPromo[1]) || {};
+                } catch(_) {}
+            }
+
             const inReset = document.getElementById('cfg-preco-reset');
             const inPlus = document.getElementById('cfg-preco-plus');
             const inTurbo = document.getElementById('cfg-preco-turbo');
@@ -18601,6 +18873,27 @@
             if (inReset) inReset.value = formatarValorInicialMoeda(precosObj.reset || '');
             if (inPlus) inPlus.value = formatarValorInicialMoeda(precosObj.reset_plus || '');
             if (inTurbo) inTurbo.value = formatarValorInicialMoeda(precosObj.reset_turbo || '');
+
+            const chkPromo = document.getElementById('cfg-promo-ativa');
+            const inPromoNome = document.getElementById('cfg-promo-nome');
+            const inPromoCupom = document.getElementById('cfg-promo-cupom');
+            const inPromoInicio = document.getElementById('cfg-promo-inicio');
+            const inPromoFim = document.getElementById('cfg-promo-fim');
+            const inPromoTipo = document.getElementById('cfg-promo-tipo');
+            const inPromoValor = document.getElementById('cfg-promo-valor');
+            const inPromoAplica = document.getElementById('cfg-promo-aplica-em');
+
+            if (chkPromo) chkPromo.checked = !!promoObj.ativa;
+            if (inPromoNome) inPromoNome.value = promoObj.nome || '';
+            if (inPromoCupom) inPromoCupom.value = promoObj.cupom || '';
+            if (inPromoInicio) inPromoInicio.value = promoObj.dataInicio || '';
+            if (inPromoFim) inPromoFim.value = promoObj.dataFim || '';
+            if (inPromoTipo) inPromoTipo.value = promoObj.tipoDesconto || 'porcentagem';
+            if (inPromoValor) inPromoValor.value = promoObj.valorDesconto || '';
+            if (inPromoAplica) inPromoAplica.value = promoObj.aplicaEm || 'todos';
+
+            alternarCamposPromocaoKits();
+            alternarPrefixoValorPromo();
 
             if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
             atualizarPreviewPrecosKits();
@@ -18622,9 +18915,54 @@
             const prevPlus = document.getElementById('preview-pill-plus');
             const prevTurbo = document.getElementById('preview-pill-turbo');
 
-            if (prevReset) prevReset.innerText = inReset || '--,--';
-            if (prevPlus) prevPlus.innerText = inPlus || '--,--';
-            if (prevTurbo) prevTurbo.innerText = inTurbo || '--,--';
+            const isPromoAtiva = document.getElementById('cfg-promo-ativa')?.checked || false;
+            const cupom = (document.getElementById('cfg-promo-cupom')?.value || '').trim().toUpperCase();
+            const tipo = document.getElementById('cfg-promo-tipo')?.value || 'porcentagem';
+            const valRaw = (document.getElementById('cfg-promo-valor')?.value || '').replace(',', '.');
+            const desc = parseFloat(valRaw) || 0;
+            const aplicaEm = document.getElementById('cfg-promo-aplica-em')?.value || 'todos';
+
+            const promoObj = {
+                ativa: isPromoAtiva && desc > 0 && cupom.length > 0,
+                tipo: tipo,
+                desconto: desc,
+                cupom: cupom,
+                aplicaEm: aplicaEm
+            };
+
+            const renderPill = (el, valStr, pacoteKey) => {
+                if (!el) return;
+                const aplicaNeste = promoObj.ativa && (
+                    promoObj.aplicaEm === 'todos' ||
+                    (promoObj.aplicaEm === 'reset_plus_turbo' && (pacoteKey === 'plus' || pacoteKey === 'turbo')) ||
+                    (promoObj.aplicaEm === 'reset_turbo' && pacoteKey === 'turbo')
+                );
+
+                if (aplicaNeste) {
+                    const calc = calcularValorComDescontoPromo(valStr, promoObj);
+                    if (calc) {
+                        const tagDesc = promoObj.tipo === 'valor_fixo' ? `R$ ${promoObj.desconto.toFixed(2)} OFF` : `${promoObj.desconto}% OFF`;
+                        el.innerHTML = `
+                            <div class="flex flex-col items-center leading-none">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="text-[11px] text-white/70 line-through">R$ ${calc.originalFormatado}</span>
+                                    <span class="bg-amber-400 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded uppercase">🎟️ ${promoObj.cupom} (-${tagDesc})</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-xs font-black">R$</span>
+                                    <span class="text-2xl sm:text-3xl font-black tracking-tight text-white">${calc.finalFormatado}</span>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                }
+                el.innerText = valStr || '--,--';
+            };
+
+            renderPill(prevReset, inReset, 'reset');
+            renderPill(prevPlus, inPlus, 'plus');
+            renderPill(prevTurbo, inTurbo, 'turbo');
         }
         window.atualizarPreviewPrecosKits = atualizarPreviewPrecosKits;
 
@@ -18643,11 +18981,49 @@
             if (valPlus) precosObj.reset_plus = valPlus;
             if (valTurbo) precosObj.reset_turbo = valTurbo;
 
+            // Monta dados da Promoção com Cupom
+            const isPromoAtiva = document.getElementById('cfg-promo-ativa')?.checked || false;
+            let promoObj = null;
+            if (isPromoAtiva) {
+                const pNome = (document.getElementById('cfg-promo-nome')?.value || '').trim();
+                const pCupom = (document.getElementById('cfg-promo-cupom')?.value || '').trim().toUpperCase();
+                const pInicio = (document.getElementById('cfg-promo-inicio')?.value || '').trim();
+                const pFim = (document.getElementById('cfg-promo-fim')?.value || '').trim();
+                const pTipo = document.getElementById('cfg-promo-tipo')?.value || 'porcentagem';
+                const pValorRaw = (document.getElementById('cfg-promo-valor')?.value || '').replace(',', '.');
+                const pValor = parseFloat(pValorRaw) || 0;
+                const pAplica = document.getElementById('cfg-promo-aplica-em')?.value || 'todos';
+
+                if (!pCupom) {
+                    alert("Informe o código do cupom da promoção (ex: RESET10)!");
+                    return;
+                }
+                if (pValor <= 0) {
+                    alert("Informe o valor do desconto da promoção!");
+                    return;
+                }
+
+                promoObj = {
+                    ativa: true,
+                    nome: pNome || 'Promoção Especial de Pacotes',
+                    cupom: pCupom,
+                    dataInicio: pInicio,
+                    dataFim: pFim,
+                    tipoDesconto: pTipo,
+                    valorDesconto: pValor,
+                    aplicaEm: pAplica
+                };
+            }
+
             let rawEspaco = consultorAtual.nome_espaco || '';
             rawEspaco = rawEspaco.replace(/<!--PRECOS_KITS:[\s\S]*?-->/g, '').trim();
+            rawEspaco = rawEspaco.replace(/<!--PROMO_KITS:[\s\S]*?-->/g, '').trim();
 
             if (Object.keys(precosObj).length > 0) {
                 rawEspaco += ` <!--PRECOS_KITS:${JSON.stringify(precosObj)}-->`;
+            }
+            if (promoObj) {
+                rawEspaco += ` <!--PROMO_KITS:${JSON.stringify(promoObj)}-->`;
             }
 
             const btn = document.getElementById('btn-salvar-cfg-precos');
@@ -18679,11 +19055,12 @@
                     sincronizarPrecosKitsEmTodaPlataforma(novosPrecos, false);
                 } catch(e) {}
 
-                alert("✅ Preços dos pacotes salvos com sucesso! A seção de pacotes da sua landing page agora está ativa com os valores da sua região.");
+                const msgPromo = promoObj ? ` e a promoção com o cupom "${promoObj.cupom}" foi ativada com sucesso!` : '!';
+                alert(`✅ Preços dos pacotes salvos${msgPromo} A seção de pacotes da sua landing page agora está atualizada.`);
                 fecharModalConfigPrecosKits();
             } catch(err) {
-                console.error("Erro ao salvar preços:", err);
-                alert("❌ Erro ao salvar preços no servidor. Tente novamente.");
+                console.error("Erro ao salvar preços e promoção:", err);
+                alert("❌ Erro ao salvar dados no servidor. Tente novamente.");
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -18695,10 +19072,11 @@
 
         async function limparPrecosKitsModal() {
             if (!consultorAtual || !consultorAtual.id) return;
-            if (!confirm("Deseja realmente remover os preços? Ao fazer isso, a seção de pacotes ficará OCULTA na sua Landing Page.")) return;
+            if (!confirm("Deseja realmente remover os preços e a promoção? Ao fazer isso, a seção de pacotes ficará OCULTA na sua Landing Page.")) return;
 
             let rawEspaco = consultorAtual.nome_espaco || '';
             rawEspaco = rawEspaco.replace(/<!--PRECOS_KITS:[\s\S]*?-->/g, '').trim();
+            rawEspaco = rawEspaco.replace(/<!--PROMO_KITS:[\s\S]*?-->/g, '').trim();
 
             try {
                 const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
@@ -18722,14 +19100,20 @@
                 if (inReset) inReset.value = '';
                 if (inPlus) inPlus.value = '';
                 if (inTurbo) inTurbo.value = '';
+
+                const chkPromo = document.getElementById('cfg-promo-ativa');
+                if (chkPromo) chkPromo.checked = false;
+                alternarCamposPromocaoKits();
+
                 atualizarPreviewPrecosKits();
-                alert("ℹ️ Preços removidos com sucesso. A seção de pacotes da Landing Page agora está oculta.");
+                alert("ℹ️ Preços e promoção removidos com sucesso. A seção de pacotes da Landing Page agora está oculta.");
                 fecharModalConfigPrecosKits();
             } catch(err) {
                 console.error("Erro ao limpar preços:", err);
                 alert("❌ Erro ao salvar alteração. Tente novamente.");
             }
         }
+        window.limparPrecosKitsModal = limparPrecosKitsModal;
         window.limparPrecosKitsModal = limparPrecosKitsModal;
 
         /* ==========================================================================

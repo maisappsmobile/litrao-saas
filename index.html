@@ -344,6 +344,37 @@
                 </p>
             </div>
 
+            <!-- BANNER DINÂMICO DE PROMOÇÃO COM CUPOM (ATIVADO PELO CONSULTOR) -->
+            <div id="banner-promocao-kits" class="hidden mb-8 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-slate-950 p-4 sm:p-5 rounded-3xl shadow-xl border-2 border-amber-300 relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-xl shrink-0 shadow-md">
+                            <i class="fa-solid fa-tags"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-slate-950 text-amber-300 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                                🔥 Campanha Promocional Ativa
+                            </span>
+                            <h3 id="banner-promo-nome" class="text-base sm:text-lg font-black text-slate-950 leading-tight">
+                                Promoção Especial de Pacotes
+                            </h3>
+                            <p id="banner-promo-desc" class="text-xs font-bold text-slate-900 mt-0.5">
+                                Use o cupom para garantir seu desconto exclusivo!
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 bg-slate-950 text-white px-4 py-2.5 rounded-2xl shadow-lg border border-amber-400">
+                        <div class="text-right">
+                            <span class="block text-[9px] font-bold text-amber-300 uppercase">Cupom de Desconto:</span>
+                            <span id="banner-promo-cupom" class="text-sm sm:text-base font-black tracking-wider font-mono text-white">RESET10</span>
+                        </div>
+                        <button type="button" onclick="copiarCupomPromoKits(this)" class="bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl ml-1 transition cursor-pointer flex items-center gap-1 shadow-sm" title="Copiar Cupom">
+                            <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- GRID DOS 3 PRODUTOS (ESTILO EXATO DA FOTO DO CLIENTE) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto items-stretch">
                 
@@ -891,11 +922,40 @@
                     <textarea id="carrinho-cliente-obs" rows="2" placeholder="Ex: Preferência sabor uva, preparar para retirada às 14h..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 resize-none"></textarea>
                 </div>
 
+                <!-- Bloco de Cupom Promocional no Carrinho -->
+                <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-3.5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                            <i class="fa-solid fa-ticket text-amber-600"></i> Cupom Promocional
+                        </span>
+                        <span id="carrinho-promo-badge-aviso" class="hidden text-[10px] bg-amber-200 text-amber-950 font-black px-2 py-0.5 rounded-full uppercase">
+                            Promoção Ativa
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-2.5 text-xs text-amber-600 font-bold"><i class="fa-solid fa-tag"></i></span>
+                            <input type="text" id="carrinho-input-cupom" placeholder="Digite seu cupom aqui" class="w-full pl-8 pr-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-black uppercase text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                        </div>
+                        <button type="button" id="btn-aplicar-cupom-carrinho" onclick="aplicarCupomCarrinho()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-black text-xs px-4 py-2 rounded-xl transition cursor-pointer shadow-xs flex items-center gap-1">
+                            <i class="fa-solid fa-check"></i> <span>Aplicar</span>
+                        </button>
+                    </div>
+                    <div id="carrinho-cupom-feedback" class="hidden text-[11px] font-bold"></div>
+                </div>
+
                 <!-- Resumo Total -->
                 <div class="bg-gray-100 rounded-2xl p-3.5 space-y-1.5">
                     <div class="flex items-center justify-between text-xs text-gray-600 font-semibold">
                         <span>Subtotal (Itens):</span>
                         <span id="carrinho-subtotal-itens" class="font-bold text-gray-900">R$ 49,90</span>
+                    </div>
+                    <div id="carrinho-linha-desconto-cupom" class="hidden flex items-center justify-between text-xs text-emerald-800 font-bold pb-1.5 border-b border-gray-200">
+                        <span class="flex items-center gap-1" id="carrinho-label-desconto-cupom"><i class="fa-solid fa-ticket text-amber-500"></i> Desconto Cupom:</span>
+                        <div class="flex items-center gap-2">
+                            <span id="carrinho-valor-desconto-cupom" class="font-black text-emerald-700">- R$ 0,00</span>
+                            <button type="button" onclick="removerCupomCarrinho()" class="text-rose-500 hover:text-rose-700 font-bold text-[10px] underline cursor-pointer">Remover</button>
+                        </div>
                     </div>
                     <div id="carrinho-linha-taxa-entrega" class="hidden flex items-center justify-between text-xs text-emerald-900 font-semibold pb-1.5 border-b border-gray-200">
                         <span class="flex items-center gap-1"><i class="fa-solid fa-motorcycle text-emerald-600"></i> Taxa de Entrega:</span>
@@ -1462,6 +1522,65 @@
                     reset_turbo: precoTurboNum
                 };
 
+                // =========================================================================
+                // PARSER DA PROMOÇÃO DE KITS COM CUPOM (CRIADA PELO CONSULTOR NO PAINEL)
+                // =========================================================================
+                let promoKits = null;
+                if (consultor && consultor.nome_espaco && consultor.nome_espaco.includes('<!--PROMO_KITS:')) {
+                    try {
+                        const matchPromo = consultor.nome_espaco.match(/<!--PROMO_KITS:(.*?)-->/);
+                        if (matchPromo && matchPromo[1]) {
+                            promoKits = JSON.parse(matchPromo[1]);
+                        }
+                    } catch(ePromo) {
+                        console.error("Erro ao fazer parse da promoção dos kits:", ePromo);
+                    }
+                }
+
+                const hojeStr = new Date().toISOString().split('T')[0];
+                let promoValida = false;
+                if (promoKits && promoKits.ativa && promoKits.cupom) {
+                    promoValida = true;
+                    if (promoKits.dataInicio && hojeStr < promoKits.dataInicio) promoValida = false;
+                    if (promoKits.dataFim && hojeStr > promoKits.dataFim) promoValida = false;
+                }
+
+                const bannerPromo = document.getElementById('banner-promocao-kits');
+                const badgeAvisoPromo = document.getElementById('carrinho-promo-badge-aviso');
+
+                if (promoValida) {
+                    window.promoKitsAtiva = promoKits;
+                    if (bannerPromo) {
+                        bannerPromo.classList.remove('hidden');
+                        const elNome = document.getElementById('banner-promo-nome');
+                        const elDesc = document.getElementById('banner-promo-desc');
+                        const elCupom = document.getElementById('banner-promo-cupom');
+
+                        if (elNome) elNome.innerText = promoKits.nome || 'Promoção Especial de Pacotes';
+                        
+                        const descTxt = (promoKits.tipoDesconto === 'valor_fixo')
+                            ? `R$ ${parseFloat(promoKits.valorDesconto || 0).toFixed(2).replace('.', ',')} de desconto`
+                            : `${promoKits.valorDesconto}% de desconto`;
+
+                        let aplicaTxt = 'em todos os pacotes';
+                        if (promoKits.aplicaEm === 'reset_plus_turbo') aplicaTxt = 'nos pacotes RESET + e RESET TURBO';
+                        else if (promoKits.aplicaEm === 'turbo') aplicaTxt = 'no pacote RESET TURBO';
+
+                        if (elDesc) elDesc.innerText = `Aproveite ${descTxt} ${aplicaTxt} usando o cupom abaixo no seu carrinho!`;
+                        if (elCupom) elCupom.innerText = promoKits.cupom;
+                    }
+                    if (badgeAvisoPromo) badgeAvisoPromo.classList.remove('hidden');
+
+                    const inCupomCart = document.getElementById('carrinho-input-cupom');
+                    if (inCupomCart && !inCupomCart.value) {
+                        inCupomCart.value = promoKits.cupom;
+                    }
+                } else {
+                    window.promoKitsAtiva = null;
+                    if (bannerPromo) bannerPromo.classList.add('hidden');
+                    if (badgeAvisoPromo) badgeAvisoPromo.classList.add('hidden');
+                }
+
                 // Se todos os pacotes estiverem sem valor ou 0,00, oculta a seção inteira
                 const algumKitAtivo = (precoResetNum > 0 || precoPlusNum > 0 || precoTurboNum > 0);
                 if (!algumKitAtivo) {
@@ -1752,6 +1871,118 @@
             }
         }
         window.copiarChavePix = copiarChavePix;
+
+        /* ==========================================================================
+           GESTÃO DE CUPOM DE DESCONTO NO CARRINHO
+           ========================================================================== */
+        window.promoKitsAtiva = null;
+
+        function copiarCupomPromoKits(btnElement) {
+            const promo = window.promoKitsAtiva;
+            const cupom = promo ? promo.cupom : 'RESET10';
+            navigator.clipboard.writeText(cupom).then(() => {
+                if (btnElement) {
+                    const htmlAntigo = btnElement.innerHTML;
+                    btnElement.innerHTML = `<i class="fa-solid fa-check text-slate-950"></i> Copiado!`;
+                    setTimeout(() => {
+                        btnElement.innerHTML = htmlAntigo;
+                    }, 2000);
+                }
+                const inCupomCart = document.getElementById('carrinho-input-cupom');
+                if (inCupomCart) inCupomCart.value = cupom;
+            }).catch(() => {
+                prompt("Copie o cupom promocional abaixo:", cupom);
+            });
+        }
+        window.copiarCupomPromoKits = copiarCupomPromoKits;
+
+        function verificarCupomElegivelParaItem(aplicaEm, itemNome) {
+            if (!aplicaEm || aplicaEm === 'todos') return true;
+            const it = (itemNome || '').toUpperCase();
+            if (aplicaEm === 'reset_plus_turbo') {
+                return it.includes('PLUS') || it.includes('+') || it.includes('TURBO');
+            }
+            if (aplicaEm === 'turbo') {
+                return it.includes('TURBO');
+            }
+            return true;
+        }
+        window.verificarCupomElegivelParaItem = verificarCupomElegivelParaItem;
+
+        function aplicarCupomCarrinho(codigoManual) {
+            const inCupom = document.getElementById('carrinho-input-cupom');
+            const feedback = document.getElementById('carrinho-cupom-feedback');
+            const codigo = (codigoManual || (inCupom ? inCupom.value : '')).toUpperCase().trim();
+
+            if (!codigo) {
+                if (feedback) {
+                    feedback.className = 'text-[11px] font-bold text-rose-600 block mt-1';
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Digite um código de cupom!';
+                }
+                return;
+            }
+
+            const promo = window.promoKitsAtiva;
+            if (promo && promo.ativa && promo.cupom && promo.cupom.toUpperCase() === codigo) {
+                const hojeStr = new Date().toISOString().split('T')[0];
+                if (promo.dataInicio && hojeStr < promo.dataInicio) {
+                    if (feedback) {
+                        feedback.className = 'text-[11px] font-bold text-amber-700 block mt-1';
+                        feedback.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Este cupom só é válido a partir de ${promo.dataInicio.split('-').reverse().join('/')}!`;
+                    }
+                    return;
+                }
+                if (promo.dataFim && hojeStr > promo.dataFim) {
+                    if (feedback) {
+                        feedback.className = 'text-[11px] font-bold text-rose-600 block mt-1';
+                        feedback.innerHTML = `<i class="fa-solid fa-calendar-xmark mr-1"></i> Este cupom expirou em ${promo.dataFim.split('-').reverse().join('/')}!`;
+                    }
+                    return;
+                }
+
+                const elegivel = verificarCupomElegivelParaItem(promo.aplicaEm, carrinhoAtual.item);
+                if (!elegivel) {
+                    let msgPacotes = (promo.aplicaEm === 'turbo') ? 'RESET TURBO' : 'RESET + ou RESET TURBO';
+                    if (feedback) {
+                        feedback.className = 'text-[11px] font-bold text-amber-700 block mt-1';
+                        feedback.innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> O cupom "${codigo}" é exclusivo para o(s) pacote(s) ${msgPacotes}. Troque de pacote acima para aproveitar!`;
+                    }
+                    carrinhoAtual.cupomAplicado = promo;
+                    atualizarDisplayCarrinho();
+                    return;
+                }
+
+                carrinhoAtual.cupomAplicado = promo;
+                const descTxt = (promo.tipoDesconto === 'valor_fixo')
+                    ? `R$ ${parseFloat(promo.valorDesconto || 0).toFixed(2).replace('.', ',')} OFF`
+                    : `${promo.valorDesconto}% OFF`;
+
+                if (feedback) {
+                    feedback.className = 'text-[11px] font-bold text-emerald-700 block mt-1';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Cupom "${codigo}" aplicado com sucesso (${descTxt})!`;
+                }
+                atualizarDisplayCarrinho();
+            } else {
+                if (feedback) {
+                    feedback.className = 'text-[11px] font-bold text-rose-600 block mt-1';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Cupom "${codigo}" não encontrado ou expirado!`;
+                }
+            }
+        }
+        window.aplicarCupomCarrinho = aplicarCupomCarrinho;
+
+        function removerCupomCarrinho() {
+            carrinhoAtual.cupomAplicado = null;
+            const inCupom = document.getElementById('carrinho-input-cupom');
+            const feedback = document.getElementById('carrinho-cupom-feedback');
+            if (inCupom) inCupom.value = '';
+            if (feedback) {
+                feedback.className = 'hidden';
+                feedback.innerHTML = '';
+            }
+            atualizarDisplayCarrinho();
+        }
+        window.removerCupomCarrinho = removerCupomCarrinho;
 
         /* ==========================================================================
            GESTÃO DE PACOTES, DDI E HISTÓRICO DE CLIENTES (2ª COMPRA AUTOCOMPLETA)
@@ -2123,6 +2354,45 @@
             const subtotalEl = document.getElementById('carrinho-subtotal-itens');
             if (subtotalEl) subtotalEl.innerText = subtotalFormatado;
 
+            // Cálculo do Desconto do Cupom Promocional
+            let valorDescontoCupomNum = 0;
+            const linhaDesconto = document.getElementById('carrinho-linha-desconto-cupom');
+            const valorDescontoEl = document.getElementById('carrinho-valor-desconto-cupom');
+            const labelDescontoEl = document.getElementById('carrinho-label-desconto-cupom');
+            const feedCupom = document.getElementById('carrinho-cupom-feedback');
+
+            if (carrinhoAtual.cupomAplicado) {
+                const promo = carrinhoAtual.cupomAplicado;
+                const elegivel = verificarCupomElegivelParaItem(promo.aplicaEm, carrinhoAtual.item);
+                if (elegivel) {
+                    if (promo.tipoDesconto === 'valor_fixo') {
+                        valorDescontoCupomNum = parseFloat(promo.valorDesconto) || 0;
+                    } else {
+                        const perc = parseFloat(promo.valorDesconto) || 0;
+                        valorDescontoCupomNum = (subtotal * perc) / 100;
+                    }
+                    valorDescontoCupomNum = Math.min(valorDescontoCupomNum, subtotal);
+
+                    if (linhaDesconto) linhaDesconto.classList.remove('hidden');
+                    if (valorDescontoEl) valorDescontoEl.innerText = `- R$ ${valorDescontoCupomNum.toFixed(2).replace('.', ',')}`;
+                    if (labelDescontoEl) {
+                        const descTxt = (promo.tipoDesconto === 'valor_fixo')
+                            ? `R$ ${parseFloat(promo.valorDesconto || 0).toFixed(2).replace('.', ',')} OFF`
+                            : `${promo.valorDesconto}% OFF`;
+                        labelDescontoEl.innerHTML = `<i class="fa-solid fa-ticket text-amber-500"></i> Desconto Cupom (${promo.cupom} - ${descTxt}):`;
+                    }
+                } else {
+                    let msgPacotes = (promo.aplicaEm === 'turbo') ? 'RESET TURBO' : 'RESET + ou RESET TURBO';
+                    if (feedCupom) {
+                        feedCupom.className = 'text-[11px] font-bold text-amber-700 block mt-1';
+                        feedCupom.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> O cupom "${promo.cupom}" não se aplica ao pacote ${carrinhoAtual.item}. Válido para ${msgPacotes}.`;
+                    }
+                    if (linhaDesconto) linhaDesconto.classList.add('hidden');
+                }
+            } else {
+                if (linhaDesconto) linhaDesconto.classList.add('hidden');
+            }
+
             const taxaInfo = calcularTaxaEntregaCarrinho();
             const linhaTaxa = document.getElementById('carrinho-linha-taxa-entrega');
             const valorTaxaEl = document.getElementById('carrinho-valor-taxa-entrega');
@@ -2130,7 +2400,7 @@
             const selectMod = document.getElementById('carrinho-modalidade');
             const isEntrega = (selectMod && selectMod.value === 'ENTREGA');
 
-            let valorTotalGeral = subtotal;
+            let valorTotalGeral = Math.max(0, subtotal - valorDescontoCupomNum);
 
             if (isEntrega) {
                 if (linhaTaxa) linhaTaxa.classList.remove('hidden');
@@ -2313,9 +2583,32 @@
             const subtotalFormatado = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
             const unitarioFormatado = `R$ ${carrinhoAtual.preco.toFixed(2).replace('.', ',')}`;
 
+            // Cálculo do Desconto do Cupom para o Pedido
+            let valorDescontoCupomNum = 0;
+            let cupomRegistrado = null;
+            if (carrinhoAtual.cupomAplicado) {
+                const promo = carrinhoAtual.cupomAplicado;
+                if (verificarCupomElegivelParaItem(promo.aplicaEm, carrinhoAtual.item)) {
+                    if (promo.tipoDesconto === 'valor_fixo') {
+                        valorDescontoCupomNum = parseFloat(promo.valorDesconto) || 0;
+                    } else {
+                        const perc = parseFloat(promo.valorDesconto) || 0;
+                        valorDescontoCupomNum = (subtotal * perc) / 100;
+                    }
+                    valorDescontoCupomNum = Math.min(valorDescontoCupomNum, subtotal);
+                    cupomRegistrado = {
+                        codigo: promo.cupom,
+                        nome: promo.nome || 'Promoção',
+                        tipoDesconto: promo.tipoDesconto,
+                        valorDesconto: promo.valorDesconto,
+                        descontoReais: valorDescontoCupomNum
+                    };
+                }
+            }
+
             const taxaInfo = calcularTaxaEntregaCarrinho();
             const valorTaxaNum = (modalidade === 'ENTREGA') ? taxaInfo.valor : 0;
-            const totalGeral = subtotal + valorTaxaNum;
+            const totalGeral = Math.max(0, subtotal - valorDescontoCupomNum) + valorTaxaNum;
             const totalFormatado = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
 
             // Número com DDI do cliente
@@ -2339,6 +2632,8 @@
                 quantidade: carrinhoAtual.qtd,
                 valor_unitario: unitarioFormatado,
                 subtotal: subtotalFormatado,
+                cupom: cupomRegistrado ? cupomRegistrado.codigo : null,
+                desconto_cupom: cupomRegistrado ? `- R$ ${valorDescontoCupomNum.toFixed(2).replace('.', ',')}` : null,
                 taxa_entrega: (modalidade === 'ENTREGA') ? taxaInfo.texto : null,
                 bairro: (modalidade === 'ENTREGA' && taxaInfo.bairro) ? taxaInfo.bairro : null,
                 valor_total: totalFormatado,
@@ -2356,9 +2651,11 @@
                 linhaEntregaObs += `• Taxa de Entrega: ${taxaInfo.texto}\n`;
             }
 
+            let linhaCupomObs = cupomRegistrado ? `• Cupom Aplicado: ${cupomRegistrado.codigo} (- R$ ${valorDescontoCupomNum.toFixed(2).replace('.', ',')})\n` : '';
             const obsCompleta = `🛍️ NOVO PEDIDO DO LITRÃO DO RESET:\n` +
                                 `• Produto: ${carrinhoAtual.item} (${carrinhoAtual.qtd}x Kit com 5 Garrafas - ${unitarioFormatado})\n` +
                                 `• Subtotal: ${subtotalFormatado}\n` +
+                                linhaCupomObs +
                                 linhaEntregaObs +
                                 `• Total Final: ${totalFormatado}\n` +
                                 `• Pagamento: ${formaPagamento}\n` +
@@ -2421,6 +2718,7 @@
                              `🥤 *Pacote:* ${carrinhoAtual.item} (${carrinhoAtual.sub})\n` +
                              `🔢 *Quantidade:* ${carrinhoAtual.qtd} ${unidadeTexto}\n` +
                              `💵 *Subtotal:* ${subtotalFormatado}\n` +
+                             (cupomRegistrado ? `🎟️ *Cupom de Desconto:* ${cupomRegistrado.codigo} (- R$ ${valorDescontoCupomNum.toFixed(2).replace('.', ',')})\n` : '') +
                              (modalidade === 'ENTREGA' ? `🛵 *Taxa de Entrega:* ${taxaInfo.texto}${taxaInfo.bairro ? ' (' + taxaInfo.bairro + ')' : ''}\n` : '') +
                              `💰 *Valor Total:* ${totalFormatado}\n\n` +
                              `👤 *Cliente:* ${nomeCliente}\n` +

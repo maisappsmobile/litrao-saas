@@ -824,6 +824,15 @@
                                 try {
                                     const obj = JSON.parse(m[1]);
                                     if (obj && obj.codigo === cupom) {
+                                        const hojeStr = new Date().toISOString().split('T')[0];
+                                        if (obj.dataInicio && hojeStr < obj.dataInicio) {
+                                            alert("O cupom " + obj.codigo + " só é válido a partir de " + obj.dataInicio.split('-').reverse().join('/') + "!");
+                                            break;
+                                        }
+                                        if (obj.dataFim && hojeStr > obj.dataFim) {
+                                            alert("O cupom " + obj.codigo + " expirou em " + obj.dataFim.split('-').reverse().join('/') + "!");
+                                            break;
+                                        }
                                         cupomPorcentagemObj = obj;
                                         break;
                                     }
@@ -929,9 +938,17 @@
                         </div>
                     `;
                 } else if (cupomPorcentagemObj) {
-                    const descPerc = parseInt(cupomPorcentagemObj.desconto, 10) || 15;
                     const valorOriginal = 199.00;
-                    const descontoReais = (valorOriginal * descPerc) / 100;
+                    let descontoReais = 0;
+                    let descBadgeTxt = '';
+                    if (cupomPorcentagemObj.tipoDesconto === 'valor_fixo') {
+                        descontoReais = parseFloat(cupomPorcentagemObj.desconto) || 0;
+                        descBadgeTxt = 'R$ ' + descontoReais.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' OFF';
+                    } else {
+                        const descPerc = parseFloat(cupomPorcentagemObj.desconto) || 15;
+                        descontoReais = (valorOriginal * descPerc) / 100;
+                        descBadgeTxt = descPerc + '% OFF';
+                    }
                     const valorComDesconto = Math.max(1, valorOriginal - descontoReais);
                     
                     pixPayloadAtivo = gerarPixPayloadDinamico(valorComDesconto, `RESET${Math.round(valorComDesconto)}`);
@@ -939,10 +956,10 @@
                     document.getElementById('msg-sucesso').innerHTML = `
                         <div class="bg-emerald-50 border-2 border-emerald-400 p-4 rounded-2xl mb-4 text-left shadow-xs">
                             <span class="text-emerald-800 font-black text-base flex items-center">
-                                <i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-lg"></i> CUPOM "${cupomPorcentagemObj.codigo}" APLICADO (${descPerc}% OFF)!
+                                <i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-lg"></i> CUPOM "${cupomPorcentagemObj.codigo}" APLICADO (${descBadgeTxt})!
                             </span>
                             <p class="text-emerald-950 font-bold text-xs mt-1.5 leading-relaxed">
-                                Parabéns! Você ativou <strong>${descPerc}% de desconto</strong> na taxa promocional: de <del class="text-red-500 font-bold">R$ 199,00</del> por apenas <strong>R$ ${valorComDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>!
+                                Parabéns! Você ativou <strong>desconto de ${descBadgeTxt}</strong> na taxa promocional: de <del class="text-red-500 font-bold">R$ 199,00</del> por apenas <strong>R$ ${valorComDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>!
                             </p>
                             ${cupomPorcentagemObj.carenciaDias > 0 ? `<p class="text-emerald-800 text-xs mt-1">Sua primeira mensalidade vencerá em <strong>${vencimentoFormatado}</strong> (${cupomPorcentagemObj.carenciaDias} dias de carência).</p>` : ''}
                         </div>

@@ -894,6 +894,40 @@
         // =========================================================================
         // GESTÃO DO SISTEMA DE CUPOM DE DESCONTO NA PÁGINA DE VENDAS
         // =========================================================================
+        function verificarCupomAplicaNoPlano(cupom, plano) {
+            if (!cupom || !plano) return false;
+            if (!cupom.planos || cupom.planos === 'todos') return true;
+            const per = (plano.periodicidade || '').toLowerCase();
+            const id = (plano.id || '').toLowerCase();
+            if (cupom.planos === 'mensal') return per === 'mensal' || id.includes('mensal');
+            if (cupom.planos === 'anual') return per === 'anual' || id.includes('anual');
+            if (cupom.planos === 'vitalicio') return per === 'vitalicio' || id.includes('vitalicio');
+            return true;
+        }
+
+        function calcularDescontoCupomPlano(valorOriginal, cupom, plano) {
+            if (!cupom || !verificarCupomAplicaNoPlano(cupom, plano)) {
+                return { aplica: false, valorFinal: valorOriginal, descontoReais: 0, badgeHtml: '' };
+            }
+            let descReais = 0;
+            let badgeTexto = '';
+            if (cupom.tipoDesconto === 'valor_fixo') {
+                descReais = parseFloat(cupom.desconto) || 0;
+                badgeTexto = `🎟️ R$ ${formatarMoeda(descReais)} OFF`;
+            } else {
+                const perc = parseFloat(cupom.desconto) || 0;
+                descReais = (valorOriginal * perc) / 100;
+                badgeTexto = `🎟️ ${perc}% OFF`;
+            }
+            const valorFinal = Math.max(1, valorOriginal - descReais);
+            return {
+                aplica: true,
+                valorFinal: valorFinal,
+                descontoReais: descReais,
+                badgeHtml: `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">${badgeTexto}</span>`
+            };
+        }
+
         async function aplicarCupomDescontoPaginaVendas(codigoManual) {
             const inCupom = document.getElementById('input-cupom-desconto');
             const feedback = document.getElementById('feedback-cupom-vendas');
@@ -918,8 +952,11 @@
             // 1. Cupom Especial MEUPRESIDENTE
             if (codigo === 'MEUPRESIDENTE') {
                 cupomEncontrado = {
+                    nome: 'Parceria Especial Presidente',
                     codigo: 'MEUPRESIDENTE',
+                    tipoDesconto: 'porcentagem',
                     desconto: 20,
+                    planos: 'todos',
                     carenciaDias: 60,
                     descricao: 'Mensalidade R$ 20,00 e 60 dias de carência'
                 };
@@ -927,8 +964,11 @@
             // 2. Cupons Nativos VIP15-*
             else if (codigo.startsWith('VIP15-')) {
                 cupomEncontrado = {
+                    nome: 'Convite Especial VIP',
                     codigo: codigo,
+                    tipoDesconto: 'porcentagem',
                     desconto: 15,
+                    planos: 'todos',
                     carenciaDias: 0,
                     descricao: '15% de Desconto na Adesão'
                 };
@@ -944,17 +984,47 @@
                     });
                     if (res.ok) {
                         const rows = await res.json();
+                        const hojeStr = new Date().toISOString().split('T')[0];
                         for (const row of rows) {
                             const matches = (row.nome_espaco || '').matchAll(/<!--CUPOM_DESCONTO:(.*?)-->/g);
                             for (const m of matches) {
                                 try {
                                     const obj = JSON.parse(m[1]);
                                     if (obj && obj.codigo && obj.codigo.toUpperCase() === codigo) {
+                                        // Validação de Período
+                                        if (obj.dataInicio && hojeStr < obj.dataInicio) {
+                                            const dataIniBr = obj.dataInicio.split('-').reverse().join('/');
+                                            if (feedback) {
+                                                feedback.className = 'mt-2 text-xs text-amber-300 bg-amber-500/20 border border-amber-500/50 p-2.5 rounded-xl flex items-center gap-2';
+                                                feedback.innerHTML = `<i class="fa-solid fa-clock text-amber-400 text-sm"></i><span>O cupom "<strong>${obj.codigo}</strong>" só será válido a partir de <strong>${dataIniBr}</strong>.</span>`;
+                                                feedback.classList.remove('hidden');
+                                            }
+                                            if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Aplicar</span>';
+                                            return;
+                                        }
+                                        if (obj.dataFim && hojeStr > obj.dataFim) {
+                                            const dataFimBr = obj.dataFim.split('-').reverse().join('/');
+                                            if (feedback) {
+                                                feedback.className = 'mt-2 text-xs text-rose-300 bg-rose-500/20 border border-rose-500/50 p-2.5 rounded-xl flex items-center gap-2';
+                                                feedback.innerHTML = `<i class="fa-solid fa-calendar-xmark text-rose-400 text-sm"></i><span>O cupom "<strong>${obj.codigo}</strong>" expirou em <strong>${dataFimBr}</strong>.</span>`;
+                                                feedback.classList.remove('hidden');
+                                            }
+                                            if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Aplicar</span>';
+                                            return;
+                                        }
+
                                         cupomEncontrado = {
+                                            nome: obj.nome || 'Cupom Promocional',
                                             codigo: obj.codigo,
+                                            tipoDesconto: obj.tipoDesconto || 'porcentagem',
                                             desconto: parseFloat(obj.desconto) || 15,
+                                            planos: obj.planos || 'todos',
+                                            dataInicio: obj.dataInicio || '',
+                                            dataFim: obj.dataFim || '',
                                             carenciaDias: parseInt(obj.carenciaDias) || 0,
-                                            descricao: `${obj.desconto}% de Desconto na Adesão`
+                                            descricao: (obj.tipoDesconto === 'valor_fixo') 
+                                                ? `R$ ${formatarMoeda(obj.desconto)} de Desconto` 
+                                                : `${obj.desconto}% de Desconto`
                                         };
                                         break;
                                     }
@@ -977,6 +1047,15 @@
                 if (inCupom) inCupom.value = cupomEncontrado.codigo;
                 if (inCheckout) inCheckout.value = cupomEncontrado.codigo;
 
+                const descTexto = (cupomEncontrado.tipoDesconto === 'valor_fixo')
+                    ? `R$ ${formatarMoeda(cupomEncontrado.desconto)} OFF`
+                    : `${cupomEncontrado.desconto}% OFF`;
+
+                let planosTexto = 'todos os planos abaixo';
+                if (cupomEncontrado.planos === 'mensal') planosTexto = 'planos Mensais';
+                else if (cupomEncontrado.planos === 'anual') planosTexto = 'planos Anuais';
+                else if (cupomEncontrado.planos === 'vitalicio') planosTexto = 'planos Vitalícios';
+
                 if (feedback) {
                     feedback.className = 'mt-2.5 text-xs text-emerald-300 bg-emerald-500/20 border border-emerald-500/50 p-3 rounded-2xl flex items-center justify-between shadow-sm';
                     feedback.innerHTML = `
@@ -984,7 +1063,7 @@
                             <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
                             <div>
                                 <span class="font-black uppercase tracking-wider block">Cupom "${cupomEncontrado.codigo}" Ativado!</span>
-                                <span class="text-[11px] text-emerald-200">${cupomEncontrado.desconto}% de desconto aplicado em todos os planos abaixo!</span>
+                                <span class="text-[11px] text-emerald-200">${descTexto} aplicado para ${planosTexto}!</span>
                             </div>
                         </div>
                         <button type="button" onclick="removerCupomDesconto()" class="text-rose-400 hover:text-rose-300 font-bold underline cursor-pointer text-xs ml-2">
@@ -996,7 +1075,7 @@
 
                 if (feedCheckout) {
                     feedCheckout.className = 'text-[11px] mt-1.5 font-bold text-emerald-400 block';
-                    feedCheckout.innerHTML = `✅ Cupom "${cupomEncontrado.codigo}" aplicado (${cupomEncontrado.desconto}% OFF)!`;
+                    feedCheckout.innerHTML = `✅ Cupom "${cupomEncontrado.codigo}" aplicado (${descTexto})!`;
                 }
 
                 // Atualiza os links de cadastro para levar o cupom
@@ -1192,15 +1271,15 @@
                 ];
 
                 let blocoAdesaoHtml = '';
-                if (CUPOM_ATIVO && CUPOM_ATIVO.desconto > 0) {
-                    const descReais = (valorAdesaoOriginal * CUPOM_ATIVO.desconto) / 100;
-                    valorAdesaoFinal = Math.max(1, valorAdesaoOriginal - descReais);
+                const infoDesc = calcularDescontoCupomPlano(valorAdesaoOriginal, CUPOM_ATIVO, p);
+                if (infoDesc.aplica) {
+                    valorAdesaoFinal = infoDesc.valorFinal;
                     blocoAdesaoHtml = `
                         <div class="mt-5 pt-4 border-t border-slate-800">
                             <span class="text-[10px] text-slate-400 font-bold uppercase block">Taxa de Adesão / Ativação:</span>
                             <div class="flex items-center gap-2 mt-1">
                                 <span class="text-xs text-rose-400 line-through font-bold">R$ ${formatarMoeda(valorAdesaoOriginal)}</span>
-                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">🎟️ ${CUPOM_ATIVO.desconto}% OFF</span>
+                                ${infoDesc.badgeHtml}
                             </div>
                             <div class="flex items-baseline gap-1 mt-0.5">
                                 <span class="text-xs text-slate-400 font-bold">R$</span>
@@ -1276,12 +1355,8 @@
             }
 
             const valorAdesaoOriginal = plano.valorAdesaoNum || 0;
-            let valorAdesaoFinal = valorAdesaoOriginal;
-
-            if (CUPOM_ATIVO && CUPOM_ATIVO.desconto > 0) {
-                const descReais = (valorAdesaoOriginal * CUPOM_ATIVO.desconto) / 100;
-                valorAdesaoFinal = Math.max(1, valorAdesaoOriginal - descReais);
-            }
+            const infoDescCheckout = calcularDescontoCupomPlano(valorAdesaoOriginal, CUPOM_ATIVO, plano);
+            let valorAdesaoFinal = infoDescCheckout.valorFinal;
 
             const periodo = plano.periodicidade || 'mensal';
             let sufixo = '/mês';
@@ -1291,12 +1366,12 @@
 
             if (elNome) elNome.innerText = plano.nome;
             if (elValor) {
-                if (CUPOM_ATIVO && CUPOM_ATIVO.desconto > 0) {
+                if (infoDescCheckout.aplica) {
                     elValor.innerHTML = `
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-xs text-rose-400 line-through">R$ ${formatarMoeda(valorAdesaoOriginal)}</span>
                             <span class="text-2xl font-black text-amber-300">R$ ${formatarMoeda(valorAdesaoFinal)}</span>
-                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">🎟️ ${CUPOM_ATIVO.desconto}% OFF</span>
+                            ${infoDescCheckout.badgeHtml}
                         </div>
                     `;
                 } else {
@@ -1408,7 +1483,10 @@
 
             let textoCupom = '';
             if (CUPOM_ATIVO && CUPOM_ATIVO.codigo) {
-                textoCupom = `\n🎟️ *Cupom de Desconto Aplicado:* ${CUPOM_ATIVO.codigo} (${CUPOM_ATIVO.desconto}% OFF)`;
+                const descTxt = (CUPOM_ATIVO.tipoDesconto === 'valor_fixo')
+                    ? `R$ ${formatarMoeda(CUPOM_ATIVO.desconto)} OFF`
+                    : `${CUPOM_ATIVO.desconto}% OFF`;
+                textoCupom = `\n🎟️ *Cupom de Desconto Aplicado:* ${CUPOM_ATIVO.codigo} (${descTxt})`;
             }
 
             const msg = encodeURIComponent(
