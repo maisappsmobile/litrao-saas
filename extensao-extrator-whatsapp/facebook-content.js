@@ -54,6 +54,11 @@
 
     const norm = normalizarTextoFb(limpo);
 
+    // Rejeita qualquer termo que termine ou comece com ruídos de interface
+    if (norm.startsWith('novos') || norm.startsWith('novo ') || norm.includes('posts') || norm.includes('post')) return false;
+    if (norm.includes('saiba mais') || norm.includes('membros') || norm.includes('membro')) return false;
+    if (norm.includes('participar') || norm.includes('entrar no grupo') || norm.includes('convidar')) return false;
+
     const termosProibidos = [
       'membro', 'membros', 'mil membros', 'saiba mais', 'pessoas', 'participar',
       'entrou', 'adicionar', 'amigo', 'amigos', 'mensagem', 'ver tudo', 'grupo',
@@ -62,7 +67,8 @@
       'sobre', 'arquivos', 'midia', 'reels', 'pesquisar', 'administrador', 'moderador',
       'bloquear', 'denunciar', 'sair', 'regras', 'comum', 'seguidor', 'seguidores',
       'publicacao', 'publicacoes', 'fotos', 'albuns', 'atividades', 'gerenciar',
-      'configuracoes', 'ajuda', 'politica', 'termos', 'privacidade', 'cancelar', 'ver mais'
+      'configuracoes', 'ajuda', 'politica', 'termos', 'privacidade', 'cancelar', 'ver mais',
+      'novos posts', 'novo post', 'posts', 'solicitacao', 'solicitacoes'
     ];
 
     if (termosProibidos.some(t => norm === t || norm.includes(t))) {
@@ -77,70 +83,72 @@
   }
 
   /**
-   * Extrai os membros atualmente carregados no DOM do Facebook
+   * Executa rolagem em todas as possíveis camadas do Facebook para forçar carregamento
    */
-  function extrairMembrosDoDom() {
-    const nomeGrupo = obterNomeGrupoFacebook();
-    grupoNomeCache = nomeGrupo;
-
-    const links = Array.from(document.querySelectorAll('a[role="link"], a[href*="/user/"], a[href*="/groups/"]'));
-    const membrosMap = new Map();
-
-    links.forEach(a => {
-      const rawHref = a.href || '';
-      const href = rawHref.split('?')[0];
-      const nome = (a.innerText || '').trim();
-
-      if (!ehNomeHumanoValido(nome)) return;
-
-      // Descarta links que são abas de navegação interna de grupos (ex: /members, /rules, /about)
-      if (href.includes('/groups/') && (
-        href.endsWith('/members') || href.endsWith('/members/') ||
-        href.endsWith('/rules') || href.endsWith('/rules/') ||
-        href.endsWith('/about') || href.endsWith('/about/') ||
-        href.endsWith('/announcements') || href.endsWith('/announcements/') ||
-        href.endsWith('/buy_sell_discussion') || href.endsWith('/buy_sell_discussion/')
-      )) {
-        return;
-      }
-
-      // Precisa ter estrutura de perfil de usuário do Facebook
-      const isPerfil = href.includes('/user/') || href.includes('/profile.php') ||
-                       (href.includes('facebook.com/') && !href.includes('/groups/') && !href.includes('/events/') && !href.includes('/watch/'));
-      
-      // Ou estar dentro de um card de membro
-      const card = a.closest('div[role="listitem"]') || a.parentElement?.parentElement || {};
-      const cardText = (card.innerText || '').toLowerCase();
-
-      if (!isPerfil && !cardText.includes('administrador') && !cardText.includes('membro')) {
-        return;
-      }
-
-      const isAdmin = cardText.includes('administrador') || cardText.includes('moderador') || normalizarTextoFb(nome).includes('admin');
-
-      const chaveUnica = normalizarTextoFb(nome);
-      if (!membrosMap.has(chaveUnica)) {
-        membrosMap.set(chaveUnica, {
-          nome: nome,
-          perfilUrl: isPerfil ? href : `https://www.facebook.com/search/people/?q=${encodeURIComponent(nome)}`,
-          cargo: isAdmin ? 'admin' : 'membro',
-          grupoOrigem: nomeGrupo
-        });
-      }
+  function rolarPaginaFacebookFundo() {
+    window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+    try { document.documentElement.scrollTop = document.documentElement.scrollHeight; } catch(e) {}
+    try { document.body.scrollTop = document.body.scrollHeight; } catch(e) {}
+    const scrolls = document.querySelectorAll('div[role="feed"], div[role="main"], div[tabindex="-1"], div[style*="overflow"]');
+    scrolls.forEach(s => {
+      try { s.scrollTop = s.scrollHeight; } catch(e) {}
     });
-
-    leadsExtraidosCache = Array.from(membrosMap.values());
-    return leadsExtraidosCache;
   }
 
+  let cancelandoRolagemFb = false;
+
   /**
-   * Executa rolagem automática suave para baixo para carregar mais membros
+   * Executa rolagem profunda com feedback em tempo real
    */
-  async function rolarParaCarregarMais(vezes = 3) {
-    for (let i = 0; i < vezes; i++) {
-      window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-      await new Promise(r => setTimeout(r, 800));
+  async function executarRolagemAvancada(qtdCiclos = 15, delayMs = 600) {
+    cancelandoRolagemFb = false;
+    const banner = document.getElementById('resetfit-fb-scroll-banner');
+    const txtStatus = document.getElementById('resetfit-fb-scroll-txt');
+    const txtSub = document.getElementById('resetfit-fb-scroll-sub');
+    const btnNormal = document.getElementById('btn-rolar-mais-fb');
+    const btnTurbo = document.getElementById('btn-rolar-turbo-fb');
+
+    if (banner) banner.style.display = 'block';
+    if (btnNormal) { btnNormal.disabled = true; btnNormal.style.opacity = '0.5'; }
+    if (btnTurbo) { btnTurbo.disabled = true; btnTurbo.style.opacity = '0.5'; }
+
+    for (let i = 1; i <= qtdCiclos; i++) {
+      if (cancelandoRolagemFb) break;
+
+      rolarPaginaFacebookFundo();
+
+      const membrosAtuais = extrairMembrosDoDom();
+      const adminsCount = membrosAtuais.filter(m => m.cargo === 'admin').length;
+
+      if (txtStatus) {
+        txtStatus.innerHTML = `🔄 Rolando Facebook... <b>(Ciclo ${i} de ${qtdCiclos})</b>`;
+      }
+      if (txtSub) {
+        txtSub.innerHTML = `🎯 <b>${membrosAtuais.length} contatos</b> encontrados até agora (${adminsCount} Admins)...`;
+      }
+
+      const elCont = document.getElementById('fb-contador-modal');
+      if (elCont) {
+        elCont.innerHTML = `${membrosAtuais.length} <span style="font-size: 12px; font-weight: 600; color: #64748B;">contatos (${adminsCount} Admins)</span>`;
+      }
+
+      await new Promise(r => setTimeout(r, delayMs));
     }
+
+    if (banner) banner.style.display = 'none';
+    if (btnNormal) { btnNormal.disabled = false; btnNormal.style.opacity = '1'; }
+    if (btnTurbo) { btnTurbo.disabled = false; btnTurbo.style.opacity = '1'; }
+
+    const membrosFinais = extrairMembrosDoDom();
+    const adm = membrosFinais.filter(m => m.cargo === 'admin').length;
+    const elCont = document.getElementById('fb-contador-modal');
+    if (elCont) {
+      elCont.innerHTML = `${membrosFinais.length} <span style="font-size: 12px; font-weight: 600; color: #64748B;">contatos (${adm} Admins)</span>`;
+    }
+    const elList = document.getElementById('fb-lista-membros-preview');
+    if (elList) elList.innerHTML = renderizarListaPreviewMembros(membrosFinais);
+
+    cancelandoRolagemFb = false;
   }
 
   /**
@@ -366,6 +374,8 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
           ">
             <div>
               <div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">Membros Identificados</div>
@@ -373,16 +383,75 @@
                 ${membros.length} <span style="font-size: 12px; font-weight: 600; color: #64748B;">contatos (${adminsCount} Admins)</span>
               </div>
             </div>
-            <button id="btn-rolar-mais-fb" style="
-              background: #EEF2FF;
-              color: #4338CA;
-              border: 1px solid #C7D2FE;
-              padding: 8px 12px;
-              border-radius: 12px;
-              font-size: 11px;
-              font-weight: 700;
-              cursor: pointer;
-            ">🔄 Rolar e Buscar Mais</button>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              <button id="btn-rolar-mais-fb" type="button" style="
+                background: #EEF2FF;
+                color: #4338CA;
+                border: 1.5px solid #C7D2FE;
+                padding: 8px 12px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: all 0.2s;
+              ">🔄 Rolar (+50)</button>
+
+              <button id="btn-rolar-turbo-fb" type="button" style="
+                background: linear-gradient(135deg, #4F46E5, #7C3AED);
+                color: #FFFFFF;
+                border: none;
+                padding: 8px 14px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.35);
+                transition: all 0.2s;
+              ">⚡ Rolagem Turbo (+200 a 500)</button>
+            </div>
+          </div>
+
+          <!-- BANNER DE STATUS DE ROLAGEM TURBO EM TEMPO REAL -->
+          <div id="resetfit-fb-scroll-banner" style="
+            display: none;
+            background: linear-gradient(135deg, #1E1B4B, #312E81);
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border: 1.5px solid #818CF8;
+            box-shadow: 0 6px 15px rgba(49, 46, 129, 0.4);
+          ">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px;">⚡</span>
+                <div>
+                  <div id="resetfit-fb-scroll-txt" style="font-size: 12px; font-weight: 800; color: #FFFFFF;">
+                    Rolando página do Facebook... (Ciclo 1 de 25)
+                  </div>
+                  <div id="resetfit-fb-scroll-sub" style="font-size: 11px; color: #C7D2FE; margin-top: 2px;">
+                    Buscando membros continuamente...
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="btn-parar-rolagem-fb" style="
+                background: #EF4444;
+                color: #FFFFFF;
+                border: none;
+                padding: 7px 14px;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+              ">⏹️ Parar e Usar Contatos</button>
+            </div>
           </div>
 
           <!-- SELEÇÃO / CRIAÇÃO DE PÚBLICO DE DESTINO NO KANBAN -->
@@ -599,16 +668,17 @@
     });
 
     document.getElementById('btn-rolar-mais-fb')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-rolar-mais-fb');
-      if (btn) btn.innerText = '⏳ Rolando página...';
-      await rolarParaCarregarMais(4);
-      const novos = extrairMembrosDoDom();
-      const adm = novos.filter(m => m.cargo === 'admin').length;
-      const elCont = document.getElementById('fb-contador-modal');
-      if (elCont) elCont.innerHTML = `${novos.length} <span style="font-size: 12px; font-weight: 600; color: #64748B;">contatos (${adm} Admins)</span>`;
-      const elList = document.getElementById('fb-lista-membros-preview');
-      if (elList) elList.innerHTML = renderizarListaPreviewMembros(novos);
-      if (btn) btn.innerText = '🔄 Rolar e Buscar Mais';
+      await executarRolagemAvancada(8, 600);
+    });
+
+    document.getElementById('btn-rolar-turbo-fb')?.addEventListener('click', async () => {
+      await executarRolagemAvancada(25, 450);
+    });
+
+    document.getElementById('btn-parar-rolagem-fb')?.addEventListener('click', () => {
+      cancelandoRolagemFb = true;
+      const txtSub = document.getElementById('resetfit-fb-scroll-sub');
+      if (txtSub) txtSub.innerText = 'Parando e processando membros capturados...';
     });
 
     document.getElementById('btn-sincronizar-fb-painel')?.addEventListener('click', () => {
