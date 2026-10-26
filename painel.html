@@ -2561,17 +2561,26 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Grupo do Facebook de Origem:</label>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Grupo de Origem:</label>
                                     <input type="text" id="fb-import-nome-grupo" value="HERBALIFE BRASIL" placeholder="Ex: HERBALIFE BRASIL ou Espaço Vida Saudável" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-blue-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Tipo Predominante dos Contatos:</label>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Tipo Predominante:</label>
                                     <select id="fb-import-tipo-padrao" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none">
                                         <option value="membro">Membros do Grupo (Consultores / EVS)</option>
                                         <option value="admin">Administradores e Moderadores</option>
                                     </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Público / Grupo de Destino no Kanban:</label>
+                                    <input type="text" list="fb-import-publicos-list" id="fb-import-publico-destino" value="Consultor" placeholder="Ex: Consultor, Cliente, Cuiabá..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-blue-500">
+                                    <datalist id="fb-import-publicos-list">
+                                        <option value="Consultor">
+                                        <option value="Cliente">
+                                        <option value="Público Geral">
+                                    </datalist>
                                 </div>
                             </div>
 
@@ -26969,10 +26978,12 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             const textarea = document.getElementById('fb-import-textarea');
             const inputGrupo = document.getElementById('fb-import-nome-grupo');
             const selectTipo = document.getElementById('fb-import-tipo-padrao');
+            const inputPublico = document.getElementById('fb-import-publico-destino');
 
             const texto = (textarea?.value || '').trim();
             const nomeGrupo = (inputGrupo?.value || 'HERBALIFE BRASIL').trim();
             const tipoPadrao = (selectTipo?.value || 'membro');
+            const publicoDestino = (inputPublico?.value || '').trim() || 'Consultor';
 
             if (!texto) {
                 alert("Por favor, cole o texto ou JSON extraído do Facebook na área indicada.");
@@ -27104,15 +27115,22 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                     perfilUrl: nl.perfilUrl,
                     grupoOrigem: nl.grupoOrigem || nomeGrupo,
                     cargo: nl.cargo || tipoPadrao,
+                    publico: publicoDestino,
                     status: 'pendente',
                     origemTag: 'Facebook Grupos',
                     dataAdicionado: new Date().toLocaleDateString('pt-BR'),
-                    notas: `Importado de: ${nomeGrupo}`
+                    notas: `Importado de: ${nomeGrupo} • Público: ${publicoDestino}`
                 });
                 adicionados++;
             });
 
             salvarLeadsFacebookStorage(leadsAtuais);
+
+            const publicosSalvos = obterPublicosFacebookStorage();
+            if (!publicosSalvos.some(p => p.toLowerCase() === publicoDestino.toLowerCase())) {
+                publicosSalvos.push(publicoDestino);
+                salvarPublicosFacebookStorage(publicosSalvos);
+            }
 
             if (textarea) textarea.value = '';
             trocarAbaExtratorFacebook('leads');

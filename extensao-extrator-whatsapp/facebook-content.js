@@ -388,94 +388,92 @@
           <!-- SELEÇÃO / CRIAÇÃO DE PÚBLICO DE DESTINO NO KANBAN -->
           <div style="
             background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
-            border: 1.5px solid #86EFAC;
-            border-radius: 16px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.05);
+            border: 2px solid #22C55E;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.12);
           ">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-              <span style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
-                🎯 Público / Grupo de Destino no Kanban:
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-size: 11px; font-weight: 900; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 5px; letter-spacing: 0.5px;">
+                🎯 Onde salvar estes contatos no Kanban?
               </span>
               <span id="resetfit-fb-badge-publico-ativo" style="
                 background: #16A34A;
                 color: #FFFFFF;
-                font-size: 10px;
-                font-weight: 800;
-                padding: 2px 8px;
+                font-size: 11px;
+                font-weight: 900;
+                padding: 2px 10px;
                 border-radius: 9999px;
+                box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
               ">${publicoAtivo}</span>
             </div>
             
-            <p style="margin: 0 0 8px; font-size: 11px; color: #15803D; font-weight: 500; line-height: 1.3;">
-              Antes de sincronizar, escolha ou crie o público onde estes contatos entrarão no seu Kanban (ex: <b>Consultor</b>, <b>Cliente</b>, ou o nome da sua <b>Cidade</b>):
-            </p>
+            <!-- ATALHOS RÁPIDOS DE PÚBLICO (1 CLIQUE) -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+              <button type="button" class="btn-fb-quick-publico" data-pub="Consultor" style="background: #2563EB; color: #FFFFFF; border: none; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
+                👔 Consultor
+              </button>
+              <button type="button" class="btn-fb-quick-publico" data-pub="Cliente" style="background: #059669; color: #FFFFFF; border: none; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(5,150,105,0.25);">
+                🥤 Cliente
+              </button>
+              <button type="button" class="btn-fb-quick-publico" data-pub="Público Geral" style="background: #475569; color: #FFFFFF; border: none; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🌐 Geral
+              </button>
+              <button type="button" id="btn-toggle-novo-publico-fb" style="background: #D97706; color: #FFFFFF; border: none; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(217,119,6,0.25);">
+                📍 + Digitar Cidade ou Outro...
+              </button>
+            </div>
 
+            <!-- SELETOR DROPDOWN DE PÚBLICOS SALVOS -->
             <div style="display: flex; gap: 8px; align-items: center;">
-              <!-- Seletor de Públicos Cadastrados / Pré-definidos -->
               <select id="resetfit-fb-select-publico" style="
                 flex: 1;
-                padding: 8px 10px;
-                border-radius: 10px;
+                padding: 8px 12px;
+                border-radius: 12px;
                 border: 1.5px solid #86EFAC;
                 background: #FFFFFF;
                 color: #14532D;
                 font-size: 12px;
-                font-weight: 700;
+                font-weight: 800;
                 outline: none;
                 cursor: pointer;
               ">
                 ${publicosOptionsHtml}
                 <option value="__CRIAR_NOVO__">➕ + Criar Novo Público ou Cidade...</option>
               </select>
-
-              <!-- Botão rápido para digitar novo público -->
-              <button type="button" id="btn-toggle-novo-publico-fb" style="
-                background: #FFFFFF;
-                color: #16A34A;
-                border: 1.5px solid #86EFAC;
-                padding: 8px 12px;
-                border-radius: 10px;
-                font-size: 11px;
-                font-weight: 800;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: all 0.2s;
-              ">
-                ✏️ Outro Nome
-              </button>
             </div>
 
             <!-- Campo dinâmico para digitar novo público / cidade customizada -->
-            <div id="resetfit-fb-container-novo-publico" style="display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #86EFAC;">
-              <label style="display: block; font-size: 10px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 4px;">
-                Nome do Novo Público / Cidade / Espaço:
+            <div id="resetfit-fb-container-novo-publico" style="display: none; margin-top: 10px; padding: 10px; background: #FFFFFF; border-radius: 12px; border: 1.5px solid #22C55E;">
+              <label style="display: block; font-size: 10px; font-weight: 900; color: #166534; text-transform: uppercase; margin-bottom: 5px;">
+                Digite o nome da sua Cidade ou Público (ex: Cuiabá, Barra do Garças, VIP):
               </label>
               <div style="display: flex; gap: 6px;">
-                <input type="text" id="resetfit-fb-input-novo-publico" placeholder="Ex: Consultores Cuiabá, Clientes Detox, Barra do Garças..." style="
+                <input type="text" id="resetfit-fb-input-novo-publico" placeholder="Ex: Cuiabá, Sinop, Clientes Herbalife..." style="
                   flex: 1;
-                  padding: 7px 10px;
+                  padding: 8px 10px;
                   border-radius: 10px;
                   border: 1.5px solid #16A34A;
-                  background: #FFFFFF;
+                  background: #F8FAFC;
                   color: #0F172A;
                   font-size: 12px;
-                  font-weight: 700;
+                  font-weight: 800;
                   outline: none;
                 ">
                 <button type="button" id="btn-salvar-novo-publico-fb" style="
                   background: #16A34A;
                   color: #FFFFFF;
                   border: none;
-                  padding: 7px 12px;
+                  padding: 8px 14px;
                   border-radius: 10px;
                   font-size: 11px;
                   font-weight: 800;
                   cursor: pointer;
                   white-space: nowrap;
+                  box-shadow: 0 2px 4px rgba(22,163,74,0.3);
                 ">
-                  Salvar
+                  Salvar e Usar
                 </button>
               </div>
             </div>
@@ -577,7 +575,7 @@
             gap: 8px;
             transition: all 0.2s ease-in-out;
           ">
-            <span>🚀 Sincronizar com o Painel do Litrão</span>
+            <span>🚀 Sincronizar como <b id="resetfit-btn-txt-publico" style="background: rgba(0,0,0,0.25); padding: 2px 7px; border-radius: 6px; margin-left: 2px;">${publicoAtivo}</b> no Kanban</span>
           </button>
           <button id="btn-copiar-fb-json" style="
             background: #FFFFFF;
@@ -629,15 +627,48 @@
     const btnTogglePub = document.getElementById('btn-toggle-novo-publico-fb');
     const badgeAtivo = document.getElementById('resetfit-fb-badge-publico-ativo');
 
+    function definirPublicoAtivoInterface(nomePub) {
+      if (!nomePub) return;
+      const nomeLimpo = nomePub.trim();
+      const badge = document.getElementById('resetfit-fb-badge-publico-ativo');
+      const btnTxt = document.getElementById('resetfit-btn-txt-publico');
+      const sel = document.getElementById('resetfit-fb-select-publico');
+      const box = document.getElementById('resetfit-fb-container-novo-publico');
+
+      if (badge) badge.innerText = nomeLimpo;
+      if (btnTxt) btnTxt.innerText = nomeLimpo;
+      if (sel) {
+        let optExistente = Array.from(sel.options).find(o => o.value === nomeLimpo);
+        if (!optExistente) {
+          const opt = document.createElement('option');
+          opt.value = nomeLimpo;
+          opt.innerText = `🎯 ${nomeLimpo}`;
+          sel.insertBefore(opt, sel.lastElementChild);
+        }
+        sel.value = nomeLimpo;
+      }
+      if (box) box.style.display = 'none';
+
+      try {
+        localStorage.setItem('resetfit_fb_ultimo_publico_selecionado', nomeLimpo);
+      } catch(e) {}
+    }
+
+    // Atalhos das Pills rápidas
+    document.querySelectorAll('.btn-fb-quick-publico').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.getAttribute('data-pub');
+        if (p) definirPublicoAtivoInterface(p);
+      });
+    });
+
     if (selPublico) {
       selPublico.addEventListener('change', () => {
         if (selPublico.value === '__CRIAR_NOVO__') {
           if (boxNovoPub) boxNovoPub.style.display = 'block';
           if (inNovoPub) { inNovoPub.focus(); inNovoPub.value = ''; }
         } else {
-          if (boxNovoPub) boxNovoPub.style.display = 'none';
-          if (badgeAtivo) badgeAtivo.innerText = selPublico.value;
-          try { localStorage.setItem('resetfit_fb_ultimo_publico_selecionado', selPublico.value); } catch(e) {}
+          definirPublicoAtivoInterface(selPublico.value);
         }
       });
     }
@@ -660,16 +691,7 @@
           return;
         }
         salvarNovoPublicoStorage(val);
-        let optExistente = Array.from(selPublico.options).find(o => o.value === val);
-        if (!optExistente) {
-          const novaOpt = document.createElement('option');
-          novaOpt.value = val;
-          novaOpt.innerText = `🎯 ${val}`;
-          selPublico.insertBefore(novaOpt, selPublico.lastElementChild);
-        }
-        selPublico.value = val;
-        if (badgeAtivo) badgeAtivo.innerText = val;
-        if (boxNovoPub) boxNovoPub.style.display = 'none';
+        definirPublicoAtivoInterface(val);
       });
     }
   }
