@@ -237,50 +237,52 @@
         </div>
     </header>
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="max-w-md mx-auto mt-16 p-8 bg-white rounded-3xl shadow-2xl border border-gray-100">
-        <div class="text-center mb-8">
-            <img src="reset-logo.png" alt="Reset Metabólico" class="h-20 mx-auto mb-4">
-            <h2 class="text-2xl font-black text-brand-dark">Acesso Restrito</h2>
-            <p class="text-gray-500 text-sm mt-1">Digite seu ID para entrar</p>
-        </div>
+    <!-- TELA DE LOGIN (EXPANSIVA PARA PC E MOBILE) -->
+    <div id="login-screen" class="w-full max-w-lg sm:max-w-xl lg:max-w-2xl mx-auto my-8 sm:my-14 px-3 sm:px-6">
+        <div class="bg-white rounded-3xl sm:rounded-[2rem] shadow-2xl border border-gray-100/90 p-6 sm:p-10 md:p-12 transition-all">
+            <div class="text-center mb-8 sm:mb-10">
+                <img src="reset-logo.png" alt="Reset Metabólico" class="h-20 sm:h-24 mx-auto mb-4 drop-shadow-xs">
+                <h2 class="text-2xl sm:text-3xl font-black text-brand-dark tracking-tight">Acesso Restrito</h2>
+                <p class="text-gray-500 text-sm sm:text-base mt-1.5 font-medium">Digite seu ID para entrar</p>
+            </div>
 
-        <div id="login-form-container">
-            <div class="mb-4">
-                <label class="block text-sm font-bold text-gray-700 mb-1">Seu ID Herbalife</label>
-                <div class="relative">
-                    <i class="fa-regular fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-gray-800">
+            <div id="login-form-container">
+                <div class="mb-4 sm:mb-5">
+                    <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Seu ID Herbalife</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-id-card absolute left-4 top-4 sm:top-4.5 text-gray-400 text-base sm:text-lg"></i>
+                        <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs">
+                    </div>
                 </div>
-            </div>
-            <div class="mb-5">
-                <label class="block text-sm font-bold text-gray-700 mb-1">Sua Senha (3 Letras ou Senha Criada)</label>
-                <div class="relative flex items-center">
-                    <i class="fa-solid fa-lock absolute left-4 text-gray-400"></i>
-                    <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800">
-                    <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-1.5 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
-                        <i id="icone-olho-login" class="fa-solid fa-eye text-base"></i>
-                    </button>
+                <div class="mb-5 sm:mb-6">
+                    <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Sua Senha (3 Letras ou Senha Criada)</label>
+                    <div class="relative flex items-center">
+                        <i class="fa-solid fa-lock absolute left-4 text-gray-400 text-base sm:text-lg"></i>
+                        <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-12 pr-12 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800 text-base sm:text-lg transition-all shadow-2xs">
+                        <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
+                            <i id="icone-olho-login" class="fa-solid fa-eye text-base sm:text-lg"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-500 font-bold mt-2 flex items-center">
+                        <span class="text-brand-yellow mr-1 text-sm sm:text-base">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
+                    </p>
                 </div>
-                <p class="text-[11px] text-gray-500 font-bold mt-1.5 flex items-center">
-                    <span class="text-brand-yellow mr-1">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
-                </p>
-            </div>
-            <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center text-base cursor-pointer">
-                ENTRAR
-            </button>
-            
-            <!-- Box de Alerta Visível e Estilizado -->
-            <div id="login-erro" class="hidden mt-4 p-3.5 rounded-xl text-xs font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2 shadow-sm">
-                <i class="fa-solid fa-circle-exclamation text-base flex-shrink-0 mt-0.5"></i>
-                <span id="login-erro-msg">Dados incorretos.</span>
-            </div>
-            
-            <div class="mt-8 text-center border-t border-gray-100 pt-6">
-                <p class="text-sm text-gray-500 mb-3">Ainda não faz parte do projeto?</p>
-                <a href="assinar.html" class="inline-block w-full bg-white border-2 border-brand-light text-brand-light hover:bg-brand-light hover:text-white font-bold py-3 rounded-xl transition shadow-sm">
-                    CRIAR MINHA CONTA
-                </a>
+                <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
+                    ENTRAR
+                </button>
+                
+                <!-- Box de Alerta Visível e Estilizado -->
+                <div id="login-erro" class="hidden mt-4 p-4 rounded-2xl text-xs sm:text-sm font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2.5 shadow-sm">
+                    <i class="fa-solid fa-circle-exclamation text-base sm:text-lg flex-shrink-0 mt-0.5"></i>
+                    <span id="login-erro-msg">Dados incorretos.</span>
+                </div>
+                
+                <div class="mt-8 sm:mt-10 text-center border-t border-gray-100 pt-6 sm:pt-8">
+                    <p class="text-sm sm:text-base text-gray-500 mb-3.5 font-medium">Ainda não faz parte do projeto?</p>
+                    <a href="assinar.html" class="inline-block w-full bg-white border-2 border-brand-light text-brand-light hover:bg-brand-light hover:text-white font-black py-3.5 sm:py-4 rounded-2xl transition shadow-sm text-center text-sm sm:text-base tracking-wide cursor-pointer">
+                        CRIAR MINHA CONTA
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -948,33 +950,6 @@
                     </div>
                 </div>
 
-                        <!-- Mini Contadores Inline Compactos -->
-                        <div class="grid grid-cols-3 gap-1.5 my-2">
-                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-slate-500 uppercase">Novos</span>
-                                <span id="card-crm-count-novos" class="text-xs font-black text-blue-600">0</span>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-slate-500 uppercase">Contato</span>
-                                <span id="card-crm-count-abordagem" class="text-xs font-black text-amber-600">0</span>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-slate-500 uppercase">Fechados</span>
-                                <span id="card-crm-count-fechados" class="text-xs font-black text-emerald-600">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
-                        <button id="btn-abrir-card-crm" type="button" onclick="abrirModuloCrmKanban()" class="flex-1 bg-slate-900 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Desbloquear • R$ 9,90/mês
-                        </button>
-                        <button type="button" onclick="baixarExtensaoWhatsapp()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Baixar Extensão de Grupos">
-                            <i class="fa-solid fa-puzzle-piece text-[11px] text-purple-600"></i> Extensão
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
 
@@ -1251,8 +1226,6 @@
                     </button>
                 </div>
             </div>
-            </div>
-        </div>
 
         <!-- MODAL COMPLETO DE EDIÇÃO DO PERFIL DO CONSULTOR -->
         <div id="modal-perfil-consultor" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
