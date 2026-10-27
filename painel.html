@@ -2352,6 +2352,9 @@
                                 </button>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button" onclick="importarLeadsDiretoClipboard()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs border border-purple-400/40" title="Inserir os contatos copiados da tela do Facebook diretamente">
+                                    <i class="fa-solid fa-paste text-xs text-purple-200"></i> <span>📥 Inserir Copiados</span>
+                                </button>
                                 <button type="button" onclick="trocarAbaExtratorFacebook('extrator')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
                                     <i class="fa-solid fa-plus text-xs"></i> Extrair Mais Leads
                                 </button>
@@ -25929,7 +25932,118 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             return 'https://litraodoreset.com.br/433005811bra';
         }
 
+        // =========================================================================
+        // BANCO DE DADOS DE ALTA CAPACIDADE (INDEXEDDB) PARA LEADS DO FACEBOOK
+        // Suporta 100.000+ leads sem limitação de cota de 5MB do localStorage
+        // =========================================================================
+        const ResetFitDB = {
+            dbName: 'ResetFitDatabase_Leads',
+            version: 1,
+            storeName: 'facebook_leads',
+            _dbPromise: null,
+
+            abrir: function() {
+                if (ResetFitDB._dbPromise) return ResetFitDB._dbPromise;
+                ResetFitDB._dbPromise = new Promise((resolve) => {
+                    if (typeof window === 'undefined' || !window.indexedDB) {
+                        console.warn('[ResetFitDB] IndexedDB não suportado, usando memória.');
+                        return resolve(null);
+                    }
+                    try {
+                        const req = window.indexedDB.open(ResetFitDB.dbName, ResetFitDB.version);
+                        req.onupgradeneeded = (e) => {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains(ResetFitDB.storeName)) {
+                                db.createObjectStore(ResetFitDB.storeName, { keyPath: 'id' });
+                            }
+                        };
+                        req.onsuccess = (e) => resolve(e.target.result);
+                        req.onerror = () => resolve(null);
+                    } catch(err) {
+                        console.warn('[ResetFitDB] Falha ao abrir IndexedDB:', err);
+                        resolve(null);
+                    }
+                });
+                return ResetFitDB._dbPromise;
+            },
+
+            salvarTodos: async function(leads) {
+                if (!Array.isArray(leads)) return false;
+                try {
+                    const db = await ResetFitDB.abrir();
+                    if (!db) return false;
+                    return new Promise((resolve) => {
+                        const tx = db.transaction(ResetFitDB.storeName, 'readwrite');
+                        const store = tx.objectStore(ResetFitDB.storeName);
+                        store.clear();
+                        leads.forEach(l => {
+                            if (l && l.id) store.put(l);
+                        });
+                        tx.oncomplete = () => resolve(true);
+                        tx.onerror = () => resolve(false);
+                    });
+                } catch(e) {
+                    console.warn('[ResetFitDB] Erro ao gravar em IndexedDB:', e);
+                    return false;
+                }
+            },
+
+            obterTodos: async function() {
+                try {
+                    const db = await ResetFitDB.abrir();
+                    if (!db) return null;
+                    return new Promise((resolve) => {
+                        const tx = db.transaction(ResetFitDB.storeName, 'readonly');
+                        const store = tx.objectStore(ResetFitDB.storeName);
+                        const req = store.getAll();
+                        req.onsuccess = () => resolve(req.result || []);
+                        req.onerror = () => resolve(null);
+                    });
+                } catch(e) {
+                    console.warn('[ResetFitDB] Erro ao ler IndexedDB:', e);
+                    return null;
+                }
+            }
+        };
+
+        window.ResetFitDB = ResetFitDB;
+        window.__resetfit_fb_leads_cache = null;
+
+        // Auto-inicialização assíncrona do IndexedDB para bases de 10.000 a 50.000 leads
+        (async function inicializarBancoLeadsFacebook() {
+            try {
+                const dadosIdb = await ResetFitDB.obterTodos();
+                if (dadosIdb && Array.isArray(dadosIdb) && dadosIdb.length > 0) {
+                    window.__resetfit_fb_leads_cache = dadosIdb;
+                    console.log(`[ResetFitDB] Base carregada com sucesso do IndexedDB: ${dadosIdb.length} leads!`);
+                    if (typeof renderizarTabelaLeadsFacebook === 'function') {
+                        const modal = document.getElementById('modal-extrator-facebook-superadmin');
+                        if (modal && !modal.classList.contains('hidden')) {
+                            renderizarTabelaLeadsFacebook();
+                        }
+                    }
+                } else {
+                    const chave = obterChaveStorageFacebookLeads();
+                    const raw = localStorage.getItem(chave);
+                    if (raw) {
+                        try {
+                            const parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                window.__resetfit_fb_leads_cache = parsed;
+                                await ResetFitDB.salvarTodos(parsed);
+                                console.log(`[ResetFitDB] ${parsed.length} leads migrados com sucesso do localStorage para o IndexedDB!`);
+                            }
+                        } catch(_) {}
+                    }
+                }
+            } catch(e) {}
+        })();
+
         function obterLeadsFacebookStorage() {
+            if (window.__resetfit_fb_leads_cache && Array.isArray(window.__resetfit_fb_leads_cache) && window.__resetfit_fb_leads_cache.length > 0) {
+                return window.__resetfit_fb_leads_cache;
+            }
+
             const chave = obterChaveStorageFacebookLeads();
             let dados = null;
             try {
@@ -25976,12 +26090,39 @@ Um abraço e ótimas vendas aí no seu Espaço!`
                 ];
                 salvarLeadsFacebookStorage(dados);
             }
+
+            window.__resetfit_fb_leads_cache = dados;
             return dados;
         }
 
         function salvarLeadsFacebookStorage(leads) {
+            if (!Array.isArray(leads)) return;
+            window.__resetfit_fb_leads_cache = leads;
+
+            // 1. Grava no IndexedDB de Alta Capacidade (suporta centenas de milhares sem travar)
+            ResetFitDB.salvarTodos(leads).then(() => {
+                console.log(`[ResetFitDB] ${leads.length} leads salvos no IndexedDB de alta performance!`);
+            });
+
+            // 2. Tenta espelhar no localStorage de forma segura (sem estourar cota de 5MB)
             const chave = obterChaveStorageFacebookLeads();
-            localStorage.setItem(chave, JSON.stringify(leads || []));
+            try {
+                if (leads.length > 2000) {
+                    const amostra = leads.slice(0, 1000);
+                    localStorage.setItem(chave, JSON.stringify(amostra));
+                    localStorage.setItem('litrao_facebook_leads_total_real', String(leads.length));
+                } else {
+                    localStorage.setItem(chave, JSON.stringify(leads));
+                    localStorage.setItem('litrao_facebook_leads_total_real', String(leads.length));
+                }
+            } catch(e) {
+                console.warn('[ResetFIT] Limite do localStorage atingido. Base segura preservada no IndexedDB.', e);
+                try {
+                    const amostraMin = leads.slice(0, 400);
+                    localStorage.setItem(chave, JSON.stringify(amostraMin));
+                    localStorage.setItem('litrao_facebook_leads_total_real', String(leads.length));
+                } catch(_) {}
+            }
         }
 
         function obterPublicosFacebookStorage() {
@@ -26379,26 +26520,42 @@ Um abraço e ótimas vendas aí no seu Espaço!`
 
             const htmlVazioColuna = `<div class="py-8 text-center text-gray-400 text-xs italic">Nenhum contato nesta etapa</div>`;
 
-            if (colPendente) {
-                colPendente.innerHTML = leadsPorEtapa.pendente.length > 0
-                    ? leadsPorEtapa.pendente.map(l => gerarCardKanbanHtml(l, 'pendente')).join('')
-                    : htmlVazioColuna;
-            }
-            if (colEnviado) {
-                colEnviado.innerHTML = leadsPorEtapa.enviado.length > 0
-                    ? leadsPorEtapa.enviado.map(l => gerarCardKanbanHtml(l, 'enviado')).join('')
-                    : htmlVazioColuna;
-            }
-            if (colConversa) {
-                colConversa.innerHTML = leadsPorEtapa.conversa.length > 0
-                    ? leadsPorEtapa.conversa.map(l => gerarCardKanbanHtml(l, 'conversa')).join('')
-                    : htmlVazioColuna;
-            }
-            if (colInstalou) {
-                colInstalou.innerHTML = leadsPorEtapa.instalou.length > 0
-                    ? leadsPorEtapa.instalou.map(l => gerarCardKanbanHtml(l, 'instalou')).join('')
-                    : htmlVazioColuna;
-            }
+            window.fbLimiteCardsKanban = window.fbLimiteCardsKanban || {
+                pendente: 40,
+                enviado: 40,
+                conversa: 40,
+                instalou: 40
+            };
+
+            const renderizarColunaKanbanOtimizada = (colElement, etapa) => {
+                if (!colElement) return;
+                const leadsEtapa = leadsPorEtapa[etapa] || [];
+                if (leadsEtapa.length === 0) {
+                    colElement.innerHTML = htmlVazioColuna;
+                    return;
+                }
+                const limiteAtual = window.fbLimiteCardsKanban[etapa] || 40;
+                const visiveis = leadsEtapa.slice(0, limiteAtual);
+                let html = visiveis.map(l => gerarCardKanbanHtml(l, etapa)).join('');
+
+                if (leadsEtapa.length > limiteAtual) {
+                    const restantes = leadsEtapa.length - limiteAtual;
+                    html += `
+                        <div class="py-3 px-1 text-center">
+                            <button type="button" onclick="carregarMaisCardsKanbanEtapa('${etapa}')" class="w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-black rounded-xl text-xs transition border border-blue-200 cursor-pointer shadow-2xs flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>Mostrar mais 40 contatos (${restantes} restantes)</span>
+                            </button>
+                        </div>
+                    `;
+                }
+                colElement.innerHTML = html;
+            };
+
+            renderizarColunaKanbanOtimizada(colPendente, 'pendente');
+            renderizarColunaKanbanOtimizada(colEnviado, 'enviado');
+            renderizarColunaKanbanOtimizada(colConversa, 'conversa');
+            renderizarColunaKanbanOtimizada(colInstalou, 'instalou');
 
             // 2. RENDERIZAÇÃO DA LISTA (Modo 'lista')
             if (containerLista) {
@@ -27903,7 +28060,112 @@ Um abraço e ótimas vendas aí no seu Espaço!`
             window.open('https://www.facebook.com/search/groups/?q=espa%C3%A7o%20vida%20saudavel%20herbalife', '_blank');
         }
 
+        function carregarMaisCardsKanbanEtapa(etapa) {
+            window.fbLimiteCardsKanban = window.fbLimiteCardsKanban || {};
+            window.fbLimiteCardsKanban[etapa] = (window.fbLimiteCardsKanban[etapa] || 40) + 40;
+            renderizarTabelaLeadsFacebook();
+        }
+
+        async function importarLeadsDiretoClipboard() {
+            let texto = '';
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    texto = await navigator.clipboard.readText();
+                }
+            } catch (e) {
+                console.warn('Permissão de leitura da área de transferência negada:', e);
+            }
+
+            if (!texto || !texto.trim()) {
+                const textarea = document.getElementById('fb-import-textarea');
+                if (textarea && textarea.value && textarea.value.trim()) {
+                    texto = textarea.value.trim();
+                } else {
+                    trocarAbaExtratorFacebook('extrator');
+                    alert('📋 Dê Ctrl+V no campo de texto abaixo e clique em "Processar" para importar seus contatos!');
+                    if (textarea) textarea.focus();
+                    return;
+                }
+            }
+
+            let novosLeads = [];
+            try {
+                const parsed = JSON.parse(texto);
+                if (parsed && Array.isArray(parsed.leads)) {
+                    novosLeads = parsed.leads;
+                } else if (Array.isArray(parsed)) {
+                    novosLeads = parsed;
+                }
+            } catch(e) {}
+
+            if (novosLeads.length === 0) {
+                const textarea = document.getElementById('fb-import-textarea');
+                if (textarea) textarea.value = texto;
+                trocarAbaExtratorFacebook('extrator');
+                processarTextoImportadoFacebook();
+                return;
+            }
+
+            const normalizarNomeFb = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+            const extrairIdPerfil = (url) => {
+                if (!url) return '';
+                const limpa = String(url).split('?')[0].replace(/\/+$/, '').toLowerCase();
+                const mId = String(url).match(/[?&]id=(\d+)/i) || String(url).match(/\/user\/(\d+)/i);
+                if (mId) return 'id_' + mId[1];
+                const mUser = limpa.match(/facebook\.com\/([a-zA-Z0-9\.\_\-]+)/i);
+                if (mUser && !['groups', 'events', 'watch', 'pages', 'search', 'people'].includes(mUser[1])) return 'user_' + mUser[1];
+                return limpa;
+            };
+
+            const leadsAtuais = obterLeadsFacebookStorage();
+            const nomesExistentesSet = new Set(leadsAtuais.map(l => normalizarNomeFb(l.nome)).filter(Boolean));
+            const perfisExistentesSet = new Set(leadsAtuais.map(l => extrairIdPerfil(l.perfilUrl)).filter(Boolean));
+
+            let adicionados = 0;
+            let duplicados = 0;
+            const publicoDestino = 'Consultor';
+
+            novosLeads.forEach(item => {
+                const nomeTrim = (item.nome || item.name || '').trim();
+                if (!nomeTrim || nomeTrim.length < 3) return;
+
+                const nomeNorm = normalizarNomeFb(nomeTrim);
+                const perfilUrl = item.perfilUrl || item.perfil || `https://www.facebook.com/search/people/?q=${encodeURIComponent(nomeTrim)}`;
+                const perfilNorm = extrairIdPerfil(perfilUrl);
+
+                if (nomesExistentesSet.has(nomeNorm) || (perfilNorm && perfisExistentesSet.has(perfilNorm))) {
+                    duplicados++;
+                    return;
+                }
+
+                nomesExistentesSet.add(nomeNorm);
+                if (perfilNorm) perfisExistentesSet.add(perfilNorm);
+
+                leadsAtuais.push({
+                    id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    nome: nomeTrim,
+                    perfilUrl: perfilUrl,
+                    grupoOrigem: item.grupoOrigem || item.grupo || 'Grupo Facebook',
+                    cargo: item.cargo || 'membro',
+                    publico: item.publico || publicoDestino,
+                    status: 'pendente',
+                    origemTag: 'Facebook Grupos',
+                    dataAdicionado: new Date().toLocaleDateString('pt-BR'),
+                    notas: `Importado via Extensão • Público: ${item.publico || publicoDestino}`
+                });
+                adicionados++;
+            });
+
+            salvarLeadsFacebookStorage(leadsAtuais);
+            trocarAbaExtratorFacebook('leads');
+            renderizarTabelaLeadsFacebook();
+
+            alert(`🎉 IMPORTAÇÃO CONCLUÍDA!\n\n${adicionados} novos leads adicionados com sucesso ao Kanban!\n(${duplicados} contatos já existentes foram preservados sem duplicação).\n\nTotal de leads na base: ${leadsAtuais.length}`);
+        }
+
         // Exportações globais de Extrator Facebook SuperAdmin
+        window.carregarMaisCardsKanbanEtapa = carregarMaisCardsKanbanEtapa;
+        window.importarLeadsDiretoClipboard = importarLeadsDiretoClipboard;
         window.abrirModalExtratorFacebookSuperadmin = abrirModalExtratorFacebookSuperadmin;
         window.fecharModalExtratorFacebookSuperadmin = fecharModalExtratorFacebookSuperadmin;
         window.trocarAbaExtratorFacebook = trocarAbaExtratorFacebook;

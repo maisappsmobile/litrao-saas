@@ -239,21 +239,25 @@
     const storageKeys = obterFacebookStorageKeys();
     const chavePrincipal = storageKeys[0] || 'litrao_facebook_leads_433005811';
 
-    let leadsExistentes = [];
-    try {
-      // Tenta ler da chave principal ou da primeira que contenha dados
-      for (const k of storageKeys) {
-        const raw = localStorage.getItem(k);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            leadsExistentes = parsed;
-            break;
+    // Tenta obter base da memória global da página se já estiver carregada
+    if (window.__resetfit_fb_leads_cache && Array.isArray(window.__resetfit_fb_leads_cache) && window.__resetfit_fb_leads_cache.length > 0) {
+      leadsExistentes = window.__resetfit_fb_leads_cache;
+    } else {
+      try {
+        // Tenta ler da chave principal ou da primeira que contenha dados
+        for (const k of storageKeys) {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              leadsExistentes = parsed;
+              break;
+            }
           }
         }
+      } catch (e) {
+        leadsExistentes = [];
       }
-    } catch (e) {
-      leadsExistentes = [];
     }
 
     // REGRA DE OURO ANTI-DUPLICAÇÃO:
@@ -326,15 +330,47 @@
       novosCount++;
     });
 
+    // 1. Grava no IndexedDB de Alta Capacidade (suporta centenas de milhares de leads sem limite de cota)
     try {
-      const jsonFinal = JSON.stringify(leadsExistentes);
-      // Grava em todas as chaves pertinentes para garantir sincronia absoluta com painel.html
+      if (window.indexedDB) {
+        const reqIdb = window.indexedDB.open('ResetFitDatabase_Leads', 1);
+        reqIdb.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('facebook_leads')) {
+            db.createObjectStore('facebook_leads', { keyPath: 'id' });
+          }
+        };
+        reqIdb.onsuccess = (e) => {
+          try {
+            const db = e.target.result;
+            const tx = db.transaction('facebook_leads', 'readwrite');
+            const store = tx.objectStore('facebook_leads');
+            store.clear();
+            leadsExistentes.forEach(l => {
+              if (l && l.id) store.put(l);
+            });
+            console.log(`[ResetFIT Bridge] ${leadsExistentes.length} leads salvos no IndexedDB!`);
+          } catch(errTx) {
+            console.warn('[ResetFIT Bridge] Erro tx IndexedDB:', errTx);
+          }
+        };
+      }
+    } catch(errIdb) {
+      console.warn('[ResetFIT Bridge] IndexedDB indisponível no frame:', errIdb);
+    }
+
+    // 2. Grava amostra segura no localStorage para não estourar a cota de 5MB
+    try {
+      const amostra = leadsExistentes.length > 2000 ? leadsExistentes.slice(0, 1000) : leadsExistentes;
+      const jsonAmostra = JSON.stringify(amostra);
       storageKeys.forEach(k => {
-        try { localStorage.setItem(k, jsonFinal); } catch (_) {}
+        try { localStorage.setItem(k, jsonAmostra); } catch (_) {}
       });
+      try {
+        localStorage.setItem('litrao_facebook_leads_total_real', String(leadsExistentes.length));
+      } catch (_) {}
     } catch (errSalvar) {
-      console.error('[ResetFIT Bridge] Erro ao gravar leads do Facebook:', errSalvar);
-      return { sucesso: false, erro: errSalvar.message };
+      console.warn('[ResetFIT Bridge] Erro ao gravar amostra no localStorage:', errSalvar);
     }
 
     // Atualiza a tabela do Facebook no painel
@@ -343,7 +379,17 @@
       script.textContent = `
         (function() {
           try {
-            if (typeof window.renderizarTabelaLeadsFacebook === 'function') window.renderizarTabelaLeadsFacebook();
+            if (window.__resetfit_fb_leads_cache) {
+              window.__resetfit_fb_leads_cache = null;
+            }
+            if (typeof window.ResetFitDB !== 'undefined' && typeof window.ResetFitDB.obterTodos === 'function') {
+              window.ResetFitDB.obterTodos().then(dados => {
+                if (dados && dados.length > 0) window.__resetfit_fb_leads_cache = dados;
+                if (typeof window.renderizarTabelaLeadsFacebook === 'function') window.renderizarTabelaLeadsFacebook();
+              });
+            } else if (typeof window.renderizarTabelaLeadsFacebook === 'function') {
+              window.renderizarTabelaLeadsFacebook();
+            }
           } catch(e) {}
         })();
       `;
