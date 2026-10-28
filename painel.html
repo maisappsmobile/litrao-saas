@@ -1142,7 +1142,11 @@
                                     </label>
                                     <label class="flex items-center gap-2 p-1.5 hover:bg-purple-50 rounded-lg cursor-pointer">
                                         <input type="checkbox" id="chk-col-id" onchange="toggleColunaSuperadmin('id')" checked class="rounded text-purple-600 focus:ring-purple-500">
-                                        <span>ID Herbalife & Senha</span>
+                                        <span>ID Herbalife</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 hover:bg-purple-50 rounded-lg cursor-pointer">
+                                        <input type="checkbox" id="chk-col-senha" onchange="toggleColunaSuperadmin('senha')" checked class="rounded text-purple-600 focus:ring-purple-500">
+                                        <span>Senha</span>
                                     </label>
                                     <label class="flex items-center gap-2 p-1.5 hover:bg-purple-50 rounded-lg cursor-pointer">
                                         <input type="checkbox" id="chk-col-status" onchange="toggleColunaSuperadmin('status')" checked class="rounded text-purple-600 focus:ring-purple-500">
@@ -1199,7 +1203,8 @@
                         <thead>
                             <tr class="bg-purple-50/70 border-b border-purple-100 text-[11px] uppercase font-black text-purple-900">
                                 <th class="p-3 sm:p-4 sticky left-0 bg-purple-50/90 z-20 shadow-xs border-r border-purple-100">Consultor / Espaço</th>
-                                <th id="th-col-id" class="p-3 sm:p-4">ID & Senha</th>
+                                <th id="th-col-id" class="p-3 sm:p-4">ID Herbalife</th>
+                                <th id="th-col-senha" class="p-3 sm:p-4">Senha</th>
                                 <th id="th-col-whats" class="p-3 sm:p-4">WhatsApp</th>
                                 <th id="th-col-status" class="p-3 sm:p-4">Status</th>
                                 <th id="th-col-venc" class="p-3 sm:p-4">Vencimento</th>
@@ -1210,7 +1215,7 @@
                         </thead>
                         <tbody id="tabela-superadmin-corpo" class="divide-y divide-gray-100 text-xs sm:text-sm">
                             <tr>
-                                <td colspan="8" class="p-6 text-center text-gray-400">
+                                <td colspan="9" class="p-6 text-center text-gray-400">
                                     <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando consultores...
                                 </td>
                             </tr>
@@ -11739,7 +11744,7 @@
             const corpo = document.getElementById('tabela-superadmin-corpo');
             const totalBadge = document.getElementById('superadmin-total-badge');
             if (corpo) {
-                corpo.innerHTML = `<tr><td colspan="8" class="p-5 text-center text-gray-400 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2 text-purple-600"></i>Buscando todos os consultores no banco...</td></tr>`;
+                corpo.innerHTML = `<tr><td colspan="9" class="p-5 text-center text-gray-400 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2 text-purple-600"></i>Buscando todos os consultores no banco...</td></tr>`;
             }
 
             try {
@@ -11762,7 +11767,7 @@
             } catch (err) {
                 console.error("Erro ao carregar consultores:", err);
                 if (corpo) {
-                    corpo.innerHTML = `<tr><td colspan="8" class="p-5 text-center text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Erro ao carregar lista de consultores: ${err.message}</td></tr>`;
+                    corpo.innerHTML = `<tr><td colspan="9" class="p-5 text-center text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Erro ao carregar lista de consultores: ${err.message}</td></tr>`;
                 }
                 const cardsContainer = document.getElementById('container-superadmin-cards');
                 if (cardsContainer) {
@@ -11778,6 +11783,7 @@
         let CONFIG_COLUNAS_SUPERADMIN = {
             whats: true,
             id: true,
+            senha: true,
             status: true,
             venc: true,
             link: true,
@@ -12003,6 +12009,7 @@
 
             // Atualiza visibilidade dos cabeçalhos TH na tabela
             const thId = document.getElementById('th-col-id');
+            const thSenha = document.getElementById('th-col-senha');
             const thWhats = document.getElementById('th-col-whats');
             const thStatus = document.getElementById('th-col-status');
             const thVenc = document.getElementById('th-col-venc');
@@ -12011,6 +12018,7 @@
             const thAcoes = document.getElementById('th-col-acoes');
 
             if (thId) thId.style.display = CONFIG_COLUNAS_SUPERADMIN.id ? '' : 'none';
+            if (thSenha) thSenha.style.display = CONFIG_COLUNAS_SUPERADMIN.senha ? '' : 'none';
             if (thWhats) thWhats.style.display = CONFIG_COLUNAS_SUPERADMIN.whats ? '' : 'none';
             if (thStatus) thStatus.style.display = CONFIG_COLUNAS_SUPERADMIN.status ? '' : 'none';
             if (thVenc) thVenc.style.display = CONFIG_COLUNAS_SUPERADMIN.venc ? '' : 'none';
@@ -12019,7 +12027,7 @@
             if (thAcoes) thAcoes.style.display = CONFIG_COLUNAS_SUPERADMIN.acoes ? '' : 'none';
 
             if (!lista || lista.length === 0) {
-                if (corpo) corpo.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>`;
+                if (corpo) corpo.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>`;
                 if (containerCards) containerCards.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 font-bold"><i class="fa-solid fa-folder-open text-2xl mb-2 text-purple-300 block"></i>Nenhum consultor encontrado nesta busca ou filtro.</div>`;
                 return;
             }
@@ -12114,19 +12122,23 @@
                                     </button>
                                 </div>
 
-                                <!-- Dados de Acesso: ID e Senha -->
-                                ${CONFIG_COLUNAS_SUPERADMIN.id ? `
-                                    <div class="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-xs">
-                                        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-100">
-                                            <span class="block text-[9px] font-bold uppercase text-purple-900">ID Herbalife:</span>
-                                            <span class="font-mono font-black text-purple-950">${c.herbalife_id} <span class="text-[10px] bg-purple-200 text-purple-900 px-1 rounded">${letrasHerbalife}</span></span>
-                                        </div>
-                                        <div class="bg-amber-50/70 p-2 rounded-xl border border-amber-100">
-                                            <span class="block text-[9px] font-bold uppercase text-amber-900">Senha Painel:</span>
-                                            <span class="font-mono font-black text-amber-950 flex items-center gap-1">
-                                                <i class="fa-solid fa-key text-[10px] text-amber-500"></i> ${senhaConsultor}
-                                            </span>
-                                        </div>
+                                <!-- Dados de Acesso: ID e Senha (Separados) -->
+                                ${(CONFIG_COLUNAS_SUPERADMIN.id || CONFIG_COLUNAS_SUPERADMIN.senha) ? `
+                                    <div class="mt-3 pt-3 border-t border-gray-100 grid ${CONFIG_COLUNAS_SUPERADMIN.id && CONFIG_COLUNAS_SUPERADMIN.senha ? 'grid-cols-2' : 'grid-cols-1'} gap-2 text-xs">
+                                        ${CONFIG_COLUNAS_SUPERADMIN.id ? `
+                                            <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-100">
+                                                <span class="block text-[9px] font-bold uppercase text-purple-900">ID Herbalife:</span>
+                                                <span class="font-mono font-black text-purple-950">${c.herbalife_id} <span class="text-[10px] bg-purple-200 text-purple-900 px-1 rounded">${letrasHerbalife}</span></span>
+                                            </div>
+                                        ` : ''}
+                                        ${CONFIG_COLUNAS_SUPERADMIN.senha ? `
+                                            <div class="bg-amber-50/70 p-2 rounded-xl border border-amber-100">
+                                                <span class="block text-[9px] font-bold uppercase text-amber-900">Senha Painel:</span>
+                                                <span class="font-mono font-black text-amber-950 flex items-center gap-1">
+                                                    <i class="fa-solid fa-key text-[10px] text-amber-500"></i> ${senhaConsultor}
+                                                </span>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 ` : ''}
 
@@ -12279,14 +12291,20 @@
                             </div>
                         </td>
 
-                        <!-- Coluna 2: ID & Senha -->
+                        <!-- Coluna 2: ID Herbalife -->
                         ${CONFIG_COLUNAS_SUPERADMIN.id ? `
                             <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs">
                                 <div class="flex items-center gap-1">
                                     <span>${c.herbalife_id}</span>
                                     <span class="text-[10px] text-purple-700 font-black bg-purple-100 border border-purple-200 px-1 py-0.2 rounded">${letrasHerbalife}</span>
                                 </div>
-                                <div class="text-[10px] font-semibold text-gray-500 mt-0.5 flex items-center gap-1">
+                            </td>
+                        ` : ''}
+
+                        <!-- Coluna 2B: Senha -->
+                        ${CONFIG_COLUNAS_SUPERADMIN.senha ? `
+                            <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs">
+                                <div class="flex items-center gap-1 text-gray-700">
                                     <i class="fa-solid fa-key text-[9px] text-amber-500"></i>
                                     <span>${senhaConsultor}</span>
                                 </div>
