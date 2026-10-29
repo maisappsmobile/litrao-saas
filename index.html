@@ -1249,6 +1249,22 @@
                 document.getElementById('sponsor-id').innerText = consultor.herbalife_id;
                 document.getElementById('sponsor-letters').innerText = consultor.letras;
 
+                // Propaga dados do patrocinador para qualquer link que direcione para assinar.html
+                try {
+                    sessionStorage.setItem('litrao_patrocinador_indicacao', JSON.stringify({
+                        id: consultor.herbalife_id,
+                        letras: consultor.letras
+                    }));
+                    document.querySelectorAll('a[href*="assinar.html"]').forEach(a => {
+                        try {
+                            const u = new URL(a.href, window.location.origin);
+                            u.searchParams.set('patrocinador', consultor.herbalife_id);
+                            u.searchParams.set('letras', consultor.letras);
+                            a.href = u.pathname + u.search;
+                        } catch(_) {}
+                    });
+                } catch (_) {}
+
                 // Extrair Nome do Espaço, Nome do Consultor e Cidade (removendo qualquer tag de sistema/comentário HTML)
                 let rawEspaco = (consultor.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').trim();
                 let nomeEspacoFinal = "";
