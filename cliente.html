@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Portal do Cliente - Litrão do Reset & Herbalife</title>
+    <meta name="description" content="Acesse seu Cartão de Fidelidade Digital, histórico de Bioimpedância e faça pedidos de produtos fechados direto com seu consultor!">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portal do Cliente">
+    
+    <!-- Favicon e Ícones -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Canvas Confetti para celebração do Cartão Completo -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        play: ['Play', 'sans-serif']
+                    },
+                    colors: {
+                        herbalife: {
+                            green: '#78be20',
+                            dark: '#005a3c',
+                            light: '#91d624',
+                            black: '#252525'
+                        },
+                        brand: {
+                            dark: '#1e3a24',
+                            light: '#26aa4b',
+                            yellow: '#fbb03b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .cartao-fidelidade-fundo {
+            background: linear-gradient(135deg, #0f3d26 0%, #1e5e3a 50%, #0d281a 100%);
+            box-shadow: 0 15px 35px -5px rgba(15, 61, 38, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+        .cartao-ouro {
+            background: linear-gradient(135deg, #78350f 0%, #b45309 35%, #d97706 70%, #92400e 100%);
+            box-shadow: 0 15px 35px -5px rgba(180, 83, 9, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+        .cartao-roxo {
+            background: linear-gradient(135deg, #3b0764 0%, #6b21a8 50%, #4c1d95 100%);
+            box-shadow: 0 15px 35px -5px rgba(107, 33, 168, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+        .cartao-azul {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #075985 100%);
+            box-shadow: 0 15px 35px -5px rgba(3, 105, 161, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+        .selo-carimbado {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(255,255,255,0.7);
+            border: 2px solid #ffffff;
+            animation: carimboPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes carimboPop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .selo-pendente {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        .selo-pendente:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.14);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #78be20; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-24 antialiased selection:bg-herbalife-green selection:text-white">
+
+    <!-- BARRA SUPERIOR FIXA DO CLIENTE -->
+    <header class="bg-gradient-to-r from-emerald-950 via-teal-950 to-green-950 text-white sticky top-0 z-40 shadow-md border-b border-emerald-500/20">
+        <div class="max-w-4xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <img src="reset-logo.png" alt="Reset Metabólico" class="h-9 sm:h-10 object-contain" onerror="this.onerror=null; this.src='reset-icon.png';">
+                <div class="min-w-0">
+                    <span class="text-[10px] font-black uppercase text-emerald-400 tracking-wider block leading-tight">PORTAL DO CLIENTE</span>
+                    <h1 id="nav-nome-espaco" class="text-xs sm:text-sm font-extrabold text-white truncate max-w-[190px] sm:max-w-xs">Carregando consultor...</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="abrirModalIdentificacaoCliente()" id="btn-cliente-identificacao" class="bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold py-1.5 px-3 rounded-full border border-white/20 transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-user-circle text-amber-300"></i>
+                    <span id="label-cliente-identificado" class="truncate max-w-[110px]">Identificar-se</span>
+                </button>
+                <a id="btn-header-whatsapp-consultor" href="#" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-black p-2 sm:px-3 sm:py-1.5 rounded-full shadow transition flex items-center gap-1 cursor-pointer" title="Falar no WhatsApp com meu Consultor">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span class="hidden sm:inline">Consultor</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-4 py-5 space-y-6">
+
+        <!-- CARD DE VÍNCULO DO CONSULTOR -->
+        <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-3.5">
+                <div class="relative">
+                    <img id="consultor-avatar" src="https://ui-avatars.com/api/?name=Consultor+Herbalife&background=059669&color=ffffff&size=128&bold=true" alt="Consultor" class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-xs">
+                    <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-xs">
+                        <i class="fa-solid fa-check"></i>
+                    </span>
+                </div>
+                <div>
+                    <div class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.2 rounded-md text-[10px] font-extrabold uppercase">
+                        <i class="fa-solid fa-shield-check text-emerald-600"></i> Seu Consultor Oficial
+                    </div>
+                    <h2 id="consultor-nome-card" class="text-base sm:text-lg font-black text-slate-900 leading-snug">Carregando dados...</h2>
+                    <p class="text-xs text-slate-500 font-medium flex items-center gap-2 mt-0.5">
+                        <span id="consultor-cidade-card"><i class="fa-solid fa-location-dot text-slate-400 mr-0.5"></i> Brasil</span>
+                        <span>•</span>
+                        <span id="consultor-id-herba" class="font-mono text-slate-600 font-bold">ID: ---</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botões Rápidos de Contato -->
+            <div class="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <a id="link-zap-consultor-direto" href="#" target="_blank" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> <span>Chamar no WhatsApp</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ALERTA INICIAL DE IDENTIFICAÇÃO (SE O CLIENTE AINDA NÃO SE IDENTIFICOU) -->
+        <div id="box-banner-identificacao" class="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 rounded-3xl p-4 sm:p-5 text-slate-950 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-xl font-black shadow-xs flex-shrink-0">
+                    <i class="fa-solid fa-sparkles"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-sm sm:text-base leading-tight text-slate-950">Acesse seus Selos & Bioimpedância</h3>
+                    <p class="text-xs font-semibold text-slate-900/90 mt-0.5">Informe seu WhatsApp para carregar seu Cartão Fidelidade e histórico corporal.</p>
+                </div>
+            </div>
+            <button type="button" onclick="abrirModalIdentificacaoCliente()" class="bg-slate-950 hover:bg-slate-900 text-white font-black text-xs py-2.5 px-5 rounded-xl shadow transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
+                <i class="fa-solid fa-arrow-right-to-bracket text-amber-400"></i> <span>Entrar com Meu WhatsApp</span>
+            </button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- MÓDULO 1: CARTÃO DE FIDELIDADE DIGITAL DO CLIENTE                 -->
+        <!-- ================================================================= -->
+        <section id="modulo-cartao-fidelidade" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase text-emerald-700 tracking-wider block">PROGRAMA DE BENEFÍCIOS</span>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-emerald-600"></i> Cartão de Fidelidade Digital
+                    </h3>
+                </div>
+                <button type="button" onclick="pedirCarimboWhatsApp()" class="text-xs font-black bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-3 py-1.5 rounded-xl border border-emerald-300 transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-stamp text-emerald-700"></i> Pedir Carimbo
+                </button>
+            </div>
+
+            <!-- O CARTÃO VIRTUAL EM SI (ESTILO FÍSICO COM SELOS) -->
+            <div id="cartao-fidelidade-corpo" class="cartao-fidelidade-fundo rounded-3xl p-5 sm:p-7 text-white relative overflow-hidden transition-all duration-300">
+                <!-- Marca d'água / Logo ao fundo -->
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+
+                <!-- Topo do Cartão -->
+                <div class="relative z-10 flex items-center justify-between border-b border-white/15 pb-4 mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-lg text-amber-300 font-black">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase text-emerald-300 tracking-widest block leading-none">CARTÃO FIDELIDADE OFICIAL</span>
+                            <h4 id="fidelidade-nome-espaco" class="text-base sm:text-lg font-black text-white leading-tight">Espaço Saudável</h4>
+                        </div>
+                    </div>
+                    <span id="fidelidade-badge-status" class="bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2.5 py-1 rounded-full shadow-xs">
+                        Ativo
+                    </span>
+                </div>
+
+                <!-- Dados do Titular do Cartão -->
+                <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between text-xs mb-5 text-emerald-100/90 gap-1">
+                    <div>
+                        <span class="text-[10px] uppercase text-emerald-300/80 font-bold block">CLIENTE VIP:</span>
+                        <span id="fidelidade-cliente-nome" class="font-extrabold text-sm text-white">Não identificado</span>
+                        <span id="fidelidade-cliente-zap" class="text-xs text-emerald-200 font-mono ml-1.5 font-bold"></span>
+                    </div>
+                    <div class="sm:text-right">
+                        <span class="text-[10px] uppercase text-emerald-300/80 font-bold block">REGRA DE PONTUAÇÃO:</span>
+                        <span id="fidelidade-regra-texto" class="font-bold text-white text-xs">A cada 10 presenças ou compras ganhe seu prêmio</span>
+                    </div>
+                </div>
+
+                <!-- GRADE DE SELOS DO CARTÃO FIDELIDADE (1 a 10) -->
+                <div class="relative z-10 bg-black/25 backdrop-blur-sm p-4 sm:p-5 rounded-2xl border border-white/15">
+                    <div id="grid-selos-fidelidade" class="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-2.5">
+                        <!-- Gerado dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- Recompensa e Progresso -->
+                <div class="relative z-10 mt-5 pt-4 border-t border-white/15 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1.5 flex-1">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-black text-amber-300 flex items-center gap-1">
+                                <i class="fa-solid fa-gift"></i> <span id="fidelidade-premio-nome">1 Shake Especial Grátis no EVS</span>
+                            </span>
+                            <span id="fidelidade-contador-progresso" class="font-black font-mono text-emerald-300 text-xs">0 / 10 Selos</span>
+                        </div>
+                        <!-- Barra de Progresso -->
+                        <div class="w-full bg-black/40 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/20">
+                            <div id="fidelidade-barra-progresso" class="bg-gradient-to-r from-yellow-400 to-amber-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="fidelidade-frase-incentivo" class="text-[11px] text-emerald-100 font-medium">
+                            Faltam 10 carimbos para você resgatar seu prêmio!
+                        </p>
+                    </div>
+
+                    <!-- Botão de Ação -->
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <button type="button" id="btn-resgatar-premio-fidelidade" onclick="resgatarPremioClienteWhatsApp()" class="hidden bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 font-black text-xs py-3 px-5 rounded-2xl shadow-lg transition flex items-center gap-1.5 animate-pulse cursor-pointer">
+                            <i class="fa-solid fa-trophy"></i> <span>RESGATAR PRÊMIO!</span>
+                        </button>
+                        <button type="button" onclick="pedirCarimboWhatsApp()" class="w-full md:w-auto bg-white/15 hover:bg-white/25 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl border border-white/25 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-emerald-400"></i> <span>Avisar Visita / Pedir Carimbo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- MÓDULO 2: HISTÓRICO DE BIOIMPEDÂNCIA DO CLIENTE                   -->
+        <!-- ================================================================= -->
+        <section id="modulo-bioimpedancia" class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase text-blue-700 tracking-wider block">SUA SAÚDE CORPORAL</span>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-blue-600"></i> Suas Avaliações de Bioimpedância
+                    </h3>
+                </div>
+                <a id="btn-fazer-bioimpedancia" href="/avaliacao.html" class="text-xs font-black bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-plus-circle"></i> Nova Avaliação
+                </a>
+            </div>
+
+            <!-- Card com Histórico ou Estado Vazio -->
+            <div id="container-bioimpedancia-historico" class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80 space-y-4">
+                <div id="bioimpedancia-loading" class="text-center py-6 text-slate-400 text-xs font-semibold">
+                    <i class="fa-solid fa-spinner fa-spin text-lg text-blue-600 mb-2 block"></i>
+                    Carregando seu histórico de avaliações...
+                </div>
+
+                <div id="bioimpedancia-vazio" class="hidden text-center py-8 px-4">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-black mx-auto mb-3 shadow-xs">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <h4 class="font-black text-slate-900 text-base">Nenhuma avaliação encontrada ainda</h4>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-4 leading-relaxed">
+                        Faça sua primeira avaliação corporal on-line para que seu consultor acompanhe suas métricas de peso, medidas e taxa metabólica!
+                    </p>
+                    <a id="btn-iniciar-bio-empty" href="/avaliacao.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-3 px-6 rounded-xl shadow-sm transition cursor-pointer">
+                        <i class="fa-solid fa-play"></i> Iniciar Minha Avaliação Agora
+                    </a>
+                </div>
+
+                <!-- Lista de Avaliações Carregadas -->
+                <div id="bioimpedancia-lista" class="hidden space-y-3">
+                    <!-- Cards de avaliações gerados dinamicamente via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- MÓDULO 3: CATÁLOGO & PEDIDOS DE PRODUTOS FECHADOS                 -->
+        <!-- ================================================================= -->
+        <section id="modulo-catalogo-pedidos" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <span class="text-[10px] font-black uppercase text-herbalife-green tracking-wider block">PRODUTOS OFICIAIS HERBALIFE</span>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-leaf text-herbalife-green"></i> Pedidos de Produtos Fechados
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="link-catalogo-completo" href="/catalogo" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1">
+                        Ver Catálogo Completo Interativo <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtros de Categorias -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none" id="filtro-categorias-container">
+                <button type="button" onclick="filtrarProdutos('todos', this)" class="btn-filtro-cat bg-emerald-700 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-xs whitespace-nowrap transition cursor-pointer">
+                    Todos os Produtos
+                </button>
+                <button type="button" onclick="filtrarProdutos('Shakes & Nutrição', this)" class="btn-filtro-cat bg-white hover:bg-emerald-50 text-slate-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap transition cursor-pointer">
+                    Shakes & Nutrição
+                </button>
+                <button type="button" onclick="filtrarProdutos('Chás & NRG', this)" class="btn-filtro-cat bg-white hover:bg-emerald-50 text-slate-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap transition cursor-pointer">
+                    Chás & NRG
+                </button>
+                <button type="button" onclick="filtrarProdutos('Fibras & Digestão', this)" class="btn-filtro-cat bg-white hover:bg-emerald-50 text-slate-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap transition cursor-pointer">
+                    Fibras & Proteínas
+                </button>
+                <button type="button" onclick="filtrarProdutos('Tabletes & Vitaminas', this)" class="btn-filtro-cat bg-white hover:bg-emerald-50 text-slate-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap transition cursor-pointer">
+                    Vitaminas & Saúde
+                </button>
+            </div>
+
+            <!-- Vitrine de Produtos Fechados -->
+            <div id="grid-produtos-fechados" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                <!-- Gerado dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- MÓDULO 4: BANNER OFICIAL DE CADASTRO NA HERBALIFE NUTRITION       -->
+        <!-- ================================================================= -->
+        <section id="modulo-banner-herbalife" class="bg-gradient-to-br from-emerald-900 via-green-950 to-slate-900 rounded-3xl p-5 sm:p-7 text-white shadow-xl border-2 border-emerald-500/40 relative overflow-hidden space-y-5">
+            <!-- Detalhe decorativo -->
+            <div class="absolute -right-8 -top-8 text-emerald-500/10 text-9xl pointer-events-none">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="space-y-1.5 max-w-xl">
+                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        <i class="fa-solid fa-crown text-amber-400 text-[9px]"></i> Cliente Premium & Oportunidade
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black text-white leading-tight">
+                        Quer Comprar Produtos Herbalife Direto da Fábrica com até 32% de Desconto?
+                    </h3>
+                    <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-medium">
+                        Cadastre-se na Herbalife como <strong>Cliente Premium</strong> ou <strong>Consultor Independente</strong> e tenha acesso aos melhores preços, pontos de fidelidade e promoções exclusivas!
+                    </p>
+                </div>
+
+                <div class="flex-shrink-0">
+                    <a id="btn-cadastro-herbalife-oficial" href="https://www.herbalife.com.br" target="_blank" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black text-xs sm:text-sm py-3.5 px-6 rounded-2xl shadow-xl transition transform hover:scale-102 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        <span>FAZER CADASTRO NA HERBALIFE</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CAIXA COM OS DADOS DO PATROCINADOR PARA CÓPIA RÁPIDA -->
+            <div class="relative z-10 bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-emerald-400/30">
+                <p class="text-xs text-amber-300 font-extrabold mb-3 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-info"></i> No formulário da Herbalife, quando perguntar <em>"Você tem um Consultor / Patrocinador?"</em>, escolha <strong>SIM</strong> e use os dados abaixo:
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <!-- ID do Consultor -->
+                    <div class="bg-white/10 p-3 rounded-xl border border-white/15 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-emerald-300">ID Herbalife do seu Patrocinador:</span>
+                            <span id="banner-consultor-id" class="text-base sm:text-lg font-black font-mono text-white tracking-wider">433005811</span>
+                        </div>
+                        <button type="button" onclick="copiarTextoDados('banner-consultor-id', 'ID')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-copy"></i> <span>Copiar ID</span>
+                        </button>
+                    </div>
+
+                    <!-- 3 Letras -->
+                    <div class="bg-white/10 p-3 rounded-xl border border-white/15 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-emerald-300">3 Primeiras Letras do Sobrenome:</span>
+                            <span id="banner-consultor-letras" class="text-base sm:text-lg font-black font-mono text-amber-300 tracking-wider">BRA</span>
+                        </div>
+                        <button type="button" onclick="copiarTextoDados('banner-consultor-letras', 'Letras')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-copy"></i> <span>Copiar Letras</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BARRA INFERIOR FLUTUANTE DA SACOLA DE PEDIDOS -->
+    <div id="barra-flutuante-sacola" class="hidden fixed bottom-4 inset-x-4 max-w-md mx-auto z-40 bg-slate-950 text-white p-3.5 rounded-2xl shadow-2xl border border-slate-800 flex items-center justify-between animate-fade-in">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-herbalife-green text-slate-950 flex items-center justify-center text-lg font-black shadow">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+            <div>
+                <span id="sacola-qtd-itens" class="text-xs font-bold text-emerald-400 block">0 produtos selecionados</span>
+                <span id="sacola-valor-total" class="text-sm font-black text-white">R$ 0,00</span>
+            </div>
+        </div>
+        <button type="button" onclick="abrirModalSacola()" class="bg-herbalife-green hover:bg-emerald-500 text-slate-950 font-black text-xs py-2 px-4 rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
+            <span>Ver Pedido</span> <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <!-- MODAL DE IDENTIFICAÇÃO DO CLIENTE (WHATSAPP & NOME) -->
+    <div id="modal-identificacao-cliente" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="p-5 bg-gradient-to-r from-emerald-900 to-green-950 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-sm text-white leading-tight">Acesso do Cliente</h3>
+                        <p class="text-[11px] text-emerald-300">Litrão do Reset & Fidelidade</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalIdentificacaoCliente()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="salvarIdentificacaoCliente(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">
+                        <i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> Seu WhatsApp (com DDD) *
+                    </label>
+                    <input type="tel" id="input-cliente-whatsapp" required placeholder="(00) 00000-0000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono">
+                    <p class="text-[10px] text-slate-400 mt-1">Seus selos e bioimpedâncias são vinculados ao seu WhatsApp.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">
+                        <i class="fa-solid fa-signature text-slate-500 mr-1"></i> Seu Nome Completo (opcional)
+                    </label>
+                    <input type="text" id="input-cliente-nome" placeholder="Como você gostaria de ser chamado?" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2">
+                    <button type="button" onclick="fecharModalIdentificacaoCliente()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-check"></i> <span>Acessar Painel</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DA SACOLA / RESUMO DO PEDIDO -->
+    <div id="modal-sacola-pedidos" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3.5 sm:p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-herbalife-green text-slate-950 flex items-center justify-center text-lg font-black">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-base text-slate-900">Seu Pedido de Produtos Fechados</h3>
+                        <p class="text-xs text-slate-500">Enviado diretamente ao WhatsApp do seu consultor</p>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalSacola()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center font-bold transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Lista de Itens -->
+            <div class="p-5 overflow-y-auto space-y-3 flex-1" id="sacola-lista-itens">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+
+            <!-- Footer com Total e Botão Enviar Pedido -->
+            <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
+                <div class="flex items-center justify-between text-base font-black">
+                    <span class="text-slate-700">Total do Pedido:</span>
+                    <span id="modal-sacola-total" class="text-emerald-700 text-xl font-mono">R$ 0,00</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="limparSacola()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer">
+                        Limpar Pedido
+                    </button>
+                    <button type="button" onclick="enviarPedidoWhatsAppConsultor()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-base"></i> <span>Pedir no WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS JS DO PORTAL DO CLIENTE -->
+    <script>
+        const SUPABASE_URL = "https://ufgcjzhecpmhsavppjyn.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX";
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        // Dados padrão do consultor
+        let consultorAtual = {
+            id: null,
+            herbalife_id: "433005811",
+            letras: "BRA",
+            nome_espaco: "Litrão do Reset Oficial",
+            whatsapp: "66996362540",
+            cidade: "Juína - MT",
+            slug: "reset",
+            avatar: "reset-logo.png",
+            portalConfig: {
+                ativo: true,
+                fidelidade: true,
+                bioimpedancia: true,
+                pedidos: true,
+                banner_herbalife: true,
+                regraFidelidade: {
+                    meta: 10,
+                    tipo: "compras",
+                    descricao: "A cada 10 compras ou presenças no EVS",
+                    premio: "1 Shake Especial Grátis no EVS",
+                    cor: "verde"
+                }
+            },
+            fidelidadeClientes: []
+        };
+
+        // Dados do cliente logado
+        let clienteAtual = {
+            whatsapp: "",
+            nome: "",
+            selos: 0,
+            historicoSelos: [],
+            resgates: 0
+        };
+
+        // Sacola de produtos
+        let sacola = [];
+        let todosProdutosFechados = [];
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', async () => {
+            carregarClienteLocalStorage();
+            await carregarDadosConsultor();
+            await carregarProdutosFechados();
+            aplicarRegrasVisibilidade();
+            renderizarCartaoFidelidade();
+            await carregarHistoricoBioimpedancia();
+        });
+
+        // 1. CARREGA DADOS DO CONSULTOR (URL PARAMS OU SUPABASE)
+        async function carregarDadosConsultor() {
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('c') || params.get('slug') || localStorage.getItem('litrao_cliente_consultor_slug');
+            const hid = params.get('id') || params.get('hid') || localStorage.getItem('litrao_cliente_consultor_id');
+
+            if (supabaseClient && (slug || hid)) {
+                try {
+                    let data = null;
+                    if (slug) {
+                        const resSlug = await supabaseClient.from('consultores').select('*').eq('slug', slug).maybeSingle();
+                        if (resSlug && resSlug.data) {
+                            data = resSlug.data;
+                        } else {
+                            const resHid = await supabaseClient.from('consultores').select('*').eq('herbalife_id', slug).maybeSingle();
+                            if (resHid && resHid.data) data = resHid.data;
+                        }
+                    } else if (hid) {
+                        const resHid2 = await supabaseClient.from('consultores').select('*').eq('herbalife_id', hid).maybeSingle();
+                        if (resHid2 && resHid2.data) data = resHid2.data;
+                    }
+
+                    if (data) {
+                        consultorAtual.id = data.id;
+                        consultorAtual.herbalife_id = data.herbalife_id || consultorAtual.herbalife_id;
+                        consultorAtual.slug = data.slug || consultorAtual.slug;
+                        consultorAtual.letras = data.letras || consultorAtual.letras;
+                        consultorAtual.whatsapp = (data.whatsapp || consultorAtual.whatsapp).replace(/\D/g, '');
+
+                        const rawNome = data.nome_espaco || '';
+                        consultorAtual.nome_espaco = rawNome.replace(/<!--[\s\S]*?-->/g, '').trim() || 'Espaço Vida Saudável';
+
+                        // Lê tag de configuração do portal: <!--PORTAL_CLIENTE:{...}-->
+                        if (rawNome.includes('<!--PORTAL_CLIENTE:')) {
+                            try {
+                                const m = rawNome.match(/<!--PORTAL_CLIENTE:([\s\S]*?)-->/);
+                                if (m && m[1]) {
+                                    const parsedCfg = JSON.parse(m[1]);
+                                    consultorAtual.portalConfig = { ...consultorAtual.portalConfig, ...parsedCfg };
+                                }
+                            } catch(e) {}
+                        }
+
+                        // Lê tag de clientes da fidelidade: <!--FIDELIDADE_CLIENTES:[...]-->
+                        if (rawNome.includes('<!--FIDELIDADE_CLIENTES:')) {
+                            try {
+                                const mf = rawNome.match(/<!--FIDELIDADE_CLIENTES:([\s\S]*?)-->/);
+                                if (mf && mf[1]) {
+                                    consultorAtual.fidelidadeClientes = JSON.parse(mf[1]);
+                                }
+                            } catch(ef) {}
+                        }
+
+                        // Salva para memorizar o consultor do cliente
+                        if (data.slug) localStorage.setItem('litrao_cliente_consultor_slug', data.slug);
+                        if (data.herbalife_id) localStorage.setItem('litrao_cliente_consultor_id', data.herbalife_id);
+                    }
+                } catch(err) {
+                    console.warn("Erro ao buscar consultor:", err);
+                }
+            }
+
+            atualizarElementosConsultorNaTela();
+        }
+
+        function atualizarElementosConsultorNaTela() {
+            // Header e Título
+            document.getElementById('nav-nome-espaco').innerText = consultorAtual.nome_espaco;
+            document.getElementById('fidelidade-nome-espaco').innerText = consultorAtual.nome_espaco;
+            document.getElementById('consultor-nome-card').innerText = consultorAtual.nome_espaco;
+            document.getElementById('consultor-id-herba').innerText = `ID: ${consultorAtual.herbalife_id}`;
+            document.getElementById('banner-consultor-id').innerText = consultorAtual.herbalife_id;
+            document.getElementById('banner-consultor-letras').innerText = consultorAtual.letras || 'BRA';
+
+            // Links de WhatsApp
+            const msgPadrao = encodeURIComponent(`Olá ${consultorAtual.nome_espaco}! Estou acessando o meu Portal do Cliente.`);
+            const zapLink = `https://wa.me/55${consultorAtual.whatsapp}?text=${msgPadrao}`;
+            document.getElementById('btn-header-whatsapp-consultor').href = zapLink;
+            document.getElementById('link-zap-consultor-direto').href = zapLink;
+
+            // Link do botão Herbalife Oficial com redirecionamento amigável
+            document.getElementById('btn-cadastro-herbalife-oficial').href = `https://www.herbalife.com.br/cadastro`;
+
+            // Link do catálogo
+            const linkCat = document.getElementById('link-catalogo-completo');
+            if (linkCat) linkCat.href = `/catalogo?c=${encodeURIComponent(consultorAtual.slug || consultorAtual.herbalife_id)}`;
+
+            // Link de nova bioimpedância
+            const linkBio = document.getElementById('btn-fazer-bioimpedancia');
+            if (linkBio) linkBio.href = `/avaliacao.html?c=${encodeURIComponent(consultorAtual.slug || consultorAtual.herbalife_id)}`;
+            const linkBioEmpty = document.getElementById('btn-iniciar-bio-empty');
+            if (linkBioEmpty) linkBioEmpty.href = `/avaliacao.html?c=${encodeURIComponent(consultorAtual.slug || consultorAtual.herbalife_id)}`;
+        }
+
+        // 2. APLICA AS REGRAS DE VISIBILIDADE DECIDIDAS PELO CONSULTOR
+        function aplicarRegrasVisibilidade() {
+            const cfg = consultorAtual.portalConfig || {};
+            
+            // Módulo Fidelidade
+            const modFid = document.getElementById('modulo-cartao-fidelidade');
+            if (modFid) modFid.style.display = (cfg.fidelidade !== false) ? 'block' : 'none';
+
+            // Módulo Bioimpedância
+            const modBio = document.getElementById('modulo-bioimpedancia');
+            if (modBio) modBio.style.display = (cfg.bioimpedancia !== false) ? 'block' : 'none';
+
+            // Módulo Catálogo & Pedidos
+            const modPed = document.getElementById('modulo-catalogo-pedidos');
+            if (modPed) modPed.style.display = (cfg.pedidos !== false) ? 'block' : 'none';
+
+            // Módulo Banner Herbalife
+            const modBan = document.getElementById('modulo-banner-herbalife');
+            if (modBan) modBan.style.display = (cfg.banner_herbalife !== false) ? 'block' : 'none';
+
+            // Cor / Tema do Cartão Fidelidade
+            const cardEl = document.getElementById('cartao-fidelidade-corpo');
+            if (cardEl && cfg.regraFidelidade && cfg.regraFidelidade.cor) {
+                cardEl.className = cardEl.className.replace(/cartao-(fidelidade-fundo|ouro|roxo|azul)/g, '');
+                if (cfg.regraFidelidade.cor === 'ouro') cardEl.classList.add('cartao-ouro');
+                else if (cfg.regraFidelidade.cor === 'roxo') cardEl.classList.add('cartao-roxo');
+                else if (cfg.regraFidelidade.cor === 'azul') cardEl.classList.add('cartao-azul');
+                else cardEl.classList.add('cartao-fidelidade-fundo');
+            }
+        }
+
+        // 3. IDENTIFICAÇÃO DO CLIENTE (LOCALSTORAGE & SUPABASE)
+        function carregarClienteLocalStorage() {
+            const zapSalvo = localStorage.getItem('litrao_cliente_whatsapp');
+            const nomeSalvo = localStorage.getItem('litrao_cliente_nome');
+            if (zapSalvo) {
+                clienteAtual.whatsapp = zapSalvo;
+                clienteAtual.nome = nomeSalvo || 'Cliente VIP';
+                atualizarDisplayClienteIdentificado();
+            }
+        }
+
+        function atualizarDisplayClienteIdentificado() {
+            const btn = document.getElementById('btn-cliente-identificacao');
+            const lbl = document.getElementById('label-cliente-identificado');
+            const banner = document.getElementById('box-banner-identificacao');
+            const elNomeFid = document.getElementById('fidelidade-cliente-nome');
+            const elZapFid = document.getElementById('fidelidade-cliente-zap');
+
+            if (clienteAtual.whatsapp) {
+                if (lbl) lbl.innerText = clienteAtual.nome || 'Meu Painel';
+                if (banner) banner.classList.add('hidden');
+                if (elNomeFid) elNomeFid.innerText = clienteAtual.nome || 'Cliente VIP';
+                if (elZapFid) elZapFid.innerText = `• ${formatarTelefoneDisplay(clienteAtual.whatsapp)}`;
+            } else {
+                if (lbl) lbl.innerText = 'Identificar-se';
+                if (banner) banner.classList.remove('hidden');
+                if (elNomeFid) elNomeFid.innerText = 'Não identificado';
+                if (elZapFid) elZapFid.innerText = '';
+            }
+        }
+
+        function abrirModalIdentificacaoCliente() {
+            const inpZap = document.getElementById('input-cliente-whatsapp');
+            const inpNome = document.getElementById('input-cliente-nome');
+            if (inpZap) inpZap.value = clienteAtual.whatsapp ? formatarTelefoneDisplay(clienteAtual.whatsapp) : '';
+            if (inpNome) inpNome.value = clienteAtual.nome || '';
+            document.getElementById('modal-identificacao-cliente').classList.remove('hidden');
+            if (inpZap) inpZap.focus();
+        }
+
+        function fecharModalIdentificacaoCliente() {
+            document.getElementById('modal-identificacao-cliente').classList.add('hidden');
+        }
+
+        async function salvarIdentificacaoCliente(e) {
+            if (e) e.preventDefault();
+            const zapRaw = document.getElementById('input-cliente-whatsapp').value.replace(/\D/g, '');
+            const nomeRaw = document.getElementById('input-cliente-nome').value.trim();
+
+            if (zapRaw.length < 10) {
+                alert('Por favor, digite seu número de WhatsApp completo com DDD (mínimo 10 dígitos).');
+                return;
+            }
+
+            clienteAtual.whatsapp = zapRaw;
+            clienteAtual.nome = nomeRaw || 'Cliente VIP';
+
+            localStorage.setItem('litrao_cliente_whatsapp', zapRaw);
+            localStorage.setItem('litrao_cliente_nome', clienteAtual.nome);
+
+            fecharModalIdentificacaoCliente();
+            atualizarDisplayClienteIdentificado();
+
+            // Recarrega o cartão e bioimpedância deste cliente
+            renderizarCartaoFidelidade();
+            await carregarHistoricoBioimpedancia();
+        }
+
+        // 4. RENDERIZAÇÃO DO CARTÃO DE FIDELIDADE
+        function renderizarCartaoFidelidade() {
+            const cfgRegra = (consultorAtual.portalConfig && consultorAtual.portalConfig.regraFidelidade) 
+                ? consultorAtual.portalConfig.regraFidelidade 
+                : { meta: 10, premio: "1 Shake Especial Grátis no EVS", descricao: "A cada 10 compras ou presenças no EVS" };
+
+            const meta = parseInt(cfgRegra.meta) || 10;
+            const premio = cfgRegra.premio || "1 Shake Especial Grátis no EVS";
+
+            // Localiza os selos do cliente nos dados do consultor ou no localStorage
+            let selosAtuais = 0;
+            if (clienteAtual.whatsapp) {
+                const zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
+                const cadastroCliente = (consultorAtual.fidelidadeClientes || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zapLimpo);
+                if (cadastroCliente) {
+                    selosAtuais = parseInt(cadastroCliente.selos) || 0;
+                    if (cadastroCliente.nome && (!clienteAtual.nome || clienteAtual.nome === 'Cliente VIP')) {
+                        clienteAtual.nome = cadastroCliente.nome;
+                        atualizarDisplayClienteIdentificado();
+                    }
+                } else {
+                    // Fallback para cache local do dispositivo
+                    const cacheSelos = localStorage.getItem(`fidelidade_selos_${consultorAtual.herbalife_id}_${zapLimpo}`);
+                    if (cacheSelos) selosAtuais = parseInt(cacheSelos) || 0;
+                }
+            }
+            clienteAtual.selos = selosAtuais;
+
+            // Elementos de texto
+            document.getElementById('fidelidade-regra-texto').innerText = cfgRegra.descricao || `A cada ${meta} consumos ganhe seu prêmio`;
+            document.getElementById('fidelidade-premio-nome').innerText = premio;
+            document.getElementById('fidelidade-contador-progresso').innerText = `${selosAtuais} / ${meta} Selos`;
+
+            // Barra de Progresso
+            const pct = Math.min(100, Math.round((selosAtuais / meta) * 100));
+            document.getElementById('fidelidade-barra-progresso').style.width = `${pct}%`;
+
+            // Frase de incentivo e botão de resgate
+            const fraseEl = document.getElementById('fidelidade-frase-incentivo');
+            const btnResgatar = document.getElementById('btn-resgatar-premio-fidelidade');
+
+            if (selosAtuais >= meta) {
+                fraseEl.innerHTML = `<span class="text-amber-300 font-extrabold text-xs">🎉 PARABÉNS! Você completou seus ${meta} selos! Resgate seu prêmio abaixo:</span>`;
+                if (btnResgatar) btnResgatar.classList.remove('hidden');
+                // Dispara confetes se acabou de carregar completo
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+                }
+            } else {
+                const faltam = meta - selosAtuais;
+                fraseEl.innerText = `Faltam apenas ${faltam} ${faltam === 1 ? 'carimbo' : 'carimbos'} para você ganhar seu prêmio!`;
+                if (btnResgatar) btnResgatar.classList.add('hidden');
+            }
+
+            // Grade de Selos (1 a meta)
+            const grid = document.getElementById('grid-selos-fidelidade');
+            if (grid) {
+                grid.innerHTML = '';
+                for (let i = 1; i <= meta; i++) {
+                    const seloDiv = document.createElement('div');
+                    seloDiv.className = "flex flex-col items-center justify-center";
+
+                    const isCarimbado = i <= selosAtuais;
+                    const circulo = document.createElement('div');
+                    circulo.className = `w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-black transition-all duration-300 relative ${isCarimbado ? 'selo-carimbado text-slate-950 scale-102' : 'selo-pendente text-white/50'}`;
+
+                    if (isCarimbado) {
+                        circulo.innerHTML = `
+                            <i class="fa-solid fa-star text-base sm:text-lg"></i>
+                            <span class="absolute -bottom-1 text-[8px] font-black bg-slate-950 text-amber-300 px-1 rounded-full">#${i}</span>
+                        `;
+                        circulo.title = `Selo #${i} Carimbado com Sucesso!`;
+                    } else {
+                        circulo.innerHTML = `<span class="text-xs sm:text-sm font-bold opacity-60">${i}</span>`;
+                        circulo.title = `Selo #${i} (Aguardando carimbo)`;
+                    }
+
+                    seloDiv.appendChild(circulo);
+                    grid.appendChild(seloDiv);
+                }
+            }
+        }
+
+        // Solicita carimbo pelo WhatsApp
+        function pedirCarimboWhatsApp() {
+            if (!clienteAtual.whatsapp) {
+                abrirModalIdentificacaoCliente();
+                return;
+            }
+            const nomeCli = clienteAtual.nome || 'Cliente';
+            const texto = encodeURIComponent(`Olá ${consultorAtual.nome_espaco}! Aqui é ${nomeCli}. Estive hoje no EVS e gostaria de solicitar meu carimbo no meu Cartão Fidelidade Digital! Meu WhatsApp é: ${formatarTelefoneDisplay(clienteAtual.whatsapp)}.`);
+            window.open(`https://wa.me/55${consultorAtual.whatsapp}?text=${texto}`, '_blank');
+        }
+
+        // Resgata o prêmio quando atinge 10 selos
+        function resgatarPremioClienteWhatsApp() {
+            const nomeCli = clienteAtual.nome || 'Cliente';
+            const premio = (consultorAtual.portalConfig && consultorAtual.portalConfig.regraFidelidade && consultorAtual.portalConfig.regraFidelidade.premio) 
+                ? consultorAtual.portalConfig.regraFidelidade.premio 
+                : "1 Shake Especial Grátis no EVS";
+
+            const texto = encodeURIComponent(`🎉 Olá ${consultorAtual.nome_espaco}! Aqui é ${nomeCli}. Completei todos os selos do meu Cartão Fidelidade Digital e gostaria de agendar para resgatar meu prêmio: *${premio}*!\n\nMeu WhatsApp: ${formatarTelefoneDisplay(clienteAtual.whatsapp)}`);
+            window.open(`https://wa.me/55${consultorAtual.whatsapp}?text=${texto}`, '_blank');
+        }
+
+        // 5. CARREGA HISTÓRICO DE BIOIMPEDÂNCIA DO CLIENTE
+        async function carregarHistoricoBioimpedancia() {
+            const boxLoading = document.getElementById('bioimpedancia-loading');
+            const boxVazio = document.getElementById('bioimpedancia-vazio');
+            const boxLista = document.getElementById('bioimpedancia-lista');
+
+            if (!clienteAtual.whatsapp || !supabaseClient) {
+                if (boxLoading) boxLoading.classList.add('hidden');
+                if (boxVazio) boxVazio.classList.remove('hidden');
+                if (boxLista) boxLista.classList.add('hidden');
+                return;
+            }
+
+            const zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('avaliacoes')
+                    .select('*')
+                    .ilike('whatsapp_cliente', `%${zapLimpo.slice(-8)}%`)
+                    .order('created_at', { ascending: false });
+
+                if (boxLoading) boxLoading.classList.add('hidden');
+
+                if (error || !data || data.length === 0) {
+                    if (boxVazio) boxVazio.classList.remove('hidden');
+                    if (boxLista) boxLista.classList.add('hidden');
+                    return;
+                }
+
+                if (boxVazio) boxVazio.classList.add('hidden');
+                if (boxLista) {
+                    boxLista.classList.remove('hidden');
+                    boxLista.innerHTML = '';
+
+                    data.forEach((av, idx) => {
+                        const dataFormatada = av.created_at ? new Date(av.created_at).toLocaleDateString('pt-BR') : 'Data não informada';
+                        const cardAv = document.createElement('div');
+                        cardAv.className = "bg-slate-50 border border-slate-200 rounded-2xl p-4 transition hover:border-blue-300";
+
+                        cardAv.innerHTML = `
+                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2.5 mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black text-xs">
+                                        #${data.length - idx}
+                                    </span>
+                                    <div>
+                                        <h5 class="font-extrabold text-sm text-slate-900">${av.nome_cliente || 'Sua Avaliação'}</h5>
+                                        <span class="text-[10px] text-slate-500 font-medium"><i class="fa-solid fa-calendar mr-1"></i> ${dataFormatada}</span>
+                                    </div>
+                                </div>
+                                <span class="bg-blue-50 text-blue-700 border border-blue-200 font-extrabold text-xs px-2.5 py-1 rounded-lg">
+                                    ${av.peso ? `${av.peso} kg` : 'Sem peso'}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Cintura:</span>
+                                    <span class="font-black text-slate-800">${av.cintura ? `${av.cintura} cm` : '---'}</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Abdômen:</span>
+                                    <span class="font-black text-slate-800">${av.abdomen ? `${av.abdomen} cm` : '---'}</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Quadril:</span>
+                                    <span class="font-black text-slate-800">${av.quadril ? `${av.quadril} cm` : '---'}</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Busto/Tórax:</span>
+                                    <span class="font-black text-slate-800">${av.busto ? `${av.busto} cm` : '---'}</span>
+                                </div>
+                            </div>
+                        `;
+                        boxLista.appendChild(cardAv);
+                    });
+                }
+            } catch(e) {
+                console.warn("Erro ao buscar bioimpedância:", e);
+                if (boxLoading) boxLoading.classList.add('hidden');
+                if (boxVazio) boxVazio.classList.remove('hidden');
+            }
+        }
+
+        // 6. CARREGA PRODUTOS FECHADOS DA HERBALIFE
+        async function carregarProdutosFechados() {
+            try {
+                const res = await fetch('/produtos_base_completos.json');
+                if (res.ok) {
+                    const todos = await res.json();
+                    // Filtra produtos que são fechados (exclui itens de consumo do EVS ou filtra por categorias oficiais)
+                    todosProdutosFechados = todos.filter(p => p.categoriaKey !== 'litrao');
+                    renderizarVitrine(todosProdutosFechados);
+                }
+            } catch(e) {
+                console.warn("Erro ao carregar produtos:", e);
+            }
+        }
+
+        function renderizarVitrine(produtos) {
+            const grid = document.getElementById('grid-produtos-fechados');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            produtos.slice(0, 16).forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-3 sm:p-3.5 shadow-xs border border-slate-200 hover:border-emerald-400 transition flex flex-col justify-between group";
+
+                const precoFormatado = Number(p.preco || 0).toFixed(2).replace('.', ',');
+                const imgSrc = p.img || p.fotoCatalogo || 'reset-logo.png';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative w-full h-32 sm:h-36 bg-slate-50 rounded-xl overflow-hidden mb-2.5 flex items-center justify-center p-2">
+                            <img src="${imgSrc}" alt="${p.nome}" class="max-h-full object-contain group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='reset-logo.png';">
+                            <span class="absolute top-1.5 left-1.5 bg-emerald-100 text-emerald-900 font-extrabold text-[9px] px-2 py-0.5 rounded-full uppercase">
+                                ${p.categoriaNome || 'Herbalife'}
+                            </span>
+                        </div>
+                        <h4 class="font-extrabold text-xs sm:text-sm text-slate-900 leading-snug line-clamp-2 mb-1" title="${p.nome}">
+                            ${p.nome}
+                        </h4>
+                        <p class="text-[10px] text-slate-500 line-clamp-2 leading-relaxed mb-2">${p.desc || ''}</p>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+                        <div>
+                            <span class="block text-[9px] uppercase font-bold text-slate-400">Preço:</span>
+                            <span class="text-xs sm:text-sm font-black text-emerald-700 font-mono">R$ ${precoFormatado}</span>
+                        </div>
+                        <button type="button" onclick="adicionarNaSacola('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] p-2 sm:px-3 sm:py-1.5 rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer" title="Adicionar ao Pedido">
+                            <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Pedir</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrarProdutos(catNome, btn) {
+            document.querySelectorAll('.btn-filtro-cat').forEach(b => {
+                b.className = "btn-filtro-cat bg-white hover:bg-emerald-50 text-slate-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap transition cursor-pointer";
+            });
+            if (btn) {
+                btn.className = "btn-filtro-cat bg-emerald-700 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-xs whitespace-nowrap transition cursor-pointer";
+            }
+
+            if (catNome === 'todos') {
+                renderizarVitrine(todosProdutosFechados);
+            } else {
+                const filtrados = todosProdutosFechados.filter(p => (p.categoriaNome || '').toLowerCase().includes(catNome.toLowerCase()));
+                renderizarVitrine(filtrados);
+            }
+        }
+
+        // 7. SACOLA DE PEDIDOS & FINALIZAÇÃO VIA WHATSAPP
+        function adicionarNaSacola(prodId) {
+            const prod = todosProdutosFechados.find(p => p.id === prodId);
+            if (!prod) return;
+
+            const itemExistente = sacola.find(i => i.id === prodId);
+            if (itemExistente) {
+                itemExistente.qtd += 1;
+            } else {
+                sacola.push({
+                    id: prod.id,
+                    nome: prod.nome,
+                    preco: prod.preco || 0,
+                    img: prod.img || 'reset-logo.png',
+                    qtd: 1
+                });
+            }
+
+            atualizarBarraSacola();
+        }
+
+        function atualizarBarraSacola() {
+            const barra = document.getElementById('barra-flutuante-sacola');
+            const elQtd = document.getElementById('sacola-qtd-itens');
+            const elTotal = document.getElementById('sacola-valor-total');
+
+            const totalQtd = sacola.reduce((acc, i) => acc + i.qtd, 0);
+            const totalValor = sacola.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+
+            if (totalQtd > 0) {
+                barra.classList.remove('hidden');
+                elQtd.innerText = `${totalQtd} ${totalQtd === 1 ? 'produto selecionado' : 'produtos selecionados'}`;
+                elTotal.innerText = `R$ ${totalValor.toFixed(2).replace('.', ',')}`;
+            } else {
+                barra.classList.add('hidden');
+            }
+        }
+
+        function abrirModalSacola() {
+            const modal = document.getElementById('modal-sacola-pedidos');
+            const lista = document.getElementById('sacola-lista-itens');
+            const elTotal = document.getElementById('modal-sacola-total');
+
+            if (!modal || !lista) return;
+
+            lista.innerHTML = '';
+            let total = 0;
+
+            sacola.forEach((item, idx) => {
+                const sub = item.preco * item.qtd;
+                total += sub;
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl gap-2";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <img src="${item.img}" class="w-10 h-10 object-contain rounded-lg bg-white p-1" onerror="this.src='reset-logo.png'">
+                        <div class="min-w-0">
+                            <h5 class="font-bold text-xs text-slate-900 truncate">${item.nome}</h5>
+                            <span class="text-[11px] text-emerald-700 font-mono font-bold">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button type="button" onclick="alterarQtdSacola(${idx}, -1)" class="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs">-</button>
+                        <span class="font-black text-xs font-mono">${item.qtd}</span>
+                        <button type="button" onclick="alterarQtdSacola(${idx}, 1)" class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">+</button>
+                    </div>
+                `;
+                lista.appendChild(row);
+            });
+
+            elTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalSacola() {
+            document.getElementById('modal-sacola-pedidos').classList.add('hidden');
+        }
+
+        function alterarQtdSacola(index, delta) {
+            if (sacola[index]) {
+                sacola[index].qtd += delta;
+                if (sacola[index].qtd <= 0) {
+                    sacola.splice(index, 1);
+                }
+            }
+            atualizarBarraSacola();
+            abrirModalSacola();
+        }
+
+        function limparSacola() {
+            sacola = [];
+            atualizarBarraSacola();
+            fecharModalSacola();
+        }
+
+        function enviarPedidoWhatsAppConsultor() {
+            if (sacola.length === 0) return;
+
+            const nomeCli = clienteAtual.nome || 'Cliente';
+            const zapCli = clienteAtual.whatsapp ? formatarTelefoneDisplay(clienteAtual.whatsapp) : 'Não informado';
+
+            let texto = `*PEDIDO DE PRODUTOS FECHADOS (PORTAL DO CLIENTE)*\n`;
+            texto += `------------------------------------\n`;
+            texto += `*Cliente:* ${nomeCli}\n`;
+            texto += `*WhatsApp:* ${zapCli}\n`;
+            texto += `------------------------------------\n`;
+            texto += `*ITENS SOLICITADOS:*\n`;
+
+            let total = 0;
+            sacola.forEach((item, i) => {
+                const sub = item.preco * item.qtd;
+                total += sub;
+                texto += `${i+1}. ${item.qtd}x ${item.nome} - R$ ${sub.toFixed(2).replace('.', ',')}\n`;
+            });
+
+            texto += `------------------------------------\n`;
+            texto += `*VALOR TOTAL:* R$ ${total.toFixed(2).replace('.', ',')}\n\n`;
+            texto += `Olá ${consultorAtual.nome_espaco}! Gostaria de confirmar a disponibilidade e prazo de entrega dos produtos acima.`;
+
+            const linkZap = `https://wa.me/55${consultorAtual.whatsapp}?text=${encodeURIComponent(texto)}`;
+            window.open(linkZap, '_blank');
+            fecharModalSacola();
+        }
+
+        // 8. UTILITÁRIOS
+        function copiarTextoDados(elementId, label) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const txt = el.innerText.trim();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(txt).then(() => {
+                    alert(`✅ ${label} copiado com sucesso: ${txt}`);
+                });
+            } else {
+                prompt(`Copie o ${label}:`, txt);
+            }
+        }
+
+        function formatarTelefoneDisplay(tel) {
+            if (!tel) return '';
+            const t = String(tel).replace(/\D/g, '');
+            if (t.length === 11) return `(${t.slice(0,2)}) ${t.slice(2,7)}-${t.slice(7)}`;
+            if (t.length === 10) return `(${t.slice(0,2)}) ${t.slice(2,6)}-${t.slice(6)}`;
+            return t;
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -174,6 +174,12 @@
                                 <span>Radar & Alertas</span>
                             </div>
                             <span id="badge-contador-notificacoes-menu" class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full hidden">0</span>
+                        </button>
+
+                        <!-- Cartão Fidelidade & Clientes -->
+                        <button id="btn-abrir-fidelidade-menu" onclick="abrirModalGerenciadorFidelidade('clientes'); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition flex items-center gap-2.5 cursor-pointer rounded-lg" title="Gerenciar Cartão de Fidelidade & Portal do Cliente">
+                            <i class="fa-solid fa-id-card text-emerald-600 w-4 text-center"></i>
+                            <span>Cartão Fidelidade & Clientes</span>
                         </button>
 
                         <!-- Financeiro & Custos de Doses -->
@@ -969,6 +975,44 @@
 
             <!-- GRADE PRINCIPAL UNIFICADA (FERRAMENTAS LIBERADAS DO CONSULTOR) -->
             <div id="grid-ferramentas-liberadas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 mb-5">
+                <!-- NOVO: MEU CARTÃƒO FIDELIDADE & PORTAL DO CLIENTE -->
+                <div id="card-modulo-fidelidade-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-id-card"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-emerald-700 transition leading-tight truncate">
+                                        CartÃ£o Fidelidade & Clientes
+                                    </h3>
+                                    <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block truncate">Portal & Selos</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="bg-emerald-50 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                                    <i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                            Fidelize seus clientes com 10 carimbos (compras/presenÃ§as no EVS) e ofereÃ§a portal exclusivo com bioimpedÃ¢ncia e pedidos.
+                        </p>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <button type="button" onclick="abrirModalGerenciadorFidelidade('clientes')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-stamp text-[11px]"></i> Gerenciar Selos
+                        </button>
+                        <button type="button" onclick="abrirPortalClienteAoVivo()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer" title="Abrir Portal ao Vivo">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- 1. MEU CATÁLOGO DIGITAL -->
                 <div id="card-modulo-catalogo-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between group">
@@ -3070,6 +3114,270 @@
             </div>
         </div>
 
+        <!-- MODAL COMPLETO: GERENCIADOR DO CARTÃƒO DE FIDELIDADE & PORTAL DO CLIENTE -->
+        <div id="modal-gerenciador-fidelidade-portal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-emerald-200 flex flex-col max-h-[92vh] overflow-hidden">
+                
+                <!-- HEADER DO MODAL -->
+                <div class="p-5 sm:p-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-emerald-950 via-slate-900 to-green-950 text-white flex items-center justify-between flex-shrink-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-400 to-green-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-black text-white leading-tight">Central do CartÃ£o Fidelidade & Portal</h3>
+                            <p class="text-xs text-emerald-300 font-bold" id="modal-fidelidade-subtitulo">Gerencie seus selos, clientes e regras de fidelizaÃ§Ã£o</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalGerenciadorFidelidade()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- ABAS DE NAVEGAÃ‡ÃƒO DO MODAL -->
+                <div class="flex items-center border-b border-gray-200 bg-slate-50 px-4 sm:px-6 overflow-x-auto scrollbar-none flex-shrink-0 gap-1 sm:gap-2">
+                    <button type="button" onclick="alternarAbaFidelidade('clientes')" id="aba-fidelidade-btn-clientes" class="aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-black border-b-2 border-emerald-600 text-emerald-800 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i class="fa-solid fa-stamp text-sm"></i>
+                        <span>Carimbar & Clientes</span>
+                    </button>
+                    <button type="button" onclick="alternarAbaFidelidade('regras')" id="aba-fidelidade-btn-regras" class="aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                        <span>Regras do CartÃ£o</span>
+                    </button>
+                    <button type="button" onclick="alternarAbaFidelidade('modulos')" id="aba-fidelidade-btn-modulos" class="aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i class="fa-solid fa-toggle-on text-sm"></i>
+                        <span>O Que Aparece p/ o Cliente</span>
+                    </button>
+                    <button type="button" onclick="alternarAbaFidelidade('impressao')" id="aba-fidelidade-btn-impressao" class="aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                        <i class="fa-solid fa-print text-sm"></i>
+                        <span>Imprimir CartÃµes (A4)</span>
+                    </button>
+                </div>
+
+                <!-- CONTEÃšDO DAS ABAS (SCROLLÃVEL) -->
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+
+                    <!-- ABA 1: CARIMBAR & CLIENTES -->
+                    <div id="aba-conteudo-clientes" class="space-y-5">
+                        
+                        <!-- FORMULÃRIO RÃPIDO PARA CARIMBAR OU CADASTRAR CLIENTE -->
+                        <div class="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200 p-4 sm:p-5 rounded-2xl">
+                            <span class="block text-xs font-black text-emerald-950 uppercase mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus-circle text-emerald-600"></i> Carimbar / Adicionar Selo ao Cliente
+                            </span>
+                            
+                            <form onsubmit="adicionarOuCarimbarClienteFidelidade(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                <div class="sm:col-span-5">
+                                    <input type="text" id="novo-cliente-nome" required placeholder="Nome do Cliente (Ex: Ana Clara)" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                                <div class="sm:col-span-4">
+                                    <input type="tel" id="novo-cliente-zap" required placeholder="WhatsApp com DDD" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono">
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm cursor-pointer whitespace-nowrap">
+                                        <i class="fa-solid fa-stamp"></i> <span>+1 Selo</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- BARRA DE BUSCA -->
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                                <input type="text" id="busca-cliente-fidelidade" oninput="renderizarTabelaClientesFidelidade(this.value)" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                            <span id="contador-total-clientes-fidelidade" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-2 rounded-xl whitespace-nowrap">
+                                0 clientes
+                            </span>
+                        </div>
+
+                        <!-- TABELA DE CLIENTES E SELOS -->
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-100 text-slate-700 font-black uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3">Cliente</th>
+                                            <th class="p-3">Selos / Meta</th>
+                                            <th class="p-3">Progresso</th>
+                                            <th class="p-3 text-right">AÃ§Ãµes RÃ¡pidas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabela-clientes-fidelidade-corpo" class="divide-y divide-slate-100 bg-white">
+                                        <!-- Gerado dinamicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 2: CONFIGURAR REGRAS DA FIDELIDADE -->
+                    <div id="aba-conteudo-regras" class="hidden space-y-5">
+                        <form onsubmit="salvarConfiguracaoRegrasFidelidade(event)" class="space-y-4">
+                            
+                            <!-- Meta de Selos -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-black text-slate-700 mb-1">Quantidade de Selos / Meta do CartÃ£o</label>
+                                    <select id="cfg-fidelidade-meta" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="10">10 Selos (Recomendado PadrÃ£o)</option>
+                                        <option value="5">5 Selos (Ciclo RÃ¡pido)</option>
+                                        <option value="8">8 Selos</option>
+                                        <option value="12">12 Selos</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-slate-700 mb-1">Cor / Tema Visual do CartÃ£o</label>
+                                    <select id="cfg-fidelidade-cor" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="verde">Verde Herbalife Oficial</option>
+                                        <option value="ouro">Dourado Gold VIP</option>
+                                        <option value="roxo">Roxo LitrÃ£o do Reset</option>
+                                        <option value="azul">Azul EVS Premium</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- O que dÃ¡ direito ao selo -->
+                            <div>
+                                <label class="block text-xs font-black text-slate-700 mb-1">CritÃ©rio de PontuaÃ§Ã£o (Texto de ExibiÃ§Ã£o no CartÃ£o)</label>
+                                <input type="text" id="cfg-fidelidade-descricao" placeholder="Ex: A cada 10 compras ou presenÃ§as no EVS" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <p class="text-[10px] text-slate-400 mt-1">Exemplo: "A cada 10 Shakes consumidos no EVS", "A cada 10 compras de produtos", "A cada presenÃ§a".</p>
+                            </div>
+
+                            <!-- Recompensa / PrÃªmio -->
+                            <div>
+                                <label class="block text-xs font-black text-slate-700 mb-1">Recompensa / PrÃªmio ao Completar a Meta *</label>
+                                <input type="text" id="cfg-fidelidade-premio" required placeholder="Ex: 1 Shake Especial GrÃ¡tis no EVS" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <p class="text-[10px] text-slate-400 mt-1">Exemplo: "1 Shake Especial GrÃ¡tis", "1 ChÃ¡ Turbo", "20% de Desconto no prÃ³ximo pedido", "1 Barra de ProteÃ­na".</p>
+                            </div>
+
+                            <!-- Feedback de salvamento -->
+                            <div id="feedback-regras-fidelidade" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+
+                            <div class="pt-3 border-t border-slate-100 flex items-center justify-end">
+                                <button type="submit" id="btn-salvar-regras-fidelidade" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                                    <i class="fa-solid fa-floppy-disk"></i> <span>Salvar Regras da Fidelidade</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ABA 3: O QUE APARECE NO PAINEL DO CLIENTE (CONTROLE TOTAL DO CONSULTOR) -->
+                    <div id="aba-conteudo-modulos" class="hidden space-y-5">
+                        <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 text-xs text-amber-900 font-medium">
+                            <i class="fa-solid fa-lightbulb text-amber-600 mr-1.5"></i>
+                            <strong>VocÃª tem controle total:</strong> Ative ou desative as ferramentas que seus clientes poderÃ£o ver ao acessar o Portal do Cliente!
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Switch 1: Fidelidade -->
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-emerald-300 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black">
+                                        <i class="fa-solid fa-id-card"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-extrabold text-xs text-slate-900">CartÃ£o de Fidelidade Digital</h5>
+                                        <p class="text-[11px] text-slate-500">Exibe o cartÃ£o virtual com os selos, barra de progresso e resgate do prÃªmio.</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="switch-modulo-fidelidade" onchange="salvarModulosVisiveisCliente()" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Switch 2: BioimpedÃ¢ncia -->
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-blue-300 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black">
+                                        <i class="fa-solid fa-scale-balanced"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-extrabold text-xs text-slate-900">HistÃ³rico de BioimpedÃ¢ncia & DiagnÃ³stico Corporal</h5>
+                                        <p class="text-[11px] text-slate-500">Permite ao cliente ver suas avaliaÃ§Ãµes anteriores de peso e medidas corporais.</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="switch-modulo-bioimpedancia" onchange="salvarModulosVisiveisCliente()" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Switch 3: Pedidos de Produtos Fechados -->
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-herbalife-green transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-9 h-9 rounded-xl bg-green-100 text-green-800 flex items-center justify-center font-black">
+                                        <i class="fa-solid fa-leaf"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-extrabold text-xs text-slate-900">Pedidos de Produtos Fechados (CatÃ¡logo Herbalife)</h5>
+                                        <p class="text-[11px] text-slate-500">Vitrine dos produtos oficiais (Shakes, ChÃ¡s, Fibras, etc.) com pedido direto no seu WhatsApp.</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="switch-modulo-pedidos" onchange="salvarModulosVisiveisCliente()" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Switch 4: Banner Oficial Herbalife com ID e Letras -->
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-amber-300 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-black">
+                                        <i class="fa-solid fa-crown"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-extrabold text-xs text-slate-900">Banner de Cadastro na Herbalife (com seu ID e 3 Letras)</h5>
+                                        <p class="text-[11px] text-slate-500">Chama o cliente para se cadastrar como Cliente Premium com botÃ£o de cÃ³pia do seu ID de patrocinador.</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="switch-modulo-banner" onchange="salvarModulosVisiveisCliente()" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="feedback-modulos-cliente" class="hidden p-3 rounded-xl text-xs font-bold text-center bg-green-50 text-green-800 border border-green-200">
+                            PreferÃªncias de exibiÃ§Ã£o salvas com sucesso!
+                        </div>
+                    </div>
+
+                    <!-- ABA 4: IMPRESSÃƒO DE CARTÃ•ES FÃSICOS (A4) -->
+                    <div id="aba-conteudo-impressao" class="hidden space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div>
+                                <h4 class="font-black text-sm text-slate-900">CartÃµes Fidelidade para Imprimir (Folha A4)</h4>
+                                <p class="text-xs text-slate-500">Imprima para ter cartÃµes fÃ­sicos prontos no balcÃ£o do seu EspaÃ§o!</p>
+                            </div>
+                            <button type="button" onclick="imprimirFolhaA4CartoesFidelidade()" class="bg-slate-900 hover:bg-black text-white font-black text-xs py-2 px-4 rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-print text-yellow-300"></i> <span>Imprimir Folha A4</span>
+                            </button>
+                        </div>
+
+                        <!-- PrÃ©via dos CartÃµes na Tela -->
+                        <div id="preview-impressao-cartoes-container" class="bg-slate-100 p-4 rounded-2xl border border-slate-200 max-h-96 overflow-y-auto">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="grade-previa-cartoes-a4">
+                                <!-- Gerado dinamicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER FIXO -->
+                <div class="p-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between flex-shrink-0">
+                    <button type="button" onclick="abrirPortalClienteAoVivo()" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Testar Meu Portal ao Vivo
+                    </button>
+                    <button type="button" onclick="fecharModalGerenciadorFidelidade()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
         <!-- MODAL RÃPIDO PARA MUDAR O PLANO DO CONSULTOR NO MANUAL (SUPERADMIN) -->
         <div id="modal-mudar-plano-consultor-rapido" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
             <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-purple-200 relative overflow-hidden">
@@ -4131,6 +4439,71 @@
                     </button>
                 </div>
 
+                    <!-- CARD ESPECIAL: CARTÃƒO DE FIDELIDADE & PORTAL EXCLUSIVO DO CLIENTE -->
+                    <div id="box-ferramenta-fidelidade-apoio" class="mb-6 bg-gradient-to-br from-emerald-950 via-slate-900 to-green-950 border-2 border-emerald-400 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden text-white">
+                        
+                        <!-- Topo do Card -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-500/30 pb-4 mb-5">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-400 to-green-500 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg">
+                                    <i class="fa-solid fa-id-card"></i>
+                                </div>
+                                <div>
+                                    <div class="inline-flex items-center space-x-1.5 bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-sparkles text-[9px] text-amber-300"></i>
+                                        <span>FidelizaÃ§Ã£o de Clientes & Vendas AutomÃ¡ticas</span>
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-black leading-tight text-white flex items-center">
+                                        CartÃ£o de Fidelidade & Portal do Cliente
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="self-start sm:self-auto">
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black px-3 py-1.5 rounded-xl flex items-center">
+                                    <i class="fa-solid fa-circle-check mr-1.5 text-emerald-400"></i> Liberado no Seu Painel
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="text-xs sm:text-sm text-gray-300 mb-6 leading-relaxed">
+                            Crie seu <strong>CartÃ£o de Fidelidade Digital</strong> com regras personalizadas (a cada 10 compras, presenÃ§as no EVS ou consumo de produtos), carimbe os selos dos seus clientes e disponibilize um <strong>Painel Exclusivo</strong> para cada um deles com histÃ³rico de BioimpedÃ¢ncia, Pedidos de Produtos Fechados e Banner de Cadastro na Herbalife com seu ID e 3 Letras!
+                        </p>
+
+                        <!-- LINK DO PORTAL DO CLIENTE -->
+                        <div class="bg-black/40 border border-emerald-500/30 rounded-2xl p-4 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <span class="text-[10px] uppercase font-bold text-emerald-400 block">Link Exclusivo do Portal dos Seus Clientes:</span>
+                                <span id="link-portal-cliente-display" class="font-mono text-xs sm:text-sm font-black text-white select-all break-all">https://litraodoreset.com.br/cliente</span>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button" onclick="copiarLinkPortalCliente()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm whitespace-nowrap">
+                                    <i class="fa-solid fa-copy"></i> <span>Copiar Link</span>
+                                </button>
+                                <button type="button" onclick="enviarConvitePortalWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-black text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm whitespace-nowrap">
+                                    <i class="fa-brands fa-whatsapp"></i> <span>Convidar no Zap</span>
+                                </button>
+                                <button type="button" onclick="abrirPortalClienteAoVivo()" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition flex items-center gap-1.5 cursor-pointer border border-white/20" title="Ver como o cliente enxerga o painel">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- BOTÃ•ES DE AÃ‡ÃƒO PRINCIPAIS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button type="button" onclick="abrirModalGerenciadorFidelidade('clientes')" class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-slate-950 font-black py-3 px-4 rounded-2xl text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-stamp text-base"></i>
+                                <span>Carimbar Selos dos Clientes</span>
+                            </button>
+                            <button type="button" onclick="abrirModalGerenciadorFidelidade('regras')" class="bg-slate-800 hover:bg-slate-700 text-white font-black py-3 px-4 rounded-2xl text-xs sm:text-sm border border-emerald-500/40 shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-sliders text-amber-400"></i>
+                                <span>Configurar Regras & MÃ³dulos</span>
+                            </button>
+                            <button type="button" onclick="abrirModalGerenciadorFidelidade('impressao')" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-2xl text-xs sm:text-sm border border-white/20 shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-print text-emerald-400"></i>
+                                <span>Imprimir CartÃµes FÃ­sicos (A4)</span>
+                            </button>
+                        </div>
+                    </div>
                     <!-- CARD ESPECIAL: KIT DE DIVULGAÇÃO & EXPANSÃO DE EQUIPE (SUPERADMIN & MASTER VIP) -->
                     <div id="kit-divulgacao-equipe-vip" class="mb-6 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden text-white">
                         
@@ -10374,6 +10747,11 @@
 
         function mostrarDashboard() {
             try {
+                if (typeof carregarDadosFidelidadePortalConsultor === 'function') {
+                    carregarDadosFidelidadePortalConsultor();
+                }
+            } catch(eFid) {}
+            try {
                 // Reset preventivo para nunca misturar dados entre consultores diferentes
                 todasAvaliacoesCache = [];
                 clienteExpandidoKey = null;
@@ -13878,6 +14256,556 @@
             }
         }
         window.salvarMudancaPlanoConsultorManual = salvarMudancaPlanoConsultorManual;
+
+        // =========================================================================
+        // GERENCIADOR DO CARTÃƒO DE FIDELIDADE & PORTAL DO CLIENTE
+        // =========================================================================
+        let fidelidadeClientesCache = [];
+        let portalConfigCache = {
+            ativo: true,
+            fidelidade: true,
+            bioimpedancia: true,
+            pedidos: true,
+            banner_herbalife: true,
+            regraFidelidade: {
+                meta: 10,
+                tipo: "compras",
+                descricao: "A cada 10 compras ou presenÃ§as no EVS",
+                premio: "1 Shake Especial GrÃ¡tis no EVS",
+                cor: "verde"
+            }
+        };
+
+        function obterLinkPortalClienteAtual() {
+            if (typeof consultorAtual !== 'undefined' && consultorAtual) {
+                const slugOuId = (consultorAtual.slug || consultorAtual.herbalife_id || '').trim();
+                const base = (window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1'))
+                    ? window.location.origin
+                    : 'https://litraodoreset.com.br';
+                return slugOuId ? `${base}/cliente?c=${encodeURIComponent(slugOuId)}` : `${base}/cliente`;
+            }
+            return 'https://litraodoreset.com.br/cliente';
+        }
+        window.obterLinkPortalClienteAtual = obterLinkPortalClienteAtual;
+
+        function copiarLinkPortalCliente() {
+            const link = obterLinkPortalClienteAtual();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    alert(`âœ… Link do seu Portal do Cliente copiado com sucesso:\n\n${link}\n\nEnvie aos seus clientes pelo WhatsApp!`);
+                });
+            } else {
+                prompt("Copie o link do seu Portal do Cliente:", link);
+            }
+        }
+        window.copiarLinkPortalCliente = copiarLinkPortalCliente;
+
+        function enviarConvitePortalWhatsApp() {
+            const link = obterLinkPortalClienteAtual();
+            const nomeEspaco = (consultorAtual && consultorAtual.nome_espaco) 
+                ? consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim() 
+                : 'EspaÃ§o SaudÃ¡vel';
+
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) 
+                ? portalConfigCache.regraFidelidade.premio 
+                : "1 Shake Especial GrÃ¡tis no EVS";
+
+            const msg = `ðŸŒŸ *SEU CARTÃƒO FIDELIDADE & PORTAL EXCLUSIVO!*\n\n` +
+                        `OlÃ¡! Agora vocÃª tem um portal exclusivo do *${nomeEspaco}*!\n\n` +
+                        `Acesse seu *CartÃ£o Fidelidade Digital* e acompanhe seus selos para ganhar: *${premio}*!\n` +
+                        `VocÃª tambÃ©m pode acompanhar seu histÃ³rico de bioimpedÃ¢ncia e fazer pedidos de produtos fechados.\n\n` +
+                        `ðŸ‘‰ *Acesse seu portal aqui:*\n${link}`;
+
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.enviarConvitePortalWhatsApp = enviarConvitePortalWhatsApp;
+
+        function abrirPortalClienteAoVivo() {
+            const link = obterLinkPortalClienteAtual();
+            window.open(link, '_blank');
+        }
+        window.abrirPortalClienteAoVivo = abrirPortalClienteAoVivo;
+
+        function carregarDadosFidelidadePortalConsultor() {
+            if (!consultorAtual) return;
+            const rawNome = consultorAtual.nome_espaco || '';
+
+            // 1. Carrega Regras do Portal
+            if (rawNome.includes('<!--PORTAL_CLIENTE:')) {
+                try {
+                    const m = rawNome.match(/<!--PORTAL_CLIENTE:([\s\S]*?)-->/);
+                    if (m && m[1]) portalConfigCache = { ...portalConfigCache, ...JSON.parse(m[1]) };
+                } catch(e) {}
+            }
+
+            // 2. Carrega Clientes da Fidelidade
+            if (rawNome.includes('<!--FIDELIDADE_CLIENTES:')) {
+                try {
+                    const mf = rawNome.match(/<!--FIDELIDADE_CLIENTES:([\s\S]*?)-->/);
+                    if (mf && mf[1]) fidelidadeClientesCache = JSON.parse(mf[1]);
+                } catch(ef) {}
+            } else {
+                // Tenta carregar do localStorage de backup
+                try {
+                    const localData = localStorage.getItem(`litrao_fidelidade_clientes_${consultorAtual.herbalife_id}`);
+                    if (localData) fidelidadeClientesCache = JSON.parse(localData);
+                } catch(el) {}
+            }
+
+            // Atualiza display do link na tela
+            const elLinkDisplay = document.getElementById('link-portal-cliente-display');
+            if (elLinkDisplay) elLinkDisplay.innerText = obterLinkPortalClienteAtual();
+
+            atualizarFormulariosModalFidelidade();
+        }
+        window.carregarDadosFidelidadePortalConsultor = carregarDadosFidelidadePortalConsultor;
+
+        function abrirModalGerenciadorFidelidade(aba = 'clientes') {
+            const modal = document.getElementById('modal-gerenciador-fidelidade-portal');
+            if (!modal) return;
+            carregarDadosFidelidadePortalConsultor();
+            alternarAbaFidelidade(aba);
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalGerenciadorFidelidade = abrirModalGerenciadorFidelidade;
+
+        function fecharModalGerenciadorFidelidade() {
+            const modal = document.getElementById('modal-gerenciador-fidelidade-portal');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalGerenciadorFidelidade = fecharModalGerenciadorFidelidade;
+
+        function alternarAbaFidelidade(nomeAba) {
+            const abas = ['clientes', 'regras', 'modulos', 'impressao'];
+            abas.forEach(a => {
+                const btn = document.getElementById(`aba-fidelidade-btn-${a}`);
+                const cont = document.getElementById(`aba-conteudo-${a}`);
+                if (btn) {
+                    if (a === nomeAba) {
+                        btn.className = "aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-black border-b-2 border-emerald-600 text-emerald-800 flex items-center gap-1.5 whitespace-nowrap cursor-pointer";
+                    } else {
+                        btn.className = "aba-fidelidade-item py-3 px-3 sm:px-4 text-xs font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-1.5 whitespace-nowrap cursor-pointer";
+                    }
+                }
+                if (cont) {
+                    cont.className = (a === nomeAba) ? 'space-y-5 block' : 'hidden';
+                }
+            });
+
+            if (nomeAba === 'clientes') renderizarTabelaClientesFidelidade();
+            if (nomeAba === 'impressao') renderizarPreviaCartoesImpressaoA4();
+        }
+        window.alternarAbaFidelidade = alternarAbaFidelidade;
+
+        function atualizarFormulariosModalFidelidade() {
+            const r = portalConfigCache.regraFidelidade || {};
+            const inMeta = document.getElementById('cfg-fidelidade-meta');
+            const inCor = document.getElementById('cfg-fidelidade-cor');
+            const inDesc = document.getElementById('cfg-fidelidade-descricao');
+            const inPremio = document.getElementById('cfg-fidelidade-premio');
+
+            if (inMeta) inMeta.value = r.meta || 10;
+            if (inCor) inCor.value = r.cor || 'verde';
+            if (inDesc) inDesc.value = r.descricao || 'A cada 10 compras ou presenÃ§as no EVS';
+            if (inPremio) inPremio.value = r.premio || '1 Shake Especial GrÃ¡tis no EVS';
+
+            // Switches
+            const swFid = document.getElementById('switch-modulo-fidelidade');
+            const swBio = document.getElementById('switch-modulo-bioimpedancia');
+            const swPed = document.getElementById('switch-modulo-pedidos');
+            const swBan = document.getElementById('switch-modulo-banner');
+
+            if (swFid) swFid.checked = portalConfigCache.fidelidade !== false;
+            if (swBio) swBio.checked = portalConfigCache.bioimpedancia !== false;
+            if (swPed) swPed.checked = portalConfigCache.pedidos !== false;
+            if (swBan) swBan.checked = portalConfigCache.banner_herbalife !== false;
+        }
+
+        async function salvarConfiguracaoRegrasFidelidade(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (!consultorAtual) return;
+
+            const btn = document.getElementById('btn-salvar-regras-fidelidade');
+            const fb = document.getElementById('feedback-regras-fidelidade');
+
+            portalConfigCache.regraFidelidade = {
+                meta: parseInt(document.getElementById('cfg-fidelidade-meta')?.value) || 10,
+                cor: document.getElementById('cfg-fidelidade-cor')?.value || 'verde',
+                descricao: document.getElementById('cfg-fidelidade-descricao')?.value.trim() || 'A cada 10 compras ou presenÃ§as no EVS',
+                premio: document.getElementById('cfg-fidelidade-premio')?.value.trim() || '1 Shake Especial GrÃ¡tis no EVS'
+            };
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando...`;
+            }
+
+            await sincronizarPortalEFidelidadeNoSupabase();
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Regras da Fidelidade`;
+            }
+            if (fb) {
+                fb.className = "p-3 rounded-xl text-xs font-bold text-center bg-green-50 text-green-800 border border-green-200 block";
+                fb.innerText = "Regras do CartÃ£o Fidelidade salvas com sucesso!";
+                setTimeout(() => fb.className = 'hidden', 3000);
+            }
+        }
+        window.salvarConfiguracaoRegrasFidelidade = salvarConfiguracaoRegrasFidelidade;
+
+        async function salvarModulosVisiveisCliente() {
+            portalConfigCache.fidelidade = document.getElementById('switch-modulo-fidelidade')?.checked ?? true;
+            portalConfigCache.bioimpedancia = document.getElementById('switch-modulo-bioimpedancia')?.checked ?? true;
+            portalConfigCache.pedidos = document.getElementById('switch-modulo-pedidos')?.checked ?? true;
+            portalConfigCache.banner_herbalife = document.getElementById('switch-modulo-banner')?.checked ?? true;
+
+            await sincronizarPortalEFidelidadeNoSupabase();
+
+            const fb = document.getElementById('feedback-modulos-cliente');
+            if (fb) {
+                fb.classList.remove('hidden');
+                setTimeout(() => fb.classList.add('hidden'), 2500);
+            }
+        }
+        window.salvarModulosVisiveisCliente = salvarModulosVisiveisCliente;
+
+        async function sincronizarPortalEFidelidadeNoSupabase() {
+            if (!consultorAtual) return;
+            let rawNome = consultorAtual.nome_espaco || '';
+
+            // 1. Atualiza tag <!--PORTAL_CLIENTE:{...}-->
+            const tagPortal = `<!--PORTAL_CLIENTE:${JSON.stringify(portalConfigCache)}-->`;
+            if (rawNome.includes('<!--PORTAL_CLIENTE:')) {
+                rawNome = rawNome.replace(/<!--PORTAL_CLIENTE:[\s\S]*?-->/g, tagPortal);
+            } else {
+                rawNome = rawNome + ' ' + tagPortal;
+            }
+
+            // 2. Atualiza tag <!--FIDELIDADE_CLIENTES:[...]-->
+            const tagFid = `<!--FIDELIDADE_CLIENTES:${JSON.stringify(fidelidadeClientesCache)}-->`;
+            if (rawNome.includes('<!--FIDELIDADE_CLIENTES:')) {
+                rawNome = rawNome.replace(/<!--FIDELIDADE_CLIENTES:[\s\S]*?-->/g, tagFid);
+            } else {
+                rawNome = rawNome + ' ' + tagFid;
+            }
+
+            consultorAtual.nome_espaco = rawNome;
+
+            // Salva no LocalStorage para cache imediato
+            try {
+                localStorage.setItem(`litrao_fidelidade_clientes_${consultorAtual.herbalife_id}`, JSON.stringify(fidelidadeClientesCache));
+            } catch(e) {}
+
+            // Envia ao Supabase
+            if (supabaseClient && consultorAtual.id) {
+                try {
+                    await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+                } catch(err) {
+                    console.warn("Erro ao atualizar dados no Supabase:", err);
+                }
+            }
+        }
+
+        // GESTÃƒO DE CLIENTES & CARIMBOS
+        function renderizarTabelaClientesFidelidade(filtro = '') {
+            const tbody = document.getElementById('tabela-clientes-fidelidade-corpo');
+            const contadorEl = document.getElementById('contador-total-clientes-fidelidade');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
+            const termo = (filtro || '').trim().toLowerCase();
+
+            let lista = fidelidadeClientesCache || [];
+            if (termo) {
+                lista = lista.filter(c => (c.nome || '').toLowerCase().includes(termo) || String(c.whatsapp || '').includes(termo));
+            }
+
+            if (contadorEl) contadorEl.innerText = `${fidelidadeClientesCache.length} ${fidelidadeClientesCache.length === 1 ? 'cliente' : 'clientes'}`;
+
+            if (lista.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-6 text-center text-slate-400 font-semibold">
+                            ${termo ? 'Nenhum cliente encontrado com esse termo.' : 'Nenhum cliente cadastrado ainda. Use o campo acima para dar o 1Âº selo a um cliente!'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            lista.forEach((c) => {
+                const zapLimpo = String(c.whatsapp || '').replace(/\D/g, '');
+                const selos = parseInt(c.selos) || 0;
+                const pct = Math.min(100, Math.round((selos / meta) * 100));
+                const atingiuMeta = selos >= meta;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <span class="font-extrabold text-slate-900 block truncate max-w-[160px]">${c.nome || 'Cliente'}</span>
+                        <span class="text-[11px] font-mono text-slate-500">${formatarTelefoneExibicao(zapLimpo)}</span>
+                    </td>
+                    <td class="p-3">
+                        <span class="font-black font-mono text-xs ${atingiuMeta ? 'text-amber-600 bg-amber-50 border border-amber-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-200'} px-2 py-0.5 rounded-md inline-flex items-center gap-1">
+                            ${atingiuMeta ? '<i class="fa-solid fa-trophy text-amber-500"></i>' : '<i class="fa-solid fa-star text-emerald-500"></i>'}
+                            ${selos} / ${meta} Selos
+                        </span>
+                    </td>
+                    <td class="p-3 w-32">
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-600 h-full rounded-full transition-all" style="width: ${pct}%"></div>
+                        </div>
+                        <span class="text-[9px] text-slate-400 font-bold block mt-0.5">${pct}% concluÃ­do</span>
+                    </td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1">
+                            <button type="button" onclick="adicionarSeloCliente('${zapLimpo}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1.5 rounded-lg text-xs transition cursor-pointer shadow-2xs" title="Carimbar +1 Selo">
+                                <i class="fa-solid fa-plus"></i> Selo
+                            </button>
+                            <button type="button" onclick="removerSeloCliente('${zapLimpo}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2 py-1.5 rounded-lg text-xs transition cursor-pointer" title="Remover 1 Selo (correÃ§Ã£o)">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            ${atingiuMeta ? `
+                                <button type="button" onclick="resgatarPremioCliente('${zapLimpo}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2 py-1.5 rounded-lg text-xs transition cursor-pointer animate-pulse shadow-xs" title="Resgatar PrÃªmio">
+                                    <i class="fa-solid fa-trophy"></i> Resgatar
+                                </button>
+                            ` : ''}
+                            <button type="button" onclick="enviarCartaoFidelidadeWhatsApp('${zapLimpo}')" class="bg-green-600 hover:bg-green-700 text-white font-bold p-1.5 rounded-lg text-xs transition cursor-pointer shadow-2xs" title="Enviar CartÃ£o no WhatsApp do Cliente">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                            </button>
+                            <button type="button" onclick="excluirClienteFidelidade('${zapLimpo}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 p-1.5 rounded-lg text-xs transition cursor-pointer border border-rose-200" title="Excluir Cliente">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        window.renderizarTabelaClientesFidelidade = renderizarTabelaClientesFidelidade;
+
+        async function adicionarOuCarimbarClienteFidelidade(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const inNome = document.getElementById('novo-cliente-nome');
+            const inZap = document.getElementById('novo-cliente-zap');
+            if (!inNome || !inZap) return;
+
+            const nome = inNome.value.trim();
+            const zap = inZap.value.replace(/\D/g, '');
+
+            if (zap.length < 10) {
+                alert("Por favor, digite um WhatsApp vÃ¡lido com DDD.");
+                return;
+            }
+
+            let cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (cliente) {
+                cliente.selos = (parseInt(cliente.selos) || 0) + 1;
+                cliente.nome = nome || cliente.nome;
+                cliente.ultimoCarimbo = new Date().toISOString();
+            } else {
+                cliente = {
+                    nome: nome,
+                    whatsapp: zap,
+                    selos: 1,
+                    criadoEm: new Date().toISOString(),
+                    ultimoCarimbo: new Date().toISOString(),
+                    resgates: 0
+                };
+                fidelidadeClientesCache.unshift(cliente);
+            }
+
+            inNome.value = '';
+            inZap.value = '';
+
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+        }
+        window.adicionarOuCarimbarClienteFidelidade = adicionarOuCarimbarClienteFidelidade;
+
+        async function adicionarSeloCliente(zap) {
+            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (!cliente) return;
+            cliente.selos = (parseInt(cliente.selos) || 0) + 1;
+            cliente.ultimoCarimbo = new Date().toISOString();
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+        }
+        window.adicionarSeloCliente = adicionarSeloCliente;
+
+        async function removerSeloCliente(zap) {
+            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (!cliente) return;
+            if (cliente.selos > 0) cliente.selos -= 1;
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+        }
+        window.removerSeloCliente = removerSeloCliente;
+
+        async function resgatarPremioCliente(zap) {
+            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (!cliente) return;
+
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial GrÃ¡tis';
+            if (confirm(`Confirma o resgate do prÃªmio "${premio}" para ${cliente.nome}? O cartÃ£o serÃ¡ reiniciado para um novo ciclo!`)) {
+                cliente.resgates = (parseInt(cliente.resgates) || 0) + 1;
+                cliente.selos = 0;
+                cliente.ultimoResgate = new Date().toISOString();
+                renderizarTabelaClientesFidelidade();
+                await sincronizarPortalEFidelidadeNoSupabase();
+                alert(`ðŸŽ‰ PrÃªmio resgatado com sucesso para ${cliente.nome}!`);
+            }
+        }
+        window.resgatarPremioCliente = resgatarPremioCliente;
+
+        function enviarCartaoFidelidadeWhatsApp(zap) {
+            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (!cliente) return;
+
+            const link = obterLinkPortalClienteAtual();
+            const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial GrÃ¡tis';
+
+            const msg = `â­ *CARTÃƒO FIDELIDADE ATUALIZADO!*\n\n` +
+                        `OlÃ¡ *${cliente.nome}*!\n` +
+                        `VocÃª acabou de ganhar um novo selo no seu CartÃ£o Fidelidade!\n\n` +
+                        `ðŸ† *Status Atual:* ${cliente.selos} de ${meta} Selos Conquistados!\n` +
+                        `ðŸŽ *Seu PrÃªmio:* ${premio}\n\n` +
+                        `Acesse seu cartÃ£o digital ao vivo pelo seu portal:\n${link}`;
+
+            window.open(`https://wa.me/55${zap}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.enviarCartaoFidelidadeWhatsApp = enviarCartaoFidelidadeWhatsApp;
+
+        async function excluirClienteFidelidade(zap) {
+            if (!confirm("Deseja realmente remover este cliente do CartÃ£o Fidelidade?")) return;
+            fidelidadeClientesCache = fidelidadeClientesCache.filter(c => String(c.whatsapp).replace(/\D/g, '') !== zap);
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+        }
+        window.excluirClienteFidelidade = excluirClienteFidelidade;
+
+        function formatarTelefoneExibicao(tel) {
+            if (!tel) return '';
+            const t = String(tel).replace(/\D/g, '');
+            if (t.length === 11) return `(${t.slice(0,2)}) ${t.slice(2,7)}-${t.slice(7)}`;
+            if (t.length === 10) return `(${t.slice(0,2)}) ${t.slice(2,6)}-${t.slice(6)}`;
+            return t;
+        }
+
+        // IMPRESSÃƒO DE CARTÃ•ES FÃSICOS A4
+        function renderizarPreviaCartoesImpressaoA4() {
+            const grade = document.getElementById('grade-previa-cartoes-a4');
+            if (!grade) return;
+            grade.innerHTML = '';
+
+            const nomeEspaco = (consultorAtual && consultorAtual.nome_espaco) 
+                ? consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim() 
+                : 'EspaÃ§o SaudÃ¡vel';
+            const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial GrÃ¡tis';
+
+            // Gera 4 cartÃµes de amostra na tela
+            for (let k = 0; k < 4; k++) {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-800 space-y-2.5 shadow-xs";
+
+                let circulosHTML = '';
+                for (let i = 1; i <= meta; i++) {
+                    circulosHTML += `<div class="w-7 h-7 rounded-lg border-2 border-dashed border-emerald-500 text-emerald-700 flex items-center justify-center text-[10px] font-black">${i}</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div>
+                            <span class="text-[9px] font-black uppercase text-emerald-700 block">CARTÃƒO FIDELIDADE</span>
+                            <h5 class="font-black text-xs text-slate-900 truncate max-w-[170px]">${nomeEspaco}</h5>
+                        </div>
+                        <span class="text-[9px] font-mono font-bold bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">ID: ${consultorAtual.herbalife_id || '---'}</span>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-1.5 justify-items-center py-1">
+                        ${circulosHTML}
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px]">
+                        <span class="font-bold text-slate-600 truncate max-w-[160px]">PrÃªmio: <strong>${premio}</strong></span>
+                        <span class="font-mono text-emerald-700 font-bold">${consultorAtual.whatsapp ? formatarTelefoneExibicao(consultorAtual.whatsapp) : ''}</span>
+                    </div>
+                `;
+                grade.appendChild(card);
+            }
+        }
+
+        function imprimirFolhaA4CartoesFidelidade() {
+            const nomeEspaco = (consultorAtual && consultorAtual.nome_espaco) 
+                ? consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim() 
+                : 'EspaÃ§o SaudÃ¡vel';
+            const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial GrÃ¡tis';
+            const zap = consultorAtual.whatsapp ? formatarTelefoneExibicao(consultorAtual.whatsapp) : '';
+            const hid = consultorAtual.herbalife_id || '';
+
+            let circulosHTML = '';
+            for (let i = 1; i <= meta; i++) {
+                circulosHTML += `<div style="width: 32px; height: 32px; border: 2px dashed #059669; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; color: #065f46;">${i}</div>`;
+            }
+
+            let cartoesHTML = '';
+            for (let k = 0; k < 8; k++) {
+                cartoesHTML += `
+                    <div style="border: 2px dashed #94a3b8; border-radius: 14px; padding: 14px; page-break-inside: avoid; display: flex; flex-direction: column; justify-content: space-between; background: #ffffff;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                            <div>
+                                <span style="font-size: 8px; font-weight: 900; color: #059669; letter-spacing: 1px; text-transform: uppercase;">CARTÃƒO FIDELIDADE</span>
+                                <div style="font-size: 13px; font-weight: 900; color: #0f172a;">${nomeEspaco}</div>
+                            </div>
+                            <span style="font-size: 9px; font-family: monospace; font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">ID: ${hid}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0; justify-items: center;">
+                            ${circulosHTML}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 6px; font-size: 9px;">
+                            <span style="color: #334155;">PrÃªmio: <strong style="color: #059669;">${premio}</strong></span>
+                            <span style="font-family: monospace; font-weight: 700; color: #0f172a;">WhatsApp: ${zap}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>CartÃµes Fidelidade - ImpressÃ£o A4</title>
+                    <style>
+                        @page { size: A4; margin: 10mm; }
+                        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
+                        .grid-a4 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                        @media print { .no-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="no-print" style="background: #f1f5f9; padding: 12px; text-align: center; border-bottom: 1px solid #cbd5e1; margin-bottom: 15px;">
+                        <button onclick="window.print()" style="background: #059669; color: #fff; border: none; font-weight: 900; padding: 10px 24px; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                            ðŸ–¨ï¸ IMPRIMIR FOLHA A4
+                        </button>
+                    </div>
+                    <div class="grid-a4">
+                        ${cartoesHTML}
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+        window.imprimirFolhaA4CartoesFidelidade = imprimirFolhaA4CartoesFidelidade;
         async function liberarAcessoVitalicioDireto(id, hid) {
             if (!confirm(`Deseja aprovar e liberar ACESSO VITALÍCIO (Vitalício até 2036) para o consultor ID ${hid}?`)) {
                 return;
