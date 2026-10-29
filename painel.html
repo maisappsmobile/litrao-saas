@@ -10746,28 +10746,16 @@
         window.fazerLogin = fazerLogin;
 
         function mostrarDashboard() {
+            // 1. Oculta tela de login e exibe dashboard imediatamente
             try {
-                if (typeof carregarDadosFidelidadePortalConsultor === 'function') {
-                    carregarDadosFidelidadePortalConsultor();
-                }
-            } catch(eFid) {}
-            try {
-                // Reset preventivo para nunca misturar dados entre consultores diferentes
-                todasAvaliacoesCache = [];
-                clienteExpandidoKey = null;
-                if (clientesSelecionadosSet) clientesSelecionadosSet.clear();
-                const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
-                if (statCardTotalAvaliacoes) statCardTotalAvaliacoes.innerText = '0';
-                const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
-                if (statCardTotalClientes) statCardTotalClientes.innerText = '0';
-                const badgeTotalClientes = document.getElementById('badge-total-clientes');
-                if (badgeTotalClientes) badgeTotalClientes.innerText = '0';
-
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard-screen').classList.remove('hidden');
+                const elLogin = document.getElementById('login-screen');
+                if (elLogin) elLogin.classList.add('hidden');
+                const elDash = document.getElementById('dashboard-screen');
+                if (elDash) elDash.classList.remove('hidden');
                 const headerBotoes = document.getElementById('header-botoes-consultor');
                 if (headerBotoes) headerBotoes.classList.remove('hidden');
-                document.getElementById('btn-logout').classList.remove('hidden');
+                const btnLogout = document.getElementById('btn-logout');
+                if (btnLogout) btnLogout.classList.remove('hidden');
                 const btnNotifTopo = document.getElementById('btn-central-notificacoes');
                 if (btnNotifTopo) btnNotifTopo.classList.remove('hidden');
                 const btnInstalarApp = document.getElementById('btn-instalar-app-consultor');
@@ -10790,6 +10778,29 @@
                 if (btnMenuSanduiche) btnMenuSanduiche.classList.remove('hidden');
                 const btnVendasTopo = document.getElementById('btn-pagina-vendas-topo');
                 if (btnVendasTopo) btnVendasTopo.classList.remove('hidden');
+            } catch(eVis) {
+                console.error("Erro na transição visual:", eVis);
+            }
+
+            try {
+                if (typeof carregarDadosFidelidadePortalConsultor === 'function') {
+                    carregarDadosFidelidadePortalConsultor();
+                }
+            } catch(eFid) {}
+
+            try {
+                // Reset preventivo para nunca misturar dados entre consultores diferentes
+                todasAvaliacoesCache = [];
+                clienteExpandidoKey = null;
+                if (typeof clientesSelecionadosSet !== 'undefined' && clientesSelecionadosSet) {
+                    clientesSelecionadosSet.clear();
+                }
+                const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
+                if (statCardTotalAvaliacoes) statCardTotalAvaliacoes.innerText = '0';
+                const statCardTotalClientes = document.getElementById('stat-card-total-clientes');
+                if (statCardTotalClientes) statCardTotalClientes.innerText = '0';
+                const badgeTotalClientes = document.getElementById('badge-total-clientes');
+                if (badgeTotalClientes) badgeTotalClientes.innerText = '0';
 
                 // Atualiza status, badges e botões dos cards de ferramentas
                 const isFinLib = isModuloFinanceiroLiberadoParaConsultor();
@@ -14978,51 +14989,6 @@
                 base,
                 planoNome,
                 periodicidade,
-                temFinanceiro: isFinLib,
-                financeiro: finValor,
-                temCrm: isCrmLib,
-                crm: crmValor,
-                total: parseFloat(total.toFixed(2)),
-                isSuperAdmin: false
-            };
-        }
-        }            const hid = String(consultor.herbalife_id || '').trim();
-            if (hid === '433005811') {
-                return { base: 0, financeiro: 0, crm: 0, total: 0, isSuperAdmin: true, planoNome: 'SuperAdmin Total', temFinanceiro: true, temCrm: true };
-            }
-            
-            // Identifica plano
-            let base = 99.00;
-            let planoNome = 'Start Pro';
-            const espaco = (consultor.nome_espaco || '').toLowerCase();
-            const venc = consultor.vencimento || '';
-            const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(consultor) : null;
-            
-            if (dadosFd) {
-                const isAnual = espaco.includes('plano_fundador:anual');
-                base = isAnual 
-                    ? ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoAnual !== undefined) ? CONFIG_FUNDADORES.precoAnual : 290.00)
-                    : ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoMensal !== undefined) ? CONFIG_FUNDADORES.precoMensal : 39.90);
-                planoNome = isAnual ? 'Fundador Anual' : 'Fundador Mensal';
-            } else if (espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3') || espaco.includes('master_vip')) {
-                base = 49.00;
-                planoNome = 'Master VIP';
-            } else if (espaco.includes('plano 2') || espaco.includes('vitalicio') || espaco.includes('vitalício') || espaco.includes('plano:plano2') || (venc && parseInt(venc.split('-')[0], 10) >= 2035)) {
-                base = 25.00;
-                planoNome = 'Vitalício Smart';
-            }
-            
-            // Adicionais (Para Fundadores, o Módulo Financeiro é 100% incluso sem custo adicional!)
-            const isFinLib = !!dadosFd || !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
-            const isCrmLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
-            
-            const finValor = (isFinLib && !dadosFd) ? 17.90 : 0.00;
-            const crmValor = isCrmLib ? 9.90 : 0.00;
-            const total = base + finValor + crmValor;
-            
-            return {
-                base,
-                planoNome,
                 temFinanceiro: isFinLib,
                 financeiro: finValor,
                 temCrm: isCrmLib,
