@@ -236,8 +236,9 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">Cupom de Desconto (Opcional)</label>
                     <div class="relative">
                         <i class="fa-solid fa-ticket absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="text" id="cupom" placeholder="Digite aqui" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark">
+                        <input type="text" id="cupom" oninput="aoDigitarCupomAssinar(this.value)" placeholder="Digite aqui (ex: FUNDADOR100)" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark">
                     </div>
+                    <div id="feedback-cupom-ao-vivo" class="hidden mt-2 text-xs"></div>
                     <p class="text-[10px] text-gray-500 font-semibold mt-1">
                         <i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Descontos não cumulativos. Cupons não são aplicáveis caso opte pelo desconto promocional de 22% da FitCoin.
                     </p>
@@ -270,7 +271,7 @@
             </div>
 
             <!-- SELETOR DE MÉTODO DE PAGAMENTO -->
-            <div class="my-4 bg-gray-100 p-1.5 rounded-2xl border border-gray-200 grid grid-cols-2 gap-2 shadow-inner">
+            <div id="toggle-metodos-pagamento" class="my-4 bg-gray-100 p-1.5 rounded-2xl border border-gray-200 grid grid-cols-2 gap-2 shadow-inner">
                 <button type="button" id="btn-assinar-pix" onclick="alternarMetodoAssinar('pix')" class="py-2.5 px-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 bg-white text-emerald-800 shadow-sm border border-emerald-300 cursor-pointer">
                     <i class="fa-brands fa-pix text-emerald-600 text-sm"></i>
                     <span>PIX (Valor Normal)</span>
@@ -792,8 +793,47 @@
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
             // Lógica do Cupom MEUPRESIDENTE (Validade de 1 uso, Mensalidade R$ 20,00 e 60 dias de carência)
+            let isFundador = cupom === 'FUNDADOR100';
+            let codigoFundadorGerado = null;
+            let cfgFundadorAssinar = { preco: 0, semValidade: true, dataValidade: '' };
             let isPresidente = cupom === 'MEUPRESIDENTE';
             let cupomPorcentagemObj = null;
+
+            if (isFundador) {
+                try {
+                    const { data: superadminData } = await supabaseClient
+                        .from('consultores')
+                        .select('nome_espaco')
+                        .ilike('nome_espaco', '%<!--CONFIG_FUNDADORES:%')
+                        .limit(1);
+                    if (superadminData && superadminData.length > 0) {
+                        const m = superadminData[0].nome_espaco.match(/<!--CONFIG_FUNDADORES:(.*?)-->/);
+                        if (m) {
+                            try { cfgFundadorAssinar = Object.assign(cfgFundadorAssinar, JSON.parse(m[1])); } catch(_) {}
+                        }
+                    } else {
+                        const localCfg = localStorage.getItem('cfg_fundadores_superadmin');
+                        if (localCfg) {
+                            try { cfgFundadorAssinar = Object.assign(cfgFundadorAssinar, JSON.parse(localCfg)); } catch(_) {}
+                        }
+                    }
+
+                    const { data: fundadoresExistentes } = await supabaseClient
+                        .from('consultores')
+                        .select('id,nome_espaco')
+                        .ilike('nome_espaco', '%<!--GRUPO_FUNDADORES:%');
+                    
+                    const totalFund = fundadoresExistentes ? fundadoresExistentes.length : 0;
+                    const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    const letraIdx = Math.floor(totalFund / 100);
+                    const letra = letraIdx < 26 ? alfabeto[letraIdx] : 'Z';
+                    const num = (totalFund % 100) + 1;
+                    codigoFundadorGerado = `${letra}${String(num).padStart(3, '0')}`;
+                } catch (eFund) {
+                    console.warn("Erro ao processar fundador:", eFund);
+                    codigoFundadorGerado = 'A001';
+                }
+            }
 
             if (isPresidente) {
                 try {
@@ -861,8 +901,8 @@
                 diasCarenciaAplicados = parseInt(cupomPorcentagemObj.carenciaDias, 10);
             }
             hoje.setDate(hoje.getDate() + diasCarenciaAplicados);
-            const vencimento = hoje.toISOString().split('T')[0];
-            const vencimentoFormatado = hoje.toLocaleDateString('pt-BR');
+            let vencimento = isFundador ? (cfgFundadorAssinar.semValidade ? '2099-12-31' : (cfgFundadorAssinar.dataValidade || '2099-12-31')) : hoje.toISOString().split('T')[0];
+            let vencimentoFormatado = isFundador ? (cfgFundadorAssinar.semValidade ? 'Vitalício (Sem Validade)' : (cfgFundadorAssinar.dataValidade ? cfgFundadorAssinar.dataValidade.split('-').reverse().join('/') : 'Vitalício')) : hoje.toLocaleDateString('pt-BR');
 
             // Formatação do Espaço e Consultor
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
@@ -894,6 +934,10 @@
                 nomeEspacoCompleto += ` <!--PIX:${JSON.stringify(pixObj)}-->`;
             }
 
+            if (isFundador) {
+                nomeEspacoCompleto += ` <!--GRUPO_FUNDADORES:${codigoFundadorGerado}--> <!--CUPOM:FUNDADOR100--> <!--STATUS_FUNDADOR:ATIVO-->`;
+            }
+
             if (isPresidente) {
                 nomeEspacoCompleto += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
             } else if (cupomPorcentagemObj) {
@@ -923,7 +967,54 @@
                 document.getElementById('form-container').classList.add('hidden');
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
-                if (isPresidente) {
+                if (isFundador) {
+                    const precoFundador = parseFloat(cfgFundadorAssinar.preco) || 0;
+                    const precoFormatado = precoFundador > 0 
+                        ? 'R$ ' + precoFundador.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : 'ISENTO / GRATUITO';
+
+                    document.getElementById('msg-sucesso').innerHTML = `
+                        <div class="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-400 p-5 rounded-2xl mb-4 text-left shadow-md">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-amber-950 font-black text-base flex items-center">
+                                    <i class="fa-solid fa-crown text-amber-500 mr-2 text-xl animate-bounce"></i> BEM-VINDO AO GRUPO FUNDADORES!
+                                </span>
+                                <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black px-3 py-1 rounded-full text-xs shadow-xs tracking-wider border border-amber-300">
+                                    CÓDIGO: ${codigoFundadorGerado}
+                                </span>
+                            </div>
+                            <p class="text-amber-900 font-bold text-xs mt-2.5 leading-relaxed">
+                                Parabéns! Sua inscrição exclusiva no Grupo Fundadores foi confirmada com a numeração oficial <strong>${codigoFundadorGerado}</strong>!
+                            </p>
+                            <div class="mt-2.5 pt-2.5 border-t border-amber-200 text-xs flex flex-wrap gap-3 text-amber-950">
+                                <span><strong>Validade:</strong> ${vencimentoFormatado}</span>
+                                <span>•</span>
+                                <span><strong>Investimento:</strong> ${precoFormatado}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    if (precoFundador <= 0) {
+                        const pixBox = document.getElementById('pix-box');
+                        if (pixBox) pixBox.classList.add('hidden');
+                        const fitcoinBox = document.getElementById('fitcoin-box');
+                        if (fitcoinBox) fitcoinBox.classList.add('hidden');
+                        const toggleBox = document.getElementById('toggle-metodos-pagamento');
+                        if (toggleBox) toggleBox.classList.add('hidden');
+
+                        const btnAcessar = document.getElementById('link-acessar');
+                        if (btnAcessar) {
+                            btnAcessar.innerHTML = `<i class="fa-solid fa-crown text-amber-300 mr-2"></i> ACESSAR MEU PAINEL (CONTA LIBERADA)`;
+                            btnAcessar.className = "inline-block bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 px-8 rounded-full shadow-2xl transition w-full text-center text-base cursor-pointer ring-4 ring-amber-400/50";
+                        }
+                    } else {
+                        pixPayloadAtivo = gerarPixPayloadDinamico(precoFundador, `FUND${codigoFundadorGerado}`);
+                        const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
+                        if (valorPixBox) {
+                            valorPixBox.innerHTML = `R$ ${precoFundador.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        }
+                    }
+                } else if (isPresidente) {
                     document.getElementById('msg-sucesso').innerHTML = `
                         <div class="bg-emerald-50 border-2 border-emerald-400 p-4 rounded-2xl mb-4 text-left shadow-xs">
                             <span class="text-emerald-800 font-black text-base flex items-center">
@@ -1347,6 +1438,37 @@
         }
         window.enviarAssinaturaFitcoinWhatsApp = enviarAssinaturaFitcoinWhatsApp;
 
+        function aoDigitarCupomAssinar(valor) {
+            const feedback = document.getElementById('feedback-cupom-ao-vivo');
+            const inCupom = document.getElementById('cupom');
+            if (!feedback) return;
+            const cod = (valor || '').toUpperCase().trim();
+            if (cod === 'FUNDADOR100') {
+                feedback.className = 'mt-2 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-400 rounded-xl text-xs text-amber-950 font-bold flex items-center gap-2.5 shadow-sm';
+                feedback.innerHTML = `
+                    <i class="fa-solid fa-crown text-amber-500 text-lg shrink-0 animate-bounce"></i>
+                    <div>
+                        <span class="text-amber-900 font-black block">👑 VAGA VIP GRUPO FUNDADORES RECONHECIDA!</span>
+                        <span class="text-[11px] text-amber-800">Ao finalizar, você receberá sua numeração sequencial exclusiva (A001 a Z100).</span>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-amber-50 border-2 border-amber-400 rounded-xl focus:outline-none ring-2 ring-amber-300 uppercase font-black text-amber-950';
+            } else if (cod === 'MEUPRESIDENTE') {
+                feedback.className = 'mt-2 p-2.5 bg-emerald-50 border border-emerald-400 rounded-xl text-xs text-emerald-950 font-bold flex items-center gap-2';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i><span>Cupom <strong>MEUPRESIDENTE</strong> ativo: R$ 20/mês com 60 dias de carência.</span>`;
+                feedback.classList.remove('hidden');
+            } else if (cod.startsWith('VIP15-')) {
+                feedback.className = 'mt-2 p-2.5 bg-blue-50 border border-blue-400 rounded-xl text-xs text-blue-950 font-bold flex items-center gap-2';
+                feedback.innerHTML = `<i class="fa-solid fa-tag text-blue-600 text-base"></i><span>Cupom de indicação VIP: 15% OFF aplicado.</span>`;
+                feedback.classList.remove('hidden');
+            } else {
+                feedback.classList.add('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark';
+            }
+        }
+        window.aoDigitarCupomAssinar = aoDigitarCupomAssinar;
+
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof carregarConfigSuperadminEmAssinar === 'function') {
                 carregarConfigSuperadminEmAssinar();
@@ -1363,6 +1485,7 @@
                 if (inCupom) {
                     inCupom.value = cupomUrl.toUpperCase().trim();
                     inCupom.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+                    aoDigitarCupomAssinar(cupomUrl);
                 }
             }
         });

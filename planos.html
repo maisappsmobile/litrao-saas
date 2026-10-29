@@ -1003,6 +1003,54 @@
             };
         }
 
+        function renderizarFeedbackCupomVendas(cupom, descTexto, planosTexto) {
+            const feedback = document.getElementById('feedback-cupom-vendas');
+            if (!feedback) return;
+            if (cupom.isFundador) {
+                feedback.className = 'mt-3 text-xs text-amber-200 bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-2 border-amber-400 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl';
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-3 text-left">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center text-lg font-black shrink-0 shadow-md">
+                            <i class="fa-solid fa-crown animate-bounce"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-amber-300 uppercase tracking-wider text-sm">VAGA VIP: GRUPO FUNDADORES DETECTADA!</span>
+                                <span class="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">EXCLUSIVO</span>
+                            </div>
+                            <p class="text-[11px] text-amber-100/90 mt-0.5">
+                                Investimento: <strong>${cupom.preco > 0 ? 'R$ ' + formatarMoeda(cupom.preco) : 'ISENTO / GRATUITO'}</strong> • Validade: <strong>${cupom.validadeTexto}</strong> • Sequência Oficial A001 a Z100
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                        <a href="assinar.html?cupom=FUNDADOR100" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs shadow-lg transition transform hover:scale-105 cursor-pointer">
+                            <span>Garantir Vaga de Fundador</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <button type="button" onclick="removerCupomDesconto()" class="text-rose-400 hover:text-rose-300 font-bold text-xs p-2 cursor-pointer" title="Remover Cupom">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                feedback.className = 'mt-2.5 text-xs text-emerald-300 bg-emerald-500/20 border border-emerald-500/50 p-3 rounded-2xl flex items-center justify-between shadow-sm';
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                        <div>
+                            <span class="font-black uppercase tracking-wider block">Cupom "${cupom.codigo}" Ativado!</span>
+                            <span class="text-[11px] text-emerald-200">${descTexto} aplicado para ${planosTexto}!</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removerCupomDesconto()" class="text-rose-400 hover:text-rose-300 font-bold underline cursor-pointer text-xs ml-2">
+                        Remover
+                    </button>
+                `;
+            }
+            feedback.classList.remove('hidden');
+        }
+
         async function aplicarCupomDescontoPaginaVendas(codigoManual) {
             const inCupom = document.getElementById('input-cupom-desconto');
             const feedback = document.getElementById('feedback-cupom-vendas');
@@ -1024,7 +1072,56 @@
 
             let cupomEncontrado = null;
 
+            // 0. Cupom Exclusivo Grupo Fundadores
+            if (codigo === 'FUNDADOR100') {
+                let cfgFund = { preco: 0, semValidade: true, dataValidade: '' };
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/consultores?nome_espaco=ilike.*<!--CONFIG_FUNDADORES:*&select=nome_espaco`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+                    if (res.ok) {
+                        const rows = await res.json();
+                        if (rows && rows.length > 0) {
+                            const m = rows[0].nome_espaco.match(/<!--CONFIG_FUNDADORES:(.*?)-->/);
+                            if (m) {
+                                try { cfgFund = Object.assign(cfgFund, JSON.parse(m[1])); } catch(_) {}
+                            }
+                        }
+                    } else {
+                        const localCfg = localStorage.getItem('cfg_fundadores_superadmin');
+                        if (localCfg) {
+                            try { cfgFund = Object.assign(cfgFund, JSON.parse(localCfg)); } catch(_) {}
+                        }
+                    }
+                } catch(_) {
+                    const localCfg = localStorage.getItem('cfg_fundadores_superadmin');
+                    if (localCfg) {
+                        try { cfgFund = Object.assign(cfgFund, JSON.parse(localCfg)); } catch(_) {}
+                    }
+                }
+
+                const precoFund = parseFloat(cfgFund.preco) || 0;
+                const precoTxt = precoFund > 0 ? `R$ ${formatarMoeda(precoFund)}` : 'GRÁTIS (Isento)';
+                const validadeTxt = cfgFund.semValidade ? 'Vitalício (Sem Validade)' : (cfgFund.dataValidade ? cfgFund.dataValidade.split('-').reverse().join('/') : 'Vitalício');
+
+                cupomEncontrado = {
+                    nome: 'Grupo Fundadores (A-Z)',
+                    codigo: 'FUNDADOR100',
+                    tipoDesconto: 'valor_fixo',
+                    desconto: 0,
+                    planos: 'todos',
+                    carenciaDias: 0,
+                    isFundador: true,
+                    preco: precoFund,
+                    validadeTexto: validadeTxt,
+                    descricao: `Vaga Exclusiva do Grupo Fundadores • ${precoTxt} • Validade: ${validadeTxt}`
+                };
+            }
             // 1. Cupom Especial MEUPRESIDENTE
+            else
             if (codigo === 'MEUPRESIDENTE') {
                 cupomEncontrado = {
                     nome: 'Parceria Especial Presidente',
@@ -1132,7 +1229,9 @@
                 else if (cupomEncontrado.planos === 'vitalicio') planosTexto = 'planos Vitalícios';
 
                 if (feedback) {
-                    feedback.className = 'mt-2.5 text-xs text-emerald-300 bg-emerald-500/20 border border-emerald-500/50 p-3 rounded-2xl flex items-center justify-between shadow-sm';
+                    renderizarFeedbackCupomVendas(cupomEncontrado, descTexto, planosTexto);
+                }
+                if (false) {
                     feedback.innerHTML = `
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
@@ -1150,7 +1249,7 @@
 
                 if (feedCheckout) {
                     feedCheckout.className = 'text-[11px] mt-1.5 font-bold text-emerald-400 block';
-                    feedCheckout.innerHTML = `✅ Cupom "${cupomEncontrado.codigo}" aplicado (${descTexto})!`;
+                    feedCheckout.innerHTML = cupomEncontrado.isFundador ? `👑 Cupom Especial FUNDADOR100 aplicado! <a href="assinar.html?cupom=FUNDADOR100" class="underline font-black text-amber-300">Clique para Ativar Vaga</a>` : `✅ Cupom "${cupomEncontrado.codigo}" aplicado (${descTexto})!`;
                 }
 
                 // Atualiza os links de cadastro para levar o cupom
