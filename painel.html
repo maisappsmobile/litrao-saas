@@ -247,47 +247,142 @@
             </div>
 
             <div id="login-form-container">
-                <div class="mb-4 sm:mb-5">
-                    <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Seu ID Herbalife</label>
-                    <div class="relative">
-                        <i class="fa-regular fa-id-card absolute left-4 top-4 sm:top-4.5 text-gray-400 text-base sm:text-lg"></i>
-                        <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs">
+                
+                <!-- CHAVE SELETORA: NÃO TENHO ID HERBALIFE -->
+                <div class="bg-amber-50/70 p-4 sm:p-5 rounded-2xl border-2 border-amber-300 mb-5 shadow-xs">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <div>
+                            <span class="block text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
+                                <i class="fa-solid fa-id-card text-brand-dark"></i> Identificação Herbalife
+                            </span>
+                            <span class="text-[11px] text-amber-800 font-medium">Você já possui seu ID Herbalife oficial?</span>
+                        </div>
+                        
+                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-white border-2 border-amber-300 px-3 py-1.5 rounded-xl shadow-2xs hover:bg-amber-50 transition shrink-0">
+                            <span class="text-xs font-bold text-gray-700 transition" id="label-status-chave-login">Já tenho ID</span>
+                            <div class="relative">
+                                <input type="checkbox" id="toggle-sem-id-login" onchange="alternarChaveSemIdLogin(this.checked)" class="sr-only peer">
+                                <div class="w-10 h-5 bg-emerald-500 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            </div>
+                            <span class="text-xs font-black text-amber-900" id="label-toggle-nao-tenho-login">Não tenho ID</span>
+                        </label>
                     </div>
                 </div>
-                <div class="mb-5 sm:mb-6">
-                    <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Sua Senha (3 Letras ou Senha Criada)</label>
-                    <div class="relative flex items-center">
-                        <i class="fa-solid fa-lock absolute left-4 text-gray-400 text-base sm:text-lg"></i>
-                        <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-12 pr-12 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800 text-base sm:text-lg transition-all shadow-2xs">
-                        <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
-                            <i id="icone-olho-login" class="fa-solid fa-eye text-base sm:text-lg"></i>
-                        </button>
+
+                <!-- CASO 1: JÁ TENHO ID (CAMPOS DE DIGITAÇÃO E LOGIN) -->
+                <div id="container-campos-login-existente">
+                    <div class="mb-4 sm:mb-5">
+                        <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Seu ID Herbalife</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-id-card absolute left-4 top-4 sm:top-4.5 text-gray-400 text-base sm:text-lg"></i>
+                            <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs">
+                        </div>
                     </div>
-                    <p class="text-xs sm:text-sm text-gray-500 font-bold mt-2 flex items-center">
-                        <span class="text-brand-yellow mr-1 text-sm sm:text-base">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
-                    </p>
+                    <div class="mb-5 sm:mb-6">
+                        <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Sua Senha (3 Letras ou Senha Criada)</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-lock absolute left-4 text-gray-400 text-base sm:text-lg"></i>
+                            <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-12 pr-12 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800 text-base sm:text-lg transition-all shadow-2xs">
+                            <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
+                                <i id="icone-olho-login" class="fa-solid fa-eye text-base sm:text-lg"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-500 font-bold mt-2 flex items-center">
+                            <span class="text-brand-yellow mr-1 text-sm sm:text-base">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
+                        </p>
+                    </div>
+                    <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
+                        ENTRAR
+                    </button>
+                    
+                    <!-- Box de Alerta Visível e Estilizado -->
+                    <div id="login-erro" class="hidden mt-4 p-4 rounded-2xl text-xs sm:text-sm font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2.5 shadow-sm">
+                        <i class="fa-solid fa-circle-exclamation text-base sm:text-lg flex-shrink-0 mt-0.5"></i>
+                        <span id="login-erro-msg">Dados incorretos.</span>
+                    </div>
+                    
+                    <div class="mt-8 sm:mt-10 text-center border-t border-gray-100 pt-6 sm:pt-8">
+                        <p class="text-sm sm:text-base text-gray-500 mb-3.5 font-medium">Ainda não faz parte do projeto?</p>
+                        <a href="assinar.html" class="inline-block w-full bg-white border-2 border-brand-light text-brand-light hover:bg-brand-light hover:text-white font-black py-3.5 sm:py-4 rounded-2xl transition shadow-sm text-center text-sm sm:text-base tracking-wide cursor-pointer">
+                            CRIAR MINHA CONTA
+                        </a>
+                    </div>
                 </div>
-                <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
-                    ENTRAR
-                </button>
-                
-                <!-- Box de Alerta Visível e Estilizado -->
-                <div id="login-erro" class="hidden mt-4 p-4 rounded-2xl text-xs sm:text-sm font-bold border border-red-200 bg-red-50 text-red-700 flex items-start space-x-2.5 shadow-sm">
-                    <i class="fa-solid fa-circle-exclamation text-base sm:text-lg flex-shrink-0 mt-0.5"></i>
-                    <span id="login-erro-msg">Dados incorretos.</span>
-                </div>
-                
-                <div class="mt-8 sm:mt-10 text-center border-t border-gray-100 pt-6 sm:pt-8">
-                    <p class="text-sm sm:text-base text-gray-500 mb-3.5 font-medium">Ainda não faz parte do projeto?</p>
-                    <a href="assinar.html" class="inline-block w-full bg-white border-2 border-brand-light text-brand-light hover:bg-brand-light hover:text-white font-black py-3.5 sm:py-4 rounded-2xl transition shadow-sm text-center text-sm sm:text-base tracking-wide cursor-pointer">
-                        CRIAR MINHA CONTA
-                    </a>
+
+                <!-- CASO 2: NÃO TENHO ID (DADOS DO PATROCINADOR PARA COPIAR NO PAPEL E NO DIGITAL + BOTÃO DE CADASTRO NA HERBALIFE) -->
+                <div id="container-sem-id-login-patrocinador" class="hidden space-y-4 pt-1">
+                    <!-- Aviso para Anotar no Papel -->
+                    <div class="bg-red-50 border-2 border-red-300 p-3.5 sm:p-4 rounded-xl flex items-start gap-3 shadow-2xs">
+                        <i class="fa-solid fa-pencil text-red-600 text-lg shrink-0 mt-0.5"></i>
+                        <div class="text-xs sm:text-sm text-red-950 leading-snug">
+                            <strong class="block text-red-700 font-black uppercase text-xs mb-1">📝 ANOTE NO PAPEL AGORA OU COPIE NO DIGITAL:</strong>
+                            Para criar sua conta oficial na Herbalife vinculada à nossa equipe, você precisará informar o <strong>ID do Patrocinador</strong> e as <strong>3 Letras</strong> abaixo na <strong>Etapa 4</strong> da Herbalife:
+                        </div>
+                    </div>
+
+                    <!-- CARDS DOS DADOS DO PATROCINADOR PARA COPIAR COM 1 CLIQUE -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Card ID Patrocinador -->
+                        <div class="bg-white border-2 border-amber-400 rounded-xl p-3.5 shadow-xs flex flex-col justify-between">
+                            <span class="block text-xs uppercase font-bold text-gray-500">ID do Patrocinador:</span>
+                            <div class="flex items-center justify-between mt-1 gap-2">
+                                <span id="login-patrocinador-id-val" class="font-mono text-xl sm:text-2xl font-black text-brand-dark tracking-wider">433005811</span>
+                                <button type="button" onclick="copiarDadoPatrocinadorLogin('login-patrocinador-id-val', this)" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-950 font-black text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>Copiar ID</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 Letras Patrocinador -->
+                        <div class="bg-white border-2 border-amber-400 rounded-xl p-3.5 shadow-xs flex flex-col justify-between">
+                            <span class="block text-xs uppercase font-bold text-gray-500">3 Letras do Sobrenome:</span>
+                            <div class="flex items-center justify-between mt-1 gap-2">
+                                <span id="login-patrocinador-letras-val" class="font-mono text-xl sm:text-2xl font-black text-brand-dark tracking-wider">BRA</span>
+                                <button type="button" onclick="copiarDadoPatrocinadorLogin('login-patrocinador-letras-val', this)" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-950 font-black text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>Copiar Letras</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Copiar ID e Letras Juntos no Digital -->
+                    <button type="button" onclick="copiarTudoPatrocinadorLoginJunto(this)" class="w-full bg-slate-900 hover:bg-black active:scale-95 text-white font-black py-3 px-3 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-clipboard text-amber-400 text-base"></i>
+                        <span>COPIAR ID E LETRAS JUNTOS NO DIGITAL (ÁREA DE TRANSFERÊNCIA)</span>
+                    </button>
+
+                    <!-- BOTÃO QUE DIRECIONA PARA FAZER CADASTRO NA HERBALIFE -->
+                    <div class="pt-1">
+                        <a href="https://accounts.myherbalife.com/Account/Create" target="_blank" rel="noopener noreferrer" class="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-500 hover:to-green-600 active:scale-95 text-white font-black py-4 px-4 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex items-center justify-center gap-2 text-sm sm:text-base text-center cursor-pointer tracking-wider">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-base"></i>
+                            <span>FAZER MEU CADASTRO NA HERBALIFE AGORA</span>
+                        </a>
+                        <p class="text-xs text-gray-500 text-center font-medium mt-1.5">
+                            <i class="fa-solid fa-lock text-emerald-600 mr-1"></i> Abre o sistema oficial seguro da Herbalife em uma nova aba.
+                        </p>
+                    </div>
+
+                    <!-- Instrução de Como Voltar e Criar a Conta no Litrão -->
+                    <div class="bg-white/95 border border-amber-300 rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-amber-950 space-y-2">
+                        <span class="font-black text-amber-900 block flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> O que fazer após finalizar na Herbalife?
+                        </span>
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            Assim que você concluir seu cadastro oficial no site da Herbalife, você receberá seu próprio <strong>ID Herbalife</strong> e suas <strong>3 Letras</strong>. Com esses dados em mãos, clique no botão abaixo para criar sua conta no <strong>Litrão do Reset</strong>:
+                        </p>
+                        <a href="assinar.html" class="inline-flex w-full items-center justify-center gap-2 bg-brand-light hover:bg-brand-dark text-white font-black py-3 rounded-xl transition shadow-md text-xs sm:text-sm tracking-wide cursor-pointer mt-1">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>CRIAR MINHA CONTA NO LITRÃO DO RESET</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script imediato e prioritário para controle de visibilidade da senha (carregamento instantâneo) -->
+    <!-- Script imediato e prioritário para controle de visibilidade da senha e chave sem ID (carregamento instantâneo) -->
     <script>
         function alternarVisibilidadeSenha(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -308,6 +403,96 @@
             }
         }
         window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
+
+        function alternarChaveSemIdLogin(marcado) {
+            const contLogin = document.getElementById('container-campos-login-existente');
+            const contSemId = document.getElementById('container-sem-id-login-patrocinador');
+            const labelStatus = document.getElementById('label-status-chave-login');
+            const labelNaoTenho = document.getElementById('label-toggle-nao-tenho-login');
+            
+            if (marcado) {
+                if (contLogin) contLogin.classList.add('hidden');
+                if (contSemId) contSemId.classList.remove('hidden');
+                if (labelStatus) labelStatus.className = 'text-xs font-bold text-gray-400';
+                if (labelNaoTenho) labelNaoTenho.className = 'text-xs font-black text-amber-900 underline';
+                carregarDadosPatrocinadorLogin();
+            } else {
+                if (contLogin) contLogin.classList.remove('hidden');
+                if (contSemId) contSemId.classList.add('hidden');
+                if (labelStatus) labelStatus.className = 'text-xs font-bold text-gray-700';
+                if (labelNaoTenho) labelNaoTenho.className = 'text-xs font-black text-amber-900';
+            }
+        }
+        window.alternarChaveSemIdLogin = alternarChaveSemIdLogin;
+
+        function copiarDadoPatrocinadorLogin(elementId, btn) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const txt = el.innerText.trim();
+            navigator.clipboard.writeText(txt).then(() => {
+                const textoOriginal = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-700"></i> <span>Copiado!</span>';
+                btn.classList.add('bg-emerald-300');
+                setTimeout(() => {
+                    btn.innerHTML = textoOriginal;
+                    btn.classList.remove('bg-emerald-300');
+                }, 2000);
+            }).catch(() => {
+                prompt("Copie o dado abaixo:", txt);
+            });
+        }
+        window.copiarDadoPatrocinadorLogin = copiarDadoPatrocinadorLogin;
+
+        function copiarTudoPatrocinadorLoginJunto(btn) {
+            const idVal = document.getElementById('login-patrocinador-id-val') ? document.getElementById('login-patrocinador-id-val').innerText.trim() : '433005811';
+            const letrasVal = document.getElementById('login-patrocinador-letras-val') ? document.getElementById('login-patrocinador-letras-val').innerText.trim() : 'BRA';
+            const textoCompleto = 'ID Patrocinador: ' + idVal + '\nLetras: ' + letrasVal;
+            
+            navigator.clipboard.writeText(textoCompleto).then(() => {
+                const textoOriginal = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span>ID e Letras Copiados!</span>';
+                btn.classList.add('bg-emerald-900');
+                setTimeout(() => {
+                    btn.innerHTML = textoOriginal;
+                    btn.classList.remove('bg-emerald-900');
+                }, 2500);
+            }).catch(() => {
+                prompt("Copie os dados do Patrocinador abaixo:", textoCompleto);
+            });
+        }
+        window.copiarTudoPatrocinadorLoginJunto = copiarTudoPatrocinadorLoginJunto;
+
+        async function carregarDadosPatrocinadorLogin() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let patrocId = urlParams.get('patrocinador') || urlParams.get('ref') || urlParams.get('sponsor') || urlParams.get('c') || '';
+            let patrocLetras = urlParams.get('letras') || urlParams.get('letra') || '';
+
+            if (!patrocId) {
+                try {
+                    const salvo = sessionStorage.getItem('litrao_patrocinador_indicacao');
+                    if (salvo) {
+                        const obj = JSON.parse(salvo);
+                        if (obj && obj.id) {
+                            patrocId = obj.id;
+                            patrocLetras = obj.letras || '';
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            if (!patrocId) patrocId = '433005811';
+            if (!patrocLetras) patrocLetras = 'BRA';
+
+            const elId = document.getElementById('login-patrocinador-id-val');
+            const elLetras = document.getElementById('login-patrocinador-letras-val');
+            if (elId) elId.innerText = patrocId.trim();
+            if (elLetras) elLetras.innerText = patrocLetras.trim().toUpperCase();
+        }
+        window.carregarDadosPatrocinadorLogin = carregarDadosPatrocinadorLogin;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarDadosPatrocinadorLogin();
+        });
     </script>
 
     <!-- PAINEL DO CONSULTOR -->
