@@ -287,6 +287,29 @@
         </div>
     </div>
 
+    <!-- Script imediato e prioritário para controle de visibilidade da senha (carregamento instantâneo) -->
+    <script>
+        function alternarVisibilidadeSenha(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+        window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
+    </script>
+
     <!-- PAINEL DO CONSULTOR -->
     <div id="dashboard-screen" class="w-full max-w-[96%] xl:max-w-[1650px] 2xl:max-w-[1800px] mx-auto mt-6 sm:mt-8 px-2 sm:px-5 lg:px-8 hidden">
         
@@ -14112,7 +14135,7 @@
         }
         window.salvarValidadeFundadorIndividual = salvarValidadeFundadorIndividual;
 
-        // function exportarGrupoFundadoresCsv() {
+        function exportarGrupoFundadoresCsv() {
             const todos = todosConsultoresCache || [];
             const lista = [];
             todos.forEach(c => {
