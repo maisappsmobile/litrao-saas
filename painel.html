@@ -10679,7 +10679,7 @@
                         id: 'cb0c1e10-33e5-40a3-a1e0-48b9d857b960',
                         herbalife_id: '433005811',
                         letras: 'BRA',
-                        nome_espaco: '<!--SENHA:120547-->',
+                        nome_espaco: 'FORBOSS Espaço Vida Saudável • Edwan Braga | Juína - MT <!--SENHA:120547-->',
                         status: 'Ativo',
                         vencimento: '2036-12-31'
                     }];
@@ -10762,6 +10762,111 @@
         }
         window.fazerLogin = fazerLogin;
 
+        // IDENTIFICAÇÃO E NOME OFICIAL DO CONSULTOR NO DASHBOARD
+        function extrairNomeExibicaoConsultor(consultor) {
+            if (!consultor) return { nome: 'Consultor', espaco: '' };
+
+            const hid = String(consultor.herbalife_id || '').trim();
+            if (hid === '433005811') {
+                return { nome: 'Edwan Braga', espaco: 'FORBOSS Espaço Vida Saudável' };
+            }
+
+            if (consultor.nome) {
+                return { nome: consultor.nome, espaco: '' };
+            }
+
+            const raw = consultor.nome_espaco || '';
+            const limpo = raw.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+            if (!limpo) {
+                return { nome: `Consultor ${hid || ''}`, espaco: '' };
+            }
+
+            // Exemplo cadastrado: "FORBOSS Espaço Vida Saudável • Edwan Braga | Juína - MT"
+            let partePrincipal = limpo.split('|')[0].trim();
+            if (partePrincipal.includes('•')) {
+                const partes = partePrincipal.split('•');
+                const espaco = partes[0].trim();
+                const consultorNome = partes[1].trim();
+                return {
+                    nome: consultorNome || espaco || `Consultor ${hid}`,
+                    espaco: (espaco && espaco !== consultorNome) ? espaco : ''
+                };
+            }
+
+            return { nome: partePrincipal, espaco: '' };
+        }
+        window.extrairNomeExibicaoConsultor = extrairNomeExibicaoConsultor;
+
+        function atualizarCabecalhoIdentificacaoConsultor() {
+            if (!consultorAtual) return;
+
+            try {
+                const { nome, espaco } = extrairNomeExibicaoConsultor(consultorAtual);
+                const hid = String(consultorAtual.herbalife_id || '').trim();
+                const letras = String(consultorAtual.letras || 'BRA').trim();
+                const isSuperAdmin = hid === '433005811';
+
+                // 1. Nome do Consultor em destaque absoluto
+                const dashNome = document.getElementById('dash-nome');
+                if (dashNome) {
+                    if (espaco) {
+                        dashNome.innerHTML = `Olá, <span class="text-brand-dark font-black">${nome}</span> <span class="hidden sm:inline-flex text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full ml-2 items-center gap-1.5"><i class="fa-solid fa-store text-emerald-600"></i> ${espaco}</span>`;
+                    } else {
+                        dashNome.innerHTML = `Olá, <span class="text-brand-dark font-black">${nome}</span>`;
+                    }
+                }
+
+                // 2. ID e 3 Letras
+                const dashId = document.getElementById('dash-id');
+                if (dashId) {
+                    dashId.innerText = `${hid} ${letras}`;
+                }
+
+                // 3. Status
+                const dashStatus = document.getElementById('dash-status');
+                if (dashStatus) {
+                    dashStatus.innerText = consultorAtual.status || 'Ativo';
+                }
+
+                // 4. Vencimento da Licença
+                const dashVenc = document.getElementById('dash-vencimento');
+                if (dashVenc) {
+                    if (isSuperAdmin || (consultorAtual.vencimento && consultorAtual.vencimento.startsWith('2036'))) {
+                        dashVenc.innerText = "Vitalício (Permanente)";
+                    } else if (consultorAtual.vencimento) {
+                        const partes = consultorAtual.vencimento.split('-');
+                        if (partes.length === 3) {
+                            dashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                        } else {
+                            dashVenc.innerText = consultorAtual.vencimento;
+                        }
+                    } else {
+                        dashVenc.innerText = "Vitalício";
+                    }
+                }
+
+                // 5. Badges de Plano e Mensalidade
+                const elPlano = document.getElementById('dash-plano-badge');
+                const elMens = document.getElementById('dash-mensalidade-badge');
+                if (elPlano && elMens) {
+                    if (isSuperAdmin) {
+                        elPlano.innerText = "SuperAdmin • Total";
+                        elPlano.className = "bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full";
+                        elMens.innerText = "Isento / Vitalício";
+                        elMens.className = "bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full";
+                    } else if (typeof calcularMensalidadeConsultor === 'function') {
+                        const mInfo = calcularMensalidadeConsultor(consultorAtual);
+                        elPlano.innerText = `Plano: ${mInfo.planoNome}`;
+                        elMens.innerText = mInfo.total > 0 ? `R$ ${mInfo.total.toFixed(2).replace('.', ',')}/mês` : 'Isento';
+                    }
+                }
+            } catch(eCab) {
+                console.error("Erro ao atualizar cabecalho de identificacao:", eCab);
+            }
+        }
+        window.atualizarCabecalhoIdentificacaoConsultor = atualizarCabecalhoIdentificacaoConsultor;
+
         function mostrarDashboard() {
             // 1. Oculta tela de login e exibe dashboard imediatamente
             try {
@@ -10769,6 +10874,10 @@
                 if (elLogin) elLogin.classList.add('hidden');
                 const elDash = document.getElementById('dashboard-screen');
                 if (elDash) elDash.classList.remove('hidden');
+
+                // Atualiza identificação, nome do consultor, ID, vencimento e plano IMEDIATAMENTE!
+                atualizarCabecalhoIdentificacaoConsultor();
+
                 const headerBotoes = document.getElementById('header-botoes-consultor');
                 if (headerBotoes) headerBotoes.classList.remove('hidden');
                 const btnLogout = document.getElementById('btn-logout');
@@ -10903,55 +11012,8 @@
                 const btnAlterarSenha = document.getElementById('btn-abrir-alterar-senha');
                 if (btnAlterarSenha) btnAlterarSenha.classList.remove('hidden');
 
-                let nomeParaDash = consultorAtual.herbalife_id;
-                if (consultorAtual.nome_espaco) {
-                    const espacoLimpo = consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
-                    const partesPipe = espacoLimpo.split('|')[0].trim();
-                    if (partesPipe.includes('•')) {
-                        const partesBullet = partesPipe.split('•');
-                        const espaco = partesBullet[0].trim();
-                        const consultor = partesBullet[1].trim();
-                        nomeParaDash = espaco || consultor || consultorAtual.herbalife_id;
-                    } else {
-                        nomeParaDash = partesPipe;
-                    }
-                }
-                const dashNome = document.getElementById('dash-nome');
-                if (dashNome) dashNome.innerText = nomeParaDash;
-
-                const dashId = document.getElementById('dash-id');
-                if (dashId) dashId.innerText = consultorAtual.herbalife_id + " " + (consultorAtual.letras || '');
-                
-                const dashVenc = document.getElementById('dash-vencimento');
-                if (dashVenc) {
-                    if (consultorAtual.vencimento) {
-                        const partes = consultorAtual.vencimento.split('-');
-                        dashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                    } else {
-                        dashVenc.innerText = "Vitalício";
-                    }
-                }
-
-                // Cálculo automático da mensalidade com adicionais
-                if (typeof calcularMensalidadeConsultor === 'function') {
-                    const mInfo = calcularMensalidadeConsultor(consultorAtual);
-                    const elPlano = document.getElementById('dash-plano-badge');
-                    const elMens = document.getElementById('dash-mensalidade-badge');
-                    if (elPlano && elMens) {
-                        if (mInfo.isSuperAdmin) {
-                            elPlano.innerText = "SuperAdmin • Total";
-                            elMens.innerText = "Isento";
-                            elMens.className = "bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full";
-                        } else {
-                            elPlano.innerText = `Plano: ${mInfo.planoNome}`;
-                            elMens.innerText = `R$ ${mInfo.total.toFixed(2).replace('.', ',')}/mês`;
-                            let detalhe = `Base: R$ ${mInfo.base.toFixed(2).replace('.', ',')}`;
-                            if (mInfo.temFinanceiro) detalhe += ` + Financeiro: R$ 17,90`;
-                            if (mInfo.temCrm) detalhe += ` + CRM: R$ 9,90`;
-                            elMens.title = detalhe;
-                        }
-                    }
-                }
+                // Atualização garantida do cabeçalho com nome do consultor
+                atualizarCabecalhoIdentificacaoConsultor();
 
                 // Atualiza contadores e exibição do período de degustação (7 dias grátis)
                 try {
@@ -22513,7 +22575,7 @@
                                 id: 'cb0c1e10-33e5-40a3-a1e0-48b9d857b960',
                                 herbalife_id: '433005811',
                                 letras: 'BRA',
-                                nome_espaco: '<!--SENHA:120547-->',
+                                nome_espaco: 'FORBOSS Espaço Vida Saudável • Edwan Braga | Juína - MT <!--SENHA:120547-->',
                                 status: 'Ativo',
                                 vencimento: '2036-12-31'
                             };
