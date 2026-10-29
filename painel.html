@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -3070,6 +3070,108 @@
             </div>
         </div>
 
+        <!-- MODAL RÃPIDO PARA MUDAR O PLANO DO CONSULTOR NO MANUAL (SUPERADMIN) -->
+        <div id="modal-mudar-plano-consultor-rapido" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-purple-200 relative overflow-hidden">
+                
+                <!-- HEADER -->
+                <div class="flex items-center justify-between p-5 pb-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-white">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900 leading-tight">Mudar Plano do Consultor</h3>
+                            <p class="text-xs text-purple-700 font-bold truncate max-w-[240px]" id="mudar-plano-consultor-nome">Carregando...</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalMudarPlanoConsultor()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center text-lg font-bold transition cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- FORMULÃRIO -->
+                <form onsubmit="salvarMudancaPlanoConsultorManual(event)" class="p-5 sm:p-6 space-y-4">
+                    <input type="hidden" id="mudar-plano-consultor-id">
+
+                    <!-- ID Herbalife e Dados do Consultor -->
+                    <div class="bg-purple-50/70 p-3 rounded-2xl border border-purple-100 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="block text-[10px] font-bold uppercase text-purple-900">ID Herbalife:</span>
+                            <span class="font-mono font-black text-purple-950 text-sm" id="mudar-plano-consultor-hid">---</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[10px] font-bold uppercase text-purple-900">Plano Atual:</span>
+                            <span class="font-black text-amber-700 text-xs" id="mudar-plano-consultor-atual">Start Pro (R$ 99,00)</span>
+                        </div>
+                    </div>
+
+                    <!-- SeleÃ§Ã£o de Plano -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center justify-between">
+                            <span><i class="fa-solid fa-crown text-amber-500 mr-1"></i> Escolha o Novo Plano:</span>
+                            <span class="text-[10px] text-purple-600 font-extrabold">Manual SuperAdmin</span>
+                        </label>
+                        <select id="mudar-plano-select" onchange="aoMudarSelectPlanoManual(this.value)" class="w-full p-3 bg-gray-50 border-2 border-purple-200 focus:border-purple-600 rounded-xl text-sm font-bold text-gray-800 focus:outline-none transition">
+                            <option value="start_pro">Start Pro (R$ 99,00/mÃªs)</option>
+                            <option value="master_vip">Master VIP (R$ 49,00/mÃªs)</option>
+                            <option value="vitalicio_smart">VitalÃ­cio Smart (R$ 25,00/mÃªs)</option>
+                            <option value="fundador_mensal">Fundador Mensal (R$ 39,90/mÃªs)</option>
+                            <option value="fundador_anual">Fundador Anual (R$ 290,00/ano)</option>
+                            <option value="vitalicio_isento">VitalÃ­cio Permanente / Isento (R$ 0,00)</option>
+                            <option value="personalizado">âš¡ Outro / Personalizado (definir valor manual)</option>
+                        </select>
+                    </div>
+
+                    <!-- Campos Extras para Personalizado / Ajuste Fino -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Valor do Plano (R$)</label>
+                            <input type="text" id="mudar-plano-valor" required placeholder="99,00" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-black text-emerald-600 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Periodicidade</label>
+                            <select id="mudar-plano-periodo" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="mensal">Mensal</option>
+                                <option value="anual">Anual</option>
+                                <option value="vitalicio">VitalÃ­cio</option>
+                                <option value="semestral">Semestral</option>
+                                <option value="trimestral">Trimestral</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Nome Personalizado do Plano (opcional) -->
+                    <div id="container-mudar-plano-nome-custom" class="hidden">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Nome de ExibiÃ§Ã£o do Plano</label>
+                        <input type="text" id="mudar-plano-nome-custom" placeholder="Ex: Parceria Especial, Clube VIP..." class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <!-- Ajuste opcional de Data de Vencimento -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                            <span>Data de Vencimento do Consultor</span>
+                            <button type="button" onclick="document.getElementById('mudar-plano-vencimento').value = '2036-12-31'" class="text-[10px] text-amber-700 hover:underline font-bold">Definir 2036 (VitalÃ­cio)</button>
+                        </label>
+                        <input type="date" id="mudar-plano-vencimento" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+
+                    <!-- Feedback -->
+                    <div id="mudar-plano-feedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+                    <!-- BOTÃ•ES -->
+                    <div class="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+                        <button type="button" onclick="fecharModalMudarPlanoConsultor()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-salvar-mudar-plano" class="bg-purple-700 hover:bg-purple-800 text-white font-black px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Salvar Novo Plano</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- MODAL DE EDIÇÃO DE CONSULTOR (SUPERADMIN) -->
         <div id="modal-editar-consultor-superadmin" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
             <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-gray-200 relative flex flex-col max-h-[92vh] overflow-hidden animate-fade-in">
@@ -3167,6 +3269,51 @@
                                 <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
                                     <i class="fa-solid fa-infinity"></i> Tornar Vitalício
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- DEFINIÃ‡ÃƒO / MUDANÃ‡A MANUAL DO PLANO DO CONSULTOR -->
+                        <div class="bg-gradient-to-r from-purple-50 via-amber-50/40 to-purple-50 p-3.5 sm:p-4 rounded-2xl border-2 border-purple-300 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="block text-xs font-black text-purple-950 uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-crown text-amber-500"></i> Plano & CobranÃ§a do Consultor (Manual)
+                                </span>
+                                <span class="text-[10px] font-extrabold bg-purple-200 text-purple-900 px-2 py-0.5 rounded-full">SuperAdmin</span>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-gray-700">Selecione o Plano</label>
+                                <select id="superadmin-edit-plano-select" onchange="aoMudarPlanoModalEditarCompleto(this.value)" class="w-full p-2.5 bg-white border border-purple-200 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="start_pro">Start Pro (R$ 99,00/mÃªs)</option>
+                                    <option value="master_vip">Master VIP (R$ 49,00/mÃªs)</option>
+                                    <option value="vitalicio_smart">VitalÃ­cio Smart (R$ 25,00/mÃªs)</option>
+                                    <option value="fundador_mensal">Fundador Mensal (R$ 39,90/mÃªs)</option>
+                                    <option value="fundador_anual">Fundador Anual (R$ 290,00/ano)</option>
+                                    <option value="vitalicio_isento">VitalÃ­cio Permanente / Isento (R$ 0,00)</option>
+                                    <option value="personalizado">âš¡ Outro / Personalizado (definir valor manual)</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-700 mb-1">Valor Base (R$)</label>
+                                    <input type="text" id="superadmin-edit-plano-valor" oninput="if(typeof atualizarResumoMensalidadeSuperadminModal === 'function') atualizarResumoMensalidadeSuperadminModal()" placeholder="99,00" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-black text-emerald-600 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-700 mb-1">Periodicidade</label>
+                                    <select id="superadmin-edit-plano-periodo" onchange="if(typeof atualizarResumoMensalidadeSuperadminModal === 'function') atualizarResumoMensalidadeSuperadminModal()" class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        <option value="mensal">Mensal</option>
+                                        <option value="anual">Anual</option>
+                                        <option value="vitalicio">VitalÃ­cio</option>
+                                        <option value="semestral">Semestral</option>
+                                        <option value="trimestral">Trimestral</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="container-superadmin-edit-plano-custom" class="hidden">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome Personalizado do Plano</label>
+                                <input type="text" id="superadmin-edit-plano-nome-custom" placeholder="Ex: Parceiro EVS, Especial..." class="w-full p-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                             </div>
                         </div>
 
@@ -12891,7 +13038,21 @@
                                                 ${dadosFdCard ? `<span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded-full text-[10px] shadow-xs flex items-center gap-1 border border-amber-300"><i class="fa-solid fa-crown text-[9px]"></i> Fundador ${dadosFdCard.codigo}</span>` : ''}
                                                 ${isVitalicio && !dadosFdCard ? `<span class="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fa-solid fa-infinity mr-1 text-emerald-600"></i> Vitalício</span>` : ''}
                                                 ${isTrial ? `<span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full text-[10px] font-bold"><i class="fa-solid fa-gift mr-1 text-amber-600"></i> Trial</span>` : ''}
-                                                ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `<span class="bg-purple-50 text-purple-900 border border-purple-200 px-2 py-0.5 rounded-md text-[10px] font-black">R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês</span>` : ''}
+                                                ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `
+                                                    <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" title="Clique para mudar o plano deste consultor no manual" class="inline-flex items-center gap-1 text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 hover:border-purple-500 px-2 py-0.5 rounded-md font-black transition cursor-pointer shadow-2xs group/plano">
+                                                        <i class="fa-solid fa-tag text-purple-600 text-[9px] group-hover/plano:scale-110 transition"></i>
+                                                        <span>${mInfoConsultor.planoNome}</span>
+                                        ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `
+                                            <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" title="Clique para mudar o plano deste consultor no manual" class="inline-flex items-center gap-1 text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 hover:border-purple-500 px-1.5 py-0.2 rounded font-black transition cursor-pointer shadow-2xs group/plano">
+                                                <i class="fa-solid fa-tag text-purple-600 text-[8px] group-hover/plano:scale-110 transition"></i>
+                                                <span>${mInfoConsultor.planoNome}</span>
+                                                <span class="text-purple-700">(${mInfoConsultor.periodicidade === 'anual' ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/ano` : (mInfoConsultor.total > 0 ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mÃªs` : 'Isento')})</span>
+                                                <i class="fa-solid fa-pen text-[7px] text-purple-400 ml-0.5"></i>
+                                            </button>
+                                        ` : ''}
+                                                        <i class="fa-solid fa-pen text-[8px] text-purple-400 ml-0.5"></i>
+                                                    </button>
+                                                ` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -12970,10 +13131,13 @@
                             <!-- Barra Inferior de Ações Rápidas -->
                             ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                                 <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
-                                    <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs">
-                                        <i class="fa-solid fa-infinity"></i> <span>Vitalício</span>
+                                    <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Tornar VitalÃ­cio">
+                                        <i class="fa-solid fa-infinity"></i> <span>VitalÃ­cio</span>
                                     </button>
-                                    <button type="button" onclick="abrirModalEditarValidadeFundador('${c.id}', '${(c.nome_espaco||'').replace(/'/g, "\\'")}', '${c.vencimento||''}', '${item.codigo}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs">
+                                    <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Mudar Plano no Manual">
+                                        <i class="fa-solid fa-sliders"></i> <span>Plano</span>
+                                    </button>
+                                    <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Editar Todos os Dados">
                                         <i class="fa-solid fa-pen-to-square"></i> <span>Editar</span>
                                     </button>
                                     <button type="button" onclick="excluirConsultorSuperadmin('${c.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-2 rounded-xl text-xs transition cursor-pointer border border-rose-200" title="Excluir Consultor">
@@ -13149,10 +13313,13 @@
                         ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                             <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1">
-                                    <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar Vitalício Rápido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
+                                    <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar VitalÃ­cio RÃ¡pido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-infinity"></i>
                                     </button>
-                                    <button onclick="abrirModalEditarValidadeFundador('${c.id}', '${(c.nome_espaco||'').replace(/'/g, "\\'")}', '${c.vencimento||''}', '${item.codigo}')" title="Editar Detalhes" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
+                                    <button onclick="abrirModalMudarPlanoConsultor('${c.id}')" title="Mudar Plano do Consultor no Manual" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs flex items-center gap-1">
+                                        <i class="fa-solid fa-sliders text-xs"></i> <span>Plano</span>
+                                    </button>
+                                    <button onclick="abrirModalEditarConsultor('${c.id}')" title="Editar Todos os Dados do Consultor" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
                                     <button onclick="excluirConsultorSuperadmin('${c.id}')" title="Excluir Consultor" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-1.5 rounded-xl text-[11px] transition cursor-pointer border border-rose-200">
@@ -13192,6 +13359,40 @@
                 atualizarResumoMensalidadeSuperadminModal();
             }
 
+            // Carrega dados do plano no modal de ediÃ§Ã£o
+            let planoAtualObj = null;
+            if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--PLANO:')) {
+                try {
+                    const matchPlano = consultor.nome_espaco.match(/<!--PLANO:([\s\S]*?)-->/);
+                    if (matchPlano && matchPlano[1]) planoAtualObj = JSON.parse(matchPlano[1]);
+                } catch(e) {}
+            }
+
+            const mInfoEdit = (typeof calcularMensalidadeConsultor === 'function') ? calcularMensalidadeConsultor(consultor) : null;
+            const selPlanoEdit = document.getElementById('superadmin-edit-plano-select');
+            const inValorPlanoEdit = document.getElementById('superadmin-edit-plano-valor');
+            const selPeriodoEdit = document.getElementById('superadmin-edit-plano-periodo');
+            const inNomeCustomEdit = document.getElementById('superadmin-edit-plano-nome-custom');
+            const boxCustomEdit = document.getElementById('container-superadmin-edit-plano-custom');
+
+            if (planoAtualObj && planoAtualObj.id) {
+                if (selPlanoEdit) selPlanoEdit.value = planoAtualObj.id;
+                if (inValorPlanoEdit) inValorPlanoEdit.value = (planoAtualObj.valor !== undefined) ? Number(planoAtualObj.valor).toFixed(2).replace('.', ',') : (mInfoEdit ? mInfoEdit.base.toFixed(2).replace('.', ',') : '99,00');
+                if (selPeriodoEdit) selPeriodoEdit.value = planoAtualObj.periodicidade || 'mensal';
+                if (inNomeCustomEdit) inNomeCustomEdit.value = planoAtualObj.nome || '';
+                if (boxCustomEdit) boxCustomEdit.className = (planoAtualObj.id === 'personalizado') ? 'block' : 'hidden';
+            } else if (mInfoEdit) {
+                let mapId = 'start_pro';
+                if (mInfoEdit.planoNome.includes('Master VIP')) mapId = 'master_vip';
+                else if (mInfoEdit.planoNome.includes('VitalÃ­cio Smart') || mInfoEdit.planoNome.includes('VitalÃ­cio')) mapId = 'vitalicio_smart';
+                else if (mInfoEdit.planoNome.includes('Fundador Anual')) mapId = 'fundador_anual';
+                else if (mInfoEdit.planoNome.includes('Fundador')) mapId = 'fundador_mensal';
+
+                if (selPlanoEdit) selPlanoEdit.value = mapId;
+                if (inValorPlanoEdit) inValorPlanoEdit.value = mInfoEdit.base.toFixed(2).replace('.', ',');
+                if (selPeriodoEdit) selPeriodoEdit.value = mInfoEdit.periodicidade || (mapId.includes('anual') ? 'anual' : (mapId.includes('vitalicio') ? 'vitalicio' : 'mensal'));
+                if (boxCustomEdit) boxCustomEdit.className = 'hidden';
+            }
             document.getElementById('superadmin-edit-subtitulo').innerText = `ID Herbalife: ${consultor.herbalife_id} • Letras: ${letrasHerbalife || '---'} • Senha: ${senhaPainel || '---'}`;
             
             // Extrai dados limpos de nome_espaco, cidade, estado e redes sociais
@@ -13326,10 +13527,35 @@
                 nomeEspacoBase += ` <!--SENHA:${senhaEdit}-->`;
             }
 
+            // Plano do Consultor definido manualmente
+            const planoSelectVal = document.getElementById('superadmin-edit-plano-select')?.value;
+            const planoValorInput = document.getElementById('superadmin-edit-plano-valor')?.value;
+            const planoPeriodoInput = document.getElementById('superadmin-edit-plano-periodo')?.value || 'mensal';
+            const planoNomeCustom = document.getElementById('superadmin-edit-plano-nome-custom')?.value;
+
+            if (planoSelectVal) {
+                const valorLimpo = parseFloat((planoValorInput || '0').replace(',', '.')) || 0;
+                let nomePlano = 'Start Pro';
+                if (planoSelectVal === 'start_pro') nomePlano = 'Start Pro';
+                else if (planoSelectVal === 'master_vip') nomePlano = 'Master VIP';
+                else if (planoSelectVal === 'vitalicio_smart') nomePlano = 'VitalÃ­cio Smart';
+                else if (planoSelectVal === 'fundador_mensal') nomePlano = 'Fundador Mensal';
+                else if (planoSelectVal === 'fundador_anual') nomePlano = 'Fundador Anual';
+                else if (planoSelectVal === 'vitalicio_isento') nomePlano = 'VitalÃ­cio Isento';
+                else if (planoSelectVal === 'personalizado') nomePlano = (planoNomeCustom && planoNomeCustom.trim()) ? planoNomeCustom.trim() : 'Plano Personalizado';
+
+                const planoObj = {
+                    id: planoSelectVal,
+                    nome: nomePlano,
+                    valor: valorLimpo,
+                    periodicidade: planoPeriodoInput
+                };
+                nomeEspacoBase += ` <!--PLANO:${JSON.stringify(planoObj)}-->`;
+            }
             // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO e MODULO_CRM_EXTRATOR para não duplicar
             const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|PLANO:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
@@ -13405,6 +13631,253 @@
         }
         window.salvarEdicaoConsultorSuperadmin = salvarEdicaoConsultorSuperadmin;
 
+        // =========================================================================
+        // CONTROLES DE MUDANÃ‡A MANUAL DE PLANOS DO CONSULTOR (SUPERADMIN)
+        // =========================================================================
+        function aoMudarPlanoModalEditarCompleto(val) {
+            const inValor = document.getElementById('superadmin-edit-plano-valor');
+            const selPeriodo = document.getElementById('superadmin-edit-plano-periodo');
+            const boxCustom = document.getElementById('container-superadmin-edit-plano-custom');
+
+            if (boxCustom) boxCustom.className = (val === 'personalizado') ? 'block' : 'hidden';
+
+            if (val === 'start_pro') {
+                if (inValor) inValor.value = '99,00';
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'master_vip') {
+                if (inValor) inValor.value = '49,00';
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'vitalicio_smart') {
+                if (inValor) inValor.value = '25,00';
+                if (selPeriodo) selPeriodo.value = 'vitalicio';
+            } else if (val === 'fundador_mensal') {
+                const precoM = (typeof CONFIG_FUNDADORES !== 'undefined' && CONFIG_FUNDADORES.precoMensal) ? CONFIG_FUNDADORES.precoMensal : 39.90;
+                if (inValor) inValor.value = precoM.toFixed(2).replace('.', ',');
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'fundador_anual') {
+                const precoA = (typeof CONFIG_FUNDADORES !== 'undefined' && CONFIG_FUNDADORES.precoAnual) ? CONFIG_FUNDADORES.precoAnual : 290.00;
+                if (inValor) inValor.value = precoA.toFixed(2).replace('.', ',');
+                if (selPeriodo) selPeriodo.value = 'anual';
+            } else if (val === 'vitalicio_isento') {
+                if (inValor) inValor.value = '0,00';
+                if (selPeriodo) selPeriodo.value = 'vitalicio';
+            } else if (val === 'personalizado') {
+                if (inValor) inValor.focus();
+            }
+
+            if (typeof atualizarResumoMensalidadeSuperadminModal === 'function') {
+                atualizarResumoMensalidadeSuperadminModal();
+            }
+        }
+        window.aoMudarPlanoModalEditarCompleto = aoMudarPlanoModalEditarCompleto;
+
+        function abrirModalMudarPlanoConsultor(id) {
+            const consultor = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache)
+                ? todosConsultoresCache.find(c => String(c.id) === String(id))
+                : null;
+            if (!consultor) return;
+
+            const modal = document.getElementById('modal-mudar-plano-consultor-rapido');
+            if (!modal) return;
+
+            document.getElementById('mudar-plano-consultor-id').value = consultor.id;
+            const nomeLimpo = (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+            document.getElementById('mudar-plano-consultor-nome').innerText = nomeLimpo;
+            document.getElementById('mudar-plano-consultor-hid').innerText = consultor.herbalife_id || '---';
+
+            const mInfo = (typeof calcularMensalidadeConsultor === 'function') ? calcularMensalidadeConsultor(consultor) : null;
+            const elAtual = document.getElementById('mudar-plano-consultor-atual');
+            if (elAtual && mInfo) {
+                elAtual.innerText = `${mInfo.planoNome} (R$ ${mInfo.total.toFixed(2).replace('.', ',')}${mInfo.periodicidade === 'anual' ? '/ano' : (mInfo.total > 0 ? '/mÃªs' : '')})`;
+            }
+
+            // Carrega dados salvos do plano
+            let planoAtualObj = null;
+            if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--PLANO:')) {
+                try {
+                    const matchPlano = consultor.nome_espaco.match(/<!--PLANO:([\s\S]*?)-->/);
+                    if (matchPlano && matchPlano[1]) planoAtualObj = JSON.parse(matchPlano[1]);
+                } catch(e) {}
+            }
+
+            const selPlano = document.getElementById('mudar-plano-select');
+            const inValor = document.getElementById('mudar-plano-valor');
+            const selPeriodo = document.getElementById('mudar-plano-periodo');
+            const inNomeCustom = document.getElementById('mudar-plano-nome-custom');
+            const boxCustom = document.getElementById('container-mudar-plano-nome-custom');
+            const inVenc = document.getElementById('mudar-plano-vencimento');
+
+            if (inVenc) {
+                inVenc.value = (consultor.vencimento && consultor.vencimento.length === 10) ? consultor.vencimento : '';
+            }
+
+            if (planoAtualObj && planoAtualObj.id) {
+                if (selPlano) selPlano.value = planoAtualObj.id;
+                if (inValor) inValor.value = (planoAtualObj.valor !== undefined) ? Number(planoAtualObj.valor).toFixed(2).replace('.', ',') : (mInfo ? mInfo.base.toFixed(2).replace('.', ',') : '99,00');
+                if (selPeriodo) selPeriodo.value = planoAtualObj.periodicidade || 'mensal';
+                if (inNomeCustom) inNomeCustom.value = planoAtualObj.nome || '';
+                if (boxCustom) boxCustom.className = (planoAtualObj.id === 'personalizado') ? 'block' : 'hidden';
+            } else if (mInfo) {
+                let mapId = 'start_pro';
+                if (mInfo.planoNome.includes('Master VIP')) mapId = 'master_vip';
+                else if (mInfo.planoNome.includes('VitalÃ­cio Smart') || mInfo.planoNome.includes('VitalÃ­cio')) mapId = 'vitalicio_smart';
+                else if (mInfo.planoNome.includes('Fundador Anual')) mapId = 'fundador_anual';
+                else if (mInfo.planoNome.includes('Fundador')) mapId = 'fundador_mensal';
+
+                if (selPlano) selPlano.value = mapId;
+                if (inValor) inValor.value = mInfo.base.toFixed(2).replace('.', ',');
+                if (selPeriodo) selPeriodo.value = mInfo.periodicidade || (mapId.includes('anual') ? 'anual' : (mapId.includes('vitalicio') ? 'vitalicio' : 'mensal'));
+                if (boxCustom) boxCustom.className = 'hidden';
+            }
+
+            const feedback = document.getElementById('mudar-plano-feedback');
+            if (feedback) feedback.className = 'hidden';
+
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalMudarPlanoConsultor = abrirModalMudarPlanoConsultor;
+
+        function fecharModalMudarPlanoConsultor() {
+            const modal = document.getElementById('modal-mudar-plano-consultor-rapido');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalMudarPlanoConsultor = fecharModalMudarPlanoConsultor;
+
+        function aoMudarSelectPlanoManual(val) {
+            const inValor = document.getElementById('mudar-plano-valor');
+            const selPeriodo = document.getElementById('mudar-plano-periodo');
+            const boxCustom = document.getElementById('container-mudar-plano-nome-custom');
+            const inVenc = document.getElementById('mudar-plano-vencimento');
+
+            if (boxCustom) boxCustom.className = (val === 'personalizado') ? 'block' : 'hidden';
+
+            if (val === 'start_pro') {
+                if (inValor) inValor.value = '99,00';
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'master_vip') {
+                if (inValor) inValor.value = '49,00';
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'vitalicio_smart') {
+                if (inValor) inValor.value = '25,00';
+                if (selPeriodo) selPeriodo.value = 'vitalicio';
+                if (inVenc && (!inVenc.value || parseInt(inVenc.value.split('-')[0]) < 2035)) inVenc.value = '2036-12-31';
+            } else if (val === 'fundador_mensal') {
+                const precoM = (typeof CONFIG_FUNDADORES !== 'undefined' && CONFIG_FUNDADORES.precoMensal) ? CONFIG_FUNDADORES.precoMensal : 39.90;
+                if (inValor) inValor.value = precoM.toFixed(2).replace('.', ',');
+                if (selPeriodo) selPeriodo.value = 'mensal';
+            } else if (val === 'fundador_anual') {
+                const precoA = (typeof CONFIG_FUNDADORES !== 'undefined' && CONFIG_FUNDADORES.precoAnual) ? CONFIG_FUNDADORES.precoAnual : 290.00;
+                if (inValor) inValor.value = precoA.toFixed(2).replace('.', ',');
+                if (selPeriodo) selPeriodo.value = 'anual';
+            } else if (val === 'vitalicio_isento') {
+                if (inValor) inValor.value = '0,00';
+                if (selPeriodo) selPeriodo.value = 'vitalicio';
+                if (inVenc) inVenc.value = '2036-12-31';
+            } else if (val === 'personalizado') {
+                if (inValor) inValor.focus();
+            }
+        }
+        window.aoMudarSelectPlanoManual = aoMudarSelectPlanoManual;
+
+        async function salvarMudancaPlanoConsultorManual(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const id = document.getElementById('mudar-plano-consultor-id')?.value;
+            const consultor = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache)
+                ? todosConsultoresCache.find(c => String(c.id) === String(id))
+                : null;
+            if (!consultor) return;
+
+            const btn = document.getElementById('btn-salvar-mudar-plano');
+            const feedback = document.getElementById('mudar-plano-feedback');
+            const selPlano = document.getElementById('mudar-plano-select')?.value;
+            const inValor = document.getElementById('mudar-plano-valor')?.value;
+            const selPeriodo = document.getElementById('mudar-plano-periodo')?.value || 'mensal';
+            const inNomeCustom = document.getElementById('mudar-plano-nome-custom')?.value;
+            const inVenc = document.getElementById('mudar-plano-vencimento')?.value;
+
+            const valorLimpo = parseFloat((inValor || '0').replace(',', '.')) || 0;
+            let nomePlano = 'Start Pro';
+            if (selPlano === 'start_pro') nomePlano = 'Start Pro';
+            else if (selPlano === 'master_vip') nomePlano = 'Master VIP';
+            else if (selPlano === 'vitalicio_smart') nomePlano = 'VitalÃ­cio Smart';
+            else if (selPlano === 'fundador_mensal') nomePlano = 'Fundador Mensal';
+            else if (selPlano === 'fundador_anual') nomePlano = 'Fundador Anual';
+            else if (selPlano === 'vitalicio_isento') nomePlano = 'VitalÃ­cio Isento';
+            else if (selPlano === 'personalizado') nomePlano = (inNomeCustom && inNomeCustom.trim()) ? inNomeCustom.trim() : 'Plano Personalizado';
+
+            const planoObj = {
+                id: selPlano,
+                nome: nomePlano,
+                valor: valorLimpo,
+                periodicidade: selPeriodo
+            };
+
+            let novoNomeEspaco = consultor.nome_espaco || '';
+            const tagNova = `<!--PLANO:${JSON.stringify(planoObj)}-->`;
+            if (novoNomeEspaco.includes('<!--PLANO:')) {
+                novoNomeEspaco = novoNomeEspaco.replace(/<!--PLANO:[\s\S]*?-->/g, tagNova);
+            } else {
+                novoNomeEspaco = novoNomeEspaco + ' ' + tagNova;
+            }
+
+            const payload = {
+                nome_espaco: novoNomeEspaco
+            };
+            if (inVenc) {
+                payload.vencimento = inVenc;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Salvando...`;
+            }
+
+            try {
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || `Status ${res.status}`);
+                }
+
+                consultor.nome_espaco = novoNomeEspaco;
+                if (inVenc) consultor.vencimento = inVenc;
+
+                if (feedback) {
+                    feedback.className = "p-3 rounded-xl text-xs font-bold bg-green-50 text-green-800 border border-green-200 block text-center";
+                    feedback.innerText = `Plano atualizado para ${nomePlano}!`;
+                }
+
+                if (typeof aplicarFiltrosErenderizarSuperadmin === 'function') {
+                    aplicarFiltrosErenderizarSuperadmin();
+                }
+
+                setTimeout(() => {
+                    fecharModalMudarPlanoConsultor();
+                }, 800);
+            } catch (err) {
+                console.error("Erro ao mudar plano:", err);
+                if (feedback) {
+                    feedback.className = "p-3 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 block text-center";
+                    feedback.innerText = `Erro ao salvar: ${err.message}`;
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Novo Plano`;
+                }
+            }
+        }
+        window.salvarMudancaPlanoConsultorManual = salvarMudancaPlanoConsultorManual;
         async function liberarAcessoVitalicioDireto(id, hid) {
             if (!confirm(`Deseja aprovar e liberar ACESSO VITALÍCIO (Vitalício até 2036) para o consultor ID ${hid}?`)) {
                 return;
@@ -13510,8 +13983,82 @@
         }
 
         function calcularMensalidadeConsultor(consultor) {
-            if (!consultor) return { base: 99.00, financeiro: 0, crm: 0, total: 99.00, isSuperAdmin: false, planoNome: 'Start Pro', temFinanceiro: false, temCrm: false };
+            if (!consultor) return { base: 99.00, financeiro: 0, crm: 0, total: 99.00, isSuperAdmin: false, planoNome: 'Start Pro', temFinanceiro: false, temCrm: false, periodicidade: 'mensal' };
             const hid = String(consultor.herbalife_id || '').trim();
+            if (hid === '433005811') {
+                return { base: 0, financeiro: 0, crm: 0, total: 0, isSuperAdmin: true, planoNome: 'SuperAdmin Total', temFinanceiro: true, temCrm: true, periodicidade: 'vitalicio' };
+            }
+            
+            const espaco = consultor.nome_espaco || '';
+            const espacoLower = espaco.toLowerCase();
+            const venc = consultor.vencimento || '';
+            const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(consultor) : null;
+
+            // 1. VERIFICAÃ‡ÃƒO SE EXISTE PLANO DEFINIDO MANUALMENTE VIA TAG <!--PLANO:...-->
+            let planoDefinidoManual = null;
+            if (espaco.includes('<!--PLANO:')) {
+                const matchPlano = espaco.match(/<!--PLANO:([\s\S]*?)-->/);
+                if (matchPlano && matchPlano[1]) {
+                    try {
+                        planoDefinidoManual = JSON.parse(matchPlano[1]);
+                    } catch(e) {
+                        planoDefinidoManual = { id: matchPlano[1].trim() };
+                    }
+                }
+            }
+
+            let base = 99.00;
+            let planoNome = 'Start Pro';
+            let periodicidade = 'mensal';
+
+            if (planoDefinidoManual) {
+                if (planoDefinidoManual.valor !== undefined && planoDefinidoManual.valor !== null) {
+                    base = parseFloat(planoDefinidoManual.valor) || 0;
+                }
+                if (planoDefinidoManual.nome) {
+                    planoNome = planoDefinidoManual.nome;
+                }
+                if (planoDefinidoManual.periodicidade) {
+                    periodicidade = planoDefinidoManual.periodicidade;
+                }
+            } else if (dadosFd) {
+                const isAnual = espacoLower.includes('plano_fundador:anual');
+                base = isAnual 
+                    ? ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoAnual !== undefined) ? CONFIG_FUNDADORES.precoAnual : 290.00)
+                    : ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoMensal !== undefined) ? CONFIG_FUNDADORES.precoMensal : 39.90);
+                planoNome = isAnual ? 'Fundador Anual' : 'Fundador Mensal';
+                periodicidade = isAnual ? 'anual' : 'mensal';
+            } else if (espacoLower.includes('plano 3') || espacoLower.includes('master vip') || espacoLower.includes('plano:plano3') || espacoLower.includes('master_vip')) {
+                base = 49.00;
+                planoNome = 'Master VIP';
+                periodicidade = 'mensal';
+            } else if (espacoLower.includes('plano 2') || espacoLower.includes('vitalicio') || espacoLower.includes('vitalÃ­cio') || espacoLower.includes('plano:plano2') || (venc && parseInt(venc.split('-')[0], 10) >= 2035)) {
+                base = 25.00;
+                planoNome = 'VitalÃ­cio Smart';
+                periodicidade = 'vitalicio';
+            }
+            
+            // Adicionais (Para Fundadores, o MÃ³dulo Financeiro Ã© 100% incluso sem custo adicional!)
+            const isFinLib = !!dadosFd || !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+            const isCrmLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+            
+            const finValor = (isFinLib && !dadosFd) ? 17.90 : 0.00;
+            const crmValor = isCrmLib ? 9.90 : 0.00;
+            const total = base + finValor + crmValor;
+            
+            return {
+                base,
+                planoNome,
+                periodicidade,
+                temFinanceiro: isFinLib,
+                financeiro: finValor,
+                temCrm: isCrmLib,
+                crm: crmValor,
+                total: parseFloat(total.toFixed(2)),
+                isSuperAdmin: false
+            };
+        }
+        }            const hid = String(consultor.herbalife_id || '').trim();
             if (hid === '433005811') {
                 return { base: 0, financeiro: 0, crm: 0, total: 0, isSuperAdmin: true, planoNome: 'SuperAdmin Total', temFinanceiro: true, temCrm: true };
             }
