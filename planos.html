@@ -1019,7 +1019,7 @@
                                 <span class="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">EXCLUSIVO</span>
                             </div>
                             <p class="text-[11px] text-amber-100/90 mt-0.5">
-                                Investimento: <strong>${cupom.preco > 0 ? 'R$ ' + formatarMoeda(cupom.preco) : 'ISENTO / GRATUITO'}</strong> • Validade: <strong>${cupom.validadeTexto}</strong> • Sequência Oficial A001 a Z100
+                                Investimento: <strong>${cupom.descricao}</strong> • Sequência Oficial A001 a Z100
                             </p>
                         </div>
                     </div>
@@ -1104,7 +1104,9 @@
                 }
 
                 const precoFund = parseFloat(cfgFund.preco) || 0;
-                const precoTxt = precoFund > 0 ? `R$ ${formatarMoeda(precoFund)}` : 'GRÁTIS (Isento)';
+                const pMensal = parseFloat(cfgFund.precoMensal) || 39.90;
+                const pAnual = parseFloat(cfgFund.precoAnual) || 290.00;
+                const precoTxt = `Mensal: R$ ${formatarMoeda(pMensal)}/mês | Anual: R$ ${formatarMoeda(pAnual)}/ano`;
                 const validadeTxt = cfgFund.semValidade ? 'Vitalício (Sem Validade)' : (cfgFund.dataValidade ? cfgFund.dataValidade.split('-').reverse().join('/') : 'Vitalício');
 
                 cupomEncontrado = {

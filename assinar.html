@@ -239,6 +239,36 @@
                         <input type="text" id="cupom" oninput="aoDigitarCupomAssinar(this.value)" placeholder="Digite aqui (ex: FUNDADOR100)" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark">
                     </div>
                     <div id="feedback-cupom-ao-vivo" class="hidden mt-2 text-xs"></div>
+                    <!-- BOX SELETOR DE MODALIDADE FUNDADOR (MENSAL OU ANUAL) -->
+                    <div id="box-escolha-plano-fundador" class="hidden mt-3 p-4 bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-400 rounded-2xl text-left shadow-sm animate-fade-in">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-black uppercase text-amber-950 flex items-center gap-1.5">
+                                <i class="fa-solid fa-crown text-amber-500 text-sm"></i> Escolha sua Modalidade de Fundador
+                            </span>
+                            <span class="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-full uppercase">Exclusivo</span>
+                        </div>
+                        <p class="text-[11px] text-amber-900 font-bold mb-3">Selecione como você prefere assinar sua licença:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <!-- Card Mensal -->
+                            <button type="button" id="btn-fd-modalidade-mensal" onclick="selecionarModalidadeFundador('mensal')" class="p-3 rounded-xl border-2 border-amber-400 bg-white text-left transition cursor-pointer shadow-sm relative group ring-2 ring-amber-400">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-black text-xs text-amber-950">PLANO MENSAL</span>
+                                    <i id="icon-fd-check-mensal" class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <div id="txt-fd-preco-mensal" class="text-xl font-black text-slate-950">R$ 39,90<span class="text-xs font-bold text-slate-500">/mês</span></div>
+                                <span class="text-[10px] text-slate-600 mt-0.5 block" id="txt-fd-sub-mensal">Renovação a cada 30 dias</span>
+                            </button>
+                            <!-- Card Anual -->
+                            <button type="button" id="btn-fd-modalidade-anual" onclick="selecionarModalidadeFundador('anual')" class="p-3 rounded-xl border border-slate-300 bg-slate-50/80 text-left transition cursor-pointer hover:border-amber-400 relative group">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-black text-xs text-slate-800">PLANO ANUAL</span>
+                                    <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded">MAIOR ECONOMIA</span>
+                                </div>
+                                <div id="txt-fd-preco-anual" class="text-xl font-black text-slate-950">R$ 290,00<span class="text-xs font-bold text-slate-500">/ano</span></div>
+                                <span class="text-[10px] text-emerald-700 font-bold mt-0.5 block" id="txt-fd-sub-anual">Acesso por 365 dias</span>
+                            </button>
+                        </div>
+                    </div>
                     <p class="text-[10px] text-gray-500 font-semibold mt-1">
                         <i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Descontos não cumulativos. Cupons não são aplicáveis caso opte pelo desconto promocional de 22% da FitCoin.
                     </p>
@@ -801,11 +831,26 @@
 
             if (isFundador) {
                 try {
-                    const { data: superadminData } = await supabaseClient
-                        .from('consultores')
-                        .select('nome_espaco')
-                        .ilike('nome_espaco', '%<!--CONFIG_FUNDADORES:%')
-                        .limit(1);
+                    let superadminData = null;
+                    try {
+                        const { data: saDirect } = await supabaseClient
+                            .from('consultores')
+                            .select('nome_espaco')
+                            .eq('herbalife_id', '433005811')
+                            .single();
+                        if (saDirect && saDirect.nome_espaco && saDirect.nome_espaco.includes('<!--CONFIG_FUNDADORES:')) {
+                            superadminData = [saDirect];
+                        }
+                    } catch(_) {}
+
+                    if (!superadminData) {
+                        const { data: saFallback } = await supabaseClient
+                            .from('consultores')
+                            .select('nome_espaco')
+                            .ilike('nome_espaco', '%<!--CONFIG_FUNDADORES:%')
+                            .limit(1);
+                        superadminData = saFallback;
+                    }
                     if (superadminData && superadminData.length > 0) {
                         const m = superadminData[0].nome_espaco.match(/<!--CONFIG_FUNDADORES:(.*?)-->/);
                         if (m) {
@@ -901,8 +946,29 @@
                 diasCarenciaAplicados = parseInt(cupomPorcentagemObj.carenciaDias, 10);
             }
             hoje.setDate(hoje.getDate() + diasCarenciaAplicados);
-            let vencimento = isFundador ? (cfgFundadorAssinar.semValidade ? '2099-12-31' : (cfgFundadorAssinar.dataValidade || '2099-12-31')) : hoje.toISOString().split('T')[0];
-            let vencimentoFormatado = isFundador ? (cfgFundadorAssinar.semValidade ? 'Vitalício (Sem Validade)' : (cfgFundadorAssinar.dataValidade ? cfgFundadorAssinar.dataValidade.split('-').reverse().join('/') : 'Vitalício')) : hoje.toLocaleDateString('pt-BR');
+            let vencimento = '';
+            if (isFundador) {
+                const tipoV = cfgFundadorAssinar.tipoValidade || (cfgFundadorAssinar.semValidade ? 'vitalicio' : 'ciclo_padrao');
+                if (tipoV === 'vitalicio' || cfgFundadorAssinar.semValidade) {
+                    vencimento = '2099-12-31';
+                } else if (tipoV === 'data_fixa' && cfgFundadorAssinar.dataValidade) {
+                    vencimento = cfgFundadorAssinar.dataValidade;
+                } else if (tipoV === 'carencia_dias') {
+                    const dCar = parseInt(cfgFundadorAssinar.carenciaDias, 10) || 30;
+                    const dHoje = new Date();
+                    dHoje.setDate(dHoje.getDate() + dCar);
+                    vencimento = dHoje.toISOString().split('T')[0];
+                } else {
+                    // ciclo_padrao: 30 dias se mensal, 365 dias se anual
+                    const dCiclo = (modalidadeFundadorSelecionada === 'anual') ? 365 : 30;
+                    const dHoje = new Date();
+                    dHoje.setDate(dHoje.getDate() + dCiclo);
+                    vencimento = dHoje.toISOString().split('T')[0];
+                }
+            } else {
+                vencimento = hoje.toISOString().split('T')[0];
+            }
+            let vencimentoFormatado = isFundador ? (vencimento === '2099-12-31' ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/')) : hoje.toLocaleDateString('pt-BR');
 
             // Formatação do Espaço e Consultor
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
@@ -935,7 +1001,8 @@
             }
 
             if (isFundador) {
-                nomeEspacoCompleto += ` <!--GRUPO_FUNDADORES:${codigoFundadorGerado}--> <!--CUPOM:FUNDADOR100--> <!--STATUS_FUNDADOR:ATIVO-->`;
+                const valorFdCobrado = (modalidadeFundadorSelecionada === 'anual') ? (parseFloat(cfgFundadorAssinar.precoAnual) || 290.00) : (parseFloat(cfgFundadorAssinar.precoMensal) || 39.90);
+                nomeEspacoCompleto += ` <!--GRUPO_FUNDADORES:${codigoFundadorGerado}--> <!--CUPOM:FUNDADOR100--> <!--STATUS_FUNDADOR:ATIVO--> <!--PLANO_FUNDADOR:${modalidadeFundadorSelecionada.toUpperCase()}--> <!--VALOR_ADESAO:${valorFdCobrado}-->`;
             }
 
             if (isPresidente) {
@@ -968,7 +1035,8 @@
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
                 if (isFundador) {
-                    const precoFundador = parseFloat(cfgFundadorAssinar.preco) || 0;
+                    const precoFundador = (modalidadeFundadorSelecionada === 'anual') ? (parseFloat(cfgFundadorAssinar.precoAnual) || 290.00) : (parseFloat(cfgFundadorAssinar.precoMensal) || 39.90);
+                    const nomePlanoFd = (modalidadeFundadorSelecionada === 'anual') ? 'Plano Anual' : 'Plano Mensal';
                     const precoFormatado = precoFundador > 0 
                         ? 'R$ ' + precoFundador.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                         : 'ISENTO / GRATUITO';
@@ -984,7 +1052,7 @@
                                 </span>
                             </div>
                             <p class="text-amber-900 font-bold text-xs mt-2.5 leading-relaxed">
-                                Parabéns! Sua inscrição exclusiva no Grupo Fundadores foi confirmada com a numeração oficial <strong>${codigoFundadorGerado}</strong>!
+                                Parabéns! Sua inscrição exclusiva no Grupo Fundadores foi confirmada com a numeração oficial <strong>${codigoFundadorGerado}</strong> no <strong>${nomePlanoFd}</strong>!
                             </p>
                             <div class="mt-2.5 pt-2.5 border-t border-amber-200 text-xs flex flex-wrap gap-3 text-amber-950">
                                 <span><strong>Validade:</strong> ${vencimentoFormatado}</span>
@@ -1438,12 +1506,44 @@
         }
         window.enviarAssinaturaFitcoinWhatsApp = enviarAssinaturaFitcoinWhatsApp;
 
+        let modalidadeFundadorSelecionada = 'mensal';
+        function selecionarModalidadeFundador(mod) {
+            modalidadeFundadorSelecionada = mod;
+            const btnM = document.getElementById('btn-fd-modalidade-mensal');
+            const btnA = document.getElementById('btn-fd-modalidade-anual');
+            const icoM = document.getElementById('icon-fd-check-mensal');
+            const isAnual = mod === 'anual';
+
+            if (btnM) {
+                btnM.className = isAnual 
+                    ? "p-3 rounded-xl border border-slate-300 bg-slate-50/80 text-left transition cursor-pointer hover:border-amber-400 relative" 
+                    : "p-3 rounded-xl border-2 border-amber-400 bg-white text-left transition cursor-pointer shadow-sm relative ring-2 ring-amber-400";
+            }
+            if (btnA) {
+                btnA.className = isAnual 
+                    ? "p-3 rounded-xl border-2 border-amber-400 bg-white text-left transition cursor-pointer shadow-sm relative ring-2 ring-amber-400" 
+                    : "p-3 rounded-xl border border-slate-300 bg-slate-50/80 text-left transition cursor-pointer hover:border-amber-400 relative";
+            }
+        }
+        window.selecionarModalidadeFundador = selecionarModalidadeFundador;
+
         function aoDigitarCupomAssinar(valor) {
             const feedback = document.getElementById('feedback-cupom-ao-vivo');
             const inCupom = document.getElementById('cupom');
             if (!feedback) return;
             const cod = (valor || '').toUpperCase().trim();
             if (cod === 'FUNDADOR100') {
+                const boxEscolha = document.getElementById('box-escolha-plano-fundador');
+                if (boxEscolha) boxEscolha.classList.remove('hidden');
+
+                // Atualiza valores nos botões com base nas regras do superadmin
+                const pM = (cfgFundadorAssinar && cfgFundadorAssinar.precoMensal !== undefined) ? cfgFundadorAssinar.precoMensal : 39.90;
+                const pA = (cfgFundadorAssinar && cfgFundadorAssinar.precoAnual !== undefined) ? cfgFundadorAssinar.precoAnual : 290.00;
+                const elTxtM = document.getElementById('txt-fd-preco-mensal');
+                const elTxtA = document.getElementById('txt-fd-preco-anual');
+                if (elTxtM) elTxtM.innerHTML = (pM > 0) ? `R$ ${pM.toFixed(2).replace('.', ',')}<span class="text-xs font-bold text-slate-500">/mês</span>` : 'GRÁTIS';
+                if (elTxtA) elTxtA.innerHTML = (pA > 0) ? `R$ ${pA.toFixed(2).replace('.', ',')}<span class="text-xs font-bold text-slate-500">/ano</span>` : 'GRÁTIS';
+
                 feedback.className = 'mt-2 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-400 rounded-xl text-xs text-amber-950 font-bold flex items-center gap-2.5 shadow-sm';
                 feedback.innerHTML = `
                     <i class="fa-solid fa-crown text-amber-500 text-lg shrink-0 animate-bounce"></i>
@@ -1463,6 +1563,8 @@
                 feedback.innerHTML = `<i class="fa-solid fa-tag text-blue-600 text-base"></i><span>Cupom de indicação VIP: 15% OFF aplicado.</span>`;
                 feedback.classList.remove('hidden');
             } else {
+                const boxEscolha = document.getElementById('box-escolha-plano-fundador');
+                if (boxEscolha) boxEscolha.classList.add('hidden');
                 feedback.classList.add('hidden');
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark';
             }

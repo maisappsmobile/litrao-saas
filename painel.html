@@ -5070,7 +5070,7 @@
                     </div>
                 </div>
 
-                <!-- 1. BLOCO DE CONFIGURAÇÃO DO PLANO ESPECIAL (PREÇO E VALIDADE NO MANUAL) -->
+                <!-- 1. BLOCO DE CONFIGURAÇÃO DO PLANO ESPECIAL (PREÇOS MENSAL/ANUAL E CONTROLE DE VALIDADE) -->
                 <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 mb-5 shadow-inner">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-800/80">
                         <div class="flex items-center gap-2">
@@ -5080,56 +5080,125 @@
                             </h4>
                         </div>
                         <span class="text-[10px] font-bold text-slate-400">
-                            🔒 Plano oculto da vitrine de vendas (ativação apenas com o cupom)
+                            🔒 Plano oculto da vitrine de vendas (ativação exclusiva com o cupom)
                         </span>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                        <!-- Campo 1: Preço do Plano Fundador -->
+                    <!-- LINHA 1: VALORES MENSAL E ANUAL + MODALIDADE -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3.5">
+                        <!-- Campo 1: Preço Mensal -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">
-                                Preço do Plano (R$):
+                            <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+                                <span>Preço Mensal (R$/mês):</span>
+                                <span class="text-[10px] text-amber-400 font-normal">Parcela / Mês</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-500">R$</span>
-                                <input type="number" step="0.01" min="0" id="cfg-fundador-preco" value="0.00" class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none">
+                                <input type="number" step="0.01" min="0" id="cfg-fundador-preco-mensal" value="39.90" oninput="atualizarResumoRegrasAoVivo()" class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none">
                             </div>
-                            <span class="text-[10px] text-slate-500 mt-1 block">R$ 0,00 = Adesão Gratuita</span>
+                            <span class="text-[10px] text-slate-500 mt-1 block">R$ 0,00 = Mensalidade Grátis</span>
                         </div>
 
-                        <!-- Campo 2: Controle de Validade Manual -->
+                        <!-- Campo 2: Preço Anual -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+                                <span>Preço Anual (R$/ano):</span>
+                                <span class="text-[10px] text-emerald-400 font-normal">Pagamento Direto</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-500">R$</span>
+                                <input type="number" step="0.01" min="0" id="cfg-fundador-preco-anual" value="290.00" oninput="atualizarResumoRegrasAoVivo()" class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none">
+                            </div>
+                            <span class="text-[10px] text-slate-500 mt-1 block">Economia para quem paga anual</span>
+                        </div>
+
+                        <!-- Campo 3: Modalidade Oferecida -->
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">
-                                Controle de Validade:
+                                Modalidades no Checkout:
                             </label>
-                            <label class="flex items-center gap-2 p-2 bg-slate-950 border border-slate-700 rounded-xl cursor-pointer">
-                                <input type="checkbox" id="cfg-fundador-sem-validade" onchange="alternarSemValidadeFundador(this.checked)" checked class="rounded text-amber-500 focus:ring-amber-400 w-4 h-4">
-                                <span class="text-xs font-bold text-amber-300">Sem Validade (Vitalício)</span>
+                            <select id="cfg-fundador-modalidade" onchange="atualizarResumoRegrasAoVivo()" class="w-full py-2 px-3 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                                <option value="ambos">Permitir Escolha (Mensal ou Anual)</option>
+                                <option value="mensal">Apenas Mensal (R$/mês)</option>
+                                <option value="anual">Apenas Anual (R$/ano)</option>
+                                <option value="vitalicio">Taxa Única / Vitalício</option>
+                            </select>
+                            <span class="text-[10px] text-slate-500 mt-1 block">O que o consultor poderá escolher</span>
+                        </div>
+                    </div>
+
+                    <!-- LINHA 2: CONTROLE DE TEMPO DE VALIDADE E CUPOM -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-3 border-t border-slate-800/80">
+                        <!-- Campo 4: Tipo de Validade -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">
+                                Tempo de Validade do Plano:
                             </label>
-                            <div id="box-data-validade-fundador" class="hidden mt-2">
-                                <input type="date" id="cfg-fundador-data-validade" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                            <select id="cfg-fundador-tipo-validade" onchange="aoMudarTipoValidadeFundador(this.value)" class="w-full py-2 px-3 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                                <option value="ciclo_padrao">Por Ciclo (30d Mensal / 365d Anual)</option>
+                                <option value="vitalicio">Vitalício (Sem Validade / Permanente)</option>
+                                <option value="carencia_dias">Carência / Dias Grátis Inicial</option>
+                                <option value="data_fixa">Data Limite Manual Fixa</option>
+                            </select>
+                            <span class="text-[10px] text-slate-500 mt-1 block">Como o sistema calcula o vencimento</span>
+                        </div>
+
+                        <!-- Campo 5: Detalhe do Tempo (Dias de Carência OU Data Manual) -->
+                        <div id="coluna-detalhe-validade">
+                            <!-- Opção A: Ciclo Padrão -->
+                            <div id="box-val-ciclo" class="p-2 bg-slate-950 border border-slate-700 rounded-xl">
+                                <span class="text-xs font-bold text-emerald-400 block"><i class="fa-solid fa-arrows-rotate mr-1"></i> Ciclo Automático</span>
+                                <span class="text-[10px] text-slate-400">30 dias se mensal ou 365 dias se anual.</span>
+                            </div>
+                            <!-- Opção B: Vitalício -->
+                            <div id="box-val-vitalicio" class="hidden p-2 bg-slate-950 border border-amber-500/40 rounded-xl">
+                                <span class="text-xs font-bold text-amber-300 block"><i class="fa-solid fa-infinity mr-1"></i> Acesso Vitalício</span>
+                                <span class="text-[10px] text-slate-400">Vencimento fixado em 2099 (sem expirar).</span>
+                            </div>
+                            <!-- Opção C: Carência em Dias -->
+                            <div id="box-val-carencia" class="hidden">
+                                <label class="block text-xs font-bold text-slate-300 mb-1">Dias de Carência / Degustação:</label>
+                                <div class="relative">
+                                    <input type="number" min="1" max="365" id="cfg-fundador-carencia-dias" value="30" oninput="atualizarResumoRegrasAoVivo()" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-xs focus:border-amber-400 focus:outline-none">
+                                    <span class="absolute right-3 top-2.5 text-xs text-slate-400">dias</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 mt-1 block">Primeira cobrança após esses dias</span>
+                            </div>
+                            <!-- Opção D: Data Limite Fixa -->
+                            <div id="box-val-data-fixa" class="hidden">
+                                <label class="block text-xs font-bold text-slate-300 mb-1">Data de Vencimento Fixa:</label>
+                                <input type="date" id="cfg-fundador-data-validade" onchange="atualizarResumoRegrasAoVivo()" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold focus:border-amber-400 focus:outline-none">
+                                <span class="text-[10px] text-slate-500 mt-1 block">Todos vencem nessa mesma data</span>
                             </div>
                         </div>
 
-                        <!-- Campo 3: Cupom e Quantidade -->
+                        <!-- Campo 6: Cupom e Quantidade -->
                         <div>
                             <label class="block text-xs font-bold text-slate-300 mb-1">
                                 Cupom de Ativação:
                             </label>
                             <div class="p-2 bg-slate-950 border border-slate-700 rounded-xl flex items-center justify-between">
                                 <span class="font-mono font-black text-amber-400 text-xs sm:text-sm tracking-wider">FUNDADOR100</span>
-                                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">Quantidade Infinita</span>
+                                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">Infinita</span>
                             </div>
-                            <span class="text-[10px] text-slate-400 mt-1 block">Status atribuído: <strong class="text-amber-300">Fundador</strong></span>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Status: <strong class="text-amber-300">Fundador</strong> (Sequência A001 a Z100)</span>
                         </div>
                     </div>
 
+                    <!-- RESUMO AO VIVO DAS REGRAS -->
+                    <div id="box-resumo-regras-fundador" class="mt-3 p-2.5 bg-slate-950/80 border border-amber-500/30 rounded-xl text-xs text-amber-200/90 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-400 text-sm shrink-0"></i>
+                        <span id="texto-resumo-regras-fundador">Carregando resumo das regras...</span>
+                    </div>
+
+                    <!-- BOTÃO DE SALVAR -->
                     <div class="mt-3.5 pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <span class="text-[11px] text-slate-400">
-                            💡 Você pode alterar o preço, mudar ou tirar a validade a qualquer momento no manual.
+                            💡 Você pode alterar os valores e a validade a qualquer momento no manual.
                         </span>
-                        <button type="button" onclick="salvarConfiguracaoFundadores()" id="btn-salvar-cfg-fundador" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black py-2 px-4 rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
-                            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações do Plano
+                        <button type="button" onclick="salvarConfiguracaoFundadores()" id="btn-salvar-cfg-fundador" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black py-2.5 px-5 rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2 cursor-pointer shrink-0">
+                            <i class="fa-solid fa-floppy-disk text-sm"></i>
+                            <span>Salvar Alterações do Plano</span>
                         </button>
                     </div>
                     <div id="feedback-cfg-fundador" class="hidden mt-2.5 p-2 rounded-xl text-xs font-bold text-center"></div>
@@ -5203,6 +5272,54 @@
                 <!-- 5. LISTA DE CONSULTORES DO GRUPO SELECIONADO -->
                 <div id="container-lista-fundadores" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                     <p class="text-xs text-slate-400 text-center py-8">Carregando consultores fundadores...</p>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- MODAL INDIVIDUAL: EDITAR VALIDADE DO FUNDADOR NO MANUAL -->
+        <div id="modal-editar-validade-fundador" class="fixed inset-0 bg-black/85 backdrop-blur-md z-60 flex items-center justify-center p-4 hidden">
+            <div class="bg-slate-950 text-white rounded-3xl max-w-md w-full p-6 border-2 border-amber-400 shadow-2xl relative animate-fade-in">
+                <button type="button" onclick="fecharModalEditarValidadeFundador()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-800">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center text-lg font-black shrink-0 shadow-md">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h4 class="text-base font-black text-white truncate" id="ed-val-fd-nome">Alterar Validade</h4>
+                        <p class="text-xs text-slate-400" id="ed-val-fd-info">Consultor Fundador</p>
+                    </div>
+                </div>
+                <input type="hidden" id="ed-val-fd-id">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Nova Data de Vencimento:</label>
+                        <input type="date" id="ed-val-fd-data" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-sm focus:border-amber-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <span class="block text-[11px] font-bold text-slate-400 mb-1.5 uppercase">Atalhos Rápidos:</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="ajustarDataRapidaFundador(30)" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i> +30 Dias (1 Mês)
+                            </button>
+                            <button type="button" onclick="ajustarDataRapidaFundador(60)" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px] text-emerald-400"></i> +60 Dias (2 Meses)
+                            </button>
+                            <button type="button" onclick="ajustarDataRapidaFundador(365)" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px] text-blue-400"></i> +1 Ano (365 Dias)
+                            </button>
+                            <button type="button" onclick="ajustarDataRapidaFundador('vitalicio')" class="p-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 rounded-xl text-xs font-black text-amber-300 transition cursor-pointer flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-infinity text-xs"></i> 👑 Vitalício (2099)
+                            </button>
+                        </div>
+                    </div>
+                    <div id="feedback-ed-val-fd" class="hidden p-2 rounded-xl text-xs font-bold text-center"></div>
+                    <button type="button" id="btn-confirmar-ed-val-fd" onclick="salvarValidadeFundadorIndividual()" class="w-full mt-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition cursor-pointer shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Confirmar e Atualizar Validade</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -12381,7 +12498,7 @@
                                     <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-infinity"></i> <span>Vitalício</span>
                                     </button>
-                                    <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs">
+                                    <button type="button" onclick="abrirModalEditarValidadeFundador('${c.id}', '${(c.nome_espaco||'').replace(/'/g, "\\'")}', '${c.vencimento||''}', '${item.codigo}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-pen-to-square"></i> <span>Editar</span>
                                     </button>
                                     <button type="button" onclick="excluirConsultorSuperadmin('${c.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-2 rounded-xl text-xs transition cursor-pointer border border-rose-200" title="Excluir Consultor">
@@ -12560,7 +12677,7 @@
                                     <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar Vitalício Rápido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-infinity"></i>
                                     </button>
-                                    <button onclick="abrirModalEditarConsultor('${c.id}')" title="Editar Detalhes" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
+                                    <button onclick="abrirModalEditarValidadeFundador('${c.id}', '${(c.nome_espaco||'').replace(/'/g, "\\'")}', '${c.vencimento||''}', '${item.codigo}')" title="Editar Detalhes" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
                                     <button onclick="excluirConsultorSuperadmin('${c.id}')" title="Excluir Consultor" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-1.5 rounded-xl text-[11px] transition cursor-pointer border border-rose-200">
@@ -13606,9 +13723,14 @@
         let CONFIG_FUNDADORES = {
             nomeGrupo: "Fundadores",
             cupom: "FUNDADOR100",
-            preco: 0.00,
-            semValidade: true,
+            precoMensal: 39.90,
+            precoAnual: 290.00,
+            preco: 39.90,
+            modalidade: "ambos", // "ambos", "mensal", "anual", "vitalicio"
+            tipoValidade: "ciclo_padrao", // "ciclo_padrao", "vitalicio", "carencia_dias", "data_fixa"
+            carenciaDias: 30,
             dataValidade: "",
+            semValidade: false,
             status: "Fundador",
             ativo: true
         };
@@ -13629,6 +13751,8 @@
             const raw = (consultor.nome_espaco || '') + ' ' + (consultor.status || '');
             const matchCod = raw.match(/<!--GRUPO_FUNDADORES:(.*?)-->/);
             const matchCup = raw.match(/<!--CUPOM:FUNDADOR100-->/);
+            const matchPlano = raw.match(/<!--PLANO_FUNDADOR:(.*?)-->/);
+            const matchValor = raw.match(/<!--VALOR_ADESAO:(.*?)-->/);
             const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador');
 
             if (!isFundador) return null;
@@ -13636,18 +13760,57 @@
             let codigo = matchCod ? matchCod[1].trim() : '';
             return {
                 codigo: codigo || 'FUNDADOR',
-                letra: codigo ? codigo.charAt(0).toUpperCase() : 'A'
+                letra: codigo ? codigo.charAt(0).toUpperCase() : 'A',
+                plano: matchPlano ? matchPlano[1].trim().toUpperCase() : '',
+                valor: matchValor ? matchValor[1].trim() : ''
             };
         }
         window.extrairDadosFundador = extrairDadosFundador;
 
-        function alternarSemValidadeFundador(semValidade) {
-            const boxData = document.getElementById('box-data-validade-fundador');
-            if (boxData) {
-                boxData.style.display = semValidade ? 'none' : 'block';
-            }
+        function aoMudarTipoValidadeFundador(tipo) {
+            const bCiclo = document.getElementById('box-val-ciclo');
+            const bVit = document.getElementById('box-val-vitalicio');
+            const bCar = document.getElementById('box-val-carencia');
+            const bData = document.getElementById('box-val-data-fixa');
+
+            if (bCiclo) bCiclo.classList.toggle('hidden', tipo !== 'ciclo_padrao');
+            if (bVit) bVit.classList.toggle('hidden', tipo !== 'vitalicio');
+            if (bCar) bCar.classList.toggle('hidden', tipo !== 'carencia_dias');
+            if (bData) bData.classList.toggle('hidden', tipo !== 'data_fixa');
+
+            atualizarResumoRegrasAoVivo();
         }
-        window.alternarSemValidadeFundador = alternarSemValidadeFundador;
+        window.aoMudarTipoValidadeFundador = aoMudarTipoValidadeFundador;
+
+        function atualizarResumoRegrasAoVivo() {
+            const elResumo = document.getElementById('texto-resumo-regras-fundador');
+            if (!elResumo) return;
+
+            const pMensal = parseFloat(document.getElementById('cfg-fundador-preco-mensal')?.value) || 0;
+            const pAnual = parseFloat(document.getElementById('cfg-fundador-preco-anual')?.value) || 0;
+            const mod = document.getElementById('cfg-fundador-modalidade')?.value || 'ambos';
+            const tipoVal = document.getElementById('cfg-fundador-tipo-validade')?.value || 'ciclo_padrao';
+            const carencia = parseInt(document.getElementById('cfg-fundador-carencia-dias')?.value) || 30;
+            const dataFixa = document.getElementById('cfg-fundador-data-validade')?.value || '';
+
+            const strMensal = pMensal > 0 ? `R$ ${pMensal.toFixed(2).replace('.', ',')}/mês` : 'Grátis';
+            const strAnual = pAnual > 0 ? `R$ ${pAnual.toFixed(2).replace('.', ',')}/ano` : 'Grátis';
+
+            let textoVal = '';
+            if (tipoVal === 'vitalicio') textoVal = 'Acesso Vitalício permanente (sem expirar)';
+            else if (tipoVal === 'ciclo_padrao') textoVal = '30 dias no Mensal / 365 dias no Anual';
+            else if (tipoVal === 'carencia_dias') textoVal = `${carencia} dias de carência grátis inicial`;
+            else if (tipoVal === 'data_fixa') textoVal = dataFixa ? `Vencimento fixo em ${dataFixa.split('-').reverse().join('/')}` : 'Data limite a definir';
+
+            let textoMod = '';
+            if (mod === 'ambos') textoMod = `Consultor escolhe: Mensal (${strMensal}) ou Anual (${strAnual})`;
+            else if (mod === 'mensal') textoMod = `Apenas Mensal (${strMensal})`;
+            else if (mod === 'anual') textoMod = `Apenas Anual (${strAnual})`;
+            else if (mod === 'vitalicio') textoMod = `Adesão Vitalícia Única (${strMensal})`;
+
+            elResumo.innerHTML = `<strong>Configuração Atual:</strong> ${textoMod} • <strong>Validade:</strong> ${textoVal}.`;
+        }
+        window.atualizarResumoRegrasAoVivo = atualizarResumoRegrasAoVivo;
 
         function abrirModalGrupoFundadores() {
             if (!isSuperAdminLogado()) {
@@ -13685,36 +13848,54 @@
                 }
             } catch(e) {}
 
-            const inPreco = document.getElementById('cfg-fundador-preco');
-            const chkSemVal = document.getElementById('cfg-fundador-sem-validade');
+            const inPrecoMensal = document.getElementById('cfg-fundador-preco-mensal');
+            const inPrecoAnual = document.getElementById('cfg-fundador-preco-anual');
+            const selModalidade = document.getElementById('cfg-fundador-modalidade');
+            const selTipoValidade = document.getElementById('cfg-fundador-tipo-validade');
+            const inCarencia = document.getElementById('cfg-fundador-carencia-dias');
             const inDataVal = document.getElementById('cfg-fundador-data-validade');
-            const boxData = document.getElementById('box-data-validade-fundador');
 
-            if (inPreco) inPreco.value = (CONFIG_FUNDADORES.preco !== undefined ? CONFIG_FUNDADORES.preco : 0.00).toFixed(2);
-            if (chkSemVal) chkSemVal.checked = !!CONFIG_FUNDADORES.semValidade;
+            if (inPrecoMensal) inPrecoMensal.value = (CONFIG_FUNDADORES.precoMensal !== undefined ? CONFIG_FUNDADORES.precoMensal : (CONFIG_FUNDADORES.preco || 39.90)).toFixed(2);
+            if (inPrecoAnual) inPrecoAnual.value = (CONFIG_FUNDADORES.precoAnual !== undefined ? CONFIG_FUNDADORES.precoAnual : 290.00).toFixed(2);
+            if (selModalidade) selModalidade.value = CONFIG_FUNDADORES.modalidade || 'ambos';
+            if (selTipoValidade) selTipoValidade.value = CONFIG_FUNDADORES.tipoValidade || (CONFIG_FUNDADORES.semValidade ? 'vitalicio' : 'ciclo_padrao');
+            if (inCarencia) inCarencia.value = CONFIG_FUNDADORES.carenciaDias || 30;
             if (inDataVal && CONFIG_FUNDADORES.dataValidade) inDataVal.value = CONFIG_FUNDADORES.dataValidade;
-            if (boxData) boxData.style.display = CONFIG_FUNDADORES.semValidade ? 'none' : 'block';
+
+            aoMudarTipoValidadeFundador(selTipoValidade ? selTipoValidade.value : 'ciclo_padrao');
         }
 
         async function salvarConfiguracaoFundadores() {
             const btn = document.getElementById('btn-salvar-cfg-fundador');
             const feed = document.getElementById('feedback-cfg-fundador');
-            const inPreco = document.getElementById('cfg-fundador-preco');
-            const chkSemVal = document.getElementById('cfg-fundador-sem-validade');
+            const inPrecoMensal = document.getElementById('cfg-fundador-preco-mensal');
+            const inPrecoAnual = document.getElementById('cfg-fundador-preco-anual');
+            const selModalidade = document.getElementById('cfg-fundador-modalidade');
+            const selTipoValidade = document.getElementById('cfg-fundador-tipo-validade');
+            const inCarencia = document.getElementById('cfg-fundador-carencia-dias');
             const inDataVal = document.getElementById('cfg-fundador-data-validade');
 
-            const preco = parseFloat(inPreco ? inPreco.value : 0) || 0;
-            const semValidade = chkSemVal ? chkSemVal.checked : true;
-            const dataValidade = (inDataVal && !semValidade) ? inDataVal.value : '';
+            const precoMensal = parseFloat(inPrecoMensal ? inPrecoMensal.value : 39.90) || 0;
+            const precoAnual = parseFloat(inPrecoAnual ? inPrecoAnual.value : 290.00) || 0;
+            const modalidade = selModalidade ? selModalidade.value : 'ambos';
+            const tipoValidade = selTipoValidade ? selTipoValidade.value : 'ciclo_padrao';
+            const carenciaDias = parseInt(inCarencia ? inCarencia.value : 30) || 30;
+            const dataValidade = (tipoValidade === 'data_fixa') ? (inDataVal ? inDataVal.value : '') : '';
 
-            if (!semValidade && !dataValidade) {
-                alert("Por favor, selecione uma data de validade manual ou marque 'Sem Validade'!");
+            if (tipoValidade === 'data_fixa' && !dataValidade) {
+                alert("Por favor, selecione uma data de validade fixa no calendário!");
+                if (inDataVal) inDataVal.focus();
                 return;
             }
 
-            CONFIG_FUNDADORES.preco = preco;
-            CONFIG_FUNDADORES.semValidade = semValidade;
+            CONFIG_FUNDADORES.precoMensal = precoMensal;
+            CONFIG_FUNDADORES.precoAnual = precoAnual;
+            CONFIG_FUNDADORES.preco = precoMensal;
+            CONFIG_FUNDADORES.modalidade = modalidade;
+            CONFIG_FUNDADORES.tipoValidade = tipoValidade;
+            CONFIG_FUNDADORES.carenciaDias = carenciaDias;
             CONFIG_FUNDADORES.dataValidade = dataValidade;
+            CONFIG_FUNDADORES.semValidade = (tipoValidade === 'vitalicio');
 
             if (btn) {
                 btn.disabled = true;
@@ -13724,30 +13905,36 @@
             try {
                 localStorage.setItem('cfg_fundadores_superadmin', JSON.stringify(CONFIG_FUNDADORES));
 
-                // Salva no registro do consultor SuperAdmin no Supabase
-                if (consultorAtual && consultorAtual.id) {
-                    let rawEspaco = consultorAtual.nome_espaco || '';
-                    rawEspaco = rawEspaco.replace(/<!--CONFIG_FUNDADORES:[\s\S]*?-->/g, '').trim();
-                    rawEspaco += ` <!--CONFIG_FUNDADORES:${JSON.stringify(CONFIG_FUNDADORES)}-->`;
+                // Salva no registro do consultor SuperAdmin oficial (433005811)
+                const tagConfig = `<!--CONFIG_FUNDADORES:${JSON.stringify(CONFIG_FUNDADORES)}-->`;
 
-                    await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(consultorAtual.id)}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': supabaseKey,
-                            'Authorization': `Bearer ${supabaseKey}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({ nome_espaco: rawEspaco })
-                    });
+                let rawEspaco = (consultorAtual && consultorAtual.nome_espaco) ? consultorAtual.nome_espaco : '';
+                rawEspaco = rawEspaco.replace(/<!--CONFIG_FUNDADORES:[\s\S]*?-->/g, '').trim() + ' ' + tagConfig;
+
+                await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.433005811`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (consultorAtual && consultorAtual.id) {
                     consultorAtual.nome_espaco = rawEspaco;
                 }
 
                 if (feed) {
-                    const valTxt = semValidade ? 'Acesso Vitalício (Sem Validade)' : `Validade até ${dataValidade.split('-').reverse().join('/')}`;
-                    feed.className = 'mt-2.5 p-2.5 rounded-xl text-xs font-bold bg-emerald-950/80 border border-emerald-400 text-emerald-300 block animate-fade-in';
-                    feed.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Configurações Salvas! Preço: <strong>R$ ${preco.toFixed(2).replace('.', ',')}</strong> • ${valTxt}.`;
-                    setTimeout(() => { feed.className = 'hidden'; }, 4000);
+                    feed.className = 'mt-2.5 p-3 rounded-xl text-xs font-bold bg-emerald-950/80 border border-emerald-400 text-emerald-300 block animate-fade-in shadow-md';
+                    feed.innerHTML = `
+                        <div class="flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                            <span>Configurações Salvas com Sucesso! <strong>Mensal: R$ ${precoMensal.toFixed(2).replace('.', ',')}</strong> | <strong>Anual: R$ ${precoAnual.toFixed(2).replace('.', ',')}</strong></span>
+                        </div>
+                    `;
+                    setTimeout(() => { feed.className = 'hidden'; }, 5000);
                 }
 
             } catch (err) {
@@ -13759,208 +13946,116 @@
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Alterações do Plano Fundadores`;
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk text-sm"></i> <span>Salvar Alterações do Plano</span>`;
                 }
             }
         }
         window.salvarConfiguracaoFundadores = salvarConfiguracaoFundadores;
 
-        // Estatísticas e Abas dos Fundadores
-        function carregarEstatisticasERenderizarFundadores() {
-            const todos = todosConsultoresCache || [];
-            const fundadores = [];
+        // Modal individual de editar validade
+        function abrirModalEditarValidadeFundador(id, nomeEspaco, vencimentoAtual, codigo) {
+            const modal = document.getElementById('modal-editar-validade-fundador');
+            if (!modal) return;
 
-            todos.forEach(c => {
-                const info = extrairDadosFundador(c);
-                if (info) {
-                    fundadores.push({
-                        consultor: c,
-                        codigo: info.codigo,
-                        letra: info.letra
-                    });
-                }
-            });
+            const elId = document.getElementById('ed-val-fd-id');
+            const elNome = document.getElementById('ed-val-fd-nome');
+            const elInfo = document.getElementById('ed-val-fd-info');
+            const elData = document.getElementById('ed-val-fd-data');
+            const elFeed = document.getElementById('feedback-ed-val-fd');
 
-            // Ordena os fundadores por código
-            fundadores.sort((a, b) => a.codigo.localeCompare(b.codigo));
+            if (elId) elId.value = id;
+            if (elNome) elNome.innerText = `Fundador ${codigo}`;
+            if (elInfo) elInfo.innerText = (nomeEspaco || '').replace(/<!--[\s\S]*?-->/g, '').trim() || 'Consultor Fundador';
+            if (elData) elData.value = (vencimentoAtual && vencimentoAtual.length === 10) ? vencimentoAtual : '';
+            if (elFeed) elFeed.className = 'hidden';
 
-            const total = fundadores.length;
-            const proximoCodigo = calcularCodigoFundador(total);
-            const letraAtual = proximoCodigo.charAt(0);
-            const restantes = Math.max(0, 2600 - total);
-
-            // Atualiza estatísticas do modal
-            const elTotal = document.getElementById('stat-total-fundadores');
-            const elTurma = document.getElementById('stat-turma-atual');
-            const elProx = document.getElementById('stat-proximo-codigo');
-            const elRest = document.getElementById('stat-vagas-restantes');
-
-            if (elTotal) elTotal.innerText = total;
-            if (elTurma) elTurma.innerText = `Grupo ${letraAtual} (${letraAtual}001 a ${letraAtual}100)`;
-            if (elProx) elProx.innerText = proximoCodigo;
-            if (elRest) elRest.innerText = `${restantes} vagas`;
-
-            // Renderiza as 26 abas de A até Z
-            renderizarAbasGruposFundadores(fundadores);
-
-            // Renderiza a lista da letra selecionada
-            renderizarListaGrupoFundadores(fundadores);
+            modal.classList.remove('hidden');
         }
+        window.abrirModalEditarValidadeFundador = abrirModalEditarValidadeFundador;
 
-        function renderizarAbasGruposFundadores(fundadores) {
-            const bar = document.getElementById('bar-abas-grupos-fundadores');
-            if (!bar) return;
-
-            bar.innerHTML = '';
-            for (let i = 0; i < 26; i++) {
-                const letra = ALFABETO_FUNDADORES[i];
-                const countNaLetra = fundadores.filter(f => f.letra === letra).length;
-                const isActive = GRUPO_FUNDADORES_LETRA_ATIVA === letra;
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.id = `tab-grupo-${letra}`;
-                btn.onclick = () => selecionarGrupoFundadores(letra);
-                btn.className = `aba-grupo-fd px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                    isActive 
-                        ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 shadow-md ring-2 ring-amber-300' 
-                        : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
-                }`;
-                btn.innerHTML = `
-                    <span>Grupo ${letra}</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-md ${isActive ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-400'}">${countNaLetra}/100</span>
-                `;
-                bar.appendChild(btn);
-            }
+        function fecharModalEditarValidadeFundador() {
+            const modal = document.getElementById('modal-editar-validade-fundador');
+            if (modal) modal.classList.add('hidden');
         }
+        window.fecharModalEditarValidadeFundador = fecharModalEditarValidadeFundador;
 
-        function selecionarGrupoFundadores(letra) {
-            GRUPO_FUNDADORES_LETRA_ATIVA = letra;
-            const lbl = document.getElementById('label-turma-selecionada');
-            if (lbl) lbl.innerText = `Grupo ${letra} (${letra}001 a ${letra}100)`;
+        function ajustarDataRapidaFundador(opcao) {
+            const elData = document.getElementById('ed-val-fd-data');
+            if (!elData) return;
 
-            // Atualiza classes das abas
-            document.querySelectorAll('.aba-grupo-fd').forEach(btn => {
-                const isThis = btn.id === `tab-grupo-${letra}`;
-                btn.className = `aba-grupo-fd px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                    isThis 
-                        ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 shadow-md ring-2 ring-amber-300' 
-                        : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
-                }`;
-            });
-
-            // Re-renderiza lista
-            const todos = todosConsultoresCache || [];
-            const fundadores = [];
-            todos.forEach(c => {
-                const info = extrairDadosFundador(c);
-                if (info) fundadores.push({ consultor: c, codigo: info.codigo, letra: info.letra });
-            });
-            renderizarListaGrupoFundadores(fundadores);
-        }
-        window.selecionarGrupoFundadores = selecionarGrupoFundadores;
-
-        function renderizarListaGrupoFundadores(fundadores, termoFiltro = '') {
-            const container = document.getElementById('container-lista-fundadores');
-            if (!container) return;
-
-            let lista = fundadores.filter(f => f.letra === GRUPO_FUNDADORES_LETRA_ATIVA);
-
-            if (termoFiltro) {
-                const tf = termoFiltro.toLowerCase().trim();
-                lista = lista.filter(item => {
-                    const c = item.consultor;
-                    const cod = item.codigo.toLowerCase();
-                    const nome = (c.nome_espaco || '').toLowerCase();
-                    const hid = (c.herbalife_id || '').toLowerCase();
-                    const zap = (c.whatsapp || '').toLowerCase();
-                    return cod.includes(tf) || nome.includes(tf) || hid.includes(tf) || zap.includes(tf);
-                });
-            }
-
-            if (lista.length === 0) {
-                container.innerHTML = `
-                    <div class="py-10 text-center bg-slate-900/60 rounded-2xl border border-slate-800/80">
-                        <i class="fa-solid fa-crown text-3xl text-amber-500/40 mb-2 block"></i>
-                        <h5 class="text-sm font-black text-slate-300">Nenhum consultor encontrado no Grupo ${GRUPO_FUNDADORES_LETRA_ATIVA}</h5>
-                        <p class="text-xs text-slate-500 mt-1">Este grupo possui 100 vagas disponíveis (${GRUPO_FUNDADORES_LETRA_ATIVA}001 a ${GRUPO_FUNDADORES_LETRA_ATIVA}100).</p>
-                    </div>
-                `;
+            if (opcao === 'vitalicio') {
+                elData.value = '2099-12-31';
                 return;
             }
 
-            container.innerHTML = '';
-            lista.forEach(item => {
-                const c = item.consultor;
-                const whatsLimpo = (c.whatsapp || '').replace(/\D/g, '');
-                const zapLink = whatsLimpo ? `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent('Olá! Passando para parabenizar sua vaga no Grupo Fundadores do Litrão do Reset!')}` : '#';
-                const linkEspaco = `https://litraodoreset.com.br/${c.slug}`;
+            const dias = parseInt(opcao, 10) || 30;
+            const hoje = new Date();
+            hoje.setDate(hoje.getDate() + dias);
+            elData.value = hoje.toISOString().split('T')[0];
+        }
+        window.ajustarDataRapidaFundador = ajustarDataRapidaFundador;
 
-                let vencTexto = 'Vitalício (Sem Validade)';
-                if (c.vencimento) {
-                    const ano = parseInt(c.vencimento.split('-')[0], 10);
-                    if (ano < 2035) {
-                        vencTexto = `Vence em ${c.vencimento.split('-').reverse().join('/')}`;
+        async function salvarValidadeFundadorIndividual() {
+            const id = document.getElementById('ed-val-fd-id')?.value;
+            const novaData = document.getElementById('ed-val-fd-data')?.value;
+            const btn = document.getElementById('btn-confirmar-ed-val-fd');
+            const feed = document.getElementById('feedback-ed-val-fd');
+
+            if (!id || !novaData) {
+                alert("Por favor, selecione uma data válida!");
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Atualizando...`;
+            }
+
+            try {
+                const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ vencimento: novaData, status: 'Ativo' })
+                });
+
+                if (res.ok) {
+                    if (todosConsultoresCache) {
+                        const target = todosConsultoresCache.find(c => c.id === id);
+                        if (target) {
+                            target.vencimento = novaData;
+                            target.status = 'Ativo';
+                        }
                     }
+
+                    if (feed) {
+                        feed.className = 'p-2 rounded-xl text-xs font-bold bg-emerald-950/80 border border-emerald-400 text-emerald-300 block';
+                        feed.innerText = `Validade atualizada com sucesso para ${novaData.split('-').reverse().join('/')}!`;
+                    }
+
+                    setTimeout(() => {
+                        fecharModalEditarValidadeFundador();
+                        carregarEstatisticasERenderizarFundadores();
+                    }, 1200);
+                } else {
+                    throw new Error("Erro na resposta do servidor");
                 }
-
-                const card = document.createElement('div');
-                card.className = "bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 p-3.5 rounded-2xl transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md";
-                card.innerHTML = `
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex flex-col items-center justify-center font-black shrink-0 shadow-md">
-                            <i class="fa-solid fa-crown text-xs"></i>
-                            <span class="text-xs font-mono font-black">${item.codigo}</span>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <h5 class="font-black text-white text-sm truncate max-w-xs" title="${c.nome_espaco}">
-                                    ${(c.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim()}
-                                </h5>
-                                <span class="bg-amber-500/20 text-amber-300 border border-amber-400/40 px-2 py-0.2 rounded-full text-[10px] font-black">
-                                    Fundador ${item.codigo}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap font-medium">
-                                <span>ID: <strong class="text-slate-200 font-mono">${c.herbalife_id}</strong> (${c.letras || 'BRA'})</span>
-                                <span>•</span>
-                                <span class="text-emerald-400 font-bold">${vencTexto}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2 shrink-0 justify-end">
-                        ${whatsLimpo ? `
-                            <a href="${zapLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition" title="Chamar no WhatsApp">
-                                <i class="fa-brands fa-whatsapp text-sm"></i>
-                                <span>WhatsApp</span>
-                            </a>
-                        ` : ''}
-                        <a href="${linkEspaco}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 transition" title="Abrir Link do Consultor">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            <span>Link</span>
-                        </a>
-                        <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold px-2.5 py-1.5 rounded-xl text-xs transition cursor-pointer" title="Editar Validade no Manual">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            } catch (err) {
+                alert(`Erro ao salvar validade: ${err.message}`);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Confirmar e Atualizar Validade</span>`;
+                }
+            }
         }
+        window.salvarValidadeFundadorIndividual = salvarValidadeFundadorIndividual;
 
-        function filtrarListaGrupoFundadores(termo) {
-            const todos = todosConsultoresCache || [];
-            const fundadores = [];
-            todos.forEach(c => {
-                const info = extrairDadosFundador(c);
-                if (info) fundadores.push({ consultor: c, codigo: info.codigo, letra: info.letra });
-            });
-            renderizarListaGrupoFundadores(fundadores, termo);
-        }
-        window.filtrarListaGrupoFundadores = filtrarListaGrupoFundadores;
-
-        function exportarGrupoFundadoresCsv() {
+        // function exportarGrupoFundadoresCsv() {
             const todos = todosConsultoresCache || [];
             const lista = [];
             todos.forEach(c => {
