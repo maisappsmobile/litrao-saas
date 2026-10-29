@@ -3198,11 +3198,11 @@
                             </div>
                         </div>
 
-                        <!-- BANNER INFORMATIVO DE SINCRONIZAÇÃO AUTOMÁTICA -->
-                        <div id="banner-fidelidade-sync-info" class="bg-emerald-50/90 border border-emerald-200 p-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-950 shadow-2xs">
+                        <!-- BANNER INFORMATIVO: CARIMBO 100% MANUAL -->
+                        <div id="banner-fidelidade-sync-info" class="bg-emerald-50/90 border border-emerald-300 p-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-950 shadow-2xs">
                             <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-wand-magic-sparkles text-emerald-600 text-sm shrink-0"></i>
-                                <span id="texto-banner-fidelidade-sync">Clientes com compras, pedidos ou avaliações no histórico aparecem <strong>pontuados automaticamente</strong> pelas regras do seu cartão!</span>
+                                <i class="fa-solid fa-stamp text-emerald-600 text-sm shrink-0"></i>
+                                <span id="texto-banner-fidelidade-sync"><strong>Carimbo 100% Manual:</strong> Seus clientes do histórico aparecem listados para você carimbar selos com 1 clique no botão <strong>+ Selo</strong>!</span>
                             </div>
                             <button type="button" onclick="document.getElementById('banner-fidelidade-sync-info').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-xs p-1 ml-2 cursor-pointer">
                                 <i class="fa-solid fa-xmark"></i>
@@ -14665,52 +14665,18 @@
             let novosCount = 0;
             let atualizadosCount = 0;
 
-            // 2. Calcula os selos conquistados para cada cliente do histórico
+            // 2. Identifica os clientes do histórico (CARIMBO 100% MANUAL PELO CONSULTOR)
             gruposHistoricoMap.forEach((dadosCli) => {
-                let selosHistorico = 0;
-                let resumoHistorico = '';
+                const nBio = dadosCli.itensBio.length;
+                const nPed = dadosCli.itensPedidos.length;
+                const totalRegistros = nBio + nPed;
 
-                if (buscaBio && !buscaShake && !buscaLitrao) {
-                    // Critério específico: Bioimpedâncias / Avaliações
-                    selosHistorico = dadosCli.itensBio.length;
-                    resumoHistorico = `${dadosCli.itensBio.length} bioimpedância(s)`;
-                } else if (buscaShake) {
-                    // Critério específico: Shakes / Doses no EVS
-                    let qtdShake = 0;
-                    dadosCli.itensPedidos.forEach(p => {
-                        const txt = ((p.como_foi_semana || '') + ' ' + (p.nome_cliente || '')).toLowerCase();
-                        if (txt.includes('shake')) qtdShake++;
-                        else qtdShake++; // Por padrão, pedidos em EVS contêm doses de shake
-                    });
-                    selosHistorico = Math.max(1, qtdShake);
-                    resumoHistorico = `${selosHistorico} shake(s) / pedido(s)`;
-                } else if (buscaLitrao) {
-                    // Critério específico: Litrão do Reset
-                    let qtdLit = 0;
-                    dadosCli.todosItens.forEach(it => {
-                        const txt = ((it.como_foi_semana || '') + ' ' + (it.nome_cliente || '')).toLowerCase();
-                        if (txt.includes('litr') || txt.includes('reset')) qtdLit++;
-                    });
-                    selosHistorico = Math.max(1, qtdLit);
-                    resumoHistorico = `${selosHistorico} Litrão(ões) do Reset`;
-                } else if (buscaProdutoFechado) {
-                    // Critério específico: Pedidos Fechados do Catálogo
-                    selosHistorico = dadosCli.itensPedidos.length;
-                    resumoHistorico = `${dadosCli.itensPedidos.length} pedido(s) fechado(s)`;
-                } else {
-                    // CRITÉRIO GERAL (PADRÃO): A cada compra, pedido ou presença no EVS
-                    // Cada atendimento, bioimpedância ou pedido conta como presença / compra!
-                    const nBio = dadosCli.itensBio.length;
-                    const nPed = dadosCli.itensPedidos.length;
-                    selosHistorico = nBio + nPed;
-
+                if (totalRegistros > 0) {
                     const partes = [];
                     if (nPed > 0) partes.push(`${nPed} pedido${nPed > 1 ? 's' : ''}`);
                     if (nBio > 0) partes.push(`${nBio} bioimpedância${nBio > 1 ? 's' : ''}`);
-                    resumoHistorico = partes.join(' • ') || `${selosHistorico} compras/presenças`;
-                }
+                    const resumoHistorico = partes.join(' • ') || `${totalRegistros} compras/visitas`;
 
-                if (selosHistorico > 0) {
                     const zapLimpo = dadosCli.whatsapp;
                     // Procura se o cliente já existe em fidelidadeClientesCache
                     let existente = (fidelidadeClientesCache || []).find(c => {
@@ -14728,26 +14694,25 @@
                             existente.whatsapp = zapLimpo;
                         }
                         existente.historicoOrigem = resumoHistorico;
-                        existente.totalHistorico = selosHistorico;
-
-                        const selosAtuais = parseInt(existente.selos, 10) || 0;
-                        if (forcarRecalculo) {
-                            existente.selos = Math.max(selosAtuais, selosHistorico);
-                        } else {
-                            existente.selos = Math.max(selosAtuais, selosHistorico);
+                        existente.totalHistorico = totalRegistros;
+                        
+                        // IMPORTANTE: Os selos são SOMENTE MANUAIS! Nunca sobrescreve ou soma no automático.
+                        // Se for forçado ou recarregado, preserva estritamente os selos manuais que o consultor já carimbou.
+                        if (typeof existente.selos === 'undefined' || existente.selos === null) {
+                            existente.selos = 0;
                         }
                         atualizadosCount++;
                     } else {
-                        // Novo cliente identificado do histórico!
+                        // Novo cliente identificado do histórico: entra na lista com 0 selos para o consultor carimbar no manual!
                         if (!fidelidadeClientesCache) fidelidadeClientesCache = [];
                         fidelidadeClientesCache.push({
                             nome: dadosCli.nome || 'Cliente',
                             whatsapp: zapLimpo || '',
-                            selos: selosHistorico,
+                            selos: 0, // Carimbo exclusivamente manual pelo consultor
                             historicoOrigem: resumoHistorico,
-                            totalHistorico: selosHistorico,
+                            totalHistorico: totalRegistros,
                             sincronizadoAutomatico: true,
-                            ultimoCarimbo: new Date().toISOString()
+                            ultimoCarimbo: null
                         });
                         novosCount++;
                     }
@@ -14797,7 +14762,7 @@
                 if (banner && textoBanner) {
                     const totalCli = (fidelidadeClientesCache || []).length;
                     banner.classList.remove('hidden');
-                    textoBanner.innerHTML = `<strong>Sincronização concluída:</strong> ${totalCli} cliente(s) no total. ${res.novos > 0 ? `<strong>+${res.novos} novos</strong> adicionados pelo histórico!` : 'Histórico 100% atualizado com suas regras!'}`;
+                    textoBanner.innerHTML = `<strong>Clientes Carregados:</strong> ${totalCli} cliente(s) listados. Carimbe os selos de cada um manualmente com 1 clique no botão <strong>+ Selo</strong>!`;
                 }
             } catch (err) {
                 console.error("Erro ao sincronizar historico com fidelidade:", err);

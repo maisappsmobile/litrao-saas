@@ -901,24 +901,6 @@
                     return;
                 }
 
-                // Sincronização inteligente dos selos a partir do histórico se ainda não computado
-                if (clienteAtual.selos === 0 && data.length > 0) {
-                    const cfgRegra = (consultorAtual.portalConfig && consultorAtual.portalConfig.regraFidelidade) ? consultorAtual.portalConfig.regraFidelidade : {};
-                    const desc = (cfgRegra.descricao || '').toLowerCase();
-                    let totalSelosHist = 0;
-                    if (desc.includes('bioimped') || desc.includes('avalia')) {
-                        totalSelosHist = data.filter(a => a.codigo_acesso !== 'PEDIDO').length;
-                    } else if (desc.includes('shake')) {
-                        totalSelosHist = data.length;
-                    } else {
-                        totalSelosHist = data.length;
-                    }
-                    if (totalSelosHist > 0) {
-                        clienteAtual.selos = totalSelosHist;
-                        renderizarCartaoFidelidade();
-                    }
-                }
-
                 if (boxVazio) boxVazio.classList.add('hidden');
                 if (boxLista) {
                     boxLista.classList.remove('hidden');
