@@ -10034,8 +10034,9 @@
                         badgeFinAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
                         badgeFinAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin';
                     } else if (isFinLib) {
+                        const isFd = (typeof extrairDadosFundador === 'function') && extrairDadosFundador(consultorAtual);
                         badgeFinAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0";
-                        badgeFinAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado';
+                        badgeFinAcesso.innerHTML = isFd ? '<i class="fa-solid fa-crown mr-1 text-amber-500"></i> Incluso Fundador' : '<i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado';
                     } else {
                         badgeFinAcesso.className = "bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0";
                         badgeFinAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-amber-600"></i> R$ 17,90/mês';
@@ -12468,14 +12469,14 @@
                         statusBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full text-[11px]">Pendente</span>`;
                     }
 
-                    const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+                    const dadosFdCard = extrairDadosFundador(c);
+                    const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->')) || !!dadosFdCard;
                     const isCatLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
                     const isCrmLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
                     const mInfoConsultor = (typeof calcularMensalidadeConsultor === 'function') ? calcularMensalidadeConsultor(c) : null;
                     const senhaConsultor = extrairSenhaConsultor(c) || 'Padrão';
                     const letrasHerbalife = extrairLetrasHerbalife(c);
                     const isExpandido = CONSULTORES_DETALHES_EXPANDIDOS.has(c.id) || !MODO_COMPACTO_SUPERADMIN;
-                    const dadosFdCard = extrairDadosFundador(c);
 
                     return `
                         <div class="bg-white border-2 ${dadosFdCard ? 'border-amber-400 shadow-amber-100 ring-2 ring-amber-300/40' : (isVitalicio ? 'border-amber-300 shadow-amber-100' : 'border-purple-200')} rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between text-left relative group">
@@ -12650,13 +12651,13 @@
                         statusBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full text-xs">Pendente</span>`;
                     }
 
-                    const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+                    const dadosFdTab = extrairDadosFundador(c);
+                    const isFinLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->')) || !!dadosFdTab;
                     const isCatLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
                     const isCrmLiberado = isSuperAdminOficialLinha || (c.nome_espaco && c.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
                     const mInfoConsultor = (typeof calcularMensalidadeConsultor === 'function') ? calcularMensalidadeConsultor(c) : null;
                     const senhaConsultor = extrairSenhaConsultor(c) || 'Padrão';
                     const letrasHerbalife = extrairLetrasHerbalife(c);
-                    const dadosFdTab = extrairDadosFundador(c);
 
                     tr.innerHTML = `
                         <!-- Coluna 1: Consultor e Espaço (FIXA À ESQUERDA) -->
@@ -13126,8 +13127,15 @@
             let planoNome = 'Start Pro';
             const espaco = (consultor.nome_espaco || '').toLowerCase();
             const venc = consultor.vencimento || '';
+            const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(consultor) : null;
             
-            if (espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3') || espaco.includes('master_vip')) {
+            if (dadosFd) {
+                const isAnual = espaco.includes('plano_fundador:anual');
+                base = isAnual 
+                    ? ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoAnual !== undefined) ? CONFIG_FUNDADORES.precoAnual : 290.00)
+                    : ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoMensal !== undefined) ? CONFIG_FUNDADORES.precoMensal : 39.90);
+                planoNome = isAnual ? 'Fundador Anual' : 'Fundador Mensal';
+            } else if (espaco.includes('plano 3') || espaco.includes('master vip') || espaco.includes('plano:plano3') || espaco.includes('master_vip')) {
                 base = 49.00;
                 planoNome = 'Master VIP';
             } else if (espaco.includes('plano 2') || espaco.includes('vitalicio') || espaco.includes('vitalício') || espaco.includes('plano:plano2') || (venc && parseInt(venc.split('-')[0], 10) >= 2035)) {
@@ -13135,11 +13143,11 @@
                 planoNome = 'Vitalício Smart';
             }
             
-            // Adicionais
-            const isFinLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+            // Adicionais (Para Fundadores, o Módulo Financeiro é 100% incluso sem custo adicional!)
+            const isFinLib = !!dadosFd || !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
             const isCrmLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
             
-            const finValor = isFinLib ? 17.90 : 0.00;
+            const finValor = (isFinLib && !dadosFd) ? 17.90 : 0.00;
             const crmValor = isCrmLib ? 9.90 : 0.00;
             const total = base + finValor + crmValor;
             
@@ -21150,13 +21158,30 @@ ${escapeHtml(textoFinal)}
         window.CATALOGO_HERBALIFE_DEFAULT = CATALOGO_HERBALIFE_DEFAULT;
         window.stateFinanceiro = stateFinanceiro;
 
-        function isModuloFinanceiroLiberadoParaConsultor() {
-            if (!consultorAtual) return false;
-            const hid = String(consultorAtual.herbalife_id || '').trim();
+        function isModuloFinanceiroLiberadoParaConsultor(c) {
+            const consultor = c || consultorAtual;
+            if (!consultor) return false;
+            const hid = String(consultor.herbalife_id || '').trim();
             if (hid === '433005811') return true; // SuperAdmin Edwan tem acesso total permanente
-            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->')) {
+            
+            // 1. Tag explícita de liberação
+            if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->')) {
                 return true;
             }
+
+            // 2. Liberado para Status Fundador / Grupo Fundadores
+            const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(consultor) : null;
+            const isFundador = !!dadosFd ||
+                               String(consultor.status || '').toLowerCase().includes('fundador') ||
+                               (consultor.nome_espaco && (
+                                   consultor.nome_espaco.includes('<!--GRUPO_FUNDADORES:') || 
+                                   consultor.nome_espaco.includes('<!--CUPOM:FUNDADOR100-->') ||
+                                   consultor.nome_espaco.includes('<!--STATUS_FUNDADOR:')
+                               ));
+            if (isFundador) {
+                return true;
+            }
+
             return false;
         }
         window.isModuloFinanceiroLiberadoParaConsultor = isModuloFinanceiroLiberadoParaConsultor;
