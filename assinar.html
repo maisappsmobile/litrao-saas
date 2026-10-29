@@ -64,7 +64,7 @@
                         </label>
                         <div class="relative">
                             <i class="fa-solid fa-id-card absolute left-4 top-3.5 text-gray-400"></i>
-                            <input type="text" id="hid" required placeholder="Ex: 433005811" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-black text-gray-800">
+                            <input type="text" id="hid" required placeholder="Ex: 433005811" oninput="if(this.value.trim().replace(/\D/g, '') === '433005811') { const elL = document.getElementById('letras'); if(elL) elL.value = 'BRA'; }" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light font-black text-gray-800">
                         </div>
                     </div>
                     <div>
@@ -72,10 +72,8 @@
                             3 Letras <span class="text-red-600 font-black">*</span>
                         </label>
                         <div class="relative flex items-center">
-                            <input type="password" id="letras" required maxlength="3" minlength="3" placeholder="FIT" class="w-full px-3 pr-9 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase text-center font-black tracking-widest text-brand-dark">
-                            <button type="button" onclick="alternarVisibilidadeSenha('letras', 'icone-olho-assinar')" class="absolute right-2 text-gray-400 hover:text-gray-700 p-1 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
-                                <i id="icone-olho-assinar" class="fa-solid fa-eye text-sm"></i>
-                            </button>
+                            <input type="text" id="letras" required maxlength="3" minlength="3" placeholder="BRA" autocomplete="off" autocorrect="off" autocapitalize="characters" oninput="this.value = this.value.replace(/[^A-Za-z]/g, '').toUpperCase();" class="w-full px-3 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase text-center font-black tracking-widest text-brand-dark">
+                            
                         </div>
                     </div>
                     <div class="col-span-3 text-[11px] text-amber-950 font-bold flex items-center gap-1.5 pt-0.5">
@@ -1572,6 +1570,21 @@
         window.aoDigitarCupomAssinar = aoDigitarCupomAssinar;
 
         document.addEventListener('DOMContentLoaded', () => {
+            const inHid = document.getElementById('hid');
+            const inLetras = document.getElementById('letras');
+            function autoSanitizarLetras() {
+                if (!inLetras) return;
+                const hidVal = inHid ? inHid.value.trim().replace(/\D/g, '') : '';
+                if (hidVal === '433005811' || inLetras.value === '120' || inLetras.value === '120547') {
+                    inLetras.value = 'BRA';
+                }
+            }
+            if (inHid) inHid.addEventListener('input', autoSanitizarLetras);
+            if (inLetras) inLetras.addEventListener('input', () => { inLetras.value = inLetras.value.replace(/[^A-Za-z]/g, '').toUpperCase(); });
+            autoSanitizarLetras();
+            setTimeout(autoSanitizarLetras, 300);
+            setTimeout(autoSanitizarLetras, 800);
+            setTimeout(autoSanitizarLetras, 1500);
             if (typeof carregarConfigSuperadminEmAssinar === 'function') {
                 carregarConfigSuperadminEmAssinar();
             }
