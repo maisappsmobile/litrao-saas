@@ -906,10 +906,30 @@
         }
 
         // 5. CARREGA HISTÓRICO DE BIOIMPEDÂNCIA DO CLIENTE
+        function toggleHistoricoBioimpedancia() {
+            const lista = document.getElementById('bioimpedancia-lista');
+            const lbl = document.getElementById('label-toggle-historico-bio');
+            const icone = document.getElementById('icone-toggle-historico-bio');
+            if (!lista) return;
+
+            const estaOculto = lista.classList.contains('hidden');
+            if (estaOculto) {
+                lista.classList.remove('hidden');
+                if (lbl) lbl.innerText = 'Minimizar Avaliações';
+                if (icone) icone.className = 'fa-solid fa-chevron-up text-[11px]';
+            } else {
+                lista.classList.add('hidden');
+                if (lbl) lbl.innerText = 'Ver Todas as Avaliações';
+                if (icone) icone.className = 'fa-solid fa-chevron-down text-[11px]';
+            }
+        }
+        window.toggleHistoricoBioimpedancia = toggleHistoricoBioimpedancia;
+
         async function carregarHistoricoBioimpedancia() {
             const boxLoading = document.getElementById('bioimpedancia-loading');
             const boxVazio = document.getElementById('bioimpedancia-vazio');
             const boxLista = document.getElementById('bioimpedancia-lista');
+            const containerHist = document.getElementById('container-bioimpedancia-historico');
 
             if (!clienteAtual.whatsapp || !supabaseClient) {
                 if (boxLoading) boxLoading.classList.add('hidden');
@@ -941,7 +961,6 @@
                 }
 
                 if (!resSupabase || resSupabase.error || !resSupabase.data) {
-                    // Fallback flexível por whatsapp_cliente
                     resSupabase = await supabaseClient
                         .from('avaliacoes')
                         .select('*')
@@ -965,7 +984,6 @@
 
                 // Filtra as avaliações deste cliente
                 const avaliacoesDoCliente = data.filter(av => {
-                    // Exclui pedidos que não possuem nenhuma medida física
                     const isPedidoPuro = (av.codigo_acesso === 'PEDIDO') && !av.peso && !av.cintura && !av.abdomen;
                     if (isPedidoPuro) return false;
 
@@ -975,18 +993,15 @@
                         wAv = wAv.substring(2);
                     }
 
-                    // 1. Match por número de telefone (últimos 8 dígitos)
                     if (zap8 && wAv) {
                         const av8 = wAv.length >= 8 ? wAv.slice(-8) : wAv;
                         if (av8 === zap8) return true;
                     }
 
-                    // 2. Match por substring no campo whatsapp_cliente original (ex: "98141-1234")
                     if (zap8 && av.whatsapp_cliente && String(av.whatsapp_cliente).includes(zap8)) {
                         return true;
                     }
 
-                    // 3. Match por nome completo normalizado
                     if (nomeNormCliente && av.nome_cliente) {
                         const avNomeNorm = String(av.nome_cliente).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
                         if (avNomeNorm && (avNomeNorm === nomeNormCliente || avNomeNorm.includes(nomeNormCliente) || nomeNormCliente.includes(avNomeNorm))) {
@@ -1011,22 +1026,230 @@
                 }
 
                 if (boxVazio) boxVazio.classList.add('hidden');
+
+                // Helper para extrair dados da bioimpedância
+                const extrairBio = (item) => {
+                    if (item.como_foi_semana && item.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                        try {
+                            const m = item.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                            if (m && m[1]) return JSON.parse(m[1]);
+                        } catch(e) {}
+                    }
+                    return {};
+                };
+
+                const parseN = (v) => {
+                    if (v === null || v === undefined || v === '') return null;
+                    const num = parseFloat(String(v).replace(',', '.'));
+                    return isNaN(num) ? null : num;
+                };
+
+                // Remove card anterior de evolução e botão toggle se já existiam
+                const oldCardEvolucao = document.getElementById('bioimpedancia-evolucao-card');
+                if (oldCardEvolucao) oldCardEvolucao.remove();
+                const oldToggleBox = document.getElementById('bioimpedancia-toggle-box');
+                if (oldToggleBox) oldToggleBox.remove();
+
+                // ========================================================
+                // 1. CÁLCULO E RENDERIZAÇÃO DA EVOLUÇÃO DO CLIENTE
+                // ========================================================
+                const maisRecente = avaliacoesDoCliente[0];
+                const maisAntiga = avaliacoesDoCliente[avaliacoesDoCliente.length - 1];
+
+                const bioRecente = extrairBio(maisRecente);
+                const bioAntiga = extrairBio(maisAntiga);
+
+                const pesoRec = parseN(maisRecente.peso);
+                const pesoAnt = parseN(maisAntiga.peso);
+                const deltaPeso = (pesoRec !== null && pesoAnt !== null) ? (pesoRec - pesoAnt) : null;
+
+                const gordRec = parseN(bioRecente.gordura || maisRecente.gordura_corporal);
+                const gordAnt = parseN(bioAntiga.gordura || maisAntiga.gordura_corporal);
+                const deltaGord = (gordRec !== null && gordAnt !== null) ? (gordRec - gordAnt) : null;
+
+                const muscRec = parseN(bioRecente.musculo || maisRecente.massa_muscular);
+                const muscAnt = parseN(bioAntiga.musculo || maisAntiga.massa_muscular);
+                const deltaMusc = (muscRec !== null && muscAnt !== null) ? (muscRec - muscAnt) : null;
+
+                const viscRec = parseN(bioRecente.visceral || maisRecente.gordura_visceral);
+                const viscAnt = parseN(bioAntiga.visceral || maisAntiga.gordura_visceral);
+                const deltaVisc = (viscRec !== null && viscAnt !== null) ? (viscRec - viscAnt) : null;
+
+                const cintRec = parseN(maisRecente.cintura);
+                const cintAnt = parseN(maisAntiga.cintura);
+                const deltaCint = (cintRec !== null && cintAnt !== null) ? (cintRec - cintAnt) : null;
+
+                const abdRec = parseN(maisRecente.abdomen);
+                const abdAnt = parseN(maisAntiga.abdomen);
+                const deltaAbd = (abdRec !== null && abdAnt !== null) ? (abdRec - abdAnt) : null;
+
+                const dataIniStr = maisAntiga.criado_em || maisAntiga.created_at;
+                const dataFimStr = maisRecente.criado_em || maisRecente.created_at;
+                const dataIni = dataIniStr ? new Date(dataIniStr).toLocaleDateString('pt-BR') : '';
+                const dataFim = dataFimStr ? new Date(dataFimStr).toLocaleDateString('pt-BR') : '';
+
+                const cardEvolucaoEl = document.createElement('div');
+                cardEvolucaoEl.id = 'bioimpedancia-evolucao-card';
+                cardEvolucaoEl.className = 'bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-md border border-emerald-500/30';
+
+                let htmlEvolucao = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-300 block">PAINEL DE RESULTADOS</span>
+                                <h4 class="text-base sm:text-lg font-black text-white leading-tight">Sua Evolução Corporal</h4>
+                                ${dataIni && dataFim ? `<span class="text-[11px] text-emerald-200/80 font-medium"><i class="fa-regular fa-calendar-check mr-1 text-emerald-400"></i> De ${dataIni} até ${dataFim}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black px-3 py-1.5 rounded-xl shadow-2xs">
+                                <i class="fa-solid fa-award mr-1 text-amber-300"></i> ${avaliacoesDoCliente.length} ${avaliacoesDoCliente.length === 1 ? 'Avaliação' : 'Avaliações'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                if (avaliacoesDoCliente.length >= 2) {
+                    htmlEvolucao += `
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
+                            <!-- EVOLUÇÃO DO PESO -->
+                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10 flex flex-col justify-between">
+                                <div>
+                                    <span class="block text-[10px] font-bold uppercase text-emerald-200 tracking-wider">Peso Total</span>
+                                    <div class="flex items-baseline gap-1 mt-1">
+                                        <span class="text-base sm:text-xl font-black text-white">${pesoRec ? String(pesoRec).replace('.', ',') : '-'}</span>
+                                        <span class="text-[10px] text-emerald-200">kg</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 block mt-0.5">Início: ${pesoAnt ? String(pesoAnt).replace('.', ',') : '-'} kg</span>
+                                </div>
+                                ${deltaPeso !== null ? `
+                                    <div class="mt-2 pt-2 border-t border-white/10">
+                                        <span class="inline-flex items-center gap-1 font-black text-[11px] px-2 py-0.5 rounded-lg ${deltaPeso < 0 ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' : (deltaPeso > 0 ? 'bg-blue-400/20 text-blue-300 border border-blue-400/30' : 'bg-slate-400/20 text-slate-300')}">
+                                            ${deltaPeso < 0 ? `<i class="fa-solid fa-arrow-trend-down"></i> -${Math.abs(deltaPeso).toFixed(1).replace('.', ',')} kg` : (deltaPeso > 0 ? `<i class="fa-solid fa-arrow-trend-up"></i> +${deltaPeso.toFixed(1).replace('.', ',')} kg` : 'Estável')}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- EVOLUÇÃO DA GORDURA -->
+                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10 flex flex-col justify-between">
+                                <div>
+                                    <span class="block text-[10px] font-bold uppercase text-amber-200 tracking-wider">% Gordura</span>
+                                    <div class="flex items-baseline gap-1 mt-1">
+                                        <span class="text-base sm:text-xl font-black text-white">${gordRec ? String(gordRec).replace('.', ',') : '-'}</span>
+                                        <span class="text-[10px] text-amber-200">%</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 block mt-0.5">Início: ${gordAnt ? String(gordAnt).replace('.', ',') : '-'}%</span>
+                                </div>
+                                ${deltaGord !== null ? `
+                                    <div class="mt-2 pt-2 border-t border-white/10">
+                                        <span class="inline-flex items-center gap-1 font-black text-[11px] px-2 py-0.5 rounded-lg ${deltaGord < 0 ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'}">
+                                            ${deltaGord < 0 ? `<i class="fa-solid fa-arrow-trend-down"></i> -${Math.abs(deltaGord).toFixed(1).replace('.', ',')}% de gordura` : (deltaGord > 0 ? `+${deltaGord.toFixed(1).replace('.', ',')}%` : 'Estável')}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- EVOLUÇÃO DO MÚSCULO -->
+                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10 flex flex-col justify-between">
+                                <div>
+                                    <span class="block text-[10px] font-bold uppercase text-teal-200 tracking-wider">% Músculo</span>
+                                    <div class="flex items-baseline gap-1 mt-1">
+                                        <span class="text-base sm:text-xl font-black text-white">${muscRec ? String(muscRec).replace('.', ',') : '-'}</span>
+                                        <span class="text-[10px] text-teal-200">%</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 block mt-0.5">Início: ${muscAnt ? String(muscAnt).replace('.', ',') : '-'}%</span>
+                                </div>
+                                ${deltaMusc !== null ? `
+                                    <div class="mt-2 pt-2 border-t border-white/10">
+                                        <span class="inline-flex items-center gap-1 font-black text-[11px] px-2 py-0.5 rounded-lg ${deltaMusc > 0 ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' : 'bg-teal-400/20 text-teal-300'}">
+                                            ${deltaMusc > 0 ? `<i class="fa-solid fa-arrow-trend-up"></i> +${deltaMusc.toFixed(1).replace('.', ',')}% músculo` : (deltaMusc < 0 ? `-${Math.abs(deltaMusc).toFixed(1).replace('.', ',')}%` : 'Estável')}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- MEDIDAS (CINTURA / ABDÔMEN) -->
+                            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10 flex flex-col justify-between">
+                                <div>
+                                    <span class="block text-[10px] font-bold uppercase text-blue-200 tracking-wider">Cintura / Abdômen</span>
+                                    <div class="mt-1 space-y-0.5">
+                                        <div class="flex items-center justify-between text-xs">
+                                            <span class="text-slate-300 text-[11px]">Cintura:</span>
+                                            <strong class="text-white font-bold">${cintRec ? `${cintRec} cm` : '-'}</strong>
+                                        </div>
+                                        <div class="flex items-center justify-between text-xs">
+                                            <span class="text-slate-300 text-[11px]">Abdômen:</span>
+                                            <strong class="text-white font-bold">${abdRec ? `${abdRec} cm` : '-'}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${(deltaCint !== null || deltaAbd !== null) ? `
+                                    <div class="mt-2 pt-2 border-t border-white/10 text-[10px] font-bold text-emerald-300">
+                                        ${deltaCint !== null && deltaCint < 0 ? `<span class="block"><i class="fa-solid fa-check mr-1 text-[8px]"></i> -${Math.abs(deltaCint).toFixed(0)} cm cintura</span>` : ''}
+                                        ${deltaAbd !== null && deltaAbd < 0 ? `<span class="block"><i class="fa-solid fa-check mr-1 text-[8px]"></i> -${Math.abs(deltaAbd).toFixed(0)} cm abdômen</span>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    htmlEvolucao += `
+                        <div class="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 text-center">
+                            <p class="text-xs text-emerald-200 font-semibold leading-relaxed">
+                                🎉 Sua 1ª avaliação corporal está registrada com sucesso! A cada nova pesagem com seu consultor, o gráfico e comparativo de evolução serão calculados automaticamente aqui.
+                            </p>
+                        </div>
+                    `;
+                }
+
+                cardEvolucaoEl.innerHTML = htmlEvolucao;
+
+                // ========================================================
+                // 2. BOTÃO DE EXPANDIR / MINIMIZAR HISTÓRICO DAS AVALIAÇÕES
+                // ========================================================
+                const toggleBoxEl = document.createElement('div');
+                toggleBoxEl.id = 'bioimpedancia-toggle-box';
+                toggleBoxEl.className = 'pt-1';
+                toggleBoxEl.innerHTML = `
+                    <button type="button" onclick="toggleHistoricoBioimpedancia()" id="btn-toggle-historico-bio" class="w-full bg-slate-50 hover:bg-blue-50/70 border border-slate-200/90 text-slate-800 font-black text-xs sm:text-sm py-3 px-4 sm:px-5 rounded-2xl transition flex items-center justify-between shadow-2xs cursor-pointer group">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xs shadow-2xs">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </span>
+                            <span class="text-left">
+                                <span class="block text-slate-900 font-extrabold text-xs sm:text-sm">Histórico Detalhado das Avaliações</span>
+                                <span class="block text-[10px] sm:text-[11px] text-slate-500 font-normal">Toque para ver todas as ${avaliacoesDoCliente.length} fichas de pesagem</span>
+                            </span>
+                        </span>
+                        <span class="text-xs text-blue-700 font-black flex items-center gap-1.5 bg-blue-100/70 px-3 py-1.5 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition shadow-2xs">
+                            <span id="label-toggle-historico-bio">Ver Avaliações</span>
+                            <i class="fa-solid fa-chevron-down text-[11px] transition-transform duration-200" id="icone-toggle-historico-bio"></i>
+                        </span>
+                    </button>
+                `;
+
+                // Insere os elementos antes da lista
+                if (boxLista && boxLista.parentNode) {
+                    boxLista.parentNode.insertBefore(cardEvolucaoEl, boxLista);
+                    boxLista.parentNode.insertBefore(toggleBoxEl, boxLista);
+                }
+
+                // ========================================================
+                // 3. POPULA A LISTA (PERMANECE MINIMIZADA POR PADRÃO)
+                // ========================================================
                 if (boxLista) {
-                    boxLista.classList.remove('hidden');
+                    boxLista.classList.add('hidden'); // MINIMIZADO POR PADRÃO!
                     boxLista.innerHTML = '';
 
                     avaliacoesDoCliente.forEach((av, idx) => {
                         const rawData = av.criado_em || av.created_at;
                         const dataFormatada = rawData ? new Date(rawData).toLocaleDateString('pt-BR') : 'Data recente';
                         
-                        // Extrai dados diretos da bioimpedância (balança Omron / inteligente)
-                        let bioExtras = {};
-                        if (av.como_foi_semana && av.como_foi_semana.includes('<!--BIO_DADOS:')) {
-                            try {
-                                const m = av.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
-                                if (m && m[1]) bioExtras = JSON.parse(m[1]);
-                            } catch(eBio) {}
-                        }
+                        const bioExtras = extrairBio(av);
 
                         const cardAv = document.createElement('div');
                         cardAv.className = "bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs transition hover:shadow-md hover:border-blue-400";

@@ -15623,7 +15623,88 @@
                         </div>
                     `;
                 } else {
-                    let htmlBio = '<div class="space-y-2 max-h-64 overflow-y-auto pr-1">';
+                    const biosApenas = registros.filter(r => !isItemPedido(r));
+                    let htmlBio = '';
+
+                    // Card de Evolução Geral (se houver pelo menos 1 bioimpedância)
+                    if (biosApenas.length >= 1) {
+                        const mRecente = biosApenas[0];
+                        const mAntiga = biosApenas[biosApenas.length - 1];
+
+                        const extrairBioP = (it) => {
+                            if (typeof extrairBioDiretaObjeto === 'function') return extrairBioDiretaObjeto(it);
+                            if (it.como_foi_semana && it.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                                try {
+                                    const m = it.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                                    if (m && m[1]) return JSON.parse(m[1]);
+                                } catch(e) {}
+                            }
+                            return {};
+                        };
+
+                        const bRec = extrairBioP(mRecente);
+                        const bAnt = extrairBioP(mAntiga);
+
+                        const pParse = (v) => {
+                            if (!v) return null;
+                            const n = parseFloat(String(v).replace(',', '.'));
+                            return isNaN(n) ? null : n;
+                        };
+
+                        const pR = pParse(mRecente.peso);
+                        const pA = pParse(mAntiga.peso);
+                        const dP = (pR !== null && pA !== null) ? (pR - pA) : null;
+
+                        const gR = pParse(bRec.gordura);
+                        const gA = pParse(bAnt.gordura);
+                        const dG = (gR !== null && gA !== null) ? (gR - gA) : null;
+
+                        const mR = pParse(bRec.musculo);
+                        const mA = pParse(bAnt.musculo);
+                        const dM = (mR !== null && mA !== null) ? (mR - mA) : null;
+
+                        htmlBio += `
+                            <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white p-3.5 rounded-2xl mb-3 shadow-xs border border-emerald-500/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[10px] font-black uppercase text-emerald-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-chart-line text-emerald-400"></i> Evolução Geral do Cliente
+                                    </span>
+                                    <span class="text-[10px] font-black bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                        ${biosApenas.length} ${biosApenas.length === 1 ? 'pesagem' : 'pesagens'}
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div class="bg-white/10 p-2 rounded-xl">
+                                        <span class="block text-[9px] uppercase text-emerald-200 font-bold">Peso Atual</span>
+                                        <strong class="text-sm font-black text-white">${pR ? `${pR} kg` : '-'}</strong>
+                                        ${dP !== null ? `<span class="block text-[9px] font-black ${dP < 0 ? 'text-emerald-300' : 'text-blue-300'} mt-0.5">${dP < 0 ? `-${Math.abs(dP).toFixed(1)} kg` : (dP > 0 ? `+${dP.toFixed(1)} kg` : 'Estável')}</span>` : ''}
+                                    </div>
+                                    <div class="bg-white/10 p-2 rounded-xl">
+                                        <span class="block text-[9px] uppercase text-amber-200 font-bold">% Gordura</span>
+                                        <strong class="text-sm font-black text-white">${gR ? `${gR}%` : '-'}</strong>
+                                        ${dG !== null ? `<span class="block text-[9px] font-black ${dG < 0 ? 'text-emerald-300' : 'text-amber-300'} mt-0.5">${dG < 0 ? `-${Math.abs(dG).toFixed(1)}%` : (dG > 0 ? `+${dG.toFixed(1)}%` : 'Estável')}</span>` : ''}
+                                    </div>
+                                    <div class="bg-white/10 p-2 rounded-xl">
+                                        <span class="block text-[9px] uppercase text-teal-200 font-bold">% Músculo</span>
+                                        <strong class="text-sm font-black text-white">${mR ? `${mR}%` : '-'}</strong>
+                                        ${dM !== null ? `<span class="block text-[9px] font-black ${dM > 0 ? 'text-emerald-300' : 'text-teal-300'} mt-0.5">${dM > 0 ? `+${dM.toFixed(1)}%` : (dM < 0 ? `-${Math.abs(dM).toFixed(1)}%` : 'Estável')}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Botão para abrir o histórico detalhado se houver muitas avaliações
+                    htmlBio += `
+                        <div class="mb-2">
+                            <button type="button" onclick="document.getElementById('ficha-cli-lista-itens').classList.toggle('hidden'); this.querySelector('.fa-chevron-down, .fa-chevron-up').classList.toggle('fa-chevron-down'); this.querySelector('.fa-chevron-down, .fa-chevron-up').classList.toggle('fa-chevron-up');" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-3 rounded-xl transition flex items-center justify-between cursor-pointer">
+                                <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-blue-600"></i> Histórico Detalhado (${registros.length} registros)</span>
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    htmlBio += '<div id="ficha-cli-lista-itens" class="hidden space-y-2 max-h-64 overflow-y-auto pr-1">';
                     registros.forEach((r, idx) => {
                         const rawData = r.criado_em || r.created_at;
                         const dataFormatada = rawData ? new Date(rawData).toLocaleDateString('pt-BR') : `Registro #${registros.length - idx}`;
@@ -15690,7 +15771,6 @@
                     listaBioEl.innerHTML = htmlBio;
                 }
             }
-            
             // Link do Portal do Cliente
             const linkPortal = obterLinkPortalClientePara(zapLimpo);
             const inputLinkPortal = document.getElementById('ficha-cli-link-portal');
