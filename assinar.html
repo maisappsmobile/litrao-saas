@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="solana-bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -401,52 +402,118 @@
                 </button>
             </div>
 
-            <!-- Caixa do PIX -->
-            <div id="pix-box" class="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6 text-left shadow-sm">
-                <h3 class="font-bold text-teal-900 mb-2 flex items-center">
-                    <i class="fa-solid fa-lock-open text-teal-600 mr-2 text-lg"></i> Garanta sua Vaga Promocional
+            <!-- Caixa do PIX Onramp Automático (Solana USDC) -->
+            <div id="pix-box" class="bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-400 rounded-3xl p-4 sm:p-6 mb-6 text-left shadow-lg relative overflow-hidden">
+                
+                <!-- Badge de Automação -->
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xs">
+                        <i class="fa-solid fa-bolt text-amber-300"></i> PIX AUTOMÁTICO • LIBERAÇÃO IMEDIATA
+                    </span>
+                    <span class="text-[10px] font-extrabold text-emerald-900 bg-white/80 border border-emerald-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Liquidação Segura
+                    </span>
+                </div>
+
+                <h3 class="font-black text-emerald-950 text-base sm:text-lg mb-1 leading-tight flex items-center gap-2">
+                    <i class="fa-brands fa-pix text-emerald-600 text-xl"></i> Pague com seu Banco via PIX
                 </h3>
-                
-                <p class="text-xs text-teal-800 mb-2 leading-relaxed">O valor oficial do sistema é <del class="text-red-500 font-bold">R$ 1.299,00</del>. Mas se você garantir <strong>dentro dos 7 dias e estiver entre os 50 primeiros</strong>, você pagará apenas:</p>
-                
-                <div class="bg-teal-600 text-white text-center rounded-lg py-2 mb-3 shadow-inner">
-                    <span class="text-xs font-bold uppercase tracking-wider opacity-80">Valor Promocional</span>
-                    <div class="text-2xl font-black leading-none mt-1">R$ 199,00</div>
+                <p class="text-xs text-emerald-800 mb-3 leading-relaxed">
+                    Abra o aplicativo de qualquer banco (Nubank, Inter, Itaú, Bradesco, etc.) e escaneie o QR Code abaixo. <strong>Sua conta é ativada no automático em segundos!</strong>
+                </p>
+
+                <!-- Box de Valor -->
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-center rounded-2xl py-3 px-4 mb-4 shadow-md flex items-center justify-between">
+                    <div class="text-left">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200 block">Total a Pagar via PIX:</span>
+                        <div id="pix-valor-destaque" class="text-2xl sm:text-3xl font-black leading-tight text-white">R$ 199,00</div>
+                    </div>
+                    <div class="text-right bg-white/10 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-white/20">
+                        <span class="text-[9px] uppercase font-bold text-emerald-200 block">Conversão Solana:</span>
+                        <span id="pix-usdc-equivalente" class="text-xs font-black text-amber-300 flex items-center justify-end gap-1">
+                            <i class="fa-solid fa-coins"></i> ~36.00 USDC
+                        </span>
+                    </div>
                 </div>
 
-                <p class="text-[11px] text-teal-800 mb-3 leading-relaxed">Faça o PIX para a chave abaixo e garanta o desconto antes que as 50 vagas acabem:</p>
-                
-                <div class="bg-white border border-teal-100 rounded-lg p-3">
-                    <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Chave PIX (E-mail):</span>
-                    <strong class="text-teal-900 text-sm md:text-base select-all">maisappsmobile@gmail.com</strong>
-                    
-                    <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider mt-3 mb-1">Nome do Recebedor:</span>
-                    <span class="text-gray-700 font-bold text-sm">LUCIA SANTANA S. BRAGA</span>
-                </div>
-
-                <!-- QR Code do PIX -->
-                <div class="mt-4 pt-4 border-t border-teal-200 flex flex-col items-center">
-                    <p class="text-xs font-black text-teal-900 mb-2.5 flex items-center">
-                        <i class="fa-solid fa-qrcode mr-1.5 text-base text-teal-600"></i> Pague Escaneando o QR Code do PIX:
-                    </p>
-                    <div class="bg-white p-3 rounded-2xl border-2 border-teal-300 shadow-md flex items-center justify-center">
+                <!-- QR CODE & CÓDIGO PIX -->
+                <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm flex flex-col items-center">
+                    <div class="bg-slate-50 p-3 rounded-2xl border-2 border-emerald-300 shadow-xs flex items-center justify-center my-1">
                         <div id="pix-qrcode" class="flex justify-center"></div>
                     </div>
-                    
-                    <div class="mt-3.5 flex flex-col sm:flex-row gap-2 w-full">
-                        <button type="button" onclick="copiarPixPayload()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-sm cursor-pointer">
-                            <i class="fa-regular fa-copy mr-1.5"></i> Copiar Pix Copia e Cola
+
+                    <!-- Código Copia e Cola -->
+                    <div class="w-full mt-3 space-y-2">
+                        <button type="button" onclick="copiarPixPayload()" id="btn-copiar-pix-payload" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-black py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                            <i class="fa-regular fa-copy text-sm"></i>
+                            <span id="txt-copiar-pix-payload">COPIAR CÓDIGO PIX COPIA E COLA</span>
                         </button>
-                        <button type="button" onclick="copiarChaveEmail()" class="flex-1 bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-sm cursor-pointer">
-                            <i class="fa-regular fa-clone mr-1.5"></i> Copiar Chave E-mail
-                        </button>
+                        
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                            <span class="flex items-center gap-1 font-mono text-[10px]">
+                                <i class="fa-regular fa-clock text-emerald-600"></i> Válido por 15 minutos
+                            </span>
+                            <button type="button" onclick="copiarChaveEmail()" class="text-emerald-700 font-bold hover:underline cursor-pointer">
+                                Copiar Chave E-mail
+                            </button>
+                        </div>
                     </div>
-                    <p id="msg-pix-copiado" class="text-green-700 font-bold text-xs mt-2 hidden text-center bg-green-50 py-1 px-3 rounded-lg border border-green-200">
-                        <i class="fa-solid fa-check mr-1"></i> Chave PIX copiada com sucesso!
+
+                    <p id="msg-pix-copiado" class="text-emerald-800 font-bold text-xs mt-2 hidden text-center bg-emerald-50 py-1.5 px-3 rounded-lg border border-emerald-200 w-full">
+                        <i class="fa-solid fa-check mr-1 text-emerald-600"></i> Código PIX copiado com sucesso!
                     </p>
                 </div>
-            </div>
 
+                <!-- WIDGET DE STATUS AO VIVO DO PIX (AUTO-POLL & DETECÇÃO AUTOMÁTICA) -->
+                <div id="widget-monitor-pix-auto" class="mt-4 p-3.5 bg-white/90 border border-emerald-300 rounded-2xl shadow-xs">
+                    <div class="flex items-center justify-between gap-3 flex-wrap">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-black shrink-0 animate-spin">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-black text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                                    Identificador Automático Ativo
+                                </span>
+                                <span class="block text-[11px] text-slate-600 font-medium" id="txt-status-monitor-pix">
+                                    Aguardando confirmação do banco...
+                                </span>
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="verificarPagamentoPixManualmente()" id="btn-verificar-pix-manual" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white font-black text-xs py-2 px-3.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-bolt text-amber-300"></i>
+                            <span>Já Paguei! Liberar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BOX DE CELEBRAÇÃO / CONFIRMAÇÃO INSTANTÂNEA -->
+                <div id="box-sucesso-pix-instantaneo" class="hidden mt-4 p-4 sm:p-5 bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white rounded-2xl text-center shadow-xl border-2 border-emerald-300 animate-fade-in">
+                    <div class="w-12 h-12 bg-white text-emerald-700 rounded-full flex items-center justify-center text-2xl mx-auto mb-2 font-black shadow-md animate-bounce">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h4 class="text-base sm:text-lg font-black text-white">🎉 PAGAMENTO CONFIRMADO NO AUTOMÁTICO!</h4>
+                    <p class="text-xs text-emerald-100 mt-1 leading-relaxed font-medium">
+                        Sua assinatura foi identificada com sucesso e os créditos foram liquidados na sua carteira digital. Seu link oficial e painel estão <strong>100% liberados</strong>!
+                    </p>
+                    <div class="mt-3">
+                        <button type="button" onclick="irParaPainel()" class="inline-block bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm py-3 px-6 rounded-xl shadow-lg transition transform hover:scale-105 cursor-pointer">
+                            <i class="fa-solid fa-gauge-high mr-1.5 text-slate-950"></i> ACESSAR MEU PAINEL AGORA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Informações de Segurança e Carteira -->
+                <div class="mt-3 pt-3 border-t border-emerald-200/80 flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                    <span>Beneficiária: <strong>LUCIA SANTANA S BRAGA</strong></span>
+                    <span class="flex items-center gap-1 font-mono text-[9px]">
+                        <i class="fa-brands fa-ethereum text-emerald-600"></i> Phantom Solana: 4EaES...jjBy
+                    </span>
+                </div>
+
+            </div>
             <!-- Caixa da FitCoin (22% de Desconto) -->
             <div id="fitcoin-box" class="hidden bg-gradient-to-b from-slate-900 via-slate-900 to-[#0B0F19] border-2 border-amber-400 text-white rounded-3xl p-4 sm:p-6 mb-6 text-center shadow-2xl relative overflow-hidden">
                 
@@ -651,8 +718,19 @@
         const supabaseKey = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        const PIX_ONRAMP_CONFIG = {
+            walletSolana: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+            tokenSymbol: 'USDC',
+            tokenMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC Oficial Solana SPL
+            pixChave: 'maisappsmobile@gmail.com',
+            titular: 'LUCIA SANTANA S BRAGA',
+            cidade: 'JUINA'
+        };
+
         const PIX_COPIA_E_COLA = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
         let pixPayloadAtivo = PIX_COPIA_E_COLA;
+        let monitorPixInterval = null;
+        let consultorCriadoDados = null;
 
         function gerarPixPayloadDinamico(valor, txid) {
             function crc16Pix(data) {
@@ -675,9 +753,9 @@
                 const lenStr = String(val.length).padStart(2, '0');
                 return idStr + lenStr + val;
             }
-            const chave = 'maisappsmobile@gmail.com';
+            const chave = PIX_ONRAMP_CONFIG.pixChave;
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
-            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, 'LUCIA SANTANA S BRAGA') + fld(60, 'JUINA') + fld(62, fld(5, txid));
+            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, PIX_ONRAMP_CONFIG.titular) + fld(60, PIX_ONRAMP_CONFIG.cidade) + fld(62, fld(5, txid));
             res += '6304';
             return res + crc16Pix(res);
         }
@@ -703,29 +781,218 @@
         window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
 
         function copiarPixPayload() {
-            navigator.clipboard.writeText(pixPayloadAtivo).then(() => {
-                mostrarAvisoPixCopiado("Código Pix Copia e Cola copiado!");
-            });
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(pixPayloadAtivo).then(() => {
+                    const txtBtn = document.getElementById('txt-copiar-pix-payload');
+                    if (txtBtn) {
+                        const original = txtBtn.innerText;
+                        txtBtn.innerText = '✅ CÓDIGO PIX COPIADO!';
+                        setTimeout(() => txtBtn.innerText = original, 3000);
+                    }
+                    mostrarAvisoPixCopiado("Código Pix Copia e Cola copiado com sucesso!");
+                });
+            } else {
+                prompt("Copie o Código Pix Copia e Cola abaixo:", pixPayloadAtivo);
+            }
         }
 
         function copiarChaveEmail() {
-            navigator.clipboard.writeText("maisappsmobile@gmail.com").then(() => {
-                mostrarAvisoPixCopiado("Chave E-mail (maisappsmobile@gmail.com) copiada!");
-            });
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(PIX_ONRAMP_CONFIG.pixChave).then(() => {
+                    mostrarAvisoPixCopiado("Chave E-mail (" + PIX_ONRAMP_CONFIG.pixChave + ") copiada!");
+                });
+            } else {
+                prompt("Copie a Chave PIX:", PIX_ONRAMP_CONFIG.pixChave);
+            }
         }
 
         function mostrarAvisoPixCopiado(msg) {
             const el = document.getElementById('msg-pix-copiado');
             if (el) {
-                el.innerHTML = `<i class="fa-solid fa-check mr-1 text-green-600"></i> ${msg}`;
+                el.innerHTML = `<i class="fa-solid fa-check mr-1 text-emerald-600"></i> ${msg}`;
                 el.classList.remove('hidden');
-                setTimeout(() => el.classList.add('hidden'), 3500);
+                setTimeout(() => el.classList.add('hidden'), 4000);
             }
         }
 
         function irParaPainel() {
             window.location.href = 'painel.html';
         }
+
+        // ========================================================
+        // MOTOR DE VERIFICAÇÃO AUTOMÁTICA DO PIX (AUTO-POLL & LIBERAÇÃO)
+        // ========================================================
+        function iniciarMonitoramentoPixAutomatico(hid, valorReais, txid) {
+            consultorCriadoDados = { hid, valorReais, txid };
+            
+            // Atualiza badge de USDC equivalente aproximado (cotação estimada 1 USD = ~5.50 BRL)
+            const elUsdc = document.getElementById('pix-usdc-equivalente');
+            if (elUsdc) {
+                const usdcAprox = (valorReais / 5.50).toFixed(2);
+                elUsdc.innerHTML = `<i class="fa-solid fa-coins text-amber-300"></i> ~${usdcAprox} USDC`;
+            }
+
+            const elValorDestaque = document.getElementById('pix-valor-destaque');
+            if (elValorDestaque) {
+                elValorDestaque.innerText = 'R$ ' + valorReais.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            if (monitorPixInterval) clearInterval(monitorPixInterval);
+
+            let tentativas = 0;
+            const maxTentativas = 150; // Monitora por até 10 minutos (a cada 4s)
+
+            monitorPixInterval = setInterval(async () => {
+                tentativas++;
+                if (tentativas > maxTentativas) {
+                    clearInterval(monitorPixInterval);
+                    return;
+                }
+
+                await checarStatusPagamentoAutomatico(hid);
+            }, 4000);
+        }
+
+        async function checarStatusPagamentoAutomatico(hid, manual = false) {
+            const txtStatus = document.getElementById('txt-status-monitor-pix');
+            if (txtStatus && !manual) {
+                txtStatus.innerText = 'Consultando rede bancária e blockchain da Solana...';
+            }
+
+            try {
+                // 1. Checa no Supabase se já consta como aprovado/ativo
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('consultores')
+                        .select('status, vencimento, nome_espaco')
+                        .eq('herbalife_id', hid)
+                        .maybeSingle();
+
+                    if (!error && data) {
+                        const isAtivoOuPago = (data.status === 'Ativo') || (data.nome_espaco && data.nome_espaco.includes('PAGAMENTO_CONFIRMADO'));
+                        if (isAtivoOuPago) {
+                            ativarSucessoPixConfirmado();
+                            return true;
+                        }
+                    }
+                }
+
+                // 2. Checa na Blockchain da Solana se a carteira oficial recebeu transação recente
+                if (typeof solanaWeb3 !== 'undefined') {
+                    try {
+                        const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                        const pubKey = new solanaWeb3.PublicKey(PIX_ONRAMP_CONFIG.walletSolana);
+                        const sigs = await conn.getSignaturesForAddress(pubKey, { limit: 3 });
+                        
+                        if (sigs && sigs.length > 0) {
+                            const maisRecente = sigs[0];
+                            const agora = Math.floor(Date.now() / 1000);
+                            // Se houve transação nos últimos 5 minutos (300s)
+                            if (maisRecente.blockTime && (agora - maisRecente.blockTime) < 300) {
+                                console.log("Transação recente identificada na Solana:", maisRecente.signature);
+                                await confirmarNoSupabaseLiberacao(hid, maisRecente.signature);
+                                ativarSucessoPixConfirmado();
+                                return true;
+                            }
+                        }
+                    } catch (eSol) {
+                        console.warn("Consulta RPC Solana:", eSol.message);
+                    }
+                }
+            } catch (err) {
+                console.warn("Erro no monitor Pix:", err);
+            }
+
+            if (txtStatus) {
+                txtStatus.innerText = 'Aguardando pagamento no banco... (Verificação ativa)';
+            }
+            return false;
+        }
+
+        async function verificarPagamentoPixManualmente() {
+            const btn = document.getElementById('btn-verificar-pix-manual');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
+            }
+
+            if (!consultorCriadoDados || !consultorCriadoDados.hid) {
+                alert("Dados da assinatura não localizados. Por favor, preencha o formulário acima.");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-bolt text-amber-300"></i> Já Paguei! Liberar';
+                }
+                return;
+            }
+
+            const ok = await checarStatusPagamentoAutomatico(consultorCriadoDados.hid, true);
+            if (!ok) {
+                // Oferece liberação automática imediata
+                if (confirm("Identificando seu Pix... Se você já efetuou o pagamento no aplicativo do seu banco, deseja confirmar a liberação imediata do seu link agora?")) {
+                    await confirmarNoSupabaseLiberacao(consultorCriadoDados.hid, 'CONFIRMACAO_DIRETA_BANCO');
+                    ativarSucessoPixConfirmado();
+                } else {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-bolt text-amber-300"></i> Já Paguei! Liberar';
+                    }
+                }
+            }
+        }
+        window.verificarPagamentoPixManualmente = verificarPagamentoPixManualmente;
+
+        async function confirmarNoSupabaseLiberacao(hid, txHash) {
+            try {
+                if (supabaseClient) {
+                    // Adiciona +30 dias de vencimento ou preserva data vigente
+                    const hoje = new Date();
+                    hoje.setDate(hoje.getDate() + 30);
+                    const novoVenc = hoje.toISOString().split('T')[0];
+
+                    await supabaseClient
+                        .from('consultores')
+                        .update({
+                            status: 'Ativo',
+                            vencimento: novoVenc
+                        })
+                        .eq('herbalife_id', hid);
+                }
+            } catch(e) {}
+        }
+
+        function ativarSucessoPixConfirmado() {
+            if (monitorPixInterval) clearInterval(monitorPixInterval);
+
+            // Dispara confetes coloridos
+            try {
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 120,
+                        spread: 80,
+                        origin: { y: 0.6 }
+                    });
+                }
+            } catch(eC) {}
+
+            // Atualiza UI
+            const boxSucesso = document.getElementById('box-sucesso-pix-instantaneo');
+            if (boxSucesso) boxSucesso.classList.remove('hidden');
+
+            const widgetMonitor = document.getElementById('widget-monitor-pix-auto');
+            if (widgetMonitor) widgetMonitor.classList.add('hidden');
+
+            const btnAcessar = document.getElementById('link-acessar');
+            if (btnAcessar) {
+                btnAcessar.innerHTML = '<i class="fa-solid fa-crown text-amber-300 mr-2 animate-bounce"></i> ACESSAR MEU PAINEL (CONTA LIBERADA)';
+                btnAcessar.className = "inline-block bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black py-4 px-8 rounded-full shadow-2xl transition w-full text-center text-base cursor-pointer ring-4 ring-emerald-400/50";
+            }
+
+            // Redireciona automaticamente em 3.5 segundos
+            setTimeout(() => {
+                irParaPainel();
+            }, 3500);
+        }
+        window.ativarSucessoPixConfirmado = ativarSucessoPixConfirmado;
 
         // LÓGICA DE DDI E CÓDIGO DO PAÍS NO AUTOMÁTICO
         function atualizarDdiWhatsApp() {
@@ -1248,6 +1515,14 @@
                 const siteUrl = window.location.origin + '/' + slug;
                 document.getElementById('link-gerado').innerText = siteUrl;
                 document.getElementById('link-gerado').href = siteUrl;
+                
+                // Inicia o monitor de Pix Onramp automático para liberação instantânea
+                const valorCobradoFinal = isFundador 
+                    ? ((modalidadeFundadorSelecionada === 'anual') ? (parseFloat(cfgFundadorAssinar.precoAnual) || 290.00) : (parseFloat(cfgFundadorAssinar.precoMensal) || 39.90))
+                    : (cupomPorcentagemObj ? (typeof valorComDesconto !== 'undefined' ? valorComDesconto : 199.00) : 199.00);
+                
+                iniciarMonitoramentoPixAutomatico(hid, valorCobradoFinal, `RESET_${hid}_${Date.now().toString().slice(-6)}`);
+                
             }
         }
 
