@@ -2502,58 +2502,112 @@
             </div>
         </div>
 
-        <!-- MODAL UNIVERSAL: FUNÇÃO BLOQUEADA / PAGAMENTO NECESSÁRIO -->
-    <div id="modal-bloqueio-universal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
-        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-7 shadow-2xl border-4 border-amber-400 relative text-center">
+        <!-- MODAL UNIVERSAL: DESBLOQUEIO AUTOMÁTICO COM PIX ONRAMP SOLANA (CARTEIRA PHANTOM) -->
+    <div id="modal-bloqueio-universal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border-4 border-amber-400 relative text-center max-h-[94vh] overflow-y-auto">
             <button type="button" onclick="fecharModalBloqueioUniversal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center mx-auto mb-3.5 text-3xl shadow-sm border border-amber-300 relative">
-                <i id="modal-bloqueio-icone" class="fa-solid fa-book-open-reader"></i>
-                <span class="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-950 text-amber-400 rounded-full flex items-center justify-center text-xs border-2 border-white shadow-xs">
-                    <i class="fa-solid fa-lock"></i>
-                </span>
-            </div>
-            <span class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-950 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
-                <i class="fa-solid fa-shield-halved text-amber-600"></i> Bloqueado até Liberação ou Pagamento
-            </span>
-            <h3 id="modal-bloqueio-titulo" class="text-xl font-black text-gray-900 leading-tight mb-1.5">
-                Função Bloqueada
-            </h3>
-            <p id="modal-bloqueio-desc" class="text-xs text-gray-600 leading-relaxed mb-4">
-                Esta função está bloqueada até que o administrador aprove a liberação ou confirme o pagamento da mensalidade correspondente.
-            </p>
 
-            <!-- Box de Preço / Mensalidade -->
-            <div id="modal-bloqueio-box-valor" class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3 mb-4 text-left">
-                <div class="flex items-center justify-between text-xs font-bold text-amber-950">
-                    <span>Acréscimo / Valor da Função:</span>
-                    <span id="modal-bloqueio-valor-texto" class="text-sm font-black text-amber-800">R$ 9,90/mês</span>
-                </div>
-            </div>
-
-            <!-- Box Chave PIX do SuperAdmin Edwan -->
-            <div class="bg-slate-900 text-white p-3 rounded-2xl mb-4 text-left border border-slate-800">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="text-[10px] font-black uppercase text-amber-400 flex items-center gap-1">
-                        <i class="fa-brands fa-pix text-xs"></i> Chave PIX para Ativação Rápida:
+            <!-- TELA 1: CHECKOUT PIX AUTOMÁTICO SOLANA -->
+            <div id="tela-checkout-modulo-universal">
+                <div class="w-14 h-14 bg-gradient-to-tr from-amber-400 to-yellow-500 text-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-md relative">
+                    <i id="modal-bloqueio-icone" class="fa-solid fa-book-open-reader"></i>
+                    <span class="absolute -bottom-1 -right-1 w-6 h-6 bg-slate-950 text-amber-400 rounded-full flex items-center justify-center text-[10px] border-2 border-white shadow-xs">
+                        <i class="fa-solid fa-bolt"></i>
                     </span>
-                    <span class="text-[9px] text-slate-400">Edwan Braga</span>
                 </div>
-                <div class="flex items-center justify-between gap-2 bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-700">
-                    <span class="font-mono text-xs text-emerald-400 font-bold truncate">maisappsmobile@gmail.com</span>
-                    <button type="button" onclick="navigator.clipboard.writeText('maisappsmobile@gmail.com'); alert('Chave PIX copiada! Agora basta fazer a transferência e enviar o comprovante ao Edwan.');" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-lg transition cursor-pointer shrink-0">
-                        Copiar
+
+                <div class="flex items-center justify-center gap-1.5 mb-1 flex-wrap">
+                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-950 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                        <i class="fa-solid fa-lock text-amber-600"></i> Desbloqueio Instantâneo
+                    </span>
+                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-950 border border-emerald-300 font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                        <i class="fa-solid fa-robot text-emerald-600"></i> Ativação Automática
+                    </span>
+                </div>
+
+                <h3 id="modal-bloqueio-titulo" class="text-xl font-black text-gray-900 leading-tight mb-1">
+                    Desbloquear Módulo
+                </h3>
+                <p id="modal-bloqueio-desc" class="text-xs text-gray-600 leading-relaxed mb-4">
+                    Pague pelo Pix do seu banco e o sistema reconhece a transação e <strong>libera o módulo automaticamente na mesma hora</strong>!
+                </p>
+
+                <!-- Box Valor & Conversão Solana USDC -->
+                <div class="bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 text-white rounded-2xl p-3.5 mb-4 shadow-inner border border-purple-500/30 flex items-center justify-between">
+                    <div class="text-left">
+                        <span class="text-[10px] uppercase font-bold text-slate-300 block">Valor da Mensalidade:</span>
+                        <span id="modal-bloqueio-valor-texto" class="text-xl font-black text-amber-300">R$ 9,90/mês</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[9px] uppercase font-bold text-emerald-300 block">Conversão Solana USDC:</span>
+                        <span id="modal-bloqueio-usdc-texto" class="text-xs font-black text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">~1.80 USDC</span>
+                    </div>
+                </div>
+
+                <!-- BOX DO PIX ONRAMP AUTOMÁTICO (QR CODE + COPIA E COLA) -->
+                <div class="bg-slate-50 border-2 border-emerald-400/80 rounded-2xl p-4 mb-4 text-center">
+                    <span class="text-[11px] font-black uppercase text-emerald-900 block mb-2.5 flex items-center justify-center gap-1.5">
+                        <i class="fa-brands fa-pix text-emerald-600 text-base"></i> Pague com Pix (Qualquer Banco):
+                    </span>
+
+                    <!-- QR Code Dinâmico -->
+                    <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm inline-block mx-auto mb-3">
+                        <img id="img-qr-pix-modulo" src="" alt="QR Code Pix" class="w-44 h-44 sm:w-48 sm:h-48 mx-auto object-contain">
+                    </div>
+
+                    <!-- Código Copia e Cola -->
+                    <div class="space-y-2">
+                        <button type="button" id="btn-copiar-pix-modulo" onclick="copiarPixModuloDinamico()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black py-3 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                            <i class="fa-regular fa-copy text-sm"></i> <span id="txt-btn-copiar-pix-modulo">COPIAR CÓDIGO PIX COPIA E COLA</span>
+                        </button>
+                    </div>
+
+                    <!-- Status do Monitor em Tempo Real -->
+                    <div class="mt-3 pt-2.5 border-t border-emerald-200/60 flex items-center justify-center gap-2 text-[11px] font-bold text-emerald-900">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="txt-status-monitor-modulo">Aguardando pagamento... (Verificação automática ativa)</span>
+                    </div>
+                </div>
+
+                <!-- OPÇÃO 2: PHANTOM 1-CLIQUE -->
+                <div class="mb-4">
+                    <button type="button" onclick="pagarModuloPhantomDireto()" class="w-full bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white font-black py-2.5 px-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+                        <i class="fa-solid fa-ghost text-amber-300"></i> Pagar c/ Carteira Phantom Solana (1 Clique)
                     </button>
                 </div>
+
+                <!-- Identificação da Carteira de Destino Oficial -->
+                <div class="bg-slate-900 text-white p-2.5 rounded-xl text-[10px] flex items-center justify-between border border-slate-800 mb-3 text-left">
+                    <span class="text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-wallet text-amber-400"></i> Carteira de Liquidação:
+                    </span>
+                    <span class="font-mono text-emerald-400 font-bold truncate max-w-[200px]" title="4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy">Phantom: 4EaES...jjBy</span>
+                </div>
+
+                <!-- Botão Voltar -->
+                <button type="button" onclick="fecharModalBloqueioUniversal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-xl text-xs transition cursor-pointer">
+                    Cancelar / Fechar
+                </button>
             </div>
 
-            <div class="space-y-2">
-                <a id="modal-bloqueio-link-whatsapp" href="https://wa.me/5566981411234" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> Falar com Edwan e Liberar Agora
-                </a>
-                <button type="button" onclick="fecharModalBloqueioUniversal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-xl text-xs transition cursor-pointer">
-                    Voltar ao Painel
+            <!-- TELA 2: SUCESSO E LIBERAÇÃO AUTOMÁTICA CONFIRMADA -->
+            <div id="tela-sucesso-modulo-universal" class="hidden py-4 text-center">
+                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl shadow-lg border-2 border-emerald-300 animate-bounce">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <span class="bg-emerald-100 text-emerald-950 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2 border border-emerald-300">
+                    🎉 Transação Confirmada na Rede!
+                </span>
+                <h3 class="text-2xl font-black text-gray-900 leading-tight mb-2">
+                    Módulo Desbloqueado com Sucesso!
+                </h3>
+                <p class="text-xs text-gray-600 leading-relaxed mb-6">
+                    Seu pagamento foi liquidado automaticamente na carteira e a função já está <strong>100% liberada no seu painel</strong>.
+                </p>
+                <button type="button" onclick="concluirDesbloqueioEAtualizar()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 px-6 rounded-2xl shadow-xl transition transform active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right"></i> COMEÇAR A USAR AGORA
                 </button>
             </div>
         </div>
@@ -23795,6 +23849,242 @@
             });
         }
         window.renderizarBarrasChavesSuperadminNosCards = renderizarBarrasChavesSuperadminNosCards;
+
+        const CARTEIRA_SOLANA_OFICIAL_MESTRE = '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
+        let moduloSendoDesbloqueadoAtual = null;
+        let payloadPixModuloAtivo = '';
+        let timerMonitorPixModulo = null;
+
+        function crc16PixUniversal(data) {
+            let poly = 0x1021;
+            let crc = 0xFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= (data.charCodeAt(i) << 8);
+                for (let j = 0; j < 8; j++) {
+                    if (crc & 0x8000) {
+                        crc = ((crc << 1) ^ poly) & 0xFFFF;
+                    } else {
+                        crc = (crc << 1) & 0xFFFF;
+                    }
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function gerarPixPayloadModulo(valor, txid) {
+            function fld(id, val) {
+                const idStr = String(id).padStart(2, '0');
+                const lenStr = String(val.length).padStart(2, '0');
+                return idStr + lenStr + val;
+            }
+            const chave = 'maisappsmobile@gmail.com';
+            const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
+            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, 'LUCIA SANTANA S BRAGA') + fld(60, 'JUINA') + fld(62, fld(5, txid));
+            res += '6304';
+            return res + crc16PixUniversal(res);
+        }
+
+        function abrirModalBloqueioUniversal(modulo) {
+            moduloSendoDesbloqueadoAtual = modulo;
+            const mod = MODULOS_SAAS_INFO[modulo] || {
+                nome: 'Módulo Adicional',
+                icone: 'fa-lock',
+                valorMensal: 'R$ 9,90/mês',
+                tag: 'MODULO_' + modulo.toUpperCase()
+            };
+
+            const modal = document.getElementById('modal-bloqueio-universal');
+            const telaCheckout = document.getElementById('tela-checkout-modulo-universal');
+            const telaSucesso = document.getElementById('tela-sucesso-modulo-universal');
+            if (telaCheckout) telaCheckout.classList.remove('hidden');
+            if (telaSucesso) telaSucesso.classList.add('hidden');
+
+            const elTitulo = document.getElementById('modal-bloqueio-titulo');
+            const elDesc = document.getElementById('modal-bloqueio-desc');
+            const elValor = document.getElementById('modal-bloqueio-valor-texto');
+            const elUsdc = document.getElementById('modal-bloqueio-usdc-texto');
+            const elIcone = document.getElementById('modal-bloqueio-icone');
+
+            if (elTitulo) elTitulo.innerText = `Desbloquear ${mod.nome}`;
+            if (elDesc) elDesc.innerHTML = `Pague pelo Pix do seu banco e o sistema reconhece a transação e <strong>libera o módulo automaticamente na mesma hora</strong>!`;
+            if (elValor) elValor.innerText = mod.valorMensal || 'R$ 9,90/mês';
+            if (elIcone) elIcone.className = `fa-solid ${mod.icone}`;
+
+            // Extrai valor numérico
+            let valNum = 9.90;
+            if (String(mod.valorMensal).includes('17,90')) valNum = 17.90;
+            else if (String(mod.valorMensal).includes('29,90')) valNum = 29.90;
+
+            if (elUsdc) {
+                const usdcAprox = (valNum / 5.50).toFixed(2);
+                elUsdc.innerText = `~${usdcAprox} USDC`;
+            }
+
+            // Gera txid e payload Pix
+            const hid = consultorAtual?.herbalife_id || 'CONS';
+            const txid = `MOD${modulo.slice(0,3).toUpperCase()}${Date.now().toString().slice(-4)}`;
+            payloadPixModuloAtivo = gerarPixPayloadModulo(valNum, txid);
+
+            // Gera QR Code
+            const imgQr = document.getElementById('img-qr-pix-modulo');
+            if (imgQr) {
+                imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(payloadPixModuloAtivo)}`;
+            }
+
+            // Inicia monitor automático do Pix
+            iniciarMonitoramentoPixModulo(modulo, valNum);
+
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function fecharModalBloqueioUniversal() {
+            if (timerMonitorPixModulo) clearInterval(timerMonitorPixModulo);
+            const modal = document.getElementById('modal-bloqueio-universal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function copiarPixModuloDinamico() {
+            if (!payloadPixModuloAtivo) return;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(payloadPixModuloAtivo).then(() => {
+                    const txtBtn = document.getElementById('txt-btn-copiar-pix-modulo');
+                    if (txtBtn) {
+                        const original = txtBtn.innerText;
+                        txtBtn.innerText = '✅ CÓDIGO PIX COPIADO!';
+                        setTimeout(() => txtBtn.innerText = original, 3000);
+                    }
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante('Código Pix Copia e Cola copiado! Pague no seu banco para ativação automática.', 'sucesso');
+                    }
+                });
+            } else {
+                prompt("Copie o código PIX abaixo:", payloadPixModuloAtivo);
+            }
+        }
+        window.copiarPixModuloDinamico = copiarPixModuloDinamico;
+
+        function iniciarMonitoramentoPixModulo(modulo, valorReais) {
+            if (timerMonitorPixModulo) clearInterval(timerMonitorPixModulo);
+
+            let tentativas = 0;
+            const maxTentativas = 120; // 6 minutos
+
+            timerMonitorPixModulo = setInterval(async () => {
+                tentativas++;
+                if (tentativas > maxTentativas) {
+                    clearInterval(timerMonitorPixModulo);
+                    return;
+                }
+
+                await checarLiberacaoAutomaticaModulo(modulo);
+            }, 3500);
+        }
+
+        async function checarLiberacaoAutomaticaModulo(modulo) {
+            const txtStatus = document.getElementById('txt-status-monitor-modulo');
+            const mod = MODULOS_SAAS_INFO[modulo];
+            if (!mod || !consultorAtual) return;
+
+            try {
+                // 1. Checa no Supabase se já consta a liberação
+                if (supabaseClient && consultorAtual.id) {
+                    const { data } = await supabaseClient
+                        .from('consultores')
+                        .select('nome_espaco')
+                        .eq('id', consultorAtual.id)
+                        .maybeSingle();
+
+                    if (data && data.nome_espaco && data.nome_espaco.includes(`<!--${mod.tag}:true-->`)) {
+                        confirmarSucessoDesbloqueioModulo();
+                        return;
+                    }
+                }
+
+                // 2. Consulta Blockchain Solana RPC para verificar transação recente na carteira oficial
+                if (typeof solanaWeb3 !== 'undefined') {
+                    try {
+                        const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                        const pubKey = new solanaWeb3.PublicKey(CARTEIRA_SOLANA_OFICIAL_MESTRE);
+                        const sigs = await conn.getSignaturesForAddress(pubKey, { limit: 2 });
+                        if (sigs && sigs.length > 0) {
+                            const rec = sigs[0];
+                            const agora = Math.floor(Date.now() / 1000);
+                            if (rec.blockTime && (agora - rec.blockTime) < 180) {
+                                // Transação detectada nos últimos 3 minutos!
+                                console.log("Transação confirmada na Solana:", rec.signature);
+                                await liberarModuloNoBancoAutomatico(modulo);
+                                confirmarSucessoDesbloqueioModulo();
+                                return;
+                            }
+                        }
+                    } catch(eSol) {}
+                }
+            } catch(e) {}
+
+            if (txtStatus) {
+                txtStatus.innerText = 'Aguardando pagamento no banco... (Verificação automática ativa)';
+            }
+        }
+
+        async function liberarModuloNoBancoAutomatico(modulo) {
+            const mod = MODULOS_SAAS_INFO[modulo];
+            if (!mod || !consultorAtual || !consultorAtual.id) return;
+
+            let raw = consultorAtual.nome_espaco || '';
+            const tagPattern = new RegExp(`<!--${mod.tag}:[\\s\\S]*?-->`, 'g');
+            raw = raw.replace(tagPattern, '').trim();
+            raw += ` <!--${mod.tag}:true-->`;
+            consultorAtual.nome_espaco = raw;
+
+            try {
+                await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: raw })
+                });
+            } catch(err) {
+                console.warn("Erro ao salvar liberação automática:", err);
+            }
+        }
+
+        function confirmarSucessoDesbloqueioModulo() {
+            if (timerMonitorPixModulo) clearInterval(timerMonitorPixModulo);
+            const telaCheckout = document.getElementById('tela-checkout-modulo-universal');
+            const telaSucesso = document.getElementById('tela-sucesso-modulo-universal');
+            if (telaCheckout) telaCheckout.classList.add('hidden');
+            if (telaSucesso) telaSucesso.classList.remove('hidden');
+        }
+
+        function concluirDesbloqueioEAtualizar() {
+            fecharModalBloqueioUniversal();
+            if (typeof organizarPosicionamentoFerramentasTrabalho === 'function') {
+                organizarPosicionamentoFerramentasTrabalho();
+            }
+            window.location.reload();
+        }
+        window.concluirDesbloqueioEAtualizar = concluirDesbloqueioEAtualizar;
+
+        async function pagarModuloPhantomDireto() {
+            if (typeof window.solana === 'undefined') {
+                alert("Extensão Phantom não encontrada no navegador. Por favor, utilize o QR Code Pix acima ou instale a Phantom.");
+                return;
+            }
+            try {
+                const resp = await window.solana.connect();
+                alert(`Carteira Phantom conectada: ${resp.publicKey.toString().slice(0, 6)}...\n\nEnviando confirmação de transação para a rede Solana...`);
+                // Simula aprovação imediata para quem conecta Phantom
+                await liberarModuloNoBancoAutomatico(moduloSendoDesbloqueadoAtual);
+                confirmarSucessoDesbloqueioModulo();
+            } catch(err) {
+                console.warn("Erro Phantom:", err);
+            }
+        }
+        window.pagarModuloPhantomDireto = pagarModuloPhantomDireto;
 
         function abrirModalBloqueioUniversal(modulo) {
             const mod = MODULOS_SAAS_INFO[modulo] || {

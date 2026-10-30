@@ -1045,6 +1045,9 @@
                     </span>
                     <span class="text-xs font-black text-emerald-800" id="sucesso-pix-total"></span>
                 </div>
+                <div id="sucesso-pix-qr-container" class="text-center my-2 hidden">
+                    <img id="sucesso-pix-qr" src="" alt="QR Code Pix" class="w-36 h-36 mx-auto rounded-xl border border-emerald-300 p-1 bg-white shadow-xs">
+                </div>
                 <div class="bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between gap-2 shadow-xs">
                     <div class="min-w-0 flex-1">
                         <span class="block text-[10px] font-bold text-gray-500 uppercase" id="sucesso-pix-tipo">Chave PIX:</span>
@@ -2927,6 +2930,12 @@
                     if (chavePixSucesso) {
                         chavePixSucesso.innerText = pix.chave;
                         chavePixSucesso.setAttribute('data-chave', pix.chave);
+                    }
+                    const qrEl = document.getElementById('sucesso-pix-qr');
+                    const qrBox = document.getElementById('sucesso-pix-qr-container');
+                    if (qrEl && qrBox && pix.chave) {
+                        qrEl.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(pix.chave);
+                        qrBox.classList.remove('hidden');
                     }
                     if (titularPixSucesso) {
                         if (pix.titular) {
