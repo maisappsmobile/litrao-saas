@@ -379,30 +379,45 @@
             </div>
 
             <!-- CAIXA COM OS DADOS DO PATROCINADOR PARA CÓPIA RÁPIDA -->
-            <div class="relative z-10 bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-emerald-400/30">
-                <p class="text-xs text-amber-300 font-extrabold mb-3 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-info"></i> No formulário da Herbalife, quando perguntar <em>"Você tem um Consultor / Patrocinador?"</em>, escolha <strong>SIM</strong> e use os dados abaixo:
-                </p>
+            <div class="relative z-10 bg-black/50 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-emerald-400/40 space-y-4">
+                
+                <!-- Bloco de Orientação Passo a Passo -->
+                <div class="flex items-start gap-3 bg-amber-400/10 border border-amber-400/30 p-3.5 rounded-xl">
+                    <div class="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 text-base shadow-sm">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                    <div class="text-xs sm:text-sm leading-relaxed">
+                        <span class="block font-black text-amber-300 uppercase tracking-wide text-xs mb-1">
+                            Instrução para seu Cadastro Oficial:
+                        </span>
+                        <p class="text-slate-100 font-medium leading-relaxed">
+                            No site da Herbalife, quando o formulário perguntar 
+                            <span class="inline-block bg-white/10 text-amber-300 font-bold px-2 py-0.5 rounded border border-white/20 my-0.5">"Você tem um Consultor / Patrocinador?"</span>, 
+                            escolha a opção <strong class="text-emerald-300 font-black bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/50">SIM</strong> e informe os 2 dados abaixo para vincular seu desconto à nossa equipe:
+                        </p>
+                    </div>
+                </div>
 
+                <!-- Grid de Cards com Botão de Cópia em 1 Clique -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <!-- ID do Consultor -->
-                    <div class="bg-white/10 p-3 rounded-xl border border-white/15 flex items-center justify-between">
+                    <div class="bg-white/10 hover:bg-white/15 p-4 rounded-xl border border-white/15 flex items-center justify-between transition shadow-2xs">
                         <div>
-                            <span class="block text-[10px] uppercase font-bold text-emerald-300">ID Herbalife do seu Patrocinador:</span>
-                            <span id="banner-consultor-id" class="text-base sm:text-lg font-black font-mono text-white tracking-wider">433005811</span>
+                            <span class="block text-[10px] uppercase font-bold text-emerald-300 tracking-wider">1. ID do seu Patrocinador:</span>
+                            <span id="banner-consultor-id" class="text-lg sm:text-xl font-black font-mono text-white tracking-wider block mt-0.5">433005811</span>
                         </div>
-                        <button type="button" onclick="copiarTextoDados('banner-consultor-id', 'ID')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer">
+                        <button type="button" onclick="copiarTextoDados('banner-consultor-id', 'ID', this)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs py-2 px-3.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <i class="fa-solid fa-copy"></i> <span>Copiar ID</span>
                         </button>
                     </div>
 
                     <!-- 3 Letras -->
-                    <div class="bg-white/10 p-3 rounded-xl border border-white/15 flex items-center justify-between">
+                    <div class="bg-white/10 hover:bg-white/15 p-4 rounded-xl border border-white/15 flex items-center justify-between transition shadow-2xs">
                         <div>
-                            <span class="block text-[10px] uppercase font-bold text-emerald-300">3 Primeiras Letras do Sobrenome:</span>
-                            <span id="banner-consultor-letras" class="text-base sm:text-lg font-black font-mono text-amber-300 tracking-wider">BRA</span>
+                            <span class="block text-[10px] uppercase font-bold text-emerald-300 tracking-wider">2. Primeiras 3 Letras do Sobrenome:</span>
+                            <span id="banner-consultor-letras" class="text-lg sm:text-xl font-black font-mono text-amber-300 tracking-wider block mt-0.5">BRA</span>
                         </div>
-                        <button type="button" onclick="copiarTextoDados('banner-consultor-letras', 'Letras')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer">
+                        <button type="button" onclick="copiarTextoDados('banner-consultor-letras', 'Letras', this)" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-950 font-black text-xs py-2 px-3.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <i class="fa-solid fa-copy"></i> <span>Copiar Letras</span>
                         </button>
                     </div>
@@ -1570,19 +1585,34 @@
         }
 
         // 8. UTILITÁRIOS
-        function copiarTextoDados(elementId, label) {
+        function copiarTextoDados(elementId, label, btnEl) {
             const el = document.getElementById(elementId);
             if (!el) return;
             const txt = el.innerText.trim();
+            
+            const darFeedback = () => {
+                if (btnEl) {
+                    const originalHtml = btnEl.innerHTML;
+                    btnEl.innerHTML = '<i class="fa-solid fa-check text-xs"></i> <span>Copiado!</span>';
+                    btnEl.classList.add('bg-green-600', 'text-white');
+                    setTimeout(() => {
+                        btnEl.innerHTML = originalHtml;
+                        btnEl.classList.remove('bg-green-600', 'text-white');
+                    }, 2500);
+                }
+            };
+
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(txt).then(() => {
-                    alert(`✅ ${label} copiado com sucesso: ${txt}`);
+                    darFeedback();
+                }).catch(() => {
+                    prompt(`Copie o ${label}:`, txt);
                 });
             } else {
                 prompt(`Copie o ${label}:`, txt);
             }
         }
-
+        
         function formatarTelefoneDisplay(tel) {
             if (!tel) return '';
             const t = String(tel).replace(/\D/g, '');
