@@ -344,6 +344,24 @@
                 </p>
             </div>
 
+            <!-- BADGE / BANNER DE STATUS DO ESPAÇO & PREVISÃO DE ENTREGA DOS KITS -->
+            <div id="banner-status-horarios" class="mb-6 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-2.5 rounded-2xl border text-xs font-bold transition shadow-xs bg-emerald-50 text-emerald-950 border-emerald-200">
+                <div class="flex items-center gap-2">
+                    <span id="badge-status-ponto" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="badge-status-texto">Espaço Aberto • Recebendo Pedidos</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-emerald-800 bg-white/80 px-3 py-1 rounded-xl border border-emerald-200/60 text-[11px] font-black">
+                    <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                    <span>Kits: <span id="badge-prazo-kits-texto">Entrega na Segunda-Feira</span></span>
+                </div>
+            </div>
+
+            <!-- AVISO CUSTOMIZADO DE ENTREGA (SE CONFIGURADO PELO CONSULTOR) -->
+            <div id="banner-aviso-custom-entrega" class="hidden mb-6 max-w-xl mx-auto p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-950 text-center shadow-xs">
+                <i class="fa-solid fa-bullhorn text-amber-600 mr-1.5"></i>
+                <span id="txt-aviso-custom-entrega"></span>
+            </div>
+
             <!-- BANNER DINÂMICO DE PROMOÇÃO COM CUPOM (ATIVADO PELO CONSULTOR) -->
             <div id="banner-promocao-kits" class="hidden mb-8 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-slate-950 p-4 sm:p-5 rounded-3xl shadow-xl border-2 border-amber-300 relative overflow-hidden">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
@@ -402,6 +420,10 @@
                         </ul>
                     </div>
 
+                    <div class="my-2.5 inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/80">
+                        <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                        <span>Entrega: <strong class="txt-card-prazo-kits font-black">Segunda-Feira</strong></span>
+                    </div>
                     <button type="button" id="btn-reservar-reset" onclick="abrirCarrinho('RESET', 49.90, 'DESINTOXICA E RENOVA')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
@@ -434,6 +456,10 @@
                         </ul>
                     </div>
 
+                    <div class="my-2.5 inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/80">
+                        <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                        <span>Entrega: <strong class="txt-card-prazo-kits font-black">Segunda-Feira</strong></span>
+                    </div>
                     <button type="button" id="btn-reservar-reset-plus" onclick="abrirCarrinho('RESET +', 65.00, 'RESULTADOS AINDA MELHORES')" class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
@@ -466,6 +492,10 @@
                         </ul>
                     </div>
 
+                    <div class="my-2.5 inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200/80">
+                        <i class="fa-solid fa-truck-fast text-amber-600"></i>
+                        <span>Entrega: <strong class="txt-card-prazo-kits font-black">Segunda-Feira</strong></span>
+                    </div>
                     <button type="button" id="btn-reservar-reset-turbo" onclick="abrirCarrinho('RESET TURBO', 79.99, 'ACELERE SEUS RESULTADOS!')" class="mt-6 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-gray-950 font-black py-3.5 px-4 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                         <i class="fa-solid fa-cart-shopping"></i> RESERVAR ESTE
                     </button>
@@ -770,7 +800,16 @@
             </div>
 
             <!-- Formulário de Identificação do Cliente -->
-            <form id="form-carrinho" onsubmit="finalizarPedidoCarrinho(event)" class="space-y-3.5">
+            <div id="carrinho-banner-status-entrega" class="p-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 text-emerald-950 mb-3.5">
+                    <div class="flex items-center gap-2">
+                        <span id="carrinho-status-icone" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span id="carrinho-status-texto">Espaço Aberto</span>
+                    </div>
+                    <span class="text-[11px] font-black text-emerald-800 bg-white px-2.5 py-1 rounded-xl border border-emerald-200">
+                        <i class="fa-solid fa-calendar-day text-emerald-600 mr-1"></i> <span id="carrinho-prazo-badge-topo">Entrega na Segunda-Feira</span>
+                    </span>
+                </div>
+                <form id="form-carrinho" onsubmit="finalizarPedidoCarrinho(event)" class="space-y-3.5">
                 
                 <!-- Aviso Sutil de Cliente Recorrente / Segunda Compra -->
                 <div id="badge-cliente-reconhecido" class="hidden p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between text-xs text-emerald-900 font-semibold shadow-2xs">
@@ -946,6 +985,10 @@
 
                 <!-- Resumo Total -->
                 <div class="bg-gray-100 rounded-2xl p-3.5 space-y-1.5">
+                    <div id="carrinho-linha-previsao-entrega" class="flex items-center justify-between text-xs text-emerald-900 font-bold pb-1.5 border-b border-gray-200">
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast text-emerald-600"></i> Previsão de Entrega:</span>
+                        <span id="carrinho-valor-previsao-entrega" class="font-black text-emerald-700">Entrega na Segunda-Feira</span>
+                    </div>
                     <div class="flex items-center justify-between text-xs text-gray-600 font-semibold">
                         <span>Subtotal (Itens):</span>
                         <span id="carrinho-subtotal-itens" class="font-bold text-gray-900">R$ 49,90</span>
@@ -1445,6 +1488,7 @@
 
             // Aplica configuração dinâmica de preços dos kits e visibilidade condicional da seção de produtos (Print 3)
             aplicarPrecosKitsLandingPage(consultor);
+            aplicarHorariosEntregaLandingPage(consultor);
         });
 
         /* ==========================================================================
@@ -1661,6 +1705,119 @@
             return null;
         }
         window.extrairPixConsultor = extrairPixConsultor;
+
+        function extrairHorariosEntregaConsultor(consultor) {
+            if (!consultor || !consultor.nome_espaco) return null;
+            if (consultor.nome_espaco.includes('<!--HORARIOS_ENTREGA:')) {
+                try {
+                    const m = consultor.nome_espaco.match(/<!--HORARIOS_ENTREGA:(.*?)-->/);
+                    if (m && m[1]) return JSON.parse(m[1]);
+                } catch(_) {}
+            }
+            return null;
+        }
+        window.extrairHorariosEntregaConsultor = extrairHorariosEntregaConsultor;
+
+        function aplicarHorariosEntregaLandingPage(consultor) {
+            const config = extrairHorariosEntregaConsultor(consultor) || {
+                aberto: true,
+                aceitaFechado: true,
+                prazoKits: 'Entrega na Segunda-Feira',
+                prazoFechados: '15 dias',
+                msgAviso: ''
+            };
+
+            window.horariosConsultorAtual = config;
+
+            const aberto = config.aberto !== false;
+            const aceitaFechado = config.aceitaFechado !== false;
+            const prazoKits = config.prazoKits || 'Entrega na Segunda-Feira';
+            const msgAviso = config.msgAviso || '';
+
+            // 1. Atualiza textos de entrega nos cards de kits
+            document.querySelectorAll('.txt-card-prazo-kits').forEach(el => {
+                el.innerText = prazoKits;
+            });
+
+            // 2. Banner de horários no topo dos kits
+            const banner = document.getElementById('banner-status-horarios');
+            const ponto = document.getElementById('badge-status-ponto');
+            const textoStatus = document.getElementById('badge-status-texto');
+            const textoPrazo = document.getElementById('badge-prazo-kits-texto');
+
+            if (textoPrazo) textoPrazo.innerText = prazoKits;
+
+            if (banner && ponto && textoStatus) {
+                if (aberto) {
+                    banner.className = "mb-6 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-2.5 rounded-2xl border text-xs font-bold transition shadow-xs bg-emerald-50 text-emerald-950 border-emerald-200";
+                    ponto.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+                    textoStatus.innerText = "Espaço Aberto • Recebendo Pedidos";
+                } else if (aceitaFechado) {
+                    banner.className = "mb-6 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-2.5 rounded-2xl border text-xs font-bold transition shadow-xs bg-amber-50 text-amber-950 border-amber-300";
+                    ponto.className = "w-3 h-3 rounded-full bg-amber-500";
+                    textoStatus.innerText = "Espaço Fechado • Aceitando Encomendas";
+                } else {
+                    banner.className = "mb-6 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-2.5 rounded-2xl border text-xs font-bold transition shadow-xs bg-rose-50 text-rose-950 border-rose-300";
+                    ponto.className = "w-3 h-3 rounded-full bg-rose-500";
+                    textoStatus.innerText = "Espaço Fechado • Pedidos Encerrados";
+                }
+            }
+
+            // 3. Aviso customizado
+            const bannerAviso = document.getElementById('banner-aviso-custom-entrega');
+            const txtAviso = document.getElementById('txt-aviso-custom-entrega');
+            if (bannerAviso && txtAviso) {
+                if (msgAviso) {
+                    txtAviso.innerText = msgAviso;
+                    bannerAviso.classList.remove('hidden');
+                } else {
+                    bannerAviso.classList.add('hidden');
+                }
+            }
+
+            // 4. Elementos no carrinho
+            const cartBanner = document.getElementById('carrinho-banner-status-entrega');
+            const cartIcone = document.getElementById('carrinho-status-icone');
+            const cartTexto = document.getElementById('carrinho-status-texto');
+            const cartPrazo = document.getElementById('carrinho-prazo-badge-topo');
+            const cartLinhaValor = document.getElementById('carrinho-valor-previsao-entrega');
+            const btnFinalizar = document.getElementById('btn-finalizar-carrinho');
+
+            if (cartPrazo) cartPrazo.innerText = prazoKits;
+            if (cartLinhaValor) cartLinhaValor.innerText = prazoKits;
+
+            if (cartBanner && cartIcone && cartTexto) {
+                if (aberto) {
+                    cartBanner.className = "p-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 text-emerald-950 mb-3.5";
+                    cartIcone.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+                    cartTexto.innerText = "Espaço Aberto Agora";
+                    if (btnFinalizar) {
+                        btnFinalizar.disabled = false;
+                        btnFinalizar.innerHTML = '<i class="fa-brands fa-whatsapp text-xl text-yellow-300"></i> CONFIRMAR E ENVIAR AO CONSULTOR';
+                        btnFinalizar.className = "w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-4 px-4 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 text-base cursor-pointer";
+                    }
+                } else if (aceitaFechado) {
+                    cartBanner.className = "p-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 bg-amber-50 border border-amber-300 text-amber-950 mb-3.5";
+                    cartIcone.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                    cartTexto.innerText = "Fechado (Aceitando Encomendas)";
+                    if (btnFinalizar) {
+                        btnFinalizar.disabled = false;
+                        btnFinalizar.innerHTML = '<i class="fa-brands fa-whatsapp text-xl text-yellow-300"></i> ENCOMENDAR PARA ' + prazoKits.toUpperCase();
+                        btnFinalizar.className = "w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-4 px-4 rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 text-base cursor-pointer";
+                    }
+                } else {
+                    cartBanner.className = "p-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 bg-rose-50 border border-rose-300 text-rose-950 mb-3.5";
+                    cartIcone.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                    cartTexto.innerText = "Espaço Fechado no Momento";
+                    if (btnFinalizar) {
+                        btnFinalizar.disabled = true;
+                        btnFinalizar.innerHTML = '🔴 PEDIDOS FECHADOS NO MOMENTO';
+                        btnFinalizar.className = "w-full bg-gray-400 text-white font-black py-4 px-4 rounded-2xl shadow-none flex items-center justify-center gap-2 text-base cursor-not-allowed opacity-80";
+                    }
+                }
+            }
+        }
+        window.aplicarHorariosEntregaLandingPage = aplicarHorariosEntregaLandingPage;
 
         function extrairTaxasEntregaConsultor(consultor) {
             if (!consultor || !consultor.nome_espaco) return null;
@@ -2440,6 +2597,7 @@
         }
 
         function abrirCarrinho(item, preco, sub) {
+            if (window.consultorAtual) aplicarHorariosEntregaLandingPage(window.consultorAtual);
             const pacotesValidos = obterListaPacotesDisponiveis();
             if (pacotesValidos.length === 0) {
                 alert("Nenhum pacote com valor ativo no momento. Fale diretamente com o consultor pelo WhatsApp!");
@@ -2657,6 +2815,7 @@
                 forma_pagamento: formaPagamento,
                 endereco: endereco || "Retirada no Espaço",
                 observacoes: observacoes || "Nenhuma",
+                previsao_entrega: (window.horariosConsultorAtual?.prazoKits) || 'Entrega na Segunda-Feira',
                 data_pedido: new Date().toISOString()
             };
 
@@ -2732,6 +2891,7 @@
 
             const textoMsg = `Olá! Acabei de fazer um pedido pelo site do *Litrão do Reset*:\n\n` +
                              `🥤 *Pacote:* ${carrinhoAtual.item} (${carrinhoAtual.sub})\n` +
+                             `📦 *Previsão de Entrega:* ${(window.horariosConsultorAtual?.prazoKits) || 'Entrega na Segunda-Feira'}\n` +
                              `🔢 *Quantidade:* ${carrinhoAtual.qtd} ${unidadeTexto}\n` +
                              `💵 *Subtotal:* ${subtotalFormatado}\n` +
                              (cupomRegistrado ? `🎟️ *Cupom de Desconto:* ${cupomRegistrado.codigo} (- R$ ${valorDescontoCupomNum.toFixed(2).replace('.', ',')})\n` : '') +

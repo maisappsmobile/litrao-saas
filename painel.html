@@ -223,6 +223,12 @@
                             <span>Taxas de Entrega</span>
                         </button>
 
+                        <!-- Horários & Prazos de Entrega -->
+                        <button id="btn-abrir-horarios-entrega" onclick="abrirModalConfigHorariosEntrega(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Configurar Status Aberto/Fechado e Prazos de Entrega (Kits e Produtos Fechados)">
+                            <i class="fa-solid fa-clock-rotate-left text-emerald-600 w-4 text-center"></i>
+                            <span>Horários & Prazos</span>
+                        </button>
+
                         <!-- Modelos Directs X1 -->
                         <button id="btn-abrir-directs-prospeccao" onclick="abrirModalDirectsProspeccao(); fecharMenuSanduiche();" class="w-full text-left px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition flex items-center gap-2.5 cursor-pointer rounded-lg hidden" title="Modelos de Direct & Scripts X1 para Redes Sociais">
                             <i class="fa-solid fa-paper-plane text-indigo-600 w-4 text-center"></i>
@@ -775,6 +781,24 @@
                         </div>
                         <span class="inline-flex items-center gap-1 text-[10px] font-black text-teal-400 mt-3 pt-2 border-t border-teal-900/40 uppercase">
                             <span>Configurar Taxas</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
+                    <!-- 6.1 Horários & Prazos de Entrega -->
+                    <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-emerald-500/50 hover:border-emerald-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalConfigHorariosEntrega()" data-keywords="horarios prazos entrega aberto fechado encomendas segunda feira dias kits produtos fechados">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-emerald-200 transition">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-emerald-300 transition leading-snug">
+                                Horários & Prazos
+                            </h4>
+                            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+                                Status aberto/fechado, encomendas e prazos de entrega dos Kits e Produtos Fechados.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-emerald-400 mt-3 pt-2 border-t border-emerald-900/40 uppercase">
+                            <span>Configurar Prazos</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
                         </span>
                     </div>
 
@@ -2460,7 +2484,170 @@
             </div>
         </div>
 
-        <!-- MODAL: MODELOS DE DIRECT & PROSPECÇÃO X1 PARA REDES SOCIAIS -->
+        <!-- MODAL: CONFIGURAÇÃO DE HORÁRIOS & PRAZOS DE ENTREGA (ABERTO/FECHADO, ACEITA FECHADO, PRAZOS KITS E FECHADOS) -->
+        <div id="modal-config-horarios-entrega" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden">
+            <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-7 shadow-2xl relative border border-gray-100 max-h-[92vh] overflow-y-auto animate-fade-in">
+                <!-- Botão Fechar -->
+                <button type="button" onclick="fecharModalConfigHorariosEntrega()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Cabeçalho -->
+                <div class="flex items-center space-x-3 mb-5 border-b border-gray-100 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-2xl shadow-xs flex-shrink-0">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Horários & Prazos de Entrega</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Defina se seu espaço está aberto para receber pedidos e os prazos de entrega do <strong>Kit Reset</strong> e dos <strong>Produtos Fechados</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- 1. STATUS DO ESPAÇO: ABERTO OU FECHADO -->
+                <div class="mb-5">
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-2">
+                        Status do Espaço / Loja Online:
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Opção Aberto -->
+                        <div id="card-status-aberto" onclick="selecionarStatusAbertoFechado(true)" class="cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-emerald-600 bg-emerald-50/70 shadow-xs">
+                            <div class="flex items-center gap-3">
+                                <span class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-store"></i></span>
+                                <div>
+                                    <span class="block text-sm font-black text-gray-900">🟢 Espaço Aberto</span>
+                                    <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Recebendo pedidos normalmente no cardápio.</span>
+                                </div>
+                            </div>
+                            <input type="radio" name="radio_status_aberto_fechado" id="radio-status-aberto" value="true" checked class="text-emerald-600 focus:ring-emerald-500 pointer-events-none w-5 h-5">
+                        </div>
+
+                        <!-- Opção Fechado -->
+                        <div id="card-status-fechado" onclick="selecionarStatusAbertoFechado(false)" class="cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-gray-200 bg-white hover:border-gray-300">
+                            <div class="flex items-center gap-3">
+                                <span class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-door-closed"></i></span>
+                                <div>
+                                    <span class="block text-sm font-black text-gray-900">🔴 Fechado no Momento</span>
+                                    <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Fora do expediente ou pausa de produção.</span>
+                                </div>
+                            </div>
+                            <input type="radio" name="radio_status_aberto_fechado" id="radio-status-fechado" value="false" class="text-rose-600 focus:ring-rose-500 pointer-events-none w-5 h-5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. SE ESTIVER FECHADO: ACEITAR PEDIDOS ANTECIPADOS? -->
+                <div class="mb-5 p-4 rounded-2xl border border-amber-200 bg-amber-50/70">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-black text-gray-900">Aceitar Pedidos / Encomendas mesmo quando estiver Fechado?</h4>
+                                <p class="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
+                                    Se ativado, o cliente pode pedir normalmente pelo site mesmo quando fechado. O cardápio avisará que o espaço está em pausa e informará a data prevista para a entrega.
+                                </p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 mt-1">
+                            <input type="checkbox" id="cfg-horarios-aceita-fechado" checked onchange="atualizarPreviewHorariosEntrega()" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. CONFIGURAÇÃO DE PRAZOS DE ENTREGA -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <!-- Prazo Kit Reset (Garrafas Frescas) -->
+                    <div class="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-bottle-water"></i></span>
+                                <label class="text-xs font-black uppercase text-gray-800">Prazo de Entrega: Kits do Reset</label>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mb-2">Qual dia você entrega os kits de garrafas frescas aos clientes?</p>
+                            <input type="text" id="cfg-prazo-kits" value="Entrega na Segunda-Feira" oninput="atualizarPreviewHorariosEntrega()" placeholder="Ex: Entrega na Segunda-Feira" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 focus:border-emerald-500 rounded-xl text-xs font-bold text-gray-900 focus:outline-none transition mb-2 shadow-2xs">
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" onclick="definirPrazoKitsRapido('Entrega na Segunda-Feira')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg transition cursor-pointer">Segunda-Feira</button>
+                                <button type="button" onclick="definirPrazoKitsRapido('Próxima Segunda-Feira')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg transition cursor-pointer">Próx. Segunda</button>
+                                <button type="button" onclick="definirPrazoKitsRapido('Em até 24 horas')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg transition cursor-pointer">Em 24h</button>
+                                <button type="button" onclick="definirPrazoKitsRapido('Hoje mesmo (Delivery Imediato)')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg transition cursor-pointer">Hoje Mesmo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prazo Produtos Fechados Herbalife -->
+                    <div class="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-box-open"></i></span>
+                                <label class="text-xs font-black uppercase text-gray-800">Prazo: Produtos Fechados Herbalife</label>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mb-2">Prazo para entrega de produtos fechados pedidos no portal do cliente:</p>
+                            <input type="text" id="cfg-prazo-fechados" value="15 dias" oninput="atualizarPreviewHorariosEntrega()" placeholder="Ex: 15 dias ou 15 dias úteis" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 focus:border-blue-500 rounded-xl text-xs font-bold text-gray-900 focus:outline-none transition mb-2 shadow-2xs">
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" onclick="definirPrazoFechadosRapido('15 dias')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">15 dias</button>
+                                <button type="button" onclick="definirPrazoFechadosRapido('15 dias úteis')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">15 dias úteis</button>
+                                <button type="button" onclick="definirPrazoFechadosRapido('10 a 15 dias')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">10 a 15 dias</button>
+                                <button type="button" onclick="definirPrazoFechadosRapido('Sob encomenda (15 dias)')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">Sob encomenda</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. MENSAGEM OU AVISO ADICIONAL (OPCIONAL) -->
+                <div class="mb-5">
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">
+                        Mensagem / Observação de Entrega para os Clientes (Opcional):
+                    </label>
+                    <input type="text" id="cfg-msg-aviso-entrega" oninput="atualizarPreviewHorariosEntrega()" placeholder="Ex: Garanta seu Litrão até sábado às 18h para entrega na segunda-feira pela manhã!" class="w-full px-3.5 py-2 bg-white border border-gray-300 focus:border-emerald-500 rounded-xl text-xs font-normal text-gray-900 focus:outline-none transition shadow-2xs">
+                </div>
+
+                <!-- 5. PREVIEW EM TEMPO REAL: COMO SEU CLIENTE VERÁ -->
+                <div class="mb-6 bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-inner">
+                    <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                        <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye text-xs"></i> Como o cliente verá no seu site:
+                        </span>
+                        <span id="preview-status-badge" class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            🟢 Aberto Agora
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-slate-300 flex items-center gap-2">
+                                <i class="fa-solid fa-bottle-water text-emerald-400"></i> Cards do Kit Reset:
+                            </span>
+                            <span id="preview-prazo-kits" class="font-black text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/50">
+                                📦 Entrega na Segunda-Feira
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-slate-300 flex items-center gap-2">
+                                <i class="fa-solid fa-box-open text-blue-400"></i> Portal Produtos Fechados:
+                            </span>
+                            <span id="preview-prazo-fechados" class="font-black text-blue-400 bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-800/50">
+                                📦 Previsão: 15 dias
+                            </span>
+                        </div>
+                        <div id="preview-aviso-box" class="bg-amber-950/40 p-2.5 rounded-xl border border-amber-800/50 text-[11px] text-amber-200 hidden">
+                            <i class="fa-solid fa-bullhorn text-amber-400 mr-1"></i> <span id="preview-msg-aviso"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rodapé com Ações -->
+                <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="fecharModalConfigHorariosEntrega()" class="w-full sm:w-auto text-xs font-bold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl transition cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="button" id="btn-salvar-cfg-horarios" onclick="salvarHorariosEntregaModal()" class="w-full sm:w-auto text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Horários & Prazos
+                    </button>
+                </div>
+            </div>
+        </div>
         <div id="modal-directs-prospeccao" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto hidden">
             <div class="bg-white rounded-3xl max-w-5xl w-full h-[92vh] max-h-[92vh] shadow-2xl relative border border-gray-200 flex flex-col overflow-hidden animate-fade-in my-auto">
                 <!-- Botão Fechar -->
@@ -11328,6 +11515,8 @@
                 if (btnPrecosKits) btnPrecosKits.classList.remove('hidden');
                 const btnTaxasEntrega = document.getElementById('btn-abrir-taxas-entrega');
                 if (btnTaxasEntrega) btnTaxasEntrega.classList.remove('hidden');
+                const btnHorariosEntrega = document.getElementById('btn-abrir-horarios-entrega');
+                if (btnHorariosEntrega) btnHorariosEntrega.classList.remove('hidden');
                 const btnFin = document.getElementById('btn-abrir-financeiro-evs');
                 if (btnFin) btnFin.classList.remove('hidden');
                 const btnCat = document.getElementById('btn-abrir-catalogo-interativo');
@@ -22140,6 +22329,8 @@
             if (btnPrecosKits) btnPrecosKits.classList.add('hidden');
             const btnTaxasEntrega = document.getElementById('btn-abrir-taxas-entrega');
             if (btnTaxasEntrega) btnTaxasEntrega.classList.add('hidden');
+            const btnHorariosEntrega = document.getElementById('btn-abrir-horarios-entrega');
+            if (btnHorariosEntrega) btnHorariosEntrega.classList.add('hidden');
             const btnDirects = document.getElementById('btn-abrir-directs-prospeccao');
             if (btnDirects) btnDirects.classList.add('hidden');
             const btnExtratorFb = document.getElementById('btn-abrir-extrator-facebook-superadmin');
@@ -23255,6 +23446,207 @@
             }
         }
         window.desativarTaxasEntrega = desativarTaxasEntrega;
+
+        // ==========================================
+        // HORÁRIOS & PRAZOS DE ENTREGA (ABERTO/FECHADO, ENCOMENDAS, PRAZO KITS E PRODUTOS FECHADOS)
+        // ==========================================
+        let statusAbertoFechadoSelecionado = true;
+
+        function extrairHorariosEntregaObjeto(consultor) {
+            if (!consultor || !consultor.nome_espaco) return null;
+            if (consultor.nome_espaco.includes('<!--HORARIOS_ENTREGA:')) {
+                try {
+                    const m = consultor.nome_espaco.match(/<!--HORARIOS_ENTREGA:(.*?)-->/);
+                    if (m && m[1]) return JSON.parse(m[1]);
+                } catch(_) {}
+            }
+            return null;
+        }
+        window.extrairHorariosEntregaObjeto = extrairHorariosEntregaObjeto;
+
+        function abrirModalConfigHorariosEntrega() {
+            const modal = document.getElementById('modal-config-horarios-entrega');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            const config = extrairHorariosEntregaObjeto(consultorAtual) || {
+                aberto: true,
+                aceitaFechado: true,
+                prazoKits: 'Entrega na Segunda-Feira',
+                prazoFechados: '15 dias',
+                msgAviso: ''
+            };
+
+            selecionarStatusAbertoFechado(config.aberto !== false);
+
+            const chkAceita = document.getElementById('cfg-horarios-aceita-fechado');
+            if (chkAceita) chkAceita.checked = (config.aceitaFechado !== false);
+
+            const inPrazoKits = document.getElementById('cfg-prazo-kits');
+            if (inPrazoKits) inPrazoKits.value = config.prazoKits || 'Entrega na Segunda-Feira';
+
+            const inPrazoFechados = document.getElementById('cfg-prazo-fechados');
+            if (inPrazoFechados) inPrazoFechados.value = config.prazoFechados || '15 dias';
+
+            const inMsg = document.getElementById('cfg-msg-aviso-entrega');
+            if (inMsg) inMsg.value = config.msgAviso || '';
+
+            atualizarPreviewHorariosEntrega();
+        }
+        window.abrirModalConfigHorariosEntrega = abrirModalConfigHorariosEntrega;
+
+        function fecharModalConfigHorariosEntrega() {
+            const modal = document.getElementById('modal-config-horarios-entrega');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalConfigHorariosEntrega = fecharModalConfigHorariosEntrega;
+
+        function selecionarStatusAbertoFechado(aberto) {
+            statusAbertoFechadoSelecionado = !!aberto;
+            const cardAberto = document.getElementById('card-status-aberto');
+            const cardFechado = document.getElementById('card-status-fechado');
+            const radioAberto = document.getElementById('radio-status-aberto');
+            const radioFechado = document.getElementById('radio-status-fechado');
+
+            if (statusAbertoFechadoSelecionado) {
+                if (cardAberto) {
+                    cardAberto.className = "cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-emerald-600 bg-emerald-50/70 shadow-xs";
+                }
+                if (cardFechado) {
+                    cardFechado.className = "cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-gray-200 bg-white hover:border-gray-300";
+                }
+                if (radioAberto) radioAberto.checked = true;
+                if (radioFechado) radioFechado.checked = false;
+            } else {
+                if (cardAberto) {
+                    cardAberto.className = "cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-gray-200 bg-white hover:border-gray-300";
+                }
+                if (cardFechado) {
+                    cardFechado.className = "cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between border-rose-600 bg-rose-50/70 shadow-xs";
+                }
+                if (radioAberto) radioAberto.checked = false;
+                if (radioFechado) radioFechado.checked = true;
+            }
+
+            atualizarPreviewHorariosEntrega();
+        }
+        window.selecionarStatusAbertoFechado = selecionarStatusAbertoFechado;
+
+        function definirPrazoKitsRapido(texto) {
+            const inKits = document.getElementById('cfg-prazo-kits');
+            if (inKits) {
+                inKits.value = texto;
+                atualizarPreviewHorariosEntrega();
+            }
+        }
+        window.definirPrazoKitsRapido = definirPrazoKitsRapido;
+
+        function definirPrazoFechadosRapido(texto) {
+            const inFech = document.getElementById('cfg-prazo-fechados');
+            if (inFech) {
+                inFech.value = texto;
+                atualizarPreviewHorariosEntrega();
+            }
+        }
+        window.definirPrazoFechadosRapido = definirPrazoFechadosRapido;
+
+        function atualizarPreviewHorariosEntrega() {
+            const previewBadge = document.getElementById('preview-status-badge');
+            const previewKits = document.getElementById('preview-prazo-kits');
+            const previewFechados = document.getElementById('preview-prazo-fechados');
+            const avisoBox = document.getElementById('preview-aviso-box');
+            const previewAviso = document.getElementById('preview-msg-aviso');
+
+            const pKits = (document.getElementById('cfg-prazo-kits')?.value || 'Entrega na Segunda-Feira').trim();
+            const pFech = (document.getElementById('cfg-prazo-fechados')?.value || '15 dias').trim();
+            const msgAviso = (document.getElementById('cfg-msg-aviso-entrega')?.value || '').trim();
+            const aceitaFechado = document.getElementById('cfg-horarios-aceita-fechado')?.checked ?? true;
+
+            if (previewKits) previewKits.innerHTML = `📦 ${pKits || 'Entrega na Segunda-Feira'}`;
+            if (previewFechados) previewFechados.innerHTML = `📦 Previsão: ${pFech || '15 dias'}`;
+
+            if (previewBadge) {
+                if (statusAbertoFechadoSelecionado) {
+                    previewBadge.className = "text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                    previewBadge.innerHTML = '🟢 Aberto Agora';
+                } else if (aceitaFechado) {
+                    previewBadge.className = "text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                    previewBadge.innerHTML = '🟡 Fechado (Aceitando Encomendas)';
+                } else {
+                    previewBadge.className = "text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                    previewBadge.innerHTML = '🔴 Fechado no Momento';
+                }
+            }
+
+            if (avisoBox && previewAviso) {
+                if (msgAviso) {
+                    previewAviso.innerText = msgAviso;
+                    avisoBox.classList.remove('hidden');
+                } else {
+                    avisoBox.classList.add('hidden');
+                }
+            }
+        }
+        window.atualizarPreviewHorariosEntrega = atualizarPreviewHorariosEntrega;
+
+        async function salvarHorariosEntregaModal() {
+            if (!consultorAtual || !consultorAtual.id) {
+                alert("Sessão não identificada. Faça login novamente no painel.");
+                return;
+            }
+
+            const pKits = (document.getElementById('cfg-prazo-kits')?.value || 'Entrega na Segunda-Feira').trim();
+            const pFech = (document.getElementById('cfg-prazo-fechados')?.value || '15 dias').trim();
+            const msgAviso = (document.getElementById('cfg-msg-aviso-entrega')?.value || '').trim();
+            const aceitaFechado = document.getElementById('cfg-horarios-aceita-fechado')?.checked ?? true;
+
+            const horariosObj = {
+                aberto: statusAbertoFechadoSelecionado,
+                aceitaFechado: aceitaFechado,
+                prazoKits: pKits || 'Entrega na Segunda-Feira',
+                prazoFechados: pFech || '15 dias',
+                msgAviso: msgAviso
+            };
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--HORARIOS_ENTREGA:[\s\S]*?-->/g, '').trim();
+            rawEspaco += ` <!--HORARIOS_ENTREGA:${JSON.stringify(horariosObj)}-->`;
+
+            const btn = document.getElementById('btn-salvar-cfg-horarios');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Salvando...';
+            }
+
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                const res = await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: rawEspaco })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                consultorAtual.nome_espaco = rawEspaco;
+                alert("✅ Horários e prazos salvos com sucesso! Sua página de vendas e o portal do cliente já foram atualizados.");
+                fecharModalConfigHorariosEntrega();
+            } catch(err) {
+                console.error("Erro ao salvar horários de entrega:", err);
+                alert("❌ Erro ao salvar horários no servidor. Tente novamente.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Horários & Prazos';
+                }
+            }
+        }
+        window.salvarHorariosEntregaModal = salvarHorariosEntregaModal;
 
         // ==========================================
         // GESTÃO DE SENHA DO CONSULTOR
