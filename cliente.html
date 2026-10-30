@@ -700,15 +700,32 @@
 
         // 3. IDENTIFICAÇÃO DO CLIENTE (LOCALSTORAGE & SUPABASE)
         function carregarClienteLocalStorage() {
-            const zapSalvo = localStorage.getItem('litrao_cliente_whatsapp');
-            const nomeSalvo = localStorage.getItem('litrao_cliente_nome');
+            const params = new URLSearchParams(window.location.search);
+            const zapUrl = params.get('w') || params.get('zap') || params.get('whatsapp');
+            const nomeUrl = params.get('n') || params.get('nome');
+            
+            let zapSalvo = zapUrl || localStorage.getItem('litrao_cliente_whatsapp');
+            let nomeSalvo = nomeUrl || localStorage.getItem('litrao_cliente_nome');
+            
+            if (zapUrl) {
+                let zapLimpo = zapUrl.replace(/\D/g, '');
+                if (zapLimpo.startsWith('55') && (zapLimpo.length === 12 || zapLimpo.length === 13)) {
+                    zapLimpo = zapLimpo.substring(2);
+                }
+                zapSalvo = zapLimpo;
+                localStorage.setItem('litrao_cliente_whatsapp', zapLimpo);
+            }
+            if (nomeUrl) {
+                localStorage.setItem('litrao_cliente_nome', nomeUrl);
+            }
+            
             if (zapSalvo) {
                 clienteAtual.whatsapp = zapSalvo;
                 clienteAtual.nome = nomeSalvo || 'Cliente VIP';
                 atualizarDisplayClienteIdentificado();
             }
         }
-
+        
         function atualizarDisplayClienteIdentificado() {
             const btn = document.getElementById('btn-cliente-identificacao');
             const lbl = document.getElementById('label-cliente-identificado');
@@ -778,8 +795,25 @@
             // Localiza os selos do cliente nos dados do consultor ou no localStorage
             let selosAtuais = 0;
             if (clienteAtual.whatsapp) {
-                const zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
-                const cadastroCliente = (consultorAtual.fidelidadeClientes || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zapLimpo);
+                let zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
+                if (zapLimpo.startsWith('55') && (zapLimpo.length === 12 || zapLimpo.length === 13)) {
+                    zapLimpo = zapLimpo.substring(2);
+                }
+                const zap8 = zapLimpo.length >= 8 ? zapLimpo.slice(-8) : zapLimpo;
+
+                const cadastroCliente = (consultorAtual.fidelidadeClientes || []).find(c => {
+                    let cZap = String(c.whatsapp || '').replace(/\D/g, '');
+                    if (cZap.startsWith('55') && (cZap.length === 12 || cZap.length === 13)) {
+                        cZap = cZap.substring(2);
+                    }
+                    if (cZap && zapLimpo && cZap === zapLimpo) return true;
+                    if (zap8 && cZap && cZap.slice(-8) === zap8) return true;
+                    if (clienteAtual.nome && clienteAtual.nome !== 'Cliente VIP' && c.nome) {
+                        return c.nome.toLowerCase().trim() === clienteAtual.nome.toLowerCase().trim();
+                    }
+                    return false;
+                });
+
                 if (cadastroCliente) {
                     selosAtuais = parseInt(cadastroCliente.selos) || 0;
                     if (cadastroCliente.nome && (!clienteAtual.nome || clienteAtual.nome === 'Cliente VIP')) {
@@ -884,18 +918,93 @@
                 return;
             }
 
-            const zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
+            let zapLimpo = clienteAtual.whatsapp.replace(/\D/g, '');
+            if (zapLimpo.startsWith('55') && (zapLimpo.length === 12 || zapLimpo.length === 13)) {
+                zapLimpo = zapLimpo.substring(2);
+            }
+            const zap8 = zapLimpo.length >= 8 ? zapLimpo.slice(-8) : zapLimpo;
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('avaliacoes')
-                    .select('*')
-                    .ilike('whatsapp_cliente', `%${zapLimpo.slice(-8)}%`)
-                    .order('created_at', { ascending: false });
+                if (boxLoading) boxLoading.classList.remove('hidden');
+                if (boxVazio) boxVazio.classList.add('hidden');
+                if (boxLista) boxLista.classList.add('hidden');
+
+                // Busca as avaliações no Supabase
+                let resSupabase = null;
+
+                if (consultorAtual && consultorAtual.herbalife_id) {
+                    resSupabase = await supabaseClient
+                        .from('avaliacoes')
+                        .select('*')
+                        .eq('herbalife_id', consultorAtual.herbalife_id)
+                        .order('criado_em', { ascending: false });
+                }
+
+                if (!resSupabase || resSupabase.error || !resSupabase.data) {
+                    // Fallback flexível por whatsapp_cliente
+                    resSupabase = await supabaseClient
+                        .from('avaliacoes')
+                        .select('*')
+                        .ilike('whatsapp_cliente', `%${zap8}%`);
+                }
+
+                let data = (resSupabase && resSupabase.data) ? resSupabase.data : [];
 
                 if (boxLoading) boxLoading.classList.add('hidden');
 
-                if (error || !data || data.length === 0) {
+                if (!data || data.length === 0) {
+                    if (boxVazio) boxVazio.classList.remove('hidden');
+                    if (boxLista) boxLista.classList.add('hidden');
+                    return;
+                }
+
+                // Normaliza o nome do cliente logado se disponível
+                const nomeNormCliente = (clienteAtual.nome && clienteAtual.nome !== 'Cliente VIP') 
+                    ? clienteAtual.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '')
+                    : '';
+
+                // Filtra as avaliações deste cliente
+                const avaliacoesDoCliente = data.filter(av => {
+                    // Exclui pedidos que não possuem nenhuma medida física
+                    const isPedidoPuro = (av.codigo_acesso === 'PEDIDO') && !av.peso && !av.cintura && !av.abdomen;
+                    if (isPedidoPuro) return false;
+
+                    const wAvRaw = String(av.whatsapp_cliente || '').replace(/\D/g, '');
+                    let wAv = wAvRaw;
+                    if (wAv.startsWith('55') && (wAv.length === 12 || wAv.length === 13)) {
+                        wAv = wAv.substring(2);
+                    }
+
+                    // 1. Match por número de telefone (últimos 8 dígitos)
+                    if (zap8 && wAv) {
+                        const av8 = wAv.length >= 8 ? wAv.slice(-8) : wAv;
+                        if (av8 === zap8) return true;
+                    }
+
+                    // 2. Match por substring no campo whatsapp_cliente original (ex: "98141-1234")
+                    if (zap8 && av.whatsapp_cliente && String(av.whatsapp_cliente).includes(zap8)) {
+                        return true;
+                    }
+
+                    // 3. Match por nome completo normalizado
+                    if (nomeNormCliente && av.nome_cliente) {
+                        const avNomeNorm = String(av.nome_cliente).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+                        if (avNomeNorm && (avNomeNorm === nomeNormCliente || avNomeNorm.includes(nomeNormCliente) || nomeNormCliente.includes(avNomeNorm))) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+
+                // Ordena do mais recente para o mais antigo
+                avaliacoesDoCliente.sort((a, b) => {
+                    const tA = new Date(a.criado_em || a.created_at || 0).getTime();
+                    const tB = new Date(b.criado_em || b.created_at || 0).getTime();
+                    return tB - tA;
+                });
+
+                if (avaliacoesDoCliente.length === 0) {
                     if (boxVazio) boxVazio.classList.remove('hidden');
                     if (boxLista) boxLista.classList.add('hidden');
                     return;
@@ -906,44 +1015,129 @@
                     boxLista.classList.remove('hidden');
                     boxLista.innerHTML = '';
 
-                    data.forEach((av, idx) => {
-                        const dataFormatada = av.created_at ? new Date(av.created_at).toLocaleDateString('pt-BR') : 'Data não informada';
+                    avaliacoesDoCliente.forEach((av, idx) => {
+                        const rawData = av.criado_em || av.created_at;
+                        const dataFormatada = rawData ? new Date(rawData).toLocaleDateString('pt-BR') : 'Data recente';
+                        
+                        // Extrai dados diretos da bioimpedância (balança Omron / inteligente)
+                        let bioExtras = {};
+                        if (av.como_foi_semana && av.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                            try {
+                                const m = av.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                                if (m && m[1]) bioExtras = JSON.parse(m[1]);
+                            } catch(eBio) {}
+                        }
+
                         const cardAv = document.createElement('div');
-                        cardAv.className = "bg-slate-50 border border-slate-200 rounded-2xl p-4 transition hover:border-blue-300";
+                        cardAv.className = "bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs transition hover:shadow-md hover:border-blue-400";
+
+                        const pesoNum = av.peso ? parseFloat(String(av.peso).replace(',', '.')) : null;
+                        const pesoStr = pesoNum ? `${String(pesoNum).replace('.', ',')} kg` : null;
+                        
+                        const gorduraVal = bioExtras.gordura || av.gordura_corporal;
+                        const gorduraStr = gorduraVal ? `${String(gorduraVal).replace('.', ',')}%` : null;
+
+                        const musculoVal = bioExtras.musculo || av.massa_muscular;
+                        const musculoStr = musculoVal ? `${String(musculoVal).replace('.', ',')}%` : null;
+
+                        const visceralVal = bioExtras.visceral || av.gordura_visceral;
+                        const visceralStr = visceralVal ? `Nível ${visceralVal}` : null;
+
+                        const idadeVal = bioExtras.idade || av.idade_corporal;
+                        const idadeStr = idadeVal ? `${idadeVal} anos` : null;
+
+                        const tmbVal = bioExtras.tmb || av.metabolismo_basal;
+                        const tmbStr = tmbVal ? `${tmbVal} kcal` : null;
+
+                        let nomeExibicao = (av.nome_cliente || 'Sua Avaliação')
+                            .replace(/^\[(PEDIDO|INÍCIO|FINAL)\]\s*/i, '')
+                            .replace(/\s*\[(INÍCIO|FINAL)\]$/i, '');
 
                         cardAv.innerHTML = `
-                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2.5 mb-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black text-xs">
-                                        #${data.length - idx}
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-black text-xs shadow-2xs">
+                                        #${avaliacoesDoCliente.length - idx}
                                     </span>
                                     <div>
-                                        <h5 class="font-extrabold text-sm text-slate-900">${av.nome_cliente || 'Sua Avaliação'}</h5>
-                                        <span class="text-[10px] text-slate-500 font-medium"><i class="fa-solid fa-calendar mr-1"></i> ${dataFormatada}</span>
+                                        <h5 class="font-extrabold text-sm text-slate-900">${nomeExibicao}</h5>
+                                        <span class="text-[11px] text-slate-500 font-semibold"><i class="fa-solid fa-calendar mr-1 text-slate-400"></i> ${dataFormatada}</span>
                                     </div>
                                 </div>
-                                <span class="bg-blue-50 text-blue-700 border border-blue-200 font-extrabold text-xs px-2.5 py-1 rounded-lg">
-                                    ${av.peso ? `${av.peso} kg` : 'Sem peso'}
-                                </span>
+                                ${pesoStr ? `
+                                    <div class="text-right">
+                                        <span class="bg-blue-600 text-white font-black text-xs sm:text-sm px-3 py-1 rounded-xl shadow-2xs inline-block">
+                                            ${pesoStr}
+                                        </span>
+                                    </div>
+                                ` : ''}
                             </div>
 
+                            <!-- Métricas de Bioimpedância & Corporais -->
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Cintura:</span>
-                                    <span class="font-black text-slate-800">${av.cintura ? `${av.cintura} cm` : '---'}</span>
-                                </div>
-                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Abdômen:</span>
-                                    <span class="font-black text-slate-800">${av.abdomen ? `${av.abdomen} cm` : '---'}</span>
-                                </div>
-                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Quadril:</span>
-                                    <span class="font-black text-slate-800">${av.quadril ? `${av.quadril} cm` : '---'}</span>
-                                </div>
-                                <div class="bg-white p-2.5 rounded-xl border border-slate-200/80">
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400">Busto/Tórax:</span>
-                                    <span class="font-black text-slate-800">${av.busto ? `${av.busto} cm` : '---'}</span>
-                                </div>
+                                ${gorduraStr ? `
+                                    <div class="bg-blue-50/60 p-2.5 rounded-xl border border-blue-200/70">
+                                        <span class="block text-[10px] uppercase font-bold text-blue-800 flex items-center gap-1">
+                                            <i class="fa-solid fa-fire text-blue-500"></i> % Gordura:
+                                        </span>
+                                        <span class="font-black text-blue-950 text-sm mt-0.5 block">${gorduraStr}</span>
+                                    </div>
+                                ` : ''}
+
+                                ${musculoStr ? `
+                                    <div class="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200/70">
+                                        <span class="block text-[10px] uppercase font-bold text-emerald-800 flex items-center gap-1">
+                                            <i class="fa-solid fa-dumbbell text-emerald-500"></i> % Músculo:
+                                        </span>
+                                        <span class="font-black text-emerald-950 text-sm mt-0.5 block">${musculoStr}</span>
+                                    </div>
+                                ` : ''}
+
+                                ${visceralStr ? `
+                                    <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/70">
+                                        <span class="block text-[10px] uppercase font-bold text-amber-800 flex items-center gap-1">
+                                            <i class="fa-solid fa-gauge-high text-amber-500"></i> Gordura Visceral:
+                                        </span>
+                                        <span class="font-black text-amber-950 text-sm mt-0.5 block">${visceralStr}</span>
+                                    </div>
+                                ` : ''}
+
+                                ${idadeStr ? `
+                                    <div class="bg-indigo-50/60 p-2.5 rounded-xl border border-indigo-200/70">
+                                        <span class="block text-[10px] uppercase font-bold text-indigo-800 flex items-center gap-1">
+                                            <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i> Idade Corporal:
+                                        </span>
+                                        <span class="font-black text-indigo-950 text-sm mt-0.5 block">${idadeStr}</span>
+                                    </div>
+                                ` : ''}
+
+                                ${av.cintura ? `
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                                        <span class="block text-[10px] uppercase font-bold text-slate-500">Cintura:</span>
+                                        <span class="font-black text-slate-800 text-sm mt-0.5 block">${av.cintura} cm</span>
+                                    </div>
+                                ` : ''}
+
+                                ${av.abdomen ? `
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                                        <span class="block text-[10px] uppercase font-bold text-slate-500">Abdômen:</span>
+                                        <span class="font-black text-slate-800 text-sm mt-0.5 block">${av.abdomen} cm</span>
+                                    </div>
+                                ` : ''}
+
+                                ${av.quadril ? `
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                                        <span class="block text-[10px] uppercase font-bold text-slate-500">Quadril:</span>
+                                        <span class="font-black text-slate-800 text-sm mt-0.5 block">${av.quadril} cm</span>
+                                    </div>
+                                ` : ''}
+
+                                ${tmbStr ? `
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                                        <span class="block text-[10px] uppercase font-bold text-slate-500">Metabolismo:</span>
+                                        <span class="font-black text-slate-800 text-sm mt-0.5 block">${tmbStr}</span>
+                                    </div>
+                                ` : ''}
                             </div>
                         `;
                         boxLista.appendChild(cardAv);
@@ -955,7 +1149,7 @@
                 if (boxVazio) boxVazio.classList.remove('hidden');
             }
         }
-
+        
         // 6. CARREGA PRODUTOS FECHADOS DA HERBALIFE
         async function carregarProdutosFechados() {
             try {

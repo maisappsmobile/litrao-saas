@@ -15043,23 +15043,17 @@
             const meta = parseInt(regra.meta) || 10;
             const descLower = (regra.descricao || '').toLowerCase();
 
-            // Tipos de critérios identificados nas regras do consultor
-            const buscaBio = descLower.includes('bioimped') || descLower.includes('avalia');
-            const buscaShake = descLower.includes('shake');
-            const buscaLitrao = descLower.includes('litr') || descLower.includes('reset');
-            const buscaProdutoFechado = descLower.includes('fechado') || descLower.includes('catálogo') || descLower.includes('catalogo');
-
-            // 1. Agrupa todas as avaliações e pedidos por cliente único
+            // 1. Agrupa todas as avaliações e pedidos por cliente único (padronizando whatsapp sem 55)
             const gruposHistoricoMap = new Map();
 
             todasAvaliacoesCache.forEach(item => {
-                let w = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                let w = extrairWhatsappPadrao(item);
                 if (w.length < 8 || (item.whatsapp_cliente && item.whatsapp_cliente.toLowerCase().includes('sem whats'))) {
                     w = '';
                 }
 
                 let n = (item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '').trim();
-                const chave = w ? `w_${w}` : (n ? `n_${normalizarNomeCliente(n)}` : null);
+                const chave = w ? `w_${w.slice(-8)}` : (n ? `n_${normalizarNomeCliente(n)}` : null);
                 if (!chave) return;
 
                 if (!gruposHistoricoMap.has(chave)) {
@@ -15100,11 +15094,13 @@
                     const resumoHistorico = partes.join(' • ') || `${totalRegistros} compras/visitas`;
 
                     const zapLimpo = dadosCli.whatsapp;
-                    // Procura se o cliente já existe em fidelidadeClientesCache
+                    const zap8 = zapLimpo.length >= 8 ? zapLimpo.slice(-8) : zapLimpo;
+
+                    // Procura se o cliente já existe em fidelidadeClientesCache (com ou sem 55 ou por nome)
                     let existente = (fidelidadeClientesCache || []).find(c => {
-                        if (zapLimpo && c.whatsapp) {
-                            return String(c.whatsapp).replace(/\D/g, '') === zapLimpo;
-                        }
+                        let cZap = String(c.whatsapp || '').replace(/\D/g, '');
+                        if (cZap.startsWith('55') && (cZap.length === 12 || cZap.length === 13)) cZap = cZap.substring(2);
+                        if (zap8 && cZap && cZap.slice(-8) === zap8) return true;
                         return normalizarNomeCliente(c.nome) === normalizarNomeCliente(dadosCli.nome);
                     });
 
@@ -15112,25 +15108,22 @@
                         if ((!existente.nome || existente.nome === 'Cliente') && dadosCli.nome) {
                             existente.nome = dadosCli.nome;
                         }
-                        if (!existente.whatsapp && zapLimpo) {
+                        if (zapLimpo) {
                             existente.whatsapp = zapLimpo;
                         }
                         existente.historicoOrigem = resumoHistorico;
                         existente.totalHistorico = totalRegistros;
                         
-                        // IMPORTANTE: Os selos são SOMENTE MANUAIS! Nunca sobrescreve ou soma no automático.
-                        // Se for forçado ou recarregado, preserva estritamente os selos manuais que o consultor já carimbou.
                         if (typeof existente.selos === 'undefined' || existente.selos === null) {
                             existente.selos = 0;
                         }
                         atualizadosCount++;
                     } else {
-                        // Novo cliente identificado do histórico: entra na lista com 0 selos para o consultor carimbar no manual!
                         if (!fidelidadeClientesCache) fidelidadeClientesCache = [];
                         fidelidadeClientesCache.push({
                             nome: dadosCli.nome || 'Cliente',
                             whatsapp: zapLimpo || '',
-                            selos: 0, // Carimbo exclusivamente manual pelo consultor
+                            selos: 0,
                             historicoOrigem: resumoHistorico,
                             totalHistorico: totalRegistros,
                             sincronizadoAutomatico: true,
@@ -15141,7 +15134,34 @@
                 }
             });
 
-            // Ordenação: quem tem mais selos ou já completou a meta aparece no topo
+            // 3. UNIFICA DUPLICATAS NA TABELA (caso já existissem registros com e sem 55)
+            const mapaUnicos = new Map();
+            (fidelidadeClientesCache || []).forEach(cli => {
+                let cZap = String(cli.whatsapp || '').replace(/\D/g, '');
+                if (cZap.startsWith('55') && (cZap.length === 12 || cZap.length === 13)) {
+                    cZap = cZap.substring(2);
+                }
+                const cNome = normalizarNomeCliente(cli.nome);
+                const chave = (cZap && cZap.length >= 8) ? `w_${cZap.slice(-8)}` : `n_${cNome}`;
+
+                if (!mapaUnicos.has(chave)) {
+                    cli.whatsapp = cZap;
+                    mapaUnicos.set(chave, cli);
+                } else {
+                    const existente = mapaUnicos.get(chave);
+                    const s1 = parseInt(existente.selos, 10) || 0;
+                    const s2 = parseInt(cli.selos, 10) || 0;
+                    existente.selos = Math.max(s1, s2);
+                    if ((!existente.nome || existente.nome === 'Cliente') && cli.nome) existente.nome = cli.nome;
+                    if (cli.historicoOrigem && (!existente.historicoOrigem || existente.historicoOrigem.includes('0'))) {
+                        existente.historicoOrigem = cli.historicoOrigem;
+                    }
+                    if (cli.observacoes && !existente.observacoes) existente.observacoes = cli.observacoes;
+                }
+            });
+            fidelidadeClientesCache = Array.from(mapaUnicos.values());
+
+            // Ordenação: quem tem mais selos no topo
             if (fidelidadeClientesCache && fidelidadeClientesCache.length > 0) {
                 fidelidadeClientesCache.sort((a, b) => {
                     const selA = parseInt(a.selos, 10) || 0;
@@ -15567,14 +15587,33 @@
             // Histórico de Bioimpedâncias de todasAvaliacoesCache
             const listaBioEl = document.getElementById('ficha-cli-lista-bio');
             if (listaBioEl) {
+                let cliZap = zapLimpo;
+                if (cliZap.startsWith('55') && (cliZap.length === 12 || cliZap.length === 13)) cliZap = cliZap.substring(2);
+                const zap8 = cliZap.length >= 8 ? cliZap.slice(-8) : cliZap;
+
                 const registros = (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) 
                     ? todasAvaliacoesCache.filter(item => {
-                        const itemZap = (item.whatsapp_cliente || '').replace(/\D/g, '');
-                        if (zapLimpo && itemZap) return itemZap === zapLimpo;
-                        return (item.nome_cliente || '').toLowerCase().trim() === (cliente.nome || '').toLowerCase().trim();
+                        let itemZap = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                        if (itemZap.startsWith('55') && (itemZap.length === 12 || itemZap.length === 13)) itemZap = itemZap.substring(2);
+
+                        if (zap8 && itemZap) {
+                            if (itemZap.slice(-8) === zap8) return true;
+                        }
+                        if (zap8 && item.whatsapp_cliente && String(item.whatsapp_cliente).includes(zap8)) return true;
+
+                        const n1 = (item.nome_cliente || '').replace(/^\[PEDIDO\]\s*/i, '').toLowerCase().trim();
+                        const n2 = (cliente.nome || '').replace(/^\[PEDIDO\]\s*/i, '').toLowerCase().trim();
+                        return n1 && n2 && (n1 === n2 || n1.includes(n2) || n2.includes(n1));
                     })
                     : [];
                     
+                // Ordena por data decrescente
+                registros.sort((a, b) => {
+                    const tA = new Date(a.criado_em || a.created_at || 0).getTime();
+                    const tB = new Date(b.criado_em || b.created_at || 0).getTime();
+                    return tB - tA;
+                });
+
                 if (registros.length === 0) {
                     listaBioEl.innerHTML = `
                         <div class="p-4 text-center text-slate-400 bg-slate-50 border border-slate-200 rounded-2xl">
@@ -15584,10 +15623,11 @@
                         </div>
                     `;
                 } else {
-                    let htmlBio = '<div class="space-y-2 max-h-56 overflow-y-auto pr-1">';
+                    let htmlBio = '<div class="space-y-2 max-h-64 overflow-y-auto pr-1">';
                     registros.forEach((r, idx) => {
-                        const dataFormatada = r.created_at ? new Date(r.created_at).toLocaleDateString('pt-BR') : `Registro #${registros.length - idx}`;
-                        const isPed = (r.nome_cliente || '').startsWith('[PEDIDO]') || (r.observacoes || '').includes('[PEDIDO]');
+                        const rawData = r.criado_em || r.created_at;
+                        const dataFormatada = rawData ? new Date(rawData).toLocaleDateString('pt-BR') : `Registro #${registros.length - idx}`;
+                        const isPed = isItemPedido(r);
                         
                         if (isPed) {
                             htmlBio += `
@@ -15596,36 +15636,50 @@
                                         <span class="font-black text-amber-950 flex items-center gap-1.5">
                                             <i class="fa-solid fa-bag-shopping text-amber-600"></i> Pedido de Produtos / Shakes
                                         </span>
-                                        <p class="text-[11px] text-slate-600 mt-0.5">${r.observacoes || r.nome_cliente || 'Pedido no EVS'}</p>
+                                        <p class="text-[11px] text-slate-600 mt-0.5">${r.como_foi_semana || r.observacoes || r.nome_cliente || 'Pedido no EVS'}</p>
                                     </div>
                                     <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">${dataFormatada}</span>
                                 </div>
                             `;
                         } else {
+                            let bioExtras = {};
+                            if (typeof extrairBioDiretaObjeto === 'function') {
+                                bioExtras = extrairBioDiretaObjeto(r);
+                            } else if (r.como_foi_semana && r.como_foi_semana.includes('<!--BIO_DADOS:')) {
+                                try {
+                                    const m = r.como_foi_semana.match(/<!--BIO_DADOS:(.*?)-->/);
+                                    if (m && m[1]) bioExtras = JSON.parse(m[1]);
+                                } catch(eBio) {}
+                            }
+
+                            const pesoStr = r.peso ? `${r.peso} kg` : '-';
+                            const gorduraStr = bioExtras.gordura ? `${bioExtras.gordura}%` : null;
+                            const musculoStr = bioExtras.musculo ? `${bioExtras.musculo}%` : null;
+
                             htmlBio += `
                                 <div class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs hover:border-emerald-300 transition">
-                                    <div class="flex items-center justify-between mb-1 pb-1 border-b border-slate-100">
+                                    <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100">
                                         <span class="font-black text-slate-900 flex items-center gap-1.5">
-                                            <i class="fa-solid fa-heart-pulse text-emerald-600"></i> Avaliação Corporal
+                                            <i class="fa-solid fa-heart-pulse text-emerald-600"></i> Avaliação Corporal #${registros.length - idx}
                                         </span>
-                                        <span class="text-[10px] font-mono font-bold text-slate-500">${dataFormatada}</span>
+                                        <span class="text-[10px] font-mono font-bold text-slate-500"><i class="fa-solid fa-calendar mr-1 text-slate-400"></i> ${dataFormatada}</span>
                                     </div>
                                     <div class="grid grid-cols-4 gap-1.5 text-center text-[11px]">
-                                        <div class="bg-slate-50 p-1 rounded-lg">
+                                        <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
                                             <span class="block text-[9px] text-slate-400 uppercase font-bold">Peso</span>
-                                            <strong class="text-slate-800">${r.peso ? `${r.peso} kg` : '-'}</strong>
+                                            <strong class="text-slate-900 font-extrabold">${pesoStr}</strong>
                                         </div>
-                                        <div class="bg-slate-50 p-1 rounded-lg">
-                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Cintura</span>
-                                            <strong class="text-slate-800">${r.cintura ? `${r.cintura} cm` : '-'}</strong>
+                                        <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">${gorduraStr ? '% Gordura' : 'Cintura'}</span>
+                                            <strong class="text-slate-800 font-bold">${gorduraStr || (r.cintura ? `${r.cintura} cm` : '-')}</strong>
                                         </div>
-                                        <div class="bg-slate-50 p-1 rounded-lg">
-                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Abdômen</span>
-                                            <strong class="text-slate-800">${r.abdomen ? `${r.abdomen} cm` : '-'}</strong>
+                                        <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">${musculoStr ? '% Músculo' : 'Abdômen'}</span>
+                                            <strong class="text-slate-800 font-bold">${musculoStr || (r.abdomen ? `${r.abdomen} cm` : '-')}</strong>
                                         </div>
-                                        <div class="bg-slate-50 p-1 rounded-lg">
-                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">IMC</span>
-                                            <strong class="text-emerald-700 font-black">${r.imc || '-'}</strong>
+                                        <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Quadril</span>
+                                            <strong class="text-slate-800 font-bold">${r.quadril ? `${r.quadril} cm` : '-'}</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -15732,9 +15786,13 @@
         window.salvarEdicaoCadastroClienteFicha = salvarEdicaoCadastroClienteFicha;
 
         function obterLinkPortalClientePara(zap) {
-            const slug = (consultorAtual && consultorAtual.slug) ? consultorAtual.slug : '433005811bra';
+            let zapNorm = String(zap || '').replace(/\D/g, '');
+            if (zapNorm.startsWith('55') && (zapNorm.length === 12 || zapNorm.length === 13)) {
+                zapNorm = zapNorm.substring(2);
+            }
+            const slug = (consultorAtual && consultorAtual.slug) ? consultorAtual.slug : ((consultorAtual && consultorAtual.herbalife_id) ? consultorAtual.herbalife_id : '433005811bra');
             const baseUrl = window.location.origin + window.location.pathname.replace(/painel\.html.*/i, 'cliente.html');
-            return `${baseUrl}?c=${encodeURIComponent(slug)}&w=${encodeURIComponent(zap)}`;
+            return `${baseUrl}?c=${encodeURIComponent(slug)}&w=${encodeURIComponent(zapNorm)}`;
         }
         window.obterLinkPortalClientePara = obterLinkPortalClientePara;
 
