@@ -3253,11 +3253,16 @@
                     <!-- ABA 1: CARIMBAR & CLIENTES -->
                     <div id="aba-conteudo-clientes" class="space-y-5">
                         
-                        <!-- FORMULÃRIO RÃPIDO PARA CARIMBAR OU CADASTRAR CLIENTE -->
-                        <div class="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200 p-4 sm:p-5 rounded-2xl">
-                            <span class="block text-xs font-black text-emerald-950 uppercase mb-2 flex items-center gap-1.5">
-                                <i class="fa-solid fa-plus-circle text-emerald-600"></i> Carimbar / Adicionar Selo ao Cliente
-                            </span>
+                        <!-- FORMULÁRIO RÁPIDO PARA CADASTRAR OU CARIMBAR CLIENTE -->
+                        <div class="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200 p-4 sm:p-5 rounded-2xl shadow-2xs">
+                            <div class="flex items-center justify-between mb-2.5 flex-wrap gap-2">
+                                <span class="block text-xs font-black text-emerald-950 uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-plus text-emerald-600"></i> Cadastrar Cliente ou Adicionar Selo
+                                </span>
+                                <button type="button" onclick="abrirModalCadastroCompletoCliente()" class="text-xs font-black text-emerald-800 hover:text-emerald-950 bg-white hover:bg-emerald-50 border border-emerald-300 px-3 py-1 rounded-xl shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-id-card text-emerald-600"></i> + Cadastro Completo com Notas
+                                </button>
+                            </div>
                             
                             <form onsubmit="adicionarOuCarimbarClienteFidelidade(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
                                 <div class="sm:col-span-5">
@@ -3266,36 +3271,71 @@
                                 <div class="sm:col-span-4">
                                     <input type="tel" id="novo-cliente-zap" required placeholder="WhatsApp com DDD" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono">
                                 </div>
-                                <div class="sm:col-span-3">
-                                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm cursor-pointer whitespace-nowrap">
+                                <div class="sm:col-span-3 flex items-center gap-1.5">
+                                    <button type="button" onclick="cadastrarClienteSemSelo()" class="flex-1 bg-white hover:bg-emerald-100 border border-emerald-400 text-emerald-900 font-black py-2.5 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-2xs cursor-pointer whitespace-nowrap" title="Cadastrar cliente na lista com 0 selos">
+                                        <i class="fa-solid fa-user-plus text-emerald-600"></i> <span>Cadastrar</span>
+                                    </button>
+                                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm cursor-pointer whitespace-nowrap" title="Cadastrar e dar +1 Selo imediatamente">
                                         <i class="fa-solid fa-stamp"></i> <span>+1 Selo</span>
                                     </button>
                                 </div>
                             </form>
                         </div>
 
-                        <!-- BARRA DE BUSCA E SINCRONIZAÇÃO AUTOMÁTICA DO HISTÓRICO -->
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                            <div class="relative flex-1">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                                <input type="text" id="busca-cliente-fidelidade" oninput="renderizarTabelaClientesFidelidade(this.value)" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <!-- BARRA DE BUSCA, SINCRONIZAÇÃO E CONTROLE DE VISUALIZAÇÃO DE COLUNAS -->
+                        <div class="space-y-2.5">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                                <div class="relative flex-1">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                                    <input type="text" id="busca-cliente-fidelidade" oninput="renderizarTabelaClientesFidelidade(this.value)" placeholder="Buscar cliente por nome ou WhatsApp..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <button type="button" onclick="forcarSincronizacaoFidelidadeHistorico()" id="btn-sync-fidelidade" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-black px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs" title="Sincronizar clientes que compraram produtos ou fizeram bioimpedâncias no histórico">
+                                        <i class="fa-solid fa-arrows-rotate text-emerald-600" id="icone-btn-sync-fidelidade"></i>
+                                        <span>Sincronizar Histórico</span>
+                                    </button>
+                                    <span id="contador-total-clientes-fidelidade" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-2 rounded-xl whitespace-nowrap">
+                                        0 clientes
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="forcarSincronizacaoFidelidadeHistorico()" id="btn-sync-fidelidade" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-black px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs" title="Sincronizar clientes que compraram produtos ou fizeram bioimpedâncias no histórico">
-                                    <i class="fa-solid fa-arrows-rotate text-emerald-600" id="icone-btn-sync-fidelidade"></i>
-                                    <span>Sincronizar Histórico</span>
-                                </button>
-                                <span id="contador-total-clientes-fidelidade" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-2 rounded-xl whitespace-nowrap">
-                                    0 clientes
-                                </span>
+
+                            <!-- CONTROLES DE ESCOLHA DE EXIBIÇÃO (CLIENTE | SELOS/META | PROGRESSO) -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/90 border border-slate-200 p-2.5 rounded-xl text-xs">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1 mr-1">
+                                        <i class="fa-solid fa-table-columns text-emerald-600"></i> Exibir Colunas:
+                                    </span>
+                                    <button type="button" onclick="alternarColunaFidelidade('cliente')" id="btn-col-cliente" class="px-2.5 py-1 rounded-lg font-bold text-xs transition border flex items-center gap-1 bg-emerald-600 text-white border-emerald-700 shadow-2xs cursor-pointer">
+                                        <i class="fa-solid fa-check text-[10px]"></i> <span>Cliente</span>
+                                    </button>
+                                    <button type="button" onclick="alternarColunaFidelidade('selos')" id="btn-col-selos" class="px-2.5 py-1 rounded-lg font-bold text-xs transition border flex items-center gap-1 bg-emerald-600 text-white border-emerald-700 shadow-2xs cursor-pointer">
+                                        <i class="fa-solid fa-check text-[10px]"></i> <span>Selos / Meta</span>
+                                    </button>
+                                    <button type="button" onclick="alternarColunaFidelidade('progresso')" id="btn-col-progresso" class="px-2.5 py-1 rounded-lg font-bold text-xs transition border flex items-center gap-1 bg-emerald-600 text-white border-emerald-700 shadow-2xs cursor-pointer">
+                                        <i class="fa-solid fa-check text-[10px]"></i> <span>Progresso</span>
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-bold text-slate-500 whitespace-nowrap">Filtrar:</span>
+                                    <select id="filtro-status-fidelidade" onchange="renderizarTabelaClientesFidelidade()" class="bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer">
+                                        <option value="todos">Todos os Clientes</option>
+                                        <option value="concluidos">🎉 Meta Concluída (100%)</option>
+                                        <option value="andamento">⭐ Em Andamento (> 0 selos)</option>
+                                        <option value="zerados">⚪ Sem Selos (0 selos)</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- BANNER INFORMATIVO: CARIMBO 100% MANUAL -->
+                        <!-- BANNER INFORMATIVO: CARIMBO 100% MANUAL & CLIQUE PARA VER FICHA -->
                         <div id="banner-fidelidade-sync-info" class="bg-emerald-50/90 border border-emerald-300 p-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-950 shadow-2xs">
                             <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-stamp text-emerald-600 text-sm shrink-0"></i>
-                                <span id="texto-banner-fidelidade-sync"><strong>Carimbo 100% Manual:</strong> Seus clientes do histórico aparecem listados para você carimbar selos com 1 clique no botão <strong>+ Selo</strong>!</span>
+                                <i class="fa-solid fa-circle-info text-emerald-600 text-sm shrink-0"></i>
+                                <span id="texto-banner-fidelidade-sync">
+                                    <strong>Dica:</strong> Clique em qualquer cliente na lista para abrir sua <strong>Ficha Completa</strong> (histórico corporal, pedidos, link do portal e anotações)!
+                                </span>
                             </div>
                             <button type="button" onclick="document.getElementById('banner-fidelidade-sync-info').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-xs p-1 ml-2 cursor-pointer">
                                 <i class="fa-solid fa-xmark"></i>
@@ -3306,7 +3346,7 @@
                         <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-xs">
-                                    <thead class="bg-slate-100 text-slate-700 font-black uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                    <thead id="tabela-clientes-fidelidade-cabecalho" class="bg-slate-100 text-slate-700 font-black uppercase text-[10px] tracking-wider border-b border-slate-200">
                                         <tr>
                                             <th class="p-3">Cliente</th>
                                             <th class="p-3">Selos / Meta</th>
@@ -3489,7 +3529,254 @@
             </div>
         </div>
         <!-- MODAL RÃPIDO PARA MUDAR O PLANO DO CONSULTOR NO MANUAL (SUPERADMIN) -->
-        <div id="modal-mudar-plano-consultor-rapido" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        
+        <!-- MODAL: FICHA COMPLETA DO CLIENTE & HISTÓRICO DETALHADO -->
+        <div id="modal-ficha-cliente-fidelidade" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-[70] flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in overflow-y-auto">
+            <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-emerald-200 relative overflow-hidden my-auto max-h-[92vh] flex flex-col">
+                
+                <!-- TOPO / CABEÇALHO DA FICHA -->
+                <div class="p-4 sm:p-5 border-b border-emerald-100 bg-gradient-to-r from-emerald-800 via-emerald-700 to-slate-900 text-white flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white flex items-center justify-center text-xl font-black shadow-inner shrink-0">
+                            <i class="fa-solid fa-user-check text-amber-300"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 id="ficha-cli-nome" class="text-base sm:text-lg font-black text-white leading-tight truncate">Nome do Cliente</h3>
+                                <span class="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ficha do Cliente</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1 text-xs text-emerald-200 font-medium flex-wrap">
+                                <span id="ficha-cli-zap" class="font-mono font-bold text-white">WhatsApp</span>
+                                <span>•</span>
+                                <span id="ficha-cli-origem" class="text-emerald-300 truncate max-w-[200px]">Histórico</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a id="ficha-cli-zap-link" href="#" target="_blank" class="w-9 h-9 rounded-xl bg-green-500 hover:bg-green-600 text-white flex items-center justify-center text-base transition shadow-sm" title="Conversar no WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                        <button type="button" onclick="fecharFichaDetalhesClienteFidelidade()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-base transition cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CORPO DA FICHA COM SCROLL -->
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
+                    
+                    <!-- CARTÃO FIDELIDADE STATUS & SELOS -->
+                    <div class="bg-gradient-to-br from-emerald-50 via-white to-amber-50/40 border border-emerald-200 p-4 sm:p-5 rounded-2xl shadow-2xs space-y-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-md">
+                                    Cartão Fidelidade Digital
+                                </span>
+                                <h4 class="text-sm sm:text-base font-black text-slate-900 mt-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-star text-amber-500"></i> <span id="ficha-cli-selos-txt">0 / 10 Selos</span>
+                                </h4>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 font-bold block">Prêmio do Cartão:</span>
+                                <span id="ficha-cli-premio-txt" class="text-xs font-black text-emerald-700">1 Shake Especial Grátis</span>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Progresso -->
+                        <div>
+                            <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div id="ficha-cli-barra" class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                            </div>
+                            <span id="ficha-cli-pct-txt" class="text-[11px] font-bold text-slate-500 block mt-1">0% concluído</span>
+                        </div>
+
+                        <!-- Grade Visual das Bolinhas / Selos -->
+                        <div id="ficha-cli-grade-selos" class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap py-2 border-y border-emerald-100">
+                            <!-- Gerado dinamicamente -->
+                        </div>
+
+                        <!-- Botão de Resgate de Prêmio se Atingiu a Meta -->
+                        <div id="ficha-cli-box-resgate" class="hidden bg-amber-100/90 border border-amber-300 p-3 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-600 text-xl animate-bounce"></i>
+                                <div>
+                                    <strong class="text-xs text-amber-950 block">Parabéns! O cliente completou a meta!</strong>
+                                    <span class="text-[10px] text-amber-900">Clique ao lado para registrar a entrega do prêmio e reiniciar o cartão.</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="resgatarPremioNaFicha()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs shadow transition cursor-pointer">
+                                🏆 Resgatar
+                            </button>
+                        </div>
+
+                        <!-- Ações Rápidas de Carimbo na Ficha -->
+                        <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="carimbarSeloNaFicha()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs cursor-pointer">
+                                    <i class="fa-solid fa-plus text-xs"></i> <span>+1 Selo (Carimbar)</span>
+                                </button>
+                                <button type="button" onclick="removerSeloNaFicha()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-2 rounded-xl text-xs transition cursor-pointer" title="Remover 1 Selo">
+                                    <i class="fa-solid fa-minus text-xs"></i> <span>Remover Selo</span>
+                                </button>
+                            </div>
+                            <button type="button" onclick="enviarCartaoFidelidadeWhatsApp(clienteFichaAtivoZap)" class="bg-green-600 hover:bg-green-700 text-white font-black px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> <span>Enviar Cartão no WhatsApp</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PORTAL EXCLUSIVO DO CLIENTE -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-mobile-screen-button text-purple-600"></i> Portal Exclusivo do Cliente
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-bold">Acesso sem senha</span>
+                        </div>
+                        <p class="text-xs text-slate-600">
+                            Envie este link direto para o cliente ver seu cartão fidelidade, pesagens e catálogo no celular:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="ficha-cli-link-portal" readonly class="flex-1 p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-700 select-all focus:outline-none">
+                            <button type="button" onclick="copiarLinkPortalClienteFicha()" class="bg-slate-900 hover:bg-black text-white font-black px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-2xs">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
+                            <button type="button" onclick="abrirPortalClienteFicha()" class="bg-purple-600 hover:bg-purple-700 text-white font-black px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-2xs" title="Abrir como o cliente enxerga">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- HISTÓRICO DE BIOIMPEDÂNCIAS & MEDIDAS DO CLIENTE -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-weight-scale text-emerald-600"></i> Histórico de Bioimpedâncias & Pedidos
+                            </span>
+                        </div>
+                        <div id="ficha-cli-lista-bio">
+                            <!-- Gerado dinamicamente -->
+                        </div>
+                    </div>
+
+                    <!-- ANOTAÇÕES PRIVADAS DO CONSULTOR -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-note-sticky text-amber-500"></i> Anotações Privadas sobre o Cliente
+                            </span>
+                            <span id="ficha-cli-feedback-notas" class="hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                Salvo com sucesso!
+                            </span>
+                        </div>
+                        <textarea id="ficha-cli-obs" rows="2" placeholder="Ex: Gosta de shake de doce de leite com calda crocante. Quer perder 5kg até dezembro..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                        <div class="text-right">
+                            <button type="button" onclick="salvarNotasClienteFicha()" class="bg-slate-800 hover:bg-slate-900 text-white font-black px-3.5 py-1.5 rounded-xl text-xs transition cursor-pointer shadow-2xs">
+                                <i class="fa-solid fa-floppy-disk text-amber-300 mr-1"></i> Salvar Anotações
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- EDITAR DADOS DO CADASTRO (NOME / WHATSAPP) -->
+                    <div class="border-t border-slate-200 pt-4 space-y-3">
+                        <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-pen text-slate-500"></i> Corrigir / Editar Dados do Cliente
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                            <div class="sm:col-span-6">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Nome do Cliente</label>
+                                <input type="text" id="ficha-cli-edit-nome" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">WhatsApp (DDD + Número)</label>
+                                <input type="tel" id="ficha-cli-edit-zap" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                            <div class="sm:col-span-2 flex items-end">
+                                <button type="button" onclick="salvarEdicaoCadastroClienteFicha()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-black py-2 px-2 rounded-xl text-xs transition cursor-pointer text-center">
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER DA FICHA -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
+                    <button type="button" onclick="excluirClienteFidelidade(clienteFichaAtivoZap); fecharFichaDetalhesClienteFidelidade();" class="text-xs font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Cliente
+                    </button>
+                    <button type="button" onclick="fecharFichaDetalhesClienteFidelidade()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2 rounded-xl text-xs transition cursor-pointer">
+                        Fechar Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: CADASTRO COMPLETO DE NOVO CLIENTE -->
+        <div id="modal-cadastro-novo-cliente-fidelidade" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-[70] flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in overflow-y-auto">
+            <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-emerald-200 relative overflow-hidden my-auto flex flex-col">
+                
+                <!-- HEADER -->
+                <div class="p-4 sm:p-5 border-b border-emerald-100 bg-gradient-to-r from-emerald-800 to-slate-900 text-white flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-white leading-tight">Cadastrar Novo Cliente</h3>
+                            <p class="text-xs text-emerald-300 font-medium">Adicione ao seu Cartão Fidelidade e CRM</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalCadastroCompletoCliente()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-base transition cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- FORMULÁRIO -->
+                <form onsubmit="salvarCadastroCompletoCliente(event)" class="p-5 space-y-4">
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 mb-1">Nome Completo do Cliente *</label>
+                        <input type="text" id="cad-det-nome" required placeholder="Ex: Maria Eduarda Silva" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 mb-1">WhatsApp com DDD *</label>
+                        <input type="tel" id="cad-det-zap" required placeholder="Ex: 66998141123" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 mb-1">Selos Iniciais no Cartão</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="cad-det-selos" min="0" max="20" value="0" class="w-24 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800 text-center focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="document.getElementById('cad-det-selos').value = 0" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold">0</button>
+                                <button type="button" onclick="document.getElementById('cad-det-selos').value = 1" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold">+1</button>
+                                <button type="button" onclick="document.getElementById('cad-det-selos').value = 2" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold">+2</button>
+                                <button type="button" onclick="document.getElementById('cad-det-selos').value = 5" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold">+5</button>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Selecione quantos selos o cliente já inicia (padrão é 0).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 mb-1">Anotações / Gostos / Meta (Opcional)</label>
+                        <textarea id="cad-det-obs" rows="2" placeholder="Ex: Shake preferido, restrições, horários de visita..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" onclick="fecharModalCadastroCompletoCliente()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow cursor-pointer">
+                            <i class="fa-solid fa-user-plus"></i> Salvar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+<div id="modal-mudar-plano-consultor-rapido" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
             <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-purple-200 relative overflow-hidden">
                 
                 <!-- HEADER -->
@@ -14912,28 +15199,100 @@
         window.forcarSincronizacaoFidelidadeHistorico = forcarSincronizacaoFidelidadeHistorico;
 
         // GESTÃO DE CLIENTES & CARIMBOS
+        let fidelidadeColunasVisiveis = {
+            cliente: true,
+            selos: true,
+            progresso: true
+        };
+
+        try {
+            const salvaCols = localStorage.getItem('litrao_fidelidade_colunas');
+            if (salvaCols) {
+                fidelidadeColunasVisiveis = Object.assign(fidelidadeColunasVisiveis, JSON.parse(salvaCols));
+            }
+        } catch(e) {}
+
+        function alternarColunaFidelidade(coluna) {
+            if (typeof fidelidadeColunasVisiveis[coluna] === 'undefined') return;
+            const ativas = Object.values(fidelidadeColunasVisiveis).filter(Boolean).length;
+            if (ativas <= 1 && fidelidadeColunasVisiveis[coluna]) {
+                alert("Pelo menos uma coluna precisa ficar visível!");
+                return;
+            }
+            fidelidadeColunasVisiveis[coluna] = !fidelidadeColunasVisiveis[coluna];
+            try {
+                localStorage.setItem('litrao_fidelidade_colunas', JSON.stringify(fidelidadeColunasVisiveis));
+            } catch(e) {}
+            atualizarBotoesColunasFidelidade();
+            renderizarTabelaClientesFidelidade();
+        }
+        window.alternarColunaFidelidade = alternarColunaFidelidade;
+
+        function atualizarBotoesColunasFidelidade() {
+            const estilizar = (id, ativo, label) => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                if (ativo) {
+                    btn.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition border flex items-center gap-1 bg-emerald-600 text-white border-emerald-700 shadow-2xs cursor-pointer";
+                    btn.innerHTML = `<i class="fa-solid fa-check text-[10px]"></i> <span>${label}</span>`;
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg font-semibold text-xs transition border flex items-center gap-1 bg-slate-100 text-slate-500 border-slate-300 hover:bg-slate-200 cursor-pointer";
+                    btn.innerHTML = `<i class="fa-solid fa-eye-slash text-[10px]"></i> <span>${label}</span>`;
+                }
+            };
+            estilizar('btn-col-cliente', fidelidadeColunasVisiveis.cliente, 'Cliente');
+            estilizar('btn-col-selos', fidelidadeColunasVisiveis.selos, 'Selos / Meta');
+            estilizar('btn-col-progresso', fidelidadeColunasVisiveis.progresso, 'Progresso');
+        }
+        window.atualizarBotoesColunasFidelidade = atualizarBotoesColunasFidelidade;
+
         function renderizarTabelaClientesFidelidade(filtro = '') {
             const tbody = document.getElementById('tabela-clientes-fidelidade-corpo');
+            const theadEl = document.getElementById('tabela-clientes-fidelidade-cabecalho');
             const contadorEl = document.getElementById('contador-total-clientes-fidelidade');
             if (!tbody) return;
 
+            atualizarBotoesColunasFidelidade();
+
+            if (theadEl) {
+                let ths = '';
+                if (fidelidadeColunasVisiveis.cliente) ths += '<th class="p-3">Cliente</th>';
+                if (fidelidadeColunasVisiveis.selos) ths += '<th class="p-3">Selos / Meta</th>';
+                if (fidelidadeColunasVisiveis.progresso) ths += '<th class="p-3">Progresso</th>';
+                ths += '<th class="p-3 text-right">Ações Rápidas</th>';
+                theadEl.innerHTML = `<tr>${ths}</tr>`;
+            }
+
             tbody.innerHTML = '';
             const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
-            const termo = (filtro || '').trim().toLowerCase();
+            const termo = (filtro !== '' ? filtro : (document.getElementById('busca-cliente-fidelidade')?.value || '')).trim().toLowerCase();
 
             let lista = fidelidadeClientesCache || [];
             if (termo) {
                 lista = lista.filter(c => (c.nome || '').toLowerCase().includes(termo) || String(c.whatsapp || '').includes(termo));
             }
 
-            if (contadorEl) contadorEl.innerText = `${fidelidadeClientesCache.length} ${fidelidadeClientesCache.length === 1 ? 'cliente' : 'clientes'}`;
+            const filtroStatus = document.getElementById('filtro-status-fidelidade')?.value || 'todos';
+            if (filtroStatus === 'concluidos') {
+                lista = lista.filter(c => (parseInt(c.selos, 10) || 0) >= meta);
+            } else if (filtroStatus === 'andamento') {
+                lista = lista.filter(c => {
+                    const s = parseInt(c.selos, 10) || 0;
+                    return s > 0 && s < meta;
+                });
+            } else if (filtroStatus === 'zerados') {
+                lista = lista.filter(c => (parseInt(c.selos, 10) || 0) === 0);
+            }
+
+            if (contadorEl) contadorEl.innerText = `${lista.length} de ${(fidelidadeClientesCache || []).length} ${(fidelidadeClientesCache || []).length === 1 ? 'cliente' : 'clientes'}`;
 
             if (lista.length === 0) {
+                const colspan = Object.values(fidelidadeColunasVisiveis).filter(Boolean).length + 1;
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="p-8 text-center text-slate-400 font-semibold space-y-2">
+                        <td colspan="${colspan}" class="p-8 text-center text-slate-400 font-semibold space-y-2">
                             <i class="fa-solid fa-users text-2xl text-slate-300 block mb-1"></i>
-                            <span>${termo ? 'Nenhum cliente encontrado com esse termo.' : 'Nenhum cliente com compras ou presenças encontrado ainda.'}</span>
+                            <span>${termo ? 'Nenhum cliente encontrado com esse termo.' : 'Nenhum cliente encontrado nesta categoria.'}</span>
                             <div class="pt-2">
                                 <button type="button" onclick="forcarSincronizacaoFidelidadeHistorico()" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition cursor-pointer shadow-xs">
                                     <i class="fa-solid fa-arrows-rotate"></i> Buscar Clientes no Histórico Agora
@@ -14947,39 +15306,65 @@
 
             lista.forEach((c) => {
                 const zapLimpo = String(c.whatsapp || '').replace(/\D/g, '');
-                const selos = parseInt(c.selos) || 0;
+                const selos = parseInt(c.selos, 10) || 0;
                 const pct = Math.min(100, Math.round((selos / meta) * 100));
                 const atingiuMeta = selos >= meta;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.className = "hover:bg-emerald-50/40 transition border-b border-slate-100 group";
 
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <span class="font-extrabold text-slate-900 block truncate max-w-[170px]">${c.nome || 'Cliente'}</span>
-                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            <span class="text-[11px] font-mono text-slate-500">${zapLimpo ? formatarTelefoneExibicao(zapLimpo) : 'Sem WhatsApp'}</span>
-                            ${c.historicoOrigem ? `
-                                <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1" title="Origem detectada no histórico">
-                                    <i class="fa-solid fa-sparkles text-[8px] text-amber-500"></i> ${c.historicoOrigem}
-                                </span>
-                            ` : ''}
-                        </div>
-                    </td>
-                    <td class="p-3">
-                        <span class="font-black font-mono text-xs ${atingiuMeta ? 'text-amber-700 bg-amber-50 border border-amber-300 shadow-2xs' : 'text-emerald-700 bg-emerald-50 border border-emerald-200'} px-2.5 py-1 rounded-md inline-flex items-center gap-1.5">
-                            ${atingiuMeta ? '<i class="fa-solid fa-trophy text-amber-500 animate-bounce"></i>' : '<i class="fa-solid fa-star text-emerald-500"></i>'}
-                            ${selos} / ${meta} Selos
-                        </span>
-                    </td>
-                    <td class="p-3 w-32">
-                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                            <div class="${atingiuMeta ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-emerald-600'} h-full rounded-full transition-all" style="width: ${pct}%"></div>
-                        </div>
-                        <span class="text-[9px] ${atingiuMeta ? 'text-amber-700 font-black' : 'text-slate-400 font-bold'} block mt-0.5">
-                            ${atingiuMeta ? '🎉 Meta Concluída!' : `${pct}% concluído`}
-                        </span>
-                    </td>
+                let tds = '';
+                if (fidelidadeColunasVisiveis.cliente) {
+                    tds += `
+                        <td class="p-3 cursor-pointer" onclick="abrirFichaDetalhesClienteFidelidade('${zapLimpo}')" title="Clique para abrir a ficha completa deste cliente">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition shadow-2xs">
+                                    ${(c.nome || 'C').charAt(0).toUpperCase()}
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="font-extrabold text-slate-900 group-hover:text-emerald-700 transition block truncate max-w-[190px] flex items-center gap-1">
+                                        ${c.nome || 'Cliente'}
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-emerald-600 transition"></i>
+                                    </span>
+                                    <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                        <span class="text-[11px] font-mono text-slate-500 font-bold">${zapLimpo ? formatarTelefoneExibicao(zapLimpo) : 'Sem WhatsApp'}</span>
+                                        ${c.historicoOrigem ? `
+                                            <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1" title="Origem detectada no histórico">
+                                                <i class="fa-solid fa-sparkles text-[8px] text-amber-500"></i> ${c.historicoOrigem}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                }
+
+                if (fidelidadeColunasVisiveis.selos) {
+                    tds += `
+                        <td class="p-3 cursor-pointer" onclick="abrirFichaDetalhesClienteFidelidade('${zapLimpo}')" title="Clique para abrir a ficha completa">
+                            <span class="font-black font-mono text-xs ${atingiuMeta ? 'text-amber-700 bg-amber-50 border border-amber-300 shadow-2xs' : 'text-emerald-700 bg-emerald-50 border border-emerald-200'} px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5">
+                                ${atingiuMeta ? '<i class="fa-solid fa-trophy text-amber-500 animate-bounce"></i>' : '<i class="fa-solid fa-star text-emerald-500"></i>'}
+                                ${selos} / ${meta} Selos
+                            </span>
+                        </td>
+                    `;
+                }
+
+                if (fidelidadeColunasVisiveis.progresso) {
+                    tds += `
+                        <td class="p-3 w-32 cursor-pointer" onclick="abrirFichaDetalhesClienteFidelidade('${zapLimpo}')" title="Clique para abrir a ficha completa">
+                            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                <div class="${atingiuMeta ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-emerald-600'} h-full rounded-full transition-all" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="text-[9px] ${atingiuMeta ? 'text-amber-700 font-black' : 'text-slate-400 font-bold'} block mt-0.5">
+                                ${atingiuMeta ? '🎉 Meta Concluída!' : `${pct}% concluído`}
+                            </span>
+                        </td>
+                    `;
+                }
+
+                tds += `
                     <td class="p-3 text-right whitespace-nowrap">
                         <div class="inline-flex items-center gap-1">
                             <button type="button" onclick="adicionarSeloCliente('${zapLimpo}')" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer shadow-2xs flex items-center gap-1" title="Carimbar +1 Selo">
@@ -14993,6 +15378,9 @@
                                     <i class="fa-solid fa-trophy text-slate-950"></i> Resgatar
                                 </button>
                             ` : ''}
+                            <button type="button" onclick="abrirFichaDetalhesClienteFidelidade('${zapLimpo}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold p-1.5 rounded-lg text-xs transition cursor-pointer shadow-2xs" title="Ver Informações e Histórico do Cliente">
+                                <i class="fa-solid fa-id-card text-xs"></i>
+                            </button>
                             <button type="button" onclick="enviarCartaoFidelidadeWhatsApp('${zapLimpo}')" class="bg-green-600 hover:bg-green-700 text-white font-bold p-1.5 rounded-lg text-xs transition cursor-pointer shadow-2xs" title="Enviar Cartão no WhatsApp do Cliente">
                                 <i class="fa-brands fa-whatsapp text-sm"></i>
                             </button>
@@ -15002,10 +15390,369 @@
                         </div>
                     </td>
                 `;
+
+                tr.innerHTML = tds;
                 tbody.appendChild(tr);
             });
         }
         window.renderizarTabelaClientesFidelidade = renderizarTabelaClientesFidelidade;
+
+        async function cadastrarClienteSemSelo() {
+            const inNome = document.getElementById('novo-cliente-nome');
+            const inZap = document.getElementById('novo-cliente-zap');
+            if (!inNome || !inZap) return;
+
+            const nome = inNome.value.trim();
+            const zap = inZap.value.replace(/\D/g, '');
+
+            if (!nome) {
+                alert("Por favor, informe o nome do cliente.");
+                inNome.focus();
+                return;
+            }
+            if (zap.length < 10) {
+                alert("Por favor, informe um WhatsApp válido com DDD.");
+                inZap.focus();
+                return;
+            }
+
+            let existente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (existente) {
+                alert(`O cliente "${existente.nome}" já está cadastrado com este WhatsApp!`);
+                abrirFichaDetalhesClienteFidelidade(zap);
+                return;
+            }
+
+            const novoCliente = {
+                nome: nome,
+                whatsapp: zap,
+                selos: 0,
+                criadoEm: new Date().toISOString(),
+                ultimoCarimbo: null,
+                resgates: 0,
+                observacoes: ''
+            };
+
+            if (!fidelidadeClientesCache) fidelidadeClientesCache = [];
+            fidelidadeClientesCache.unshift(novoCliente);
+            inNome.value = '';
+            inZap.value = '';
+
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+            
+            const banner = document.getElementById('banner-fidelidade-sync-info');
+            const textoBanner = document.getElementById('texto-banner-fidelidade-sync');
+            if (banner && textoBanner) {
+                banner.classList.remove('hidden');
+                textoBanner.innerHTML = `✅ <strong>Cliente Cadastrado com Sucesso:</strong> "${nome}" foi adicionado(a) à sua lista com 0 selos. Clique no nome dele(a) para abrir a ficha completa!`;
+            }
+        }
+        window.cadastrarClienteSemSelo = cadastrarClienteSemSelo;
+
+        function abrirModalCadastroCompletoCliente() {
+            const modal = document.getElementById('modal-cadastro-novo-cliente-fidelidade');
+            if (!modal) return;
+            document.getElementById('cad-det-nome').value = document.getElementById('novo-cliente-nome')?.value || '';
+            document.getElementById('cad-det-zap').value = document.getElementById('novo-cliente-zap')?.value || '';
+            document.getElementById('cad-det-selos').value = '0';
+            document.getElementById('cad-det-obs').value = '';
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalCadastroCompletoCliente = abrirModalCadastroCompletoCliente;
+
+        function fecharModalCadastroCompletoCliente() {
+            const modal = document.getElementById('modal-cadastro-novo-cliente-fidelidade');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalCadastroCompletoCliente = fecharModalCadastroCompletoCliente;
+
+        async function salvarCadastroCompletoCliente(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const nome = document.getElementById('cad-det-nome').value.trim();
+            const zap = document.getElementById('cad-det-zap').value.replace(/\D/g, '');
+            const selosIniciais = parseInt(document.getElementById('cad-det-selos').value, 10) || 0;
+            const obs = document.getElementById('cad-det-obs').value.trim();
+
+            if (!nome) {
+                alert("Informe o nome completo do cliente.");
+                return;
+            }
+            if (zap.length < 10) {
+                alert("Informe um WhatsApp válido com DDD.");
+                return;
+            }
+
+            let existente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            if (existente) {
+                existente.nome = nome;
+                existente.selos = selosIniciais;
+                if (obs) existente.observacoes = obs;
+            } else {
+                if (!fidelidadeClientesCache) fidelidadeClientesCache = [];
+                fidelidadeClientesCache.unshift({
+                    nome: nome,
+                    whatsapp: zap,
+                    selos: selosIniciais,
+                    criadoEm: new Date().toISOString(),
+                    ultimoCarimbo: selosIniciais > 0 ? new Date().toISOString() : null,
+                    resgates: 0,
+                    observacoes: obs
+                });
+            }
+
+            fecharModalCadastroCompletoCliente();
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+            alert(`Cliente "${nome}" salvo com sucesso no Cartão Fidelidade!`);
+        }
+        window.salvarCadastroCompletoCliente = salvarCadastroCompletoCliente;
+
+        let clienteFichaAtivoZap = null;
+
+        function abrirFichaDetalhesClienteFidelidade(zap) {
+            const zapLimpo = String(zap || '').replace(/\D/g, '');
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zapLimpo);
+            if (!cliente) return;
+            
+            clienteFichaAtivoZap = zapLimpo;
+            const modal = document.getElementById('modal-ficha-cliente-fidelidade');
+            if (!modal) return;
+            
+            const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
+            const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial Grátis';
+            const selos = parseInt(cliente.selos, 10) || 0;
+            const pct = Math.min(100, Math.round((selos / meta) * 100));
+            const atingiuMeta = selos >= meta;
+            
+            // Preenche cabeçalho
+            document.getElementById('ficha-cli-nome').innerText = cliente.nome || 'Cliente';
+            document.getElementById('ficha-cli-zap').innerText = zapLimpo ? formatarTelefoneExibicao(zapLimpo) : 'Sem WhatsApp';
+            document.getElementById('ficha-cli-zap-link').href = zapLimpo ? `https://api.whatsapp.com/send?phone=55${zapLimpo}` : '#';
+            document.getElementById('ficha-cli-origem').innerText = cliente.historicoOrigem || 'Cliente do Cartão Fidelidade';
+            
+            // Preenche Cartão Fidelidade
+            document.getElementById('ficha-cli-selos-txt').innerText = `${selos} / ${meta} Selos`;
+            document.getElementById('ficha-cli-premio-txt').innerText = premio;
+            document.getElementById('ficha-cli-barra').style.width = `${pct}%`;
+            document.getElementById('ficha-cli-pct-txt').innerText = atingiuMeta ? '🎉 Meta Concluída!' : `${pct}% concluído (faltam ${Math.max(0, meta - selos)} selos)`;
+            
+            // Grade de bolinhas / selos
+            const gradeSelosEl = document.getElementById('ficha-cli-grade-selos');
+            if (gradeSelosEl) {
+                gradeSelosEl.innerHTML = '';
+                for (let i = 1; i <= meta; i++) {
+                    const carimbado = i <= selos;
+                    gradeSelosEl.innerHTML += `
+                        <div class="flex flex-col items-center">
+                            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-black text-xs sm:text-sm border-2 transition-all ${carimbado ? 'bg-gradient-to-tr from-amber-400 to-amber-500 border-amber-500 text-slate-950 shadow-sm scale-105' : 'bg-slate-100 border-dashed border-slate-300 text-slate-400'}">
+                                ${carimbado ? '<i class="fa-solid fa-star"></i>' : i}
+                            </div>
+                            <span class="text-[9px] mt-1 font-bold ${carimbado ? 'text-amber-700' : 'text-slate-400'}">Selo ${i}</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Botão Resgate
+            const boxResgate = document.getElementById('ficha-cli-box-resgate');
+            if (boxResgate) {
+                if (atingiuMeta) {
+                    boxResgate.classList.remove('hidden');
+                } else {
+                    boxResgate.classList.add('hidden');
+                }
+            }
+            
+            // Histórico de Bioimpedâncias de todasAvaliacoesCache
+            const listaBioEl = document.getElementById('ficha-cli-lista-bio');
+            if (listaBioEl) {
+                const registros = (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) 
+                    ? todasAvaliacoesCache.filter(item => {
+                        const itemZap = (item.whatsapp_cliente || '').replace(/\D/g, '');
+                        if (zapLimpo && itemZap) return itemZap === zapLimpo;
+                        return (item.nome_cliente || '').toLowerCase().trim() === (cliente.nome || '').toLowerCase().trim();
+                    })
+                    : [];
+                    
+                if (registros.length === 0) {
+                    listaBioEl.innerHTML = `
+                        <div class="p-4 text-center text-slate-400 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <i class="fa-solid fa-weight-scale text-xl text-slate-300 mb-1 block"></i>
+                            <p class="text-xs font-semibold text-slate-600">Nenhuma avaliação corporal registrada para este cliente ainda.</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Envie o link de bioimpedância para ele(a) preencher pelo celular!</p>
+                        </div>
+                    `;
+                } else {
+                    let htmlBio = '<div class="space-y-2 max-h-56 overflow-y-auto pr-1">';
+                    registros.forEach((r, idx) => {
+                        const dataFormatada = r.created_at ? new Date(r.created_at).toLocaleDateString('pt-BR') : `Registro #${registros.length - idx}`;
+                        const isPed = (r.nome_cliente || '').startsWith('[PEDIDO]') || (r.observacoes || '').includes('[PEDIDO]');
+                        
+                        if (isPed) {
+                            htmlBio += `
+                                <div class="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs flex items-center justify-between">
+                                    <div>
+                                        <span class="font-black text-amber-950 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bag-shopping text-amber-600"></i> Pedido de Produtos / Shakes
+                                        </span>
+                                        <p class="text-[11px] text-slate-600 mt-0.5">${r.observacoes || r.nome_cliente || 'Pedido no EVS'}</p>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">${dataFormatada}</span>
+                                </div>
+                            `;
+                        } else {
+                            htmlBio += `
+                                <div class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs hover:border-emerald-300 transition">
+                                    <div class="flex items-center justify-between mb-1 pb-1 border-b border-slate-100">
+                                        <span class="font-black text-slate-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-heart-pulse text-emerald-600"></i> Avaliação Corporal
+                                        </span>
+                                        <span class="text-[10px] font-mono font-bold text-slate-500">${dataFormatada}</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-1.5 text-center text-[11px]">
+                                        <div class="bg-slate-50 p-1 rounded-lg">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Peso</span>
+                                            <strong class="text-slate-800">${r.peso ? `${r.peso} kg` : '-'}</strong>
+                                        </div>
+                                        <div class="bg-slate-50 p-1 rounded-lg">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Cintura</span>
+                                            <strong class="text-slate-800">${r.cintura ? `${r.cintura} cm` : '-'}</strong>
+                                        </div>
+                                        <div class="bg-slate-50 p-1 rounded-lg">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">Abdômen</span>
+                                            <strong class="text-slate-800">${r.abdomen ? `${r.abdomen} cm` : '-'}</strong>
+                                        </div>
+                                        <div class="bg-slate-50 p-1 rounded-lg">
+                                            <span class="block text-[9px] text-slate-400 uppercase font-bold">IMC</span>
+                                            <strong class="text-emerald-700 font-black">${r.imc || '-'}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    htmlBio += '</div>';
+                    listaBioEl.innerHTML = htmlBio;
+                }
+            }
+            
+            // Link do Portal do Cliente
+            const linkPortal = obterLinkPortalClientePara(zapLimpo);
+            const inputLinkPortal = document.getElementById('ficha-cli-link-portal');
+            if (inputLinkPortal) inputLinkPortal.value = linkPortal;
+            
+            // Anotações
+            const textareaObs = document.getElementById('ficha-cli-obs');
+            if (textareaObs) textareaObs.value = cliente.observacoes || '';
+            
+            // Campos de Edição do Cadastro
+            const editNome = document.getElementById('ficha-cli-edit-nome');
+            const editZap = document.getElementById('ficha-cli-edit-zap');
+            if (editNome) editNome.value = cliente.nome || '';
+            if (editZap) editZap.value = zapLimpo;
+            
+            modal.classList.remove('hidden');
+        }
+        window.abrirFichaDetalhesClienteFidelidade = abrirFichaDetalhesClienteFidelidade;
+
+        function fecharFichaDetalhesClienteFidelidade() {
+            const modal = document.getElementById('modal-ficha-cliente-fidelidade');
+            if (modal) modal.classList.add('hidden');
+            clienteFichaAtivoZap = null;
+        }
+        window.fecharFichaDetalhesClienteFidelidade = fecharFichaDetalhesClienteFidelidade;
+
+        async function carimbarSeloNaFicha() {
+            if (!clienteFichaAtivoZap) return;
+            await adicionarSeloCliente(clienteFichaAtivoZap);
+            abrirFichaDetalhesClienteFidelidade(clienteFichaAtivoZap);
+        }
+        window.carimbarSeloNaFicha = carimbarSeloNaFicha;
+
+        async function removerSeloNaFicha() {
+            if (!clienteFichaAtivoZap) return;
+            await removerSeloCliente(clienteFichaAtivoZap);
+            abrirFichaDetalhesClienteFidelidade(clienteFichaAtivoZap);
+        }
+        window.removerSeloNaFicha = removerSeloNaFicha;
+
+        async function resgatarPremioNaFicha() {
+            if (!clienteFichaAtivoZap) return;
+            await resgatarPremioCliente(clienteFichaAtivoZap);
+            abrirFichaDetalhesClienteFidelidade(clienteFichaAtivoZap);
+        }
+        window.resgatarPremioNaFicha = resgatarPremioNaFicha;
+
+        async function salvarNotasClienteFicha() {
+            if (!clienteFichaAtivoZap) return;
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === clienteFichaAtivoZap);
+            if (!cliente) return;
+            
+            const obs = document.getElementById('ficha-cli-obs')?.value.trim() || '';
+            cliente.observacoes = obs;
+            
+            await sincronizarPortalEFidelidadeNoSupabase();
+            
+            const fb = document.getElementById('ficha-cli-feedback-notas');
+            if (fb) {
+                fb.classList.remove('hidden');
+                setTimeout(() => fb.classList.add('hidden'), 2500);
+            }
+        }
+        window.salvarNotasClienteFicha = salvarNotasClienteFicha;
+
+        async function salvarEdicaoCadastroClienteFicha() {
+            if (!clienteFichaAtivoZap) return;
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === clienteFichaAtivoZap);
+            if (!cliente) return;
+            
+            const novoNome = document.getElementById('ficha-cli-edit-nome')?.value.trim();
+            const novoZap = document.getElementById('ficha-cli-edit-zap')?.value.replace(/\D/g, '');
+            
+            if (!novoNome) {
+                alert("O nome não pode ficar vazio!");
+                return;
+            }
+            if (novoZap.length < 10) {
+                alert("Informe um WhatsApp válido com DDD.");
+                return;
+            }
+            
+            cliente.nome = novoNome;
+            cliente.whatsapp = novoZap;
+            clienteFichaAtivoZap = novoZap;
+            
+            renderizarTabelaClientesFidelidade();
+            await sincronizarPortalEFidelidadeNoSupabase();
+            abrirFichaDetalhesClienteFidelidade(novoZap);
+            
+            alert("Dados do cliente atualizados com sucesso!");
+        }
+        window.salvarEdicaoCadastroClienteFicha = salvarEdicaoCadastroClienteFicha;
+
+        function obterLinkPortalClientePara(zap) {
+            const slug = (consultorAtual && consultorAtual.slug) ? consultorAtual.slug : '433005811bra';
+            const baseUrl = window.location.origin + window.location.pathname.replace(/painel\.html.*/i, 'cliente.html');
+            return `${baseUrl}?c=${encodeURIComponent(slug)}&w=${encodeURIComponent(zap)}`;
+        }
+        window.obterLinkPortalClientePara = obterLinkPortalClientePara;
+
+        function abrirPortalClienteFicha() {
+            if (!clienteFichaAtivoZap) return;
+            const link = obterLinkPortalClientePara(clienteFichaAtivoZap);
+            window.open(link, '_blank');
+        }
+        window.abrirPortalClienteFicha = abrirPortalClienteFicha;
+
+        function copiarLinkPortalClienteFicha() {
+            if (!clienteFichaAtivoZap) return;
+            const link = obterLinkPortalClientePara(clienteFichaAtivoZap);
+            navigator.clipboard.writeText(link).then(() => {
+                alert("Link do Portal do Cliente copiado com sucesso!\nEnvie para o cliente acessar seu cartão e histórico no celular.");
+            });
+        }
+        window.copiarLinkPortalClienteFicha = copiarLinkPortalClienteFicha;
 
         async function adicionarOuCarimbarClienteFidelidade(e) {
             if (e && e.preventDefault) e.preventDefault();
@@ -15021,9 +15768,9 @@
                 return;
             }
 
-            let cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            let cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
             if (cliente) {
-                cliente.selos = (parseInt(cliente.selos) || 0) + 1;
+                cliente.selos = (parseInt(cliente.selos, 10) || 0) + 1;
                 cliente.nome = nome || cliente.nome;
                 cliente.ultimoCarimbo = new Date().toISOString();
             } else {
@@ -15033,8 +15780,10 @@
                     selos: 1,
                     criadoEm: new Date().toISOString(),
                     ultimoCarimbo: new Date().toISOString(),
-                    resgates: 0
+                    resgates: 0,
+                    observacoes: ''
                 };
+                if (!fidelidadeClientesCache) fidelidadeClientesCache = [];
                 fidelidadeClientesCache.unshift(cliente);
             }
 
@@ -15047,9 +15796,9 @@
         window.adicionarOuCarimbarClienteFidelidade = adicionarOuCarimbarClienteFidelidade;
 
         async function adicionarSeloCliente(zap) {
-            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
             if (!cliente) return;
-            cliente.selos = (parseInt(cliente.selos) || 0) + 1;
+            cliente.selos = (parseInt(cliente.selos, 10) || 0) + 1;
             cliente.ultimoCarimbo = new Date().toISOString();
             renderizarTabelaClientesFidelidade();
             await sincronizarPortalEFidelidadeNoSupabase();
@@ -15057,7 +15806,7 @@
         window.adicionarSeloCliente = adicionarSeloCliente;
 
         async function removerSeloCliente(zap) {
-            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
             if (!cliente) return;
             if (cliente.selos > 0) cliente.selos -= 1;
             renderizarTabelaClientesFidelidade();
@@ -15066,12 +15815,12 @@
         window.removerSeloCliente = removerSeloCliente;
 
         async function resgatarPremioCliente(zap) {
-            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
             if (!cliente) return;
 
             const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial Grátis';
             if (confirm(`Confirma o resgate do prêmio "${premio}" para ${cliente.nome}? O cartão será reiniciado para um novo ciclo!`)) {
-                cliente.resgates = (parseInt(cliente.resgates) || 0) + 1;
+                cliente.resgates = (parseInt(cliente.resgates, 10) || 0) + 1;
                 cliente.selos = 0;
                 cliente.ultimoResgate = new Date().toISOString();
                 renderizarTabelaClientesFidelidade();
@@ -15082,14 +15831,14 @@
         window.resgatarPremioCliente = resgatarPremioCliente;
 
         function enviarCartaoFidelidadeWhatsApp(zap) {
-            const cliente = fidelidadeClientesCache.find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
+            const cliente = (fidelidadeClientesCache || []).find(c => String(c.whatsapp).replace(/\D/g, '') === zap);
             if (!cliente) return;
 
-            const link = obterLinkPortalClienteAtual();
+            const link = obterLinkPortalClientePara(zap);
             const meta = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.meta) ? portalConfigCache.regraFidelidade.meta : 10;
             const premio = (portalConfigCache.regraFidelidade && portalConfigCache.regraFidelidade.premio) ? portalConfigCache.regraFidelidade.premio : '1 Shake Especial Grátis';
 
-            const msg = `⭐ *CARTÃO FIDELIDADE ATUALIZADO!*\n\n` +
+            const msg = `⭐  *CARTÃO FIDELIDADE ATUALIZADO!*\n\n` +
                         `Olá *${cliente.nome}*!\n` +
                         `Você acabou de ganhar um novo selo no seu Cartão Fidelidade!\n\n` +
                         `🏆 *Status Atual:* ${cliente.selos} de ${meta} Selos Conquistados!\n` +
@@ -15102,7 +15851,7 @@
 
         async function excluirClienteFidelidade(zap) {
             if (!confirm("Deseja realmente remover este cliente do Cartão Fidelidade?")) return;
-            fidelidadeClientesCache = fidelidadeClientesCache.filter(c => String(c.whatsapp).replace(/\D/g, '') !== zap);
+            fidelidadeClientesCache = (fidelidadeClientesCache || []).filter(c => String(c.whatsapp).replace(/\D/g, '') !== zap);
             renderizarTabelaClientesFidelidade();
             await sincronizarPortalEFidelidadeNoSupabase();
         }
