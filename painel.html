@@ -766,6 +766,24 @@
                         </span>
                     </div>
 
+                    <!-- 0. CHAVES DOS CARDS & PERMISSÕES DOS CONSULTORES -->
+                    <div class="card-atalho-cfg bg-gradient-to-br from-purple-900/90 to-indigo-950/90 hover:from-purple-800/90 hover:to-indigo-900/90 border-2 border-amber-400/80 hover:border-amber-300 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalCentralChavesSuperadmin()" data-keywords="chaves cards modulos permissoes bloqueio pagamento liberar catalogo financeiro crm">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg mb-2.5 group-hover:scale-110 group-hover:text-amber-200 transition">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <h4 class="font-black text-sm text-white group-hover:text-amber-300 transition leading-snug">
+                                Chaves dos Cards & Módulos
+                            </h4>
+                            <p class="text-[11px] text-purple-200 mt-1 leading-snug">
+                                Controlar quais cards aparecem ou ficam bloqueados até você liberar ou receber pagamento.
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-400 mt-3 pt-2 border-t border-purple-900/50 uppercase">
+                            <span>Gerenciar Chaves</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
+                    </div>
+
                     <!-- 6. Taxas de Entrega -->
                     <div class="card-atalho-cfg bg-slate-900/90 hover:bg-slate-800/90 border-2 border-teal-500/50 hover:border-teal-400 p-4 rounded-2xl transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between cursor-pointer group" onclick="abrirModalConfigTaxasEntrega()" data-keywords="taxas entrega delivery frete motoboy bairros gratis">
                         <div>
@@ -2483,6 +2501,97 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL UNIVERSAL: FUNÇÃO BLOQUEADA / PAGAMENTO NECESSÁRIO -->
+    <div id="modal-bloqueio-universal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-7 shadow-2xl border-4 border-amber-400 relative text-center">
+            <button type="button" onclick="fecharModalBloqueioUniversal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-3xl flex items-center justify-center mx-auto mb-3.5 text-3xl shadow-sm border border-amber-300 relative">
+                <i id="modal-bloqueio-icone" class="fa-solid fa-book-open-reader"></i>
+                <span class="absolute -bottom-1 -right-1 w-7 h-7 bg-slate-950 text-amber-400 rounded-full flex items-center justify-center text-xs border-2 border-white shadow-xs">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-950 border border-amber-300 font-black text-[10px] uppercase tracking-wider px-3 py-0.5 rounded-full mb-2">
+                <i class="fa-solid fa-shield-halved text-amber-600"></i> Bloqueado até Liberação ou Pagamento
+            </span>
+            <h3 id="modal-bloqueio-titulo" class="text-xl font-black text-gray-900 leading-tight mb-1.5">
+                Função Bloqueada
+            </h3>
+            <p id="modal-bloqueio-desc" class="text-xs text-gray-600 leading-relaxed mb-4">
+                Esta função está bloqueada até que o administrador aprove a liberação ou confirme o pagamento da mensalidade correspondente.
+            </p>
+
+            <!-- Box de Preço / Mensalidade -->
+            <div id="modal-bloqueio-box-valor" class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3 mb-4 text-left">
+                <div class="flex items-center justify-between text-xs font-bold text-amber-950">
+                    <span>Acréscimo / Valor da Função:</span>
+                    <span id="modal-bloqueio-valor-texto" class="text-sm font-black text-amber-800">R$ 9,90/mês</span>
+                </div>
+            </div>
+
+            <!-- Box Chave PIX do SuperAdmin Edwan -->
+            <div class="bg-slate-900 text-white p-3 rounded-2xl mb-4 text-left border border-slate-800">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] font-black uppercase text-amber-400 flex items-center gap-1">
+                        <i class="fa-brands fa-pix text-xs"></i> Chave PIX para Ativação Rápida:
+                    </span>
+                    <span class="text-[9px] text-slate-400">Edwan Braga</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 bg-slate-950 px-2.5 py-1.5 rounded-xl border border-slate-700">
+                    <span class="font-mono text-xs text-emerald-400 font-bold truncate">maisappsmobile@gmail.com</span>
+                    <button type="button" onclick="navigator.clipboard.writeText('maisappsmobile@gmail.com'); alert('Chave PIX copiada! Agora basta fazer a transferência e enviar o comprovante ao Edwan.');" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-lg transition cursor-pointer shrink-0">
+                        Copiar
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <a id="modal-bloqueio-link-whatsapp" href="https://wa.me/5566981411234" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-lg text-yellow-300"></i> Falar com Edwan e Liberar Agora
+                </a>
+                <button type="button" onclick="fecharModalBloqueioUniversal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-xl text-xs transition cursor-pointer">
+                    Voltar ao Painel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO SUPERADMIN: GESTÃO DAS CHAVES INDIVIDUAIS DO CONSULTOR -->
+    <div id="modal-chaves-consultor-individual" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto text-left relative">
+            <button type="button" onclick="fecharModalChavesConsultorIndividual()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-700 text-white flex items-center justify-center text-xl font-black shadow-md">
+                    <i class="fa-solid fa-key text-amber-400"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-900 px-2 py-0.5 rounded-full inline-block">Controle de Módulos & Chaves</span>
+                    <h3 id="modal-chaves-consultor-nome" class="text-base sm:text-lg font-black text-gray-900 leading-tight">
+                        Consultor
+                    </h3>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-500 mb-4">
+                Ative ou desative cada função para este consultor. As alterações são sincronizadas imediatamente no Supabase.
+            </p>
+
+            <div id="modal-chaves-lista-switches" class="space-y-2.5 mb-5">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button type="button" onclick="fecharModalChavesConsultorIndividual()" class="bg-purple-600 hover:bg-purple-700 text-white font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer shadow-sm">
+                    Concluído
+                </button>
+            </div>
+        </div>
+    </div>
 
         <!-- MODAL: CONFIGURAÇÃO DE HORÁRIOS & PRAZOS DE ENTREGA (ABERTO/FECHADO, ACEITA FECHADO, PRAZOS KITS E FECHADOS) -->
         <div id="modal-config-horarios-entrega" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden">
@@ -12038,10 +12147,18 @@
             const containerBloqueados = document.getElementById('container-modulos-bloqueados');
             if (!gridLiberadas || !gridBloqueados) return;
 
+            // Renderiza barras de controle do SuperAdmin em cada card
+            try {
+                if (typeof renderizarBarrasChavesSuperadminNosCards === 'function') {
+                    renderizarBarrasChavesSuperadminNosCards();
+                }
+            } catch(e) {}
+
             const isFinLib = typeof isModuloFinanceiroLiberadoParaConsultor === 'function' ? isModuloFinanceiroLiberadoParaConsultor() : false;
             const isCrmLib = typeof isModuloCrmExtratorLiberadoParaConsultor === 'function' ? isModuloCrmExtratorLiberadoParaConsultor() : false;
             const isCatLib = typeof isModuloCatalogoLiberadoParaConsultor === 'function' ? isModuloCatalogoLiberadoParaConsultor() : false;
             const isSuperAdminUser = (typeof isSuperAdminLogado === 'function' && isSuperAdminLogado()) || (consultorAtual && String(consultorAtual.herbalife_id || '').replace(/\D/g, '') === '433005811');
+            const configChaves = (typeof obterConfigChavesCardsSuperadmin === 'function') ? obterConfigChavesCardsSuperadmin() : {};
 
             const cardRadar = document.getElementById('card-radar-notificacoes-container');
             const cardDirects = document.getElementById('card-prospeccao-x1-container');
@@ -12055,31 +12172,51 @@
             const listaLiberados = [];
             const listaBloqueados = [];
 
-            // 0. Cartão Fidelidade sempre no topo se existir
-            if (cardFidelidade) listaLiberados.push(cardFidelidade);
+            function processarCardVisibilidade(mKey, cardEl, isLibIndiv) {
+                if (!cardEl) return;
+                if (isSuperAdminUser) {
+                    cardEl.style.display = '';
+                    cardEl.classList.remove('hidden');
+                    listaLiberados.push(cardEl);
+                    return;
+                }
 
-            // 1. Radar, Directs e Indique Consultor sempre liberados por padrão
-            if (cardRadar) listaLiberados.push(cardRadar);
-            if (cardDirects) listaLiberados.push(cardDirects);
-            if (cardVip) listaLiberados.push(cardVip);
+                const modo = configChaves[mKey] || 'liberado';
+                const temAcesso = isLibIndiv || (modo === 'liberado');
 
-            // 2. Meu Catálogo Digital
-            if (cardCat) {
-                if (isSuperAdminUser || isCatLib) listaLiberados.push(cardCat);
-                else listaBloqueados.push(cardCat);
+                if (temAcesso) {
+                    cardEl.style.display = '';
+                    cardEl.classList.remove('hidden');
+                    listaLiberados.push(cardEl);
+                } else if (modo === 'oculto') {
+                    // NÃO APARECER (OCULTO)
+                    cardEl.style.display = 'none';
+                    cardEl.classList.add('hidden');
+                } else {
+                    // BLOQUEADO C/ CADEADO (APARECER BLOQUEADO ATÉ LIBERAR/RECEBER PAGAMENTO)
+                    cardEl.style.display = '';
+                    cardEl.classList.remove('hidden');
+
+                    const btnCont = cardEl.querySelector('.mt-auto');
+                    const modInfo = (typeof MODULOS_SAAS_INFO !== 'undefined' && MODULOS_SAAS_INFO[mKey]) ? MODULOS_SAAS_INFO[mKey] : {};
+                    if (btnCont) {
+                        btnCont.innerHTML = `
+                            <button type="button" onclick="abrirModalBloqueioUniversal('${mKey}')" class="btn-desbloquear-universal w-full bg-slate-900 hover:bg-amber-600 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-lock text-amber-400"></i> Desbloquear Função • ${modInfo.valorMensal || 'Ativar'}
+                            </button>
+                        `;
+                    }
+                    listaBloqueados.push(cardEl);
+                }
             }
 
-            // 3. Extrator & CRM WhatsApp
-            if (cardCrm) {
-                if (isSuperAdminUser || isCrmLib) listaLiberados.push(cardCrm);
-                else listaBloqueados.push(cardCrm);
-            }
-
-            // 4. Financeiro & Custos de Doses
-            if (cardFin) {
-                if (isSuperAdminUser || isFinLib) listaLiberados.push(cardFin);
-                else listaBloqueados.push(cardFin);
-            }
+            processarCardVisibilidade('fidelidade', cardFidelidade, true);
+            processarCardVisibilidade('radar', cardRadar, true);
+            processarCardVisibilidade('directs', cardDirects, true);
+            processarCardVisibilidade('vip_indique', cardVip, true);
+            processarCardVisibilidade('catalogo', cardCat, isCatLib);
+            processarCardVisibilidade('crm', cardCrm, isCrmLib);
+            processarCardVisibilidade('financeiro', cardFin, isFinLib);
 
             // 5. Lançamento Meteórico WhatsApp (EXCLUSIVO SUPERADMIN)
             if (cardMeteorico) {
@@ -14077,6 +14214,9 @@
                             <!-- Barra Inferior de Ações Rápidas -->
                             ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                                 <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
+                                    <button type="button" onclick="abrirModalChavesConsultorIndividual('${c.id}')" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Chaves de Módulos (Liberar/Bloquear na hora)">
+                                        <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
+                                    </button>
                                     <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Tornar Vitalício">
                                         <i class="fa-solid fa-infinity"></i> <span>Vitalício</span>
                                     </button>
@@ -14259,6 +14399,9 @@
                         ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                             <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1">
+                                    <button onclick="abrirModalChavesConsultorIndividual('${c.id}')" title="Gerenciar Chaves de Módulos" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs flex items-center gap-1">
+                                        <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
+                                    </button>
                                     <button onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" title="Aprovar / Liberar Vitalício Rápido" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs">
                                         <i class="fa-solid fa-infinity"></i>
                                     </button>
@@ -23446,6 +23589,356 @@
             }
         }
         window.desativarTaxasEntrega = desativarTaxasEntrega;
+
+        // ==========================================
+        // SISTEMA DE CHAVES & BLOQUEIO DOS CARDS (SUPERADMIN MASTER)
+        // ==========================================
+        const MODULOS_SAAS_INFO = {
+            catalogo: {
+                id: 'catalogo',
+                cardId: 'card-modulo-catalogo-container',
+                nome: 'Cardápio / Meu Catálogo Digital',
+                icone: 'fa-book-open-reader',
+                cor: 'blue',
+                tag: 'MODULO_CATALOGO_INTERATIVO',
+                valorMensal: 'R$ 9,90/mês',
+                desc: 'Vitrine interativa de pedidos e catálogo online via WhatsApp para seus clientes.'
+            },
+            financeiro: {
+                id: 'financeiro',
+                cardId: 'card-modulo-financeiro-container',
+                nome: 'Financeiro & Custos de Doses EVS',
+                icone: 'fa-calculator',
+                cor: 'emerald',
+                tag: 'MODULO_FINANCEIRO',
+                valorMensal: 'R$ 17,90/mês',
+                desc: 'Custo de doses, margem de lucro por garrafa e controle de caixa do Espaço.'
+            },
+            crm: {
+                id: 'crm',
+                cardId: 'card-modulo-crm-extrator-container',
+                nome: 'Extrator & CRM WhatsApp Kanban',
+                icone: 'fa-layer-group',
+                cor: 'purple',
+                tag: 'MODULO_CRM_EXTRATOR',
+                valorMensal: 'R$ 9,90/mês',
+                desc: 'Funil de vendas Kanban arrastável e extrator de grupos para captação de clientes.'
+            },
+            fidelidade: {
+                id: 'fidelidade',
+                cardId: 'card-modulo-fidelidade-container',
+                nome: 'Cartão Fidelidade & Clientes',
+                icone: 'fa-id-card',
+                cor: 'emerald',
+                tag: 'MODULO_FIDELIDADE',
+                valorMensal: 'Incluso no Plano',
+                desc: 'Cartão de fidelidade com 10 selos e ficha 360° do cliente.'
+            },
+            directs: {
+                id: 'directs',
+                cardId: 'card-prospeccao-x1-container',
+                nome: 'Modelos de Direct & Scripts X1',
+                icone: 'fa-paper-plane',
+                cor: 'indigo',
+                tag: 'MODULO_DIRECTS',
+                valorMensal: 'Incluso no Plano',
+                desc: 'Scripts e abordagens validadas para Direct no Instagram e WhatsApp.'
+            },
+            vip_indique: {
+                id: 'vip_indique',
+                cardId: 'card-vip-indique-container',
+                nome: 'Indique um Consultor (15% OFF)',
+                icone: 'fa-crown',
+                cor: 'purple',
+                tag: 'MODULO_CUPOM_VIP',
+                valorMensal: 'Incluso no Plano',
+                desc: 'Geração de cupons de 15% OFF para indicar novos consultores.'
+            },
+            radar: {
+                id: 'radar',
+                cardId: 'card-radar-notificacoes-container',
+                nome: 'Radar de Clientes & Alertas',
+                icone: 'fa-bell',
+                cor: 'amber',
+                tag: 'MODULO_RADAR',
+                valorMensal: 'Incluso no Plano',
+                desc: 'Notificações inteligentes de bioimpedâncias, clientes sumidos e pedidos.'
+            }
+        };
+
+        const CONFIG_CHAVES_CARDS_PADRAO = {
+            catalogo: 'bloqueado',
+            financeiro: 'bloqueado',
+            crm: 'bloqueado',
+            fidelidade: 'liberado',
+            directs: 'liberado',
+            vip_indique: 'liberado',
+            radar: 'liberado'
+        };
+
+        function obterConfigChavesCardsSuperadmin() {
+            try {
+                // 1. Tenta ler da tag no consultorAtual se for SuperAdmin
+                if (consultorAtual && consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--CHAVES_CARDS_SUPERADMIN:')) {
+                    const m = consultorAtual.nome_espaco.match(/<!--CHAVES_CARDS_SUPERADMIN:(.*?)-->/);
+                    if (m && m[1]) return { ...CONFIG_CHAVES_CARDS_PADRAO, ...JSON.parse(m[1]) };
+                }
+                // 2. Cache local
+                const cached = localStorage.getItem('litrao_chaves_cards_superadmin');
+                if (cached) return { ...CONFIG_CHAVES_CARDS_PADRAO, ...JSON.parse(cached) };
+            } catch(e) {}
+            return { ...CONFIG_CHAVES_CARDS_PADRAO };
+        }
+        window.obterConfigChavesCardsSuperadmin = obterConfigChavesCardsSuperadmin;
+
+        async function alterarChaveCardSuperadmin(modulo, novoModo) {
+            if (!isSuperAdminLogado()) return;
+            const config = obterConfigChavesCardsSuperadmin();
+            config[modulo] = novoModo;
+
+            try {
+                localStorage.setItem('litrao_chaves_cards_superadmin', JSON.stringify(config));
+            } catch(e) {}
+
+            // Atualiza no Supabase para o SuperAdmin Edwan
+            if (consultorAtual && consultorAtual.id) {
+                try {
+                    let raw = consultorAtual.nome_espaco || '';
+                    raw = raw.replace(/<!--CHAVES_CARDS_SUPERADMIN:[sS]*?-->/g, '').trim();
+                    raw += ` <!--CHAVES_CARDS_SUPERADMIN:${JSON.stringify(config)}-->`;
+                    consultorAtual.nome_espaco = raw;
+
+                    await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ nome_espaco: raw })
+                    });
+                } catch(err) {
+                    console.warn("Erro ao salvar chave no Supabase:", err);
+                }
+            }
+
+            const modInfo = MODULOS_SAAS_INFO[modulo];
+            const modoTexto = novoModo === 'bloqueado' ? '🔒 Bloqueado c/ Cadeado (Exigir Pagamento)' : (novoModo === 'oculto' ? '👁️ Oculto (Não Aparecer)' : '🔓 Liberado Geral');
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`Chave de "${modInfo?.nome || modulo}": ${modoTexto}`, 'sucesso');
+            } else {
+                alert(`✅ Chave atualizada!\n\nMódulo: ${modInfo?.nome || modulo}\nNovo Modo para os Consultores: ${modoTexto}`);
+            }
+
+            // Reorganiza visualmente os cards
+            if (typeof organizarPosicionamentoFerramentasTrabalho === 'function') {
+                organizarPosicionamentoFerramentasTrabalho();
+            }
+        }
+        window.alterarChaveCardSuperadmin = alterarChaveCardSuperadmin;
+
+        function verificarConsultorTemModuloLiberado(modulo, consultor) {
+            const c = consultor || consultorAtual;
+            if (!c) return false;
+            const hid = String(c.herbalife_id || '').trim();
+            if (hid === '433005811') return true; // SuperAdmin Edwan tem tudo liberado
+
+            const modInfo = MODULOS_SAAS_INFO[modulo];
+            if (!modInfo) return true;
+
+            // Checa tag específica no nome_espaco
+            if (c.nome_espaco && c.nome_espaco.includes(`<!--${modInfo.tag}:true-->`)) {
+                return true;
+            }
+
+            // Exceções conhecidas: Financeiro para Fundador
+            if (modulo === 'financeiro') {
+                const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(c) : null;
+                if (dadosFd || String(c.status || '').toLowerCase().includes('fundador')) return true;
+            }
+
+            return false;
+        }
+        window.verificarConsultorTemModuloLiberado = verificarConsultorTemModuloLiberado;
+
+        function renderizarBarrasChavesSuperadminNosCards() {
+            const isSA = isSuperAdminLogado();
+            const configChaves = obterConfigChavesCardsSuperadmin();
+
+            Object.keys(MODULOS_SAAS_INFO).forEach(modKey => {
+                const mod = MODULOS_SAAS_INFO[modKey];
+                const cardEl = document.getElementById(mod.cardId);
+                if (!cardEl) return;
+
+                // Remove barra anterior se houver
+                const barraAntiga = cardEl.querySelector('.superadmin-card-control');
+                if (barraAntiga) barraAntiga.remove();
+
+                if (isSA) {
+                    const modoAtual = configChaves[modKey] || 'liberado';
+                    const divBarra = document.createElement('div');
+                    divBarra.className = 'superadmin-card-control mt-3 pt-2.5 border-t border-purple-200 bg-purple-50/70 -mx-4 -mb-4 p-2.5 rounded-b-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[10px] shadow-2xs';
+                    divBarra.innerHTML = `
+                        <div class="flex items-center gap-1.5 font-black text-purple-950">
+                            <span class="w-5 h-5 rounded-md bg-amber-400 text-slate-950 flex items-center justify-center text-[10px] shadow-2xs"><i class="fa-solid fa-key"></i></span>
+                            <span>Chave Consultores:</span>
+                        </div>
+                        <select onchange="alterarChaveCardSuperadmin('${modKey}', this.value)" class="bg-white border-2 border-purple-300 hover:border-purple-500 rounded-lg px-2 py-0.5 font-black text-purple-900 focus:outline-none shadow-2xs cursor-pointer text-[10px] transition">
+                            <option value="bloqueado" ${modoAtual === 'bloqueado' ? 'selected' : ''}>🔒 Bloqueado (Cadeado)</option>
+                            <option value="oculto" ${modoAtual === 'oculto' ? 'selected' : ''}>👁️ Oculto (Não Aparecer)</option>
+                            <option value="liberado" ${modoAtual === 'liberado' ? 'selected' : ''}>🔓 Liberado p/ Todos</option>
+                        </select>
+                    `;
+                    cardEl.appendChild(divBarra);
+                }
+            });
+        }
+        window.renderizarBarrasChavesSuperadminNosCards = renderizarBarrasChavesSuperadminNosCards;
+
+        function abrirModalBloqueioUniversal(modulo) {
+            const mod = MODULOS_SAAS_INFO[modulo] || {
+                nome: 'Módulo Adicional',
+                icone: 'fa-lock',
+                valorMensal: 'Consulte o Administrador',
+                desc: 'Função exclusiva para consultores autorizados.'
+            };
+
+            const modal = document.getElementById('modal-bloqueio-universal');
+            const elTitulo = document.getElementById('modal-bloqueio-titulo');
+            const elDesc = document.getElementById('modal-bloqueio-desc');
+            const elValor = document.getElementById('modal-bloqueio-valor-texto');
+            const elIcone = document.getElementById('modal-bloqueio-icone');
+            const elLinkZap = document.getElementById('modal-bloqueio-link-whatsapp');
+
+            if (elTitulo) elTitulo.innerText = mod.nome;
+            if (elDesc) elDesc.innerText = `A função "${mod.nome}" está bloqueada até que o administrador confirme o pagamento ou aprove a liberação para o seu ID.`;
+            if (elValor) elValor.innerText = mod.valorMensal || 'Consulte o Administrador';
+            if (elIcone) elIcone.className = `fa-solid ${mod.icone}`;
+
+            if (elLinkZap) {
+                const hid = consultorAtual?.herbalife_id || 'Meu ID';
+                const msg = `Olá Edwan! Meu consultor é o ID ${hid}. Gostaria de liberar o módulo "${mod.nome}" (${mod.valorMensal}) no meu painel do Litrão do Reset. Como faço o pagamento?`;
+                elLinkZap.href = `https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`;
+            }
+
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalBloqueioUniversal = abrirModalBloqueioUniversal;
+
+        function fecharModalBloqueioUniversal() {
+            const modal = document.getElementById('modal-bloqueio-universal');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalBloqueioUniversal = fecharModalBloqueioUniversal;
+
+        function abrirModalCentralChavesSuperadmin() {
+            if (!isSuperAdminLogado()) return;
+            const secao = document.getElementById('card-superadmin-container');
+            if (secao) {
+                secao.classList.remove('hidden');
+                secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante('Você pode alterar a chave de qualquer card diretamente nele ou nos consultores abaixo! 🔑', 'info');
+            }
+        }
+        window.abrirModalCentralChavesSuperadmin = abrirModalCentralChavesSuperadmin;
+
+        function abrirModalChavesConsultorIndividual(consultorId) {
+            if (!isSuperAdminLogado()) return;
+            const c = (LISTA_CONSULTORES_SUPERADMIN_CACHE || []).find(x => x.id === consultorId);
+            if (!c) {
+                alert("Consultor não encontrado.");
+                return;
+            }
+
+            const modal = document.getElementById('modal-chaves-consultor-individual');
+            const elNome = document.getElementById('modal-chaves-consultor-nome');
+            const listaCont = document.getElementById('modal-chaves-lista-switches');
+
+            if (elNome) {
+                const nomeLimpo = (c.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+                elNome.innerHTML = `${nomeLimpo} <span class="text-xs font-mono text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-200">ID: ${c.herbalife_id}</span>`;
+            }
+
+            if (listaCont) {
+                listaCont.innerHTML = '';
+                const modulosChaves = ['catalogo', 'financeiro', 'crm', 'fidelidade'];
+
+                modulosChaves.forEach(mKey => {
+                    const mod = MODULOS_SAAS_INFO[mKey];
+                    const isLib = verificarConsultorTemModuloLiberado(mKey, c);
+
+                    const divItem = document.createElement('div');
+                    divItem.className = 'p-3 rounded-2xl border flex items-center justify-between gap-3 ' + (isLib ? 'bg-emerald-50/70 border-emerald-300' : 'bg-gray-50 border-gray-200');
+                    divItem.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl ${isLib ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-500'} flex items-center justify-center text-sm shadow-2xs">
+                                <i class="fa-solid ${mod.icone}"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-black text-gray-900">${mod.nome}</h5>
+                                <span class="text-[10px] ${isLib ? 'text-emerald-700 font-bold' : 'text-gray-500'}">${isLib ? '🟢 Liberado para este consultor' : '🔴 Bloqueado até pagamento'}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="alternarChaveConsultorDireto('${c.id}', '${mKey}', ${!isLib})" class="text-xs font-black px-3.5 py-1.5 rounded-xl transition cursor-pointer shadow-2xs flex items-center gap-1.5 ${isLib ? 'bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}">
+                            <i class="fa-solid ${isLib ? 'fa-lock' : 'fa-lock-open'}"></i>
+                            <span>${isLib ? 'Bloquear' : 'Liberar'}</span>
+                        </button>
+                    `;
+                    listaCont.appendChild(divItem);
+                });
+            }
+
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalChavesConsultorIndividual = abrirModalChavesConsultorIndividual;
+
+        function fecharModalChavesConsultorIndividual() {
+            const modal = document.getElementById('modal-chaves-consultor-individual');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalChavesConsultorIndividual = fecharModalChavesConsultorIndividual;
+
+        async function alternarChaveConsultorDireto(consultorId, modulo, novoLiberar) {
+            const c = (LISTA_CONSULTORES_SUPERADMIN_CACHE || []).find(x => x.id === consultorId);
+            if (!c) return;
+
+            const mod = MODULOS_SAAS_INFO[modulo];
+            if (!mod) return;
+
+            let raw = c.nome_espaco || '';
+            const tagPattern = new RegExp(`<!--${mod.tag}:[\\s\\S]*?-->`, 'g');
+            raw = raw.replace(tagPattern, '').trim();
+            raw += ` <!--${mod.tag}:${novoLiberar ? 'true' : 'false'}-->`;
+            c.nome_espaco = raw;
+
+            try {
+                await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${c.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: raw })
+                });
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`${mod.nome}: ${novoLiberar ? 'Liberado ✅' : 'Bloqueado 🔒'}`, 'sucesso');
+                }
+                abrirModalChavesConsultorIndividual(consultorId);
+                if (typeof carregarConsultoresSuperadmin === 'function') {
+                    carregarConsultoresSuperadmin();
+                }
+            } catch(e) {
+                console.error("Erro ao alternar chave do consultor:", e);
+                alert("Erro ao salvar no servidor.");
+            }
+        }
+        window.alternarChaveConsultorDireto = alternarChaveConsultorDireto;
 
         // ==========================================
         // HORÁRIOS & PRAZOS DE ENTREGA (ABERTO/FECHADO, ENCOMENDAS, PRAZO KITS E PRODUTOS FECHADOS)
