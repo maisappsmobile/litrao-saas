@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Lançamento Meteórico WhatsApp • SuperAdmin</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            purple: '#6b21a8',
+                            accent: '#10b981',
+                            gold: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
+
+    <!-- BARRA SUPERIOR FIXA / HEADER -->
+    <header class="bg-slate-950/90 border-b border-purple-500/30 sticky top-0 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <a href="painel.html" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-purple-900/60 border border-slate-700 hover:border-purple-500 flex items-center justify-center text-slate-300 hover:text-white transition shadow-sm" title="Voltar ao Painel">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-purple-500/20 shrink-0">
+                    <i class="fa-solid fa-meteor text-amber-300"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-2">
+                            Lançamento Meteórico WhatsApp
+                        </h1>
+                        <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-crown text-[10px]"></i> SuperAdmin
+                        </span>
+                        <span class="bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            Estratégia 7 Dias • Cupom FUNDADOR100
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">Central de comando, mensagens programadas e mídias de conversão para donos de EVS e consultores.</p>
+                </div>
+            </div>
+
+            <!-- CONTROLES RÁPIDOS NO HEADER -->
+            <div class="flex items-center gap-2.5 flex-wrap self-end md:self-center">
+                <a href="painel.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-gauge-high text-purple-400"></i> Voltar ao Painel
+                </a>
+                <button type="button" onclick="copiarLinkOficialPlataforma(this)" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black px-4 py-2 rounded-xl text-xs shadow-lg transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-regular fa-copy"></i> Copiar Link Oficial
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARRA DE CONFIGURAÇÃO INSTANTÂNEA DAS VARIÁVEIS -->
+    <section class="bg-slate-950 border-b border-slate-800 px-4 sm:px-6 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2 text-slate-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-bold text-slate-300">Variáveis em Tempo Real:</span>
+                <span>As mensagens abaixo usam automaticamente seu link e cupom ativo.</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 px-2.5 py-1 rounded-lg">
+                    <span class="text-slate-400 text-[11px] font-bold">Cupom Ativo:</span>
+                    <input type="text" id="cfg-cupom-global" value="FUNDADOR100" class="bg-transparent border-none text-amber-400 font-mono font-black text-xs w-28 focus:outline-none uppercase" oninput="atualizarVariaveisNasMensagens()">
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 px-2.5 py-1 rounded-lg">
+                    <span class="text-slate-400 text-[11px] font-bold">Preço Promo:</span>
+                    <span class="text-emerald-400 font-bold">R$ 39/mês</span>
+                    <span class="text-slate-500 line-through text-[10px]">R$ 197</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 px-2.5 py-1 rounded-lg">
+                    <span class="text-slate-400 text-[11px] font-bold">Degustação:</span>
+                    <span class="text-cyan-400 font-bold">7 Dias Grátis</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO PRINCIPAL COM ABAS -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
+
+        <!-- NAVEGAÇÃO POR ABAS -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 custom-scrollbar border-b border-slate-800">
+            <button onclick="selecionarAba('aba-preparacao')" id="btn-tab-preparacao" class="tab-btn active bg-purple-600 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer shadow-md">
+                <i class="fa-solid fa-clipboard-list text-amber-300"></i>
+                <span>Preparação & Grupo VIP</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia1')" id="btn-tab-dia1" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center font-black">1</span>
+                <span>Dia 1: A Dor do EVS</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia2')" id="btn-tab-dia2" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center font-black">2</span>
+                <span>Dia 2: Bioimpedância</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia3')" id="btn-tab-dia3" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center font-black">3</span>
+                <span>Dia 3: Fidelidade & Equipe</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia4')" id="btn-tab-dia4" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] flex items-center justify-center font-black border border-amber-500/40">4</span>
+                <span>Dia 4: Revelação Oferta</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia5')" id="btn-tab-dia5" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <i class="fa-solid fa-rocket text-emerald-400 text-xs"></i>
+                <span>Dia 5: O DIA D (Carrinho)</span>
+            </button>
+            <button onclick="selecionarAba('aba-dia67')" id="btn-tab-dia67" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center font-black">6-7</span>
+                <span>Pós-Lançamento & X1</span>
+            </button>
+            <button onclick="selecionarAba('aba-midias')" id="btn-tab-midias" class="tab-btn bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs whitespace-nowrap transition flex items-center gap-2 cursor-pointer border border-slate-700/60">
+                <i class="fa-solid fa-photo-film text-purple-400"></i>
+                <span>Central de Mídias</span>
+            </button>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: PREPARAÇÃO & GRUPO VIP                                              -->
+        <!-- ========================================================================= -->
+        <div id="aba-preparacao" class="aba-conteudo space-y-6">
+            <!-- CARDS DE INSTRUÇÃO -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2.5 font-black text-sm">
+                        1
+                    </div>
+                    <h3 class="text-sm font-black text-white mb-1">Crie o Grupo Silencioso</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Crie um grupo no WhatsApp com o nome sugerido: <strong class="text-amber-300">VIP • Revelação Plataforma EVS 🔥</strong>. Nas configurações, marque <span class="text-white font-semibold">"Apenas admins podem enviar mensagens"</span>.
+                    </p>
+                </div>
+                <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2.5 font-black text-sm">
+                        2
+                    </div>
+                    <h3 class="text-sm font-black text-white mb-1">Convite Antecipado</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Envie os convites no 1 a 1 para sua lista de consultores e em grupos de liderança. Diga que as vagas do grupo são limitadas para manter a exclusividade da oferta.
+                    </p>
+                </div>
+                <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2.5 font-black text-sm">
+                        3
+                    </div>
+                    <h3 class="text-sm font-black text-white mb-1">Aquecimento em 7 Dias</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Siga a ordem dos disparos. Cada mensagem constrói antecipação e desejo, até a revelação do cupom <span class="text-amber-400 font-mono font-bold">FUNDADOR100</span> no Dia 4 e abertura das vagas no Dia 5.
+                    </p>
+                </div>
+            </div>
+
+            <!-- MENSAGEM: DESCRIÇÃO DO GRUPO DE WHATSAPP -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                        <h4 class="text-sm font-black text-white">Descrição Oficial para Colocar no Grupo VIP</h4>
+                        <span class="bg-slate-700 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md">Configuração do Grupo</span>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-desc-grupo', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Descrição</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-desc-grupo">🚀 *GRUPO VIP • REVELAÇÃO DA PLATAFORMA INTELIGENTE EVS* 💎
+
+Bem-vindo(a) ao grupo oficial de lançamento da plataforma personalizada para Consultores e Donos de Espaço Vida Saudável Herbalife.
+
+🔒 *Regras do Grupo:*
+1. Este grupo permanecerá com envio de mensagens fechado para não encher seu celular de notificações.
+2. Apenas os administradores enviarão comunicados com os vídeos, ferramentas e a condição especial de lançamento.
+3. Não saia do grupo para não perder o link do cupom de Membro Fundador.
+
+🗓️ *Cronograma Rápido:*
+• Conteúdos diários de apresentação e ferramentas
+• Revelação da condição especial de lançamento
+• Abertura das vagas com desconto exclusivo de Fundador
+
+Seja muito bem-vindo(a)! 💚</div>
+            </div>
+
+            <!-- MENSAGEM: CONVITE INDIVIDUAL NO X1 (DIRECTS OU WHATSAPP) -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <h4 class="text-sm font-black text-white">Convite no 1 a 1 (WhatsApp / Direct do Instagram)</h4>
+                        <span class="bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Atração Pré-Grupo</span>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-convite-x1', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Convite</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-convite-x1">Oi tudo bem? 👋
+
+Se você opera um Espaço Vida Saudável ou atua fortemente com produtos Herbalife, tenho um convite importante.
+
+Desenvolvemos uma plataforma completa para resolver os 3 maiores gargalos do nosso dia a dia:
+1️⃣ *Retenção de Clientes:* Cartão Fidelidade Digital de 10 carimbos no celular do próprio cliente.
+2️⃣ *Fechamento de Pacotes:* Bioimpedância Inteligente com comparativo visual de medidas que gera autoridade imediata.
+3️⃣ *Duplicação de Equipe:* Banner no portal do cliente com seu ID Herbalife e 3 letras para cadastro em 1 clique!
+
+Além disso: Calculadora de Custo de Doses do EVS, Extrator CRM e muito mais.
+
+Criamos um *Grupo VIP silencioso no WhatsApp* onde vamos liberar uma condição inédita de Membro Fundador com degustação de 7 dias grátis e cupom especial.
+
+Entra pelo link abaixo antes que feche as vagas:
+👉 [LINK_DO_SEU_GRUPO_VIP]
+
+Te vejo lá dentro! 🚀</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 1 (A DOR DO EVS & ABERTURA)                                      -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia1" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs">D-1</span>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Objetivo do Dia 1: Conscientização e Alinhamento</h3>
+                        <p class="text-xs text-slate-400">Mostrar a dor real do consultor que trabalha muito no balcão mas sofre com clientes que não voltam.</p>
+                    </div>
+                </div>
+                <span class="bg-purple-950 text-purple-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-purple-800">3 Disparos</span>
+            </div>
+
+            <!-- DISPARO 1 - 09:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 09:00</span>
+                        <h4 class="text-sm font-black text-white">Boas-vindas Oficiais e Instruções do Grupo</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d1-09', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d1-09">👋 *BOM DIA A TODOS OS CONSULTORES E DONOS DE EVS!*
+
+Sejam muito bem-vindos ao Grupo VIP Oficial de Lançamento da Plataforma Litrão do Reset / Gestão Inteligente para Espaço Vida Saudável! 💚
+
+Vocês fazem parte de um seleto grupo de distribuidores que terão acesso antecipado a essa novidade no Brasil.
+
+🔒 *Lembrando:* O grupo permanecerá SILENCIOSO para respeitar a rotina de atendimento de todos.
+
+Hoje, às *14:00*, vou liberar o primeiro áudio revelando por que mais de 80% dos EVS enfrentam oscilações no movimento e o que os líderes de alto rendimento estão fazendo para mudar isso.
+
+Fiquem atentos às notificações! 🚀</div>
+            </div>
+
+            <!-- DISPARO 2 - 14:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 14:00</span>
+                        <h4 class="text-sm font-black text-white">A Causa Raiz: Por que os clientes somem do EVS?</h4>
+                        <span class="bg-purple-900/60 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-purple-700/50">Áudio Anexo</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="apresentacao_120s.mp3" download class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-download"></i> Baixar Áudio MP3
+                        </a>
+                        <button onclick="copiarTextoCard('msg-d1-14', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d1-14">⚠️ *A VERDADE SOBRE O ATENDIMENTO NO ESPAÇO VIDA SAUDÁVEL*
+
+Quantas vezes você atendeu um cliente super empolgado na segunda-feira, ele adorou o shake, tomou tudo... e depois sumiu na semana seguinte?
+
+O problema não é o seu produto.
+O problema não é o seu atendimento.
+O problema é a falta de um *SISTEMA DE RETENÇÃO E ACOMPANHAMENTO VISUAL*.
+
+No áudio abaixo, explico como transformamos o cliente casual em um frequentador fiel que compra pacotes e produtos fechados 👇
+
+*(Envie o áudio MP3 de apresentação logo abaixo desta mensagem)*</div>
+            </div>
+
+            <!-- DISPARO 3 - 19:30 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 19:30</span>
+                        <h4 class="text-sm font-black text-white">Fechamento do Dia 1 & Teaser do Dia 2</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d1-19', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d1-19">🌙 *ENCERRAMENTO DO DIA 1*
+
+Obrigado a todos que ouviram o áudio e enviaram feedbacks positivos no privado!
+
+Amanhã, às *10:00*, vou mostrar a primeira grande arma da plataforma:
+👉 A *Bioimpedância On-line Inteligente*, que compara medidas em gráficos visuais no celular do cliente e fecha pacotes semanais na hora.
+
+Descansem bem e até amanhã! 💚✨</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 2 (BIOIMPEDÂNCIA & AUTORIDADE)                                    -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia2" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-300 flex items-center justify-center font-bold text-xs">D-2</span>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Objetivo do Dia 2: Apresentar a Bioimpedância Inteligente</h3>
+                        <p class="text-xs text-slate-400">Mostrar como gerar autoridade imediata sem precisar de aparelhos caros de bioimpedância.</p>
+                    </div>
+                </div>
+                <span class="bg-blue-950 text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-800">2 Disparos</span>
+            </div>
+
+            <!-- DISPARO 1 - 10:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 10:00</span>
+                        <h4 class="text-sm font-black text-white">Como a Bioimpedância Visual Fecha Pacotes Semanais</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d2-10', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d2-10">📊 *BIOIMPEDÂNCIA INTELIGENTE NO SEU CELULAR*
+
+Você ainda anota medidas corporais de clientes em bloquinho de papel ou prancheta?
+
+Na nossa plataforma:
+✅ O cliente acessa pelo link oficial personalizado do seu EVS.
+✅ Digita peso, cintura e abdômen.
+✅ O sistema gera *IMEDIATAMENTE* um diagnóstico visual com cores de alerta, histórico comparativo e evolução corporal.
+
+O que acontece quando o cliente vê a evolução dele na tela do celular?
+👉 Ele ganha consciência do resultado.
+👉 Ele não quer parar.
+👉 Ele compra o pacote semanal de Litrão do Reset e produtos fechados!
+
+A autoridade do seu atendimento vai para outro patamar. 🔥</div>
+            </div>
+
+            <!-- DISPARO 2 - 16:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 16:00</span>
+                        <h4 class="text-sm font-black text-white">Depoimento e Prévia do Cartão Fidelidade</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d2-16', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d2-16">💬 *"Antes eu falava, falava e o cliente achava caro. Depois da bioimpedância visual da plataforma, ele mesmo me pede para acompanhar o progresso toda semana!"*
+
+Essa é a frase que mais ouvimos de consultores que já usam a ferramenta.
+
+E amanhã, às *10:00*, vou mostrar a ferramenta que virou uma febre nos Espaços:
+👉 O *Cartão Fidelidade Digital com 10 Carimbos* e o *Portal Exclusivo do Cliente*.
+
+Não percam! 🚀</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 3 (FIDELIDADE & DUPLICAÇÃO DE EQUIPE)                            -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia3" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs">D-3</span>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Objetivo do Dia 3: Fidelidade Digital & Recrutamento Automático</h3>
+                        <p class="text-xs text-slate-400">Mostrar como o cartão fidelidade retém os clientes e como o banner recruta novos consultores.</p>
+                    </div>
+                </div>
+                <span class="bg-emerald-950 text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-800">2 Disparos</span>
+            </div>
+
+            <!-- DISPARO 1 - 10:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 10:00</span>
+                        <h4 class="text-sm font-black text-white">A Revolução do Cartão Fidelidade Digital</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d3-10', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d3-10">💳 *CHEGA DE CARTÃOZINHO DE PAPEL QUE O CLIENTE PERDE!*
+
+Apresentamos o *Cartão Fidelidade Digital com 10 Selos Dourados*:
+
+🌟 Como funciona:
+1. Seu cliente tem o próprio portal no celular.
+2. A cada visita ou dose no seu Espaço, você dá um clique no seu painel e carimba o cartão dele com um selo dourado.
+3. Ao completar 10 carimbos, ele ganha uma recompensa (brinde, desconto ou shake grátis que você define).
+
+O cliente acompanha no próprio celular quantos selos faltam para a recompensa.
+Ele passa a vir no seu EVS quase todos os dias para completar os carimbos! 💚🎯</div>
+            </div>
+
+            <!-- DISPARO 2 - 15:30 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 15:30</span>
+                        <h4 class="text-sm font-black text-white">Recrutamento Automático (ID + 3 Letras)</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d3-15', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d3-15">🤝 *DUPLICAÇÃO AUTOMÁTICA DA SUA EQUIPE HERBALIFE*
+
+E essa é a funcionalidade mais poderosa:
+No portal exclusivo do seu cliente, existe um banner oficial convidando-o para se tornar *Cliente Premium ou novo Distribuidor Herbalife*.
+
+Com um toque, seu cliente copia:
+📋 Seu ID Herbalife
+📋 Suas 3 Letras de Patrocinador
+E é direcionado com 1 clique para o site oficial MyHerbalife!
+
+Você duplica sua organização enquanto está concentrado no balcão preparando os shakes! 💎✨
+
+⚠️ *ATENÇÃO MÁXIMA:* Amanhã às 09:00 vou liberar aqui no grupo o VÍDEO OFICIAL com a condição inédita de MEMBRO FUNDADOR. Não percam!</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 4 (REVELAÇÃO DA OFERTA BLACK NOVEMBER)                           -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia4" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs shadow-md">D-4</span>
+                    <div>
+                        <h3 class="text-sm font-black text-amber-200">Objetivo do Dia 4: A Revelação da Oferta & Vídeo 120s</h3>
+                        <p class="text-xs text-slate-300">Apresentar o vídeo oficial com a moldura e revelar o cupom de fundador com 100 vagas.</p>
+                    </div>
+                </div>
+                <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Dia Chave</span>
+            </div>
+
+            <!-- DISPARO 1 - 09:00 (VÍDEO OFICIAL DE 120s COM MOLDURA) -->
+            <div class="bg-slate-800/90 border border-amber-500/40 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-amber-400 text-slate-950 font-mono font-black text-xs px-2 py-0.5 rounded-md">⏰ 09:00</span>
+                        <h4 class="text-sm font-black text-white">VÍDEO OFICIAL (120 Segundos com Moldura WhatsApp)</h4>
+                        <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md">Vídeo de 1m 56s</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="video_whatsapp_120s_moldura.mp4" download class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                            <i class="fa-solid fa-download"></i> Baixar Vídeo para WhatsApp
+                        </a>
+                        <button onclick="copiarTextoCard('msg-d4-09', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d4-09">🎥 *ASSISTA AO VÍDEO OFICIAL!* (Duração: 1 minuto e 56 segundos)
+
+Apresentamos a solução definitiva para o seu Espaço Vida Saudável e o seu negócio Herbalife!
+
+Assista ao vídeo abaixo para ver tudo o que está incluso na plataforma 👇
+
+*(Envie o arquivo 'video_whatsapp_120s_moldura.mp4' logo após este texto)*</div>
+            </div>
+
+            <!-- DISPARO 2 - 14:00 (DETALHAMENTO DO CUPOM FUNDADOR100) -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 14:00</span>
+                        <h4 class="text-sm font-black text-white">A Revelação da Oferta & Benefícios do Membro Fundador</h4>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="banner_cupom_fundador100.png" download class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-download"></i> Baixar Banner PNG
+                        </a>
+                        <button onclick="copiarTextoCard('msg-d4-14', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d4-14">💎 *CONDIÇÃO EXCLUSIVA DE MEMBRO FUNDADOR* 💎
+
+O valor normal de todos os módulos liberados da plataforma é de *R$ 197/mês*.
+
+Porém, para os membros deste Grupo VIP que garantirem sua vaga amanhã com o cupom:
+🎟️ CUPOM: *FUNDADOR100*
+
+Você receberá:
+✅ *7 Dias de Degustação 100% Grátis* para testar sem risco no seu Espaço
+✅ Desconto vitalício de fundador: de R$ 197 por apenas *R$ 39/mês* enquanto mantiver sua assinatura ativa!
+✅ Calculadora de Custos de Doses do EVS inclusa
+✅ Portal do Cliente & Cartão Fidelidade Digital
+✅ Bioimpedância Online com Comparativo Visual
+✅ Extrator & CRM WhatsApp para grupos
+✅ Materiais de Apoio e Flyers prontos para impressão
+
+⚠️ *IMPORTANTE:* São apenas *100 CUPONS* disponíveis para todo o Brasil.
+A liberação das vagas acontecerá *AMANHÃ, ÀS 09:00 EM PONTO* aqui no grupo!</div>
+            </div>
+
+            <!-- DISPARO 3 - 20:00 (PREPARAÇÃO PARA O DIA D) -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 20:00</span>
+                        <h4 class="text-sm font-black text-white">Alarme Programado: O Carrinho Abre Amanhã às 09h!</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d4-20', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d4-20">⏰ *COLOQUE O DESPERTADOR PARA AS 08:50!*
+
+Amanhã, às 09:00 em ponto, o link de inscrição oficial com o cupom *FUNDADOR100* será enviado aqui no grupo.
+
+Os 100 primeiros que se cadastrarem garantem os 7 dias grátis e a mensalidade de R$ 39 vitalícia.
+
+Assim que os 100 cupons forem resgatados ou às 19:00, as inscrições nesta condição serão ENCERRADAS.
+
+Uma excelente noite a todos e nos vemos amanhã às 09:00! 🚀🔥</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 5 (O DIA D - CARRINHO ABERTO & FECHAMENTO)                       -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia5" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shadow-md">D-5</span>
+                    <div>
+                        <h3 class="text-sm font-black text-emerald-200">Objetivo do Dia 5: O Dia D de Vendas (Abertura e Fechamento)</h3>
+                        <p class="text-xs text-slate-300">Manter a urgência ao longo do dia e encerrar pontualmente às 19:00.</p>
+                    </div>
+                </div>
+                <span class="bg-emerald-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Dia de Vendas</span>
+            </div>
+
+            <!-- DISPARO 1 - 08:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 08:00</span>
+                        <h4 class="text-sm font-black text-white">Contagem Regressiva: Falta 1 Hora!</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-08', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-08">⏳ *FALTA EXATAMENTE 1 HORA!*
+
+Às 09:00 em ponto vou enviar aqui o link direto para você garantir sua vaga de Membro Fundador.
+
+Tenha em mãos seu número de telefone e o cupom *FUNDADOR100*.
+
+Prepare-se! 🚀</div>
+            </div>
+
+            <!-- DISPARO 2 - 09:00 (ABERTURA OFICIAL DAS VAGAS) -->
+            <div class="bg-slate-800/90 border border-emerald-500/60 rounded-2xl p-5 shadow-2xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-emerald-500 text-slate-950 font-mono font-black text-xs px-2.5 py-0.5 rounded-md">⏰ 09:00</span>
+                        <h4 class="text-sm font-black text-white">🚀 CARRINHO ABERTO! LINK LIBERADO</h4>
+                        <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-md">MÁXIMA CONVERSÃO</span>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-09', this)" class="btn-copiar bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem de Abertura</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-09">🚨 *INSCRIÇÕES OFICIALMENTE ABERTAS!* 🚨
+
+O momento chegou! Garanta agora seu acesso como *Membro Fundador* da Plataforma Litrão do Reset / Gestão Inteligente de EVS!
+
+👉 *Link Oficial de Inscrição:*
+[LINK_OFICIAL_CADASTRO]
+
+🎟️ *Cupom de Desconto:* *FUNDADOR100*
+
+O que você garante ao se cadastrar agora:
+✅ 7 Dias de Degustação 100% Grátis
+✅ Apenas R$ 39/mês (ao invés de R$ 197)
+✅ Todos os módulos e futuras atualizações liberados
+
+⚠️ São apenas *100 cupons*. Assim que esgotarem, o link volta ao valor cheio de R$ 197.
+
+Clique no link e garanta sua vaga agora mesmo! 👇
+[LINK_OFICIAL_CADASTRO]</div>
+            </div>
+
+            <!-- DISPARO 3 - 12:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 12:00</span>
+                        <h4 class="text-sm font-black text-white">Atualização: Mais de 50% das Vagas Preenchidas!</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-12', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-12">🔥 *MAIS DE 50% DAS VAGAS JÁ FORAM PREENCHIDAS!*
+
+Parabéns a todos os novos consultores fundadores que já estão dentro da plataforma e configurando seus cartões fidelidade!
+
+Se você ainda não garantiu o seu desconto de fundador com o cupom *FUNDADOR100*, acesse enquanto ainda há vagas:
+👉 [LINK_OFICIAL_CADASTRO]</div>
+            </div>
+
+            <!-- DISPARO 4 - 15:00 -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-amber-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 15:00</span>
+                        <h4 class="text-sm font-black text-white">Plantão de Dúvidas & Suporte WhatsApp</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-15', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-15">💬 *ESTÁ COM DÚVIDA OU PROBLEMA NO CADASTRO?*
+
+Se você tentou se cadastrar e teve qualquer dúvida ou dificuldade para ativar o cupom *FUNDADOR100*, me chame no WhatsApp agora para te ajudar:
+👉 [LINK_WHATSAPP_SUPORTE]
+
+Restam poucas vagas ativas com valor promocional!</div>
+            </div>
+
+            <!-- DISPARO 5 - 18:00 -->
+            <div class="bg-slate-800/90 border border-rose-500/50 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-rose-500 text-white font-mono font-black text-xs px-2 py-0.5 rounded-md">⏰ 18:00</span>
+                        <h4 class="text-sm font-black text-white">ÚLTIMA HORA (Menos de 60 Minutos)</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-18', this)" class="btn-copiar bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-18">⚠️ *ÚLTIMA HORA! MENOS DE 60 MINUTOS PARA ENCERRAR!*
+
+Às 19:00 em ponto, o cupom *FUNDADOR100* será desativado do sistema e o valor voltará para R$ 197/mês.
+
+Essa é a sua última chance de garantir a condição de fundador com 7 dias grátis:
+👉 [LINK_OFICIAL_CADASTRO]</div>
+            </div>
+
+            <!-- DISPARO 6 - 19:00 (ENCERRAMENTO) -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-slate-700 text-slate-300 font-mono font-bold text-xs px-2 py-0.5 rounded-md">⏰ 19:00</span>
+                        <h4 class="text-sm font-black text-white">🛑 INSCRIÇÕES COM CUPOM OFICIALMENTE ENCERRADAS</h4>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-d5-19', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Mensagem</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-d5-19">🔒 *INSCRIÇÕES COM O CUPOM FUNDADOR ENCERRADAS!*
+
+Obrigado a cada consultor que esteve conosco nessa jornada histórica!
+
+Aos novos Membros Fundadores, parabéns pela decisão de profissionalizar e elevar o nível do seu negócio e do seu Espaço Vida Saudável.
+
+Nos vemos dentro da plataforma! 💚✨</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: DIA 6 E 7 (PÓS-LANÇAMENTO & RESGATE X1)                              -->
+        <!-- ========================================================================= -->
+        <div id="aba-dia67" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs">D6-7</span>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Objetivo: Resgate Individual no 1 a 1 (X1)</h3>
+                        <p class="text-xs text-slate-400">Abordar os membros do grupo que não finalizaram a compra e converter no WhatsApp individual.</p>
+                    </div>
+                </div>
+                <span class="bg-purple-950 text-purple-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-purple-800">Scripts X1</span>
+            </div>
+
+            <!-- SCRIPT RESGATE 1: PARA QUEM ESTEVE NO GRUPO MAS NÃO COMPROU -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                        <h4 class="text-sm font-black text-white">Script 1: Membro que viu as mensagens mas não garantiu</h4>
+                        <span class="bg-blue-950 text-blue-300 border border-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Abordagem Suave</span>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-resgate-1', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Script</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-resgate-1">Olá [NOME], tudo bem? 👋
+
+Vi que você participou do nosso Grupo VIP ontem durante a liberação da Plataforma Litrão do Reset / EVS.
+
+Queria entender se você ficou com alguma dúvida sobre como funciona no seu Espaço ou se teve algum problema com o link?
+
+Como você esteve no grupo, consigo liberar para você uma *degustação de 7 dias grátis* para você testar na prática e ver os clientes usando o Cartão Fidelidade no balcão.
+
+O que acha? Se quiser, te mando o link direto aqui. 😉</div>
+            </div>
+
+            <!-- SCRIPT RESGATE 2: TENTATIVA DE CHECKOUT INCOMPLETA -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-700 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <h4 class="text-sm font-black text-white">Script 2: Para quem tentou pagar e teve problema</h4>
+                        <span class="bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Recuperação de Pagamento</span>
+                    </div>
+                    <button onclick="copiarTextoCard('msg-resgate-2', this)" class="btn-copiar bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar Script</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm text-slate-200 font-mono whitespace-pre-wrap leading-relaxed select-all" id="msg-resgate-2">Oi [NOME]! Tudo bem?
+
+Notei que você tentou garantir sua vaga de fundador ontem com o cupom FUNDADOR100, mas a inscrição acabou não sendo concluída.
+
+Houve alguma dificuldade com a forma de pagamento (PIX ou cartão) ou com a aplicação do cupom?
+
+Como eu sei do seu interesse, guardei sua condição especial por mais algumas horinhas para não te deixar de fora.
+
+Posso te ajudar a concluir? Me avisa aqui! 🚀</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- ABA: CENTRAL DE MÍDIAS & DOWNLOADS                                        -->
+        <!-- ========================================================================= -->
+        <div id="aba-midias" class="aba-conteudo space-y-6 hidden">
+            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-photo-film"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Acervo Oficial de Mídias de Alta Conversão</h3>
+                        <p class="text-xs text-slate-400">Vídeos prontos para WhatsApp, áudios em MP3, banners do cupom e materiais em PDF.</p>
+                    </div>
+                </div>
+                <span class="bg-purple-950 text-purple-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-purple-800">Tudo Pronto</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                <!-- 1. VÍDEO WHATSAPP 120s COM MOLDURA BLACK NOVEMBER -->
+                <div class="bg-slate-800/90 border border-purple-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-purple-900/60 text-purple-300 border border-purple-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">WhatsApp 120s</span>
+                            <span class="text-emerald-400 font-mono font-bold text-xs">3.08 MB • 01:56</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Vídeo WhatsApp 120s (Moldura Black November)</h4>
+                        <p class="text-xs text-slate-400 mb-3">Vídeo com quadro branco, cupom FUNDADOR100 e áudio neural masculino de alta conversão.</p>
+                        
+                        <!-- Player de Vídeo -->
+                        <div class="rounded-xl overflow-hidden bg-black aspect-[9/12] max-h-56 mb-3 border border-slate-700 flex items-center justify-center">
+                            <video controls class="w-full h-full object-contain" poster="banner_cupom_fundador100.png">
+                                <source src="video_whatsapp_120s_moldura.mp4" type="video/mp4">
+                                Seu navegador não suporta vídeos.
+                            </video>
+                        </div>
+                    </div>
+                    <a href="video_whatsapp_120s_moldura.mp4" download class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-download"></i> Baixar Vídeo para WhatsApp
+                    </a>
+                </div>
+
+                <!-- 2. VÍDEO MASTER 1080P HORIZONTAL 120s -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-blue-900/60 text-blue-300 border border-blue-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Master 1080p</span>
+                            <span class="text-blue-400 font-mono font-bold text-xs">8.57 MB • 16:9</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Vídeo Master Full HD 1080p</h4>
+                        <p class="text-xs text-slate-400 mb-3">Versão Full HD horizontal sem moldura para exibição em TVs de EVS, YouTube ou projetor.</p>
+                        
+                        <!-- Player de Vídeo Horizontal -->
+                        <div class="rounded-xl overflow-hidden bg-black aspect-video max-h-56 mb-3 border border-slate-700 flex items-center justify-center">
+                            <video controls class="w-full h-full object-contain">
+                                <source src="video_apresentacao_120s.mp4" type="video/mp4">
+                                Seu navegador não suporta vídeos.
+                            </video>
+                        </div>
+                    </div>
+                    <a href="video_apresentacao_120s.mp4" download class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-download"></i> Baixar Vídeo Full HD 1080p
+                    </a>
+                </div>
+
+                <!-- 3. ÁUDIO NEURAL MASCULINO MP3 -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-amber-900/60 text-amber-300 border border-amber-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Áudio WhatsApp</span>
+                            <span class="text-amber-400 font-mono font-bold text-xs">01:55 • MP3</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Locução Neural Masculina</h4>
+                        <p class="text-xs text-slate-400 mb-3">Áudio profissional para enviar em grupos no Dia 1 ou Dia 4 como nota de voz oficial.</p>
+                        
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 mb-3">
+                            <audio controls class="w-full h-10">
+                                <source src="apresentacao_120s.mp3" type="audio/mpeg">
+                                Seu navegador não suporta áudio.
+                            </audio>
+                        </div>
+                    </div>
+                    <a href="apresentacao_120s.mp3" download class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-download"></i> Baixar Áudio MP3
+                    </a>
+                </div>
+
+                <!-- 4. BANNER DO CUPOM FUNDADOR100 (2300x400) -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-purple-900/60 text-purple-300 border border-purple-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Banner Cupom</span>
+                            <span class="text-purple-400 font-mono font-bold text-xs">2300x400 px</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Banner Cupom FUNDADOR100</h4>
+                        <p class="text-xs text-slate-400 mb-3">Faixa com cupom oficial, ícone e benefícios para topo de sites ou postagem em redes.</p>
+                        
+                        <div class="rounded-xl overflow-hidden bg-slate-950 p-2 mb-3 border border-slate-800">
+                            <img src="banner_cupom_fundador100.png" alt="Cupom FUNDADOR100" class="w-full h-auto rounded-lg">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="banner_cupom_fundador100.png" download class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-image"></i> PNG
+                        </a>
+                        <a href="banner_cupom_fundador100.pdf" download class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 5. POST CONSULTORES 7 DIAS GRÁTIS -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-emerald-900/60 text-emerald-300 border border-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Post 4K</span>
+                            <span class="text-emerald-400 font-mono font-bold text-xs">Feed & WhatsApp</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Post Consultores (7 Dias Grátis)</h4>
+                        <p class="text-xs text-slate-400 mb-3">Arte pronta para divulgar em grupos de consultores e stories de Instagram.</p>
+                        
+                        <div class="rounded-xl overflow-hidden bg-slate-950 p-2 mb-3 border border-slate-800 aspect-square max-h-48 flex items-center justify-center">
+                            <img src="post_consultores_7dias_gratis.png" alt="Post 7 Dias Grátis" class="max-h-full max-w-full object-contain rounded-lg">
+                        </div>
+                    </div>
+                    <a href="post_consultores_7dias_gratis.png" download class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-download"></i> Baixar Imagem PNG
+                    </a>
+                </div>
+
+                <!-- 6. GUIA: COMO O CLIENTE ACESSA O PAINEL (PDF & ÁUDIO) -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="bg-cyan-900/60 text-cyan-300 border border-cyan-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Tutorial Completo</span>
+                            <span class="text-cyan-400 font-mono font-bold text-xs">PDF + Áudio</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white mb-1">Como o Cliente Acessa o Painel</h4>
+                        <p class="text-xs text-slate-400 mb-3">Instruções claras para o consultor entender e enviar aos seus clientes do Espaço.</p>
+                        
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 mb-3 text-xs text-slate-300 space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i> Passo a passo ilustrado
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i> Cartão fidelidade no celular
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i> Áudio explicativo com voz masculina
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="como_cliente_acessa_painel.pdf" download class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-file-pdf"></i> Baixar PDF
+                        </a>
+                        <a href="como_cliente_acessa_painel.mp3" download class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-headphones"></i> Áudio MP3
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-4 px-4 sm:px-6 text-center text-xs text-slate-500">
+        <p>Central de Lançamento Meteórico WhatsApp • Plataforma Litrão do Reset / Gestão Inteligente de EVS</p>
+        <p class="text-[11px] text-slate-600 mt-1">Uso Restrito do SuperAdmin Edwan (ID 433005811) • Todos os direitos reservados</p>
+    </footer>
+
+    <!-- SCRIPT DE INTERAÇÃO -->
+    <script>
+        function selecionarAba(abaId) {
+            document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(abaId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
+                btn.classList.add('bg-slate-800/80', 'text-slate-300');
+            });
+
+            const activeBtn = document.getElementById('btn-tab-' + abaId.replace('aba-', ''));
+            if (activeBtn) {
+                activeBtn.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('bg-slate-800/80', 'text-slate-300');
+            }
+        }
+
+        function copiarTextoCard(elementId, btn) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            const cupom = document.getElementById('cfg-cupom-global') ? document.getElementById('cfg-cupom-global').value.trim() : 'FUNDADOR100';
+            const linkOficial = window.location.origin + window.location.pathname.replace('lancamento_meteorico.html', 'painel.html');
+
+            let texto = el.innerText || el.textContent;
+            texto = texto.replace(/\[LINK_OFICIAL_CADASTRO\]/g, linkOficial);
+            texto = texto.replace(/\[LINK_DO_SEU_GRUPO_VIP\]/g, 'https://chat.whatsapp.com/seu-grupo-vip');
+            texto = texto.replace(/\[LINK_WHATSAPP_SUPORTE\]/g, 'https://wa.me/5566981411234');
+            texto = texto.replace(/FUNDADOR100/g, cupom);
+
+            navigator.clipboard.writeText(texto).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300"></i> <span class="text-emerald-300">Copiado! ✅</span>';
+                btn.classList.add('bg-emerald-700');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('bg-emerald-700');
+                }, 2000);
+            }).catch(err => {
+                console.error("Erro ao copiar texto:", err);
+            });
+        }
+
+        function copiarLinkOficialPlataforma(btn) {
+            const linkOficial = window.location.origin + window.location.pathname.replace('lancamento_meteorico.html', 'painel.html');
+            navigator.clipboard.writeText(linkOficial).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300"></i> <span>Link Copiado!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            });
+        }
+
+        function atualizarVariaveisNasMensagens() {
+            // Atualiza visualmente o cupom se o usuário digitar
+        }
+    </script>
+</body>
+</html>
