@@ -17374,8 +17374,8 @@
         // MÓDULO EXCLUSIVO SUPERADMIN: GRUPO FUNDADORES (A001 A Z100 & FUNDADOR100)
         // =========================================================================
 
-        const ALFABETO_FUNDADORES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let GRUPO_FUNDADORES_LETRA_ATIVA = 'A';
+        const ALFABETO_FUNDADORES = ["W", "X", "Z", "w", "x", "z"];
+        let GRUPO_FUNDADORES_LETRA_ATIVA = 'W';
         let CONFIG_FUNDADORES = {
             nomeGrupo: "Fundadores",
             cupom: "FUNDADOR100",
@@ -17393,9 +17393,9 @@
 
         // Função universal para calcular o código de fundador a partir do índice (0 -> A001, ..., 2599 -> Z100)
         function calcularCodigoFundador(indice) {
-            const letraIdx = Math.floor(indice / 100);
-            if (letraIdx >= 26) return `Z${String((indice % 100) + 1).padStart(3, '0')}+`;
-            const letra = ALFABETO_FUNDADORES[letraIdx];
+            const seriesFundadores = ["W", "X", "Z", "w", "x", "z"];
+            const serieIdx = Math.floor(indice / 100);
+            const letra = (serieIdx < seriesFundadores.length) ? seriesFundadores[serieIdx] : 'z';
             const num = (indice % 100) + 1;
             return `${letra}${String(num).padStart(3, '0')}`;
         }
