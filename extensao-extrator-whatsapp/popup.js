@@ -977,6 +977,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       ]
     },
     {
+      id: 'seq_revelacao_oferta_fundador',
+      titulo: '🔓 Revelação da Oferta Oficial (Quarta 19:00 - Adesão Zero)',
+      passos: [
+        { texto: '🚨 {saudacao} {nome}! ACABOU DE SER REVELADA A OFERTA DO LITRÃO DO RESET! 🔓', delay: 3 },
+        { texto: 'A Taxa de Adesão de até R$ 699 foi 100% ZERADA! Liberamos a contratação com Status Oficial de Membro Fundador:\n\n⭐ #2 MASTER VIP: R$ 47,00/mês (ou R$ 439/ano) [MAIS PEDIDO]\n🔹 #1 SMART PRO: R$ 39,00/mês (ou R$ 367/ano)\n\n🎁 BÔNUS EXCLUSIVOS LIBERADOS:\n✅ Meu Catálogo Digital 100% Liberado Vitalício\n✅ Cartão Fidelidade & Clientes Liberado\n✅ Selo Oficial de Membro Fundador Vitalício', delay: 5 },
+        { texto: '👉 Garanta sua vaga com Adesão Zero pelo link oficial:\nhttps://litraodoreset.com.br/assinar.html?cupom=FUNDADOR100&plano=master\n\nO lote é limitado e encerra assim que as vagas preencherem!', delay: 0 }
+      ]
+    },
+    {
       id: 'seq_1',
       titulo: '🥤 Apresentação Completa ResetFIT (3 Passos)',
       passos: [
