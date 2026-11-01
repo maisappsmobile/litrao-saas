@@ -38,9 +38,9 @@
     });
 
     function mostrarElementosInstalacao() {
-        const isPainel = window.location.pathname.includes('painel.html') || window.location.pathname.endsWith('/painel');
+        const isPainel = window.location.pathname.toLowerCase().includes('painel') || window.location.href.toLowerCase().includes('painel');
         const banner = document.getElementById('pwa-floating-banner');
-        // No painel do consultor não exibe banner flutuante automático para não atrapalhar a tela
+        // No painel do consultor NUNCA exibe banner flutuante automático para não atrapalhar o trabalho
         if (banner && !isPainel && !localStorage.getItem('pwa_banner_dismissed')) {
             banner.classList.remove('hidden');
         }
@@ -61,7 +61,7 @@
     function injetarBannerEModalPWA() {
         if (document.getElementById('pwa-floating-banner')) return;
 
-        const isPainel = window.location.pathname.includes('painel.html') || window.location.pathname.endsWith('/painel');
+        const isPainel = window.location.pathname.toLowerCase().includes('painel') || window.location.href.toLowerCase().includes('painel');
         const nomeApp = isPainel ? 'Painel do Consultor' : 'App Litrão do Reset';
         const subtituloApp = isPainel 
             ? 'Tenha o painel na tela inicial do seu celular como um app rápido!' 
@@ -70,7 +70,7 @@
         // Banner Flutuante Inferior - Responsivo e seguro para telas de qualquer largura
         const banner = document.createElement('div');
         banner.id = 'pwa-floating-banner';
-        banner.className = 'fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:max-w-sm z-50 bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-emerald-400/50 flex items-center justify-between gap-2 sm:gap-3 backdrop-blur-md hidden max-w-[calc(100vw-1.5rem)] box-border overflow-hidden';
+        banner.className = 'fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:max-w-sm z-50 bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-emerald-400/50 flex items-center justify-between gap-2 sm:gap-3 backdrop-blur-md hidden max-w-[calc(100vw-1.5rem)] box-border overflow-hidden transition-all duration-300';
         banner.innerHTML = `
             <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
                 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white p-1 shadow-md flex-shrink-0 flex items-center justify-center overflow-hidden">
@@ -156,6 +156,25 @@
             banner.classList.add('hidden');
             localStorage.setItem('pwa_banner_dismissed', 'true');
         });
+
+        // Some automaticamente quando o usuário rola a página para não atrapalhar
+        let scrollTimer = null;
+        window.addEventListener('scroll', () => {
+            if (!banner || banner.classList.contains('hidden')) return;
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(25px)';
+            banner.style.pointerEvents = 'none';
+
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                // Se o usuário estiver no topo e não fechou, restaura suavemente
+                if (window.scrollY < 200 && !localStorage.getItem('pwa_banner_dismissed')) {
+                    banner.style.opacity = '1';
+                    banner.style.transform = 'translateY(0)';
+                    banner.style.pointerEvents = 'auto';
+                }
+            }, 1800);
+        }, { passive: true });
 
         // Ações do Modal iOS
         document.getElementById('btn-fechar-modal-ios').addEventListener('click', () => {

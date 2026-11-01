@@ -50,32 +50,32 @@
 
     <!-- CABEÇALHO OFICIAL -->
     <header class="glass-header relative sm:sticky sm:top-0 z-40 border-b border-emerald-900/60 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+            <div class="flex items-center min-w-0">
                 <a href="painel.html" class="flex items-center gap-2 group">
-                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-light to-brand-yellow flex items-center justify-center text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition transform">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-brand-light to-brand-yellow flex items-center justify-center text-slate-950 font-black text-lg sm:text-xl shadow-md group-hover:scale-105 transition transform flex-shrink-0">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
-                    <div>
-                        <span class="text-xl sm:text-2xl font-black italic tracking-tighter text-white block leading-none">
+                    <div class="min-w-0">
+                        <span class="text-base sm:text-2xl font-black italic tracking-tighter text-white block leading-none">
                             LITRÃO<span class="text-brand-yellow">RESET</span>
                         </span>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Página Oficial de Vendas</span>
+                        <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400 block whitespace-nowrap">Página Oficial de Vendas</span>
                     </div>
                 </a>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-                <a href="#secao-planos" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow-md transition transform hover:scale-105 border border-amber-300">
-                    <i class="fa-solid fa-crown text-xs"></i>
-                    <span>Ver Planos & Preços</span>
+            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                <a href="#secao-planos" class="inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-2 sm:py-2 rounded-xl shadow-md transition transform hover:scale-105 border border-amber-300 whitespace-nowrap">
+                    <i class="fa-solid fa-crown text-[10px] sm:text-xs"></i>
+                    <span><span class="hidden sm:inline">Ver </span>Planos<span class="hidden md:inline"> & Preços</span></span>
                 </a>
-                <a href="painel.html" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition">
+                <a href="painel.html" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition whitespace-nowrap">
                     <i class="fa-solid fa-arrow-left"></i> Voltar ao Painel
                 </a>
-                <a href="assinar.html" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition transform hover:scale-105">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Criar Conta Grátis</span>
+                <a href="assinar.html" class="inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-[11px] sm:text-xs px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md transition transform hover:scale-105 whitespace-nowrap">
+                    <i class="fa-solid fa-user-plus text-[10px] sm:text-xs"></i>
+                    <span><span class="hidden sm:inline">Criar Conta </span>Grátis</span>
                 </a>
             </div>
         </div>
@@ -1741,11 +1741,43 @@
                     }
                 } catch (_) {}
             }
+
+            // Controle inteligente do botão flutuante no mobile: esconde ao rolar para não cobrir a tela
+            const fabPlanos = document.getElementById('btn-fab-planos-flutuante');
+            if (fabPlanos) {
+                let scrollFabTimer = null;
+                window.addEventListener('scroll', () => {
+                    const secaoPlanos = document.getElementById('secao-planos');
+                    const topoPlanos = secaoPlanos ? secaoPlanos.getBoundingClientRect().top : 9999;
+
+                    // Se já estiver na seção de planos ou passando dela, oculta completamente
+                    if (topoPlanos <= 200) {
+                        fabPlanos.style.opacity = '0';
+                        fabPlanos.style.pointerEvents = 'none';
+                        return;
+                    }
+
+                    // Ao rolar, esconde para não tampar o conteúdo
+                    fabPlanos.style.opacity = '0';
+                    fabPlanos.style.transform = 'translateY(20px)';
+                    fabPlanos.style.pointerEvents = 'none';
+
+                    clearTimeout(scrollFabTimer);
+                    scrollFabTimer = setTimeout(() => {
+                        const recTopo = secaoPlanos ? secaoPlanos.getBoundingClientRect().top : 9999;
+                        if (recTopo > 200) {
+                            fabPlanos.style.opacity = '1';
+                            fabPlanos.style.transform = 'translateY(0)';
+                            fabPlanos.style.pointerEvents = 'auto';
+                        }
+                    }, 1200);
+                }, { passive: true });
+            }
         });
     </script>
     <!-- BOTÃO FLUTUANTE DE ACESSO RÁPIDO AOS PLANOS (FAB) -->
-    <a href="#secao-planos" class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm px-4 sm:px-5 py-3 rounded-2xl shadow-2xl transition transform hover:scale-105 border-2 border-amber-300 flex items-center gap-2 cursor-pointer group" title="Rolar até os Planos">
-        <i class="fa-solid fa-crown text-base group-hover:rotate-12 transition"></i>
+    <a id="btn-fab-planos-flutuante" href="#secao-planos" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-amber-300 flex items-center gap-2 cursor-pointer group" title="Rolar até os Planos">
+        <i class="fa-solid fa-crown text-sm sm:text-base group-hover:rotate-12 transition"></i>
         <span>Ver Planos</span>
         <i class="fa-solid fa-arrow-down text-xs animate-bounce"></i>
     </a>

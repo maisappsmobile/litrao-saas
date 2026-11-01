@@ -30113,7 +30113,15 @@ ${escapeHtml(textoFinal)}
 
             crmLeadSendoAtendido = lead;
             const nomeSpan = document.getElementById('script-zap-lead-nome');
-            if (nomeSpan) nomeSpan.innerText = `Contato: ${lead.nome} (${lead.telefone})`;
+            if (nomeSpan) {
+                const leadNomeLimpo = (lead.nome || '').trim();
+                const leadTel = (lead.telefone || '').trim();
+                if (!leadNomeLimpo || /^contato(\s*[\+\d]+)?$/i.test(leadNomeLimpo)) {
+                    nomeSpan.innerText = `Contato: ${leadTel || 'Lead'}`;
+                } else {
+                    nomeSpan.innerText = `Contato: ${leadNomeLimpo} (${leadTel})`;
+                }
+            }
 
             const selectModelo = document.getElementById('select-script-modelo');
             if (selectModelo) selectModelo.value = "1";
@@ -30127,12 +30135,49 @@ ${escapeHtml(textoFinal)}
         function carregarModeloScriptSelecionado(modeloId) {
             if (!crmLeadSendoAtendido) return;
             const template = CRM_MODELOS_SCRIPTS[modeloId] || CRM_MODELOS_SCRIPTS['1'];
-            const primeiroNome = (crmLeadSendoAtendido.nome || 'amigo(a)').trim().split(' ')[0];
-            const nomeConsultor = (consultorAtual && (consultorAtual.nome_espaco || consultorAtual.herbalife_id)) || 'Consultor do Litrão';
+            
+            // 1. Obter Nome Limpo do Consultor (elimina 100% de metadados HTML, senhas, PIX e JSONs confidenciais)
+            let nomeConsultor = 'Consultor do Litrão';
+            try {
+                if (typeof extrairNomeExibicaoConsultor === 'function') {
+                    const infoConsultor = extrairNomeExibicaoConsultor(consultorAtual);
+                    nomeConsultor = infoConsultor.nome || 'Consultor do Litrão';
+                } else if (consultorAtual && consultorAtual.nome_espaco) {
+                    nomeConsultor = consultorAtual.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim().split('|')[0].trim();
+                }
+            } catch (e) {
+                nomeConsultor = 'Consultor do Litrão';
+            }
 
-            const mensagemFormatada = template
-                .replace(/{nome}/g, primeiroNome)
-                .replace(/{consultor}/g, nomeConsultor);
+            // 2. Tratar Nome do Lead (evita "Olá Contato, tudo bem?" quando não há nome real)
+            let nomeLeadBruto = (crmLeadSendoAtendido.nome || '').trim();
+            let primeiroNome = '';
+            // Se for "Contato +55...", "Contato", telefone numérico ou vazio
+            if (!nomeLeadBruto || /^contato(\s*[\+\d]+)?$/i.test(nomeLeadBruto) || /^[\+\d\s\-\(\)]+$/.test(nomeLeadBruto)) {
+                primeiroNome = '';
+            } else {
+                primeiroNome = nomeLeadBruto.split(' ')[0].trim();
+            }
+
+            // 3. Montar a mensagem com substituição inteligente
+            let mensagemFormatada = template.replace(/{consultor}/g, nomeConsultor);
+
+            if (primeiroNome) {
+                mensagemFormatada = mensagemFormatada.replace(/{nome}/g, primeiroNome);
+            } else {
+                // Remove a tag mantendo a pontuação correta e fluida
+                mensagemFormatada = mensagemFormatada
+                    .replace(/Olá\s+\{nome\},/gi, 'Olá,')
+                    .replace(/Olá\s+\{nome\}!/gi, 'Olá!')
+                    .replace(/Oi\s+\{nome\},/gi, 'Oi,')
+                    .replace(/Oi\s+\{nome\}!/gi, 'Oi!')
+                    .replace(/\{nome\}\s*/g, '');
+            }
+
+            // 4. Suporte a saudação de turno {saudacao}
+            const agoraHora = new Date().getHours();
+            const saudacao = agoraHora < 12 ? 'Bom dia' : (agoraHora < 18 ? 'Boa tarde' : 'Boa noite');
+            mensagemFormatada = mensagemFormatada.replace(/{saudacao}/g, saudacao);
 
             const textarea = document.getElementById('script-zap-texto-mensagem');
             if (textarea) textarea.value = mensagemFormatada;
