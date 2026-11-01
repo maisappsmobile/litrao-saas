@@ -968,6 +968,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ==========================================
   const SEQUENCIAS_PADRAO = [
     {
+      id: 'seq_lancamento_vip',
+      titulo: '🚀 Sequência de Lançamento (Convite Grupo VIP & Oferta)',
+      passos: [
+        { texto: '{saudacao} {nome}! Tudo bem? Passando rapidinho para te fazer um convite exclusivo.', delay: 3 },
+        { texto: 'Estamos abrindo o Grupo VIP fechado para o Lançamento Oficial da Receita Turbinada do Litrão do Reset! Quem estiver dentro vai receber em primeira mão o lote promocional com o maior desconto do ano e bônus especiais.', delay: 4 },
+        { texto: 'Para garantir sua vaga antes que o grupo lote, entra por este link oficial: https://litraodoreset.com.br/grupo-vip.html\n\nNos vemos lá dentro! 🥤✨', delay: 0 }
+      ]
+    },
+    {
       id: 'seq_1',
       titulo: '🥤 Apresentação Completa ResetFIT (3 Passos)',
       passos: [
