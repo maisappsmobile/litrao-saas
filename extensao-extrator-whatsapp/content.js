@@ -22,6 +22,109 @@ function normalizarTelefone(raw) {
   return num;
 }
 
+// =======================================================
+// MOTOR UNIVERSAL DE RESOLUÇÃO DE SPINTAX E TAGS INTELIGENTES
+// =======================================================
+function processarSpintaxETags(texto, contato = {}) {
+  if (!texto || typeof texto !== 'string') return '';
+  let res = texto;
+
+  // 1. Saudação Inteligente por Turno do Dia
+  const hora = new Date().getHours();
+  const saudacaoManha = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
+  const saudacaoTarde = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
+  const saudacaoNoite = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
+  const listaSaudacoes = (hora >= 5 && hora < 12) ? saudacaoManha : (hora >= 12 && hora < 18) ? saudacaoTarde : saudacaoNoite;
+  const saudacaoSorteada = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
+
+  res = res.replace(/\{(?:saudacao|saudação|turno|cumprimento)\}/gi, saudacaoSorteada);
+
+  // 2. Extrai e Formata Primeiro Nome Humanizado
+  let pNome = '';
+  if (contato && contato.nome && typeof contato.nome === 'string') {
+    const nomeLimpo = contato.nome.trim();
+    if (!nomeLimpo.match(/^(\+|id_|\d)/)) {
+      const primeiro = nomeLimpo.split(/[\s,;-]+/)[0] || '';
+      if (primeiro.length >= 2) {
+        pNome = primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+      }
+    }
+  }
+
+  const regexNome = /\{(?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato)\}/gi;
+  if (pNome) {
+    res = res.replace(regexNome, pNome);
+  } else {
+    res = res.replace(regexNome, '');
+  }
+
+  // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
+  const hash = Math.floor(1000 + Math.random() * 9000);
+  res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
+  res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
+  res = res.replace(/\{(?:ref|referencia|referência)\}/gi, 'Ref #' + hash);
+
+  // 4. Data, Hora e Dia da Semana
+  const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+  const agora = new Date();
+  res = res.replace(/\{(?:dia|dia_semana)\}/gi, diasSemana[agora.getDay()]);
+  res = res.replace(/\{hoje\}/gi, 'hoje');
+  res = res.replace(/\{data\}/gi, agora.toLocaleDateString('pt-BR'));
+  res = res.replace(/\{hora\}/gi, agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+
+  // 5. Spintax Multinível / Recursivo (resolve todas as opções {a|b|c})
+  let anterior = '';
+  let limite = 12;
+  while (limite > 0 && res !== anterior) {
+    anterior = res;
+    limite--;
+    res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+      if (conteudo.includes('|')) {
+        const opcoes = conteudo.split('|');
+        const escolhida = opcoes[Math.floor(Math.random() * opcoes.length)];
+        return (escolhida !== undefined) ? escolhida.trim() : '';
+      }
+      return match;
+    });
+  }
+
+  // 6. Higienização de chaves residuais
+  res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+    if (conteudo.includes('|')) {
+      const opcoes = conteudo.split('|');
+      return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
+    }
+    if (/ref|num|cod/i.test(conteudo)) {
+      return '#' + hash;
+    }
+    return '';
+  });
+
+  // 7. Limpeza Estética e Ajuste de Pontuação Órfã
+  res = res
+    .replace(/\s+([,.\?!;:])/g, '$1')
+    .replace(/([,;])\s*([,;])/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[,.\s]+/, '')
+    .trim();
+
+  return res;
+}
+
+// Obtém o nome da pessoa na conversa aberta no WhatsApp (se houver)
+function obterNomeContatoConversaAtiva() {
+  const header = obterHeaderConversaAtiva();
+  if (!header) return '';
+  const spanTitle = header.querySelector('span[title]') || header.querySelector('span[dir="auto"]');
+  if (spanTitle) {
+    const raw = (spanTitle.getAttribute('title') || spanTitle.innerText || '').trim();
+    if (raw && !raw.match(/^\+?\d/)) {
+      return raw.split(/[\s,;-]+/)[0] || '';
+    }
+  }
+  return '';
+}
+
 // Obtém o cabeçalho específico da conversa ativa (#main header)
 function obterHeaderConversaAtiva() {
   return document.querySelector('#main header') || 
@@ -748,13 +851,17 @@ async function enviarMensagemNoChat(texto) {
     throw new Error('Nenhuma conversa aberta encontrada. Abra o chat do contato no WhatsApp Web.');
   }
 
+  // Se o texto ainda contiver tags ou spintax, resolve com o nome da conversa aberta
+  const nomeHeader = obterNomeContatoConversaAtiva();
+  const textoFinal = processarSpintaxETags(texto, { nome: nomeHeader });
+
   inputBox.focus();
   await new Promise(r => setTimeout(r, 120));
 
   // Limpa e insere texto
   document.execCommand('selectAll', false, null);
   document.execCommand('delete', false, null);
-  document.execCommand('insertText', false, texto);
+  document.execCommand('insertText', false, textoFinal);
 
   // Dispara eventos para o React / Draft.js / Lexical do WhatsApp
   inputBox.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: texto, inputType: 'insertText' }));
@@ -904,8 +1011,11 @@ async function enviarMidiaNoChat(base64Data, mimeType, legenda = '', nomeArquivo
 
   await new Promise(r => setTimeout(r, 400));
 
-  // 6. Insere a legenda se houver
+  // 6. Insere a legenda se houver (resolvendo spintax e tags com o nome do contato ativo)
   if (legenda && legenda.trim().length > 0) {
+    const nomeHeader = obterNomeContatoConversaAtiva();
+    const legendaFinal = processarSpintaxETags(legenda, { nome: nomeHeader });
+
     const inputLegenda = document.querySelector('div[role="dialog"] div[contenteditable="true"]') ||
                          document.querySelector('div[data-testid="media-caption-input-container"] div[contenteditable="true"]') ||
                          document.querySelector('div[data-testid="media-caption-input"]') ||
@@ -918,9 +1028,9 @@ async function enviarMidiaNoChat(base64Data, mimeType, legenda = '', nomeArquivo
       await new Promise(r => setTimeout(r, 120));
       document.execCommand('selectAll', false, null);
       document.execCommand('delete', false, null);
-      document.execCommand('insertText', false, legenda);
+      document.execCommand('insertText', false, legendaFinal);
 
-      inputLegenda.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: legenda, inputType: 'insertText' }));
+      inputLegenda.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: legendaFinal, inputType: 'insertText' }));
       inputLegenda.dispatchEvent(new Event('input', { bubbles: true }));
       inputLegenda.dispatchEvent(new Event('change', { bubbles: true }));
       await new Promise(r => setTimeout(r, 250));
@@ -990,11 +1100,8 @@ async function executarSequencia1Clique(sequencia) {
     for (let i = 0; i < sequencia.passos.length; i++) {
       const passo = sequencia.passos[i];
 
-      // Substitui variáveis dinâmicas
-      let textoPronto = (passo.texto || '')
-        .replace(/{nome}/gi, nomeContato)
-        .replace(/{primeiro_nome}/gi, nomeContato)
-        .replace(/{chave_pix}/gi, 'pix@litraodoreset.com.br');
+      // Substitui variáveis dinâmicas e spintax 100% no automático
+      let textoPronto = processarSpintaxETags(passo.texto || '', { nome: nomeContato });
 
       const tipoPasso = passo.midia ? (passo.midia.tipo === 'video' ? '🎥 Vídeo' : '📷 Foto') : '💬 Texto';
       mostrarToastWhatsApp(`📤 <b>Passo ${i + 1}/${sequencia.passos.length} (${tipoPasso}):</b><br>${textoPronto.substring(0, 50)}...`, 'info', 2500);

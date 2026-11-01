@@ -25,6 +25,112 @@
   let cancelandoRolagemFb = false;
   let rolagemEmExecucao = false;
 
+  // =======================================================
+  // MOTOR UNIVERSAL DE RESOLUÇÃO DE SPINTAX E TAGS (FACEBOOK)
+  // =======================================================
+  function processarSpintaxETags(texto, contato = {}) {
+    if (!texto || typeof texto !== 'string') return '';
+    let res = texto;
+
+    // 1. Saudação Inteligente por Turno do Dia
+    const hora = new Date().getHours();
+    const saudacaoManha = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
+    const saudacaoTarde = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
+    const saudacaoNoite = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
+    const listaSaudacoes = (hora >= 5 && hora < 12) ? saudacaoManha : (hora >= 12 && hora < 18) ? saudacaoTarde : saudacaoNoite;
+    const saudacaoSorteada = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
+
+    res = res.replace(/\{(?:saudacao|saudação|turno|cumprimento)\}/gi, saudacaoSorteada);
+
+    // 2. Extrai e Formata Primeiro Nome Humanizado
+    let pNome = '';
+    if (contato && contato.nome && typeof contato.nome === 'string') {
+      const nomeLimpo = contato.nome.trim();
+      if (!nomeLimpo.match(/^(\+|id_|\d)/)) {
+        const primeiro = nomeLimpo.split(/[\s,;-]+/)[0] || '';
+        if (primeiro.length >= 2) {
+          pNome = primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+        }
+      }
+    }
+
+    const regexNome = /\{(?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato)\}/gi;
+    if (pNome) {
+      res = res.replace(regexNome, pNome);
+    } else {
+      res = res.replace(regexNome, '');
+    }
+
+    // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
+    const hash = Math.floor(1000 + Math.random() * 9000);
+    res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
+    res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
+    res = res.replace(/\{(?:ref|referencia|referência)\}/gi, 'Ref #' + hash);
+
+    // 4. Data, Hora e Dia da Semana
+    const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+    const agora = new Date();
+    res = res.replace(/\{(?:dia|dia_semana)\}/gi, diasSemana[agora.getDay()]);
+    res = res.replace(/\{hoje\}/gi, 'hoje');
+    res = res.replace(/\{data\}/gi, agora.toLocaleDateString('pt-BR'));
+    res = res.replace(/\{hora\}/gi, agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+
+    // 5. Spintax Multinível / Recursivo (resolve todas as opções {a|b|c})
+    let anterior = '';
+    let limite = 12;
+    while (limite > 0 && res !== anterior) {
+      anterior = res;
+      limite--;
+      res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+        if (conteudo.includes('|')) {
+          const opcoes = conteudo.split('|');
+          const escolhida = opcoes[Math.floor(Math.random() * opcoes.length)];
+          return (escolhida !== undefined) ? escolhida.trim() : '';
+        }
+        return match;
+      });
+    }
+
+    // 6. Higienização de chaves residuais
+    res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+      if (conteudo.includes('|')) {
+        const opcoes = conteudo.split('|');
+        return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
+      }
+      if (/ref|num|cod/i.test(conteudo)) {
+        return '#' + hash;
+      }
+      return '';
+    });
+
+    // 7. Limpeza Estética e Ajuste de Pontuação Órfã
+    res = res
+      .replace(/\s+([,.\?!;:])/g, '$1')
+      .replace(/([,;])\s*([,;])/g, '$1')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^[,.\s]+/, '')
+      .trim();
+
+    return res;
+  }
+
+  // Copia mensagem rápida para o membro do Facebook com todas as tags resolvidas
+  window.__resetfitCopiarMensagemX1Facebook = function(nomeMembro, perfilUrl) {
+    const templates = [
+      "{saudacao} {nome}, {tudo bem?|como vai?|passando rapidinho!} Vi seu contato aqui no grupo e gostaria de te apresentar o método do Litrão do Reset para desinchar, queimar retenção e ter mais disposição. Quer que eu te mande os detalhes? Ref: #{aleatorio}",
+      "{Oi|Olá|Oie} {nome}! {Tudo certinho por aí?|Como você está?} Chegou uma receita nova e super refrescante do Litrão do Reset essa semana no nosso Espaço. Gostaria de uma dose gratuita de degustação? Ref: #{aleatorio}"
+    ];
+    const escolhido = templates[Math.floor(Math.random() * templates.length)];
+    const msg = processarSpintaxETags(escolhido, { nome: nomeMembro });
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(() => {
+        alert(`✅ Mensagem personalizada para ${nomeMembro.split(' ')[0]} copiada!\n\n"${msg}"\n\nAbra a conversa e pressione Ctrl+V para colar!`);
+        if (perfilUrl) window.open(perfilUrl, '_blank');
+      });
+    }
+  };
+
   /**
    * Detecta o nome do grupo atual a partir do cabeçalho ou título da página
    */
@@ -963,7 +1069,20 @@
           </div>
           <span style="font-weight: 700; color: #1E293B;">${m.nome}</span>
         </div>
-        <div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button type="button" onclick="window.__resetfitCopiarMensagemX1Facebook('${m.nome.replace(/'/g, "\\'")}', '${m.perfilUrl || ''}')" style="
+            background: #EFF6FF;
+            color: #2563EB;
+            border: 1px solid #BFDBFE;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+          " title="Copiar mensagem personalizada com {nome} e {saudacao}">💬 Mensagem X1</button>
           ${m.cargo === 'admin'
             ? '<span style="background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800;">👑 Admin</span>'
             : '<span style="background: #F1F5F9; color: #475569; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 600;">Membro</span>'

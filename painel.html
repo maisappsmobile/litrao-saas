@@ -32302,6 +32302,103 @@ Vamos juntos colocar esses R$ 500+ por semana no bolso? Qualquer dúvida durante
             }
         }
 
+        // =======================================================
+        // MOTOR UNIVERSAL DE RESOLUÇÃO DE SPINTAX E TAGS (FACEBOOK CRM)
+        // =======================================================
+        function processarSpintaxETagsFacebook(texto, contato = {}) {
+            if (!texto || typeof texto !== 'string') return '';
+            let res = texto;
+
+            // 1. Saudação Inteligente por Turno do Dia
+            const hora = new Date().getHours();
+            const saudacaoManha = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
+            const saudacaoTarde = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
+            const saudacaoNoite = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
+            const listaSaudacoes = (hora >= 5 && hora < 12) ? saudacaoManha : (hora >= 12 && hora < 18) ? saudacaoTarde : saudacaoNoite;
+            const saudacaoSorteada = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
+
+            res = res.replace(/\{(?:saudacao|saudação|turno|cumprimento)\}/gi, saudacaoSorteada);
+
+            // 2. Extrai e Formata Primeiro Nome Humanizado
+            let pNome = '';
+            if (contato && contato.nome && typeof contato.nome === 'string') {
+                const nomeLimpo = contato.nome.trim();
+                if (!nomeLimpo.match(/^(\+|id_|\d)/)) {
+                    const primeiro = nomeLimpo.split(/[\s,;-]+/)[0] || '';
+                    if (primeiro.length >= 2) {
+                        pNome = primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+                    }
+                }
+            }
+            if (!pNome && contato && contato.primeiroNome) {
+                pNome = contato.primeiroNome;
+            }
+
+            const regexNome = /\{(?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato)\}/gi;
+            if (pNome) {
+                res = res.replace(regexNome, pNome);
+            } else {
+                res = res.replace(regexNome, '');
+            }
+
+            // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
+            const hash = Math.floor(1000 + Math.random() * 9000);
+            res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
+            res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
+            res = res.replace(/\{(?:ref|referencia|referência)\}/gi, 'Ref #' + hash);
+
+            // 4. Data, Hora e Links
+            const agora = new Date();
+            res = res.replace(/\{hoje\}/gi, 'hoje');
+            res = res.replace(/\{data\}/gi, agora.toLocaleDateString('pt-BR'));
+            res = res.replace(/\{hora\}/gi, agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+
+            if (contato && contato.linkOficial) {
+                res = res.replace(/\{LINK_OFICIAL\}/gi, contato.linkOficial);
+            }
+            if (contato && contato.grupo) {
+                res = res.replace(/\{GRUPO\}/gi, contato.grupo);
+            }
+
+            // 5. Spintax Recursivo
+            let anterior = '';
+            let limite = 12;
+            while (limite > 0 && res !== anterior) {
+                anterior = res;
+                limite--;
+                res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+                    if (conteudo.includes('|')) {
+                        const opcoes = conteudo.split('|');
+                        const escolhida = opcoes[Math.floor(Math.random() * opcoes.length)];
+                        return (escolhida !== undefined) ? escolhida.trim() : '';
+                    }
+                    return match;
+                });
+            }
+
+            // 6. Higienização de chaves residuais
+            res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+                if (conteudo.includes('|')) {
+                    const opcoes = conteudo.split('|');
+                    return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
+                }
+                if (/ref|num|cod/i.test(conteudo)) {
+                    return '#' + hash;
+                }
+                return '';
+            });
+
+            // 7. Limpeza Estética e Pontuação
+            res = res
+                .replace(/\s+([,.\?!;:])/g, '$1')
+                .replace(/([,;])\s*([,;])/g, '$1')
+                .replace(/\s{2,}/g, ' ')
+                .replace(/^[,.\s]+/, '')
+                .trim();
+
+            return res;
+        }
+
         function abrirMessengerLeadFacebook(idLead) {
             const leads = obterLeadsFacebookStorage();
             const lead = leads.find(l => l.id === idLead);
@@ -32320,10 +32417,12 @@ Vamos juntos colocar esses R$ 500+ por semana no bolso? Qualquer dúvida durante
             const copyId = lead.cargo === 'admin' ? 'fb_copy_2' : 'fb_copy_1';
             const copyObj = COPIAS_FACEBOOK_PROSPECCAO.find(c => c.id === copyId) || COPIAS_FACEBOOK_PROSPECCAO[0];
             const linkEdwan = obterLinkSuperadminOficial();
-            const msgPersonalizada = copyObj.textoBase
-                .replace(/\{NOME\}/g, primeiroNome)
-                .replace(/\{LINK_OFICIAL\}/g, linkEdwan)
-                .replace(/\{GRUPO\}/g, lead.grupoOrigem || 'Espaço Vida Saudável Herbalife');
+            const msgPersonalizada = processarSpintaxETagsFacebook(copyObj.textoBase, {
+                nome: lead.nome,
+                primeiroNome: primeiroNome,
+                linkOficial: linkEdwan,
+                grupo: lead.grupoOrigem || 'Espaço Vida Saudável Herbalife'
+            });
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(msgPersonalizada).catch(() => {});
@@ -32373,10 +32472,12 @@ Vamos juntos colocar esses R$ 500+ por semana no bolso? Qualquer dúvida durante
                 }
             }
 
-            const textoFinal = copyObj.textoBase
-                .replace(/\{NOME\}/g, primeiroNome)
-                .replace(/\{LINK_OFICIAL\}/g, linkEdwan)
-                .replace(/\{GRUPO\}/g, nomeGrupo);
+            const textoFinal = processarSpintaxETagsFacebook(copyObj.textoBase, {
+                nome: primeiroNome,
+                primeiroNome: primeiroNome,
+                linkOficial: linkEdwan,
+                grupo: nomeGrupo
+            });
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textoFinal).then(() => {

@@ -35,7 +35,34 @@ const MENSAGENS_PADRAO = [
 let contatosExtraidos = [];
 let nomeGrupoAtual = '';
 
+// Cache Persistente Universal de Contatos Extraídos (WhatsApp & Facebook)
+function carregarContatosCache() {
+  try {
+    const raw = localStorage.getItem('litrao_todos_contatos_extraidos_cache');
+    if (raw) contatosExtraidos = JSON.parse(raw);
+  } catch(_) {}
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['litrao_todos_contatos_extraidos_cache', 'resetfit_fb_membros_cache'], (res) => {
+      if (res && res.litrao_todos_contatos_extraidos_cache && Array.isArray(res.litrao_todos_contatos_extraidos_cache) && res.litrao_todos_contatos_extraidos_cache.length > 0) {
+        contatosExtraidos = res.litrao_todos_contatos_extraidos_cache;
+      }
+    });
+  }
+}
+
+function salvarContatosCache(lista) {
+  if (!lista || !Array.isArray(lista)) return;
+  contatosExtraidos = lista;
+  try {
+    localStorage.setItem('litrao_todos_contatos_extraidos_cache', JSON.stringify(lista));
+  } catch(_) {}
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.set({ litrao_todos_contatos_extraidos_cache: lista });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  carregarContatosCache();
   if (window.self !== window.top) {
     document.body.classList.add('in-iframe');
   }
@@ -385,6 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const res = (resultado && resultado[0] && resultado[0].result) ? resultado[0].result : { nomeGrupo: 'Grupo Facebook', membros: [] };
       contatosExtraidos = res.membros || [];
+      salvarContatosCache(contatosExtraidos);
       nomeGrupoAtual = res.nomeGrupo || 'HERBALIFE BRASIL';
 
       btnExtrair.disabled = false;
@@ -450,6 +478,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       contatosExtraidos = res.contatos || res.leads || [];
+      salvarContatosCache(contatosExtraidos);
       nomeGrupoAtual = res.nomeGrupo || nomeGrupoAtual || 'Grupo WhatsApp';
 
       const comTel = contatosExtraidos.filter(c => c.telefone && c.telefone.length >= 8);
@@ -840,12 +869,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.addEventListener('click', () => {
         const idx = btn.dataset.idx;
         const msg = msgs[idx];
-        if (isZap && msg) {
+        if (!msg) return;
+
+        // Resolve automaticamente todas as tags {saudacao}, {nome}, {Oi|Olá}, {Ref #} etc.
+        const textoProcessado = gerarMensagemFinal(msg.texto);
+
+        if (isZap) {
           if (msg.midia && msg.midia.base64) {
             chrome.tabs.sendMessage(tab.id, {
               action: 'enviar_midia_chat',
               midia: msg.midia,
-              legenda: msg.texto
+              legenda: textoProcessado
             }, (res) => {
               if (chrome.runtime.lastError) {
                 const _e = chrome.runtime.lastError.message;
@@ -859,7 +893,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               }
             });
           } else {
-            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
+            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: textoProcessado }, () => {
               if (chrome.runtime.lastError) {
                 const _e = chrome.runtime.lastError.message;
                 alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
@@ -869,8 +903,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
           }
         } else {
-          navigator.clipboard.writeText(msg.texto);
-          alert(`Mensagem copiada para a área de transferência!`);
+          navigator.clipboard.writeText(textoProcessado);
+          alert(`Mensagem personalizada copiada para a área de transferência!`);
         }
       });
     });
@@ -1052,9 +1086,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           fillProgressoSeq.style.width = '20%';
         }
 
+        // Resolve automaticamente spintax e tags de cada passo da sequência
+        const seqProcessada = {
+          ...seq,
+          passos: (seq.passos || []).map(p => ({
+            ...p,
+            texto: gerarMensagemFinal(p.texto)
+          }))
+        };
+
         chrome.tabs.sendMessage(tab.id, {
           action: 'executar_sequencia_1clique',
-          sequencia: seq
+          sequencia: seqProcessada
         }, (res) => {
           btn.disabled = false;
           btn.innerText = '⚡ Disparar Sequência (1 Clique)';
@@ -1548,65 +1591,166 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Funções de Resolução de Spintax e Tags Inteligentes
-  function resolverSpintax(texto) {
-    if (!texto) return '';
-    const regex = /\{([^{}]+)\}/g;
-    let anterior = '';
-    let atual = texto;
-    while (atual !== anterior) {
-      anterior = atual;
-      atual = atual.replace(regex, (match, opcoesStr) => {
-        if (!opcoesStr.includes('|')) return match;
-        const opcoes = opcoesStr.split('|');
-        return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
-      });
-    }
-    return atual;
-  }
-
-  function resolverTagsInteligentes(texto, contato = {}) {
-    if (!texto) return '';
+  // =======================================================
+  // MOTOR UNIVERSAL DE RESOLUÇÃO DE SPINTAX E TAGS INTELIGENTES
+  // =======================================================
+  function processarSpintaxETags(texto, contato = {}) {
+    if (!texto || typeof texto !== 'string') return '';
     let res = texto;
 
-    // 1. Saudação por Turno
+    // 1. Saudação Inteligente por Turno do Dia
     const hora = new Date().getHours();
-    let listaSaudacoes = [];
-    if (hora >= 5 && hora < 12) {
-      listaSaudacoes = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
-    } else if (hora >= 12 && hora < 18) {
-      listaSaudacoes = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
-    } else {
-      listaSaudacoes = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
-    }
-    const saudacao = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
-    res = res.replace(/\{saudacao\}/gi, saudacao);
+    const saudacaoManha = ['Bom dia', 'Olá, bom dia', 'Oi, bom dia', 'Oie, bom dia'];
+    const saudacaoTarde = ['Boa tarde', 'Olá, boa tarde', 'Oi, boa tarde', 'Oie, boa tarde'];
+    const saudacaoNoite = ['Boa noite', 'Olá, boa noite', 'Oi, boa noite'];
+    const listaSaudacoes = (hora >= 5 && hora < 12) ? saudacaoManha : (hora >= 12 && hora < 18) ? saudacaoTarde : saudacaoNoite;
+    const saudacaoSorteada = listaSaudacoes[Math.floor(Math.random() * listaSaudacoes.length)];
 
-    // 2. Nome
+    res = res.replace(/\{(?:saudacao|saudação|turno|cumprimento)\}/gi, saudacaoSorteada);
+
+    // 2. Extrai e Formata Primeiro Nome Humanizado
     let pNome = '';
-    if (contato.nome && !contato.nome.match(/^\+?\d/)) {
-      pNome = contato.nome.trim().split(' ')[0] || '';
+    if (contato && contato.nome && typeof contato.nome === 'string') {
+      const nomeLimpo = contato.nome.trim();
+      if (!nomeLimpo.match(/^(\+|id_|\d)/)) {
+        const primeiro = nomeLimpo.split(/[\s,;-]+/)[0] || '';
+        if (primeiro.length >= 2) {
+          pNome = primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+        }
+      }
     }
-    if (pNome && pNome.length >= 2) {
-      res = res.replace(/\{nome\}/gi, pNome);
-      res = res.replace(/\{primeiro_nome\}/gi, pNome);
+
+    const regexNome = /\{(?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato)\}/gi;
+    if (pNome) {
+      res = res.replace(regexNome, pNome);
     } else {
-      res = res.replace(/\{nome\}/gi, '');
-      res = res.replace(/\{primeiro_nome\}/gi, '');
+      // Se não houver nome, remove suavemente para não deixar lacunas
+      res = res.replace(regexNome, '');
     }
 
-    // 3. Hash e Código Aleatório Anti-Bloqueio
+    // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
     const hash = Math.floor(1000 + Math.random() * 9000);
-    res = res.replace(/\{aleatorio\}/gi, String(hash));
-    res = res.replace(/\{protocolo\}/gi, '#' + hash);
+    res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
+    res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
+    res = res.replace(/\{(?:ref|referencia|referência)\}/gi, 'Ref #' + hash);
 
-    return res.replace(/\s{2,}/g, ' ').trim();
+    // 4. Data, Hora e Dia da Semana
+    const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+    const agora = new Date();
+    res = res.replace(/\{(?:dia|dia_semana)\}/gi, diasSemana[agora.getDay()]);
+    res = res.replace(/\{hoje\}/gi, 'hoje');
+    res = res.replace(/\{data\}/gi, agora.toLocaleDateString('pt-BR'));
+    res = res.replace(/\{hora\}/gi, agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+
+    // 5. Spintax Multinível / Recursivo (resolve todas as opções {a|b|c})
+    let anterior = '';
+    let limite = 12;
+    while (limite > 0 && res !== anterior) {
+      anterior = res;
+      limite--;
+      res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+        if (conteudo.includes('|')) {
+          const opcoes = conteudo.split('|');
+          const escolhida = opcoes[Math.floor(Math.random() * opcoes.length)];
+          return (escolhida !== undefined) ? escolhida.trim() : '';
+        }
+        return match;
+      });
+    }
+
+    // 6. Higienização de chaves residuais (evita enviar qualquer tag crua)
+    res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
+      if (conteudo.includes('|')) {
+        const opcoes = conteudo.split('|');
+        return opcoes[Math.floor(Math.random() * opcoes.length)].trim();
+      }
+      if (/ref|num|cod/i.test(conteudo)) {
+        return '#' + hash;
+      }
+      return '';
+    });
+
+    // 7. Limpeza Estética e Ajuste de Pontuação Órfã
+    res = res
+      .replace(/\s+([,.\?!;:])/g, '$1')
+      .replace(/([,;])\s*([,;])/g, '$1')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^[,.\s]+/, '')
+      .trim();
+
+    return res;
   }
 
   function gerarMensagemFinal(textoTemplate, contato = {}) {
-    let t = resolverTagsInteligentes(textoTemplate, contato);
-    t = resolverSpintax(t);
-    return t;
+    return processarSpintaxETags(textoTemplate, contato);
+  }
+
+  // Parser Inteligente de Linhas de Contatos (Suporta WhatsApp & Facebook)
+  function extrairContatoDeLinha(linha) {
+    if (!linha || typeof linha !== 'string') return null;
+    const raw = linha.trim();
+    if (!raw) return null;
+
+    let telefone = '';
+    let nome = '';
+    let perfilUrl = '';
+
+    // Link do perfil do Facebook
+    if (raw.includes('facebook.com')) {
+      const partes = raw.split(/[,;\t|]|\s+-\s+/);
+      partes.forEach(p => {
+        const pL = p.trim();
+        if (pL.includes('facebook.com')) perfilUrl = pL;
+        else if (pL.length >= 2 && !pL.match(/^\d+$/)) nome = pL;
+      });
+      if (!nome && perfilUrl) {
+        const m = perfilUrl.match(/facebook\.com\/([a-zA-Z0-9\.\_]+)/);
+        if (m && !['groups', 'user', 'people'].includes(m[1])) {
+          nome = m[1].replace(/\./g, ' ');
+        }
+      }
+      return { telefone: '', nome: nome.trim(), perfilUrl: perfilUrl };
+    }
+
+    // Separa por vírgula, ponto-e-vírgula, tab, pipe ou " - "
+    const partes = raw.split(/[,;\t|]|\s+-\s+/).map(p => p.trim()).filter(Boolean);
+
+    if (partes.length >= 2) {
+      let idxTel = -1;
+      let maxDigitos = 0;
+      partes.forEach((p, idx) => {
+        const digitos = p.replace(/\D/g, '');
+        if (digitos.length >= 8 && digitos.length > maxDigitos) {
+          maxDigitos = digitos.length;
+          idxTel = idx;
+        }
+      });
+
+      if (idxTel !== -1) {
+        telefone = partes[idxTel].replace(/\D/g, '');
+        const partesNome = partes.filter((_, idx) => idx !== idxTel && !_.match(/^\+?\d+$/));
+        nome = partesNome.join(' ').trim();
+      }
+    }
+
+    if (!telefone) {
+      const apenasDigitos = raw.replace(/\D/g, '');
+      if (apenasDigitos.length >= 8 && apenasDigitos.length <= 15) {
+        telefone = apenasDigitos;
+        const possivelNome = raw.replace(/[\d\+\(\)\-\s\.\/]+/g, ' ').trim();
+        if (possivelNome.length >= 2) nome = possivelNome;
+      } else {
+        if (raw.length >= 2 && !raw.match(/^\d+$/)) {
+          nome = raw;
+        }
+      }
+    }
+
+    if (telefone && (telefone.length === 10 || telefone.length === 11)) {
+      telefone = '55' + telefone;
+    }
+
+    return { telefone, nome, perfilUrl };
   }
 
   // Testador ao Vivo
@@ -1625,26 +1769,62 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Puxar Telefones Extraídos
+  // Puxar Contatos Extraídos do WhatsApp
   const btnPuxarExtrator = document.getElementById('btn-puxar-extrator-para-disparo');
+  const btnPuxarFacebook = document.getElementById('btn-puxar-facebook-para-disparo');
   const textareaTelefones = document.getElementById('disparo-massa-telefones');
 
   if (btnPuxarExtrator && textareaTelefones) {
     btnPuxarExtrator.addEventListener('click', () => {
-      if (!contatosExtraidos || contatosExtraidos.length === 0) {
-        alert("Nenhum contato extraído recentemente. Vá na aba 'Extrator' e extraia um grupo primeiro!");
-        return;
+      let contatos = (contatosExtraidos && contatosExtraidos.length > 0) ? contatosExtraidos : [];
+      if (contatos.length === 0) {
+        try {
+          const raw = localStorage.getItem('litrao_todos_contatos_extraidos_cache');
+          if (raw) contatos = JSON.parse(raw);
+        } catch(_) {}
       }
-      const tels = contatosExtraidos
-        .map(c => c.telefone)
-        .filter(t => t && t.length >= 8);
 
-      if (tels.length === 0) {
-        alert("Nenhum telefone válido encontrado na extração.");
+      const linhasWpp = contatos
+        .filter(c => c.telefone && c.telefone.length >= 8)
+        .map(c => {
+          const tel = c.telefone.replace(/\D/g, '');
+          const nome = (c.nome && !c.nome.match(/^\+?\d/)) ? c.nome.trim() : '';
+          return nome ? `${nome}, +${tel}` : `+${tel}`;
+        });
+
+      if (linhasWpp.length === 0) {
+        alert("Nenhum contato do WhatsApp encontrado na memória recente. Vá na aba 'Extrator' e extraia um grupo primeiro!");
         return;
       }
-      textareaTelefones.value = tels.join('\n');
-      alert(`Sucesso! ${tels.length} telefones importados do Extrator para a lista de disparo!`);
+      textareaTelefones.value = (textareaTelefones.value ? textareaTelefones.value.trim() + '\n' : '') + linhasWpp.join('\n');
+      alert(`🎉 Sucesso! ${linhasWpp.length} contatos do WhatsApp importados com Nome e Telefone!`);
+    });
+  }
+
+  // Puxar Leads Extraídos do Facebook
+  if (btnPuxarFacebook && textareaTelefones) {
+    btnPuxarFacebook.addEventListener('click', () => {
+      chrome.storage.local.get(['resetfit_fb_pending_import', 'resetfit_fb_membros_cache'], (res) => {
+        let leads = [];
+        if (res && res.resetfit_fb_pending_import && res.resetfit_fb_pending_import.leads) {
+          leads = res.resetfit_fb_pending_import.leads;
+        } else if (res && res.resetfit_fb_membros_cache && Array.isArray(res.resetfit_fb_membros_cache)) {
+          leads = res.resetfit_fb_membros_cache;
+        }
+        if (!leads || leads.length === 0) {
+          try {
+            const raw = localStorage.getItem('resetfit_fb_membros_cache');
+            if (raw) leads = JSON.parse(raw);
+          } catch(_) {}
+        }
+        if (!leads || leads.length === 0) {
+          alert("Nenhum membro do Facebook encontrado. Vá na aba 'Extrator Facebook' para extrair membros de um grupo!");
+          return;
+        }
+        const linhasFb = leads.map(l => `${l.nome}${l.perfilUrl ? ' - ' + l.perfilUrl : ''}`);
+        textareaTelefones.value = (textareaTelefones.value ? textareaTelefones.value.trim() + '\n' : '') + linhasFb.join('\n');
+        alert(`🎉 Sucesso! ${leads.length} membros do Facebook importados com Nome! As tags {nome} e {saudacao} serão personalizadas automaticamente!`);
+      });
     });
   }
 
@@ -1723,24 +1903,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const rawTels = textareaTelefones ? textareaTelefones.value.trim() : '';
       if (!rawTels) {
-        alert("Preencha a lista de telefones (um por linha).");
+        alert("Preencha a lista de contatos ou clique nos botões acima para puxar do WhatsApp ou Facebook.");
         return;
       }
 
-      const linhasTelefones = rawTels.split('\n').map(l => l.trim()).filter(Boolean);
-      if (linhasTelefones.length === 0) {
-        alert("Nenhum telefone válido encontrado.");
+      const linhasContatos = rawTels.split('\n').map(l => l.trim()).filter(Boolean);
+      if (linhasContatos.length === 0) {
+        alert("Nenhum contato válido encontrado.");
         return;
       }
 
       const variacoes = obterVariacoesSalvas().filter(v => v.texto && v.texto.trim().length > 0);
       if (variacoes.length === 0 && !midiaDisparoAtual) {
         alert("Adicione pelo menos uma mensagem nas variações ou anexe uma foto/vídeo.");
-        return;
-      }
-
-      if (!isZap || !tab) {
-        alert("Abra o WhatsApp Web (web.whatsapp.com) para iniciar o disparo.");
         return;
       }
 
@@ -1755,23 +1930,47 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnIniciarDisparo.innerText = '⏳ Disparador Ativo...';
       if (boxProgressoDisparo) boxProgressoDisparo.style.display = 'block';
 
-      let enviadosSucesso = 0;
+      let processadosSucesso = 0;
       let errosCount = 0;
 
-      for (let i = 0; i < linhasTelefones.length; i++) {
+      for (let i = 0; i < linhasContatos.length; i++) {
         if (cancelarDisparoAtual) {
-          alert(`Disparo interrompido pelo usuário. Total enviado: ${enviadosSucesso}/${linhasTelefones.length}.`);
+          alert(`Disparo interrompido pelo usuário. Total processado: ${processadosSucesso}/${linhasContatos.length}.`);
           break;
         }
 
-        const telLinha = linhasTelefones[i];
-        const pct = Math.round(((i) / linhasTelefones.length) * 100);
-        if (fillProgressoDisparo) fillProgressoDisparo.style.width = pct + '%';
-        if (txtContagemDisparo) txtContagemDisparo.innerText = `${i + 1} de ${linhasTelefones.length}`;
-        const descMidia = midiaDisparoAtual ? (midiaDisparoAtual.tipo === 'video' ? '🎥 ' : '📷 ') : '';
-        if (txtProgressoDisparo) txtProgressoDisparo.innerText = `Enviando ${descMidia}para ${telLinha}...`;
+        const linhaBruta = linhasContatos[i];
+        const contato = extrairContatoDeLinha(linhaBruta);
+        if (!contato) continue;
 
-        // 1. Escolhe a mensagem (aleatória ou em ordem)
+        let telLinha = contato.telefone;
+        let nomeContato = contato.nome;
+        let perfilFb = contato.perfilUrl;
+
+        // Se a linha só tinha telefone, tenta buscar o nome no cache da extração
+        if (!nomeContato && telLinha) {
+          let contatosPool = (contatosExtraidos && contatosExtraidos.length > 0) ? contatosExtraidos : [];
+          if (contatosPool.length === 0) {
+            try {
+              const rawCache = localStorage.getItem('litrao_todos_contatos_extraidos_cache');
+              if (rawCache) contatosPool = JSON.parse(rawCache);
+            } catch (_) {}
+          }
+          const achado = contatosPool.find(c => c.telefone && c.telefone.includes(telLinha.replace(/\D/g, '').slice(-8)));
+          if (achado && achado.nome && !achado.nome.match(/^\+?\d/)) {
+            nomeContato = achado.nome;
+          }
+        }
+
+        const pct = Math.round(((i) / linhasContatos.length) * 100);
+        if (fillProgressoDisparo) fillProgressoDisparo.style.width = pct + '%';
+        if (txtContagemDisparo) txtContagemDisparo.innerText = `${i + 1} de ${linhasContatos.length}`;
+
+        const descMidia = midiaDisparoAtual ? (midiaDisparoAtual.tipo === 'video' ? '🎥 ' : '📷 ') : '';
+        const identificador = telLinha ? `+${telLinha}${nomeContato ? ' (' + nomeContato + ')' : ''}` : (nomeContato || perfilFb || 'Contato');
+        if (txtProgressoDisparo) txtProgressoDisparo.innerText = `Processando ${descMidia}para ${identificador}...`;
+
+        // 1. Escolhe o template da variação
         let templateEscolhido = '';
         if (variacoes.length > 0) {
           if (modo === 'ordem') {
@@ -1781,40 +1980,55 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
 
-        // 2. Busca nome se existir nos contatos extraídos
-        let nomeContato = '';
-        const achado = contatosExtraidos.find(c => c.telefone && c.telefone.includes(telLinha.replace(/\D/g, '').slice(-8)));
-        if (achado && achado.nome) nomeContato = achado.nome;
-
-        // 3. Resolve Spintax e Tags Inteligentes
+        // 2. Resolve Spintax e Tags Inteligentes 100% no automático!
         const msgFinal = templateEscolhido ? gerarMensagemFinal(templateEscolhido, { nome: nomeContato, telefone: telLinha }) : '';
 
-        // 4. Envia para o WhatsApp Web (com mídia anexa se presente)
-        try {
-          await garantirContentScript(tab.id);
-          const res = await new Promise(resolve => {
-            chrome.tabs.sendMessage(tab.id, {
-              action: 'disparar_mensagem_para_telefone',
-              telefone: telLinha,
-              texto: msgFinal,
-              midia: midiaDisparoAtual
-            }, (r) => {
-              if (chrome.runtime.lastError || !r) resolve({ sucesso: false, erro: 'Erro de comunicação com o WhatsApp.' });
-              else resolve(r);
-            });
-          });
+        // 3. Execução de Envio de acordo com o canal (WhatsApp ou Facebook)
+        if (telLinha) {
+          // Destinatário do WhatsApp
+          if (!isZap || !tab) {
+            alert("Abra o WhatsApp Web (web.whatsapp.com) para disparar para telefones.");
+            break;
+          }
 
-          if (res && res.sucesso) {
-            enviadosSucesso++;
-          } else {
+          try {
+            await garantirContentScript(tab.id);
+            const res = await new Promise(resolve => {
+              chrome.tabs.sendMessage(tab.id, {
+                action: 'disparar_mensagem_para_telefone',
+                telefone: telLinha,
+                texto: msgFinal,
+                midia: midiaDisparoAtual
+              }, (r) => {
+                if (chrome.runtime.lastError || !r) resolve({ sucesso: false, erro: 'Erro de comunicação com o WhatsApp.' });
+                else resolve(r);
+              });
+            });
+
+            if (res && res.sucesso) {
+              processadosSucesso++;
+            } else {
+              errosCount++;
+            }
+          } catch (err) {
             errosCount++;
           }
-        } catch (err) {
-          errosCount++;
+        } else if (perfilFb || nomeContato) {
+          // Destinatário do Facebook!
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(msgFinal);
+            }
+            const urlDestino = perfilFb || `https://www.facebook.com/search/people/?q=${encodeURIComponent(nomeContato)}`;
+            chrome.tabs.create({ url: urlDestino, active: false });
+            processadosSucesso++;
+          } catch (err) {
+            errosCount++;
+          }
         }
 
-        // 5. Delay humanizado se não for o último contato
-        if (i < linhasTelefones.length - 1 && !cancelarDisparoAtual) {
+        // 4. Delay humanizado anti-bloqueio se não for o último contato
+        if (i < linhasContatos.length - 1 && !cancelarDisparoAtual) {
           const delaySegundos = Math.floor(Math.random() * (delayMax - delayMin + 1)) + delayMin;
           for (let s = delaySegundos; s > 0; s--) {
             if (cancelarDisparoAtual) break;
@@ -1831,7 +2045,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (boxProgressoDisparo) boxProgressoDisparo.style.display = 'none';
 
       if (!cancelarDisparoAtual) {
-        alert(`🎉 Disparo em massa finalizado com sucesso!\n\nEnviados: ${enviadosSucesso}\nErros / Não WhatsApp: ${errosCount}`);
+        alert(`🎉 Disparo em massa finalizado com sucesso!\n\nProcessados: ${processadosSucesso}\nErros: ${errosCount}`);
       }
     });
   }
@@ -1930,6 +2144,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const membros = (resultado && resultado[0] && resultado[0].result) ? resultado[0].result : [];
         leadsFacebookExtraidosPopup = membros;
+        try {
+          localStorage.setItem('resetfit_fb_membros_cache', JSON.stringify(membros));
+          if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ resetfit_fb_membros_cache: membros });
+          }
+        } catch(_) {}
 
         btnExtrairFb.disabled = false;
         btnExtrairFb.innerText = '⚡ Atualizar Extração';
