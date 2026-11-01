@@ -982,7 +982,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       passos: [
         { texto: '🚨 {saudacao} {nome}! ACABOU DE SER REVELADA A OFERTA DO LITRÃO DO RESET! 🔓', delay: 3 },
         { texto: 'A Taxa de Adesão de até R$ 699 foi 100% ZERADA! Liberamos a contratação com Status Oficial de Membro Fundador:\n\n⭐ #2 MASTER VIP: R$ 47,00/mês (ou R$ 439/ano) [MAIS PEDIDO]\n🔹 #1 SMART PRO: R$ 39,00/mês (ou R$ 367/ano)\n\n🎁 BÔNUS EXCLUSIVOS LIBERADOS:\n✅ Meu Catálogo Digital VIP 100% Liberado (Personalizado com seus dados, pedidos de produtos fechados e links para recrutar novos consultores e clientes premium)\n✅ Cartão Fidelidade & Clientes Liberado (Portal & 10 Selos)\n✅ Selo Oficial de Membro Fundador Vitalício', delay: 5 },
-        { texto: '👉 Garanta sua vaga com Adesão Zero pelo link oficial:\nhttps://litraodoreset.com.br/assinar.html?cupom=FUNDADOR100&plano=master\n\n⏰ O lote encerra nesta Sexta-feira às 16:00 (Horário de Brasília) / 15:00 (MT)!', delay: 0 }
+        { texto: '👉 Garanta sua vaga com Adesão Zero pelo link oficial:\nhttps://litraodoreset.com.br/assinar.html?cupom=FUNDADOR100&plano=master\n\n⏰ O lote encerra nesta Sexta-feira às 16:00 (Horário de Brasília)!', delay: 0 }
       ]
     },
     {
