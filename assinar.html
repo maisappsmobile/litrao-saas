@@ -1269,15 +1269,15 @@
                         .ilike('nome_espaco', '%<!--GRUPO_FUNDADORES:%');
                     
                     const totalFund = fundadoresExistentes ? fundadoresExistentes.length : 0;
-                    // Sequência Especial de Séries de Fundadores: W, X, Z (Maiúsculas) e depois w, x, z (Minúsculas) de 100 em 100
-                    const seriesFundadores = ["W", "X", "Z", "w", "x", "z"];
+                    // Sequência Completa de Séries de Fundadores: A-Z (26 Maiúsculas) + a-z (26 Minúsculas) de 100 em 100 (Total 5.200 Vagas)
+                    const seriesFundadores = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split('');
                     const serieIdx = Math.floor(totalFund / 100);
-                    const letra = (serieIdx < seriesFundadores.length) ? seriesFundadores[serieIdx] : seriesFundadores[seriesFundadores.length - 1];
+                    const letra = (serieIdx < seriesFundadores.length) ? seriesFundadores[serieIdx] : 'z';
                     const num = (totalFund % 100) + 1;
                     codigoFundadorGerado = `${letra}${String(num).padStart(3, '0')}`;
                 } catch (eFund) {
                     console.warn("Erro ao processar fundador:", eFund);
-                    codigoFundadorGerado = 'W001';
+                    codigoFundadorGerado = 'A001';
                 }
             }
 
