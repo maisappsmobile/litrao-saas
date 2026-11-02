@@ -61,11 +61,13 @@ function processarSpintaxETags(texto, contato = {}) {
     }
   }
 
-  const regexNome = /\{(?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato)\}/gi;
+  // Regex robusto que aceita tags com chaves {nome} ou colchetes [Nome do Consultor]
+  const regexNome = /[\{\[](?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato|nome do consultor|nome_consultor)[\}\]]/gi;
   if (pNome) {
     res = res.replace(regexNome, pNome);
   } else {
-    // Se não houver nome salvo, remove a tag suavemente
+    // Se não houver nome detectado, remove a tag de forma natural e suave (sem deixar vírgula órfã)
+    res = res.replace(/([oO]lá|[oO]i|[oO]ie|[fF]ala)\s*[\{\[](?:nome|primeiro_nome|primeiro nome|primeironome|cliente|lead|contato|nome do consultor|nome_consultor)[\}\]][,\s]*/gi, '$1! ');
     res = res.replace(regexNome, '');
   }
 
@@ -138,20 +140,16 @@ function processarSpintaxETags(texto, contato = {}) {
 function obterNomeContatoConversaAtiva() {
   let nomeCompleto = '';
 
-  // 1. Tenta extrair da área de informações do cabeçalho (#main header)
+  // 1. Tenta extrair do cabeçalho da conversa aberta (#main header)
   const header = obterHeaderConversaAtiva();
   if (header) {
-    // A área com foto e nome do contato é uma div clicável (role="button") ou o próprio header
-    const infoBtn = header.querySelector('div[role="button"]') || header;
-    
-    // Procura todos os elementos de texto dentro da área de informações do contato
-    const candidatos = Array.from(infoBtn.querySelectorAll('h2, span[dir="auto"], span[title], div[dir="auto"]'))
-      .map(el => (el.getAttribute('title') || el.innerText || '').trim())
-      .filter(t => t.length > 0);
-
-    for (const texto of candidatos) {
-      // Ignora status, emojis sozinhos, vistos por último, horários e textos de sistema
-      if (/visto por último|online|digitando|gravando|clique aqui|mensagens temporárias|toque para|chamada|pesquisar|mais opções/i.test(texto)) continue;
+    // Busca em TODOS os spans com atributo title ou dir="auto" ou h2 no cabeçalho inteiro (não limitado ao botão)
+    const elementosHeader = Array.from(header.querySelectorAll('span[title], div[data-testid="conversation-info-header"] span, h2, span[dir="auto"]'));
+    for (const el of elementosHeader) {
+      const texto = (el.getAttribute('title') || el.innerText || '').trim();
+      if (!texto) continue;
+      // Ignora status, contadores de seleção, vistos por último, horários e textos de sistema
+      if (/visto por último|online|digitando|gravando|selecionad|clique aqui|mensagens temporárias|toque para|chamada|pesquisar|mais opções/i.test(texto)) continue;
       if (texto.includes(':') && /\d{2}:\d{2}/.test(texto)) continue;
       if (texto.startsWith('http://') || texto.startsWith('https://')) continue;
       // Se for apenas número de telefone (ex: +55 64 9999-9999), ignora para não usar o telefone como nome
@@ -166,22 +164,29 @@ function obterNomeContatoConversaAtiva() {
 
   // 2. Se não achou no header, busca na conversa atualmente selecionada na barra lateral (#pane-side)
   if (!nomeCompleto) {
-    const chatAtivo = document.querySelector('#pane-side div[aria-selected="true"]') ||
-                      document.querySelector('#pane-side div[role="row"][aria-selected="true"]') ||
-                      document.querySelector('#pane-side div[data-testid="cell-frame-container"]._ak8l') ||
-                      document.querySelector('#pane-side div[tabindex="0"]');
-    if (chatAtivo) {
-      const spanTitulo = chatAtivo.querySelector('span[title]') || chatAtivo.querySelector('span[dir="auto"]');
-      if (spanTitulo) {
-        const t = (spanTitulo.getAttribute('title') || spanTitulo.innerText || '').trim();
-        if (t && !/^\+?\d[\d\s\-\(\)]+$/.test(t)) {
-          nomeCompleto = t;
+    const paneSide = document.querySelector('#pane-side');
+    if (paneSide) {
+      const chatAtivo = paneSide.querySelector('div[aria-selected="true"]') ||
+                        paneSide.querySelector('div[role="row"][aria-selected="true"]') ||
+                        paneSide.querySelector('div[data-testid="cell-frame-container"]._ak8l') ||
+                        paneSide.querySelector('div[tabindex="0"]');
+      if (chatAtivo) {
+        const spansTitulo = Array.from(chatAtivo.querySelectorAll('span[title], span[dir="auto"]'));
+        for (const span of spansTitulo) {
+          const t = (span.getAttribute('title') || span.innerText || '').trim();
+          if (!t) continue;
+          if (/^\+?\d[\d\s\-\(\)]+$/.test(t)) continue;
+          if (t.includes(':') && /\d{2}:\d{2}/.test(t)) continue;
+          if (t.length >= 2) {
+            nomeCompleto = t;
+            break;
+          }
         }
       }
     }
   }
 
-  // 3. Formata e humaniza o Primeiro Nome
+  // 3. Formata e humaniza o Primeiro Nome (ex: "Lucia BRAGA" -> "Lucia")
   if (nomeCompleto) {
     // Remove emojis ou caracteres especiais residuais no início
     nomeCompleto = nomeCompleto.replace(/^[\p{Emoji}\s\-_|#@]+/gu, '').trim();
@@ -193,6 +198,9 @@ function obterNomeContatoConversaAtiva() {
       return primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
     }
   }
+
+  return '';
+}
 
   return '';
 }
@@ -843,6 +851,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }).catch(err => {
       sendResponse({ sucesso: false, erro: err.message });
     });
+    return true;
+  }
+
+  if (request.action === 'obter_contato_ativo') {
+    const nome = (typeof obterNomeContatoConversaAtiva === 'function') ? obterNomeContatoConversaAtiva() : '';
+    sendResponse({ sucesso: true, nome: nome });
     return true;
   }
 

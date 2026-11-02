@@ -3,8 +3,33 @@
  * Inclui: Extrator Completo, Mensagens Rápidas, Sequências, Mídias, Disparo em Massa, Respostas e Backup
  */
 
-// Mensagens Rápidas Padrão Validadas para o ResetFIT
+// Mensagens Rápidas Padrão Validadas para o ResetFIT & Lançamento Meteórico
 const MENSAGENS_PADRAO = [
+  {
+    id: 'msg_vip_1',
+    titulo: '🔥 1.1 Reconexão VIP (Ativo/Pausado + 30 Dias Grupo VIP)',
+    texto: 'Olá {nome}, tudo bem? Vi seu contato e queria tirar uma dúvida rápida: você ainda está trabalhando ativamente com a Herbalife ou deu uma pausa nos últimos tempos?\n\nPassando para te contar que desenvolvemos a nova plataforma do Litrão do Reset que mudou o jogo no Brasil. Tanto para quem tem EVS quanto para quem estava afastado e quer voltar faturando R$ 500+ por semana com menos de R$ 100 de reativação!\n\nEstamos abrindo um Grupo VIP Secreto no WhatsApp para liberar 30 DIAS DE TESTE GRÁTIS na faixa, e na Quarta-feira às 19:00 vai rolar a Revelação Oficial com TAXA DE ADESÃO 100% ZERADA.\n\nAcesse o link abaixo para reservar sua vaga antes que feche o lote:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\n(Ao entrar, me manda seu ID Herbalife aqui no privado para eu ativar seu teste VIP de 30 dias!) 🥤🚀'
+  },
+  {
+    id: 'msg_vip_2',
+    titulo: '💰 1.2 Reativação & EVS (Mais de R$ 500/Semana no Grupo VIP)',
+    texto: 'Oi {nome}! Como você está? Tudo bem? 😊\n\nVocê ainda atende clientes no Espaço ou consultoria da Herbalife, ou deu uma pausa por enquanto?\n\nMuitos consultores deram um tempo porque o modelo antigo de rua e controle em papel cansa demais. Por isso criamos um sistema próprio com cardápio digital no WhatsApp, avaliação corporal interativa e controle de clientes que coloca mais de R$ 500 limpos por semana no bolso.\n\nNesta Quarta-feira às 19:00 (Horário de Brasília), vamos fazer a Revelação Oficial em um Grupo VIP fechado com TAXA DE ADESÃO ZERADA e liberando 30 dias de degustação completa na faixa!\n\nDá uma olhada e garanta sua vaga antes de fechar:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nSe fizer sentido para você, entra lá e me manda seu ID no privado para eu ativar seu teste VIP! 🥤🔥'
+  },
+  {
+    id: 'msg_vip_3',
+    titulo: '🚀 1.3 Liderança & Membro Fundador (Adesão ZERADA Quarta 19h)',
+    texto: 'Fala {nome}, tudo bem? 🚀🥤\n\nNão sei se você hoje está 100% focado(a) na Herbalife ou se está com o negócio em pausa, mas tenho um convite importante:\n\nNós desenvolvemos a Plataforma Oficial do Litrão do Reset para resolver de vez a atração de clientes, pedidos no balcão e duplicação da equipe. Quem estava parado está voltando com força total porque a tecnologia faz o trabalho pesado.\n\nCriamos um Grupo VIP Secreto no WhatsApp onde vamos liberar 30 DIAS DE TESTE COMPLETO para quem entrar, e nesta Quarta-feira às 19:00 vamos liberar vagas de Membro Fundador com TAXA DE ADESÃO TOTALMENTE ZERADA (economia de até R$ 699,00).\n\nAcesse a página oficial abaixo para garantir sua vaga:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nAssim que entrar no grupo, me manda seu ID Herbalife no privado que eu já libero seu acesso VIP de 30 dias! 🥤✨'
+  },
+  {
+    id: 'msg_vip_4',
+    titulo: '📄 1.4 Convite Oficial com PDF (30 Dias VIP na Mensagem Fixada)',
+    texto: 'Fala {nome}, tudo bem? 🚀🥤\n\nDá uma olhada no convite oficial em PDF que acabei de te mandar acima.\n\nEstamos liberando um Grupo VIP fechado para donos de EVS e consultores testarem a nova plataforma oficial do Litrão do Reset por 30 dias na faixa, e na Quarta-feira às 19:00 vai rolar uma condição exclusiva com TAXA DE ADESÃO ZERADA.\n\nAcesse a página oficial abaixo para reservar sua vaga antes que esgote o lote:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\n(Ao entrar, me manda seu ID Herbalife aqui no privado para eu ativar seu teste VIP de 30 dias!)'
+  },
+  {
+    id: 'msg_vip_5',
+    titulo: '⚡ 1.5 Donos de EVS • Alavanque o Balcão (Cardápio Digital & Fidelidade)',
+    texto: 'Olá {nome}! Tudo joia? 🥤✨\n\nSe você atua no Espaço Vida Saudável, sei como a rotina de atendimento e retenção de clientes pode ser corrida.\n\nDesenvolvemos uma tecnologia que digitaliza seu balcão com Cartão Fidelidade no celular do cliente e Cardápio Digital direto no WhatsApp, além da Calculadora de Custo de Doses.\n\nEstamos selecionando os primeiros donos de EVS para testarem 30 dias grátis antes do lançamento oficial de Quarta-feira às 19:00.\n\nGaranta seu acesso VIP pelo link:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nAssim que entrar, me manda seu ID Herbalife no privado para ativarmos seu teste VIP!'
+  },
   {
     id: 'msg_1',
     titulo: '🥤 Convite ResetFIT',
@@ -29,21 +54,6 @@ const MENSAGENS_PADRAO = [
     id: 'msg_5',
     titulo: '💳 Dados para Pagamento Pix',
     texto: 'Perfeito, {nome}! Segue a nossa chave Pix para confirmação do seu pedido: {chave_pix}. Assim que fizer, me envia o comprovante que já preparo o seu kit bem geladinho!'
-  },
-  {
-    id: 'msg_vip_1',
-    titulo: '🔥 1.1 Reconexão VIP (Ativo/Pausado + 30 Dias Grupo VIP)',
-    texto: 'Olá {nome}, tudo bem? Vi seu contato e queria tirar uma dúvida rápida: você ainda está trabalhando ativamente com a Herbalife ou deu uma pausa nos últimos tempos?\n\nPassando para te contar que desenvolvemos a nova plataforma do Litrão do Reset que mudou o jogo no Brasil. Tanto para quem tem EVS quanto para quem estava afastado e quer voltar faturando R$ 500+ por semana com menos de R$ 100 de reativação!\n\nEstamos abrindo um Grupo VIP Secreto no WhatsApp para liberar 30 DIAS DE TESTE GRÁTIS na faixa, e na Quarta-feira às 19:00 vai rolar a Revelação Oficial com TAXA DE ADESÃO 100% ZERADA.\n\nAcesse o link abaixo para reservar sua vaga antes que feche o lote:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\n(Ao entrar, me manda seu ID Herbalife aqui no privado para eu ativar seu teste VIP de 30 dias!) 🥤🚀'
-  },
-  {
-    id: 'msg_vip_2',
-    titulo: '💰 1.2 Reativação & EVS (Mais de R$ 500/Semana no Grupo VIP)',
-    texto: 'Oi {nome}! Como você está? Tudo bem? 😊\n\nVocê ainda atende clientes no Espaço ou consultoria da Herbalife, ou deu uma pausa por enquanto?\n\nMuitos consultores deram um tempo porque o modelo antigo de rua e controle em papel cansa demais. Por isso criamos um sistema próprio com cardápio digital no WhatsApp, avaliação corporal interativa e controle de clientes que coloca mais de R$ 500 limpos por semana no bolso.\n\nNesta Quarta-feira às 19:00 (Horário de Brasília), vamos fazer a Revelação Oficial em um Grupo VIP fechado com TAXA DE ADESÃO ZERADA e liberando 30 dias de degustação completa na faixa!\n\nDá uma olhada e garanta sua vaga antes de fechar:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nSe fizer sentido para você, entra lá e me manda seu ID no privado para eu ativar seu teste VIP! 🥤🔥'
-  },
-  {
-    id: 'msg_vip_3',
-    titulo: '🚀 1.3 Liderança & Membro Fundador (Revelação Quarta 19h)',
-    texto: 'Fala {nome}, tudo bem? 🚀🥤\n\nNão sei se você hoje está 100% focado(a) na Herbalife ou se está com o negócio em pausa, mas tenho um convite importante:\n\nNós desenvolvemos a Plataforma Oficial do Litrão do Reset para resolver de vez a atração de clientes, pedidos no balcão e duplicação da equipe. Quem estava parado está voltando com força total porque a tecnologia faz o trabalho pesado.\n\nCriamos um Grupo VIP Secreto no WhatsApp onde vamos liberar 30 DIAS DE TESTE COMPLETO para quem entrar, e nesta Quarta-feira às 19:00 vamos liberar vagas de Membro Fundador com TAXA DE ADESÃO TOTALMENTE ZERADA (economia de até R$ 699,00).\n\nAcesse a página oficial abaixo para garantir sua vaga:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nAssim que entrar no grupo, me manda seu ID Herbalife no privado que eu já libero seu acesso VIP de 30 dias! 🥤✨'
   }
 ];
 
@@ -848,7 +858,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   function obterMensagensSalvas() {
     try {
       const raw = localStorage.getItem('litrao_mensagens_rapidas');
-      return raw ? JSON.parse(raw) : MENSAGENS_PADRAO;
+      if (!raw) return MENSAGENS_PADRAO;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return MENSAGENS_PADRAO;
+
+      // Auto-Merge Inteligente: Garante que os 5 modelos oficiais de Lançamento (msg_vip_...)
+      // estejam sempre presentes no topo da lista mesmo se houver dados salvos antigos no localStorage
+      const listaIds = new Set(parsed.map(p => p.id));
+      const faltantes = [];
+      MENSAGENS_PADRAO.forEach(padrao => {
+        if (!listaIds.has(padrao.id) && padrao.id.startsWith('msg_vip_')) {
+          faltantes.push(padrao);
+        }
+      });
+      if (faltantes.length > 0) {
+        parsed.unshift(...faltantes);
+      }
+      return parsed;
     } catch (_) {
       return MENSAGENS_PADRAO;
     }
@@ -857,6 +883,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   function salvarMensagens(msgs) {
     localStorage.setItem('litrao_mensagens_rapidas', JSON.stringify(msgs));
     renderizarMensagens();
+  }
+
+  // Atualiza em tempo real o nome do contato aberto exibido no painel
+  function monitorarContatoAtivoPainel() {
+    const elTxt = document.getElementById('txt-contato-ativo-nome');
+    if (!elTxt || !tab || !isZap) return;
+
+    chrome.tabs.sendMessage(tab.id, { action: 'obter_contato_ativo' }, (res) => {
+      if (chrome.runtime.lastError) return;
+      if (res && res.sucesso && res.nome) {
+        elTxt.innerText = res.nome;
+      } else {
+        elTxt.innerText = 'Conversa Aberta';
+      }
+    });
+  }
+
+  // Botão para restaurar e recarregar os 5 modelos oficiais de lançamento
+  const btnRestaurarLancamento = document.getElementById('btn-restaurar-msgs-lancamento');
+  if (btnRestaurarLancamento) {
+    btnRestaurarLancamento.addEventListener('click', () => {
+      salvarMensagens(MENSAGENS_PADRAO);
+      alert('🔥 Sucesso! Todos os 5 modelos oficiais de Lançamento com link do Grupo VIP foram carregados no seu painel!');
+    });
   }
 
   function renderizarMensagens() {
@@ -895,24 +945,21 @@ document.addEventListener('DOMContentLoaded', async () => {
               legenda: msg.texto || ''
             }, (res) => {
               if (chrome.runtime.lastError) {
-                const _e = chrome.runtime.lastError.message;
                 alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
                 return;
               }
               if (res && res.sucesso) {
-                alert(`Foto/Vídeo "${msg.titulo}" enviada na conversa ativa!`);
+                console.log(`Foto/Vídeo "${msg.titulo}" enviada na conversa ativa!`);
               } else {
                 alert('Aviso: ' + ((res && res.erro) || 'Verifique se uma conversa está aberta.'));
               }
             });
           } else {
-            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
+            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, (res) => {
               if (chrome.runtime.lastError) {
-                const _e = chrome.runtime.lastError.message;
-                alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
+                alert('Aviso: Atualize a página do WhatsApp (F5) para carregar as novas atualizações da extensão.');
                 return;
               }
-              alert(`Mensagem "${msg.titulo}" enviada na conversa ativa!`);
             });
           }
         } else {
@@ -933,6 +980,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
   }
+
+  renderizarMensagens();
+  setInterval(monitorarContatoAtivoPainel, 2500);
+  monitorarContatoAtivoPainel();
 
   renderizarMensagens();
 
