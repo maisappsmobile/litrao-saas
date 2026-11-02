@@ -1308,7 +1308,7 @@ function injetarBarraFlutuanteLitrao() {
         align-items: center;
         gap: 5px;
         transition: all 0.2s;
-      " onmouseover="this.style.background='#0284C7'; this.style.borderColor='#38BDF8'" onmouseout="this.style.background='#1E293B'; this.style.borderColor='#334155'">
+      " class="litrao-quick-btn">
         <span>${seq.icone}</span> ${seq.nome}
       </button>
     `;
@@ -1319,8 +1319,16 @@ function injetarBarraFlutuanteLitrao() {
   // Insere acima do footer do chat
   footer.parentNode.insertBefore(bar, footer);
 
-  // Associa eventos de 1 clique
+  // Associa eventos de 1 clique e efeitos de hover seguros (100% anti-CSP)
   bar.querySelectorAll('[data-litrao-quick]').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      btn.style.background = '#0284C7';
+      btn.style.borderColor = '#38BDF8';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.background = '#1E293B';
+      btn.style.borderColor = '#334155';
+    });
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1395,8 +1403,8 @@ function injetarSidebarLateral() {
   `;
   btnAbertura.title = "Clique para abrir o ResetFIT na Lateral da Tela";
 
-  btnAbertura.onmouseover = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1.05)'; };
-  btnAbertura.onmouseout = () => { btnAbertura.style.transform = 'translateY(-50%) scale(1)'; };
+  btnAbertura.addEventListener('mouseenter', () => { btnAbertura.style.transform = 'translateY(-50%) scale(1.05)'; });
+  btnAbertura.addEventListener('mouseleave', () => { btnAbertura.style.transform = 'translateY(-50%) scale(1)'; });
 
   // 2. Container da Sidebar Lateral Acoplada
   const dock = document.createElement('div');

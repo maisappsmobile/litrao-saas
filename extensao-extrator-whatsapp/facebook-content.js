@@ -483,172 +483,120 @@
   }
 
   /**
-   * Remove imediatamente qualquer botão zumbi ou antigo do DOM
+   * Remove imediatamente qualquer botão flutuante antigo do rodapé (libera 100% o Messenger)
    */
   function removerBotoesFlutuantesFacebook() {
     const elementosParaRemover = document.querySelectorAll(
-      '#resetfit-fb-floating-container, #litrao-fb-btn-container, [id*="litrao-fb"], #btn-litrao-fb-extrair'
+      '#resetfit-fb-floating-container, #litrao-fb-btn-container, [id*="litrao-fb-btn"], #btn-litrao-fb-extrair, #btn-resetfit-fb-extrair'
     );
     elementosParaRemover.forEach(el => {
       try { el.remove(); } catch (_) {}
     });
   }
 
-  /**
-   * Cria e exibe o botão flutuante na tela do Facebook (APENAS DENTRO DE GRUPOS)
-   */
-  function injetarBotaoFlutuanteFacebook() {
-    // 1. Limpa resíduos de versões antigas sempre
-    const botoesAntigos = document.querySelectorAll('#litrao-fb-btn-container, #btn-litrao-fb-extrair');
-    botoesAntigos.forEach(b => { try { b.remove(); } catch (_) {} });
+  // ==========================================
+  // SIDEBAR LATERAL ACOPLADA NO FACEBOOK (PRINT 3)
+  // Aba vertical verde retrátil idêntica ao WhatsApp Web
+  // ==========================================
+  let fbSidebarDockAberta = false;
 
-    // 2. Se NÃO for página de grupo (/groups/), remove o botão e não exibe nada (libera 100% o Messenger e perfis)
-    if (!window.location.href.includes('/groups/')) {
-      removerBotoesFlutuantesFacebook();
-      return;
+  function alternarSidebarLateralFacebook(forcarAberto = null) {
+    const dock = document.getElementById('litrao-lateral-dock-fb');
+    const btnAbertura = document.getElementById('litrao-lateral-tab-btn-fb');
+    if (!dock) return;
+
+    fbSidebarDockAberta = (forcarAberto !== null) ? forcarAberto : !fbSidebarDockAberta;
+    dock.style.right = fbSidebarDockAberta ? '0' : '-480px';
+    if (btnAbertura) {
+      btnAbertura.style.display = fbSidebarDockAberta ? 'none' : 'flex';
     }
+  }
 
-    // 3. Se o usuário já fechou o botão nesta sessão do navegador, respeita a decisão
-    try {
-      if (sessionStorage.getItem('resetfit_fb_btn_fechado') === 'true') {
-        return;
-      }
-    } catch (_) {}
+  function injetarSidebarLateralFacebook() {
+    // 1. Limpa resíduos de botões horizontais antigos do rodapé
+    removerBotoesFlutuantesFacebook();
 
-    // 4. Se já existe o container atual, não duplica
-    if (document.getElementById('resetfit-fb-floating-container')) return;
+    if (document.getElementById('litrao-lateral-dock-fb')) return;
 
-    const container = document.createElement('div');
-    container.id = 'resetfit-fb-floating-container';
-    container.style.cssText = `
+    // 2. Botão Flutuante de Abertura na borda direita (Verde Vertical - Print 3)
+    const btnAbertura = document.createElement('div');
+    btnAbertura.id = 'litrao-lateral-tab-btn-fb';
+    btnAbertura.innerHTML = `<span>⚡</span><span>RESETFIT</span>`;
+    btnAbertura.style.cssText = `
       position: fixed;
-      bottom: 25px;
-      left: 25px;
-      z-index: 2147483647;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      right: 0;
+      top: 38%;
+      transform: translateY(-50%);
+      z-index: 999999;
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 12px 6px;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      box-shadow: -4px 0 16px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      transition: transform 0.2s;
       display: flex;
       align-items: center;
       gap: 6px;
-      user-select: none;
+    `;
+    btnAbertura.title = "Clique para abrir o ResetFIT na Lateral do Facebook";
+
+    btnAbertura.addEventListener('mouseenter', () => { btnAbertura.style.transform = 'translateY(-50%) scale(1.05)'; });
+    btnAbertura.addEventListener('mouseleave', () => { btnAbertura.style.transform = 'translateY(-50%) scale(1)'; });
+
+    // 3. Container da Sidebar Lateral Acoplada no Facebook
+    const dock = document.createElement('div');
+    dock.id = 'litrao-lateral-dock-fb';
+    dock.style.cssText = `
+      position: fixed;
+      right: -480px;
+      top: 0;
+      width: 440px;
+      height: 100vh;
+      z-index: 1000000;
+      background: #090D16;
+      box-shadow: -10px 0 35px rgba(0,0,0,0.7);
+      transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #1E293B;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     `;
 
-    container.innerHTML = `
-      <!-- Botão Principal de Extração -->
-      <button id="btn-resetfit-fb-extrair" type="button" style="
-        background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 50%, #6D28D9 100%);
-        color: #FFFFFF;
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        padding: 10px 18px;
-        border-radius: 9999px;
-        font-size: 13px;
-        font-weight: 800;
-        cursor: pointer;
-        box-shadow: 0 10px 25px -3px rgba(29, 78, 216, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s ease-in-out;
-      ">
-        <span style="font-size: 16px;">⚡</span>
-        <span>Extrair Membros</span>
-      </button>
-
-      <!-- Alça de Arrastar (Mover para qualquer lugar da tela) -->
-      <div id="btn-resetfit-fb-drag" title="Clique e arraste para qualquer lugar da tela" style="
-        background: #0f172a;
-        color: #94a3b8;
-        border: 1.5px solid rgba(255, 255, 255, 0.25);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        cursor: grab;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      ">
-        ⠿
+    dock.innerHTML = `
+      <div style="background: #0D1424; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1E293B;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="background: #10B981; color: white; font-weight: 900; font-size: 10px; padding: 2px 6px; border-radius: 4px;">RESETFIT</span>
+          <span style="color: #F8FAFC; font-weight: 800; font-size: 12px;">ResetFIT Facebook</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button id="litrao-fb-dock-telacheia" style="background: #1E293B; color: #94A3B8; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-weight: bold;" title="Abrir em Tela Cheia">⛶ Tela Cheia</button>
+          <button id="litrao-fb-dock-fechar" style="background: #334155; color: #FFF; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-weight: bold;" title="Fechar Lateral">✕</button>
+        </div>
       </div>
-
-      <!-- Botão Fechar (X) -->
-      <button id="btn-resetfit-fb-close" type="button" title="Fechar botão flutuante nesta sessão" style="
-        background: #ef4444;
-        color: #FFFFFF;
-        border: 1.5px solid rgba(255, 255, 255, 0.3);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: 900;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        transition: transform 0.15s ease;
-      ">
-        ✕
-      </button>
+      <iframe id="litrao-fb-dock-iframe" src="${chrome.runtime.getURL('popup.html')}" style="width: 100%; height: calc(100% - 45px); border: none; background: #090D16;"></iframe>
     `;
 
-    document.body.appendChild(container);
+    document.body.appendChild(btnAbertura);
+    document.body.appendChild(dock);
 
-    const btn = document.getElementById('btn-resetfit-fb-extrair');
-    if (btn) {
-      btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.04)'; });
-      btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; });
-      btn.addEventListener('click', () => { abrirModalExtracaoFacebook(); });
-    }
+    btnAbertura.addEventListener('click', () => alternarSidebarLateralFacebook(true));
+    dock.querySelector('#litrao-fb-dock-fechar').addEventListener('click', () => alternarSidebarLateralFacebook(false));
+    dock.querySelector('#litrao-fb-dock-telacheia').addEventListener('click', () => {
+      window.open(chrome.runtime.getURL('popup.html'), '_blank');
+    });
+  }
 
-    const btnClose = document.getElementById('btn-resetfit-fb-close');
-    if (btnClose) {
-      btnClose.addEventListener('click', () => {
-        try {
-          sessionStorage.setItem('resetfit_fb_btn_fechado', 'true');
-        } catch (_) {}
-        container.remove();
-      });
-    }
-
-    // SUPORTE A ARRASTAR E SOLTAR (DRAG & DROP)
-    const dragHandle = document.getElementById('btn-resetfit-fb-drag');
-    let isDragging = false;
-    let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
-
-    const onMouseDown = (e) => {
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      const rect = container.getBoundingClientRect();
-      initialLeft = rect.left;
-      initialTop = rect.top;
-      container.style.bottom = 'auto';
-      container.style.right = 'auto';
-      container.style.left = initialLeft + 'px';
-      container.style.top = initialTop + 'px';
-      if (dragHandle) dragHandle.style.cursor = 'grabbing';
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-      e.preventDefault();
-    };
-
-    const onMouseMove = (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      container.style.left = Math.max(10, Math.min(window.innerWidth - 220, initialLeft + dx)) + 'px';
-      container.style.top = Math.max(10, Math.min(window.innerHeight - 60, initialTop + dy)) + 'px';
-    };
-
-    const onMouseUp = () => {
-      isDragging = false;
-      if (dragHandle) dragHandle.style.cursor = 'grab';
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    if (dragHandle) dragHandle.addEventListener('mousedown', onMouseDown);
+  function injetarBotaoFlutuanteFacebook() {
+    // Redireciona para a nova barra lateral oficial
+    injetarSidebarLateralFacebook();
   }
 
   /**
@@ -1341,18 +1289,26 @@
     }
   }
 
-  // Observa mudanças de URL no Facebook (SPA) e remove o botão fora de /groups/
-  let ultimaUrl = location.href;
+  // Observa mudanças no DOM e limpa sempre qualquer botão horizontal no rodapé
   setInterval(() => {
-    if (location.href !== ultimaUrl) {
-      ultimaUrl = location.href;
-      injetarBotaoFlutuanteFacebook();
-    } else if (!window.location.href.includes('/groups/')) {
-      removerBotoesFlutuantesFacebook();
-    }
+    removerBotoesFlutuantesFacebook();
+    try {
+      if (window.location.href.includes('/groups/')) {
+        injetarSidebarLateralFacebook();
+      } else {
+        const btnLateral = document.getElementById('litrao-lateral-tab-btn-fb');
+        const dock = document.getElementById('litrao-lateral-dock-fb');
+        if (btnLateral && !fbSidebarDockAberta) btnLateral.style.display = 'none';
+        if (dock && !fbSidebarDockAberta) dock.style.right = '-480px';
+      }
+    } catch (_) {}
   }, 1000);
 
-  // Inicialização
-  injetarBotaoFlutuanteFacebook();
-  setTimeout(injetarBotaoFlutuanteFacebook, 2000);
+  // Inicialização Segura
+  removerBotoesFlutuantesFacebook();
+  injetarSidebarLateralFacebook();
+  setTimeout(() => {
+    removerBotoesFlutuantesFacebook();
+    injetarSidebarLateralFacebook();
+  }, 2000);
 })();
