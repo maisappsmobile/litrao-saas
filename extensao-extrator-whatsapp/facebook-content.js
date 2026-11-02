@@ -131,6 +131,17 @@
     }
   };
 
+  // Listener delegado anti-CSP para botões X1
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-resetfit-x1-copiar');
+    if (!btn) return;
+    const nome = btn.getAttribute('data-nome') || '';
+    const perfil = btn.getAttribute('data-perfil') || '';
+    if (typeof window.__resetfitCopiarMensagemX1Facebook === 'function') {
+      window.__resetfitCopiarMensagemX1Facebook(nome, perfil);
+    }
+  });
+
   /**
    * Detecta o nome do grupo atual a partir do cabeçalho ou título da página
    */
@@ -1191,7 +1202,7 @@
           <span style="font-weight: 700; color: #1E293B;">${m.nome}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
-          <button type="button" onclick="window.__resetfitCopiarMensagemX1Facebook('${m.nome.replace(/'/g, "\\'")}', '${m.perfilUrl || ''}')" style="
+          <button type="button" class="btn-resetfit-x1-copiar" data-nome="${m.nome.replace(/"/g, '&quot;')}" data-perfil="${(m.perfilUrl || '').replace(/"/g, '&quot;')}" style="
             background: #EFF6FF;
             color: #2563EB;
             border: 1px solid #BFDBFE;
