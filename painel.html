@@ -3075,6 +3075,47 @@
             </div>
         </div>
 
+        <!-- MODAL 1-CLIQUE: ESCOLHER SCRIPT DE COPY PARA LEAD DO FACEBOOK -->
+        <div id="modal-selecionar-copy-lead" onclick="if(event.target === this) fecharModalCopiesLead()" class="fixed inset-0 bg-black/85 backdrop-blur-xs z-[60] flex items-center justify-center p-2 sm:p-4 overflow-y-auto hidden">
+            <div class="bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[92vh] shadow-2xl relative border border-emerald-500/40 flex flex-col overflow-hidden animate-fade-in my-auto text-white">
+                
+                <!-- HEADER DO MODAL -->
+                <div class="px-5 py-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div id="modal-copy-avatar-lead" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-green-600 text-slate-950 flex items-center justify-center font-black text-sm shadow-md shrink-0">
+                            FB
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-base sm:text-lg font-black text-white leading-tight" id="modal-copy-nome-lead">Copiar Copy para Lead</h3>
+                                <span id="modal-copy-badge-origem" class="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-bold px-2 py-0.5 rounded-full">Facebook</span>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                                Dê <strong>1 clique</strong> para copiar ou tecle o número <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-amber-300">1</kbd> a <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-amber-300">9</kbd>.
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalCopiesLead()" class="text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs" title="Fechar (Esc)">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <!-- CORPO: LISTA DE CÓPIAS EM CARDS RÁPIDOS (1-CLIQUE) -->
+                <div id="modal-copy-lista-opcoes" class="p-3 sm:p-5 space-y-2.5 overflow-y-auto custom-modal-scrollbar-dark flex-1">
+                    <!-- Cards renderizados dinamicamente via JS -->
+                </div>
+
+                <!-- FOOTER INFORMATIVO -->
+                <div class="px-5 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 shrink-0">
+                    <span class="flex items-center gap-1.5 truncate">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs shrink-0"></i>
+                        <span>O nome do lead e seu link oficial são preenchidos automaticamente!</span>
+                    </span>
+                    <button type="button" onclick="fecharModalCopiesLead()" class="text-xs font-bold text-slate-300 hover:text-white underline cursor-pointer shrink-0 ml-2">Fechar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL: EXTRATOR & DISPARADOR FACEBOOK GRUPOS (SUPERADMIN VIP) -->
         <div id="modal-extrator-facebook-superadmin" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto hidden">
             <div class="bg-white rounded-3xl max-w-6xl w-full h-[94vh] max-h-[94vh] shadow-2xl relative border border-gray-200 flex flex-col overflow-hidden animate-fade-in my-auto">
@@ -32731,23 +32772,158 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
             }
         }
 
+        /* =========================================================================
+           SISTEMA DE NOTIFICAÇÃO FLUTUANTE MODERNA (TOAST SEM ALERT)
+           ========================================================================= */
+        function mostrarNotificacaoFlutuante(msg, tipo = 'sucesso') {
+            let container = document.getElementById('container-toast-flutuante-global');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'container-toast-flutuante-global';
+                container.className = 'fixed bottom-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto transform transition-all duration-300 ease-out translate-y-3 opacity-0 flex items-center gap-3 p-3.5 rounded-2xl shadow-2xl border text-xs sm:text-sm font-black ${
+                tipo === 'sucesso' ? 'bg-slate-950 text-white border-emerald-400/80 shadow-emerald-500/20' :
+                tipo === 'erro' ? 'bg-red-950 text-white border-red-500/80 shadow-red-500/20' :
+                'bg-slate-900 text-white border-amber-400/80 shadow-amber-500/20'
+            }`;
+
+            const icone = tipo === 'sucesso' ? '✅' : tipo === 'erro' ? '❌' : 'ℹ️';
+            toast.innerHTML = `
+                <span class="text-base shrink-0">${icone}</span>
+                <span class="flex-1 leading-snug">${msg}</span>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-3', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 2300);
+        }
+        window.mostrarNotificacaoFlutuante = mostrarNotificacaoFlutuante;
+
+        /* =========================================================================
+           MODAL 1-CLIQUE: ESCOLHA RÁPIDA DE COPY PARA LEAD DO FACEBOOK (SEM PROMPT)
+           ========================================================================= */
+        let leadAtivoModalCopies = null;
+
         function abrirDropdownCopiesLead(idLead) {
             const leads = obterLeadsFacebookStorage();
             const lead = leads.find(l => l.id === idLead);
             if (!lead) return;
 
+            leadAtivoModalCopies = lead;
             const primeiroNome = (lead.nome || '').trim().split(' ')[0] || 'Consultor(a)';
-            const opcoes = COPIAS_FACEBOOK_PROSPECCAO.map((c, i) => `${i + 1}. ${c.titulo}`).join('\n');
-            const escolha = prompt(`Escolha qual script de copy deseja copiar para ${primeiroNome}:\n\n${opcoes}\n\n👉 Digite o número de 1 a ${COPIAS_FACEBOOK_PROSPECCAO.length}:`, "1");
+            const partesNome = (lead.nome || 'FB').trim().split(' ').filter(Boolean);
+            const iniciais = (partesNome.length > 1 ? partesNome[0][0] + partesNome[1][0] : partesNome[0].slice(0, 2)).toUpperCase();
 
-            if (!escolha) return;
-            const num = parseInt(escolha.trim()) - 1;
-            if (isNaN(num) || !COPIAS_FACEBOOK_PROSPECCAO[num]) {
-                alert("Opção inválida.");
-                return;
+            // Atualiza Header do Modal
+            const elNome = document.getElementById('modal-copy-nome-lead');
+            const elAvatar = document.getElementById('modal-copy-avatar-lead');
+            const elOrigem = document.getElementById('modal-copy-badge-origem');
+            const elModal = document.getElementById('modal-selecionar-copy-lead');
+            const elLista = document.getElementById('modal-copy-lista-opcoes');
+
+            if (elNome) elNome.innerHTML = `Mensagem para <span class="text-emerald-400 font-extrabold">${lead.nome}</span>`;
+            if (elAvatar) elAvatar.innerText = iniciais || 'FB';
+            if (elOrigem) elOrigem.innerText = lead.grupoOrigem ? `${lead.grupoOrigem.slice(0, 30)}...` : 'Facebook Lead';
+
+            // Renderiza cada copy como um card moderno de 1-Clique
+            if (elLista) {
+                elLista.innerHTML = COPIAS_FACEBOOK_PROSPECCAO.map((copy, index) => {
+                    const atalhoNum = index + 1;
+                    return `
+                        <div class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-3 sm:p-3.5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <span class="w-5 h-5 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-black flex items-center justify-center shrink-0">
+                                        ${atalhoNum}
+                                    </span>
+                                    <h4 class="text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition truncate">${copy.titulo}</h4>
+                                    <span class="${copy.badgeCor || 'bg-slate-800 text-slate-300 border-slate-700'} text-[10px] font-bold px-2 py-0.2 rounded-full border">
+                                        ${copy.publico}
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 line-clamp-1">${copy.descricao || ''}</p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button" onclick="executarCopia1Clique('${copy.id}', '${lead.id}', false)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 font-black text-xs py-2 px-3.5 rounded-xl shadow-md transition transform hover:scale-[1.02] cursor-pointer" title="Copia com o nome de ${primeiroNome} e link oficial">
+                                    <i class="fa-solid fa-copy text-xs"></i>
+                                    <span>Copiar (1-Clique)</span>
+                                </button>
+                                <button type="button" onclick="executarCopia1Clique('${copy.id}', '${lead.id}', true)" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition transform hover:scale-[1.02] cursor-pointer" title="Copia a mensagem e já abre o perfil/Messenger do lead">
+                                    <i class="fa-brands fa-facebook-messenger text-xs"></i>
+                                    <span class="hidden sm:inline">Messenger</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
 
-            copiarCopyFacebook(COPIAS_FACEBOOK_PROSPECCAO[num].id, idLead);
+            if (elModal) {
+                elModal.classList.remove('hidden');
+                elModal.classList.add('flex');
+            }
+        }
+        window.abrirDropdownCopiesLead = abrirDropdownCopiesLead;
+
+        function fecharModalCopiesLead() {
+            const elModal = document.getElementById('modal-selecionar-copy-lead');
+            if (elModal) {
+                elModal.classList.add('hidden');
+                elModal.classList.remove('flex');
+            }
+            leadAtivoModalCopies = null;
+        }
+        window.fecharModalCopiesLead = fecharModalCopiesLead;
+
+        function executarCopia1Clique(idCopy, idLead, abrirMessenger = false) {
+            copiarCopyFacebook(idCopy, idLead);
+            if (abrirMessenger) {
+                const leads = obterLeadsFacebookStorage();
+                const lead = leads.find(l => l.id === idLead);
+                if (lead) {
+                    const urlDestino = lead.perfilUrl || `https://www.facebook.com/search/people/?q=${encodeURIComponent(lead.nome)}`;
+                    window.open(urlDestino, '_blank');
+                }
+            }
+            fecharModalCopiesLead();
+        }
+        window.executarCopia1Clique = executarCopia1Clique;
+
+        // Atalhos de teclado no modal (1 a 9 e Esc)
+        if (!window.fbModalCopiesListenerAdicionado) {
+            window.fbModalCopiesListenerAdicionado = true;
+            document.addEventListener('keydown', (e) => {
+                const elModal = document.getElementById('modal-selecionar-copy-lead');
+                if (!elModal || elModal.classList.contains('hidden')) return;
+
+                if (e.key === 'Escape') {
+                    fecharModalCopiesLead();
+                    return;
+                }
+
+                const num = parseInt(e.key, 10);
+                if (!isNaN(num) && num >= 1 && num <= COPIAS_FACEBOOK_PROSPECCAO.length) {
+                    const index = num - 1;
+                    const copyObj = COPIAS_FACEBOOK_PROSPECCAO[index];
+                    if (copyObj && leadAtivoModalCopies) {
+                        e.preventDefault();
+                        executarCopia1Clique(copyObj.id, leadAtivoModalCopies.id, false);
+                    }
+                }
+            });
         }
 
         function copiarCopyFacebook(idCopy, idLead) {
@@ -32773,18 +32949,18 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
                 grupo: nomeGrupo
             });
 
+            const notificar = () => {
+                mostrarNotificacaoFlutuante(`Copy "${copyObj.titulo.slice(0, 30)}..." copiada para ${primeiroNome}! Cole com Ctrl+V. 🚀`, 'sucesso');
+            };
+
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textoFinal).then(() => {
-                    if (typeof mostrarNotificacaoFlutuante === 'function') {
-                        mostrarNotificacaoFlutuante(`Copy "${copyObj.titulo}" copiada para a área de transferência! ✅`, 'sucesso');
-                    } else {
-                        alert("Mensagem copiada para a área de transferência!");
-                    }
-                }).catch(() => {
+                navigator.clipboard.writeText(textoFinal).then(notificar).catch(() => {
                     fallbackCopiarTexto(textoFinal);
+                    notificar();
                 });
             } else {
                 fallbackCopiarTexto(textoFinal);
+                notificar();
             }
         }
 
@@ -33584,6 +33760,8 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
         window.processarTextoImportadoFacebook = processarTextoImportadoFacebook;
         window.abrirMessengerLeadFacebook = abrirMessengerLeadFacebook;
         window.abrirDropdownCopiesLead = abrirDropdownCopiesLead;
+        window.fecharModalCopiesLead = fecharModalCopiesLead;
+        window.executarCopia1Clique = executarCopia1Clique;
         window.copiarCopyFacebook = copiarCopyFacebook;
         window.renderizarCopiasFacebook = renderizarCopiasFacebook;
         window.renderizarImagensFacebook = renderizarImagensFacebook;
