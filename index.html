@@ -67,14 +67,14 @@
 <body class="bg-brand-bg text-gray-800 font-sans antialiased pt-24">
 
     <!-- TOP BAR DE LANÇAMENTO OFICIAL -->
-    <aside aria-label="Alerta de Lançamento" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-emerald-700 via-green-700 to-teal-800 text-white text-[11px] md:text-xs font-extrabold py-2 px-3 shadow-md flex items-center justify-center gap-2 border-b border-emerald-500/40">
+    <aside id="top-bar-alerta-lancamento" aria-label="Alerta de Lançamento" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-emerald-700 via-green-700 to-teal-800 text-white text-[11px] md:text-xs font-extrabold py-2 px-3 shadow-md flex items-center justify-center gap-2 border-b border-emerald-500/40">
         <span class="bg-amber-400 text-slate-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">LANÇAMENTO VIP</span>
         <span class="truncate">Grupo VIP Aberto com 30 Dias na Faixa + Taxa de Adesão Zerada (Quarta 19:00 Horário de Brasília)!</span>
         <a href="grupo-vip.html" class="underline text-yellow-200 hover:text-white font-black shrink-0 flex items-center gap-1">Entrar no Grupo VIP 👉</a>
     </aside>
 
     <!-- HEADER / MENU SUPERIOR -->
-    <header class="fixed top-8 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs">
+    <header id="main-header" class="fixed top-8 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs transition-all duration-200">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <!-- Logo & Marca -->
             <a href="index.html" class="flex items-center space-x-2.5">
@@ -176,7 +176,7 @@
     <section class="max-w-4xl mx-auto px-4 pt-8 pb-12 text-center flex flex-col items-center">
         
         <!-- SUPER BANNER DE LANÇAMENTO OFICIAL & GRUPO VIP -->
-        <div class="w-full max-w-3xl mb-8 p-5 md:p-7 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 border-2 border-emerald-400/80 rounded-3xl text-left shadow-2xl relative overflow-hidden">
+        <div id="super-banner-lancamento-hero" class="w-full max-w-3xl mb-8 p-5 md:p-7 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 border-2 border-emerald-400/80 rounded-3xl text-left shadow-2xl relative overflow-hidden">
             <!-- Efeito de brilho de fundo -->
             <div class="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none"></div>
             <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
@@ -619,7 +619,7 @@
                 </span>
             </button>
             <!-- Card de Destaque: Para quem ja e Consultor ou esta Pausado -->
-            <div class="mt-8 bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 border-2 border-emerald-400/70 rounded-3xl p-6 md:p-8 text-center max-w-2xl mx-auto text-white shadow-2xl backdrop-blur-sm relative overflow-hidden">
+            <div id="card-oportunidade-consultores-vip" class="mt-8 bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 border-2 border-emerald-400/70 rounded-3xl p-6 md:p-8 text-center max-w-2xl mx-auto text-white shadow-2xl backdrop-blur-sm relative overflow-hidden">
                 <span class="inline-block bg-brand-yellow text-brand-dark-green text-[10px] font-black uppercase px-3 py-1 rounded-full mb-2">
                     👑 Para Donos de EVS e Consultores Herbalife (Ativos ou Pausados)
                 </span>
@@ -1194,6 +1194,74 @@
         // Usamos supabaseClient para não dar conflito com o supabase do CDN
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        /* ==========================================================================
+           REGRAS DE EXIBIÇÃO CONDICIONAL DO BANNER DE LANÇAMENTO & TOP BAR
+           - Página Raiz (https://litraodoreset.com.br):
+               Super Banner da Hero APARECE + Barra do Cabeçalho APARECE
+           - Página de Venda de Consultor Ativo (ex: https://litraodoreset.com.br/433005811bra):
+               Super Banner da Hero NÃO APARECE + Barra do Cabeçalho NÃO APARECE (foco 100% no cliente)
+           - Página de Consultor em Teste/Trial (ex: https://litraodoreset.com.br/999000001t):
+               Super Banner da Hero NÃO APARECE + Barra do Cabeçalho APARECE COMO ESTÁ
+           ========================================================================== */
+        function aplicarVisibilidadeLancamento(isConsultor, consultorData) {
+            const bannerHero = document.getElementById('super-banner-lancamento-hero');
+            const cardOportunidade = document.getElementById('card-oportunidade-consultores-vip');
+            const topBar = document.getElementById('top-bar-alerta-lancamento');
+            const mainHeader = document.getElementById('main-header');
+            const bodyEl = document.body;
+
+            if (!isConsultor) {
+                // 1. PÁGINA RAIZ INSTITUCIONAL (ex: https://litraodoreset.com.br):
+                // Super Banner e Barra do Cabeçalho APARECEM!
+                if (bannerHero) bannerHero.style.display = 'block';
+                if (cardOportunidade) cardOportunidade.style.display = 'block';
+                if (topBar) topBar.style.display = 'flex';
+                if (mainHeader) {
+                    mainHeader.classList.remove('top-0');
+                    mainHeader.classList.add('top-8');
+                }
+                if (bodyEl) {
+                    bodyEl.classList.remove('pt-16');
+                    bodyEl.classList.add('pt-24');
+                }
+                return;
+            }
+
+            // 2. PÁGINA DE VENDA DO CONSULTOR (ex: https://litraodoreset.com.br/433005811bra):
+            // Na página de venda do consultor, o Super Banner de Lançamento da Hero NUNCA aparece
+            if (bannerHero) bannerHero.style.display = 'none';
+            if (cardOportunidade) cardOportunidade.style.display = 'none';
+
+            // Verifica o status do plano do consultor no Supabase
+            const statusStr = String(consultorData && consultorData.status ? consultorData.status : '').trim().toLowerCase();
+            const isEmTeste = statusStr.includes('teste') || statusStr.includes('trial') || statusStr.includes('degust');
+
+            if (isEmTeste) {
+                // REGRA DO USUÁRIO: "OS QUE ESTAO EM TESTE DEIXE A BARRA DO CABEÇARIO APARECENDO COMO ESTA"
+                if (topBar) topBar.style.display = 'flex';
+                if (mainHeader) {
+                    mainHeader.classList.remove('top-0');
+                    mainHeader.classList.add('top-8');
+                }
+                if (bodyEl) {
+                    bodyEl.classList.remove('pt-16');
+                    bodyEl.classList.add('pt-24');
+                }
+            } else {
+                // REGRA DO USUÁRIO: "1 NAO aparece | https://litraodoreset.com.br/433005811bra" (Consultor com plano Ativo)
+                // Oculta a barra do cabeçalho e alinha o menu superior ao topo sem deixar espaço vazio
+                if (topBar) topBar.style.display = 'none';
+                if (mainHeader) {
+                    mainHeader.classList.remove('top-8');
+                    mainHeader.classList.add('top-0');
+                }
+                if (bodyEl) {
+                    bodyEl.classList.remove('pt-24');
+                    bodyEl.classList.add('pt-16');
+                }
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             let consultor = null;
 
@@ -1207,6 +1275,17 @@
             const paramConsultor = urlParams.get('ref') || urlParams.get('c') || urlParams.get('consultor') || urlParams.get('id');
             if (paramConsultor) {
                 path = paramConsultor.trim().toLowerCase();
+            }
+
+            // Define se o acesso veio por um link ou rota de consultor específico
+            const isPaginaConsultorEspecifico = Boolean(path);
+
+            // Se for rota de consultor, oculta imediatamente o banner hero para não piscar
+            if (isPaginaConsultorEspecifico) {
+                const bannerHeroPre = document.getElementById('super-banner-lancamento-hero');
+                if (bannerHeroPre) bannerHeroPre.style.display = 'none';
+            } else {
+                aplicarVisibilidadeLancamento(false, null);
             }
 
             if (!path) {
@@ -1341,6 +1420,9 @@
                         endereco: "Primavera do Leste/MT - Brasil"
                     };
                 }
+
+                // Aplica regras de exibição condicional do banner de lançamento e barra do cabeçalho
+                aplicarVisibilidadeLancamento(isPaginaConsultorEspecifico, consultor);
 
                 // Vincula imediatamente ao escopo global do Carrinho
                 window.consultorAtual = consultor;
