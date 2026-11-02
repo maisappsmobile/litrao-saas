@@ -29,6 +29,21 @@ const MENSAGENS_PADRAO = [
     id: 'msg_5',
     titulo: '💳 Dados para Pagamento Pix',
     texto: 'Perfeito, {nome}! Segue a nossa chave Pix para confirmação do seu pedido: {chave_pix}. Assim que fizer, me envia o comprovante que já preparo o seu kit bem geladinho!'
+  },
+  {
+    id: 'msg_vip_1',
+    titulo: '🔥 1.1 Reconexão VIP (Ativo/Pausado + 30 Dias Grupo VIP)',
+    texto: 'Olá {nome}, tudo bem? Vi seu contato e queria tirar uma dúvida rápida: você ainda está trabalhando ativamente com a Herbalife ou deu uma pausa nos últimos tempos?\n\nPassando para te contar que desenvolvemos a nova plataforma do Litrão do Reset que mudou o jogo no Brasil. Tanto para quem tem EVS quanto para quem estava afastado e quer voltar faturando R$ 500+ por semana com menos de R$ 100 de reativação!\n\nEstamos abrindo um Grupo VIP Secreto no WhatsApp para liberar 30 DIAS DE TESTE GRÁTIS na faixa, e na Quarta-feira às 19:00 vai rolar a Revelação Oficial com TAXA DE ADESÃO 100% ZERADA.\n\nAcesse o link abaixo para reservar sua vaga antes que feche o lote:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\n(Ao entrar, me manda seu ID Herbalife aqui no privado para eu ativar seu teste VIP de 30 dias!) 🥤🚀'
+  },
+  {
+    id: 'msg_vip_2',
+    titulo: '💰 1.2 Reativação & EVS (Mais de R$ 500/Semana no Grupo VIP)',
+    texto: 'Oi {nome}! Como você está? Tudo bem? 😊\n\nVocê ainda atende clientes no Espaço ou consultoria da Herbalife, ou deu uma pausa por enquanto?\n\nMuitos consultores deram um tempo porque o modelo antigo de rua e controle em papel cansa demais. Por isso criamos um sistema próprio com cardápio digital no WhatsApp, avaliação corporal interativa e controle de clientes que coloca mais de R$ 500 limpos por semana no bolso.\n\nNesta Quarta-feira às 19:00 (Horário de Brasília), vamos fazer a Revelação Oficial em um Grupo VIP fechado com TAXA DE ADESÃO ZERADA e liberando 30 dias de degustação completa na faixa!\n\nDá uma olhada e garanta sua vaga antes de fechar:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nSe fizer sentido para você, entra lá e me manda seu ID no privado para eu ativar seu teste VIP! 🥤🔥'
+  },
+  {
+    id: 'msg_vip_3',
+    titulo: '🚀 1.3 Liderança & Membro Fundador (Revelação Quarta 19h)',
+    texto: 'Fala {nome}, tudo bem? 🚀🥤\n\nNão sei se você hoje está 100% focado(a) na Herbalife ou se está com o negócio em pausa, mas tenho um convite importante:\n\nNós desenvolvemos a Plataforma Oficial do Litrão do Reset para resolver de vez a atração de clientes, pedidos no balcão e duplicação da equipe. Quem estava parado está voltando com força total porque a tecnologia faz o trabalho pesado.\n\nCriamos um Grupo VIP Secreto no WhatsApp onde vamos liberar 30 DIAS DE TESTE COMPLETO para quem entrar, e nesta Quarta-feira às 19:00 vamos liberar vagas de Membro Fundador com TAXA DE ADESÃO TOTALMENTE ZERADA (economia de até R$ 699,00).\n\nAcesse a página oficial abaixo para garantir sua vaga:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\nAssim que entrar no grupo, me manda seu ID Herbalife no privado que eu já libero seu acesso VIP de 30 dias! 🥤✨'
   }
 ];
 

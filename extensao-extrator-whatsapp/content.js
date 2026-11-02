@@ -1240,6 +1240,16 @@ const SEQUENCIAS_FLUTUANTES = [
       { texto: 'Oi {nome}, como você está? Lembrei de você hoje!', delay: 3 },
       { texto: 'Chegou uma receita nova do ResetFIT super refrescante para essa semana! Como andam suas metas de hidratação?', delay: 0 }
     ]
+  },
+  {
+    id: 'seq_5',
+    icone: '🔥',
+    nome: 'Grupo VIP Lançamento',
+    titulo: '🔥 Convite Grupo VIP • 30 Dias Grátis (2 Passos)',
+    passos: [
+      { texto: 'Olá {nome}, tudo bem? Vi seu contato e queria tirar uma dúvida rápida: você ainda está trabalhando ativamente com a Herbalife ou deu uma pausa nos últimos tempos?', delay: 3 },
+      { texto: 'Estamos liberando um Grupo VIP Fechado no WhatsApp com 30 DIAS DE TESTE GRÁTIS da nova plataforma do Litrão do Reset, e na Quarta-feira às 19:00 vai rolar a Revelação com TAXA DE ADESÃO 100% ZERADA!\n\nAcesse o link abaixo para reservar sua vaga antes que esgote:\n👉 https://litraodoreset.com.br/grupo-vip.html\n\n(Ao entrar, me manda seu ID Herbalife no privado para eu ativar seus 30 dias VIP!) 🥤🚀', delay: 0 }
+    ]
   }
 ];
 
