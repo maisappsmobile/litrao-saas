@@ -472,11 +472,40 @@
   }
 
   /**
-   * Cria e exibe o botão flutuante na tela do Facebook
+   * Remove imediatamente qualquer botão zumbi ou antigo do DOM
+   */
+  function removerBotoesFlutuantesFacebook() {
+    const elementosParaRemover = document.querySelectorAll(
+      '#resetfit-fb-floating-container, #litrao-fb-btn-container, [id*="litrao-fb"], #btn-litrao-fb-extrair'
+    );
+    elementosParaRemover.forEach(el => {
+      try { el.remove(); } catch (_) {}
+    });
+  }
+
+  /**
+   * Cria e exibe o botão flutuante na tela do Facebook (APENAS DENTRO DE GRUPOS)
    */
   function injetarBotaoFlutuanteFacebook() {
+    // 1. Limpa resíduos de versões antigas sempre
+    const botoesAntigos = document.querySelectorAll('#litrao-fb-btn-container, #btn-litrao-fb-extrair');
+    botoesAntigos.forEach(b => { try { b.remove(); } catch (_) {} });
+
+    // 2. Se NÃO for página de grupo (/groups/), remove o botão e não exibe nada (libera 100% o Messenger e perfis)
+    if (!window.location.href.includes('/groups/')) {
+      removerBotoesFlutuantesFacebook();
+      return;
+    }
+
+    // 3. Se o usuário já fechou o botão nesta sessão do navegador, respeita a decisão
+    try {
+      if (sessionStorage.getItem('resetfit_fb_btn_fechado') === 'true') {
+        return;
+      }
+    } catch (_) {}
+
+    // 4. Se já existe o container atual, não duplica
     if (document.getElementById('resetfit-fb-floating-container')) return;
-    if (!window.location.href.includes('/groups/')) return;
 
     const container = document.createElement('div');
     container.id = 'resetfit-fb-floating-container';
@@ -532,7 +561,7 @@
       </div>
 
       <!-- Botão Fechar (X) -->
-      <button id="btn-resetfit-fb-close" type="button" title="Fechar botão flutuante" style="
+      <button id="btn-resetfit-fb-close" type="button" title="Fechar botão flutuante nesta sessão" style="
         background: #ef4444;
         color: #FFFFFF;
         border: 1.5px solid rgba(255, 255, 255, 0.3);
@@ -564,6 +593,9 @@
     const btnClose = document.getElementById('btn-resetfit-fb-close');
     if (btnClose) {
       btnClose.addEventListener('click', () => {
+        try {
+          sessionStorage.setItem('resetfit_fb_btn_fechado', 'true');
+        } catch (_) {}
         container.remove();
       });
     }
@@ -1298,12 +1330,14 @@
     }
   }
 
-  // Observa mudanças de URL no Facebook (SPA)
+  // Observa mudanças de URL no Facebook (SPA) e remove o botão fora de /groups/
   let ultimaUrl = location.href;
   setInterval(() => {
     if (location.href !== ultimaUrl) {
       ultimaUrl = location.href;
       injetarBotaoFlutuanteFacebook();
+    } else if (!window.location.href.includes('/groups/')) {
+      removerBotoesFlutuantesFacebook();
     }
   }, 1000);
 
