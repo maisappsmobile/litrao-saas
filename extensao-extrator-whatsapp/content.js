@@ -39,13 +39,23 @@ function processarSpintaxETags(texto, contato = {}) {
 
   res = res.replace(/\{(?:saudacao|saudação|turno|cumprimento)\}/gi, saudacaoSorteada);
 
-  // 2. Extrai e Formata Primeiro Nome Humanizado
+  // 2. Extrai e Formata Primeiro Nome Humanizado do Contato Aberto
   let pNome = '';
-  if (contato && contato.nome && typeof contato.nome === 'string') {
-    const nomeLimpo = contato.nome.trim();
+  let nomeBruto = (contato && contato.nome) ? String(contato.nome) : '';
+  
+  // Se o nome não veio no objeto contato, tenta obter da conversa ativa no WhatsApp Web
+  if (!nomeBruto && typeof obterNomeContatoConversaAtiva === 'function') {
+    try {
+      nomeBruto = obterNomeContatoConversaAtiva();
+    } catch (_) {}
+  }
+
+  if (nomeBruto && typeof nomeBruto === 'string') {
+    const nomeLimpo = nomeBruto.trim();
+    // Não usa se for número de telefone puro (+55...)
     if (!nomeLimpo.match(/^(\+|id_|\d)/)) {
-      const primeiro = nomeLimpo.split(/[\s,;-]+/)[0] || '';
-      if (primeiro.length >= 2) {
+      const primeiro = nomeLimpo.split(/[\s,;\-_]+/)[0] || '';
+      if (primeiro.length >= 2 && !/^\d+$/.test(primeiro)) {
         pNome = primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
       }
     }
@@ -55,16 +65,29 @@ function processarSpintaxETags(texto, contato = {}) {
   if (pNome) {
     res = res.replace(regexNome, pNome);
   } else {
+    // Se não houver nome salvo, remove a tag suavemente
     res = res.replace(regexNome, '');
   }
 
-  // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
+  // 3. Chave Pix Inteligente
+  let chavePix = (contato && contato.chave_pix) || '';
+  if (!chavePix) {
+    try {
+      chavePix = localStorage.getItem('litrao_chave_pix') || '';
+    } catch (_) {}
+  }
+  if (!chavePix) {
+    chavePix = 'contato@litraodoreset.com.br';
+  }
+  res = res.replace(/\{(?:chave_pix|chave pix|pix)\}/gi, chavePix);
+
+  // 4. Código / Protocolo / Ref Aleatória Anti-Bloqueio
   const hash = Math.floor(1000 + Math.random() * 9000);
   res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
   res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
   res = res.replace(/\{(?:ref|referencia|referência)\}/gi, 'Ref #' + hash);
 
-  // 4. Data, Hora e Dia da Semana
+  // 5. Data, Hora e Dia da Semana
   const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
   const agora = new Date();
   res = res.replace(/\{(?:dia|dia_semana)\}/gi, diasSemana[agora.getDay()]);
@@ -72,7 +95,7 @@ function processarSpintaxETags(texto, contato = {}) {
   res = res.replace(/\{data\}/gi, agora.toLocaleDateString('pt-BR'));
   res = res.replace(/\{hora\}/gi, agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 
-  // 5. Spintax Multinível / Recursivo (resolve todas as opções {a|b|c})
+  // 6. Spintax Multinível / Recursivo (resolve todas as opções {a|b|c})
   let anterior = '';
   let limite = 12;
   while (limite > 0 && res !== anterior) {
@@ -88,7 +111,7 @@ function processarSpintaxETags(texto, contato = {}) {
     });
   }
 
-  // 6. Higienização de chaves residuais
+  // 7. Higienização de chaves residuais
   res = res.replace(/\{([^{}]+)\}/g, (match, conteudo) => {
     if (conteudo.includes('|')) {
       const opcoes = conteudo.split('|');
@@ -100,28 +123,77 @@ function processarSpintaxETags(texto, contato = {}) {
     return '';
   });
 
-  // 7. Limpeza Estética e Ajuste de Pontuação Órfã
+  // 8. Limpeza Estética e Ajuste de Pontuação Órfã (preserva quebras de linha)
   res = res
-    .replace(/\s+([,.\?!;:])/g, '$1')
-    .replace(/([,;])\s*([,;])/g, '$1')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/^[,.\s]+/, '')
+    .replace(/[ \t]+([,.\?!;:])/g, '$1')
+    .replace(/([,;])[ \t]*([,;])/g, '$1')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/^[ \t]+|[ \t]+$/gm, '')
     .trim();
 
   return res;
 }
 
-// Obtém o nome da pessoa na conversa aberta no WhatsApp (se houver)
+// Obtém o nome da pessoa na conversa aberta no WhatsApp com máxima resiliência
 function obterNomeContatoConversaAtiva() {
+  let nomeCompleto = '';
+
+  // 1. Tenta extrair da área de informações do cabeçalho (#main header)
   const header = obterHeaderConversaAtiva();
-  if (!header) return '';
-  const spanTitle = header.querySelector('span[title]') || header.querySelector('span[dir="auto"]');
-  if (spanTitle) {
-    const raw = (spanTitle.getAttribute('title') || spanTitle.innerText || '').trim();
-    if (raw && !raw.match(/^\+?\d/)) {
-      return raw.split(/[\s,;-]+/)[0] || '';
+  if (header) {
+    // A área com foto e nome do contato é uma div clicável (role="button") ou o próprio header
+    const infoBtn = header.querySelector('div[role="button"]') || header;
+    
+    // Procura todos os elementos de texto dentro da área de informações do contato
+    const candidatos = Array.from(infoBtn.querySelectorAll('h2, span[dir="auto"], span[title], div[dir="auto"]'))
+      .map(el => (el.getAttribute('title') || el.innerText || '').trim())
+      .filter(t => t.length > 0);
+
+    for (const texto of candidatos) {
+      // Ignora status, emojis sozinhos, vistos por último, horários e textos de sistema
+      if (/visto por último|online|digitando|gravando|clique aqui|mensagens temporárias|toque para|chamada|pesquisar|mais opções/i.test(texto)) continue;
+      if (texto.includes(':') && /\d{2}:\d{2}/.test(texto)) continue;
+      if (texto.startsWith('http://') || texto.startsWith('https://')) continue;
+      // Se for apenas número de telefone (ex: +55 64 9999-9999), ignora para não usar o telefone como nome
+      if (/^\+?\d[\d\s\-\(\)]+$/.test(texto)) continue;
+
+      if (texto.length >= 2) {
+        nomeCompleto = texto;
+        break;
+      }
     }
   }
+
+  // 2. Se não achou no header, busca na conversa atualmente selecionada na barra lateral (#pane-side)
+  if (!nomeCompleto) {
+    const chatAtivo = document.querySelector('#pane-side div[aria-selected="true"]') ||
+                      document.querySelector('#pane-side div[role="row"][aria-selected="true"]') ||
+                      document.querySelector('#pane-side div[data-testid="cell-frame-container"]._ak8l') ||
+                      document.querySelector('#pane-side div[tabindex="0"]');
+    if (chatAtivo) {
+      const spanTitulo = chatAtivo.querySelector('span[title]') || chatAtivo.querySelector('span[dir="auto"]');
+      if (spanTitulo) {
+        const t = (spanTitulo.getAttribute('title') || spanTitulo.innerText || '').trim();
+        if (t && !/^\+?\d[\d\s\-\(\)]+$/.test(t)) {
+          nomeCompleto = t;
+        }
+      }
+    }
+  }
+
+  // 3. Formata e humaniza o Primeiro Nome
+  if (nomeCompleto) {
+    // Remove emojis ou caracteres especiais residuais no início
+    nomeCompleto = nomeCompleto.replace(/^[\p{Emoji}\s\-_|#@]+/gu, '').trim();
+    // Pega o primeiro nome
+    const partes = nomeCompleto.split(/[\s,;\-_]+/);
+    const primeiro = partes[0] || '';
+    if (primeiro.length >= 2 && !/^\d+$/.test(primeiro)) {
+      // Deixa Primeira maiúscula e resto minúscula (ex: "LUCIA" -> "Lucia", "lucia" -> "Lucia")
+      return primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+    }
+  }
+
   return '';
 }
 
@@ -858,13 +930,12 @@ async function enviarMensagemNoChat(texto) {
   inputBox.focus();
   await new Promise(r => setTimeout(r, 120));
 
-  // Limpa e insere texto
+  // Limpa e insere texto finalizado com precisão cirúrgica (evita qualquer duplicação)
   document.execCommand('selectAll', false, null);
   document.execCommand('delete', false, null);
   document.execCommand('insertText', false, textoFinal);
 
-  // Dispara eventos para o React / Draft.js / Lexical do WhatsApp
-  inputBox.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: texto, inputType: 'insertText' }));
+  // Dispara eventos nativos para o React/Lexical reconhecer o conteúdo
   inputBox.dispatchEvent(new Event('input', { bubbles: true }));
   inputBox.dispatchEvent(new Event('change', { bubbles: true }));
 
@@ -1030,7 +1101,6 @@ async function enviarMidiaNoChat(base64Data, mimeType, legenda = '', nomeArquivo
       document.execCommand('delete', false, null);
       document.execCommand('insertText', false, legendaFinal);
 
-      inputLegenda.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: legendaFinal, inputType: 'insertText' }));
       inputLegenda.dispatchEvent(new Event('input', { bubbles: true }));
       inputLegenda.dispatchEvent(new Event('change', { bubbles: true }));
       await new Promise(r => setTimeout(r, 250));
@@ -1085,13 +1155,12 @@ async function executarSequencia1Clique(sequencia) {
   sequenciaEmExecucao = true;
 
   try {
-    // Detecta o nome do contato aberto
-    const info = obterInfoGrupoAtual();
-    let nomeContato = 'Amigo(a)';
-    if (info && info.nomeGrupo) {
-      const raw = info.nomeGrupo.trim();
-      if (!raw.match(/^\+?\d/)) {
-        nomeContato = raw.split(' ')[0] || raw;
+    // Detecta o nome do contato aberto com máxima resiliência
+    let nomeContato = obterNomeContatoConversaAtiva();
+    if (!nomeContato) {
+      const info = obterInfoGrupoAtual();
+      if (info && info.nomeGrupo && !info.nomeGrupo.trim().match(/^\+?\d/)) {
+        nomeContato = info.nomeGrupo.trim().split(/[\s,;\-_]+/)[0] || '';
       }
     }
 

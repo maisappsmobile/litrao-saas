@@ -871,15 +871,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const msg = msgs[idx];
         if (!msg) return;
 
-        // Resolve automaticamente todas as tags {saudacao}, {nome}, {Oi|Olá}, {Ref #} etc.
-        const textoProcessado = gerarMensagemFinal(msg.texto);
-
         if (isZap) {
+          // No WhatsApp Web, enviamos o texto/template para o content.js resolver o {nome} do chat ativo
           if (msg.midia && msg.midia.base64) {
             chrome.tabs.sendMessage(tab.id, {
               action: 'enviar_midia_chat',
               midia: msg.midia,
-              legenda: textoProcessado
+              legenda: msg.texto || ''
             }, (res) => {
               if (chrome.runtime.lastError) {
                 const _e = chrome.runtime.lastError.message;
@@ -893,7 +891,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               }
             });
           } else {
-            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: textoProcessado }, () => {
+            chrome.tabs.sendMessage(tab.id, { action: 'enviar_texto_chat', texto: msg.texto }, () => {
               if (chrome.runtime.lastError) {
                 const _e = chrome.runtime.lastError.message;
                 alert('Aviso: Atualize a página do WhatsApp (F5) para conectar com a extensão.');
@@ -903,6 +901,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
           }
         } else {
+          // Fora do WhatsApp, resolve spintax e tags sem nome e copia para o clipboard
+          const textoProcessado = gerarMensagemFinal(msg.texto);
           navigator.clipboard.writeText(textoProcessado);
           alert(`Mensagem personalizada copiada para a área de transferência!`);
         }
@@ -1646,7 +1646,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       res = res.replace(regexNome, '');
     }
 
-    // 3. Código / Protocolo / Ref Aleatória Anti-Bloqueio
+    // 3. Chave Pix Inteligente
+    let chavePix = (contato && contato.chave_pix) || '';
+    if (!chavePix) {
+      try {
+        chavePix = localStorage.getItem('litrao_chave_pix') || '';
+      } catch (_) {}
+    }
+    if (!chavePix) {
+      chavePix = 'contato@litraodoreset.com.br';
+    }
+    res = res.replace(/\{(?:chave_pix|chave pix|pix)\}/gi, chavePix);
+
+    // 4. Código / Protocolo / Ref Aleatória Anti-Bloqueio
     const hash = Math.floor(1000 + Math.random() * 9000);
     res = res.replace(/\{(?:ref\s*#|protocolo|ticket)\}/gi, '#' + hash);
     res = res.replace(/\{(?:aleatorio|aleatório|codigo|código|hash|num_aleatorio)\}/gi, String(hash));
