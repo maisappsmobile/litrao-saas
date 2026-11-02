@@ -483,17 +483,22 @@
     container.style.cssText = `
       position: fixed;
       bottom: 25px;
-      right: 85px;
+      left: 25px;
       z-index: 2147483647;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
     `;
 
     container.innerHTML = `
+      <!-- Botão Principal de Extração -->
       <button id="btn-resetfit-fb-extrair" type="button" style="
         background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 50%, #6D28D9 100%);
         color: #FFFFFF;
         border: 2px solid rgba(255, 255, 255, 0.4);
-        padding: 12px 20px;
+        padding: 10px 18px;
         border-radius: 9999px;
         font-size: 13px;
         font-weight: 800;
@@ -501,11 +506,49 @@
         box-shadow: 0 10px 25px -3px rgba(29, 78, 216, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         transition: all 0.2s ease-in-out;
       ">
-        <span style="font-size: 17px;">⚡</span>
-        <span>Extrair Membros (Litrão do Reset)</span>
+        <span style="font-size: 16px;">⚡</span>
+        <span>Extrair Membros</span>
+      </button>
+
+      <!-- Alça de Arrastar (Mover para qualquer lugar da tela) -->
+      <div id="btn-resetfit-fb-drag" title="Clique e arraste para qualquer lugar da tela" style="
+        background: #0f172a;
+        color: #94a3b8;
+        border: 1.5px solid rgba(255, 255, 255, 0.25);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: grab;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      ">
+        ⠿
+      </div>
+
+      <!-- Botão Fechar (X) -->
+      <button id="btn-resetfit-fb-close" type="button" title="Fechar botão flutuante" style="
+        background: #ef4444;
+        color: #FFFFFF;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        transition: transform 0.15s ease;
+      ">
+        ✕
       </button>
     `;
 
@@ -513,10 +556,56 @@
 
     const btn = document.getElementById('btn-resetfit-fb-extrair');
     if (btn) {
-      btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.05)'; });
+      btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.04)'; });
       btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; });
       btn.addEventListener('click', () => { abrirModalExtracaoFacebook(); });
     }
+
+    const btnClose = document.getElementById('btn-resetfit-fb-close');
+    if (btnClose) {
+      btnClose.addEventListener('click', () => {
+        container.remove();
+      });
+    }
+
+    // SUPORTE A ARRASTAR E SOLTAR (DRAG & DROP)
+    const dragHandle = document.getElementById('btn-resetfit-fb-drag');
+    let isDragging = false;
+    let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+
+    const onMouseDown = (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = container.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+      container.style.bottom = 'auto';
+      container.style.right = 'auto';
+      container.style.left = initialLeft + 'px';
+      container.style.top = initialTop + 'px';
+      if (dragHandle) dragHandle.style.cursor = 'grabbing';
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      e.preventDefault();
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      container.style.left = Math.max(10, Math.min(window.innerWidth - 220, initialLeft + dx)) + 'px';
+      container.style.top = Math.max(10, Math.min(window.innerHeight - 60, initialTop + dy)) + 'px';
+    };
+
+    const onMouseUp = () => {
+      isDragging = false;
+      if (dragHandle) dragHandle.style.cursor = 'grab';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    if (dragHandle) dragHandle.addEventListener('mousedown', onMouseDown);
   }
 
   /**
