@@ -14774,13 +14774,8 @@
                             <!-- Barra Inferior de Ações Rápidas -->
                             ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                                 <!-- Barra de Teste RÃ¡pido Manual por Consultor -->
-                            <div class="mt-2.5 p-2 bg-purple-50/90 rounded-xl border border-purple-200 flex items-center justify-between gap-1">
-                                <span class="text-[10px] font-black text-purple-900 uppercase flex items-center gap-1"><i class="fa-solid fa-gift text-purple-600"></i> Liberar Teste:</span>
-                                <div class="flex items-center gap-1">
-                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 7)" class="px-2 py-1 bg-white hover:bg-purple-600 hover:text-white text-purple-800 font-black rounded-lg text-[10px] transition border border-purple-200 cursor-pointer shadow-2xs" title="Somar +7 Dias de Teste (PadrÃ£o)">+7d</button>
-                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 15)" class="px-2 py-1 bg-white hover:bg-indigo-600 hover:text-white text-indigo-800 font-black rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer shadow-2xs" title="Somar +15 Dias de Teste VIP">+15d</button>
-                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 30)" class="px-2 py-1 bg-white hover:bg-emerald-600 hover:text-white text-emerald-800 font-black rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer shadow-2xs" title="Somar +30 Dias de Teste Master">+30d</button>
-                                </div>
+                            <div class="mt-2.5 flex items-center justify-between gap-1">
+                                ${renderizarBotoesChaveTestePainel(c)}
                             </div>
 
                             <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
@@ -14969,13 +14964,8 @@
                         ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                             <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1">
-                                    <!-- CHAVE MANUAL DE TESTE POR CONSULTOR (7d, 15d, 30d) -->
-                                    <div class="inline-flex items-center gap-0.5 bg-purple-50/90 p-1 rounded-xl border border-purple-200 shadow-2xs mr-1 align-middle" title="Liberar Teste Manual para Este Consultor (soma cumulativa se tiver dias vÃ¡lidos)">
-                                        <span class="text-[9px] font-black text-purple-800 uppercase px-1 flex items-center gap-0.5"><i class="fa-solid fa-gift text-purple-600"></i> Teste:</span>
-                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 7)" class="px-1.5 py-0.5 bg-white hover:bg-purple-600 hover:text-white text-purple-800 font-black rounded-lg text-[10px] transition border border-purple-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +7 Dias de Teste (PadrÃ£o)">7d</button>
-                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 15)" class="px-1.5 py-0.5 bg-white hover:bg-indigo-600 hover:text-white text-indigo-800 font-black rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +15 Dias de Teste VIP">15d</button>
-                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 30)" class="px-1.5 py-0.5 bg-white hover:bg-emerald-600 hover:text-white text-emerald-800 font-black rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +30 Dias de Teste Master">30d</button>
-                                    </div>
+                                    <!-- CHAVE MANUAL DE TESTE ÁGIL COM DESTAQUE (PRINT 3 RESOLVIDO) -->
+                                    ${renderizarBotoesChaveTestePainel(c)}
                                     <button onclick="abrirModalChavesConsultorIndividual('${c.id}')" title="Gerenciar Chaves de Módulos" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs flex items-center gap-1">
                                         <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
                                     </button>
@@ -15001,7 +14991,143 @@
         }
         window.renderizarTabelaSuperadmin = renderizarTabelaSuperadmin;
 
-        async function liberarTesteManualConsultorPainel(id, dias) {
+        // Identifica qual chave de teste está ativa para o consultor no Painel
+        function extrairChaveAtivaConsultorPainel(c) {
+            if (!c) return 7;
+            const hid = String(c.herbalife_id || '').trim();
+            if (hid === '433005811') return 'vitalicio';
+
+            const raw = c.nome_espaco || '';
+            const m = raw.match(/<!--CHAVE_TESTE:(\d+)-->/);
+            if (m && m[1]) return parseInt(m[1], 10);
+
+            if (c.vencimento && c.vencimento.length === 10) {
+                const p = c.vencimento.split('-');
+                const dt = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+                const diff = Math.ceil((dt - hoje) / (1000 * 60 * 60 * 24));
+                if (diff > 20) return 30;
+                if (diff > 9) return 15;
+                if (diff > 0) return 7;
+            }
+            return 7;
+        }
+
+        // Renderiza o grupo de botões com a chave ativa ACESA / DESTACADA (Print 3 resolvido)
+        function renderizarBotoesChaveTestePainel(c) {
+            const hid = String(c.herbalife_id || '').trim();
+            if (hid === '433005811') {
+                return '<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-950 font-black px-2 py-0.5 rounded-lg text-[10px] border border-amber-300 uppercase shadow-2xs"><i class="fa-solid fa-crown text-amber-600"></i> SuperAdmin</span>';
+            }
+
+            const chaveAtiva = extrairChaveAtivaConsultorPainel(c);
+
+            const estilo7Ativo = "px-2 py-0.5 bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-black rounded-lg text-[10px] shadow-md border-2 border-purple-400 ring-2 ring-purple-300 scale-105 transition flex items-center gap-0.5 cursor-pointer";
+            const estilo7Inativo = "px-1.5 py-0.5 bg-white hover:bg-purple-100 text-purple-900 font-bold rounded-lg text-[10px] transition border border-purple-200 cursor-pointer hover:scale-105";
+
+            const estilo15Ativo = "px-2 py-0.5 bg-gradient-to-r from-indigo-700 to-blue-700 text-white font-black rounded-lg text-[10px] shadow-md border-2 border-indigo-400 ring-2 ring-indigo-300 scale-105 transition flex items-center gap-0.5 cursor-pointer";
+            const estilo15Inativo = "px-1.5 py-0.5 bg-white hover:bg-indigo-100 text-indigo-900 font-bold rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer hover:scale-105";
+
+            const estilo30Ativo = "px-2 py-0.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-black rounded-lg text-[10px] shadow-md border-2 border-emerald-400 ring-2 ring-emerald-300 scale-105 transition flex items-center gap-0.5 cursor-pointer";
+            const estilo30Inativo = "px-1.5 py-0.5 bg-white hover:bg-emerald-100 text-emerald-900 font-bold rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer hover:scale-105";
+
+            const is7 = (chaveAtiva === 7);
+            const is15 = (chaveAtiva === 15);
+            const is30 = (chaveAtiva === 30);
+
+            return `
+                <div id="grupo-chaves-painel-${c.id}" class="inline-flex items-center gap-1 bg-purple-50/90 p-1 rounded-xl border border-purple-200 shadow-2xs mr-1 align-middle" title="Clique para somar teste (1-Clique Ágil Instantâneo)">
+                    <span class="text-[9px] font-black text-purple-900 uppercase px-1 flex items-center gap-0.5 select-none">
+                        <i class="fa-solid fa-gift text-purple-600"></i> Teste:
+                    </span>
+                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 7, event)" class="${is7 ? estilo7Ativo : estilo7Inativo}" title="${is7 ? 'Chave de 7 Dias Ativa no Momento' : 'Clique para Liberar ou Somar +7 Dias (Padrão)'}">
+                        ${is7 ? '<i class="fa-solid fa-check text-[8px] text-amber-300"></i> ' : ''}7d
+                    </button>
+                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 15, event)" class="${is15 ? estilo15Ativo : estilo15Inativo}" title="${is15 ? 'Chave de 15 Dias Ativa no Momento' : 'Clique para Liberar ou Somar +15 Dias VIP'}">
+                        ${is15 ? '<i class="fa-solid fa-check text-[8px] text-amber-300"></i> ' : ''}15d
+                    </button>
+                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 30, event)" class="${is30 ? estilo30Ativo : estilo30Inativo}" title="${is30 ? 'Chave de 30 Dias Ativa no Momento' : 'Clique para Liberar ou Somar +30 Dias Master'}">
+                        ${is30 ? '<i class="fa-solid fa-check text-[8px] text-amber-300"></i> ' : ''}30d
+                    </button>
+                </div>
+            `;
+        }
+        window.renderizarBotoesChaveTestePainel = renderizarBotoesChaveTestePainel;
+
+        // PROCESSO ÁGIL E FÁCIL NO PAINEL: 1-CLIQUE INSTANTÂNEO (SEM POPUPS, SEM BLOQUEIOS!)
+        async function liberarTesteManualConsultorPainel(id, dias, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            try {
+                const consultor = (todosConsultoresCache || []).find(c => String(c.id) === String(id));
+                if (!consultor) return;
+
+                const nome = (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                let dataBase = new Date(hoje);
+                if (consultor.vencimento && consultor.vencimento.length === 10) {
+                    const p = consultor.vencimento.split('-');
+                    if (p.length === 3) {
+                        const dtAtual = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                        if (dtAtual.getTime() >= hoje.getTime()) {
+                            dataBase = new Date(dtAtual);
+                        }
+                    }
+                }
+
+                dataBase.setDate(dataBase.getDate() + dias);
+                const y = dataBase.getFullYear();
+                const m = String(dataBase.getMonth() + 1).padStart(2, '0');
+                const d = String(dataBase.getDate()).padStart(2, '0');
+                const novoVenc = `${y}-${m}-${d}`;
+
+                let rawEspaco = consultor.nome_espaco || '';
+                rawEspaco = rawEspaco.replace(/<!--CHAVE_TESTE:\d+-->/g, '').trim();
+                rawEspaco += ` <!--CHAVE_TESTE:${dias}-->`;
+
+                consultor.status = 'Ativo';
+                consultor.vencimento = novoVenc;
+                consultor.nome_espaco = rawEspaco;
+
+                // Notificação Toast elegante (Zero popups travando a tela!)
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`🎉 Teste de +${dias} dias ativado para ${nome}! Vencimento até ${d}/${m}/${y}.`, 'sucesso');
+                }
+
+                // Atualização visual imediata
+                const containerP = document.getElementById(`grupo-chaves-painel-${id}`);
+                if (containerP) {
+                    containerP.outerHTML = renderizarBotoesChaveTestePainel(consultor);
+                }
+
+                // Salva no Supabase em background
+                await supabaseClient
+                    .from('consultores')
+                    .update({
+                        status: 'Ativo',
+                        vencimento: novoVenc,
+                        nome_espaco: rawEspaco
+                    })
+                    .eq('id', id);
+
+                aplicarFiltrosErenderizarSuperadmin();
+
+            } catch (err) {
+                console.error("Erro ao liberar teste no painel:", err);
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`Erro ao aplicar chave: ${err.message}`, 'erro');
+                }
+            }
+        }
+        window.liberarTesteManualConsultorPainel = liberarTesteManualConsultorPainel;
+
+        function liberarTesteManualConsultorPainel_Antigo(id, dias) {
             try {
                 const consultor = (todosConsultoresCache || []).find(c => String(c.id) === String(id));
                 if (!consultor) return;
