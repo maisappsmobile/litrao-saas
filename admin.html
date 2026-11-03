@@ -235,79 +235,196 @@
         </main>
     </div>
 
-    <!-- Modal Editar Status / Vencimento -->
-    <div id="modal-editar" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl">
-            <h2 class="text-xl font-bold mb-6 text-brand-dark flex items-center">
-                <i class="fa-solid fa-clock-rotate-left mr-3 text-brand-light"></i>
-                Liberar Acesso
-            </h2>
-            <form id="form-editar" onsubmit="salvarEdicao(event)">
+    <!-- Modal SuperAdmin: Liberação Manual Completa de Consultor (15/30d Teste | Planos Oficiais | Fundador) -->
+    <div id="modal-editar" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-7 w-full max-w-xl shadow-2xl border-4 border-purple-600 relative max-h-[94vh] overflow-y-auto">
+            <button type="button" onclick="fecharModalEditar()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <!-- Cabeçalho -->
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-800 text-amber-300 flex items-center justify-center text-2xl shadow-lg border border-purple-400 shrink-0">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span class="bg-purple-100 text-purple-900 border border-purple-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-block">
+                            SuperAdmin Exclusivo
+                        </span>
+                        <span id="edit-consultor-id-badge" class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                            ID: ---
+                        </span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight" id="edit-consultor-nome-titulo">
+                        Liberar Acesso Manual do Consultor
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Card de Resumo do Consultor Selecionado -->
+            <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 mb-4 flex items-center justify-between text-xs">
+                <div>
+                    <span class="text-[10px] font-black text-purple-900 uppercase block">Consultor / Espaço:</span>
+                    <strong id="edit-consultor-nome-preview" class="text-gray-900 text-sm">Carregando...</strong>
+                    <p id="edit-consultor-zap-preview" class="text-emerald-700 font-bold text-[11px] mt-0.5"></p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-purple-900 uppercase block">Vencimento Atual:</span>
+                    <span id="edit-consultor-venc-preview" class="font-bold text-gray-800">Sem data</span>
+                    <span id="badge-dias-restantes-preview" class="block text-[10px] font-black text-indigo-700"></span>
+                </div>
+            </div>
+
+            <form id="form-editar" onsubmit="salvarEdicao(event)" class="space-y-4">
                 <input type="hidden" id="edit-id">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Status da Conta</label>
-                        <select id="edit-status" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none font-bold">
-                            <option value="Ativo">Ativo (Liberado)</option>
-                            <option value="Pendente">Pendente (Bloqueado)</option>
-                            <option value="Vencido">Vencido (Bloqueado)</option>
-                        </select>
+
+                <!-- 1. CHAVE MANUAL DE TESTE (7, 15 OU 30 DIAS CUMULATIVOS) -->
+                <div class="bg-slate-900 border-2 border-purple-500 rounded-2xl p-4 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-black text-amber-300 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-gift text-amber-400"></i> 1. Chave de Teste Grátis (Cumulativo - Não Zera!)
+                        </span>
+                        <span class="text-[10px] text-purple-200 font-bold">Soma aos dias vigentes</span>
                     </div>
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="block text-sm font-bold text-gray-700">Data de Vencimento</label>
-                            <span id="badge-feedback-venc-admin" class="hidden text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full animate-pulse"></span>
-                        </div>
-                        <input type="date" id="edit-vencimento" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none font-bold text-gray-800">
-                        <!-- ATALHOS CUMULATIVOS DE 1-CLIQUE -->
-                        <div class="mt-2.5 pt-2 border-t border-gray-100">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
-                                <i class="fa-solid fa-plus-circle text-brand-light"></i> Somar Dias ao Vencimento Atual:
-                            </span>
-                            <div class="flex flex-wrap gap-1.5">
-                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(7)" class="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
-                                    +7 Dias
-                                </button>
-                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(15)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
-                                    +15 Dias
-                                </button>
-                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(30)" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
-                                    +30 Dias (1 M&ecirc;s)
-                                </button>
-                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(365)" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
-                                    +1 Ano (365d)
-                                </button>
-                                <button type="button" onclick="definirVitalicioAdmin()" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
-                                    Vital&iacute;cio
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
-                        <label class="flex items-center space-x-2 cursor-pointer select-none">
-                            <input type="checkbox" id="edit-financeiro-liberado" class="w-4 h-4 text-purple-600 rounded">
-                            <span class="text-xs font-bold text-purple-900"><i class="fa-solid fa-calculator mr-1"></i> Módulo Financeiro do EVS Liberado</span>
-                        </label>
-                        <p class="text-[10px] text-purple-700 mt-1">Permite ao consultor acessar a Calculadora de Doses, Lucro do Litrão e Catálogo.</p>
-                    </div>
-                    <div class="mt-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
-                        <label class="flex items-center space-x-2 cursor-pointer select-none">
-                            <input type="checkbox" id="edit-catalogo-liberado" class="w-4 h-4 text-blue-600 rounded">
-                            <span class="text-xs font-bold text-blue-900"><i class="fa-solid fa-book-open-reader mr-1"></i> Catálogo Digital Interativo Liberado</span>
-                        </label>
-                        <p class="text-[10px] text-blue-700 mt-1">Permite ao consultor acessar o painel de estatísticas, compartilhamento WhatsApp/E-mail e visitas.</p>
-                    </div>
-                    <div class="mt-2 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                        <label class="flex items-center space-x-2 cursor-pointer select-none">
-                            <input type="checkbox" id="edit-crm-extrator-liberado" class="w-4 h-4 text-emerald-600 rounded">
-                            <span class="text-xs font-bold text-emerald-950"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i> Extrator WhatsApp & CRM Kanban Liberado</span>
-                        </label>
-                        <p class="text-[10px] text-emerald-800 mt-1">Permite extrair contatos de grupos do WhatsApp Web e gerenciar leads no Kanban estilo Vale do Silício.</p>
+                    <p class="text-[11px] text-gray-300 mb-3 leading-relaxed">
+                        Se o consultor ainda tiver dias restantes, a chave <strong>soma cumulativamente</strong> ao vencimento atual, sem zerar nada!
+                    </p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="aplicarChaveTesteModal(7)" class="p-2.5 rounded-xl border-2 border-purple-400 bg-purple-950/80 hover:bg-purple-600 text-white text-center transition cursor-pointer font-black text-xs shadow-md">
+                            <span class="block text-amber-300 text-sm">🎁 +7 Dias</span>
+                            <span class="text-[10px] text-gray-300 font-medium">Teste Padrão</span>
+                        </button>
+                        <button type="button" onclick="aplicarChaveTesteModal(15)" class="p-2.5 rounded-xl border-2 border-indigo-400 bg-indigo-950/80 hover:bg-indigo-600 text-white text-center transition cursor-pointer font-black text-xs shadow-md">
+                            <span class="block text-amber-300 text-sm">🎁 +15 Dias</span>
+                            <span class="text-[10px] text-gray-300 font-medium">Teste VIP</span>
+                        </button>
+                        <button type="button" onclick="aplicarChaveTesteModal(30)" class="p-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-950/80 hover:bg-emerald-600 text-white text-center transition cursor-pointer font-black text-xs shadow-md">
+                            <span class="block text-amber-300 text-sm">🎁 +30 Dias</span>
+                            <span class="text-[10px] text-gray-300 font-medium">Teste Master</span>
+                        </button>
                     </div>
                 </div>
-                <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <button type="button" onclick="fecharModalEditar()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Cancelar</button>
-                    <button type="submit" class="px-5 py-3 bg-brand-light text-white font-bold rounded-xl hover:bg-green-600 transition shadow-md">Salvar</button>
+
+                <!-- 2. SELEÇÃO DE PLANO OFICIAL DA PLATAFORMA (1-CLIQUE) -->
+                <div class="bg-purple-50 border border-purple-300 rounded-2xl p-4">
+                    <span class="text-xs font-black text-purple-900 uppercase block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-crown text-purple-700"></i> 2. Definir Plano Oficial da Plataforma
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button type="button" onclick="aplicarPlanoOficialModal('start_pro')" class="p-2.5 rounded-xl border border-blue-300 bg-white hover:bg-blue-50 text-left transition cursor-pointer shadow-2xs group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-blue-900 text-xs">🚀 Start Pro</span>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.2 rounded">R$ 99/mês</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">+30 dias • CRM + Catálogo</p>
+                        </button>
+
+                        <button type="button" onclick="aplicarPlanoOficialModal('smart_pro')" class="p-2.5 rounded-xl border border-amber-300 bg-white hover:bg-amber-50 text-left transition cursor-pointer shadow-2xs group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-amber-900 text-xs">⚡ Smart Pro (Vitalício)</span>
+                                <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">R$ 25/mês</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">+30 dias • Todos os módulos</p>
+                        </button>
+
+                        <button type="button" onclick="aplicarPlanoOficialModal('master_vip')" class="p-2.5 rounded-xl border border-purple-300 bg-white hover:bg-purple-50 text-left transition cursor-pointer shadow-2xs group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-purple-900 text-xs">👑 Master VIP</span>
+                                <span class="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded">R$ 49/mês</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">+30 dias • VIP Total 100%</p>
+                        </button>
+
+                        <button type="button" onclick="definirVitalicioAdmin()" class="p-2.5 rounded-xl border border-emerald-300 bg-white hover:bg-emerald-50 text-left transition cursor-pointer shadow-2xs group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-emerald-900 text-xs">♾️ Vitalício Permanente</span>
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">Isento R$ 0</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">Validade até 2036 • Total</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. STATUS DA CONTA & CONDIÇÃO MEMBRO FUNDADOR -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Status Geral da Conta</label>
+                        <select id="edit-status" class="w-full px-3 py-2.5 border border-gray-300 bg-gray-50 rounded-xl font-bold text-sm text-gray-800 focus:border-purple-500 outline-none">
+                            <option value="Ativo">✅ Ativo (Liberado)</option>
+                            <option value="Pendente">⏳ Pendente (Aguardando)</option>
+                            <option value="Vencido">⚠️ Vencido (Bloqueado)</option>
+                            <option value="Bloqueado">⛔ Bloqueado Total</option>
+                        </select>
+                    </div>
+
+                    <!-- TOGGLE MEMBRO FUNDADOR -->
+                    <div class="flex items-center">
+                        <label class="w-full p-2.5 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-center justify-between cursor-pointer select-none">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-star text-amber-500 text-lg"></i>
+                                <div>
+                                    <span class="text-xs font-black text-amber-950 block">Membro Fundador</span>
+                                    <span class="text-[10px] text-amber-800">Garante desconto vitalício</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="edit-status-fundador" class="w-5 h-5 text-amber-600 rounded">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 4. DATA DE VENCIMENTO MANUAL -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-gray-700">Data de Vencimento Manual</label>
+                        <span id="badge-feedback-venc-admin" class="hidden text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full animate-pulse"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="edit-vencimento" class="flex-1 px-3 py-2.5 border border-gray-300 bg-gray-50 rounded-xl font-bold text-sm text-gray-800 focus:border-purple-500 outline-none">
+                        <button type="button" onclick="adicionarDiasAoVencimentoAdmin(365)" class="px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-xl text-xs font-bold transition cursor-pointer" title="Adicionar 1 Ano Completo">
+                            +1 Ano
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5. MÓDULOS INCLUSOS NO ACESSO -->
+                <div class="space-y-2 pt-1">
+                    <span class="text-xs font-black text-gray-700 uppercase block mb-1">Módulos Inclusos na Liberação:</span>
+                    
+                    <label class="flex items-center justify-between p-2.5 bg-purple-50/70 border border-purple-200 rounded-xl cursor-pointer select-none">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                            <span class="text-xs font-bold text-purple-950">Extrator WhatsApp & CRM Kanban</span>
+                        </div>
+                        <input type="checkbox" id="edit-crm-extrator-liberado" class="w-4 h-4 text-purple-600 rounded">
+                    </label>
+
+                    <label class="flex items-center justify-between p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-xl cursor-pointer select-none">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-emerald-600 text-base"></i>
+                            <span class="text-xs font-bold text-emerald-950">Módulo Financeiro do EVS & Custos</span>
+                        </div>
+                        <input type="checkbox" id="edit-financeiro-liberado" class="w-4 h-4 text-emerald-600 rounded">
+                    </label>
+
+                    <label class="flex items-center justify-between p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl cursor-pointer select-none">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-book-open-reader text-blue-600 text-base"></i>
+                            <span class="text-xs font-bold text-blue-950">Catálogo Digital Interativo</span>
+                        </div>
+                        <input type="checkbox" id="edit-catalogo-liberado" class="w-4 h-4 text-blue-600 rounded">
+                    </label>
+                </div>
+
+                <!-- Botões de Ação do Rodapé -->
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <button type="button" onclick="fecharModalEditar()" class="px-5 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition cursor-pointer text-xs uppercase">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white font-black rounded-xl shadow-lg transition cursor-pointer text-xs uppercase flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check text-amber-300"></i>
+                        Salvar e Liberar Acesso
+                    </button>
                 </div>
             </form>
         </div>
@@ -848,8 +965,164 @@
         }
         window.filtrarTabelaCrm = filtrarTabelaCrm;
 
-        // EDICAO
+        // EDICAO COMPLETA SUPERADMIN (15/30D TESTE CUMULATIVO | PLANOS OFICIAIS | FUNDADOR)
+        let consultorEmEdicaoModal = null;
+
         function abrirModalEditar(id, status, venc, isFinLiberado, isCatLiberado, isCrmLiberado) {
+            const consultor = todosConsultoresAdmin.find(c => String(c.id) === String(id));
+            consultorEmEdicaoModal = consultor;
+
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-status').value = status ? (status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()) : 'Ativo';
+            document.getElementById('edit-vencimento').value = venc || '';
+
+            // Resumo do consultor no topo do modal
+            const nomeLimpo = consultor ? (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim() : 'Consultor';
+            const hid = consultor ? consultor.herbalife_id : '---';
+            const zap = consultor ? (consultor.whatsapp || '') : '';
+
+            const elTitulo = document.getElementById('edit-consultor-nome-titulo');
+            if (elTitulo) elTitulo.innerText = nomeLimpo;
+
+            const elIdBadge = document.getElementById('edit-consultor-id-badge');
+            if (elIdBadge) elIdBadge.innerText = 'ID: ' + hid;
+
+            const elPreviewNome = document.getElementById('edit-consultor-nome-preview');
+            if (elPreviewNome) elPreviewNome.innerText = nomeLimpo;
+
+            const elPreviewZap = document.getElementById('edit-consultor-zap-preview');
+            if (elPreviewZap) elPreviewZap.innerHTML = zap ? '<i class="fa-brands fa-whatsapp"></i> ' + zap : '';
+
+            const elPreviewVenc = document.getElementById('edit-consultor-venc-preview');
+            if (elPreviewVenc) elPreviewVenc.innerText = venc ? formatarData(venc) : 'Sem data definida';
+
+            // Cálculo dos dias restantes vigentes
+            const elDiasRestantes = document.getElementById('badge-dias-restantes-preview');
+            if (elDiasRestantes) {
+                if (venc && venc.length === 10) {
+                    const p = venc.split('-');
+                    const dt = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                    const hj = new Date(); hj.setHours(0, 0, 0, 0);
+                    const diff = Math.ceil((dt - hj) / (1000 * 60 * 60 * 24));
+                    if (diff > 0) {
+                        elDiasRestantes.innerText = 'Restam ' + diff + ' dias válidos';
+                        elDiasRestantes.className = 'block text-[10px] font-black text-emerald-700';
+                    } else if (diff === 0) {
+                        elDiasRestantes.innerText = 'Vence hoje!';
+                        elDiasRestantes.className = 'block text-[10px] font-black text-amber-700';
+                    } else {
+                        elDiasRestantes.innerText = 'Vencido há ' + Math.abs(diff) + ' dias';
+                        elDiasRestantes.className = 'block text-[10px] font-black text-rose-700';
+                    }
+                } else {
+                    elDiasRestantes.innerText = '';
+                }
+            }
+
+            // Membro fundador
+            const chkFundador = document.getElementById('edit-status-fundador');
+            if (chkFundador) {
+                const isFund = consultor && consultor.nome_espaco && consultor.nome_espaco.includes('<!--CONDICAO:FUNDADOR-->');
+                chkFundador.checked = !!isFund;
+            }
+
+            if (document.getElementById('edit-financeiro-liberado')) {
+                document.getElementById('edit-financeiro-liberado').checked = !!isFinLiberado;
+            }
+            if (document.getElementById('edit-catalogo-liberado')) {
+                document.getElementById('edit-catalogo-liberado').checked = !!isCatLiberado;
+            }
+            if (document.getElementById('edit-crm-extrator-liberado')) {
+                document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
+            }
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        // Função para aplicar Chave de Teste com regra cumulativa (não zera se ainda não venceu!)
+        function aplicarChaveTesteModal(dias) {
+            const inputVenc = document.getElementById('edit-vencimento');
+            const selectStatus = document.getElementById('edit-status');
+            const badge = document.getElementById('badge-feedback-venc-admin');
+            if (!inputVenc) return;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let dataBase = new Date(hoje);
+            const valAtual = (inputVenc.value || '').trim();
+
+            if (valAtual && valAtual.length === 10) {
+                const partes = valAtual.split('-');
+                if (partes.length === 3) {
+                    const dVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                    // REGRA CUMULATIVA: SE AINDA NÃO VENCEU, SOMA AOS DIAS QUE JÁ TEM!
+                    if (dVenc.getTime() >= hoje.getTime()) {
+                        dataBase = new Date(dVenc);
+                    }
+                }
+            }
+
+            dataBase.setDate(dataBase.getDate() + dias);
+            const ano = dataBase.getFullYear();
+            const mes = String(dataBase.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataBase.getDate()).padStart(2, '0');
+            const novoVal = `${ano}-${mes}-${dia}`;
+
+            inputVenc.value = novoVal;
+            if (selectStatus) selectStatus.value = 'Ativo';
+
+            if (badge) {
+                badge.innerText = `+ ${dias} dias somados com sucesso (${dia}/${mes}/${ano})!`;
+                badge.classList.remove('hidden');
+                setTimeout(() => { badge.classList.add('hidden'); }, 3500);
+            }
+        }
+        window.aplicarChaveTesteModal = aplicarChaveTesteModal;
+
+        // Função para aplicar Plano Oficial da Plataforma (1-Clique)
+        function aplicarPlanoOficialModal(planoKey) {
+            const chkFin = document.getElementById('edit-financeiro-liberado');
+            const chkCat = document.getElementById('edit-catalogo-liberado');
+            const chkCrm = document.getElementById('edit-crm-extrator-liberado');
+            const selectStatus = document.getElementById('edit-status');
+            const badge = document.getElementById('badge-feedback-venc-admin');
+
+            if (selectStatus) selectStatus.value = 'Ativo';
+
+            // Soma 30 dias de ciclo cumulativos
+            aplicarChaveTesteModal(30);
+
+            if (planoKey === 'start_pro') {
+                if (chkCrm) chkCrm.checked = true;
+                if (chkCat) chkCat.checked = true;
+                if (chkFin) chkFin.checked = false;
+                if (badge) {
+                    badge.innerText = 'Plano Start Pro aplicado (+30d • CRM + Catálogo)!';
+                    badge.classList.remove('hidden');
+                }
+            } else if (planoKey === 'smart_pro') {
+                if (chkCrm) chkCrm.checked = true;
+                if (chkCat) chkCat.checked = true;
+                if (chkFin) chkFin.checked = true;
+                if (badge) {
+                    badge.innerText = 'Plano Smart Pro aplicado (+30d • Todos os módulos)!';
+                    badge.classList.remove('hidden');
+                }
+            } else if (planoKey === 'master_vip') {
+                if (chkCrm) chkCrm.checked = true;
+                if (chkCat) chkCat.checked = true;
+                if (chkFin) chkFin.checked = true;
+                const chkFund = document.getElementById('edit-status-fundador');
+                if (chkFund) chkFund.checked = true;
+                if (badge) {
+                    badge.innerText = 'Plano Master VIP aplicado (+30d • Fundador • Total)!';
+                    badge.classList.remove('hidden');
+                }
+            }
+        }
+        window.aplicarPlanoOficialModal = aplicarPlanoOficialModal;
+
+        function abrirModalEditar_Original(id, status, venc, isFinLiberado, isCatLiberado, isCrmLiberado) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-status').value = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
             document.getElementById('edit-vencimento').value = venc;
@@ -1039,6 +1312,13 @@
                     raw = raw.replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/, tagCrm);
                 } else {
                     raw += ' ' + tagCrm;
+                }
+
+                // Atualiza tag de Membro Fundador
+                const isFundadorCheck = document.getElementById('edit-status-fundador') ? document.getElementById('edit-status-fundador').checked : false;
+                raw = raw.replace(/<!--CONDICAO:FUNDADOR-->/g, '').trim();
+                if (isFundadorCheck) {
+                    raw += ' <!--CONDICAO:FUNDADOR-->';
                 }
 
                 await supabaseClient.from('consultores').update({
