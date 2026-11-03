@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -1014,20 +1014,65 @@
         async function confirmarNoSupabaseLiberacao(hid, txHash) {
             try {
                 if (supabaseClient) {
-                    // Adiciona +30 dias de vencimento ou preserva data vigente
+                    // Consulta o consultor no Supabase para buscar seu vencimento atual e dados
+                    const { data: consultor } = await supabaseClient
+                        .from('consultores')
+                        .select('id, vencimento, nome_espaco')
+                        .eq('herbalife_id', hid)
+                        .maybeSingle();
+
                     const hoje = new Date();
-                    hoje.setDate(hoje.getDate() + 30);
-                    const novoVenc = hoje.toISOString().split('T')[0];
+                    hoje.setHours(0, 0, 0, 0);
+
+                    // Ciclo padrão de dias a adicionar (30 dias por padrão ou do plano configurado)
+                    const diasPlano = (typeof configTempoAssinar !== 'undefined' && configTempoAssinar && configTempoAssinar.diasCicloPlano1)
+                        ? parseInt(configTempoAssinar.diasCicloPlano1, 10)
+                        : 30;
+
+                    let baseData = new Date(hoje.getTime());
+
+                    // REGRA DE OURO: Se o consultor ainda possui dias de teste ou plano ativo (vencimento >= hoje),
+                    // soma os novos dias do plano DIRETAMENTE ao vencimento que ele já possuía!
+                    if (consultor && consultor.vencimento) {
+                        const partes = String(consultor.vencimento).trim().split('T')[0].split('-');
+                        if (partes.length === 3) {
+                            const dVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                            if (dVenc.getTime() >= hoje.getTime()) {
+                                baseData = dVenc;
+                            }
+                        }
+                    }
+
+                    baseData.setDate(baseData.getDate() + diasPlano);
+                    const ano = baseData.getFullYear();
+                    const mes = String(baseData.getMonth() + 1).padStart(2, '0');
+                    const dia = String(baseData.getDate()).padStart(2, '0');
+                    const novoVenc = `${ano}-${mes}-${dia}`;
+
+                    let rawEspaco = (consultor && consultor.nome_espaco) || '';
+                    if (txHash) {
+                        const tagPix = `<!--PAGAMENTO_PIX:${JSON.stringify({ tx: txHash, data: new Date().toISOString(), diasAcrescidos: diasPlano })}-->`;
+                        if (rawEspaco.includes('<!--PAGAMENTO_PIX:')) {
+                            rawEspaco = rawEspaco.replace(/<!--PAGAMENTO_PIX:[\s\S]*?-->/, tagPix);
+                        } else {
+                            rawEspaco += ' ' + tagPix;
+                        }
+                    }
 
                     await supabaseClient
                         .from('consultores')
                         .update({
                             status: 'Ativo',
-                            vencimento: novoVenc
+                            vencimento: novoVenc,
+                            nome_espaco: rawEspaco
                         })
                         .eq('herbalife_id', hid);
+
+                    console.log(`[Litrão do Reset] Pagamento confirmado com sucesso para ID ${hid}! Novo vencimento cumulativo: ${novoVenc} (+${diasPlano} dias).`);
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error("Erro ao confirmar liberação cumulativa no Supabase:", e);
+            }
         }
 
         function ativarSucessoPixConfirmado() {
@@ -1368,13 +1413,31 @@
                 }
             }
 
-            // Data de vencimento (Trial configurado pelo SuperAdmin, 60 dias de carência se MEUPRESIDENTE, ou carência do cupom)
+            // Data de vencimento (Chave configurada: 7, 15 ou 30 dias de degustação, URL trial=15/30, ou cupons promocionais)
             const hoje = new Date();
             let diasCarenciaAplicados = (typeof configTempoAssinar !== 'undefined' && configTempoAssinar && configTempoAssinar.trialDiasNovosConsultores !== undefined)
                 ? parseInt(configTempoAssinar.trialDiasNovosConsultores, 10)
                 : 7;
 
-            if (isPresidente) {
+            // Chave especial via URL (?trial=15 ou ?trial=30 ou ?dias=30 ou ?teste=30)
+            try {
+                const urlParamsChave = new URLSearchParams(window.location.search);
+                const paramTrial = urlParamsChave.get('trial') || urlParamsChave.get('dias') || urlParamsChave.get('teste');
+                if (paramTrial) {
+                    const parsedTrial = parseInt(paramTrial, 10);
+                    if (parsedTrial > 0 && !isNaN(parsedTrial)) {
+                        diasCarenciaAplicados = parsedTrial;
+                    }
+                }
+            } catch (_) {}
+
+            // Cupons de degustação estendida (15 ou 30 dias)
+            const cupomUpper = (cupom || '').toUpperCase().trim();
+            if (['VIP30', 'TESTE30', 'LANCAMENTO30', 'DEGUSTACAO30', '30DIAS'].includes(cupomUpper)) {
+                diasCarenciaAplicados = 30;
+            } else if (['VIP15', 'TESTE15', '15DIAS'].includes(cupomUpper)) {
+                diasCarenciaAplicados = 15;
+            } else if (isPresidente) {
                 diasCarenciaAplicados = 60;
             } else if (cupomPorcentagemObj && cupomPorcentagemObj.carenciaDias > 0) {
                 diasCarenciaAplicados = parseInt(cupomPorcentagemObj.carenciaDias, 10);
@@ -1636,12 +1699,63 @@
                             Object.assign(FITCOIN_CONFIG_ASSINAR, parsed.fitcoin);
                         }
                     }
+                } else {
+                    const localCfg = localStorage.getItem('cfg_planos_superadmin');
+                    if (localCfg) {
+                        try {
+                            const parsedLocal = JSON.parse(localCfg);
+                            if (parsedLocal.tempo) configTempoAssinar = Object.assign(configTempoAssinar, parsedLocal.tempo);
+                        } catch(_) {}
+                    }
                 }
             } catch (err) {
                 console.warn("Aviso ao carregar config em assinar:", err);
             }
+            if (typeof atualizarTextosChaveTrialEmAssinar === 'function') {
+                atualizarTextosChaveTrialEmAssinar();
+            }
         }
         window.carregarConfigSuperadminEmAssinar = carregarConfigSuperadminEmAssinar;
+
+        function atualizarTextosChaveTrialEmAssinar() {
+            try {
+                let dias = (configTempoAssinar && configTempoAssinar.trialDiasNovosConsultores) ? parseInt(configTempoAssinar.trialDiasNovosConsultores, 10) : 7;
+                const urlParams = new URLSearchParams(window.location.search);
+                const pTrial = urlParams.get('trial') || urlParams.get('dias') || urlParams.get('teste');
+                if (pTrial) {
+                    const n = parseInt(pTrial, 10);
+                    if (n > 0 && !isNaN(n)) dias = n;
+                }
+                const cupomUrl = (urlParams.get('cupom') || '').toUpperCase().trim();
+                if (['VIP30', 'TESTE30', 'LANCAMENTO30', 'DEGUSTACAO30', '30DIAS'].includes(cupomUrl)) {
+                    dias = 30;
+                } else if (['VIP15', 'TESTE15', '15DIAS'].includes(cupomUrl)) {
+                    dias = 15;
+                }
+
+                const bannerBonus = document.querySelector('#form-container .bg-gradient-to-br');
+                if (bannerBonus && (dias === 15 || dias === 30)) {
+                    bannerBonus.innerHTML = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-xs animate-bounce">
+                                🌟 CHAVE VIP ATIVADA
+                            </span>
+                            <span class="text-amber-300 text-xs font-bold">${dias} DIAS NA FAIXA LIBERADOS</span>
+                        </div>
+                        <h4 class="text-sm sm:text-base font-black text-white mb-1.5">
+                            Parabéns! Sua chave liberou ${dias} Dias de Degustação VIP Grátis!
+                        </h4>
+                        <p class="text-xs text-slate-200 leading-relaxed mb-3">
+                            Ao criar seu link abaixo, sua conta será ativada automaticamente com <strong>${dias} dias de acesso irrestrito</strong> a todas as ferramentas (Cardápio, Cartão Fidelidade, Bioimpedância e CRM).
+                        </p>
+                        <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 px-3 py-1 rounded-xl text-xs font-bold">
+                            <i class="fa-solid fa-circle-check text-emerald-400"></i> Benefício VIP aplicado no seu formulário
+                        </div>
+                    `;
+                }
+            } catch(e) {}
+        }
+        window.atualizarTextosChaveTrialEmAssinar = atualizarTextosChaveTrialEmAssinar;
 
         function alternarMetodoAssinar(metodo) {
             metodoAssinarAtual = metodo;
@@ -2049,6 +2163,28 @@
                 feedback.className = 'mt-2 p-2.5 bg-blue-50 border border-blue-400 rounded-xl text-xs text-blue-950 font-bold flex items-center gap-2';
                 feedback.innerHTML = `<i class="fa-solid fa-tag text-blue-600 text-base"></i><span>Cupom de indicação VIP: 15% OFF aplicado.</span>`;
                 feedback.classList.remove('hidden');
+            } else if (['VIP30', 'TESTE30', 'LANCAMENTO30', 'DEGUSTACAO30', '30DIAS'].includes(cod)) {
+                feedback.className = 'mt-2 p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-400 rounded-xl text-xs text-emerald-950 font-bold flex items-center gap-2.5 shadow-sm';
+                feedback.innerHTML = `
+                    <i class="fa-solid fa-gift text-emerald-600 text-lg shrink-0"></i>
+                    <div>
+                        <span class="text-emerald-900 font-black block">🎁 CUPOM ESPECIAL: 30 DIAS NA FAIXA LIBERADOS!</span>
+                        <span class="text-[11px] text-emerald-800">Você garantiu <strong>30 dias de degustação VIP completa</strong> com todas as ferramentas liberadas!</span>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-emerald-50 border-2 border-emerald-400 rounded-xl focus:outline-none ring-2 ring-emerald-300 uppercase font-black text-emerald-950';
+            } else if (['VIP15', 'TESTE15', '15DIAS'].includes(cod)) {
+                feedback.className = 'mt-2 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-400 rounded-xl text-xs text-purple-950 font-bold flex items-center gap-2.5 shadow-sm';
+                feedback.innerHTML = `
+                    <i class="fa-solid fa-gift text-purple-600 text-lg shrink-0"></i>
+                    <div>
+                        <span class="text-purple-900 font-black block">🎁 CUPOM ESPECIAL: 15 DIAS NA FAIXA LIBERADOS!</span>
+                        <span class="text-[11px] text-purple-800">Você garantiu <strong>15 dias de degustação VIP completa</strong> com todas as ferramentas liberadas!</span>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-50 border-2 border-purple-400 rounded-xl focus:outline-none ring-2 ring-purple-300 uppercase font-black text-purple-950';
             } else {
                 const boxEscolha = document.getElementById('box-escolha-plano-fundador');
                 if (boxEscolha) boxEscolha.classList.add('hidden');
@@ -2204,6 +2340,9 @@
                     inCupom.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50');
                     aoDigitarCupomAssinar(cupomUrl);
                 }
+            }
+            if (typeof atualizarTextosChaveTrialEmAssinar === 'function') {
+                atualizarTextosChaveTrialEmAssinar();
             }
         });
     </script>

@@ -254,8 +254,34 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Data de Vencimento</label>
-                        <input type="date" id="edit-vencimento" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-sm font-bold text-gray-700">Data de Vencimento</label>
+                            <span id="badge-feedback-venc-admin" class="hidden text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full animate-pulse"></span>
+                        </div>
+                        <input type="date" id="edit-vencimento" class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-brand-light outline-none font-bold text-gray-800">
+                        <!-- ATALHOS CUMULATIVOS DE 1-CLIQUE -->
+                        <div class="mt-2.5 pt-2 border-t border-gray-100">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
+                                <i class="fa-solid fa-plus-circle text-brand-light"></i> Somar Dias ao Vencimento Atual:
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(7)" class="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +7 Dias
+                                </button>
+                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(15)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +15 Dias
+                                </button>
+                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(30)" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +30 Dias (1 M&ecirc;s)
+                                </button>
+                                <button type="button" onclick="adicionarDiasAoVencimentoAdmin(365)" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +1 Ano (365d)
+                                </button>
+                                <button type="button" onclick="definirVitalicioAdmin()" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    Vital&iacute;cio
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="mt-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
                         <label class="flex items-center space-x-2 cursor-pointer select-none">
@@ -425,17 +451,38 @@
                         <i class="fa-solid fa-clock mr-1 text-purple-700"></i> Tempo & Duração dos Planos para Novos Consultores
                     </span>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Degustação Grátis (Trial no Cadastro)</label>
-                            <input type="number" min="0" max="365" id="adm-trial-dias" required value="7" class="w-full p-2 bg-white border border-purple-300 rounded-xl text-xs font-bold text-purple-900">
+                        <div class="sm:col-span-3 bg-white p-3.5 rounded-2xl border-2 border-purple-200 shadow-2xs mb-1">
+                            <label class="block text-xs font-black text-purple-950 mb-2 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-key text-amber-500 text-sm"></i> Chave de DegustaÃ§Ã£o / Teste para Novos Consultores</span>
+                                <span class="text-[10px] text-purple-800 font-black bg-purple-100 border border-purple-200 px-2.5 py-0.5 rounded-full uppercase">Controle Master</span>
+                            </label>
+                            <div class="grid grid-cols-3 gap-2 mb-2.5">
+                                <button type="button" id="btn-chave-trial-7" onclick="selecionarChaveTrialAdmin(7)" class="p-2.5 rounded-xl border-2 text-center transition cursor-pointer font-bold text-xs">
+                                    <div class="font-black text-sm">7 DIAS</div>
+                                    <div class="text-[10px] opacity-80">PadrÃ£o da Plataforma</div>
+                                </button>
+                                <button type="button" id="btn-chave-trial-15" onclick="selecionarChaveTrialAdmin(15)" class="p-2.5 rounded-xl border-2 text-center transition cursor-pointer font-bold text-xs">
+                                    <div class="font-black text-sm">15 DIAS</div>
+                                    <div class="text-[10px] opacity-80">Chave Campanha</div>
+                                </button>
+                                <button type="button" id="btn-chave-trial-30" onclick="selecionarChaveTrialAdmin(30)" class="p-2.5 rounded-xl border-2 text-center transition cursor-pointer font-bold text-xs">
+                                    <div class="font-black text-sm">30 DIAS</div>
+                                    <div class="text-[10px] opacity-80">Super VIP LanÃ§amento</div>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 pt-1 border-t border-purple-100">
+                                <span class="text-[11px] font-bold text-gray-600">Ou digite o nÃºmero exato:</span>
+                                <input type="number" min="0" max="365" id="adm-trial-dias" required value="7" oninput="sincronizarBotoesChaveTrialAdmin(this.value)" class="w-20 p-1.5 bg-purple-50 border border-purple-300 rounded-lg text-xs font-black text-purple-900 text-center focus:ring-2 focus:ring-purple-500">
+                                <span class="text-[11px] text-purple-700 font-bold">dias de degustaÃ§Ã£o grÃ¡tis no cadastro</span>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-700 mb-1">Ciclo Plano 1 (Dias)</label>
                             <input type="number" min="1" max="365" id="adm-p1-ciclo" required value="30" class="w-full p-2 bg-white border border-purple-300 rounded-xl text-xs font-bold text-emerald-700">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Data Planos Vitalícios</label>
-                            <input type="date" id="adm-vitalicio-data" required value="2036-12-31" class="w-full p-2 bg-white border border-purple-300 rounded-xl text-xs font-bold text-amber-700">
+                                    Vital&iacute;cio
+                                    Vital&iacute;cio
                         </div>
                     </div>
                 </div>
@@ -461,7 +508,7 @@
 
                 <!-- Plano 2 -->
                 <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-left">
-                    <span class="text-xs font-black text-amber-900 uppercase block mb-2">PLANO 2 (Vitalício Smart)</span>
+                                    Vital&iacute;cio
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
                             <label class="block text-[11px] font-bold text-gray-700 mb-1">Nome</label>
@@ -752,7 +799,7 @@
                                 : '<span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-full text-[11px] uppercase"><i class="fa-solid fa-lock text-gray-400"></i> Bloqueado</span>'}
                         </td>
                         <td class="p-4 text-center">
-                            ${isSuperAdminItem ? '<span class="text-[11px] text-purple-700 font-black italic">Acesso Vitalício</span>' : `
+                                    Vital&iacute;cio
                                 <button onclick="alternarCrmExtratorAdmin('${item.id}', ${!isCrmLiberado})" class="${isCrmLiberado ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : 'bg-emerald-600 text-white hover:bg-emerald-700'} border px-3.5 py-2 rounded-xl font-black text-xs transition shadow-xs cursor-pointer flex items-center gap-1.5 mx-auto">
                                     <i class="fa-solid ${isCrmLiberado ? 'fa-lock' : 'fa-lock-open'}"></i>
                                     ${isCrmLiberado ? 'Bloquear Acesso' : 'Liberar Acesso Manual'}
@@ -811,6 +858,89 @@
             document.getElementById('modal-editar').classList.remove('hidden');
         }
         function fecharModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
+
+        function adicionarDiasAoVencimentoAdmin(dias) {
+            const inputVenc = document.getElementById('edit-vencimento');
+            const selectStatus = document.getElementById('edit-status');
+            const badge = document.getElementById('badge-feedback-venc-admin');
+            if (!inputVenc) return;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let dataBase = hoje;
+            const valAtual = (inputVenc.value || '').trim();
+
+            if (valAtual && valAtual.length >= 10) {
+                const partes = valAtual.split('-');
+                if (partes.length === 3) {
+                    const dVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                    // Se ainda nÃ£o venceu, soma cumulativamente Ã  data atual de vencimento!
+                    if (dVenc.getTime() >= hoje.getTime()) {
+                        dataBase = dVenc;
+                    }
+                }
+            }
+
+            const novaData = new Date(dataBase.getTime());
+            novaData.setDate(novaData.getDate() + dias);
+
+            const ano = novaData.getFullYear();
+            const mes = String(novaData.getMonth() + 1).padStart(2, '0');
+            const dia = String(novaData.getDate()).padStart(2, '0');
+            const novoVal = ${ano}--;
+
+            inputVenc.value = novoVal;
+            if (selectStatus) selectStatus.value = 'Ativo';
+
+            if (badge) {
+                badge.innerText = + dias somados (//)!;
+                badge.classList.remove('hidden');
+                setTimeout(() => { badge.classList.add('hidden'); }, 3500);
+            }
+        }
+        window.adicionarDiasAoVencimentoAdmin = adicionarDiasAoVencimentoAdmin;
+
+                                    Vital&iacute;cio
+            const inputVenc = document.getElementById('edit-vencimento');
+            const selectStatus = document.getElementById('edit-status');
+            const badge = document.getElementById('badge-feedback-venc-admin');
+            if (!inputVenc) return;
+
+            inputVenc.value = '2036-12-31';
+            if (selectStatus) selectStatus.value = 'Ativo';
+
+            if (badge) {
+                                    Vital&iacute;cio
+                badge.classList.remove('hidden');
+                setTimeout(() => { badge.classList.add('hidden'); }, 3500);
+            }
+        }
+                                    Vital&iacute;cio
+
+        function selecionarChaveTrialAdmin(dias) {
+            const inTrial = document.getElementById('adm-trial-dias');
+            if (inTrial) {
+                inTrial.value = dias;
+                sincronizarBotoesChaveTrialAdmin(dias);
+            }
+        }
+        window.selecionarChaveTrialAdmin = selecionarChaveTrialAdmin;
+
+        function sincronizarBotoesChaveTrialAdmin(val) {
+            const n = parseInt(val, 10);
+            const b7 = document.getElementById('btn-chave-trial-7');
+            const b15 = document.getElementById('btn-chave-trial-15');
+            const b30 = document.getElementById('btn-chave-trial-30');
+
+            const estiloAtivo = "p-2.5 rounded-xl border-2 border-purple-600 bg-purple-700 text-white text-center transition cursor-pointer font-bold text-xs shadow-md ring-2 ring-purple-300";
+            const estiloInativo = "p-2.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 hover:bg-purple-50 hover:border-purple-300 text-center transition cursor-pointer font-bold text-xs";
+
+            if (b7) b7.className = (n === 7) ? estiloAtivo : estiloInativo;
+            if (b15) b15.className = (n === 15) ? estiloAtivo : estiloInativo;
+            if (b30) b30.className = (n === 30) ? estiloAtivo : estiloInativo;
+        }
+        window.sincronizarBotoesChaveTrialAdmin = sincronizarBotoesChaveTrialAdmin;
 
         async function salvarEdicao(e) {
             e.preventDefault();
@@ -1003,7 +1133,7 @@
         let configPlanosAdmin = {
             planos: {
                 plano1: { nome: 'Start Pro', valorAdesaoNum: 199.00, valorMensalidadeNum: 99.00 },
-                plano2: { nome: 'Vitalício Smart', valorAdesaoNum: 497.00, valorMensalidadeNum: 25.00 },
+                                    Vital&iacute;cio
                 plano3: { nome: 'Master VIP', valorAdesaoNum: 1299.00, valorMensalidadeNum: 49.00 }
             },
             fitcoin: {
@@ -1015,7 +1145,7 @@
             tempo: {
                 trialDiasNovosConsultores: 7,
                 diasCicloPlano1: 30,
-                dataVitalicio: '2036-12-31'
+                                    Vital&iacute;cio
             }
         };
 
@@ -1061,17 +1191,20 @@
                 const p2 = configPlanosAdmin.planos.plano2;
                 const p3 = configPlanosAdmin.planos.plano3;
                 const fit = configPlanosAdmin.fitcoin;
-                const tempo = configPlanosAdmin.tempo || { trialDiasNovosConsultores: 7, diasCicloPlano1: 30, dataVitalicio: '2036-12-31' };
+                                    Vital&iacute;cio
 
-                if (document.getElementById('adm-trial-dias')) document.getElementById('adm-trial-dias').value = tempo.trialDiasNovosConsultores ?? 7;
+                if (document.getElementById('adm-trial-dias')) {
+    document.getElementById('adm-trial-dias').value = tempo.trialDiasNovosConsultores ?? 7;
+    sincronizarBotoesChaveTrialAdmin(tempo.trialDiasNovosConsultores ?? 7);
+}
                 if (document.getElementById('adm-p1-ciclo')) document.getElementById('adm-p1-ciclo').value = tempo.diasCicloPlano1 ?? 30;
-                if (document.getElementById('adm-vitalicio-data')) document.getElementById('adm-vitalicio-data').value = tempo.dataVitalicio || '2036-12-31';
+                                    Vital&iacute;cio
 
                 document.getElementById('adm-p1-nome').value = p1.nome || 'Start Pro';
                 document.getElementById('adm-p1-adesao').value = p1.valorAdesaoNum || 199.00;
                 document.getElementById('adm-p1-mensal').value = p1.valorMensalidadeNum || 99.00;
 
-                document.getElementById('adm-p2-nome').value = p2.nome || 'Vitalício Smart';
+                                    Vital&iacute;cio
                 document.getElementById('adm-p2-adesao').value = p2.valorAdesaoNum || 497.00;
                 document.getElementById('adm-p2-mensal').value = p2.valorMensalidadeNum || 25.00;
 
@@ -1100,7 +1233,7 @@
 
                 const trialDias = parseInt(document.getElementById('adm-trial-dias').value) || 7;
                 const p1Ciclo = parseInt(document.getElementById('adm-p1-ciclo').value) || 30;
-                const dataVit = document.getElementById('adm-vitalicio-data').value || '2036-12-31';
+                                    Vital&iacute;cio
 
                 const p1Adesao = parseFloat(document.getElementById('adm-p1-adesao').value) || 199.00;
                 const p1Mensal = parseFloat(document.getElementById('adm-p1-mensal').value) || 99.00;
@@ -1122,7 +1255,7 @@
                 configPlanosAdmin.tempo = {
                     trialDiasNovosConsultores: trialDias,
                     diasCicloPlano1: p1Ciclo,
-                    dataVitalicio: dataVit
+                                    Vital&iacute;cio
                 };
 
                 configPlanosAdmin.planos.plano1 = { id: 'plano1', nome: p1Nome, adesao: `R$ ${p1Adesao.toFixed(2)}`, valorAdesaoNum: p1Adesao, mensalidade: `R$ ${p1Mensal.toFixed(2)}/mês`, valorMensalidadeNum: p1Mensal };
