@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -1001,6 +1001,8 @@
 
             data.forEach(item => {
                 const isSuperAdminItem = String(item.herbalife_id || '').trim() === '433005811';
+                const isFinLiberado = isSuperAdminItem || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
+                const isCatLiberado = isSuperAdminItem || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
                 const isCrmLiberado = isSuperAdminItem || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
                 const nomeLimpo = (item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim();
 
