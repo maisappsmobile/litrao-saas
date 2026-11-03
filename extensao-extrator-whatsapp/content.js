@@ -202,9 +202,6 @@ function obterNomeContatoConversaAtiva() {
   return '';
 }
 
-  return '';
-}
-
 // Obtém o cabeçalho específico da conversa ativa (#main header)
 function obterHeaderConversaAtiva() {
   return document.querySelector('#main header') || 
@@ -938,15 +935,40 @@ async function enviarMensagemNoChat(texto) {
   }
 
   // Se o texto ainda contiver tags ou spintax, resolve com o nome da conversa aberta
-  const nomeHeader = obterNomeContatoConversaAtiva();
-  const textoFinal = processarSpintaxETags(texto, { nome: nomeHeader });
+  const nomeHeader = (typeof obterNomeContatoConversaAtiva === 'function') ? obterNomeContatoConversaAtiva() : '';
+  let textoFinal = (typeof processarSpintaxETags === 'function') ? processarSpintaxETags(texto, { nome: nomeHeader }) : texto;
+
+  // Higienização de segurança extra: NUNCA envia a tag literal {nome}
+  if (nomeHeader) {
+    textoFinal = textoFinal.replace(/[\{\[](?:nome|cliente|lead|contato)[\}\]]/gi, nomeHeader);
+  } else {
+    textoFinal = textoFinal.replace(/([oO]lá|[oO]i|[oO]ie|[fF]ala)\s*[\{\[](?:nome|cliente|lead|contato)[\}\]][,\s]*/gi, '$1! ')
+                           .replace(/[\{\[](?:nome|cliente|lead|contato)[\}\]]/gi, '');
+  }
 
   inputBox.focus();
   await new Promise(r => setTimeout(r, 120));
 
-  // Limpa e insere texto finalizado com precisão cirúrgica (evita qualquer duplicação)
+  // Limpeza profunda e à prova de falhas do campo Lexical do WhatsApp
+  try {
+    if (window.getSelection) {
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(inputBox);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  } catch(_) {}
+
   document.execCommand('selectAll', false, null);
   document.execCommand('delete', false, null);
+
+  if (inputBox.innerText && inputBox.innerText.trim().length > 0) {
+    try {
+      inputBox.innerText = '';
+    } catch(_) {}
+  }
+
   document.execCommand('insertText', false, textoFinal);
 
   // Dispara eventos nativos para o React/Lexical reconhecer o conteúdo

@@ -153,10 +153,14 @@
                 </a>
                 
                 <!-- BOTÃO RÁPIDO GERENCIAR CONSULTORES (SUPERADMIN) -->
-                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="header-desktop-only text-xs font-black bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-sm border border-purple-400 cursor-pointer hidden" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
-                    <i class="fa-solid fa-users-gear text-amber-300 text-xs"></i>
-                    <span class="inline">Consultores</span>
+                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md border-2 border-purple-400 cursor-pointer hidden" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
+                    <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
+                    <span class="inline">👑 Gestão Consultores</span>
                 </button>
+                <a href="admin.html" target="_blank" id="btn-admin-dedicado-topo" class="header-desktop-only text-xs font-black bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-white px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 shadow-sm border border-purple-500/40 cursor-pointer hidden" title="Abrir Painel Admin Dedicado em Nova Aba">
+                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+                    <span class="inline">Admin SaaS</span>
+                </a>
 
                 <!-- 4. MENU SANDUÍCHE (☰) -->
                 <div class="relative inline-block text-left shrink-0" id="container-menu-sanduiche">
@@ -12517,9 +12521,37 @@
             if (cardMeteorico) {
                 if (isSuperAdminUser) {
                     cardMeteorico.classList.remove('hidden');
+                    cardMeteorico.style.display = '';
                     listaLiberados.push(cardMeteorico);
                 } else {
                     cardMeteorico.classList.add('hidden');
+                    cardMeteorico.style.display = 'none';
+                }
+            }
+
+            // 6. Card Gestão de Consultores (EXCLUSIVO SUPERADMIN)
+            const cardToolCons = document.getElementById('card-ferramenta-consultores-superadmin');
+            if (cardToolCons) {
+                if (isSuperAdminUser) {
+                    cardToolCons.classList.remove('hidden');
+                    cardToolCons.style.display = '';
+                    if (!listaLiberados.includes(cardToolCons)) listaLiberados.push(cardToolCons);
+                } else {
+                    cardToolCons.classList.add('hidden');
+                    cardToolCons.style.display = 'none';
+                }
+            }
+
+            // 7. Card Extrator Facebook Grupos (EXCLUSIVO SUPERADMIN)
+            const cardToolFb = document.getElementById('card-ferramenta-facebook-superadmin');
+            if (cardToolFb) {
+                if (isSuperAdminUser) {
+                    cardToolFb.classList.remove('hidden');
+                    cardToolFb.style.display = '';
+                    if (!listaLiberados.includes(cardToolFb)) listaLiberados.push(cardToolFb);
+                } else {
+                    cardToolFb.classList.add('hidden');
+                    cardToolFb.style.display = 'none';
                 }
             }
 
@@ -12529,13 +12561,26 @@
             // Aplica a ordem personalizada salva se existir
             const ordemSalva = obterOrdemCardsFerramentasSalva();
             if (ordemSalva && Array.isArray(ordemSalva) && ordemSalva.length > 0) {
-                // Se for SuperAdmin e o card meteórico ainda não constar na lista salva, injeta logo após o Financeiro
-                if (isSuperAdminUser && !ordemSalva.includes('card-lancamento-meteorico-container')) {
-                    const idxFin = ordemSalva.indexOf('card-modulo-financeiro-container');
-                    if (idxFin !== -1) {
-                        ordemSalva.splice(idxFin + 1, 0, 'card-lancamento-meteorico-container');
-                    } else {
-                        ordemSalva.push('card-lancamento-meteorico-container');
+                // Se for SuperAdmin e os cards exclusivos ainda não constarem na lista salva, injeta após o Financeiro
+                if (isSuperAdminUser) {
+                    if (!ordemSalva.includes('card-lancamento-meteorico-container')) {
+                        const idxFin = ordemSalva.indexOf('card-modulo-financeiro-container');
+                        if (idxFin !== -1) {
+                            ordemSalva.splice(idxFin + 1, 0, 'card-lancamento-meteorico-container');
+                        } else {
+                            ordemSalva.push('card-lancamento-meteorico-container');
+                        }
+                    }
+                    if (!ordemSalva.includes('card-ferramenta-consultores-superadmin')) {
+                        const idxMet = ordemSalva.indexOf('card-lancamento-meteorico-container');
+                        if (idxMet !== -1) {
+                            ordemSalva.splice(idxMet + 1, 0, 'card-ferramenta-consultores-superadmin');
+                        } else {
+                            ordemSalva.push('card-ferramenta-consultores-superadmin');
+                        }
+                    }
+                    if (!ordemSalva.includes('card-ferramenta-facebook-superadmin')) {
+                        ordemSalva.push('card-ferramenta-facebook-superadmin');
                     }
                 }
                 listaLiberados.sort((a, b) => {
@@ -13934,20 +13979,37 @@
         let todosConsultoresCache = [];
 
         function isSuperAdminLogado() {
-            if (!consultorAtual || !consultorAtual.herbalife_id) return false;
-            const limpo = consultorAtual.herbalife_id.toString().replace(/\D/g, '');
-            return limpo === SUPERADMIN_ID;
+            if (consultorAtual) {
+                const limpo = String(consultorAtual.herbalife_id || consultorAtual.id || '').replace(/\D/g, '');
+                if (limpo === SUPERADMIN_ID) return true;
+            }
+            try {
+                const authStr = localStorage.getItem('litrao_consultor_auth');
+                if (authStr) {
+                    const parsed = JSON.parse(authStr);
+                    const id = String(parsed.herbalife_id || parsed.id || '').replace(/\D/g, '');
+                    if (id === SUPERADMIN_ID) return true;
+                }
+            } catch(e) {}
+            return false;
         }
 
         function abrirGestaoConsultoresSuperadmin() {
             const secao = document.getElementById('card-superadmin-container');
             if (secao) {
                 secao.classList.remove('hidden');
+                secao.style.display = '';
                 const conteudo = document.getElementById('secao-superadmin-conteudo');
-                if (conteudo && conteudo.classList.contains('hidden')) {
+                if (conteudo && (conteudo.classList.contains('hidden') || conteudo.style.display === 'none')) {
                     toggleSecaoSuperadmin();
                 }
                 secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (typeof carregarConsultoresSuperadmin === 'function') {
+                    carregarConsultoresSuperadmin();
+                }
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('👑 Painel Master de Consultores aberto! Você também pode abrir o Admin dedicado.', 'sucesso');
+                }
             } else {
                 window.open('admin.html', '_blank');
             }
@@ -13964,23 +14026,40 @@
 
             const isSA = isSuperAdminLogado();
 
+            if (cardContainer) {
+                if (isSA) {
+                    cardContainer.classList.remove('hidden');
+                    cardContainer.style.display = '';
+                } else {
+                    cardContainer.classList.add('hidden');
+                    cardContainer.style.display = 'none';
+                }
+            }
+
             if (itemMenuCons) {
                 if (isSA) itemMenuCons.classList.remove('hidden');
                 else itemMenuCons.classList.add('hidden');
             }
 
             if (cardToolCons) {
-                if (isSA) cardToolCons.classList.remove('hidden');
-                else cardToolCons.classList.add('hidden');
+                if (isSA) {
+                    cardToolCons.classList.remove('hidden');
+                    cardToolCons.style.display = '';
+                } else {
+                    cardToolCons.classList.add('hidden');
+                    cardToolCons.style.display = 'none';
+                }
             }
 
             const cardToolFb = document.getElementById('card-ferramenta-facebook-superadmin');
             if (cardToolFb) {
                 if (isSA) {
                     cardToolFb.classList.remove('hidden');
+                    cardToolFb.style.display = '';
                     if (typeof atualizarMetricasCardFacebook === 'function') atualizarMetricasCardFacebook();
                 } else {
                     cardToolFb.classList.add('hidden');
+                    cardToolFb.style.display = 'none';
                 }
             }
 
@@ -13991,8 +14070,24 @@
             }
 
             if (btnTopoCons) {
-                if (isSA) btnTopoCons.classList.remove('hidden');
-                else btnTopoCons.classList.add('hidden');
+                if (isSA) {
+                    btnTopoCons.classList.remove('hidden');
+                    btnTopoCons.style.display = 'inline-flex';
+                } else {
+                    btnTopoCons.classList.add('hidden');
+                    btnTopoCons.style.display = 'none';
+                }
+            }
+
+            const btnAdminDedicado = document.getElementById('btn-admin-dedicado-topo');
+            if (btnAdminDedicado) {
+                if (isSA) {
+                    btnAdminDedicado.classList.remove('hidden');
+                    btnAdminDedicado.style.display = 'inline-flex';
+                } else {
+                    btnAdminDedicado.classList.add('hidden');
+                    btnAdminDedicado.style.display = 'none';
+                }
             }
 
             if (centralTopo) {

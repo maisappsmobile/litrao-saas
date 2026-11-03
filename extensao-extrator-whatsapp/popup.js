@@ -929,9 +929,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       listaMensagensEl.appendChild(row);
     });
 
-    // Eventos dos botões de envio
+    // Eventos dos botões de envio com trava anti-duplo clique
+    let bloqueioDisparoRapido = false;
     listaMensagensEl.querySelectorAll('[data-idx]').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (bloqueioDisparoRapido) return;
+        bloqueioDisparoRapido = true;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        setTimeout(() => {
+          bloqueioDisparoRapido = false;
+          btn.disabled = false;
+          btn.style.opacity = '';
+        }, 1500);
+
         const idx = btn.dataset.idx;
         const msg = msgs[idx];
         if (!msg) return;
