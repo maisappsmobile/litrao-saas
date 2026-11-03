@@ -99,25 +99,82 @@
 
                 <!-- Tabela e Controles Supervisores -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="relative w-full md:w-96">
-                            <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                            <input type="text" id="filtro-busca-supervisores" oninput="filtrarSupervisores(this.value)" placeholder="Buscar supervisor por nome ou ID..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light transition">
+                    <div class="p-5 sm:p-6 border-b border-gray-100 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-white">
+                        <!-- BUSCA E CONTROLES DE SEQUÊNCIA -->
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 flex-wrap">
+                            <div class="relative w-full sm:w-80">
+                                <i class="fa-solid fa-search absolute left-3.5 top-3.5 text-gray-400 text-sm"></i>
+                                <input type="text" id="filtro-busca-supervisores" oninput="filtrarSupervisores(this.value)" placeholder="Buscar consultor, cidade, ID, whats..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium text-sm transition">
+                            </div>
+
+                            <!-- SELETOR DE SEQUÊNCIA / ORDENAÇÃO (PRINT 1 ATENDIDO) -->
+                            <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 shadow-2xs">
+                                <i class="fa-solid fa-arrow-down-wide-short text-purple-600 text-sm"></i>
+                                <span class="hidden sm:inline text-gray-500">Sequência:</span>
+                                <select id="select-ordenacao-admin" onchange="mudarOrdenacaoAdmin(this.value)" class="bg-transparent font-black text-gray-900 focus:outline-none cursor-pointer">
+                                    <option value="recentes">🆕 Mais Recentes Cadastrados</option>
+                                    <option value="nome_asc">👤 Consultor (A ➔ Z)</option>
+                                    <option value="nome_desc">👤 Consultor (Z ➔ A)</option>
+                                    <option value="cidade_asc">📍 Cidade (A ➔ Z)</option>
+                                    <option value="cidade_desc">📍 Cidade (Z ➔ A)</option>
+                                    <option value="slug_asc">🔗 Link / Slug (A ➔ Z)</option>
+                                    <option value="whats_asc">📱 WhatsApp (Crescente)</option>
+                                    <option value="venc_asc">⏳ Vencimento (Mais Próximo Primeiro)</option>
+                                    <option value="venc_desc">⏳ Vencimento (Mais Distante Primeiro)</option>
+                                    <option value="status_ativo">🟢 Status (Ativos Primeiro)</option>
+                                </select>
+                            </div>
+
+                            <!-- FILTRO POR CIDADE -->
+                            <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 shadow-2xs">
+                                <i class="fa-solid fa-city text-emerald-600 text-sm"></i>
+                                <span class="hidden sm:inline text-gray-500">Cidade:</span>
+                                <select id="select-filtro-cidade-admin" onchange="mudarFiltroCidadeAdmin(this.value)" class="bg-transparent font-bold text-gray-900 focus:outline-none cursor-pointer">
+                                    <option value="TODAS">Todas as Cidades</option>
+                                </select>
+                            </div>
                         </div>
-                        <button onclick="abrirModal()" class="w-full md:w-auto bg-brand-light hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center cursor-pointer">
-                            <i class="fa-solid fa-plus mr-2"></i> Novo Supervisor
-                        </button>
+
+                        <!-- BOTÕES DE AÇÃO SUPERADMIN -->
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" onclick="resetarFiltrosEOrdenacaoAdmin()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-3.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Limpar Filtros e Ordem">
+                                <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">Restaurar</span>
+                            </button>
+                            <button onclick="abrirModal()" class="w-full sm:w-auto bg-brand-light hover:bg-green-600 text-white font-black py-2.5 px-5 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm">
+                                <i class="fa-solid fa-plus"></i> <span>Novo Supervisor</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                                    <th class="p-4 font-semibold">Consultor / Espaço</th>
-                                    <th class="p-4 font-semibold">Link Personalizado</th>
-                                    <th class="p-4 font-semibold">WhatsApp</th>
-                                    <th class="p-4 font-semibold text-center">Status / Vencimento</th>
-                                    <th class="p-4 font-semibold text-center">Ações</th>
+                                <tr class="bg-gray-50 text-gray-600 text-xs sm:text-sm uppercase tracking-wider font-extrabold border-b border-gray-100">
+                                    <th onclick="alternarOrdenacaoColuna('nome')" class="p-4 font-black cursor-pointer hover:bg-purple-50/70 hover:text-purple-900 transition select-none" title="Clique para ordenar por Consultor / Nome">
+                                        <div class="flex items-center gap-1.5">
+                                            <span>Consultor / Espaço / Cidade</span>
+                                            <i id="th-ico-nome" class="fa-solid fa-sort text-gray-400 text-xs"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="alternarOrdenacaoColuna('slug')" class="p-4 font-black cursor-pointer hover:bg-purple-50/70 hover:text-purple-900 transition select-none" title="Clique para ordenar por Link Personalizado">
+                                        <div class="flex items-center gap-1.5">
+                                            <span>Link Personalizado</span>
+                                            <i id="th-ico-slug" class="fa-solid fa-sort text-gray-400 text-xs"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="alternarOrdenacaoColuna('whatsapp')" class="p-4 font-black cursor-pointer hover:bg-purple-50/70 hover:text-purple-900 transition select-none" title="Clique para ordenar por WhatsApp">
+                                        <div class="flex items-center gap-1.5">
+                                            <span>WhatsApp</span>
+                                            <i id="th-ico-whatsapp" class="fa-solid fa-sort text-gray-400 text-xs"></i>
+                                        </div>
+                                    </th>
+                                    <th onclick="alternarOrdenacaoColuna('vencimento')" class="p-4 font-black text-center cursor-pointer hover:bg-purple-50/70 hover:text-purple-900 transition select-none" title="Clique para ordenar por Vencimento / Status">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <span>Status / Vencimento</span>
+                                            <i id="th-ico-vencimento" class="fa-solid fa-sort text-gray-400 text-xs"></i>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 font-black text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-corpo" class="text-gray-700">
@@ -878,15 +935,19 @@
             if (error) return tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-red-500 font-bold">Erro ao conectar.</td></tr>';
             
             todosConsultoresAdmin = data || [];
-            renderizarTabelasCompletas(todosConsultoresAdmin);
+            povoarFiltroCidadesAdmin(todosConsultoresAdmin);
+            aplicarFiltrosEOrdenacaoSupervisores();
         }
 
-        function renderizarTabelasCompletas(data) {
+        function renderizarTabelasCompletas(data, isFiltro = false) {
             let ativosCount = 0;
             let crmLiberadosCount = 0;
             tableBody.innerHTML = '';
             
-            if(data.length === 0) return tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8">Nenhum cadastrado.</td></tr>';
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-500 font-bold"><i class="fa-solid fa-filter mr-2"></i> Nenhum consultor encontrado para os filtros/sequência selecionados.</td></tr>';
+                return;
+            }
 
             data.forEach(item => {
                 let diasAtrasoItem = 0;
@@ -923,6 +984,7 @@
                 
                 let letrasItem = (item.letras || '').trim().replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase();
                 let senhaItem = '';
+                const cidadeItem = extrairCidadeConsultor(item);
                 if (item.nome_espaco && item.nome_espaco.includes('<!--SENHA:')) {
                     const mS = item.nome_espaco.match(/<!--SENHA:(.*?)-->/);
                     if (mS && mS[1]) senhaItem = mS[1].trim();
@@ -936,12 +998,15 @@
                 tableBody.innerHTML += `
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
                         <td class="p-4">
-                            <p class="font-bold text-gray-900">${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
-                            <p class="text-xs text-gray-500">
-                                ID: <span class="font-bold text-gray-700">${item.herbalife_id}</span>
-                                <span class="text-purple-600 font-extrabold ml-1 bg-purple-50 border border-purple-200 px-1 py-0.2 rounded text-[10px]" title="3 Letras Herbalife">${letrasItem || '---'}</span>
-                                ${senhaItem ? `<span class="text-amber-700 font-bold ml-1 text-[10px]" title="Senha de acesso"><i class="fa-solid fa-key text-[9px] text-amber-500"></i> ${senhaItem}</span>` : ''}
-                            </p>
+                            <p class="font-bold text-gray-900 leading-tight">${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
+                            <div class="flex items-center gap-1.5 flex-wrap mt-1">
+                                <span class="text-xs text-gray-500 font-mono">
+                                    ID: <span class="font-bold text-gray-800">${item.herbalife_id}</span>
+                                </span>
+                                <span class="text-purple-600 font-extrabold bg-purple-50 border border-purple-200 px-1.5 py-0.2 rounded text-[10px]" title="3 Letras Herbalife">${letrasItem || '---'}</span>
+                                ${senhaItem ? `<span class="text-amber-700 font-bold text-[10px] bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded" title="Senha de acesso"><i class="fa-solid fa-key text-[9px] text-amber-500"></i> ${senhaItem}</span>` : ''}
+                                ${cidadeItem ? `<span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-black px-1.5 py-0.2 rounded" title="Cidade do Consultor"><i class="fa-solid fa-location-dot text-emerald-600 text-[9px]"></i> ${cidadeItem}</span>` : ''}
+                            </div>
                         </td>
                         <td class="p-4">
                             <a href="/${item.slug}" target="_blank" class="text-blue-500 hover:underline font-medium text-sm flex items-center">
@@ -1038,20 +1103,191 @@
             });
         }
 
-        function filtrarSupervisores(termo) {
-            const q = (termo || '').toLowerCase().trim();
-            if (!q) {
-                renderizarTabelasCompletas(todosConsultoresAdmin);
-                return;
+        // =========================================================================
+        // MOTOR AVANÇADO DE SEQUÊNCIA / ORDENAÇÃO E FILTROS (PRINT 1 COMPLETO)
+        // =========================================================================
+        let criterioOrdenacaoAdmin = 'recentes';
+        let filtroCidadeAdmin = 'TODAS';
+        let buscaTextoAdmin = '';
+
+        function extrairCidadeConsultor(item) {
+            if (!item) return '';
+            if (item.cidade) {
+                return (item.estado ? `${item.cidade} - ${item.estado}` : item.cidade).trim();
             }
-            const filtrados = todosConsultoresAdmin.filter(item => {
-                const nome = (item.nome_espaco || '').toLowerCase();
-                const hid = String(item.herbalife_id || '').toLowerCase();
-                return nome.includes(q) || hid.includes(q);
+            const raw = item.nome_espaco || '';
+            if (raw.includes('|')) {
+                const partes = raw.split('|');
+                if (partes[1]) {
+                    const cid = partes[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+                    if (cid) return cid;
+                }
+            }
+            return '';
+        }
+        window.extrairCidadeConsultor = extrairCidadeConsultor;
+
+        function extrairNomeConsultor(item) {
+            if (!item) return '';
+            const raw = (item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim();
+            if (raw.includes('|')) {
+                const p0 = raw.split('|')[0].trim();
+                return p0.replace(/^[•s-]+/, '').trim();
+            }
+            return raw.replace(/^[•s-]+/, '').trim();
+        }
+        window.extrairNomeConsultor = extrairNomeConsultor;
+
+        function povoarFiltroCidadesAdmin(lista) {
+            const sel = document.getElementById('select-filtro-cidade-admin');
+            if (!sel) return;
+            const cidadesMap = {};
+            (lista || []).forEach(item => {
+                const c = extrairCidadeConsultor(item);
+                if (c && c !== '---') {
+                    cidadesMap[c] = (cidadesMap[c] || 0) + 1;
+                }
             });
-            renderizarTabelasCompletas(filtrados);
+            const cidadesOrdenadas = Object.keys(cidadesMap).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            let optHtml = `<option value="TODAS">Todas as Cidades (${lista.length})</option>`;
+            cidadesOrdenadas.forEach(cid => {
+                const selected = filtroCidadeAdmin === cid ? 'selected' : '';
+                optHtml += `<option value="${cid}" ${selected}>${cid} (${cidadesMap[cid]})</option>`;
+            });
+            sel.innerHTML = optHtml;
+        }
+
+        function aplicarFiltrosEOrdenacaoSupervisores() {
+            let resultado = [...(todosConsultoresAdmin || [])];
+
+            // 1. Filtro por Busca de Texto (nome, id, slug, whatsapp ou cidade)
+            if (buscaTextoAdmin) {
+                const q = buscaTextoAdmin.toLowerCase().trim();
+                resultado = resultado.filter(item => {
+                    const nome = (item.nome_espaco || '').toLowerCase();
+                    const hid = String(item.herbalife_id || '').toLowerCase();
+                    const slug = String(item.slug || '').toLowerCase();
+                    const zap = String(item.whatsapp || '').toLowerCase();
+                    const cid = extrairCidadeConsultor(item).toLowerCase();
+                    return nome.includes(q) || hid.includes(q) || slug.includes(q) || zap.includes(q) || cid.includes(q);
+                });
+            }
+
+            // 2. Filtro por Cidade
+            if (filtroCidadeAdmin && filtroCidadeAdmin !== 'TODAS') {
+                resultado = resultado.filter(item => extrairCidadeConsultor(item) === filtroCidadeAdmin);
+            }
+
+            // 3. Aplicação da Sequência / Ordenação Escolhida
+            resultado.sort((a, b) => {
+                const isSuperA = String(a.herbalife_id || '').trim() === '433005811';
+                const isSuperB = String(b.herbalife_id || '').trim() === '433005811';
+                // SuperAdmin prioritário no topo se desejado
+                if (isSuperA && !isSuperB) return -1;
+                if (!isSuperA && isSuperB) return 1;
+
+                switch (criterioOrdenacaoAdmin) {
+                    case 'nome_asc':
+                        return extrairNomeConsultor(a).localeCompare(extrairNomeConsultor(b), 'pt-BR');
+                    case 'nome_desc':
+                        return extrairNomeConsultor(b).localeCompare(extrairNomeConsultor(a), 'pt-BR');
+                    case 'cidade_asc':
+                        return extrairCidadeConsultor(a).localeCompare(extrairCidadeConsultor(b), 'pt-BR');
+                    case 'cidade_desc':
+                        return extrairCidadeConsultor(b).localeCompare(extrairCidadeConsultor(a), 'pt-BR');
+                    case 'slug_asc':
+                        return String(a.slug || '').localeCompare(String(b.slug || ''), 'pt-BR');
+                    case 'slug_desc':
+                        return String(b.slug || '').localeCompare(String(a.slug || ''), 'pt-BR');
+                    case 'whats_asc':
+                        return String(a.whatsapp || '').localeCompare(String(b.whatsapp || ''));
+                    case 'whats_desc':
+                        return String(b.whatsapp || '').localeCompare(String(a.whatsapp || ''));
+                    case 'venc_asc': {
+                        const vA = a.vencimento ? new Date(a.vencimento).getTime() : 9999999999999;
+                        const vB = b.vencimento ? new Date(b.vencimento).getTime() : 9999999999999;
+                        return vA - vB;
+                    }
+                    case 'venc_desc': {
+                        const vA = a.vencimento ? new Date(a.vencimento).getTime() : 0;
+                        const vB = b.vencimento ? new Date(b.vencimento).getTime() : 0;
+                        return vB - vA;
+                    }
+                    case 'status_ativo': {
+                        const stA = (a.status || '').toLowerCase() === 'ativo' ? 0 : 1;
+                        const stB = (b.status || '').toLowerCase() === 'ativo' ? 0 : 1;
+                        return stA - stB;
+                    }
+                    case 'recentes':
+                    default:
+                        // Padrão: mais recentes pelo ID / cadastro
+                        return (b.id > a.id ? 1 : (b.id < a.id ? -1 : 0));
+                }
+            });
+
+            atualizarIconesCabecalhoTabela();
+            renderizarTabelasCompletas(resultado, true);
+        }
+
+        function mudarOrdenacaoAdmin(criterio) {
+            criterioOrdenacaoAdmin = criterio;
+            aplicarFiltrosEOrdenacaoSupervisores();
+        }
+        window.mudarOrdenacaoAdmin = mudarOrdenacaoAdmin;
+
+        function mudarFiltroCidadeAdmin(cidade) {
+            filtroCidadeAdmin = cidade;
+            aplicarFiltrosEOrdenacaoSupervisores();
+        }
+        window.mudarFiltroCidadeAdmin = mudarFiltroCidadeAdmin;
+
+        function filtrarSupervisores(termo) {
+            buscaTextoAdmin = termo || '';
+            aplicarFiltrosEOrdenacaoSupervisores();
         }
         window.filtrarSupervisores = filtrarSupervisores;
+
+        function alternarOrdenacaoColuna(coluna) {
+            const selectEl = document.getElementById('select-ordenacao-admin');
+            if (coluna === 'nome') {
+                criterioOrdenacaoAdmin = (criterioOrdenacaoAdmin === 'nome_asc') ? 'nome_desc' : 'nome_asc';
+            } else if (coluna === 'slug') {
+                criterioOrdenacaoAdmin = (criterioOrdenacaoAdmin === 'slug_asc') ? 'slug_desc' : 'slug_asc';
+            } else if (coluna === 'whatsapp') {
+                criterioOrdenacaoAdmin = (criterioOrdenacaoAdmin === 'whats_asc') ? 'whats_desc' : 'whats_asc';
+            } else if (coluna === 'vencimento') {
+                criterioOrdenacaoAdmin = (criterioOrdenacaoAdmin === 'venc_asc') ? 'venc_desc' : 'venc_asc';
+            }
+            if (selectEl) selectEl.value = criterioOrdenacaoAdmin;
+            aplicarFiltrosEOrdenacaoSupervisores();
+        }
+        window.alternarOrdenacaoColuna = alternarOrdenacaoColuna;
+
+        function atualizarIconesCabecalhoTabela() {
+            const icoNome = document.getElementById('th-ico-nome');
+            const icoSlug = document.getElementById('th-ico-slug');
+            const icoWhats = document.getElementById('th-ico-whatsapp');
+            const icoVenc = document.getElementById('th-ico-vencimento');
+
+            if (icoNome) icoNome.className = 'fa-solid ' + (criterioOrdenacaoAdmin === 'nome_asc' ? 'fa-sort-up text-purple-600 text-xs' : (criterioOrdenacaoAdmin === 'nome_desc' ? 'fa-sort-down text-purple-600 text-xs' : 'fa-sort text-gray-400 text-xs'));
+            if (icoSlug) icoSlug.className = 'fa-solid ' + (criterioOrdenacaoAdmin === 'slug_asc' ? 'fa-sort-up text-purple-600 text-xs' : (criterioOrdenacaoAdmin === 'slug_desc' ? 'fa-sort-down text-purple-600 text-xs' : 'fa-sort text-gray-400 text-xs'));
+            if (icoWhats) icoWhats.className = 'fa-solid ' + (criterioOrdenacaoAdmin === 'whats_asc' ? 'fa-sort-up text-purple-600 text-xs' : (criterioOrdenacaoAdmin === 'whats_desc' ? 'fa-sort-down text-purple-600 text-xs' : 'fa-sort text-gray-400 text-xs'));
+            if (icoVenc) icoVenc.className = 'fa-solid ' + (criterioOrdenacaoAdmin === 'venc_asc' ? 'fa-sort-up text-purple-600 text-xs' : (criterioOrdenacaoAdmin === 'venc_desc' ? 'fa-sort-down text-purple-600 text-xs' : 'fa-sort text-gray-400 text-xs'));
+        }
+
+        function resetarFiltrosEOrdenacaoAdmin() {
+            criterioOrdenacaoAdmin = 'recentes';
+            filtroCidadeAdmin = 'TODAS';
+            buscaTextoAdmin = '';
+            const buscaInput = document.getElementById('filtro-busca-supervisores');
+            if (buscaInput) buscaInput.value = '';
+            const selOrd = document.getElementById('select-ordenacao-admin');
+            if (selOrd) selOrd.value = 'recentes';
+            const selCid = document.getElementById('select-filtro-cidade-admin');
+            if (selCid) selCid.value = 'TODAS';
+            aplicarFiltrosEOrdenacaoSupervisores();
+        }
+        window.resetarFiltrosEOrdenacaoAdmin = resetarFiltrosEOrdenacaoAdmin;
 
         function filtrarTabelaCrm(termo) {
             const q = (termo || '').toLowerCase().trim();
