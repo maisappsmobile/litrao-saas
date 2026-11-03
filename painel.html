@@ -4547,26 +4547,37 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Data de Vencimento</label>
-                                <input type="date" id="superadmin-edit-vencimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-gray-700">Data de Vencimento</label>
+                                <span id="badge-feedback-venc-modal-painel" class="hidden text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full animate-pulse"></span>
                             </div>
-                            <div class="flex flex-col justify-end">
-                                <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm">
-                                    <i class="fa-solid fa-infinity"></i> Tornar Vitalício
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <input type="date" id="superadmin-edit-vencimento" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                </div>
+                                <div class="flex flex-col justify-end">
+                                    <button type="button" onclick="definirVitalicioSuperadmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 shadow-sm cursor-pointer">
+                                        <i class="fa-solid fa-infinity"></i> Tornar VitalÃ­cio
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- ATALHOS CUMULATIVOS 1-CLIQUE NO MODAL -->
+                            <div class="mt-2 pt-2 border-t border-gray-100 flex flex-wrap items-center gap-1.5">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block mr-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-gift text-purple-600"></i> Somar Teste:
+                                </span>
+                                <button type="button" onclick="adicionarDiasAoVencimentoModalPainel(7)" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +7 Dias
+                                </button>
+                                <button type="button" onclick="adicionarDiasAoVencimentoModalPainel(15)" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +15 Dias
+                                </button>
+                                <button type="button" onclick="adicionarDiasAoVencimentoModalPainel(30)" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-black transition cursor-pointer shadow-2xs">
+                                    +30 Dias
                                 </button>
                             </div>
                         </div>
-
-                        <!-- DEFINIÃ‡ÃO / MUDANÃ‡A MANUAL DO PLANO DO CONSULTOR -->
-                        <div class="bg-gradient-to-r from-purple-50 via-amber-50/40 to-purple-50 p-3.5 sm:p-4 rounded-2xl border-2 border-purple-300 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="block text-xs font-black text-purple-950 uppercase flex items-center gap-1.5">
-                                    <i class="fa-solid fa-crown text-amber-500"></i> Plano & Cobrança do Consultor (Manual)
-                                </span>
-                                <span class="text-[10px] font-extrabold bg-purple-200 text-purple-900 px-2 py-0.5 rounded-full">SuperAdmin</span>
-                            </div>
 
                             <div class="space-y-1">
                                 <label class="block text-xs font-bold text-gray-700">Selecione o Plano</label>
@@ -14104,6 +14115,10 @@
                 if (isSA) {
                     cardToolCons.classList.remove('hidden');
                     cardToolCons.style.display = '';
+                    const gridLib = document.getElementById('grid-ferramentas-liberadas');
+                    if (gridLib && !gridLib.contains(cardToolCons)) {
+                        gridLib.appendChild(cardToolCons);
+                    }
                 } else {
                     cardToolCons.classList.add('hidden');
                     cardToolCons.style.display = 'none';
@@ -14712,7 +14727,17 @@
 
                             <!-- Barra Inferior de Ações Rápidas -->
                             ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
-                                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
+                                <!-- Barra de Teste RÃ¡pido Manual por Consultor -->
+                            <div class="mt-2.5 p-2 bg-purple-50/90 rounded-xl border border-purple-200 flex items-center justify-between gap-1">
+                                <span class="text-[10px] font-black text-purple-900 uppercase flex items-center gap-1"><i class="fa-solid fa-gift text-purple-600"></i> Liberar Teste:</span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 7)" class="px-2 py-1 bg-white hover:bg-purple-600 hover:text-white text-purple-800 font-black rounded-lg text-[10px] transition border border-purple-200 cursor-pointer shadow-2xs" title="Somar +7 Dias de Teste (PadrÃ£o)">+7d</button>
+                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 15)" class="px-2 py-1 bg-white hover:bg-indigo-600 hover:text-white text-indigo-800 font-black rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer shadow-2xs" title="Somar +15 Dias de Teste VIP">+15d</button>
+                                    <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 30)" class="px-2 py-1 bg-white hover:bg-emerald-600 hover:text-white text-emerald-800 font-black rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer shadow-2xs" title="Somar +30 Dias de Teste Master">+30d</button>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
                                     <button type="button" onclick="abrirModalChavesConsultorIndividual('${c.id}')" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Chaves de Módulos (Liberar/Bloquear na hora)">
                                         <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
                                     </button>
@@ -14898,6 +14923,13 @@
                         ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
                             <td class="p-3 sm:p-4 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1">
+                                    <!-- CHAVE MANUAL DE TESTE POR CONSULTOR (7d, 15d, 30d) -->
+                                    <div class="inline-flex items-center gap-0.5 bg-purple-50/90 p-1 rounded-xl border border-purple-200 shadow-2xs mr-1 align-middle" title="Liberar Teste Manual para Este Consultor (soma cumulativa se tiver dias vÃ¡lidos)">
+                                        <span class="text-[9px] font-black text-purple-800 uppercase px-1 flex items-center gap-0.5"><i class="fa-solid fa-gift text-purple-600"></i> Teste:</span>
+                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 7)" class="px-1.5 py-0.5 bg-white hover:bg-purple-600 hover:text-white text-purple-800 font-black rounded-lg text-[10px] transition border border-purple-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +7 Dias de Teste (PadrÃ£o)">7d</button>
+                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 15)" class="px-1.5 py-0.5 bg-white hover:bg-indigo-600 hover:text-white text-indigo-800 font-black rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +15 Dias de Teste VIP">15d</button>
+                                        <button type="button" onclick="liberarTesteManualConsultorPainel('${c.id}', 30)" class="px-1.5 py-0.5 bg-white hover:bg-emerald-600 hover:text-white text-emerald-800 font-black rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +30 Dias de Teste Master">30d</button>
+                                    </div>
                                     <button onclick="abrirModalChavesConsultorIndividual('${c.id}')" title="Gerenciar Chaves de Módulos" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-1.5 rounded-xl text-[11px] transition cursor-pointer shadow-2xs flex items-center gap-1">
                                         <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
                                     </button>
@@ -14922,6 +14954,64 @@
             }
         }
         window.renderizarTabelaSuperadmin = renderizarTabelaSuperadmin;
+
+        async function liberarTesteManualConsultorPainel(id, dias) {
+            try {
+                const consultor = (todosConsultoresCache || []).find(c => String(c.id) === String(id));
+                if (!consultor) return;
+
+                const nome = (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+                const hid = consultor.herbalife_id || '';
+                if (!confirm(`Deseja liberar ${dias} dias de teste para o consultor "${nome}" (ID ${hid})?\n\nRegra cumulativa: se o consultor ainda tiver dias vÃ¡lidos de teste ou plano, os ${dias} dias serÃ£o SOMADOS ao vencimento atual!`)) {
+                    return;
+                }
+
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                let dataBase = new Date(hoje);
+                if (consultor.vencimento) {
+                    const p = consultor.vencimento.split('-');
+                    if (p.length === 3) {
+                        const dtAtual = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                        // SE AINDA NÃƒO VENCEU, NÃƒO ZERA! SOMA AO VENCIMENTO ATUAL!
+                        if (dtAtual.getTime() >= hoje.getTime()) {
+                            dataBase = new Date(dtAtual);
+                        }
+                    }
+                }
+
+                dataBase.setDate(dataBase.getDate() + dias);
+                const y = dataBase.getFullYear();
+                const m = String(dataBase.getMonth() + 1).padStart(2, '0');
+                const d = String(dataBase.getDate()).padStart(2, '0');
+                const novoVenc = `${y}-${m}-${d}`;
+
+                const { error } = await supabaseClient
+                    .from('consultores')
+                    .update({
+                        status: 'Ativo',
+                        vencimento: novoVenc
+                    })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                consultor.status = 'Ativo';
+                consultor.vencimento = novoVenc;
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`ðŸŽ‰ Liberado teste de ${dias} dias para ${nome}! Vencimento atÃ© ${d}/${m}/${y}.`, 'sucesso');
+                } else {
+                    alert(`ðŸŽ‰ Liberado teste de ${dias} dias para ${nome}!\nNovo vencimento: ${d}/${m}/${y}`);
+                }
+
+                aplicarFiltrosErenderizarSuperadmin();
+            } catch (err) {
+                alert(`Erro ao liberar teste: ${err.message}`);
+            }
+        }
+        window.liberarTesteManualConsultorPainel = liberarTesteManualConsultorPainel;
 
         function abrirModalEditarConsultor(id) {
             const consultor = todosConsultoresCache.find(c => c.id === id);
@@ -15056,9 +15146,56 @@
 
         function definirVitalicioSuperadmin() {
             const inputVenc = document.getElementById('superadmin-edit-vencimento');
+            const selectStatus = document.getElementById('superadmin-edit-status');
+            const badge = document.getElementById('badge-feedback-venc-modal-painel');
             if (inputVenc) inputVenc.value = '2036-12-31';
+            if (selectStatus) selectStatus.value = 'Ativo';
+            if (badge) {
+                badge.innerText = 'VitalÃ­cio (Permanente)!';
+                badge.classList.remove('hidden');
+                setTimeout(() => { badge.classList.add('hidden'); }, 3000);
+            }
         }
         window.definirVitalicioSuperadmin = definirVitalicioSuperadmin;
+
+        function adicionarDiasAoVencimentoModalPainel(dias) {
+            const inputVenc = document.getElementById('superadmin-edit-vencimento');
+            const selectStatus = document.getElementById('superadmin-edit-status');
+            const badge = document.getElementById('badge-feedback-venc-modal-painel');
+            if (!inputVenc) return;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let dataBase = hoje;
+            const valAtual = (inputVenc.value || '').trim();
+            if (valAtual && valAtual.length >= 10) {
+                const partes = valAtual.split('-');
+                if (partes.length === 3) {
+                    const dVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                    // Se ainda nÃ£o venceu, soma cumulativamente Ã  data atual!
+                    if (dVenc.getTime() >= hoje.getTime()) {
+                        dataBase = dVenc;
+                    }
+                }
+            }
+
+            const novaData = new Date(dataBase.getTime());
+            novaData.setDate(novaData.getDate() + dias);
+
+            const ano = novaData.getFullYear();
+            const mes = String(novaData.getMonth() + 1).padStart(2, '0');
+            const dia = String(novaData.getDate()).padStart(2, '0');
+            inputVenc.value = `${ano}-${mes}-${dia}`;
+            if (selectStatus) selectStatus.value = 'Ativo';
+
+            if (badge) {
+                badge.innerText = `+${dias} dias somados (${dia}/${mes}/${ano})!`;
+                badge.classList.remove('hidden');
+                setTimeout(() => { badge.classList.add('hidden'); }, 3000);
+            }
+        }
+        window.adicionarDiasAoVencimentoModalPainel = adicionarDiasAoVencimentoModalPainel;
 
         async function salvarEdicaoConsultorSuperadmin(e) {
             if (e && e.preventDefault) e.preventDefault();

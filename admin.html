@@ -738,6 +738,13 @@
                             <div class="text-[11px] font-bold text-gray-500"><i class="fa-regular fa-calendar mr-1"></i> ${formatarData(item.vencimento)}</div>
                         </td>
                         <td class="p-4 text-center space-x-1.5 whitespace-nowrap">
+                            <!-- CHAVE MANUAL DE TESTE POR CONSULTOR (7, 15 OU 30 DIAS CUMULATIVOS) -->
+                            <div class="inline-flex items-center gap-1 bg-purple-50/90 p-1 rounded-xl border border-purple-200 shadow-2xs mr-1 align-middle" title="LiberaÃ§Ã£o Manual de Teste para Este Consultor (soma aos dias vigentes)">
+                                <span class="text-[9px] font-black text-purple-800 uppercase px-1 flex items-center gap-0.5"><i class="fa-solid fa-gift text-purple-600"></i> Teste:</span>
+                                <button type="button" onclick="definirTesteManualConsultorAdmin('${item.id}', 7)" class="px-2 py-1 bg-white hover:bg-purple-600 hover:text-white text-purple-800 font-black rounded-lg text-[10px] transition border border-purple-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +7 Dias de Teste (PadrÃ£o)">7d</button>
+                                <button type="button" onclick="definirTesteManualConsultorAdmin('${item.id}', 15)" class="px-2 py-1 bg-white hover:bg-indigo-600 hover:text-white text-indigo-800 font-black rounded-lg text-[10px] transition border border-indigo-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +15 Dias de Teste VIP">15d</button>
+                                <button type="button" onclick="definirTesteManualConsultorAdmin('${item.id}', 30)" class="px-2 py-1 bg-white hover:bg-emerald-600 hover:text-white text-emerald-800 font-black rounded-lg text-[10px] transition border border-emerald-200 cursor-pointer shadow-2xs" title="Liberar ou Somar +30 Dias de Teste Master">30d</button>
+                            </div>
                             <button onclick="alternarCrmExtratorAdmin('${item.id}', ${!isCrmLiberado})" class="${isCrmLiberado ? 'bg-purple-100 text-purple-900 border-purple-300' : 'bg-gray-50 text-gray-600 border-gray-200'} hover:opacity-80 transition border p-2 rounded-lg font-bold text-xs shadow-xs cursor-pointer" title="${isCrmLiberado ? 'Clique para Bloquear o Extrator & CRM' : 'Clique para Liberar o Extrator & CRM'}">
                                 <i class="fa-brands fa-whatsapp ${isCrmLiberado ? 'text-emerald-600' : 'text-gray-400'} mr-1"></i> ${isCrmLiberado ? 'CRM: Liberado' : 'Liberar CRM'}
                             </button>
@@ -799,7 +806,7 @@
                                 : '<span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-full text-[11px] uppercase"><i class="fa-solid fa-lock text-gray-400"></i> Bloqueado</span>'}
                         </td>
                         <td class="p-4 text-center">
-                                    Vital&iacute;cio
+                            ${isSuperAdminItem ? '<span class="text-[11px] text-purple-700 font-black italic">Acesso VitalÃ­cio</span>' : `
                                 <button onclick="alternarCrmExtratorAdmin('${item.id}', ${!isCrmLiberado})" class="${isCrmLiberado ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : 'bg-emerald-600 text-white hover:bg-emerald-700'} border px-3.5 py-2 rounded-xl font-black text-xs transition shadow-xs cursor-pointer flex items-center gap-1.5 mx-auto">
                                     <i class="fa-solid ${isCrmLiberado ? 'fa-lock' : 'fa-lock-open'}"></i>
                                     ${isCrmLiberado ? 'Bloquear Acesso' : 'Liberar Acesso Manual'}
@@ -888,20 +895,20 @@
             const ano = novaData.getFullYear();
             const mes = String(novaData.getMonth() + 1).padStart(2, '0');
             const dia = String(novaData.getDate()).padStart(2, '0');
-            const novoVal = ${ano}--;
+            const novoVal = `${ano}-${mes}-${dia}`;
 
             inputVenc.value = novoVal;
             if (selectStatus) selectStatus.value = 'Ativo';
 
             if (badge) {
-                badge.innerText = + dias somados (//)!;
+                badge.innerText = `+${dias} dias somados (${dia}/${mes}/${ano})!`;
                 badge.classList.remove('hidden');
                 setTimeout(() => { badge.classList.add('hidden'); }, 3500);
             }
         }
         window.adicionarDiasAoVencimentoAdmin = adicionarDiasAoVencimentoAdmin;
 
-                                    Vital&iacute;cio
+        function definirVitalicioAdmin() {
             const inputVenc = document.getElementById('edit-vencimento');
             const selectStatus = document.getElementById('edit-status');
             const badge = document.getElementById('badge-feedback-venc-admin');
@@ -911,12 +918,62 @@
             if (selectStatus) selectStatus.value = 'Ativo';
 
             if (badge) {
-                                    Vital&iacute;cio
+                badge.innerText = 'VitalÃ­cio (Permanente atÃ© 2036)!';
                 badge.classList.remove('hidden');
                 setTimeout(() => { badge.classList.add('hidden'); }, 3500);
             }
         }
-                                    Vital&iacute;cio
+        window.definirVitalicioAdmin = definirVitalicioAdmin;
+
+        async function definirTesteManualConsultorAdmin(id, dias) {
+            try {
+                const consultor = todosConsultoresAdmin.find(c => String(c.id) === String(id));
+                if (!consultor) return;
+
+                const nome = (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+                const hid = consultor.herbalife_id || '';
+                if (!confirm(`Deseja liberar ${dias} dias de teste para o consultor "${nome}" (ID ${hid})?\n\nRegra cumulativa: se o consultor ainda tiver dias vÃ¡lidos de teste ou plano, os ${dias} dias serÃ£o SOMADOS ao vencimento atual!`)) {
+                    return;
+                }
+
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                let dataBase = new Date(hoje);
+                if (consultor.vencimento) {
+                    const p = consultor.vencimento.split('-');
+                    if (p.length === 3) {
+                        const dtAtual = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                        // SE AINDA NÃƒO VENCEU, NÃƒO ZERA! SOMA AO VENCIMENTO ATUAL!
+                        if (dtAtual.getTime() >= hoje.getTime()) {
+                            dataBase = new Date(dtAtual);
+                        }
+                    }
+                }
+
+                dataBase.setDate(dataBase.getDate() + dias);
+                const y = dataBase.getFullYear();
+                const m = String(dataBase.getMonth() + 1).padStart(2, '0');
+                const d = String(dataBase.getDate()).padStart(2, '0');
+                const novoVenc = `${y}-${m}-${d}`;
+
+                const { error } = await supabaseClient
+                    .from('consultores')
+                    .update({
+                        status: 'Ativo',
+                        vencimento: novoVenc
+                    })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert(`ðŸŽ‰ SUCESSO!\n\nLiberado teste de ${dias} dias para "${nome}"!\nNovo vencimento: ${d}/${m}/${y}\nStatus: ATIVO`);
+                carregarDados();
+            } catch (err) {
+                alert(`Erro ao liberar teste: ${err.message}`);
+            }
+        }
+        window.definirTesteManualConsultorAdmin = definirTesteManualConsultorAdmin;
 
         function selecionarChaveTrialAdmin(dias) {
             const inTrial = document.getElementById('adm-trial-dias');
@@ -1133,7 +1190,7 @@
         let configPlanosAdmin = {
             planos: {
                 plano1: { nome: 'Start Pro', valorAdesaoNum: 199.00, valorMensalidadeNum: 99.00 },
-                                    Vital&iacute;cio
+                plano2: { nome: 'VitalÃ­cio Smart', valorAdesaoNum: 497.00, valorMensalidadeNum: 25.00 },
                 plano3: { nome: 'Master VIP', valorAdesaoNum: 1299.00, valorMensalidadeNum: 49.00 }
             },
             fitcoin: {
@@ -1145,7 +1202,7 @@
             tempo: {
                 trialDiasNovosConsultores: 7,
                 diasCicloPlano1: 30,
-                                    Vital&iacute;cio
+                dataVitalicio: '2036-12-31'
             }
         };
 
@@ -1191,20 +1248,20 @@
                 const p2 = configPlanosAdmin.planos.plano2;
                 const p3 = configPlanosAdmin.planos.plano3;
                 const fit = configPlanosAdmin.fitcoin;
-                                    Vital&iacute;cio
+                const tempo = configPlanosAdmin.tempo || { trialDiasNovosConsultores: 7, diasCicloPlano1: 30, dataVitalicio: '2036-12-31' };
 
                 if (document.getElementById('adm-trial-dias')) {
-    document.getElementById('adm-trial-dias').value = tempo.trialDiasNovosConsultores ?? 7;
-    sincronizarBotoesChaveTrialAdmin(tempo.trialDiasNovosConsultores ?? 7);
-}
+                    document.getElementById('adm-trial-dias').value = tempo.trialDiasNovosConsultores ?? 7;
+                    sincronizarBotoesChaveTrialAdmin(tempo.trialDiasNovosConsultores ?? 7);
+                }
                 if (document.getElementById('adm-p1-ciclo')) document.getElementById('adm-p1-ciclo').value = tempo.diasCicloPlano1 ?? 30;
-                                    Vital&iacute;cio
+                if (document.getElementById('adm-vitalicio-data')) document.getElementById('adm-vitalicio-data').value = tempo.dataVitalicio || '2036-12-31';
 
                 document.getElementById('adm-p1-nome').value = p1.nome || 'Start Pro';
                 document.getElementById('adm-p1-adesao').value = p1.valorAdesaoNum || 199.00;
                 document.getElementById('adm-p1-mensal').value = p1.valorMensalidadeNum || 99.00;
 
-                                    Vital&iacute;cio
+                document.getElementById('adm-p2-nome').value = p2.nome || 'VitalÃ­cio Smart';
                 document.getElementById('adm-p2-adesao').value = p2.valorAdesaoNum || 497.00;
                 document.getElementById('adm-p2-mensal').value = p2.valorMensalidadeNum || 25.00;
 
@@ -1233,7 +1290,7 @@
 
                 const trialDias = parseInt(document.getElementById('adm-trial-dias').value) || 7;
                 const p1Ciclo = parseInt(document.getElementById('adm-p1-ciclo').value) || 30;
-                                    Vital&iacute;cio
+                const dataVit = document.getElementById('adm-vitalicio-data').value || '2036-12-31';
 
                 const p1Adesao = parseFloat(document.getElementById('adm-p1-adesao').value) || 199.00;
                 const p1Mensal = parseFloat(document.getElementById('adm-p1-mensal').value) || 99.00;
@@ -1255,7 +1312,7 @@
                 configPlanosAdmin.tempo = {
                     trialDiasNovosConsultores: trialDias,
                     diasCicloPlano1: p1Ciclo,
-                                    Vital&iacute;cio
+                    dataVitalicio: dataVit
                 };
 
                 configPlanosAdmin.planos.plano1 = { id: 'plano1', nome: p1Nome, adesao: `R$ ${p1Adesao.toFixed(2)}`, valorAdesaoNum: p1Adesao, mensalidade: `R$ ${p1Mensal.toFixed(2)}/mês`, valorMensalidadeNum: p1Mensal };
