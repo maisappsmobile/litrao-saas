@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossiê Executivo & Diagnóstico Estratégico - Litrão do Reset SaaS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* CONFIGURAÇÃO DE IMPRESSÃO A4 */
+        @page {
+            size: A4 portrait;
+            margin: 8mm 10mm 10mm 10mm;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-after: always !important;
+                break-after: page !important;
+                height: 0;
+                display: block;
+            }
+            .a4-page {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                min-height: auto !important;
+            }
+        }
+
+        /* ESTILO DA FOLHA A4 EM TELA */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 14mm;
+            margin: 15px auto;
+            background: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tabela-dores th {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 8px 10px;
+        }
+        .tabela-dores td {
+            font-size: 10.5px;
+            padding: 7px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+            line-height: 1.35;
+        }
+        .tabela-dores tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- BARRA SUPERIOR DE AÇÕES (NÃO IMPRIME) -->
+    <div class="no-print max-w-[210mm] mx-auto mb-6 bg-slate-900 text-white p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 border border-slate-700">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-black">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div>
+                <h1 class="text-sm sm:text-base font-black">Dossiê Executivo & Diagnóstico Estratégico</h1>
+                <p class="text-xs text-slate-400">Diagramado em Formato A4 • 5 Páginas Estratégicas</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition cursor-pointer">
+                <i class="fa-solid fa-print"></i>
+                <span>Imprimir / Salvar PDF</span>
+            </button>
+            <a href="painel.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition">
+                Voltar ao Painel
+            </a>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PÁGINA 1: VISÃO GERAL, PROPOSTA DE VALOR & MAPA DO QUE JÁ TEMOS (PARTE 1) -->
+    <!-- ========================================================================= -->
+    <div class="a4-page">
+        <div>
+            <!-- CABEÇALHO EXECUTIVO PADRÃO -->
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <img src="reset-logo.png" alt="Reset" class="h-10 object-contain">
+                    <div class="border-l-2 border-slate-300 pl-3">
+                        <span class="block text-[9px] font-black uppercase text-emerald-700 tracking-widest">RELATÓRIO CORPORATIVO DE INTELIGÊNCIA & GESTÃO</span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight">DOSSIÊ ESTRATÉGICO DA PLATAFORMA SAAS</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="badge-tag bg-slate-900 text-amber-300">CONFIDENCIAL / EXECUTIVO</span>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1">SuperAdmin: <strong class="text-slate-800">Edwan Braga</strong> | Versão 2.8.0</p>
+                </div>
+            </div>
+
+            <!-- BOX DESTAQUE: O QUE É O LITRÃO DO RESET -->
+            <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white p-4 rounded-2xl mb-4 border border-slate-800 shadow-xs">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase mb-1">
+                            <i class="fa-solid fa-bullseye text-[8px]"></i> Proposta Única de Valor (UVP)
+                        </div>
+                        <h3 class="text-sm font-black text-white leading-tight">
+                            Transformando o Litrão Herbalife em um Ecossistema Previsível de Escala, Fidelização e Lucro Diário
+                        </h3>
+                        <p class="text-[10.5px] text-slate-300 mt-1 leading-relaxed">
+                            O <strong>Litrão do Reset / ResetFIT</strong> não é apenas uma receita ou uma landing page; é uma infraestrutura completa que profissionaliza a operação do Consultor Herbalife e Dono de EVS. A plataforma conecta atração massiva de novos leads, conversão no WhatsApp, controle de entrega de pedidos, fidelização por carimbos, histórico de bioimpedância e acompanhamento financeiro milimétrico em um único ecossistema integrado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: MAPEAMENTO COMPLETO DE TUDO O QUE JÁ TEMOS PRONTO -->
+            <div class="mb-3">
+                <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-200">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group text-purple-700"></i>
+                        <span>1. Arquitetura de Módulos Prontos e Ativos no Sistema (Parte 1)</span>
+                    </h4>
+                    <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">13 Módulos Desenvolvidos</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- Módulo 1 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-globe text-blue-600"></i> Landing Page Pessoal (/{slug})
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Link individualizado com foto, WhatsApp direto, depoimentos reais, tabela comparativa dos pacotes (500ml, 1L, Turbo) e formulário de bioimpedância que cai no banco do consultor.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 2 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-heart-pulse text-rose-600"></i> Bioimpedância Online & IA
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Cálculo inteligente de Gordura Corporal, Massa Muscular, Gordura Visceral, Taxa Metabólica Basal (TMB), Idade Metabólica e Água, gerando Card PNG de Antes/Depois para WhatsApp.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 3 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-id-card text-emerald-600"></i> Cartão Fidelidade & Portal
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Portal exclusivo para o aluno acompanhar seus 10 carimbos digitais, histórico de compras, datas das sessões e resgate de prêmios. Aumenta a retenção de clientes em mais de 350%.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 4 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-truck-fast text-amber-600"></i> Central Pedidos & Delivery
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Painel de controle de pedidos em tempo real (Pendente, Preparo, Rota, Concluído), botão para traçar Rota GPS direto no Google Maps e impressão de comanda para despacho rápido.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 5 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-calculator text-teal-600"></i> Módulo Financeiro & Doses EVS
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Calculadora de precisão para custo por dose de cada ingrediente Herbalife, margem líquida por copo de Litrão, CMV detalhado e projeção de lucratividade diária e mensal do EVS.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 6 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-book-open-reader text-indigo-600"></i> Catálogo Interativo Digital
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Vitrine interativa de produtos fechados e kits de nutrição com carrinho inteligente que gera o pedido estruturado com valor total e envia diretamente para o WhatsApp do consultor.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MINI-RESUMO ESTATÍSTICO -->
+            <div class="grid grid-cols-4 gap-2 pt-1 border-t border-slate-200 text-center">
+                <div class="p-2 bg-purple-50 rounded-xl border border-purple-200">
+                    <span class="block text-xs font-black text-purple-900 font-mono-code">+20.000</span>
+                    <span class="text-[9px] text-purple-700 font-bold uppercase">Leads Qualificados</span>
+                </div>
+                <div class="p-2 bg-emerald-50 rounded-xl border border-emerald-200">
+                    <span class="block text-xs font-black text-emerald-900 font-mono-code">100% NATIVO</span>
+                    <span class="text-[9px] text-emerald-700 font-bold uppercase">Sem Taxas por Lead</span>
+                </div>
+                <div class="p-2 bg-blue-50 rounded-xl border border-blue-200">
+                    <span class="block text-xs font-black text-blue-900 font-mono-code">7 / 15 / 30 DIAS</span>
+                    <span class="text-[9px] text-blue-700 font-bold uppercase">Chaves Ágeis de Teste</span>
+                </div>
+                <div class="p-2 bg-amber-50 rounded-xl border border-amber-200">
+                    <span class="block text-xs font-black text-amber-900 font-mono-code">MULTI-DISPOSITIVO</span>
+                    <span class="text-[9px] text-amber-700 font-bold uppercase">PWA Celular & PC</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ DA PÁGINA 1 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Dossiê Executivo Litrão do Reset • Desenvolvido para Consultores & Líderes Herbalife</span>
+            <span>Página 1 de 5</span>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ========================================================================= -->
+    <!-- PÁGINA 2: MOTOR DE PROSPECÇÃO, AUTOMAÇÕES E PAINEL SUPERADMIN             -->
+    <!-- ========================================================================= -->
+    <div class="a4-page">
+        <div>
+            <!-- CABEÇALHO EXECUTIVO PADRÃO -->
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <img src="reset-logo.png" alt="Reset" class="h-10 object-contain">
+                    <div class="border-l-2 border-slate-300 pl-3">
+                        <span class="block text-[9px] font-black uppercase text-emerald-700 tracking-widest">ARQUITETURA DE CRESCIMENTO & TECNOLOGIA</span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight">MÓDULOS DE PROSPECÇÃO, AUTOMAÇÃO & GESTÃO SAAS</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="badge-tag bg-purple-900 text-white">MOTOR DE ESCALA X1</span>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1">SuperAdmin: Edwan Braga</p>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: MÓDULOS DE PROSPECÇÃO E GESTÃO SAAS -->
+            <div class="mb-4">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5 mb-2 pb-1 border-b border-slate-200">
+                    <i class="fa-solid fa-microchip text-emerald-600"></i>
+                    <span>1. Arquitetura de Módulos Prontos e Ativos no Sistema (Parte 2)</span>
+                </h4>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- Módulo 7 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i> Extrator WhatsApp (MV3)
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Extensão Manifest V3 oficial para Chrome/Edge. Extrai contatos de grupos de condomínios, mães e bairros em 1 clique, sincroniza direto no CRM Kanban e dispara mensagens com Spintax anti-ban.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 8 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-table-columns text-purple-600"></i> CRM Kanban de Vendas X1
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Funil de vendas por colunas (Novos, Primeira Abordagem, Em Negociação, Fechado, Pós-Venda). Scripts validados de alta conversão embutidos para envio com 1 clique.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 9 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-brands fa-facebook text-blue-600"></i> Base 20k+ Leads Facebook
+                            </span>
+                            <span class="badge-tag bg-purple-100 text-purple-800">SuperAdmin</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Base proprietária pré-extraída de grupos estratégicos do Facebook. Permite aos consultores iniciar abordagens de prospecção fria com scripts testados de atração para o Grupo VIP.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 10 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-meteor text-purple-600"></i> Lançamento Meteórico VIP
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Central com roteiro de 7 dias para grupos de WhatsApp, matriz completa de quebra de objeções (PDF), pacote de 14 ícones PNG de escassez e cópias com gatilhos mentais validados.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 11 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-print text-amber-600"></i> Gerador Gráfico A4 (Canvas)
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Renderização instantânea no navegador de Adesivos para Garrafas (500ml/1L), 21 Tíquetes para sacolas por folha A4 e Flyers oficiais com WhatsApp e Cidade impressos automaticamente em branco.
+                        </p>
+                    </div>
+
+                    <!-- Módulo 12 -->
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-black text-[11px] text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-users-gear text-slate-800"></i> Painel SuperAdmin SaaS
+                            </span>
+                            <span class="badge-tag bg-emerald-100 text-emerald-800">100% Ativo</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 leading-snug">
+                            Chaves de teste ágeis de 1 clique (+7d, +15d, +30d cumulativas), seletor de sequência por Consultor A-Z, Cidade, Link, Status, Vencimento e controle de planos oficiais (Start Pro, Master VIP, Fundador).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESTAQUE: REGRAS INTELIGENTES DO MOTOR SUPERADMIN -->
+            <div class="bg-purple-50/70 border-2 border-purple-300 p-3.5 rounded-2xl mb-3">
+                <span class="block text-xs font-black text-purple-950 uppercase mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-purple-700"></i> Regras de Ouro Implementadas no SaaS:
+                </span>
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-950">
+                    <div class="bg-white p-2 rounded-xl border border-purple-200">
+                        <strong class="text-purple-900 block mb-0.5">1. Regra Cumulativa de Dias:</strong>
+                        Se o consultor já tem dias de teste e paga a mensalidade (ou recebe uma chave manual de 15/30 dias), os novos dias são <strong>SOMADOS</strong> ao vencimento atual, nunca zerando o saldo vigente.
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-purple-200">
+                        <strong class="text-purple-900 block mb-0.5">2. Redirecionamento Inteligente (+20d):</strong>
+                        Se o consultor acumula mais de 20 dias de atraso, seu link público é automaticamente redirecionado para a página principal nacional, protegendo o prestígio da marca e incentivando a regularização.
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIFERENCIAIS TECNOLÓGICOS ÚNICOS -->
+            <div class="border border-slate-200 rounded-2xl p-3 bg-white">
+                <h5 class="text-[11px] font-black text-slate-900 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-star text-amber-500"></i> Diferenciais Tecnológicos Frente ao Mercado Tradicional
+                </h5>
+                <ul class="text-[10px] text-slate-700 space-y-1.5 list-disc pl-4 leading-snug">
+                    <li><strong>Independência de Lojas de Aplicativos:</strong> O sistema funciona como PWA (Progressive Web App) instalável tanto no Android quanto no iPhone e PC, sem cobrar taxas de 30% da Apple/Google.</li>
+                    <li><strong>Sem Necessidade de Servidores Caros:</strong> Arquitetura serverless com Vercel Edge Network e Supabase PostgreSQL de altíssima velocidade e custo operacional quase zero.</li>
+                    <li><strong>Web3 & Pix Híbrido:</strong> Suporte a pagamentos instantâneos via Pix Nacional e tecnologia de tokenomics FitCoin na rede Solana.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RODAPÉ DA PÁGINA 2 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Dossiê Executivo Litrão do Reset • Motor de Vendas e Gestão Avançada</span>
+            <span>Página 2 de 5</span>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ========================================================================= -->
+    <!-- PÁGINA 3: MATRIZ COMPLETA DE DORES RESOLVIDAS (CONSULTOR, CLIENTE, REDE) -->
+    <!-- ========================================================================= -->
+    <div class="a4-page">
+        <div>
+            <!-- CABEÇALHO EXECUTIVO PADRÃO -->
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <img src="reset-logo.png" alt="Reset" class="h-10 object-contain">
+                    <div class="border-l-2 border-slate-300 pl-3">
+                        <span class="block text-[9px] font-black uppercase text-emerald-700 tracking-widest">ANÁLISE DE MERCADO & RESOLUÇÃO DE PROBLEMAS</span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight">MATRIZ DE DORES REAIS E SOLUÇÕES ENTREGUES</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="badge-tag bg-emerald-900 text-white">IMPACTO COMPROVADO</span>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1">10 Dores Estruturais Resolvidas</p>
+                </div>
+            </div>
+
+            <p class="text-[10px] text-slate-600 mb-2 leading-tight">
+                Abaixo está a análise das 10 principais dores que paralisam consultores Herbalife tradicionais e como cada módulo do SaaS elimina o problema de forma cirúrgica:
+            </p>
+
+            <!-- TABELA ANALÍTICA DE DORES E SOLUÇÕES -->
+            <table class="w-full text-left border border-slate-200 rounded-xl overflow-hidden tabela-dores mb-2">
+                <thead>
+                    <tr>
+                        <th class="w-[24%]">Dor Real do Mercado</th>
+                        <th class="w-[26%]">Impacto Negativo</th>
+                        <th class="w-[28%]">Solução do Litrão SaaS</th>
+                        <th class="w-[22%]">Resultado Prático</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Falta de Clientes Novos / Lista Fria</strong></td>
+                        <td>Consultor fica dependendo só de amigos e parentes; as vendas estagnam.</td>
+                        <td>Landing Page individual com link oficial + Extrator de Contatos WhatsApp de grupos locais.</td>
+                        <td><span class="text-emerald-700 font-bold">+50 a 100 leads novos toda semana</span> no WhatsApp.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Clientes Compram 1 Vez e Desaparecem</strong></td>
+                        <td>Sem recompra contínua, o consultor gasta muita energia para vender pouco.</td>
+                        <td>Cartão Fidelidade Digital com 10 carimbos + Portal exclusivo de acompanhamento.</td>
+                        <td><span class="text-emerald-700 font-bold">Aumento de 350% na taxa de fidelidade</span> e recompra mensal.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Caos na Entrega e Pedidos Perdidos</strong></td>
+                        <td>Esquecimento de pedidos, erro de troco, atrasos e clientes insatisfeitos.</td>
+                        <td>Central de Pedidos Delivery com Kanban, impressão de comandas e Rota GPS no Maps.</td>
+                        <td><span class="text-emerald-700 font-bold">Entrega 3x mais rápida</span> e zero pedidos perdidos no WhatsApp.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Não Sabe o Lucro Real por Dose</strong></td>
+                        <td>Consultor dá desconto errado, cobra abaixo do custo e tem prejuízo no balcão.</td>
+                        <td>Módulo Financeiro EVS com cálculo exato do custo de cada dose e margem líquida.</td>
+                        <td><span class="text-emerald-700 font-bold">Previsibilidade total</span> do lucro diário e do ponto de equilíbrio.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Dependência de Caderno de Papel</strong></td>
+                        <td>Fichas físicas de pesagem se perdem, molham e o cliente não vê valor.</td>
+                        <td>Bioimpedância Digital completa com comparativo visual gerado em imagem PNG.</td>
+                        <td><span class="text-emerald-700 font-bold">Percepção de alto valor</span> e compartilhamento nas redes.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Vergonha de Divulgar / Artes Feias</strong></td>
+                        <td>Consultor posta imagens sem padrão que afastam clientes qualificados.</td>
+                        <td>Gerador automático de Adesivos para Garrafa, Tíquetes para Sacola e Flyers.</td>
+                        <td><span class="text-emerald-700 font-bold">Material gráfico profissional</span> com o WhatsApp dele em 1 clique.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>7. Travamento no Fechamento X1</strong></td>
+                        <td>Não sabe o que responder quando o cliente diz "tá caro" ou "vou pensar".</td>
+                        <td>Scripts de alta conversão embutidos no CRM + PDF de Objeções para copiar e colar.</td>
+                        <td><span class="text-emerald-700 font-bold">Dobra a taxa de conversão</span> de mensagens em vendas reais.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8. Digitação Manual de Contatos</strong></td>
+                        <td>Gasta horas salvando número por número de grupos para conseguir falar.</td>
+                        <td>Extensão Extratora MV3 que lê grupos inteiros de condomínios e bairros em 3 segundos.</td>
+                        <td><span class="text-emerald-700 font-bold">Economia de 10 a 15 horas semanais</span> de trabalho braçal.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9. Dificuldade de Duplicar a Equipe</strong></td>
+                        <td>Líder ensina o método, mas o consultor novo se perde e desiste no início.</td>
+                        <td>Plataforma pronta em que o consultor novo entra e começa a operar no mesmo dia.</td>
+                        <td><span class="text-emerald-700 font-bold">Duplicação rápida</span> e retenção da equipe de supervisores.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10. Inadimplência na Gestão de Licenças</strong></td>
+                        <td>Dificuldade do SuperAdmin de cobrar e controlar quem está ativo na equipe.</td>
+                        <td>Painel SuperAdmin com Chaves de Degustação 7/15/30d e filtro por Cidade e Vencimento.</td>
+                        <td><span class="text-emerald-700 font-bold">Controle rigoroso</span> e faturamento recorrente garantido.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- RESUMO DE IMPACTO NO CONSULTOR -->
+            <div class="bg-slate-900 text-white p-3 rounded-xl flex items-center justify-between">
+                <div>
+                    <h5 class="text-[11px] font-black text-amber-300">Resultado Consolidado da Solução</h5>
+                    <p class="text-[10px] text-slate-300">O consultor sai da informalidade e passa a faturar como um negócio estruturado de delivery e nutrição.</p>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-sm font-black text-emerald-400 font-mono-code">+R$ 3.000 a 7.000/mês</span>
+                    <span class="block text-[8px] uppercase text-slate-400 font-bold">Potencial Médio de Lucro Líquido</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ DA PÁGINA 3 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Dossiê Executivo Litrão do Reset • Matriz de Resolução de Problemas</span>
+            <span>Página 3 de 5</span>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ========================================================================= -->
+    <!-- PÁGINA 4: ROADMAP ESTRATÉGICO — TUDO QUE PRECISAMOS TER & PRÓXIMOS PASSOS -->
+    <!-- ========================================================================= -->
+    <div class="a4-page">
+        <div>
+            <!-- CABEÇALHO EXECUTIVO PADRÃO -->
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <img src="reset-logo.png" alt="Reset" class="h-10 object-contain">
+                    <div class="border-l-2 border-slate-300 pl-3">
+                        <span class="block text-[9px] font-black uppercase text-emerald-700 tracking-widest">PLANEJAMENTO DE PRODUTO & INOVAÇÃO</span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight">ROADMAP: O QUE PRECISAMOS TER PARA O DOMÍNIO DO MERCADO</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="badge-tag bg-blue-900 text-white">EVOLUÇÃO ESTRATÉGICA</span>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1">Fases 1, 2 e 3 (2026/2027)</p>
+                </div>
+            </div>
+
+            <p class="text-[10.5px] text-slate-600 mb-3 leading-relaxed">
+                Para consolidar o <strong>Litrão do Reset</strong> como a plataforma SaaS #1 de consultores e distribuidores de nutrição no Brasil e no mundo, definimos o roteiro de evolução em 3 horizontes claros:
+            </p>
+
+            <!-- FASE 1: CONSOLIDAÇÃO IMEDIATA (30 A 60 DIAS) -->
+            <div class="border-2 border-emerald-500 rounded-2xl p-3.5 mb-3 bg-emerald-50/30">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-600 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                        <i class="fa-solid fa-flag-checkered"></i> FASE 1: Consolidação Imediata (30 a 60 Dias)
+                    </span>
+                    <span class="text-[10px] font-black text-emerald-900">Prioridade Máxima</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-800">
+                    <div class="bg-white p-2.5 rounded-xl border border-emerald-200">
+                        <strong class="text-emerald-900 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-qrcode text-emerald-600"></i> Disparo 100% Web (WhatsApp API)
+                        </strong>
+                        Conexão via QR Code no próprio painel (Evolution/Baileys), eliminando a obrigatoriedade de instalar extensão no Chrome para disparar mensagens no celular.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-emerald-200">
+                        <strong class="text-emerald-900 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Split de Pagamento Automático
+                        </strong>
+                        Integração direta de Pix (Mercado Pago / Asaas / EFI) com divisão instantânea de comissões para afiliados e mensalidades do SaaS sem conciliação manual.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-emerald-200">
+                        <strong class="text-emerald-900 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-bell text-emerald-600"></i> Alertas Automáticos de Retenção
+                        </strong>
+                        Disparo automático no WhatsApp quando o cliente está a 3 dias sem pedir Litrão ou quando faltam apenas 2 carimbos para completar o cartão fidelidade.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 2: INTELIGÊNCIA ARTIFICIAL & ESCALA (60 A 120 DIAS) -->
+            <div class="border-2 border-purple-500 rounded-2xl p-3.5 mb-3 bg-purple-50/30">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="inline-flex items-center gap-1.5 bg-purple-700 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                        <i class="fa-solid fa-brain"></i> FASE 2: IA & Escala de Atendimento (60 a 120 Dias)
+                    </span>
+                    <span class="text-[10px] font-black text-purple-900">Alto Valor Agregado</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-800">
+                    <div class="bg-white p-2.5 rounded-xl border border-purple-200">
+                        <strong class="text-purple-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-robot text-purple-600"></i> Atendente IA no WhatsApp do Consultor
+                        </strong>
+                        Inteligência Artificial treinada no cardápio de Litrões e produtos Herbalife do consultor para tirar dúvidas, anotar pedidos e enviar a chave Pix 24 horas por dia.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-purple-200">
+                        <strong class="text-purple-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-trophy text-purple-600"></i> Gamificação & Ranking Nacional
+                        </strong>
+                        Painel com placar ao vivo de consultores com maior número de Litrões entregues, gerando competição saudável e premiações automáticas para a rede.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-purple-200">
+                        <strong class="text-purple-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-chart-line text-purple-600"></i> Dashboard Avançado de Métricas
+                        </strong>
+                        Relatórios consolidados de LTV (Lifetime Value), Taxa de Churn de clientes, Horários de Maior Volume de Entregas e Sabores mais pedidos no EVS.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 3: EXPANSÃO GLOBAL & APLICATIVO NATIVO (120 A 180+ DIAS) -->
+            <div class="border-2 border-blue-500 rounded-2xl p-3.5 mb-2 bg-blue-50/30">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="inline-flex items-center gap-1.5 bg-blue-700 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                        <i class="fa-solid fa-earth-americas"></i> FASE 3: Expansão Global & Lojas Nativas (120+ Dias)
+                    </span>
+                    <span class="text-[10px] font-black text-blue-900">Internacionalização</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-800">
+                    <div class="bg-white p-2.5 rounded-xl border border-blue-200">
+                        <strong class="text-blue-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-brands fa-apple text-blue-600"></i> App Nativo na App Store & Play Store
+                        </strong>
+                        Empacotamento completo via Capacitor/TWA para download oficial nas lojas da Apple e Google, aumentando a autoridade institucional da marca.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-blue-200">
+                        <strong class="text-blue-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-language text-blue-600"></i> Multi-Moedas & Multi-Idiomas
+                        </strong>
+                        Adaptação nativa em Espanhol e Inglês com suporte a moedas internacionais (USD, EUR) para expandir para distribuidores da América Latina, EUA e Europa.
+                    </div>
+                    <div class="bg-white p-2.5 rounded-xl border border-blue-200">
+                        <strong class="text-blue-950 block mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-network-wired text-blue-600"></i> White Label Corporativo para Líderes
+                        </strong>
+                        Possibilidade de líderes de organizações presidenciais criarem instâncias com suas próprias marcas e subdomínios vinculadas à infraestrutura central.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ DA PÁGINA 4 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Dossiê Executivo Litrão do Reset • Roadmap Tecnológico e Visão de Futuro</span>
+            <span>Página 4 de 5</span>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ========================================================================= -->
+    <!-- PÁGINA 5: MODELO DE MONETIZAÇÃO, METAS DE CRESCIMENTO E CONCLUSÃO         -->
+    <!-- ========================================================================= -->
+    <div class="a4-page">
+        <div>
+            <!-- CABEÇALHO EXECUTIVO PADRÃO -->
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <img src="reset-logo.png" alt="Reset" class="h-10 object-contain">
+                    <div class="border-l-2 border-slate-300 pl-3">
+                        <span class="block text-[9px] font-black uppercase text-emerald-700 tracking-widest">PLANO DE MONETIZAÇÃO & PROJEÇÃO DE RECEITA</span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight">ESTRUTURA DE PLANOS, METAS E DIRETRIZES FINAIS</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="badge-tag bg-amber-500 text-slate-950">PLANO DE ESCALA 2026</span>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1">SuperAdmin Edwan Braga</p>
+                </div>
+            </div>
+
+            <!-- ESTRUTURA OFICIAL DE PLANOS DO SAAS -->
+            <div class="mb-4">
+                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5 mb-2 pb-1 border-b border-slate-200">
+                    <i class="fa-solid fa-tags text-amber-600"></i>
+                    <span>Tabela Oficial de Planos do Litrão SaaS (Configurada no Admin)</span>
+                </h4>
+
+                <div class="grid grid-cols-4 gap-2.5">
+                    <!-- Plano Degustação -->
+                    <div class="border border-slate-200 rounded-xl p-2.5 bg-slate-50 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] font-black text-slate-500 uppercase">Porta de Entrada</span>
+                            <h5 class="font-black text-xs text-slate-900">Teste Degustação</h5>
+                            <span class="block text-sm font-black text-emerald-700 font-mono-code my-1">7, 15 ou 30d</span>
+                            <p class="text-[9.5px] text-slate-600">Liberado pelo SuperAdmin via chaves ágeis de 1 clique para experimentação prática.</p>
+                        </div>
+                        <span class="mt-2 text-[9px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded text-center">Gera Convicção</span>
+                    </div>
+
+                    <!-- Plano Start Pro -->
+                    <div class="border border-slate-300 rounded-xl p-2.5 bg-white flex flex-col justify-between">
+                        <div>
+                            <span class="text-[9px] font-black text-blue-700 uppercase">Iniciante</span>
+                            <h5 class="font-black text-xs text-slate-900">Start Pro</h5>
+                            <span class="block text-sm font-black text-blue-900 font-mono-code my-1">R$ 99,00<span class="text-[9px] text-slate-500 font-normal">/mês</span></span>
+                            <p class="text-[9.5px] text-slate-600">Landing Page completa, Link personalizado, Bioimpedância e Cartão Fidelidade.</p>
+                        </div>
+                        <span class="mt-2 text-[9px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-center">Base Recorrente</span>
+                    </div>
+
+                    <!-- Plano Master VIP -->
+                    <div class="border-2 border-purple-500 rounded-xl p-2.5 bg-purple-50/50 flex flex-col justify-between shadow-2xs">
+                        <div>
+                            <span class="text-[9px] font-black text-purple-700 uppercase">Mais Vendido</span>
+                            <h5 class="font-black text-xs text-purple-950">Master VIP</h5>
+                            <span class="block text-sm font-black text-purple-900 font-mono-code my-1">R$ 49,00<span class="text-[9px] text-slate-500 font-normal">/mês</span></span>
+                            <p class="text-[9.5px] text-purple-950">Inclui Extrator de WhatsApp, CRM Kanban e Módulo Financeiro do EVS completo.</p>
+                        </div>
+                        <span class="mt-2 text-[9px] font-black text-white bg-purple-700 px-2 py-0.5 rounded text-center">Alta Adesão</span>
+                    </div>
+
+                    <!-- Plano Membro Fundador -->
+                    <div class="border-2 border-amber-400 rounded-xl p-2.5 bg-amber-50/70 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <span class="text-[9px] font-black text-amber-800 uppercase">Oferta de Lançamento</span>
+                            <h5 class="font-black text-xs text-amber-950">Membro Fundador</h5>
+                            <span class="block text-sm font-black text-amber-900 font-mono-code my-1">R$ 39,90<span class="text-[9px] text-slate-500 font-normal">/mês</span></span>
+                            <p class="text-[9.5px] text-amber-950">Condição vitalícia travada no lote promocional de lançamento com todos os bônus.</p>
+                        </div>
+                        <span class="mt-2 text-[9px] font-black text-slate-950 bg-amber-400 px-2 py-0.5 rounded text-center">60% OFF Especial</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROJEÇÃO DE ESCALA DE RECEITA RECORRENTE (MRR) -->
+            <div class="bg-slate-900 text-white rounded-2xl p-4 mb-4 border border-slate-800">
+                <div class="flex items-center justify-between mb-2">
+                    <h5 class="text-xs font-black text-amber-300 uppercase tracking-wide flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line"></i> Projeção de Faturamento Recorrente Mensal (MRR)
+                    </h5>
+                    <span class="text-[10px] text-slate-400">Modelo SaaS de Baixo Churn</span>
+                </div>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase block">Cenário 1: 100 Consultores</span>
+                        <span class="text-base font-black text-emerald-400 font-mono-code">R$ 4.900 / mês</span>
+                        <span class="text-[9px] text-slate-400 block mt-0.5">R$ 58.800 anuais recorrentes</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2.5 rounded-xl border border-purple-500/50">
+                        <span class="text-[10px] font-bold text-purple-300 uppercase block">Cenário 2: 500 Consultores</span>
+                        <span class="text-base font-black text-purple-400 font-mono-code">R$ 24.500 / mês</span>
+                        <span class="text-[9px] text-slate-400 block mt-0.5">R$ 294.000 anuais recorrentes</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2.5 rounded-xl border border-amber-500/50">
+                        <span class="text-[10px] font-bold text-amber-300 uppercase block">Cenário 3: 2.000 Consultores</span>
+                        <span class="text-base font-black text-amber-400 font-mono-code">R$ 98.000 / mês</span>
+                        <span class="text-[9px] text-slate-400 block mt-0.5">R$ 1.176.000 anuais recorrentes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONCLUSÃO & DIRETRIZ ESTRATÉGICA FINAL -->
+            <div class="border border-slate-200 rounded-2xl p-3.5 bg-white">
+                <h5 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-quote-left text-slate-400"></i> Parecer Estratégico Final
+                </h5>
+                <p class="text-[10.5px] text-slate-700 leading-relaxed">
+                    A plataforma <strong>Litrão do Reset</strong> superou o estágio de MVP (Produto Mínimo Viável) e hoje se posiciona como um <strong>SaaS de Classe Mundial</strong>, com robustez operacional invejável. O ecossistema resolve de ponta a ponta as maiores fragilidades do consultor independente: <em>a captação ativa de novos clientes, a entrega rápida com rota inteligente, a retenção com carimbos e o domínio dos números financeiros do EVS</em>. Com a implementação do roadmap de disparo nativo e inteligência artificial, a plataforma tem todos os requisitos para se consolidar como o padrão obrigatório em toda a liderança Herbalife no Brasil e no exterior.
+                </p>
+                <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                    <span class="font-bold text-slate-500">Documento emitido e homologado pelo SuperAdmin</span>
+                    <span class="font-black text-slate-900">Assinatura Executiva: <strong class="text-purple-700">Edwan Braga</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ DA PÁGINA 5 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Dossiê Executivo Litrão do Reset • Projeção de Escala & Conclusão</span>
+            <span>Página 5 de 5</span>
+        </div>
+    </div>
+
+</body>
+</html>
