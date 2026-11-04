@@ -820,6 +820,11 @@
             return 7;
         }
 
+        // Variáveis globais de segurança contra ReferenceError
+        window.isFinLiberado = false;
+        window.isCatLiberado = false;
+        window.isCrmLiberado = false;
+
         // Renderiza o grupo de botões com a chave ativa ACESA / DESTACADA (Print 3 resolvido)
         function renderizarBotoesChaveTesteAgil(item) {
             const hid = String(item.herbalife_id || '').trim();
@@ -993,6 +998,19 @@
                     const mS = item.nome_espaco.match(/<!--SENHA:(.*?)-->/);
                     if (mS && mS[1]) senhaItem = mS[1].trim();
                 }
+
+                let patrocinadorInfo = null;
+                if (item.nome_espaco && item.nome_espaco.includes('<!--PATROCINADOR_ID:')) {
+                    const mPId = item.nome_espaco.match(/<!--PATROCINADOR_ID:(.*?)-->/);
+                    const mPNome = item.nome_espaco.match(/<!--PATROCINADOR_NOME:(.*?)-->/);
+                    if (mPId && mPId[1]) {
+                        patrocinadorInfo = {
+                            id: mPId[1].trim(),
+                            nome: (mPNome && mPNome[1]) ? mPNome[1].trim() : 'Consultor'
+                        };
+                    }
+                }
+
                 const isFinLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
                 const isCatLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CATALOGO_INTERATIVO:true-->'));
                 const isCrmLiberado = String(item.herbalife_id || '').trim() === '433005811' || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
@@ -1003,6 +1021,12 @@
                     <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
                         <td class="p-4">
                             <p class="font-bold text-gray-900 leading-tight">${(item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</p>
+                            ${patrocinadorInfo ? `
+                                <div class="mt-1 flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-lg w-fit" title="Cadastrado na rede de ${patrocinadorInfo.nome}">
+                                    <i class="fa-solid fa-network-wired text-indigo-500 text-[10px]"></i>
+                                    <span>🔗 Rede de: <strong class="text-indigo-900">${patrocinadorInfo.nome}</strong> (${patrocinadorInfo.id})</span>
+                                </div>
+                            ` : ''}
                             <div class="flex items-center gap-1.5 flex-wrap mt-1">
                                 <span class="text-xs text-gray-500 font-mono">
                                     ID: <span class="font-bold text-gray-800">${item.herbalife_id}</span>
@@ -1075,11 +1099,29 @@
                 const isCrmLiberado = isSuperAdminItem || (item.nome_espaco && item.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
                 const nomeLimpo = (item.nome_espaco || 'Sem nome').replace(/<!--[\s\S]*?-->/g, '').trim();
 
+                let patInfoCrm = null;
+                if (item.nome_espaco && item.nome_espaco.includes('<!--PATROCINADOR_ID:')) {
+                    const mPId = item.nome_espaco.match(/<!--PATROCINADOR_ID:(.*?)-->/);
+                    const mPNome = item.nome_espaco.match(/<!--PATROCINADOR_NOME:(.*?)-->/);
+                    if (mPId && mPId[1]) {
+                        patInfoCrm = {
+                            id: mPId[1].trim(),
+                            nome: (mPNome && mPNome[1]) ? mPNome[1].trim() : 'Consultor'
+                        };
+                    }
+                }
+
                 corpoCrm.innerHTML += `
                     <tr class="hover:bg-purple-50/40 transition">
                         <td class="p-4 font-bold text-gray-900">
                             ${nomeLimpo}
                             ${isSuperAdminItem ? '<span class="ml-1 text-[9px] bg-purple-600 text-white font-black px-1.5 py-0.5 rounded uppercase">SuperAdmin</span>' : ''}
+                            ${patInfoCrm ? `
+                                <div class="mt-0.5 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded w-fit" title="Cadastrado na rede de ${patInfoCrm.nome}">
+                                    <i class="fa-solid fa-network-wired text-indigo-500 text-[8px]"></i>
+                                    <span>Rede: <strong class="text-indigo-900">${patInfoCrm.nome}</strong> (${patInfoCrm.id})</span>
+                                </div>
+                            ` : ''}
                         </td>
                         <td class="p-4 font-mono font-bold text-gray-700">${item.herbalife_id}</td>
                         <td class="p-4 font-medium"><a href="https://wa.me/${normalizarNumeroWhatsApp(item.whatsapp)}" target="_blank" class="text-emerald-600 hover:underline"><i class="fa-brands fa-whatsapp"></i> ${item.whatsapp}</a></td>
@@ -1173,7 +1215,8 @@
                     const slug = String(item.slug || '').toLowerCase();
                     const zap = String(item.whatsapp || '').toLowerCase();
                     const cid = extrairCidadeConsultor(item).toLowerCase();
-                    return nome.includes(q) || hid.includes(q) || slug.includes(q) || zap.includes(q) || cid.includes(q);
+                    const letras = String(item.letras || '').toLowerCase();
+                    return nome.includes(q) || hid.includes(q) || letras.includes(q) || slug.includes(q) || zap.includes(q) || cid.includes(q);
                 });
             }
 
@@ -1716,11 +1759,7 @@
 
                 const hid = row ? row.herbalife_id : id;
                 if (String(hid).trim() === '433005811' && !liberar) {
-                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
-                    return;
-                }
-
-                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Extrator WhatsApp & CRM Kanban para o consultor ID ${hid}?`)) {
+                    mostrarToastAdmin("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.", "aviso");
                     return;
                 }
 
@@ -1733,9 +1772,10 @@
                 }
 
                 await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                mostrarToastAdmin(`CRM ${liberar ? 'LIBERADO' : 'BLOQUEADO'} para ID ${hid}!`, 'sucesso');
                 carregarDados();
             } catch (err) {
-                alert(`Erro ao alterar liberação do CRM: ${err.message}`);
+                mostrarToastAdmin(`Erro ao alterar liberação do CRM: ${err.message}`, 'erro');
             }
         }
         window.alternarCrmExtratorAdmin = alternarCrmExtratorAdmin;
@@ -1750,11 +1790,7 @@
 
                 const hid = row ? row.herbalife_id : id;
                 if (String(hid).trim() === '433005811' && !liberar) {
-                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
-                    return;
-                }
-
-                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Módulo Financeiro do EVS para o consultor ID ${hid}?`)) {
+                    mostrarToastAdmin("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.", "aviso");
                     return;
                 }
 
@@ -1767,9 +1803,10 @@
                 }
 
                 await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                mostrarToastAdmin(`Módulo Financeiro ${liberar ? 'LIBERADO' : 'BLOQUEADO'} para ID ${hid}!`, 'sucesso');
                 carregarDados();
             } catch (err) {
-                alert(`Erro ao alterar liberação: ${err.message}`);
+                mostrarToastAdmin(`Erro ao alterar liberação: ${err.message}`, 'erro');
             }
         }
         window.alternarFinanceiroAdmin = alternarFinanceiroAdmin;
@@ -1784,11 +1821,7 @@
 
                 const hid = row ? row.herbalife_id : id;
                 if (String(hid).trim() === '433005811' && !liberar) {
-                    alert("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.");
-                    return;
-                }
-
-                if (!confirm(`Deseja realmente ${liberar ? 'LIBERAR' : 'BLOQUEAR'} o Catálogo Digital Interativo para o consultor ID ${hid}?`)) {
+                    mostrarToastAdmin("O SuperAdmin (ID 433005811) possui acesso total permanente e irrestrito.", "aviso");
                     return;
                 }
 
@@ -1801,9 +1834,10 @@
                 }
 
                 await supabaseClient.from('consultores').update({ nome_espaco: raw.trim() }).eq('id', id);
+                mostrarToastAdmin(`Catálogo ${liberar ? 'LIBERADO' : 'BLOQUEADO'} para ID ${hid}!`, 'sucesso');
                 carregarDados();
             } catch (err) {
-                alert(`Erro ao alterar liberação: ${err.message}`);
+                mostrarToastAdmin(`Erro ao alterar liberação: ${err.message}`, 'erro');
             }
         }
         window.alternarCatalogoAdmin = alternarCatalogoAdmin;

@@ -648,7 +648,13 @@
         <div class="max-w-3xl mx-auto">
             
             <!-- Bloco de Gatilhos Mentais de Abertura -->
-            <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-green-50 border-2 border-brand-yellow p-6 md:p-8 rounded-3xl mb-12 shadow-lg text-center">
+            <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-green-50 border-2 border-brand-yellow p-6 md:p-8 rounded-3xl mb-12 shadow-lg text-center relative">
+                <!-- Botão Superior Minimizar / Fechar -->
+                <button type="button" onclick="liberarPassoAPasso()" class="absolute top-3 right-3 sm:top-4 sm:right-4 inline-flex items-center gap-1.5 text-xs font-black text-gray-600 hover:text-gray-900 bg-white/90 hover:bg-white px-3.5 py-1.5 rounded-full border border-yellow-300 shadow-sm transition transform hover:scale-105 cursor-pointer" title="Minimizar Passo a Passo">
+                    <i class="fa-solid fa-chevron-up text-amber-600 text-xs"></i>
+                    <span>Minimizar</span>
+                </button>
+
                 <span class="bg-red-600 text-white text-[11px] font-black px-3.5 py-1 rounded-full uppercase tracking-wider animate-pulse inline-block mb-3">
                     🔥 OPORTUNIDADE EXCLUSIVA • VAGAS LIMITADAS NA EQUIPE
                 </span>
@@ -754,6 +760,14 @@
                             Chamar no WhatsApp
                         </a>
                     </div>
+                </div>
+
+                <!-- Botão Inferior de Minimizar / Fechar Passo a Passo -->
+                <div class="mt-8 text-center">
+                    <button type="button" onclick="liberarPassoAPasso()" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-800 border-2 border-gray-300 font-black text-sm px-7 py-3.5 rounded-full shadow-md transition transform hover:scale-105 cursor-pointer">
+                        <i class="fa-solid fa-chevron-up text-amber-600"></i>
+                        <span>Minimizar / Recolher Passo a Passo</span>
+                    </button>
                 </div>
 
             </div>
@@ -1142,26 +1156,47 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Função para liberar os 2 passos com gatilho
+        // Função para liberar ou minimizar os 2 passos com gatilho
         function liberarPassoAPasso() {
             const secao = document.getElementById('passos');
             const btn = document.getElementById('btn-abrir-passos');
-            if (secao) {
+            if (!secao) return;
+
+            const estaAberto = !secao.classList.contains('hidden');
+
+            if (estaAberto) {
+                // MINIMIZAR / RECOLHER
+                secao.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('border-brand-yellow', 'bg-white/20');
+                    btn.innerHTML = `
+                        <span class="block">Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?</span>
+                        <span class="inline-flex items-center text-xs md:text-sm text-brand-yellow font-extrabold mt-2.5 uppercase tracking-wider group-hover:underline">
+                            👉 Toque aqui para ver o Passo a Passo de Renda Extra <i class="fa-solid fa-arrow-down ml-2 animate-bounce"></i>
+                        </span>
+                    `;
+                    setTimeout(() => {
+                        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
+                }
+            } else {
+                // ABRIR / EXPANDIR
                 secao.classList.remove('hidden');
+                if (btn) {
+                    btn.classList.add('border-brand-yellow', 'bg-white/20');
+                    btn.innerHTML = `
+                        <span class="block">Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?</span>
+                        <span class="inline-flex items-center text-xs md:text-sm text-yellow-300 font-extrabold mt-2.5 uppercase tracking-wider">
+                            ▲ Acesso Liberado Abaixo! (Toque para Minimizar / Recolher) <i class="fa-solid fa-chevron-up ml-1.5 text-yellow-300"></i>
+                        </span>
+                    `;
+                }
                 setTimeout(() => {
                     secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
-            if (btn) {
-                btn.classList.add('border-brand-yellow', 'bg-white/20');
-                btn.innerHTML = `
-                    <span class="block">Quem você conhece que gostaria de ganhar R$500 por semana com bebidas funcionais?</span>
-                    <span class="inline-flex items-center text-xs md:text-sm text-yellow-300 font-extrabold mt-2.5 uppercase tracking-wider">
-                        ✅ Acesso Liberado Abaixo! Veja os 2 Passos <i class="fa-solid fa-check ml-1.5 text-green-400"></i>
-                    </span>
-                `;
-            }
         }
+        window.liberarPassoAPasso = liberarPassoAPasso;
 
         // Função do Acordeão (Interface)
         function toggleAccordion(contentId, iconId) {

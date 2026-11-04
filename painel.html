@@ -128,8 +128,8 @@
                     <span class="inline">CRM</span>
                 </button>
 
-                <!-- NOVO: BOTÃO FACEBOOK TOPO (20K+ LEADS) -->
-                <button id="btn-facebook-topo" type="button" onclick="abrirModalExtratorFacebookSuperadmin()" class="header-desktop-only text-xs font-black bg-blue-600 hover:bg-blue-700 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs border border-blue-500 cursor-pointer hidden" title="Abrir Base de Leads do Facebook (20k+ Contatos)">
+                <!-- NOVO: BOTÃO FACEBOOK TOPO (20K+ LEADS - EXCLUSIVO SUPERADMIN / LIBERADO MANUALMENTE) -->
+                <button id="btn-facebook-topo" type="button" onclick="abrirModalExtratorFacebookSuperadmin()" class="header-desktop-only text-xs font-black bg-blue-600 hover:bg-blue-700 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs border border-blue-500 cursor-pointer hidden" style="display: none !important;" title="Abrir Base de Leads do Facebook (20k+ Contatos)">
                     <i class="fa-brands fa-facebook text-white text-xs sm:text-sm"></i>
                     <span class="inline">Facebook (20k+)</span>
                 </button>
@@ -152,12 +152,12 @@
                     <span class="inline">Página de Vendas</span>
                 </a>
                 
-                <!-- BOTÃO RÁPIDO GERENCIAR CONSULTORES (SUPERADMIN) -->
-                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md border-2 border-purple-400 cursor-pointer" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
+                <!-- BOTÃO RÁPIDO GERENCIAR CONSULTORES (SUPERADMIN - OCULTO POR PADRÃO) -->
+                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md border-2 border-purple-400 cursor-pointer hidden" style="display: none !important;" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
                     <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
                     <span class="inline">👑 Gestão Consultores</span>
                 </button>
-                <a href="admin.html" target="_blank" id="btn-admin-dedicado-topo" class="header-desktop-only text-xs font-black bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-white px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 shadow-sm border border-purple-500/40 cursor-pointer" title="Abrir Painel Admin Dedicado em Nova Aba">
+                <a href="admin.html" target="_blank" id="btn-admin-dedicado-topo" class="header-desktop-only text-xs font-black bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-white px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 shadow-sm border border-purple-500/40 cursor-pointer hidden" style="display: none !important;" title="Abrir Painel Admin Dedicado em Nova Aba">
                     <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
                     <span class="inline">Admin SaaS</span>
                 </a>
@@ -637,29 +637,56 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-xs p-5 sm:p-6 mb-5 flex flex-col md:flex-row justify-between items-center border border-slate-200/90">
-            <div>
-                <h1 class="text-2xl font-black text-slate-900" id="dash-nome">Olá, Consultor</h1>
-                <p class="text-slate-500 text-sm mt-1 flex flex-wrap items-center gap-2">
-                    <span>ID: <strong id="dash-id" class="font-bold text-slate-700">---</strong></span>
-                    <span class="text-slate-300">•</span>
-                    <span>Status:</span>
-                    <span id="dash-status" class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase">Ativo</span>
-                    <button type="button" id="badge-trial-status" onclick="abrirModalPromocao()" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-amber-400 text-slate-950 shadow-xs cursor-pointer hover:bg-amber-300 transition">
-                        <span class="w-2 h-2 rounded-full bg-red-600 animate-ping mr-1.5"></span>
-                        <span id="txt-trial-badge-label">&#127873; TESTE GR&Aacute;TIS</span> (<span id="txt-dias-restantes-badge">7</span> DIAS RESTANTES)
-                    </button>
-                </p>
-            </div>
-            <div class="mt-4 md:mt-0 text-center md:text-right flex flex-col md:items-end">
-                <p class="text-xs text-slate-400 uppercase font-bold mb-0.5">Vencimento da Licença</p>
-                <div id="dash-vencimento" class="text-xl font-black text-slate-800">00/00/0000</div>
-                <div id="dash-vencimento-alerta" class="hidden text-[11px] font-black text-amber-600 animate-pulse mt-0.5">
-                    ⏰ Teste Grátis expira em breve!
+        <!-- CARD DE IDENTIFICAÇÃO DO CONSULTOR (COM OPÇÃO DE MINIMIZAR / EXPANDIR) -->
+        <div id="card-identificacao-consultor-container" class="bg-white rounded-3xl shadow-xs p-5 sm:p-6 mb-5 border border-slate-200/90 relative transition-all duration-300">
+            <!-- Botão Minimizar / Expandir -->
+            <button type="button" onclick="toggleMinimizarCardIdentificacao()" id="btn-toggle-card-identificacao" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 py-1.5 px-3 rounded-xl transition cursor-pointer border border-slate-300 hover:border-emerald-300 shadow-xs flex items-center gap-1.5 text-xs font-black z-10" title="Minimizar ou Expandir Card de Identificação">
+                <span id="label-toggle-card-identificacao" class="inline">Minimizar</span>
+                <i id="icone-toggle-card-identificacao" class="fa-solid fa-chevron-up text-xs transition duration-300"></i>
+            </button>
+
+            <!-- 1. Visão Expandida Completa -->
+            <div id="conteudo-expandido-card-identificacao" class="flex flex-col md:flex-row justify-between items-center pr-28 sm:pr-32">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900" id="dash-nome">Olá, Consultor</h1>
+                    <p class="text-slate-500 text-sm mt-1 flex flex-wrap items-center gap-2">
+                        <span>ID: <strong id="dash-id" class="font-bold text-slate-700 font-mono">---</strong></span>
+                        <span class="text-slate-300">•</span>
+                        <span>Status:</span>
+                        <span id="dash-status" class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase">Ativo</span>
+                        <button type="button" id="badge-trial-status" onclick="abrirModalPromocao()" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-amber-400 text-slate-950 shadow-xs cursor-pointer hover:bg-amber-300 transition">
+                            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping mr-1.5"></span>
+                            <span id="txt-trial-badge-label">&#127873; TESTE GR&Aacute;TIS</span> (<span id="txt-dias-restantes-badge">7</span> DIAS RESTANTES)
+                        </button>
+                    </p>
                 </div>
-                <div id="dash-mensalidade-container" class="mt-1 flex items-center justify-center md:justify-end gap-1.5 flex-wrap">
-                    <span id="dash-plano-badge" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full">Plano: Start Pro</span>
-                    <span id="dash-mensalidade-badge" class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2 py-0.5 rounded-full" title="Mensalidade calculada no automático com adicionais">R$ 99,00/mês</span>
+                <div class="mt-4 md:mt-0 text-center md:text-right flex flex-col md:items-end">
+                    <p class="text-xs text-slate-400 uppercase font-bold mb-0.5">Vencimento da Licença</p>
+                    <div id="dash-vencimento" class="text-xl font-black text-slate-800">00/00/0000</div>
+                    <div id="dash-vencimento-alerta" class="hidden text-[11px] font-black text-amber-600 animate-pulse mt-0.5">
+                        ⏰ Teste Grátis expira em breve!
+                    </div>
+                    <div id="dash-mensalidade-container" class="mt-1 flex items-center justify-center md:justify-end gap-1.5 flex-wrap">
+                        <span id="dash-plano-badge" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full">Plano: Start Pro</span>
+                        <span id="dash-mensalidade-badge" class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2 py-0.5 rounded-full" title="Mensalidade calculada no automático com adicionais">R$ 99,00/mês</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Visão Minimizada Compacta (Discreta e Elegante) -->
+            <div id="conteudo-minimizado-card-identificacao" class="hidden flex items-center justify-between gap-3 pr-28 sm:pr-32 text-xs">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <i class="fa-solid fa-id-card text-emerald-600 text-sm"></i>
+                    <span class="text-slate-800 font-bold" id="dash-nome-mini">Olá, Consultor</span>
+                    <span class="text-slate-300">•</span>
+                    <span class="text-slate-600 font-bold">ID: <strong id="dash-id-mini" class="font-mono font-black text-slate-900 text-sm">---</strong></span>
+                    <span class="text-slate-300">•</span>
+                    <span id="dash-status-mini" class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-black uppercase">Ativo</span>
+                    <span class="text-slate-300 hidden sm:inline">•</span>
+                    <span id="dash-vencimento-mini" class="text-slate-600 font-bold hidden sm:inline">Vencimento: 00/00/0000</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="dash-plano-badge-mini" class="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full hidden md:inline">Plano: Start Pro</span>
                 </div>
             </div>
         </div>
@@ -1073,9 +1100,9 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- BANNER PERMANENTE SUPERADMIN MASTER: CONTROLE GERAL DE CONSULTORES         -->
+        <!-- BANNER PERMANENTE SUPERADMIN MASTER (EXCLUSIVO ID 433005811 - OCULTO POR PADRÃO) -->
         <!-- ========================================================================= -->
-        <div id="banner-superadmin-controle-consultores" class="mb-6 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-2xl border-2 border-purple-500/80 relative overflow-hidden">
+        <div id="banner-superadmin-controle-consultores" class="mb-6 bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-2xl border-2 border-purple-500/80 relative overflow-hidden hidden" style="display: none;">
             <div class="absolute -right-8 -bottom-8 w-44 h-44 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"></div>
             <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-start sm:items-center gap-4">
@@ -1430,8 +1457,8 @@
                     </div>
                 </div>
 
-                <!-- NOVO: CARD EXTRATOR & DISPARADOR FACEBOOK GRUPOS (SUPERADMIN & 20K+ LEADS) -->
-                <div id="card-ferramenta-facebook-superadmin" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-blue-300/80 shadow-2xs hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between group">
+                <!-- NOVO: CARD EXTRATOR & DISPARADOR FACEBOOK GRUPOS (SUPERADMIN & 20K+ LEADS - OCULTO POR PADRÃO) -->
+                <div id="card-ferramenta-facebook-superadmin" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-blue-300/80 shadow-2xs hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between group hidden" style="display: none;">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -1485,9 +1512,8 @@
                     </div>
                 </div>
 
-                <!-- 7. LANÇAMENTO METEÓRICO WHATSAPP (EXCLUSIVO SUPERADMIN) -->
-                <!-- CARD GESTÃO DE CONSULTORES NA GRADE DE FERRAMENTAS (SUPERADMIN) -->
-                <div id="card-ferramenta-consultores-superadmin" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-purple-300/80 shadow-2xs hover:shadow-md hover:border-purple-500 transition-all flex flex-col justify-between group">
+                <!-- 7. GESTÃO DE CONSULTORES NA GRADE DE FERRAMENTAS (SUPERADMIN - OCULTO POR PADRÃO) -->
+                <div id="card-ferramenta-consultores-superadmin" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-purple-300/80 shadow-2xs hover:shadow-md hover:border-purple-500 transition-all flex flex-col justify-between group hidden" style="display: none;">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -1525,7 +1551,8 @@
                     </div>
                 </div>
 
-                <div id="card-lancamento-meteorico-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group">
+                <!-- 8. LANÇAMENTO METEÓRICO WHATSAPP (EXCLUSIVO SUPERADMIN - OCULTO POR PADRÃO) -->
+                <div id="card-lancamento-meteorico-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 transition-all flex flex-col justify-between group hidden" style="display: none;">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2.5">
                             <div class="flex items-center gap-2.5 min-w-0">
@@ -1619,9 +1646,130 @@
             </div>
         </div>
 
+        <!-- =========================================================================
+             NOVO: SEÇÃO DA MINHA REDE HERBALIFE (EXCLUSIVA PARA CONSULTORES)
+             O Consultor cadastra novos consultores na sua rede, vinculados a ele,
+             que ganham 7 dias grátis, geram link oficial na hora e aparecem no SuperAdmin!
+             ========================================================================= -->
+        <div id="secao-minha-rede-consultor" class="mb-8 hidden" style="display: none;">
+            <div class="w-full bg-gradient-to-br from-emerald-950 via-slate-900 to-teal-950 text-white rounded-3xl p-5 sm:p-7 shadow-2xl border-2 border-emerald-500/40 relative overflow-hidden space-y-5">
+                
+                <!-- Fundo decorativo sutil -->
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Linha Superior: Cabeçalho da Minha Rede -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-emerald-800/60 pb-5 relative z-10">
+                    <div class="flex items-start space-x-3.5">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center text-2xl font-black shadow-lg flex-shrink-0">
+                            <i class="fa-solid fa-sitemap"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                                    <i class="fa-solid fa-leaf text-emerald-400"></i> MINHA EQUIPE & REDE HERBALIFE
+                                </span>
+                                <span class="bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                                    🎁 7 DIAS GRÁTIS P/ CADA NOVO
+                                </span>
+                            </div>
+                            <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+                                Cadastre e Gerencie os Consultores da Sua Rede
+                            </h3>
+                            <p class="text-xs sm:text-sm text-emerald-100/80 font-medium mt-1 max-w-2xl">
+                                Cadastre novos consultores diretos na sua organização. Cada um recebe imediatamente <strong>7 dias de teste grátis</strong>, <strong>link oficial próprio</strong> e suporte para decolar!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botão Cadastrar Novo Consultor na Rede -->
+                    <div class="flex items-center gap-2.5 self-start lg:self-center flex-wrap">
+                        <button type="button" onclick="abrirModalCadastrarConsultorRede()" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black py-3 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center gap-2 cursor-pointer shadow-lg transform hover:scale-105 active:scale-95 whitespace-nowrap">
+                            <i class="fa-solid fa-user-plus text-slate-950 text-sm"></i>
+                            <span>CADASTRAR NOVO CONSULTOR</span>
+                        </button>
+                        <button type="button" onclick="carregarConsultoresMinhaRede()" class="bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-white border border-emerald-500/30 font-bold py-3 px-3.5 rounded-2xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap" title="Atualizar Lista da Minha Rede">
+                            <i class="fa-solid fa-rotate text-xs"></i>
+                            <span class="hidden sm:inline">Atualizar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Linha do Meio: 3 Cards de Métricas da Rede -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 relative z-10">
+                    <div class="bg-slate-900/80 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-black shrink-0">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Total na Minha Rede</span>
+                            <span id="rede-total-consultores" class="text-xl font-black text-white">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-black shrink-0">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Em Degustação (7 Dias Grátis)</span>
+                            <span id="rede-trial-consultores" class="text-xl font-black text-amber-300">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 border border-teal-500/20 rounded-2xl p-4 flex items-center gap-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-lg font-black shrink-0">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Consultores Ativos</span>
+                            <span id="rede-ativos-consultores" class="text-xl font-black text-emerald-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Linha Inferior: Tabela / Lista dos Consultores da Minha Rede -->
+                <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm relative z-10 overflow-hidden">
+                    <div class="flex items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-100 flex-wrap">
+                        <h4 class="font-black text-sm sm:text-base text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-emerald-600"></i>
+                            <span>Consultores Conectados à Sua Rede</span>
+                        </h4>
+                        <span class="text-xs text-slate-500 font-medium">
+                            Exibindo consultores cadastrados por você
+                        </span>
+                    </div>
+
+                    <!-- Tabela Responsiva da Minha Rede -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                    <th class="p-3">Consultor & Cidade</th>
+                                    <th class="p-3">ID Herbalife</th>
+                                    <th class="p-3">WhatsApp</th>
+                                    <th class="p-3">Status / Licença</th>
+                                    <th class="p-3">Link Oficial</th>
+                                    <th class="p-3 text-right">Ação Direta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-minha-rede-corpo" class="divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+                                        <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg mb-2 block"></i>
+                                        Carregando sua rede Herbalife...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <div class="mb-8">
             <!-- 6. CARD SUPERADMIN EXCLUSIVO (APENAS ID 433005811) -->
-            <div id="card-superadmin-container" class="hidden">
+            <div id="card-superadmin-container" class="hidden" style="display: none !important;">
                 <div class="w-full bg-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-2xl border border-slate-800 relative overflow-hidden space-y-4 sm:space-y-5">
                     
                     <!-- LINHA SUPERIOR: TÍTULO, IDENTIFICAÇÃO E AÇÃO PRINCIPAL -->
@@ -1793,6 +1941,10 @@
                                         <span>ID Herbalife</span>
                                     </label>
                                     <label class="flex items-center gap-2 p-1.5 hover:bg-purple-50 rounded-lg cursor-pointer">
+                                        <input type="checkbox" id="chk-col-letras" onchange="toggleColunaSuperadmin('letras')" checked class="rounded text-purple-600 focus:ring-purple-500">
+                                        <span>3 Letras (Herbalife)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 hover:bg-purple-50 rounded-lg cursor-pointer">
                                         <input type="checkbox" id="chk-col-senha" onchange="toggleColunaSuperadmin('senha')" checked class="rounded text-purple-600 focus:ring-purple-500">
                                         <span>Senha</span>
                                     </label>
@@ -1856,6 +2008,7 @@
                             <tr class="bg-purple-50/70 border-b border-purple-100 text-[11px] uppercase font-black text-purple-900">
                                 <th class="p-3 sm:p-4 sticky left-0 bg-purple-50/90 z-20 shadow-xs border-r border-purple-100">Consultor / Espaço</th>
                                 <th id="th-col-id" class="p-3 sm:p-4">ID Herbalife</th>
+                                <th id="th-col-letras" class="p-3 sm:p-4">3 Letras</th>
                                 <th id="th-col-senha" class="p-3 sm:p-4">Senha</th>
                                 <th id="th-col-whats" class="p-3 sm:p-4">WhatsApp</th>
                                 <th id="th-col-status" class="p-3 sm:p-4">Status</th>
@@ -1867,7 +2020,7 @@
                         </thead>
                         <tbody id="tabela-superadmin-corpo" class="divide-y divide-gray-100 text-xs sm:text-sm">
                             <tr>
-                                <td colspan="9" class="p-6 text-center text-gray-400">
+                                <td colspan="10" class="p-6 text-center text-gray-400">
                                     <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando consultores...
                                 </td>
                             </tr>
@@ -2682,6 +2835,143 @@
                             <i class="fa-solid fa-floppy-disk"></i> Salvar Taxas de Entrega
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================================================================
+             MODAL: CADASTRAR NOVO CONSULTOR NA MINHA REDE (CONSULTOR COMUM)
+             ========================================================================= -->
+        <div id="modal-cadastrar-consultor-rede" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs hidden animate-fade-in overflow-y-auto">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-slate-200 relative text-left max-h-[94vh] overflow-y-auto">
+                
+                <!-- Topo Modal -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-lg font-black shrink-0">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-900 leading-tight">Cadastrar Consultor na Minha Rede</h3>
+                            <p class="text-xs text-slate-500 font-medium">Cadastre um novo distribuidor conectado à sua linha descendente</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="fecharModalCadastrarConsultorRede()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Banner Explicativo de 7 Dias Grátis -->
+                <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 rounded-2xl p-3.5 mb-4 flex items-start gap-2.5">
+                    <i class="fa-solid fa-gift text-emerald-600 text-base mt-0.5 shrink-0"></i>
+                    <p class="text-xs text-emerald-950 leading-relaxed font-medium">
+                        🎁 <strong>Benefício Automático:</strong> Este consultor receberá <strong>7 dias de teste grátis</strong> para usar a plataforma e já terá seu <strong>Link Oficial de Vendas</strong> ativado na hora!
+                    </p>
+                </div>
+
+                <form id="form-cadastrar-consultor-rede" onsubmit="salvarNovoConsultorRede(event)" class="space-y-3.5 text-left">
+                    <!-- 1. ID Herbalife (Obrigatório) -->
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                            ID Herbalife <span class="text-red-500">*</span> <span class="text-[10px] text-slate-400 font-normal lowercase">(apenas os números)</span>
+                        </label>
+                        <input type="text" id="rede-novo-id" required placeholder="Ex: 433001234" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-mono font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition" oninput="this.value = this.value.replace(/\D/g, '')">
+                    </div>
+
+                    <!-- 2. Nome Completo (Obrigatório) -->
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                            Nome Completo do Consultor <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="rede-novo-nome" required placeholder="Ex: Maria das Graças" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition">
+                    </div>
+
+                    <!-- 3. WhatsApp (Obrigatório) -->
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                            WhatsApp <span class="text-red-500">*</span> <span class="text-[10px] text-slate-400 font-normal lowercase">(com DDD)</span>
+                        </label>
+                        <input type="tel" id="rede-novo-whats" required placeholder="(66) 99999-9999" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition" oninput="mascararTelefoneSimples(this)">
+                    </div>
+
+                    <!-- Grid de Campos Opcionais -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- 4. 3 Letras Herbalife (Opcional) -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                                3 Letras <span class="text-slate-400 text-[10px] font-normal">(opcional)</span>
+                            </label>
+                            <input type="text" id="rede-novo-letras" maxlength="3" placeholder="BRA" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-mono font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition uppercase" oninput="this.value = this.value.toUpperCase().slice(0,3)">
+                        </div>
+
+                        <!-- 5. Senha do Painel (Opcional - padrão 123456) -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                                Senha Painel <span class="text-slate-400 text-[10px] font-normal">(opcional)</span>
+                            </label>
+                            <input type="text" id="rede-novo-senha" placeholder="123456" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-mono font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition">
+                        </div>
+                    </div>
+
+                    <!-- 6. Cidade / Estado (Opcional) -->
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                            Cidade / Estado <span class="text-slate-400 text-[10px] font-normal">(opcional)</span>
+                        </label>
+                        <input type="text" id="rede-novo-cidade" placeholder="Ex: Cuiabá - MT" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition">
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                        <button type="button" onclick="fecharModalCadastrarConsultorRede()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-submit-cadastrar-rede" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-check"></i>
+                            <span>Cadastrar & Gerar Link Oficial</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- =========================================================================
+             MODAL: SUCESSO DO CADASTRO NA REDE (LINK OFICIAL & WHATSAPP)
+             ========================================================================= -->
+        <div id="modal-sucesso-cadastro-rede" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center shadow-2xl border-2 border-emerald-300 relative space-y-4">
+                
+                <div class="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl font-black shadow-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-black text-slate-900">Consultor Cadastrado na Sua Rede!</h3>
+                    <p class="text-xs text-slate-500 mt-1" id="txt-sucesso-rede-nome">O novo membro já tem 7 dias grátis e link oficial liberado.</p>
+                </div>
+
+                <!-- Box Link Oficial -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-left space-y-2">
+                    <span class="text-[10px] font-black uppercase text-slate-400 block tracking-wider">Link Oficial de Vendas do Consultor:</span>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="campo-sucesso-rede-link" readonly class="flex-1 bg-white border border-slate-300 font-mono text-xs font-bold px-3 py-2 rounded-xl text-slate-900 select-all outline-hidden">
+                        <button type="button" onclick="copiarLinkDoCampoSucessoRede()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition cursor-pointer shadow-xs shrink-0 flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botão Disparar Boas-Vindas no WhatsApp -->
+                <button type="button" id="btn-sucesso-enviar-whats" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black py-3 px-4 rounded-2xl text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Enviar Acesso Completo no WhatsApp</span>
+                </button>
+
+                <div>
+                    <button type="button" onclick="fecharModalSucessoRede()" class="text-xs font-bold text-slate-500 hover:text-slate-800 transition cursor-pointer">
+                        Fechar Janela
+                    </button>
                 </div>
             </div>
         </div>
@@ -3761,21 +4051,21 @@
                                         <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">1. Reset (500ml)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="fb-flyer-input-preco-reset" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="49,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <input type="text" id="fb-flyer-input-preco-reset" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="49,90" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">2. Reset + (1 Litro)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="fb-flyer-input-preco-plus" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="65,00" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <input type="text" id="fb-flyer-input-preco-plus" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="65,00" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">3. Reset Turbo (1L Turbo)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="fb-flyer-input-preco-turbo" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="79,99" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <input type="text" id="fb-flyer-input-preco-turbo" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="79,99" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                         </div>
                                     </div>
                                 </div>
@@ -5871,21 +6161,21 @@
                                         <label class="block text-[11px] font-bold text-gray-700 mb-0.5">1. Reset (500ml)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="flyer-input-preco-reset" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="49,90" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                            <input type="text" id="flyer-input-preco-reset" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="49,90" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-bold text-gray-700 mb-0.5">2. Reset + (1 Litro)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="flyer-input-preco-plus" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="65,00" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                            <input type="text" id="flyer-input-preco-plus" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="65,00" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                                         </div>
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-bold text-gray-700 mb-0.5">3. Reset Turbo (1L Turbo)</label>
                                         <div class="relative">
                                             <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-400">R$</span>
-                                            <input type="text" id="flyer-input-preco-turbo" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="79,99" class="w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                                            <input type="text" id="flyer-input-preco-turbo" oninput="aoMudarPrecoEmTempoReal(this)" placeholder="79,99" class="campo-moeda-auto w-full pl-8 pr-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                                         </div>
                                     </div>
                                 </div>
@@ -9603,6 +9893,27 @@
 
         let consultorAtual = null;
 
+        // DEFINIÇÃO GLOBAL IMEDIATA DO SUPERADMIN (ID: 433005811)
+        window.SUPERADMIN_ID = "433005811";
+        var SUPERADMIN_ID = "433005811";
+
+        function isSuperAdminLogado() {
+            if (consultorAtual && (consultorAtual.herbalife_id || consultorAtual.id)) {
+                const limpo = String(consultorAtual.herbalife_id || consultorAtual.id || '').replace(/\D/g, '');
+                return limpo === SUPERADMIN_ID;
+            }
+            try {
+                const authStr = localStorage.getItem('litrao_consultor_auth');
+                if (authStr) {
+                    const parsed = JSON.parse(authStr);
+                    const id = String(parsed.herbalife_id || parsed.id || '').replace(/\D/g, '');
+                    return id === SUPERADMIN_ID;
+                }
+            } catch(e) {}
+            return false;
+        }
+        window.isSuperAdminLogado = isSuperAdminLogado;
+
         const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5921LUCIA SANTANA S BRAGA6005JUINA62120508RESET199630434E3";
 
         // Utilitário global para normalizar qualquer número de WhatsApp garantindo o código do país (+55) no automático sem duplicar
@@ -11947,9 +12258,12 @@
 
             try {
                 const { nome, espaco } = extrairNomeExibicaoConsultor(consultorAtual);
-                const hid = String(consultorAtual.herbalife_id || '').trim();
+                const hidBruto = String(consultorAtual.herbalife_id || '').trim();
+                // Separação estrita: garante APENAS o ID numérico sem as 3 letras anexadas (ex: '433004420 BRA' -> '433004420')
+                const hidApenas = hidBruto.replace(/\s*[A-Za-z]{3}\s*$/, '').trim();
+                const hid = hidApenas || hidBruto;
                 const letras = String(consultorAtual.letras || 'BRA').trim();
-                const isSuperAdmin = hid === '433005811';
+                const isSuperAdmin = (typeof isSuperAdminLogado === 'function') ? isSuperAdminLogado() : (hid.replace(/\D/g, '') === '433005811');
 
                 // 1. Nome do Consultor em destaque absoluto
                 const dashNome = document.getElementById('dash-nome');
@@ -11960,11 +12274,19 @@
                         dashNome.innerHTML = `Olá, <span class="text-brand-dark font-black">${nome}</span>`;
                     }
                 }
+                const dashNomeMini = document.getElementById('dash-nome-mini');
+                if (dashNomeMini) {
+                    dashNomeMini.innerText = `Olá, ${nome}`;
+                }
 
-                // 2. ID e 3 Letras
+                // 2. ID Herbalife (Apenas o ID numérico, sem as 3 letras conforme solicitado)
                 const dashId = document.getElementById('dash-id');
                 if (dashId) {
-                    dashId.innerText = `${hid} ${letras}`;
+                    dashId.innerText = hidApenas;
+                }
+                const dashIdMini = document.getElementById('dash-id-mini');
+                if (dashIdMini) {
+                    dashIdMini.innerText = hidApenas;
                 }
 
                 // 3. Status
@@ -11972,44 +12294,108 @@
                 if (dashStatus) {
                     dashStatus.innerText = consultorAtual.status || 'Ativo';
                 }
+                const dashStatusMini = document.getElementById('dash-status-mini');
+                if (dashStatusMini) {
+                    dashStatusMini.innerText = consultorAtual.status || 'Ativo';
+                }
 
                 // 4. Vencimento da Licença
                 const dashVenc = document.getElementById('dash-vencimento');
+                let textoVencimento = "Vitalício";
                 if (dashVenc) {
                     if (isSuperAdmin || (consultorAtual.vencimento && consultorAtual.vencimento.startsWith('2036'))) {
-                        dashVenc.innerText = "Vitalício (Permanente)";
+                        textoVencimento = "Vitalício (Permanente)";
                     } else if (consultorAtual.vencimento) {
                         const partes = consultorAtual.vencimento.split('-');
                         if (partes.length === 3) {
-                            dashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                            textoVencimento = `${partes[2]}/${partes[1]}/${partes[0]}`;
                         } else {
-                            dashVenc.innerText = consultorAtual.vencimento;
+                            textoVencimento = consultorAtual.vencimento;
                         }
                     } else {
-                        dashVenc.innerText = "Vitalício";
+                        textoVencimento = "Vitalício";
                     }
+                    dashVenc.innerText = textoVencimento;
+                }
+                const dashVencMini = document.getElementById('dash-vencimento-mini');
+                if (dashVencMini) {
+                    dashVencMini.innerText = `Vencimento: ${textoVencimento}`;
                 }
 
                 // 5. Badges de Plano e Mensalidade
                 const elPlano = document.getElementById('dash-plano-badge');
                 const elMens = document.getElementById('dash-mensalidade-badge');
+                const elPlanoMini = document.getElementById('dash-plano-badge-mini');
                 if (elPlano && elMens) {
                     if (isSuperAdmin) {
                         elPlano.innerText = "SuperAdmin • Total";
                         elPlano.className = "bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full";
                         elMens.innerText = "Isento / Vitalício";
                         elMens.className = "bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full";
+                        if (elPlanoMini) elPlanoMini.innerText = "SuperAdmin Master";
                     } else if (typeof calcularMensalidadeConsultor === 'function') {
                         const mInfo = calcularMensalidadeConsultor(consultorAtual);
                         elPlano.innerText = `Plano: ${mInfo.planoNome}`;
                         elMens.innerText = mInfo.total > 0 ? `R$ ${mInfo.total.toFixed(2).replace('.', ',')}/mês` : 'Isento';
+                        if (elPlanoMini) elPlanoMini.innerText = `Plano: ${mInfo.planoNome}`;
                     }
+                }
+
+                // 6. Restaura estado minimizado salvo do card de identificação
+                if (localStorage.getItem('litrao_card_identificacao_minimizado') === 'true') {
+                    toggleMinimizarCardIdentificacao(true);
                 }
             } catch(eCab) {
                 console.error("Erro ao atualizar cabecalho de identificacao:", eCab);
             }
         }
         window.atualizarCabecalhoIdentificacaoConsultor = atualizarCabecalhoIdentificacaoConsultor;
+
+        // FUNÇÃO DE MINIMIZAR / EXPANDIR O CARD DE IDENTIFICAÇÃO DO CONSULTOR (PRINT 1 ATENDIDO)
+        function toggleMinimizarCardIdentificacao(forceState) {
+            const expandido = document.getElementById('conteudo-expandido-card-identificacao');
+            const minimizado = document.getElementById('conteudo-minimizado-card-identificacao');
+            const card = document.getElementById('card-identificacao-consultor-container');
+            const lbl = document.getElementById('label-toggle-card-identificacao');
+            const icn = document.getElementById('icone-toggle-card-identificacao');
+            if (!expandido || !minimizado) return;
+
+            let deveMinimizar;
+            if (typeof forceState === 'boolean') {
+                deveMinimizar = forceState;
+            } else {
+                deveMinimizar = !expandido.classList.contains('hidden');
+            }
+
+            if (deveMinimizar) {
+                expandido.classList.add('hidden');
+                minimizado.classList.remove('hidden');
+                if (card) {
+                    card.classList.remove('p-5', 'sm:p-6');
+                    card.classList.add('py-3', 'px-5');
+                }
+                if (lbl) lbl.innerText = 'Expandir';
+                if (icn) {
+                    icn.classList.remove('fa-chevron-up');
+                    icn.classList.add('fa-chevron-down');
+                }
+                localStorage.setItem('litrao_card_identificacao_minimizado', 'true');
+            } else {
+                expandido.classList.remove('hidden');
+                minimizado.classList.add('hidden');
+                if (card) {
+                    card.classList.remove('py-3', 'px-5');
+                    card.classList.add('p-5', 'sm:p-6');
+                }
+                if (lbl) lbl.innerText = 'Minimizar';
+                if (icn) {
+                    icn.classList.remove('fa-chevron-down');
+                    icn.classList.add('fa-chevron-up');
+                }
+                localStorage.setItem('litrao_card_identificacao_minimizado', 'false');
+            }
+        }
+        window.toggleMinimizarCardIdentificacao = toggleMinimizarCardIdentificacao;
 
         function mostrarDashboard() {
             // 1. Oculta tela de login e exibe dashboard imediatamente
@@ -12050,11 +12436,7 @@
                 if (btnMenuSanduiche) btnMenuSanduiche.classList.remove('hidden');
                 const btnVendasTopo = document.getElementById('btn-pagina-vendas-topo');
                 if (btnVendasTopo) btnVendasTopo.classList.remove('hidden');
-                const btnFbTopo = document.getElementById('btn-facebook-topo');
-                if (btnFbTopo) btnFbTopo.classList.remove('hidden');
-                if (typeof atualizarMetricasCardFacebook === 'function') {
-                    atualizarMetricasCardFacebook();
-                }
+                // O botão do Facebook e ferramentas exclusivas SuperAdmin são estritamente controlados por verificarSuperAdmin()
             } catch(eVis) {
                 console.error("Erro na transição visual:", eVis);
             }
@@ -12869,9 +13251,11 @@
         window.obterLinkLojaConsultor = obterLinkLojaConsultor;
 
         function formatarValorPrecoLimpo(val) {
-            if (!val && val !== 0) return '';
+            if (val === null || val === undefined) return '';
             let limpo = String(val).trim().replace('R$', '').trim();
             if (!limpo) return '';
+            // Se for zerado explícito: "0", "00", "0,0", "0,00", "0.00"
+            if (/^0+([,.]0+)?$/.test(limpo)) return '0,00';
             if (!limpo.includes(',') && !limpo.includes('.')) {
                 limpo += ',00';
             } else if (limpo.includes('.') && !limpo.includes(',')) {
@@ -12900,9 +13284,9 @@
                     const m = cons.nome_espaco.match(/<!--PRECOS_KITS:(.*?)-->/);
                     if (m && m[1]) {
                         const parsed = JSON.parse(m[1]) || {};
-                        if (parsed.reset) precos.reset = formatarValorPrecoLimpo(parsed.reset);
-                        if (parsed.reset_plus || parsed.resetPlus) precos.reset_plus = formatarValorPrecoLimpo(parsed.reset_plus || parsed.resetPlus);
-                        if (parsed.reset_turbo || parsed.resetTurbo) precos.reset_turbo = formatarValorPrecoLimpo(parsed.reset_turbo || parsed.resetTurbo);
+                        if (parsed.reset !== undefined && parsed.reset !== '') precos.reset = formatarValorPrecoLimpo(parsed.reset);
+                        if ((parsed.reset_plus || parsed.resetPlus) !== undefined && (parsed.reset_plus || parsed.resetPlus) !== '') precos.reset_plus = formatarValorPrecoLimpo(parsed.reset_plus || parsed.resetPlus);
+                        if ((parsed.reset_turbo || parsed.resetTurbo) !== undefined && (parsed.reset_turbo || parsed.resetTurbo) !== '') precos.reset_turbo = formatarValorPrecoLimpo(parsed.reset_turbo || parsed.resetTurbo);
                     }
                 } catch (_) {}
             }
@@ -12913,19 +13297,19 @@
                 const cached = localStorage.getItem('litrao_precos_kits_' + hid);
                 if (cached) {
                     const parsed = JSON.parse(cached) || {};
-                    if (parsed.reset) precos.reset = formatarValorPrecoLimpo(parsed.reset);
-                    if (parsed.reset_plus || parsed.resetPlus) precos.reset_plus = formatarValorPrecoLimpo(parsed.reset_plus || parsed.resetPlus);
-                    if (parsed.reset_turbo || parsed.resetTurbo) precos.reset_turbo = formatarValorPrecoLimpo(parsed.reset_turbo || parsed.resetTurbo);
+                    if (parsed.reset !== undefined && parsed.reset !== '') precos.reset = formatarValorPrecoLimpo(parsed.reset);
+                    if ((parsed.reset_plus || parsed.resetPlus) !== undefined && (parsed.reset_plus || parsed.resetPlus) !== '') precos.reset_plus = formatarValorPrecoLimpo(parsed.reset_plus || parsed.resetPlus);
+                    if ((parsed.reset_turbo || parsed.resetTurbo) !== undefined && (parsed.reset_turbo || parsed.resetTurbo) !== '') precos.reset_turbo = formatarValorPrecoLimpo(parsed.reset_turbo || parsed.resetTurbo);
                 }
             } catch(_) {}
 
             // 3. Inputs ativos em tela (se o usuário estiver digitando agora)
-            const inResetCfg = document.getElementById('cfg-preco-reset')?.value;
-            const inPlusCfg = document.getElementById('cfg-preco-plus')?.value;
-            const inTurboCfg = document.getElementById('cfg-preco-turbo')?.value;
-            if (inResetCfg && inResetCfg.trim()) precos.reset = formatarValorPrecoLimpo(inResetCfg);
-            if (inPlusCfg && inPlusCfg.trim()) precos.reset_plus = formatarValorPrecoLimpo(inPlusCfg);
-            if (inTurboCfg && inTurboCfg.trim()) precos.reset_turbo = formatarValorPrecoLimpo(inTurboCfg);
+            const inResetCfg = document.getElementById('cfg-preco-reset')?.value || document.getElementById('flyer-input-preco-reset')?.value;
+            const inPlusCfg = document.getElementById('cfg-preco-plus')?.value || document.getElementById('flyer-input-preco-plus')?.value;
+            const inTurboCfg = document.getElementById('cfg-preco-turbo')?.value || document.getElementById('flyer-input-preco-turbo')?.value;
+            if (inResetCfg !== undefined && inResetCfg !== '' && inResetCfg.trim()) precos.reset = formatarValorPrecoLimpo(inResetCfg);
+            if (inPlusCfg !== undefined && inPlusCfg !== '' && inPlusCfg.trim()) precos.reset_plus = formatarValorPrecoLimpo(inPlusCfg);
+            if (inTurboCfg !== undefined && inTurboCfg !== '' && inTurboCfg.trim()) precos.reset_turbo = formatarValorPrecoLimpo(inTurboCfg);
 
             return precos;
         }
@@ -13289,9 +13673,9 @@
         let timerSincronizarPrecos = null;
         function sincronizarPrecosKitsEmTodaPlataforma(novosPrecos, salvarNoBanco = false) {
             const precos = novosPrecos || obterPrecosKitsConsultor();
-            const pReset = formatarValorPrecoLimpo(precos.reset || '49,90');
-            const pPlus = formatarValorPrecoLimpo(precos.reset_plus || '65,00');
-            const pTurbo = formatarValorPrecoLimpo(precos.reset_turbo || '79,99');
+            const pReset = formatarValorPrecoLimpo(precos.reset !== undefined && precos.reset !== null && precos.reset !== '' ? precos.reset : '49,90');
+            const pPlus = formatarValorPrecoLimpo(precos.reset_plus !== undefined && precos.reset_plus !== null && precos.reset_plus !== '' ? precos.reset_plus : '65,00');
+            const pTurbo = formatarValorPrecoLimpo(precos.reset_turbo !== undefined && precos.reset_turbo !== null && precos.reset_turbo !== '' ? precos.reset_turbo : '79,99');
             const precosLimpos = { reset: pReset, reset_plus: pPlus, reset_turbo: pTurbo };
 
             // 1. Atualiza todos os inputs em tela
@@ -13399,21 +13783,36 @@
                 let idOrigem = origemInput?.id || '';
                 let valReset = '', valPlus = '', valTurbo = '';
 
-                if (idOrigem.includes('reset')) {
-                    valReset = origemInput.value;
-                }
-                if (idOrigem.includes('plus')) {
-                    valPlus = origemInput.value;
-                }
-                if (idOrigem.includes('turbo')) {
-                    valTurbo = origemInput.value;
-                }
+                let tipo = '';
+                if (idOrigem.includes('turbo')) tipo = 'turbo';
+                else if (idOrigem.includes('plus')) tipo = 'plus';
+                else if (idOrigem.includes('reset')) tipo = 'reset';
+
+                if (tipo === 'reset') valReset = origemInput.value;
+                if (tipo === 'plus') valPlus = origemInput.value;
+                if (tipo === 'turbo') valTurbo = origemInput.value;
 
                 const precosAtuais = obterPrecosKitsConsultor();
+
+                const resolverValor = (valDigitado, idFlyer, idCfg, fallback) => {
+                    if (valDigitado !== '' && valDigitado !== undefined && valDigitado !== null) {
+                        return valDigitado;
+                    }
+                    const elFlyer = document.getElementById(idFlyer);
+                    if (elFlyer && elFlyer.value !== '' && elFlyer.value !== undefined && elFlyer.value !== null) {
+                        return elFlyer.value;
+                    }
+                    const elCfg = document.getElementById(idCfg);
+                    if (elCfg && elCfg.value !== '' && elCfg.value !== undefined && elCfg.value !== null) {
+                        return elCfg.value;
+                    }
+                    return fallback;
+                };
+
                 const precosNovos = {
-                    reset: valReset || document.getElementById('cfg-preco-reset')?.value || document.getElementById('flyer-input-preco-reset')?.value || document.getElementById('fb-flyer-input-preco-reset')?.value || precosAtuais.reset,
-                    reset_plus: valPlus || document.getElementById('cfg-preco-plus')?.value || document.getElementById('flyer-input-preco-plus')?.value || document.getElementById('fb-flyer-input-preco-plus')?.value || precosAtuais.reset_plus,
-                    reset_turbo: valTurbo || document.getElementById('cfg-preco-turbo')?.value || document.getElementById('flyer-input-preco-turbo')?.value || document.getElementById('fb-flyer-input-preco-turbo')?.value || precosAtuais.reset_turbo
+                    reset: resolverValor(valReset, 'flyer-input-preco-reset', 'cfg-preco-reset', precosAtuais.reset),
+                    reset_plus: resolverValor(valPlus, 'flyer-input-preco-plus', 'cfg-preco-plus', precosAtuais.reset_plus),
+                    reset_turbo: resolverValor(valTurbo, 'flyer-input-preco-turbo', 'cfg-preco-turbo', precosAtuais.reset_turbo)
                 };
 
                 sincronizarPrecosKitsEmTodaPlataforma(precosNovos, true);
@@ -13710,11 +14109,12 @@
             }
 
             const precos = obterPrecosKitsConsultor(consultorAtual);
-            if (inReset && (document.activeElement !== inReset || !inReset.value)) inReset.value = precos.reset;
-            if (inPlus && (document.activeElement !== inPlus || !inPlus.value)) inPlus.value = precos.reset_plus;
-            if (inTurbo && (document.activeElement !== inTurbo || !inTurbo.value)) inTurbo.value = precos.reset_turbo;
+            if (inReset && document.activeElement !== inReset && (!inReset.value || inReset.value !== precos.reset)) inReset.value = precos.reset;
+            if (inPlus && document.activeElement !== inPlus && (!inPlus.value || inPlus.value !== precos.reset_plus)) inPlus.value = precos.reset_plus;
+            if (inTurbo && document.activeElement !== inTurbo && (!inTurbo.value || inTurbo.value !== precos.reset_turbo)) inTurbo.value = precos.reset_turbo;
 
             atualizarPreviewCopyFlyer();
+            if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
         }
         window.preencherCamposFlyer = preencherCamposFlyer;
 
@@ -13792,6 +14192,7 @@
 
                     try {
                         atualizarPreviewCopyFlyer();
+            if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
                     } catch(e) {}
 
                     if (btn) {
@@ -14093,26 +14494,19 @@
         /* ==========================================================================
            MÓDULO SUPERADMIN EXCLUSIVO (ID HERBALIFE: 433005811)
            ========================================================================== */
-        const SUPERADMIN_ID = "433005811";
+        // SUPERADMIN_ID e isSuperAdminLogado() definidos com prioridade no topo global do script
         let todosConsultoresCache = [];
-
-        function isSuperAdminLogado() {
-            if (consultorAtual) {
-                const limpo = String(consultorAtual.herbalife_id || consultorAtual.id || '').replace(/\D/g, '');
-                if (limpo === SUPERADMIN_ID) return true;
-            }
-            try {
-                const authStr = localStorage.getItem('litrao_consultor_auth');
-                if (authStr) {
-                    const parsed = JSON.parse(authStr);
-                    const id = String(parsed.herbalife_id || parsed.id || '').replace(/\D/g, '');
-                    if (id === SUPERADMIN_ID) return true;
-                }
-            } catch(e) {}
-            return false;
-        }
+        window.isFinLiberado = false;
+        window.isCatLiberado = false;
+        window.isCrmLiberado = false;
 
         function abrirGestaoConsultoresSuperadmin() {
+            if (!isSuperAdminLogado()) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('⛔ Acesso restrito exclusivo ao SuperAdmin.', 'erro');
+                }
+                return;
+            }
             const secao = document.getElementById('card-superadmin-container');
             if (secao) {
                 secao.classList.remove('hidden');
@@ -14126,7 +14520,7 @@
                     carregarConsultoresSuperadmin();
                 }
                 if (typeof mostrarNotificacaoFlutuante === 'function') {
-                    mostrarNotificacaoFlutuante('👑 Painel Master de Consultores aberto! Você também pode abrir o Admin dedicado.', 'sucesso');
+                    mostrarNotificacaoFlutuante('👑 Painel Master de Consultores aberto!', 'sucesso');
                 }
             } else {
                 window.open('admin.html', '_blank');
@@ -14136,79 +14530,157 @@
 
         function verificarSuperAdmin() {
             const cardContainer = document.getElementById('card-superadmin-container');
+            const secaoMinhaRede = document.getElementById('secao-minha-rede-consultor');
+            const secaoConteudo = document.getElementById('secao-superadmin-conteudo');
+            const bannerMaster = document.getElementById('banner-superadmin-controle-consultores');
             const btnModalSuperAdmin = document.getElementById('btn-configurar-planos-superadmin');
             const centralTopo = document.getElementById('central-configuracoes-superadmin-topo');
             const itemMenuCons = document.getElementById('item-menu-gerenciar-consultores');
             const cardToolCons = document.getElementById('card-ferramenta-consultores-superadmin');
+            const cardToolFb = document.getElementById('card-ferramenta-facebook-superadmin');
+            const cardMeteorico = document.getElementById('card-lancamento-meteorico-container');
             const btnTopoCons = document.getElementById('btn-admin-consultores-topo');
+            const btnAdminDedicado = document.getElementById('btn-admin-dedicado-topo');
+            const btnTopoFb = document.getElementById('btn-facebook-topo');
+            const btnExtratorFbMenu = document.getElementById('btn-abrir-extrator-facebook-superadmin');
+            const btnMeteoricoMenu = document.getElementById('btn-abrir-lancamento-meteorico-superadmin');
 
-            const isSA = isSuperAdminLogado();
+            const isSA = (typeof isSuperAdminLogado === 'function') ? isSuperAdminLogado() : false;
+            const cEspaco = (consultorAtual && consultorAtual.nome_espaco) ? consultorAtual.nome_espaco : '';
 
-            if (cardContainer) {
+            // Liberação manual pelo SuperAdmin para o consultor ou SuperAdmin Edwan
+            const isFbLiberado = isSA || cEspaco.includes('<!--LIBERADO_FACEBOOK:true-->');
+            const isMeteoricoLiberado = isSA || cEspaco.includes('<!--LIBERADO_METEORICO:true-->');
+            const isGestaoLiberada = isSA || cEspaco.includes('<!--LIBERADO_GESTAO:true-->');
+
+            // 1. Banner Master de Topo (SuperAdmin Exclusivo)
+            if (bannerMaster) {
                 if (isSA) {
-                    cardContainer.classList.remove('hidden');
-                    cardContainer.style.display = '';
+                    bannerMaster.classList.remove('hidden');
+                    bannerMaster.style.setProperty('display', 'block', 'important');
                 } else {
-                    cardContainer.classList.add('hidden');
-                    cardContainer.style.display = 'none';
+                    bannerMaster.classList.add('hidden');
+                    bannerMaster.style.setProperty('display', 'none', 'important');
                 }
             }
 
-            if (itemMenuCons) {
-                if (isSA) itemMenuCons.classList.remove('hidden');
-                else itemMenuCons.classList.add('hidden');
+            // 2. Seção Master Geral de Consultores (SuperAdmin) vs Seção Minha Rede (Consultor Comum)
+            if (cardContainer) {
+                if (isSA) {
+                    cardContainer.classList.remove('hidden');
+                    cardContainer.style.setProperty('display', 'block', 'important');
+                    if (typeof carregarConsultoresSuperadmin === 'function') carregarConsultoresSuperadmin();
+                } else {
+                    cardContainer.classList.add('hidden');
+                    cardContainer.style.setProperty('display', 'none', 'important');
+                }
             }
 
-            if (cardToolCons) {
+            if (secaoMinhaRede) {
+                if (!isSA) {
+                    secaoMinhaRede.classList.remove('hidden');
+                    secaoMinhaRede.style.setProperty('display', 'block', 'important');
+                    if (typeof carregarConsultoresMinhaRede === 'function') carregarConsultoresMinhaRede();
+                } else {
+                    secaoMinhaRede.classList.add('hidden');
+                    secaoMinhaRede.style.setProperty('display', 'none', 'important');
+                }
+            }
+
+            if (secaoConteudo && !isSA) {
+                secaoConteudo.classList.add('hidden');
+                secaoConteudo.style.setProperty('display', 'none', 'important');
+            }
+
+            // 3. Botões do Header do Topo
+            if (btnTopoCons) {
+                if (isGestaoLiberada) {
+                    btnTopoCons.classList.remove('hidden');
+                    btnTopoCons.style.setProperty('display', 'inline-flex', 'important');
+                } else {
+                    btnTopoCons.classList.add('hidden');
+                    btnTopoCons.style.setProperty('display', 'none', 'important');
+                }
+            }
+
+            if (btnAdminDedicado) {
                 if (isSA) {
+                    btnAdminDedicado.classList.remove('hidden');
+                    btnAdminDedicado.style.setProperty('display', 'inline-flex', 'important');
+                } else {
+                    btnAdminDedicado.classList.add('hidden');
+                    btnAdminDedicado.style.setProperty('display', 'none', 'important');
+                }
+            }
+
+            if (btnTopoFb) {
+                if (isFbLiberado) {
+                    btnTopoFb.classList.remove('hidden');
+                    btnTopoFb.style.setProperty('display', 'inline-flex', 'important');
+                } else {
+                    btnTopoFb.classList.add('hidden');
+                    btnTopoFb.style.setProperty('display', 'none', 'important');
+                }
+            }
+
+            // 4. Itens do Menu Sanduíche
+            if (itemMenuCons) {
+                if (isGestaoLiberada) itemMenuCons.classList.remove('hidden');
+                else itemMenuCons.classList.add('hidden');
+            }
+            if (btnExtratorFbMenu) {
+                if (isFbLiberado) btnExtratorFbMenu.classList.remove('hidden');
+                else btnExtratorFbMenu.classList.add('hidden');
+            }
+            if (btnMeteoricoMenu) {
+                if (isMeteoricoLiberado) btnMeteoricoMenu.classList.remove('hidden');
+                else btnMeteoricoMenu.classList.add('hidden');
+            }
+
+            // 5. Cards de Ferramentas Exclusivas do SuperAdmin
+            if (cardToolCons) {
+                if (isGestaoLiberada) {
                     cardToolCons.classList.remove('hidden');
-                    cardToolCons.style.display = '';
+                    cardToolCons.style.setProperty('display', 'flex', 'important');
                     const gridLib = document.getElementById('grid-ferramentas-liberadas');
                     if (gridLib && !gridLib.contains(cardToolCons)) {
                         gridLib.appendChild(cardToolCons);
                     }
                 } else {
                     cardToolCons.classList.add('hidden');
-                    cardToolCons.style.display = 'none';
+                    cardToolCons.style.setProperty('display', 'none', 'important');
+                    if (cardToolCons.parentNode) cardToolCons.parentNode.removeChild(cardToolCons);
                 }
             }
 
-            const cardToolFb = document.getElementById('card-ferramenta-facebook-superadmin');
             if (cardToolFb) {
-                if (isSA) {
+                if (isFbLiberado) {
                     cardToolFb.classList.remove('hidden');
-                    cardToolFb.style.display = '';
+                    cardToolFb.style.setProperty('display', 'flex', 'important');
                     if (typeof atualizarMetricasCardFacebook === 'function') atualizarMetricasCardFacebook();
+                    const gridLib = document.getElementById('grid-ferramentas-liberadas');
+                    if (gridLib && !gridLib.contains(cardToolFb)) {
+                        gridLib.appendChild(cardToolFb);
+                    }
                 } else {
                     cardToolFb.classList.add('hidden');
-                    cardToolFb.style.display = 'none';
+                    cardToolFb.style.setProperty('display', 'none', 'important');
+                    if (cardToolFb.parentNode) cardToolFb.parentNode.removeChild(cardToolFb);
                 }
             }
 
-            const btnTopoFb = document.getElementById('btn-facebook-topo');
-            if (btnTopoFb) {
-                if (isSA) btnTopoFb.classList.remove('hidden');
-                else btnTopoFb.classList.add('hidden');
-            }
-
-            if (btnTopoCons) {
-                if (isSA) {
-                    btnTopoCons.classList.remove('hidden');
-                    btnTopoCons.style.display = 'inline-flex';
+            if (cardMeteorico) {
+                if (isMeteoricoLiberado) {
+                    cardMeteorico.classList.remove('hidden');
+                    cardMeteorico.style.setProperty('display', 'flex', 'important');
+                    const gridLib = document.getElementById('grid-ferramentas-liberadas');
+                    if (gridLib && !gridLib.contains(cardMeteorico)) {
+                        gridLib.appendChild(cardMeteorico);
+                    }
                 } else {
-                    btnTopoCons.classList.add('hidden');
-                    btnTopoCons.style.display = 'none';
-                }
-            }
-
-            const btnAdminDedicado = document.getElementById('btn-admin-dedicado-topo');
-            if (btnAdminDedicado) {
-                if (isSA) {
-                    btnAdminDedicado.classList.remove('hidden');
-                    btnAdminDedicado.style.display = 'inline-flex';
-                } else {
-                    btnAdminDedicado.classList.add('hidden');
-                    btnAdminDedicado.style.display = 'none';
+                    cardMeteorico.classList.add('hidden');
+                    cardMeteorico.style.setProperty('display', 'none', 'important');
+                    if (cardMeteorico.parentNode) cardMeteorico.parentNode.removeChild(cardMeteorico);
                 }
             }
 
@@ -14223,15 +14695,6 @@
                 }
             }
 
-            if (cardContainer) {
-                if (isSA) {
-                    cardContainer.classList.remove('hidden');
-                    carregarConsultoresSuperadmin();
-                } else {
-                    cardContainer.classList.add('hidden');
-                }
-            }
-
             if (btnModalSuperAdmin) {
                 if (isSA) {
                     btnModalSuperAdmin.classList.remove('hidden');
@@ -14240,6 +14703,389 @@
                 }
             }
         }
+        window.verificarSuperAdmin = verificarSuperAdmin;
+
+        // =========================================================================
+        // FUNÇÕES EXCLUSIVAS DA MINHA REDE HERBALIFE (CONSULTORES DA MINHA EQUIPE)
+        // =========================================================================
+        async function carregarConsultoresMinhaRede() {
+            if (!consultorAtual) return;
+            const isSA = typeof isSuperAdminLogado === 'function' ? isSuperAdminLogado() : false;
+            if (isSA) return;
+
+            const corpo = document.getElementById('tabela-minha-rede-corpo');
+            const badgeTotal = document.getElementById('rede-total-consultores');
+            const badgeTrial = document.getElementById('rede-trial-consultores');
+            const badgeAtivos = document.getElementById('rede-ativos-consultores');
+
+            const hidBruto = String(consultorAtual.herbalife_id || '').trim();
+            const hidApenas = hidBruto.replace(/\s*[A-Za-z]{3}\s*$/, '').trim();
+            const hidLimpo = hidApenas.replace(/\D/g, '');
+
+            if (corpo) {
+                corpo.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+                            <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg mb-2 block"></i>
+                            Buscando os consultores cadastrados na sua rede...
+                        </td>
+                    </tr>
+                `;
+            }
+
+            try {
+                const urlFetch = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?select=*&nome_espaco=ilike.*PATROCINADOR_ID%3A${hidLimpo}*&order=created_at.desc`;
+                const res = await fetch(urlFetch, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (!res.ok) throw new Error(`Falha HTTP ${res.status}`);
+                const lista = await res.json();
+
+                let total = lista ? lista.length : 0;
+                let trials = 0;
+                let ativos = 0;
+
+                if (!lista || lista.length === 0) {
+                    if (badgeTotal) badgeTotal.innerText = '0';
+                    if (badgeTrial) badgeTrial.innerText = '0';
+                    if (badgeAtivos) badgeAtivos.innerText = '0';
+                    if (corpo) {
+                        corpo.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="p-8 text-center">
+                                    <div class="max-w-md mx-auto text-slate-500 space-y-2">
+                                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-xl">
+                                            <i class="fa-solid fa-users"></i>
+                                        </div>
+                                        <h5 class="font-black text-slate-800 text-sm">Nenhum consultor cadastrado na sua rede ainda</h5>
+                                        <p class="text-xs text-slate-500">Cadastre os consultores da sua equipe Herbalife para liberá-los com 7 dias grátis e gerar o link oficial na hora.</p>
+                                        <button type="button" onclick="abrirModalCadastrarConsultorRede()" class="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs shadow-md transition inline-flex items-center gap-1.5 cursor-pointer">
+                                            <i class="fa-solid fa-user-plus"></i> Cadastrar Primeiro Consultor
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    return;
+                }
+
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                let htmlLinhas = '';
+                lista.forEach(c => {
+                    const hidItemBruto = String(c.herbalife_id || '').trim();
+                    const hidItemApenas = hidItemBruto.replace(/\s*[A-Za-z]{3}\s*$/, '').trim();
+                    const { nome: nomeLimpo, espaco: espacoLimpo } = extrairNomeExibicaoConsultor(c);
+                    const slugFinal = c.slug || hidItemApenas;
+                    const linkOficial = `${window.location.origin}/${slugFinal}`;
+                    const whatsNorm = normalizarNumeroWhatsApp(c.whatsapp);
+
+                    // Dias restantes de degustação
+                    let diasRestantes = 0;
+                    let isTrialAtivo = false;
+                    let statusTexto = c.status || 'Ativo';
+                    if (c.vencimento) {
+                        const partes = c.vencimento.split('-');
+                        if (partes.length === 3) {
+                            const dtV = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                            diasRestantes = Math.ceil((dtV - hoje) / (1000 * 60 * 60 * 24));
+                            if (diasRestantes >= 0 && (c.nome_espaco && c.nome_espaco.includes('TRIAL_7D') || diasRestantes <= 8)) {
+                                isTrialAtivo = true;
+                                trials++;
+                            }
+                        }
+                    }
+
+                    if ((c.status || '').toLowerCase() === 'ativo') {
+                        ativos++;
+                    }
+
+                    // Extrai senha
+                    let senhaItem = '123456';
+                    if (c.nome_espaco && c.nome_espaco.includes('<!--SENHA:')) {
+                        const mS = c.nome_espaco.match(/<!--SENHA:(.*?)-->/);
+                        if (mS && mS[1]) senhaItem = mS[1].trim();
+                    }
+
+                    htmlLinhas += `
+                        <tr class="hover:bg-emerald-50/40 transition border-b border-slate-100">
+                            <td class="p-3 sm:p-4">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs shrink-0">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <strong class="font-extrabold text-slate-900 block leading-tight">${nomeLimpo}</strong>
+                                        ${espacoLimpo ? `<span class="text-[11px] text-slate-500 font-medium">${espacoLimpo}</span>` : ''}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3 sm:p-4">
+                                <span class="font-mono font-bold text-slate-800 text-xs bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                    ${hidItemApenas}
+                                </span>
+                            </td>
+                            <td class="p-3 sm:p-4">
+                                ${whatsNorm ? `
+                                    <a href="https://wa.me/${whatsNorm}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline">
+                                        <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                                        <span>${c.whatsapp || whatsNorm}</span>
+                                    </a>
+                                ` : '<span class="text-xs text-slate-400">---</span>'}
+                            </td>
+                            <td class="p-3 sm:p-4">
+                                ${isTrialAtivo ? `
+                                    <span class="bg-amber-100 text-amber-900 border border-amber-300 font-black px-2 py-0.5 rounded-full text-[10px] inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-gift text-amber-600 text-[9px]"></i> 7d Grátis (${diasRestantes}d restantes)
+                                    </span>
+                                ` : `
+                                    <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 font-black px-2 py-0.5 rounded-full text-[10px] uppercase">
+                                        ${statusTexto}
+                                    </span>
+                                `}
+                            </td>
+                            <td class="p-3 sm:p-4">
+                                <div class="flex items-center gap-1.5">
+                                    <a href="${linkOficial}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1" title="Abrir página oficial de ${nomeLimpo}">
+                                        <span>/${slugFinal}</span>
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                    </a>
+                                    <button type="button" onclick="copiarLinkGenerico('${linkOficial}')" class="text-slate-400 hover:text-emerald-700 p-1 rounded transition cursor-pointer" title="Copiar link oficial">
+                                        <i class="fa-regular fa-copy text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="p-3 sm:p-4 text-right">
+                                <button type="button" onclick="enviarBoasVindasWhatsAppRede('${nomeLimpo}', '${hidItemApenas}', '${senhaItem}', '${slugFinal}', '${whatsNorm}')" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-2xs transition inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                                    <i class="fa-brands fa-whatsapp text-white text-xs"></i>
+                                    <span>Enviar Acesso</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                if (corpo) corpo.innerHTML = htmlLinhas;
+                if (badgeTotal) badgeTotal.innerText = total;
+                if (badgeTrial) badgeTrial.innerText = trials;
+                if (badgeAtivos) badgeAtivos.innerText = ativos;
+
+            } catch (err) {
+                console.error("Erro ao carregar consultores da minha rede:", err);
+                if (corpo) {
+                    corpo.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-red-500 font-bold text-xs">
+                                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro ao consultar sua rede: ${err.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+        window.carregarConsultoresMinhaRede = carregarConsultoresMinhaRede;
+
+        function abrirModalCadastrarConsultorRede() {
+            const modal = document.getElementById('modal-cadastrar-consultor-rede');
+            if (modal) modal.classList.remove('hidden');
+            const inpId = document.getElementById('rede-novo-id');
+            if (inpId) inpId.focus();
+        }
+        window.abrirModalCadastrarConsultorRede = abrirModalCadastrarConsultorRede;
+
+        function fecharModalCadastrarConsultorRede() {
+            const modal = document.getElementById('modal-cadastrar-consultor-rede');
+            if (modal) modal.classList.add('hidden');
+            const form = document.getElementById('form-cadastrar-consultor-rede');
+            if (form) form.reset();
+        }
+        window.fecharModalCadastrarConsultorRede = fecharModalCadastrarConsultorRede;
+
+        function fecharModalSucessoRede() {
+            const modal = document.getElementById('modal-sucesso-cadastro-rede');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalSucessoRede = fecharModalSucessoRede;
+
+        function copiarLinkDoCampoSucessoRede() {
+            const inp = document.getElementById('campo-sucesso-rede-link');
+            if (inp) {
+                navigator.clipboard.writeText(inp.value).then(() => {
+                    if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('📋 Link copiado com sucesso!', 'sucesso');
+                }).catch(() => {
+                    inp.select();
+                    document.execCommand('copy');
+                    if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('📋 Link copiado!', 'sucesso');
+                });
+            }
+        }
+        window.copiarLinkDoCampoSucessoRede = copiarLinkDoCampoSucessoRede;
+
+        function copiarLinkGenerico(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('📋 Link copiado com sucesso!', 'sucesso');
+            }).catch(() => {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante(`📋 Link: ${link}`, 'info');
+            });
+        }
+        window.copiarLinkGenerico = copiarLinkGenerico;
+
+        function enviarBoasVindasWhatsAppRede(nome, id, senha, slug, whatsapp) {
+            const urlOficial = `${window.location.origin}/${slug}`;
+            const urlPainel = `${window.location.origin}/painel.html`;
+            const msg = `Olá, *${nome}*! Parabéns, seu acesso à plataforma oficial do *Litrão do Reset* está liberado com 7 DIAS GRÁTIS! 🚀🥤\n\n` +
+                        `🌐 *Seu Link Oficial de Vendas:*\n${urlOficial}\n\n` +
+                        `🔐 *Acesse seu Painel do Consultor:*\n${urlPainel}\n` +
+                        `• Seu ID de Login: *${id}*\n` +
+                        `• Sua Senha Provisória: *${senha || '123456'}*\n\n` +
+                        `Estou à disposição para te apoiar no crescimento da nossa equipe! Conte comigo! 💪🔥`;
+
+            const encoded = encodeURIComponent(msg);
+            const num = normalizarNumeroWhatsApp(whatsapp);
+            const linkWa = num ? `https://wa.me/${num}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+            window.open(linkWa, '_blank');
+        }
+        window.enviarBoasVindasWhatsAppRede = enviarBoasVindasWhatsAppRede;
+
+        async function salvarNovoConsultorRede(event) {
+            if (event) event.preventDefault();
+            if (!consultorAtual) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Faça login primeiro para cadastrar consultores.', 'erro');
+                return;
+            }
+
+            const inpId = document.getElementById('rede-novo-id');
+            const inpNome = document.getElementById('rede-novo-nome');
+            const inpWhats = document.getElementById('rede-novo-whats');
+            const inpLetras = document.getElementById('rede-novo-letras');
+            const inpSenha = document.getElementById('rede-novo-senha');
+            const inpCidade = document.getElementById('rede-novo-cidade');
+            const btnSubmit = document.getElementById('btn-submit-cadastrar-rede');
+
+            const idLimpo = (inpId?.value || '').replace(/\D/g, '');
+            const nome = (inpNome?.value || '').trim();
+            const whats = normalizarNumeroWhatsApp(inpWhats?.value || '');
+            const letras = ((inpLetras?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3) || 'BRA').toUpperCase();
+            const senha = (inpSenha?.value || '').trim() || '123456';
+            const cidade = (inpCidade?.value || '').trim();
+
+            if (!idLimpo || idLimpo.length < 5) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Informe um ID Herbalife válido.', 'erro');
+                inpId?.focus();
+                return;
+            }
+            if (!nome) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Informe o nome do consultor.', 'erro');
+                inpNome?.focus();
+                return;
+            }
+            if (!whats || whats.length < 10) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Informe um WhatsApp válido com DDD.', 'erro');
+                inpWhats?.focus();
+                return;
+            }
+
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Cadastrando...';
+            }
+
+            try {
+                // 1. Verifica se já existe consultor com este ID
+                const checkRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${idLimpo}&select=id,herbalife_id,nome_espaco`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                const exist = await checkRes.json();
+                if (exist && exist.length > 0) {
+                    if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante(`⚠️ O ID ${idLimpo} já está cadastrado no sistema!`, 'aviso');
+                    else alert(`⚠️ O ID ${idLimpo} já está cadastrado no sistema!`);
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = '<i class="fa-solid fa-check"></i> Cadastrar & Gerar Link Oficial';
+                    }
+                    return;
+                }
+
+                // 2. Calcula data de vencimento: Hoje + 7 dias (Trial 7 Dias Grátis)
+                const dataHoje = new Date();
+                dataHoje.setDate(dataHoje.getDate() + 7);
+                const aaaa = dataHoje.getFullYear();
+                const mm = String(dataHoje.getMonth() + 1).padStart(2, '0');
+                const dd = String(dataHoje.getDate()).padStart(2, '0');
+                const dataVenc7d = `${aaaa}-${mm}-${dd}`;
+
+                // 3. Monta tags de rastreamento do Patrocinador e Senha
+                const hidPatrocinador = String(consultorAtual.herbalife_id || '').replace(/\D/g, '');
+                const { nome: nomePatrocinador } = extrairNomeExibicaoConsultor(consultorAtual);
+                const tagPatrocinador = `<!--PATROCINADOR_ID:${hidPatrocinador}--> <!--PATROCINADOR_NOME:${nomePatrocinador}--> <!--SENHA:${senha}--> <!--TRIAL_7D:true-->`;
+                const nomeEspacoFinal = `${nome}${cidade ? ' | ' + cidade : ''} ${tagPatrocinador}`;
+
+                const payload = {
+                    herbalife_id: idLimpo,
+                    letras: letras,
+                    whatsapp: whats,
+                    slug: idLimpo,
+                    status: 'Ativo',
+                    vencimento: dataVenc7d,
+                    nome_espaco: nomeEspacoFinal
+                };
+
+                const postRes = await fetch('https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!postRes.ok) {
+                    const errTxt = await postRes.text();
+                    throw new Error(`Erro ao salvar no banco: ${errTxt}`);
+                }
+
+                fecharModalCadastrarConsultorRede();
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('🎉 Consultor cadastrado com sucesso na sua rede!', 'sucesso');
+
+                // Abre modal de sucesso
+                const modalSucesso = document.getElementById('modal-sucesso-cadastro-rede');
+                const txtNome = document.getElementById('txt-sucesso-rede-nome');
+                const campoLink = document.getElementById('campo-sucesso-rede-link');
+                const btnWhats = document.getElementById('btn-sucesso-enviar-whats');
+
+                const linkOficialGerado = `${window.location.origin}/${idLimpo}`;
+                if (txtNome) txtNome.innerText = `${nome} agora faz parte da sua rede com 7 dias grátis!`;
+                if (campoLink) campoLink.value = linkOficialGerado;
+                if (btnWhats) {
+                    btnWhats.onclick = () => enviarBoasVindasWhatsAppRede(nome, idLimpo, senha, idLimpo, whats);
+                }
+                if (modalSucesso) modalSucesso.classList.remove('hidden');
+
+                // Atualiza a tabela da rede
+                carregarConsultoresMinhaRede();
+
+            } catch (errSalvar) {
+                console.error("Erro ao cadastrar consultor da rede:", errSalvar);
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante(`Erro ao cadastrar: ${errSalvar.message}`, 'erro');
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fa-solid fa-check"></i> Cadastrar & Gerar Link Oficial';
+                }
+            }
+        }
+        window.salvarNovoConsultorRede = salvarNovoConsultorRede;
 
         function atualizarMetricasCardFacebook() {
             try {
@@ -14342,6 +15188,7 @@
         let CONFIG_COLUNAS_SUPERADMIN = {
             whats: true,
             id: true,
+            letras: true,
             senha: true,
             status: true,
             venc: true,
@@ -14483,7 +15330,8 @@
                     const whats = (c.whatsapp || '').toLowerCase();
                     const slug = (c.slug || '').toLowerCase();
                     const status = (c.status || '').toLowerCase();
-                    return nome.includes(t) || hid.includes(t) || whats.includes(t) || slug.includes(t) || status.includes(t);
+                    const letras = (c.letras || '').toLowerCase();
+                    return nome.includes(t) || hid.includes(t) || letras.includes(t) || whats.includes(t) || slug.includes(t) || status.includes(t);
                 });
             }
 
@@ -14577,6 +15425,7 @@
 
             // Atualiza visibilidade dos cabeçalhos TH na tabela
             const thId = document.getElementById('th-col-id');
+            const thLetras = document.getElementById('th-col-letras');
             const thSenha = document.getElementById('th-col-senha');
             const thWhats = document.getElementById('th-col-whats');
             const thStatus = document.getElementById('th-col-status');
@@ -14586,6 +15435,7 @@
             const thAcoes = document.getElementById('th-col-acoes');
 
             if (thId) thId.style.display = CONFIG_COLUNAS_SUPERADMIN.id ? '' : 'none';
+            if (thLetras) thLetras.style.display = CONFIG_COLUNAS_SUPERADMIN.letras ? '' : 'none';
             if (thSenha) thSenha.style.display = CONFIG_COLUNAS_SUPERADMIN.senha ? '' : 'none';
             if (thWhats) thWhats.style.display = CONFIG_COLUNAS_SUPERADMIN.whats ? '' : 'none';
             if (thStatus) thStatus.style.display = CONFIG_COLUNAS_SUPERADMIN.status ? '' : 'none';
@@ -14595,7 +15445,7 @@
             if (thAcoes) thAcoes.style.display = CONFIG_COLUNAS_SUPERADMIN.acoes ? '' : 'none';
 
             if (!lista || lista.length === 0) {
-                if (corpo) corpo.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>`;
+                if (corpo) corpo.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-gray-400">Nenhum consultor encontrado.</td></tr>`;
                 if (containerCards) containerCards.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 font-bold"><i class="fa-solid fa-folder-open text-2xl mb-2 text-purple-300 block"></i>Nenhum consultor encontrado nesta busca ou filtro.</div>`;
                 return;
             }
@@ -14664,6 +15514,18 @@
                     const letrasHerbalife = extrairLetrasHerbalife(c);
                     const isExpandido = CONSULTORES_DETALHES_EXPANDIDOS.has(c.id) || !MODO_COMPACTO_SUPERADMIN;
 
+                    let patInfoCard = null;
+                    if (c.nome_espaco && c.nome_espaco.includes('<!--PATROCINADOR_ID:')) {
+                        const mPId = c.nome_espaco.match(/<!--PATROCINADOR_ID:(.*?)-->/);
+                        const mPNome = c.nome_espaco.match(/<!--PATROCINADOR_NOME:(.*?)-->/);
+                        if (mPId && mPId[1]) {
+                            patInfoCard = {
+                                id: mPId[1].trim(),
+                                nome: (mPNome && mPNome[1]) ? mPNome[1].trim() : 'Consultor'
+                            };
+                        }
+                    }
+
                     return `
                         <div class="bg-white border-2 ${dadosFdCard ? 'border-amber-400 shadow-amber-100 ring-2 ring-amber-300/40' : (isVitalicio ? 'border-amber-300 shadow-amber-100' : 'border-purple-200')} rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between text-left relative group">
                             
@@ -14678,6 +15540,12 @@
                                             <h5 class="font-black text-gray-900 text-sm sm:text-base leading-snug line-clamp-1" title="${(c.nome_espaco || 'Consultor Sem Nome').replace(/<!--[\s\S]*?-->/g, '').trim()}">
                                                 ${(c.nome_espaco || 'Consultor Sem Nome').replace(/<!--[\s\S]*?-->/g, '').trim()}
                                             </h5>
+                                            ${patInfoCard ? `
+                                                <div class="mt-0.5 mb-1 flex items-center gap-1.5 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-fit" title="Cadastrado na rede de ${patInfoCard.nome}">
+                                                    <i class="fa-solid fa-network-wired text-indigo-500 text-[9px]"></i>
+                                                    <span>Rede: <strong class="text-indigo-900">${patInfoCard.nome}</strong> (${patInfoCard.id})</span>
+                                                </div>
+                                            ` : ''}
                                             <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
                                                 ${statusBadge}
                                                 ${dadosFdCard ? `<span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded-full text-[10px] shadow-xs flex items-center gap-1 border border-amber-300"><i class="fa-solid fa-crown text-[9px]"></i> Fundador ${dadosFdCard.codigo}</span>` : ''}
@@ -14706,13 +15574,19 @@
                                     </button>
                                 </div>
 
-                                <!-- Dados de Acesso: ID e Senha (Separados) -->
-                                ${(CONFIG_COLUNAS_SUPERADMIN.id || CONFIG_COLUNAS_SUPERADMIN.senha) ? `
-                                    <div class="mt-3 pt-3 border-t border-gray-100 grid ${CONFIG_COLUNAS_SUPERADMIN.id && CONFIG_COLUNAS_SUPERADMIN.senha ? 'grid-cols-2' : 'grid-cols-1'} gap-2 text-xs">
+                                <!-- Dados de Acesso: ID Herbalife, 3 Letras e Senha (Totalmente Separados) -->
+                                ${(CONFIG_COLUNAS_SUPERADMIN.id || CONFIG_COLUNAS_SUPERADMIN.letras || CONFIG_COLUNAS_SUPERADMIN.senha) ? `
+                                    <div class="mt-3 pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                                         ${CONFIG_COLUNAS_SUPERADMIN.id ? `
                                             <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-100">
                                                 <span class="block text-[9px] font-bold uppercase text-purple-900">ID Herbalife:</span>
-                                                <span class="font-mono font-black text-purple-950">${c.herbalife_id} <span class="text-[10px] bg-purple-200 text-purple-900 px-1 rounded">${letrasHerbalife}</span></span>
+                                                <span class="font-mono font-black text-purple-950">${c.herbalife_id || '---'}</span>
+                                            </div>
+                                        ` : ''}
+                                        ${CONFIG_COLUNAS_SUPERADMIN.letras ? `
+                                            <div class="bg-indigo-50/70 p-2 rounded-xl border border-indigo-100">
+                                                <span class="block text-[9px] font-bold uppercase text-indigo-900">3 Letras:</span>
+                                                <span class="font-mono font-black text-indigo-950 bg-indigo-100 px-1.5 py-0.2 rounded border border-indigo-200">${letrasHerbalife || '---'}</span>
                                             </div>
                                         ` : ''}
                                         ${CONFIG_COLUNAS_SUPERADMIN.senha ? `
@@ -14879,6 +15753,25 @@
                                 </div>
                                 <div class="min-w-0 max-w-[220px]">
                                     <span class="font-extrabold text-gray-900 block truncate text-xs sm:text-sm">${(c.nome_espaco || 'Consultor Sem Nome').replace(/<!--[\s\S]*?-->/g, '').trim()}</span>
+                                    ${(() => {
+                                        let patInfoTab = null;
+                                        if (c.nome_espaco && c.nome_espaco.includes('<!--PATROCINADOR_ID:')) {
+                                            const mPId = c.nome_espaco.match(/<!--PATROCINADOR_ID:(.*?)-->/);
+                                            const mPNome = c.nome_espaco.match(/<!--PATROCINADOR_NOME:(.*?)-->/);
+                                            if (mPId && mPId[1]) {
+                                                patInfoTab = {
+                                                    id: mPId[1].trim(),
+                                                    nome: (mPNome && mPNome[1]) ? mPNome[1].trim() : 'Consultor'
+                                                };
+                                            }
+                                        }
+                                        return patInfoTab ? `
+                                            <div class="mt-0.5 mb-1 flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded w-fit" title="Cadastrado na rede de ${patInfoTab.nome}">
+                                                <i class="fa-solid fa-network-wired text-indigo-500 text-[8px]"></i>
+                                                <span>Rede: <strong class="text-indigo-900">${patInfoTab.nome}</strong> (${patInfoTab.id})</span>
+                                            </div>
+                                        ` : '';
+                                    })()}
                                     <div class="flex items-center gap-1 flex-wrap mt-0.5">
                                         ${dadosFdTab ? `<span class="inline-flex items-center text-[10px] bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black px-1.5 py-0.2 rounded-full border border-amber-300 shadow-2xs"><i class="fa-solid fa-crown text-[8px] mr-0.5"></i>${dadosFdTab.codigo}</span>` : ''}
                                         ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `<span class="inline-flex items-center text-[10px] bg-purple-50 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded font-black">R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês</span>` : ''}
@@ -14888,13 +15781,17 @@
                             </div>
                         </td>
 
-                        <!-- Coluna 2: ID Herbalife -->
+                        <!-- Coluna 2: ID Herbalife (CAMPO EXCLUSIVO) -->
                         ${CONFIG_COLUNAS_SUPERADMIN.id ? `
-                            <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs">
-                                <div class="flex items-center gap-1">
-                                    <span>${c.herbalife_id}</span>
-                                    <span class="text-[10px] text-purple-700 font-black bg-purple-100 border border-purple-200 px-1 py-0.2 rounded">${letrasHerbalife}</span>
-                                </div>
+                            <td class="p-3 sm:p-4 font-mono font-bold text-gray-800 text-xs whitespace-nowrap">
+                                <span class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 px-2.5 py-1 rounded-lg select-all font-black tracking-tight cursor-text" title="ID Herbalife">${c.herbalife_id || '---'}</span>
+                            </td>
+                        ` : ''}
+
+                        <!-- Coluna 2B: 3 Letras Herbalife (CAMPO SEPARADO EXCLUSIVO) -->
+                        ${CONFIG_COLUNAS_SUPERADMIN.letras ? `
+                            <td class="p-3 sm:p-4 whitespace-nowrap">
+                                <span class="text-xs text-purple-800 font-black bg-purple-100 border border-purple-200 px-2.5 py-1 rounded-lg shadow-2xs uppercase tracking-widest font-mono" title="3 Letras Herbalife">${letrasHerbalife || '---'}</span>
                             </td>
                         ` : ''}
 
@@ -15130,61 +16027,9 @@
         window.liberarTesteManualConsultorPainel = liberarTesteManualConsultorPainel;
 
         async function liberarTesteManualConsultorPainel_Antigo(id, dias) {
-            try {
-                const consultor = (todosConsultoresCache || []).find(c => String(c.id) === String(id));
-                if (!consultor) return;
-
-                const nome = (consultor.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
-                const hid = consultor.herbalife_id || '';
-                if (!confirm(`Deseja liberar ${dias} dias de teste para o consultor "${nome}" (ID ${hid})?\n\nRegra cumulativa: se o consultor ainda tiver dias vÃ¡lidos de teste ou plano, os ${dias} dias serÃ£o SOMADOS ao vencimento atual!`)) {
-                    return;
-                }
-
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-
-                let dataBase = new Date(hoje);
-                if (consultor.vencimento) {
-                    const p = consultor.vencimento.split('-');
-                    if (p.length === 3) {
-                        const dtAtual = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
-                        // SE AINDA NÃƒO VENCEU, NÃƒO ZERA! SOMA AO VENCIMENTO ATUAL!
-                        if (dtAtual.getTime() >= hoje.getTime()) {
-                            dataBase = new Date(dtAtual);
-                        }
-                    }
-                }
-
-                dataBase.setDate(dataBase.getDate() + dias);
-                const y = dataBase.getFullYear();
-                const m = String(dataBase.getMonth() + 1).padStart(2, '0');
-                const d = String(dataBase.getDate()).padStart(2, '0');
-                const novoVenc = `${y}-${m}-${d}`;
-
-                const { error } = await supabaseClient
-                    .from('consultores')
-                    .update({
-                        status: 'Ativo',
-                        vencimento: novoVenc
-                    })
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                consultor.status = 'Ativo';
-                consultor.vencimento = novoVenc;
-
-                if (typeof mostrarNotificacaoFlutuante === 'function') {
-                    mostrarNotificacaoFlutuante(`ðŸŽ‰ Liberado teste de ${dias} dias para ${nome}! Vencimento atÃ© ${d}/${m}/${y}.`, 'sucesso');
-                } else {
-                    alert(`ðŸŽ‰ Liberado teste de ${dias} dias para ${nome}!\nNovo vencimento: ${d}/${m}/${y}`);
-                }
-
-                aplicarFiltrosErenderizarSuperadmin();
-            } catch (err) {
-                alert(`Erro ao liberar teste: ${err.message}`);
-            }
+            return liberarTesteManualConsultorPainel(id, dias);
         }
+        window.liberarTesteManualConsultorPainel_Antigo = liberarTesteManualConsultorPainel_Antigo;
         window.liberarTesteManualConsultorPainel = liberarTesteManualConsultorPainel;
 
         function abrirModalEditarConsultor(id) {
@@ -22502,11 +23347,13 @@
         // ==========================================
         // MÁSCARA AUTOMÁTICA DE MOEDA (VÍRGULA NO AUTOMÁTICO)
         // Pacotes RESET: ao digitar '5490' vira '54,90'
+        // Permite zerar ('0,00') e digitação automática de centavos
         // ==========================================
         function formatarValorInicialMoeda(val) {
             if (val === null || val === undefined) return '';
             const str = String(val).trim();
             if (!str) return '';
+            if (str === '0' || str === '0,00' || /^0+([,.]0+)?$/.test(str)) return '0,00';
             if (str.includes(',') || str.includes('.')) {
                 const partes = str.split(/[,.]/);
                 const inteiro = partes[0].replace(/\D/g, '') || '0';
@@ -22520,9 +23367,21 @@
         window.formatarValorInicialMoeda = formatarValorInicialMoeda;
 
         function formatarMoedaDigitacao(val) {
-            if (!val) return '';
-            const digitos = String(val).replace(/\D/g, '').replace(/^0+/, '');
-            if (!digitos) return '';
+            if (val === null || val === undefined) return '';
+            const str = String(val).trim();
+            if (str === '') return '';
+
+            // Extrai somente números
+            const apenasDigitos = str.replace(/\D/g, '');
+            if (!apenasDigitos) return '';
+
+            // Se for tudo zero (ex: "0", "00", "000") -> PERMITE DEIXAR ZERADO!
+            if (/^0+$/.test(apenasDigitos)) {
+                return '0,00';
+            }
+
+            // Remove zeros à esquerda para valores maiores que zero
+            const digitos = apenasDigitos.replace(/^0+/, '');
             if (digitos.length === 1) return '0,0' + digitos;
             if (digitos.length === 2) return '0,' + digitos;
             const centavos = digitos.slice(-2);
@@ -22537,6 +23396,12 @@
                 '#cfg-preco-reset',
                 '#cfg-preco-plus',
                 '#cfg-preco-turbo',
+                '#flyer-input-preco-reset',
+                '#flyer-input-preco-plus',
+                '#flyer-input-preco-turbo',
+                '#fb-flyer-input-preco-reset',
+                '#fb-flyer-input-preco-plus',
+                '#fb-flyer-input-preco-turbo',
                 '#superadmin-edit-preco-reset',
                 '#superadmin-edit-preco-plus',
                 '#superadmin-edit-preco-turbo',
@@ -22561,18 +23426,32 @@
                 }
 
                 input.addEventListener('input', function() {
+                    // Se o usuário limpou tudo com backspace/delete, permite ficar vazio temporariamente
+                    if (!this.value || this.value.trim() === '') {
+                        return;
+                    }
                     this.value = formatarMoedaDigitacao(this.value);
+                    if (typeof aoMudarPrecoEmTempoReal === 'function') {
+                        aoMudarPrecoEmTempoReal(this);
+                    }
                     if (this.id && this.id.startsWith('cfg-preco-') && typeof atualizarPreviewPrecosKits === 'function') {
                         atualizarPreviewPrecosKits();
                     }
                 });
 
                 input.addEventListener('blur', function() {
-                    const digitos = this.value.replace(/\D/g, '').replace(/^0+/, '');
-                    if (!digitos) {
-                        this.value = '';
+                    const raw = (this.value || '').trim();
+                    if (!raw || raw === '0' || raw === '0,00' || /^0+$/.test(raw.replace(/\D/g, ''))) {
+                        this.value = '0,00';
+                    } else if (!raw.includes(',') && !raw.includes('.')) {
+                        // Se o usuário digitou ou colou um valor inteiro direto (ex: digitou "79" e saiu)
+                        const num = raw.replace(/\D/g, '');
+                        this.value = num ? `${num},00` : '0,00';
                     } else {
                         this.value = formatarMoedaDigitacao(this.value);
+                    }
+                    if (typeof aoMudarPrecoEmTempoReal === 'function') {
+                        aoMudarPrecoEmTempoReal(this);
                     }
                     if (this.id && this.id.startsWith('cfg-preco-') && typeof atualizarPreviewPrecosKits === 'function') {
                         atualizarPreviewPrecosKits();
