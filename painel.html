@@ -25,6 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.9/dist/pdf-lib.min.js"></script>
     <script src="solana-bundle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -8713,6 +8714,11 @@
                             <!-- Botão Copiar Link -->
                             <button onclick="copiarLinkMeuCatalogo()" class="w-12 h-12 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 flex items-center justify-center text-xl transition transform hover:scale-110 shadow-xs cursor-pointer" title="Copiar Link do Catálogo">
                                 <i class="fa-solid fa-link"></i>
+                            </button>
+
+                            <!-- Botão Baixar PDF Personalizado com meus Dados -->
+                            <button onclick="baixarCatalogoPersonalizadoPDFPainel()" class="w-12 h-12 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 flex items-center justify-center text-xl transition transform hover:scale-110 shadow-xs cursor-pointer" title="Baixar Catálogo Oficial em PDF com meus dados na última página">
+                                <i id="btn-painel-download-pdf-icon" class="fa-solid fa-file-pdf"></i>
                             </button>
                         </div>
                     </div>
@@ -28462,6 +28468,148 @@ ${escapeHtml(textoFinal)}
                 prompt("Copie o link do seu Catálogo Digital abaixo:", linkCatalogo);
             });
         }
+
+        async function baixarCatalogoPersonalizadoPDFPainel() {
+            if (!consultorAtual) return;
+            const icon = document.getElementById('btn-painel-download-pdf-icon');
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
+            
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante('⏳ Gerando seu Catálogo Oficial em PDF com seus dados na última página...', 'info');
+            }
+
+            try {
+                if (!window.PDFLib) {
+                    throw new Error("Biblioteca PDF-Lib não disponível");
+                }
+                const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
+                const res = await fetch('catalogo-herbalife-oficial.pdf');
+                if (!res.ok) throw new Error("Não foi possível carregar o arquivo base do catálogo.");
+                const existingPdfBytes = await res.arrayBuffer();
+
+                const pdfDoc = await PDFDocument.load(existingPdfBytes);
+                const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+                const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+                const pages = pdfDoc.getPages();
+                const lastPage = pages[pages.length - 1]; // Página 36
+
+                let nomeFinal = (consultorAtual.nome || consultorAtual.nome_espaco || 'Consultor Herbalife').replace(/<!--[\s\S]*?-->/g, '').trim();
+                if (nomeFinal.includes('|')) nomeFinal = nomeFinal.split('|')[0].trim();
+
+                let zapFinal = '';
+                if (consultorAtual.whatsapp) {
+                    const rawZap = String(consultorAtual.whatsapp).replace(/\D/g, '');
+                    let num = rawZap;
+                    if (num.startsWith('55') && num.length > 11) num = num.slice(2);
+                    if (num.length === 11) {
+                        zapFinal = `+55 (${num.slice(0, 2)}) ${num.slice(2, 7)}-${num.slice(7)}`;
+                    } else if (num.length === 10) {
+                        zapFinal = `+55 (${num.slice(0, 2)}) ${num.slice(2, 6)}-${num.slice(6)}`;
+                    } else {
+                        zapFinal = `+${rawZap}`;
+                    }
+                }
+
+                let infoFinal = '';
+                if (consultorAtual.email && consultorAtual.email.includes('@')) {
+                    infoFinal = consultorAtual.email.trim();
+                } else if (consultorAtual.herbalife_id) {
+                    infoFinal = `ID Herbalife: ${consultorAtual.herbalife_id}`;
+                } else {
+                    infoFinal = 'Distribuidor Independente Oficial';
+                }
+
+                // Desenha retângulo branco cobrindo a área interna da caixa na página 36
+                lastPage.drawRectangle({
+                    x: 93,
+                    y: 40,
+                    width: 203,
+                    height: 74,
+                    color: rgb(1, 1, 1),
+                });
+
+                const centroX = 194.85;
+
+                // 1. Nome do consultor
+                let fontSizeNome = 11;
+                let widthNome = fontBold.widthOfTextAtSize(nomeFinal, fontSizeNome);
+                while (widthNome > 190 && fontSizeNome > 7) {
+                    fontSizeNome -= 0.5;
+                    widthNome = fontBold.widthOfTextAtSize(nomeFinal, fontSizeNome);
+                }
+                lastPage.drawText(nomeFinal, {
+                    x: Math.max(95, centroX - (widthNome / 2)),
+                    y: 95,
+                    size: fontSizeNome,
+                    font: fontBold,
+                    color: rgb(0.08, 0.08, 0.08),
+                });
+
+                // 2. WhatsApp
+                if (zapFinal) {
+                    let fontSizeZap = 9.5;
+                    let widthZap = fontRegular.widthOfTextAtSize(zapFinal, fontSizeZap);
+                    while (widthZap > 190 && fontSizeZap > 7) {
+                        fontSizeZap -= 0.5;
+                        widthZap = fontRegular.widthOfTextAtSize(zapFinal, fontSizeZap);
+                    }
+                    lastPage.drawText(zapFinal, {
+                        x: Math.max(95, centroX - (widthZap / 2)),
+                        y: 75,
+                        size: fontSizeZap,
+                        font: fontRegular,
+                        color: rgb(0.12, 0.12, 0.12),
+                    });
+                }
+
+                // 3. E-mail ou ID
+                if (infoFinal) {
+                    let fontSizeInfo = 8.5;
+                    let widthInfo = fontRegular.widthOfTextAtSize(infoFinal, fontSizeInfo);
+                    while (widthInfo > 190 && fontSizeInfo > 6.5) {
+                        fontSizeInfo -= 0.5;
+                        widthInfo = fontRegular.widthOfTextAtSize(infoFinal, fontSizeInfo);
+                    }
+                    lastPage.drawText(infoFinal, {
+                        x: Math.max(95, centroX - (widthInfo / 2)),
+                        y: 57,
+                        size: fontSizeInfo,
+                        font: fontRegular,
+                        color: rgb(0.25, 0.25, 0.25),
+                    });
+                }
+
+                const modifiedBytes = await pdfDoc.save();
+                const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                const slugNome = consultorAtual.slug ? consultorAtual.slug.replace(/[^a-zA-Z0-9_-]/g, '') : (consultorAtual.herbalife_id || 'Oficial');
+                a.download = `Catalogo-Herbalife-${slugNome}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(downloadUrl);
+                }, 2000);
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`✅ Catálogo Oficial baixado com os contatos de ${nomeFinal}!`, 'sucesso');
+                }
+            } catch (err) {
+                console.error("Erro ao gerar PDF no painel:", err);
+                const aFallback = document.createElement('a');
+                aFallback.href = 'catalogo-herbalife-oficial.pdf';
+                aFallback.download = 'Catalogo-Herbalife-Oficial.pdf';
+                document.body.appendChild(aFallback);
+                aFallback.click();
+                setTimeout(() => document.body.removeChild(aFallback), 1000);
+            } finally {
+                if (icon) icon.className = 'fa-solid fa-file-pdf';
+            }
+        }
+        window.baixarCatalogoPersonalizadoPDFPainel = baixarCatalogoPersonalizadoPDFPainel;
 
         // WhatsApp
         function abrirModalCompartilharWhatsApp() {
