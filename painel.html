@@ -21302,6 +21302,7 @@
             }
 
             avaliacaoSelecionadaAtual = item;
+            dadosDataURLRelatorio = null;
             const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
             let dadosPedidoObj = null;
             if (isPedido && item.como_foi_semana && item.como_foi_semana.includes('<!--DADOS_PEDIDO:')) {
@@ -22974,21 +22975,39 @@
             return msg;
         }
 
-        async function gerarRelatorioEmFoto() {
+        async function copiarFotoRelatorioClipboard(dataUrl) {
+            if (!dataUrl) return false;
+            try {
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const res = await fetch(dataUrl);
+                    const blob = await res.blob();
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    return true;
+                }
+            } catch (err) {
+                console.warn('Não foi possível copiar imagem para o clipboard:', err);
+            }
+            return false;
+        }
+
+        async function gerarRelatorioEmFoto(silencioso = false) {
             const btn = document.getElementById('btn-gerar-foto');
             const card = document.getElementById('card-relatorio-captura');
             const previewBox = document.getElementById('preview-box-relatorio');
             const imgPreview = document.getElementById('img-preview-relatorio');
-            if (!card) return;
+            if (!card) return null;
 
-            const txtOriginal = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO FOTO (PNG)...';
+            const txtOriginal = btn ? btn.innerHTML : '';
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> GERANDO FOTO (PNG)...';
 
             try {
                 const canvas = await html2canvas(card, {
                     scale: 2,
                     backgroundColor: '#ffffff',
-                    useCORS: true
+                    useCORS: true,
+                    logging: false
                 });
 
                 dadosDataURLRelatorio = canvas.toDataURL('image/png');
@@ -23004,27 +23023,34 @@
                     const icone = document.getElementById('icone-toggle-preview-relatorio');
                     if (icone) icone.className = 'fa-solid fa-chevron-up mr-1 text-[10px]';
 
-                    previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    if (!silencioso) {
+                        previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                 }
 
-                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> FOTO GERADA!';
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-camera mr-2 text-lg"></i> GERAR RELATÓRIO EM FOTO (PNG)';
-                }, 3000);
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> FOTO GERADA!';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-camera mr-2 text-lg"></i> GERAR RELATÓRIO EM FOTO (PNG)';
+                    }, 3000);
+                }
+                return dadosDataURLRelatorio;
             } catch (err) {
-                console.error(err);
-                alert("Erro ao gerar foto do relatório. Tente novamente.");
-                btn.innerHTML = txtOriginal;
+                console.error('Erro ao gerar foto do relatório:', err);
+                if (btn) btn.innerHTML = txtOriginal;
+                if (!silencioso) alert("Erro ao gerar foto do relatório. Tente novamente.");
+                return null;
             }
         }
 
-        function baixarFotoRelatorioGerada() {
+        async function baixarFotoRelatorioGerada() {
             if (!dadosDataURLRelatorio) {
-                gerarRelatorioEmFoto();
-                return;
+                await gerarRelatorioEmFoto(true);
             }
+            if (!dadosDataURLRelatorio) return;
             const link = document.createElement('a');
-            const nomeLimpo = (avaliacaoSelecionadaAtual.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
+            const nomeCli = (avaliacaoSelecionadaAtual && avaliacaoSelecionadaAtual.nome_cliente) ? avaliacaoSelecionadaAtual.nome_cliente : 'cliente';
+            const nomeLimpo = nomeCli.toLowerCase().replace(/\s+/g, '_');
             link.download = `Bioimpedancia_${nomeLimpo}.png`;
             link.href = dadosDataURLRelatorio;
             link.click();
@@ -23036,31 +23062,36 @@
             const msg = obterTextoMotivacionalRelatorio();
             const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
 
-            if (dadosDataURLRelatorio) {
-                try {
-                    const res = await fetch(dadosDataURLRelatorio);
-                    const blob = await res.blob();
-                    const nomeLimpo = (item.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
-                    const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
+            // Pré-abre a aba para não ser bloqueada pelo navegador após o await
+            const wAba = window.open('', '_blank');
 
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: `Bioimpedância - ${item.nome_cliente}`,
-                            text: msg,
-                            files: [file]
-                        });
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Fallback link WhatsApp:', e);
+            // 1. Gera o relatório em foto (PNG) no automático caso ainda não tenha sido gerado
+            if (!dadosDataURLRelatorio) {
+                await gerarRelatorioEmFoto(true);
+            }
+
+            // 2. Dispara o download da imagem e copia para o Clipboard (Ctrl+V)
+            if (dadosDataURLRelatorio) {
+                baixarFotoRelatorioGerada();
+                const copiou = await copiarFotoRelatorioClipboard(dadosDataURLRelatorio);
+                if (copiou && typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('📸 Foto copiada! Pressione Ctrl + V na conversa do WhatsApp para colar a imagem.', 'sucesso');
+                } else if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('📸 Foto baixada! Envie o arquivo PNG baixado no WhatsApp.', 'sucesso');
                 }
             }
 
-            baixarFotoRelatorioGerada();
-            const url = whatsLimpo 
-                ? `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent(msg)}`
+            // 3. Abre DIRETAMENTE o WhatsApp no contato do cliente sem abrir a janela nativa do Windows
+            const numNorm = normalizarNumeroWhatsApp(whatsLimpo);
+            const url = numNorm 
+                ? `https://wa.me/${numNorm}?text=${encodeURIComponent(msg)}`
                 : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
+
+            if (wAba && !wAba.closed) {
+                wAba.location.href = url;
+            } else {
+                window.open(url, '_blank');
+            }
         }
 
         async function compartilharFotoRelatorioTelegram() {
@@ -23068,40 +23099,59 @@
             const item = avaliacaoSelecionadaAtual;
             const msg = obterTextoMotivacionalRelatorio();
 
-            if (dadosDataURLRelatorio) {
-                try {
-                    const res = await fetch(dadosDataURLRelatorio);
-                    const blob = await res.blob();
-                    const nomeLimpo = (item.nome_cliente || 'cliente').toLowerCase().replace(/\s+/g, '_');
-                    const file = new File([blob], `Bioimpedancia_${nomeLimpo}.png`, { type: 'image/png' });
+            // Pré-abre a aba para não ser bloqueada pelo navegador após o await
+            const wAba = window.open('', '_blank');
 
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: `Bioimpedância - ${item.nome_cliente}`,
-                            text: msg,
-                            files: [file]
-                        });
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Fallback Telegram:', e);
+            // 1. Gera o relatório em foto (PNG) no automático caso ainda não tenha sido gerado
+            if (!dadosDataURLRelatorio) {
+                await gerarRelatorioEmFoto(true);
+            }
+
+            // 2. Dispara o download da imagem e copia para o Clipboard
+            if (dadosDataURLRelatorio) {
+                baixarFotoRelatorioGerada();
+                const copiou = await copiarFotoRelatorioClipboard(dadosDataURLRelatorio);
+                if (copiou && typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('📸 Foto copiada! Pressione Ctrl + V no Telegram para colar.', 'sucesso');
                 }
             }
 
-            baixarFotoRelatorioGerada();
+            // 3. Abre DIRETAMENTE o Telegram sem abrir a janela nativa do Windows
             const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
+
+            if (wAba && !wAba.closed) {
+                wAba.location.href = url;
+            } else {
+                window.open(url, '_blank');
+            }
         }
 
         // ==========================================
         // ENVIAR RELATÓRIO FORMATADO NO WHATSAPP
         // ==========================================
-        function enviarRelatorioWhatsApp() {
+        async function enviarRelatorioWhatsApp() {
             if (!avaliacaoSelecionadaAtual) return;
             const item = avaliacaoSelecionadaAtual;
             const ant = avaliacaoAnteriorAtual;
             const bio = bioCalculadaAtual;
-            const whatsLimpo = item.whatsapp_cliente.replace(/\D/g, '');
+            const whatsLimpo = (item.whatsapp_cliente || '').replace(/\D/g, '');
+
+            // Pré-abre a aba para não ser bloqueada pelo navegador após o await
+            const wAba = window.open('', '_blank');
+
+            // 1. Gera automaticamente o relatório em foto (PNG) mesmo se o consultor não tiver clicado no botão azul (Print 3)
+            if (!dadosDataURLRelatorio) {
+                await gerarRelatorioEmFoto(true);
+            }
+
+            // 2. Baixa a foto e copia para o Clipboard (Ctrl+V)
+            if (dadosDataURLRelatorio) {
+                baixarFotoRelatorioGerada();
+                const copiou = await copiarFotoRelatorioClipboard(dadosDataURLRelatorio);
+                if (copiou && typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('📸 Foto do relatório copiada! Pressione Ctrl + V no WhatsApp para enviar a foto junto.', 'sucesso');
+                }
+            }
 
             let texto = `*📊 RESULTADO DA SUA BIOIMPEDÂNCIA - LITRÃO DO RESET* 🌿\n\n`;
             texto += `Olá, *${item.nome_cliente}*! Aqui está o seu relatório completo de composição corporal:\n\n`;
@@ -23212,8 +23262,17 @@
             texto += `💪 *Constância vence o cansaço! Eu estou 100% comprometido(a) com a sua transformação e vamos juntos alcançar sua meta mais rápido!* 🚀\n\n`;
             texto += `_${consultorAtual.nome_completo || 'Seu Consultor Oficial'} • Litrão do Reset_`;
 
-            const url = `https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            // Abre DIRETAMENTE o WhatsApp no contato do cliente sem abrir a janela nativa do Windows
+            const numNorm = normalizarNumeroWhatsApp(whatsLimpo);
+            const url = numNorm 
+                ? `https://wa.me/${numNorm}?text=${encodeURIComponent(texto)}`
+                : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+
+            if (wAba && !wAba.closed) {
+                wAba.location.href = url;
+            } else {
+                window.open(url, '_blank');
+            }
         }
 
         function fecharFicha() {
