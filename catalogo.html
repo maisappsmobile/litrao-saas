@@ -28,8 +28,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Play:wght@400;700&display=swap" rel="stylesheet">
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- PDF-Lib para Personalização Dinâmica do Catálogo com Dados do Consultor -->
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.9/dist/pdf-lib.min.js"></script>
+    <!-- PDF-Lib Local + Fallback CDN -->
+    <script src="pdf-lib.min.js"></script>
+    <script>
+        if (!window.PDFLib) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"><\/script>');
+        }
+    </script>
 
     <script>
         tailwind.config = {
@@ -2656,12 +2661,51 @@
             const textoOriginalHeader = textHeader ? textHeader.innerText : 'Baixar PDF';
 
             if (iconTop) iconTop.className = 'fa-solid fa-spinner fa-spin text-red-600';
-            if (textTop) textTop.innerText = 'Personalizando Catálogo...';
+            if (textTop) textTop.innerText = 'Preparando Catálogo...';
             if (iconHeader) iconHeader.className = 'fa-solid fa-spinner fa-spin text-red-400';
             if (textHeader) textHeader.innerText = 'Gerando PDF...';
             if (btnTop) btnTop.disabled = true;
             if (btnHeader) btnHeader.disabled = true;
 
+            function restaurarBotoes() {
+                if (iconTop) iconTop.className = 'fa-solid fa-file-pdf';
+                if (textTop) textTop.innerText = textoOriginalTop;
+                if (iconHeader) iconHeader.className = 'fa-solid fa-file-pdf text-red-400';
+                if (textHeader) textHeader.innerText = textoOriginalHeader;
+                if (btnTop) btnTop.disabled = false;
+                if (btnHeader) btnHeader.disabled = false;
+            }
+
+            const slugAtual = (consultorAtual && consultorAtual.slug) ? String(consultorAtual.slug).trim() : '';
+            const idAtual = (consultorAtual && consultorAtual.herbalife_id) ? String(consultorAtual.herbalife_id).trim() : '';
+
+            // 1. ESTRATÉGIA ULTRA-RÁPIDA: Se existir PDF compilado dedicado para este consultor, baixa na hora
+            const arquivosParaTestar = [];
+            if (slugAtual) arquivosParaTestar.push(`catalogo-${slugAtual}.pdf`);
+            if (idAtual && idAtual !== slugAtual) arquivosParaTestar.push(`catalogo-${idAtual}.pdf`);
+
+            for (const nomeArq of arquivosParaTestar) {
+                try {
+                    const headRes = await fetch(nomeArq, { method: 'HEAD' });
+                    if (headRes.ok) {
+                        const a = document.createElement('a');
+                        a.href = nomeArq;
+                        a.download = nomeArq;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => document.body.removeChild(a), 1500);
+
+                        if (typeof exibirToastSacola === 'function') {
+                            exibirToastSacola('Download Concluído!', 'Catálogo oficial gerado com seus dados de contato!');
+                        }
+                        if (typeof registrarMetricaDownload === 'function') registrarMetricaDownload();
+                        restaurarBotoes();
+                        return;
+                    }
+                } catch (eHead) {}
+            }
+
+            // 2. ESTRATÉGIA DINÂMICA: Gera em tempo real via PDF-Lib
             if (typeof exibirToastSacola === 'function') {
                 exibirToastSacola('Gerando Catálogo em PDF', 'Personalizando a última página com os dados do seu consultor...');
             }
@@ -2672,12 +2716,11 @@
                 }
                 const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
 
-                // 1. Carrega o PDF base oficial (28MB)
+                // Carrega o PDF base oficial
                 const res = await fetch('catalogo-herbalife-oficial.pdf');
                 if (!res.ok) throw new Error("Falha ao baixar o PDF base");
                 const existingPdfBytes = await res.arrayBuffer();
 
-                // 2. Processa com PDF-Lib
                 const pdfDoc = await PDFDocument.load(existingPdfBytes);
                 const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
                 const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -2685,15 +2728,18 @@
                 const pages = pdfDoc.getPages();
                 const lastPage = pages[pages.length - 1]; // Página 36
 
-                // 3. Define dados do consultor
-                let nomeFinal = (consultorAtual && (consultorAtual.nome || consultorAtual.nome_espaco)) 
+                // Trata nome do consultor
+                let rawNome = (consultorAtual && (consultorAtual.nome || consultorAtual.nome_espaco)) 
                     ? (consultorAtual.nome || consultorAtual.nome_espaco) 
                     : 'Consultor Independente Herbalife';
-                nomeFinal = nomeFinal.replace(/<!--[\s\S]*?-->/g, '').trim();
-                if (nomeFinal.includes('|')) {
-                    nomeFinal = nomeFinal.split('|')[0].trim();
+                rawNome = rawNome.replace(/<!--[\s\S]*?-->/g, '').trim();
+                if (rawNome.includes('|')) {
+                    rawNome = rawNome.split('|')[0].trim();
                 }
+                rawNome = rawNome.replace(/^[•\*\-\s]+/, '').trim();
+                let nomeFinal = rawNome || 'Consultor Independente Herbalife';
 
+                // Trata WhatsApp
                 let zapFinal = '';
                 if (consultorAtual && consultorAtual.whatsapp) {
                     const rawZap = String(consultorAtual.whatsapp).replace(/\D/g, '');
@@ -2710,6 +2756,7 @@
                     }
                 }
 
+                // Trata Email ou ID
                 let infoFinal = '';
                 if (consultorAtual && consultorAtual.email && consultorAtual.email.includes('@')) {
                     infoFinal = consultorAtual.email.trim();
@@ -2719,7 +2766,7 @@
                     infoFinal = 'Distribuidor Independente Oficial';
                 }
 
-                // 4. Desenha retângulo branco cobrindo o interior da caixa na página 36
+                // Desenha retângulo branco de segurança cobrindo a área da caixa na página 36
                 lastPage.drawRectangle({
                     x: 93,
                     y: 40,
@@ -2779,15 +2826,13 @@
                     });
                 }
 
-                // 5. Salva e inicia o download
+                // Salva e inicia o download
                 const modifiedBytes = await pdfDoc.save();
                 const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
                 const downloadUrl = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = downloadUrl;
-                const slugNome = (consultorAtual && consultorAtual.slug) 
-                    ? consultorAtual.slug.replace(/[^a-zA-Z0-9_-]/g, '') 
-                    : (consultorAtual && consultorAtual.herbalife_id ? consultorAtual.herbalife_id : 'Oficial');
+                const slugNome = slugAtual ? slugAtual.replace(/[^a-zA-Z0-9_-]/g, '') : (idAtual || 'Oficial');
                 a.download = `Catalogo-Herbalife-${slugNome}.pdf`;
                 document.body.appendChild(a);
                 a.click();
@@ -2815,12 +2860,7 @@
                 aFallback.click();
                 setTimeout(() => document.body.removeChild(aFallback), 1000);
             } finally {
-                if (iconTop) iconTop.className = 'fa-solid fa-file-pdf';
-                if (textTop) textTop.innerText = textoOriginalTop;
-                if (iconHeader) iconHeader.className = 'fa-solid fa-file-pdf text-red-400';
-                if (textHeader) textHeader.innerText = textoOriginalHeader;
-                if (btnTop) btnTop.disabled = false;
-                if (btnHeader) btnHeader.disabled = false;
+                restaurarBotoes();
             }
         }
         window.baixarCatalogoPersonalizadoPDF = baixarCatalogoPersonalizadoPDF;

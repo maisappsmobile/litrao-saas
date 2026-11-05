@@ -25,7 +25,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.9/dist/pdf-lib.min.js"></script>
+    <script src="pdf-lib.min.js"></script>
+    <script>
+        if (!window.PDFLib) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"><\/script>');
+        }
+    </script>
     <script src="solana-bundle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -28476,6 +28481,34 @@ ${escapeHtml(textoFinal)}
             
             if (typeof mostrarNotificacaoFlutuante === 'function') {
                 mostrarNotificacaoFlutuante('⏳ Gerando seu Catálogo Oficial em PDF com seus dados na última página...', 'info');
+            }
+
+            const slugAtual = (consultorAtual && consultorAtual.slug) ? String(consultorAtual.slug).trim() : '';
+            const idAtual = (consultorAtual && (consultorAtual.herbalife_id || consultorAtual.id)) ? String(consultorAtual.herbalife_id || consultorAtual.id).trim() : '';
+
+            // 1. ESTRATÉGIA ULTRA-RÁPIDA: Se existir PDF compilado dedicado para este consultor, baixa imediatamente
+            const arquivosParaTestar = [];
+            if (slugAtual) arquivosParaTestar.push(`catalogo-${slugAtual}.pdf`);
+            if (idAtual && idAtual !== slugAtual) arquivosParaTestar.push(`catalogo-${idAtual}.pdf`);
+
+            for (const nomeArq of arquivosParaTestar) {
+                try {
+                    const headRes = await fetch(nomeArq, { method: 'HEAD' });
+                    if (headRes.ok) {
+                        const a = document.createElement('a');
+                        a.href = nomeArq;
+                        a.download = nomeArq;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => document.body.removeChild(a), 1500);
+
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('✅ Catálogo Oficial baixado com sucesso com seus dados!', 'sucesso');
+                        }
+                        if (icon) icon.className = 'fa-solid fa-file-pdf';
+                        return;
+                    }
+                } catch (eHead) {}
             }
 
             try {
