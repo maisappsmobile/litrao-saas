@@ -53,6 +53,9 @@
                 </a>
             </div>
 
+            <!-- BANNER DE IDENTIFICAÇÃO AUTOMÁTICA SE JÁ ESTIVER LOGADO -->
+            <div id="container-banner-autologin"></div>
+
             <form id="form-cadastro" onsubmit="registrar(event)" class="space-y-5">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Seu Nome Completo (Consultor)</label>
@@ -2304,6 +2307,261 @@
         }
         window.carregarDadosPatrocinadorDoLink = carregarDadosPatrocinadorDoLink;
 
+        // ==========================================
+        // AUTO-PREENCHIMENTO: SE JÁ ESTIVER LOGADO (CONSULTOR OU CLIENTE)
+        // ==========================================
+        async function puxarDadosSessaoAtivaConsultorOuCliente() {
+            try {
+                // 1. TENTA IDENTIFICAR SE HÁ CONSULTOR LOGADO
+                let consultor = null;
+                const dadosSalvos = localStorage.getItem('litrao_consultor_dados') || sessionStorage.getItem('litrao_consultor_dados');
+                if (dadosSalvos) {
+                    try { consultor = JSON.parse(dadosSalvos); } catch(_) {}
+                }
+
+                // Se não tem o objeto completo mas possui litrao_consultor_auth
+                if (!consultor) {
+                    const authStr = localStorage.getItem('litrao_consultor_auth');
+                    if (authStr) {
+                        try {
+                            const parsed = JSON.parse(authStr);
+                            const hid = String(parsed.herbalife_id || parsed.id || '').replace(/\D/g, '');
+                            if (hid && typeof supabaseClient !== 'undefined' && supabaseClient) {
+                                const { data } = await supabaseClient
+                                    .from('consultores')
+                                    .select('*')
+                                    .eq('herbalife_id', hid)
+                                    .maybeSingle();
+                                if (data) {
+                                    consultor = data;
+                                    try {
+                                        localStorage.setItem('litrao_consultor_dados', JSON.stringify(data));
+                                    } catch(_) {}
+                                }
+                            }
+                        } catch(_) {}
+                    }
+                }
+
+                // 2. SE FOR CONSULTOR LOGADO: PREENCHE TODOS OS DADOS
+                if (consultor) {
+                    const raw = consultor.nome_espaco || '';
+
+                    // 2.1 Redes Sociais
+                    let sociais = {};
+                    const matchSoc = raw.match(/<!--SOCIAIS:(.*?)-->/);
+                    if (matchSoc && matchSoc[1]) {
+                        try { sociais = JSON.parse(matchSoc[1]) || {}; } catch(_) {}
+                    }
+
+                    // 2.2 Dados PIX
+                    let pix = {};
+                    const matchPix = raw.match(/<!--PIX:(.*?)-->/);
+                    if (matchPix && matchPix[1]) {
+                        try { pix = JSON.parse(matchPix[1]) || {}; } catch(_) {}
+                    }
+
+                    // 2.3 Nome do Consultor e Nome do Espaço
+                    const textoLimpo = raw.replace(/<!--.*?-->/g, '').trim();
+                    const partesPipe = textoLimpo.split('|');
+                    const blocoNomes = (partesPipe[0] || '').trim();
+                    const blocoEndereco = (partesPipe[1] || '').trim();
+
+                    let nomeEspaco = '';
+                    let nomeConsultor = consultor.nome || '';
+
+                    if (!nomeConsultor) {
+                        if (blocoNomes.includes('•')) {
+                            const partesBullet = blocoNomes.split('•');
+                            nomeEspaco = (partesBullet[0] || '').trim();
+                            nomeConsultor = (partesBullet[1] || '').trim();
+                        } else {
+                            nomeConsultor = blocoNomes;
+                        }
+                    }
+
+                    // 2.4 Cidade e Estado
+                    let cidade = '';
+                    let estado = '';
+                    if (blocoEndereco) {
+                        if (blocoEndereco.includes(' - ')) {
+                            const partesEnd = blocoEndereco.split(' - ');
+                            cidade = (partesEnd[0] || '').trim();
+                            const resto = (partesEnd[1] || '').trim();
+                            estado = resto.includes('/') ? resto.split('/')[0].trim() : resto.trim();
+                        } else if (blocoEndereco.includes('/')) {
+                            const partesSlash = blocoEndereco.split('/');
+                            cidade = (partesSlash[0] || '').trim();
+                            estado = (partesSlash[1] || '').trim();
+                        } else {
+                            cidade = blocoEndereco.trim();
+                        }
+                    }
+                    if (!cidade && consultor.cidade) cidade = consultor.cidade;
+                    if (!estado && consultor.estado) estado = consultor.estado;
+
+                    // 2.5 Letras
+                    let letras = (consultor.letras || '').trim().toUpperCase();
+                    if (!letras || letras.length > 4 || /\d/.test(letras)) {
+                        letras = 'BRA';
+                    }
+
+                    // APLICA NOS CAMPOS
+                    const elNome = document.getElementById('nome-consultor');
+                    if (elNome && !elNome.value) elNome.value = nomeConsultor || '';
+
+                    const elEspaco = document.getElementById('nome-espaco');
+                    if (elEspaco && !elEspaco.value && nomeEspaco) elEspaco.value = nomeEspaco;
+
+                    const elHid = document.getElementById('hid');
+                    if (elHid && !elHid.value) elHid.value = consultor.herbalife_id || '';
+
+                    const elLetras = document.getElementById('letras');
+                    if (elLetras) elLetras.value = letras;
+
+                    // WhatsApp
+                    const elZap = document.getElementById('zap');
+                    if (elZap && !elZap.value && consultor.whatsapp) {
+                        let zapLimpo = String(consultor.whatsapp).replace(/\D/g, '');
+                        if (zapLimpo.startsWith('55') && (zapLimpo.length === 12 || zapLimpo.length === 13)) {
+                            zapLimpo = zapLimpo.slice(2);
+                        }
+                        elZap.value = zapLimpo;
+                        if (typeof mascararWhatsAppInput === 'function') mascararWhatsAppInput(elZap);
+                    }
+
+                    // Localização (Estado e Cidade)
+                    if (estado) {
+                        const elEstado = document.getElementById('select-estado');
+                        if (elEstado) {
+                            elEstado.value = estado.toUpperCase();
+                            if (typeof carregarCidades === 'function') {
+                                await carregarCidades(elEstado.value);
+                                if (cidade) {
+                                    const elCidade = document.getElementById('select-cidade');
+                                    if (elCidade) {
+                                        let achou = false;
+                                        for (let opt of elCidade.options) {
+                                            if (opt.value.toLowerCase() === cidade.toLowerCase()) {
+                                                elCidade.value = opt.value;
+                                                achou = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!achou && cidade) {
+                                            const novaOpt = document.createElement('option');
+                                            novaOpt.value = cidade;
+                                            novaOpt.text = cidade;
+                                            novaOpt.selected = true;
+                                            elCidade.appendChild(novaOpt);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Redes Sociais
+                    if (sociais.instagram) {
+                        const elInsta = document.getElementById('social-instagram');
+                        if (elInsta && !elInsta.value) elInsta.value = sociais.instagram;
+                    }
+                    if (sociais.facebook) {
+                        const elFace = document.getElementById('social-facebook');
+                        if (elFace && !elFace.value) elFace.value = sociais.facebook;
+                    }
+                    if (sociais.tiktok) {
+                        const elTik = document.getElementById('social-tiktok');
+                        if (elTik && !elTik.value) elTik.value = sociais.tiktok;
+                    }
+
+                    // Chave PIX
+                    if (pix.tipo) {
+                        const elPixTipo = document.getElementById('pix-tipo');
+                        if (elPixTipo) elPixTipo.value = pix.tipo;
+                    }
+                    if (pix.chave) {
+                        const elPixChave = document.getElementById('pix-chave');
+                        if (elPixChave && !elPixChave.value) elPixChave.value = pix.chave;
+                    }
+                    if (pix.titular) {
+                        const elPixTit = document.getElementById('pix-titular');
+                        if (elPixTit && !elPixTit.value) elPixTit.value = pix.titular;
+                    }
+
+                    // Banner Visual Superior Notificando Auto-Preenchimento
+                    const containerBanner = document.getElementById('container-banner-autologin');
+                    if (containerBanner) {
+                        containerBanner.innerHTML = `
+                            <div class="bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 border-2 border-emerald-400/80 text-white p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 animate-fade-in">
+                                <div class="flex items-center gap-3 text-left">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
+                                        <i class="fa-solid fa-user-check text-emerald-400"></i>
+                                    </div>
+                                    <div>
+                                        <div class="inline-flex items-center gap-1.5 bg-emerald-500/25 text-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-0.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            Sessão Ativa Detectada
+                                        </div>
+                                        <p class="text-xs sm:text-sm font-bold text-slate-100">
+                                            Olá, <strong class="text-white">${nomeConsultor || 'Consultor'}</strong> (ID: ${consultor.herbalife_id})! Seus dados foram preenchidos automaticamente.
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href="painel.html" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-black text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 shrink-0 whitespace-nowrap shadow-md cursor-pointer">
+                                    <i class="fa-solid fa-gauge-high"></i> Voltar ao Painel
+                                </a>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                // 3. SE NÃO FOR CONSULTOR, VERIFICA SE É CLIENTE CADASTRADO NO NAVEGADOR
+                const zapCliente = localStorage.getItem('litrao_cliente_whatsapp');
+                const nomeCliente = localStorage.getItem('litrao_cliente_nome');
+                let ultimoCli = null;
+                try {
+                    const rawCli = localStorage.getItem('litrao_ultimo_cliente');
+                    if (rawCli) ultimoCli = JSON.parse(rawCli);
+                } catch(_) {}
+
+                const nomeFinalCliente = nomeCliente || (ultimoCli && ultimoCli.nome) || '';
+                const zapFinalCliente = zapCliente || (ultimoCli && ultimoCli.whatsapp) || '';
+
+                if (nomeFinalCliente || zapFinalCliente) {
+                    const elNome = document.getElementById('nome-consultor');
+                    if (elNome && !elNome.value && nomeFinalCliente) elNome.value = nomeFinalCliente;
+
+                    const elZap = document.getElementById('zap');
+                    if (elZap && !elZap.value && zapFinalCliente) {
+                        let zL = String(zapFinalCliente).replace(/\D/g, '');
+                        if (zL.startsWith('55') && (zL.length === 12 || zL.length === 13)) zL = zL.slice(2);
+                        elZap.value = zL;
+                        if (typeof mascararWhatsAppInput === 'function') mascararWhatsAppInput(elZap);
+                    }
+
+                    const containerBanner = document.getElementById('container-banner-autologin');
+                    if (containerBanner && nomeFinalCliente) {
+                        containerBanner.innerHTML = `
+                            <div class="bg-gradient-to-r from-blue-900 via-slate-900 to-blue-950 border border-blue-400/80 text-white p-3.5 rounded-2xl shadow-lg flex items-center gap-3 mb-4 animate-fade-in text-left">
+                                <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-400/50 flex items-center justify-center font-black text-base shrink-0">
+                                    <i class="fa-solid fa-user-tag text-blue-400"></i>
+                                </div>
+                                <div class="text-xs sm:text-sm">
+                                    <span class="block text-[10px] uppercase font-black text-blue-300">Cliente Identificado</span>
+                                    <p class="text-slate-200">Olá, <strong class="text-white">${nomeFinalCliente}</strong>! Suas informações foram preenchidas automaticamente para facilitar seu cadastro.</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.warn("Erro ao puxar dados da sessão:", err);
+            }
+        }
+        window.puxarDadosSessaoAtivaConsultorOuCliente = puxarDadosSessaoAtivaConsultorOuCliente;
+
         window.aoDigitarCupomAssinar = aoDigitarCupomAssinar;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2344,6 +2602,9 @@
             if (typeof atualizarTextosChaveTrialEmAssinar === 'function') {
                 atualizarTextosChaveTrialEmAssinar();
             }
+
+            // Puxa no automático informações do consultor ou cliente logado/identificado
+            puxarDadosSessaoAtivaConsultorOuCliente();
         });
     </script>
 </body>

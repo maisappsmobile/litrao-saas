@@ -12205,6 +12205,8 @@
                                 letras: consultor.letras || 'BRA', 
                                 senha: senhaCadastrada || senha 
                             }));
+                            localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultor));
+                            sessionStorage.setItem('litrao_consultor_dados', JSON.stringify(consultor));
                         } catch (e) {}
                         mostrarDashboard();
                     } else {
@@ -12411,6 +12413,13 @@
         function mostrarDashboard() {
             // 1. Oculta tela de login e exibe dashboard imediatamente
             try {
+                if (consultorAtual) {
+                    try {
+                        localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+                        sessionStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+                    } catch(e) {}
+                }
+
                 const elLogin = document.getElementById('login-screen');
                 if (elLogin) elLogin.classList.add('hidden');
                 const elDash = document.getElementById('dashboard-screen');
@@ -24201,6 +24210,8 @@
             if (clientesSelecionadosSet) clientesSelecionadosSet.clear();
             try {
                 localStorage.removeItem('litrao_consultor_auth');
+                localStorage.removeItem('litrao_consultor_dados');
+                sessionStorage.removeItem('litrao_consultor_dados');
             } catch (e) {}
 
             const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');

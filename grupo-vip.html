@@ -521,6 +521,130 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        // ==========================================
+        // PUXA NO AUTOMÁTICO SE JÁ ESTIVER LOGADO (CONSULTOR OU CLIENTE)
+        // ==========================================
+        async function preencherDadosLeadSeJaLogado() {
+            try {
+                // 1. Checa parâmetros de URL primeiro (?nome=...&whatsapp=...)
+                const urlParams = new URLSearchParams(window.location.search);
+                const nomeUrl = urlParams.get('nome');
+                const whatsUrl = urlParams.get('whatsapp') || urlParams.get('zap') || urlParams.get('tel');
+
+                let nomeEncontrado = nomeUrl || '';
+                let whatsEncontrado = whatsUrl || '';
+                let tipoPerfil = '';
+
+                // 2. Se não veio na URL, checa se há Consultor Logado
+                if (!nomeEncontrado || !whatsEncontrado) {
+                    let consultor = null;
+                    const dadosSalvos = localStorage.getItem('litrao_consultor_dados') || sessionStorage.getItem('litrao_consultor_dados');
+                    if (dadosSalvos) {
+                        try { consultor = JSON.parse(dadosSalvos); } catch(_) {}
+                    }
+                    if (!consultor) {
+                        const authStr = localStorage.getItem('litrao_consultor_auth');
+                        if (authStr) {
+                            try {
+                                const parsed = JSON.parse(authStr);
+                                const hid = String(parsed.herbalife_id || parsed.id || '').replace(/\D/g, '');
+                                if (hid) {
+                                    const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(hid)}&select=*`, {
+                                        headers: {
+                                            'apikey': 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX',
+                                            'Authorization': 'Bearer sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX'
+                                        }
+                                    });
+                                    if (res.ok) {
+                                        const arr = await res.json();
+                                        if (arr && arr.length > 0) consultor = arr[0];
+                                    }
+                                }
+                            } catch(_) {}
+                        }
+                    }
+
+                    if (consultor) {
+                        tipoPerfil = 'Consultor Oficial';
+                        if (!nomeEncontrado) {
+                            if (consultor.nome) {
+                                nomeEncontrado = consultor.nome;
+                            } else if (consultor.nome_espaco) {
+                                const limpo = consultor.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                                const partePrincipal = limpo.split('|')[0].trim();
+                                if (partePrincipal.includes('•')) {
+                                    const partes = partePrincipal.split('•');
+                                    nomeEncontrado = partes[1].trim() || partes[0].trim();
+                                } else {
+                                    nomeEncontrado = partePrincipal;
+                                }
+                            }
+                        }
+                        if (!whatsEncontrado && consultor.whatsapp) {
+                            whatsEncontrado = consultor.whatsapp;
+                        }
+                    }
+                }
+
+                // 3. Se ainda não achou, checa se é Cliente registrado
+                if (!nomeEncontrado || !whatsEncontrado) {
+                    const nomeCli = localStorage.getItem('litrao_cliente_nome');
+                    const zapCli = localStorage.getItem('litrao_cliente_whatsapp');
+                    let ultCli = null;
+                    try {
+                        const raw = localStorage.getItem('litrao_ultimo_cliente');
+                        if (raw) ultCli = JSON.parse(raw);
+                    } catch(_) {}
+
+                    if (!nomeEncontrado && (nomeCli || (ultCli && ultCli.nome))) {
+                        nomeEncontrado = nomeCli || ultCli.nome;
+                        tipoPerfil = 'Cliente';
+                    }
+                    if (!whatsEncontrado && (zapCli || (ultCli && ultCli.whatsapp))) {
+                        whatsEncontrado = zapCli || ultCli.whatsapp;
+                        tipoPerfil = 'Cliente';
+                    }
+                }
+
+                // 4. Aplica aos inputs se localizou dados
+                const inputNome = document.getElementById('lead-nome');
+                const inputWhats = document.getElementById('lead-whatsapp');
+
+                if (inputNome && nomeEncontrado && !inputNome.value) {
+                    inputNome.value = nomeEncontrado;
+                }
+
+                if (inputWhats && whatsEncontrado && !inputWhats.value) {
+                    let numLimpo = String(whatsEncontrado).replace(/\D/g, '');
+                    if (numLimpo.startsWith('55') && (numLimpo.length === 12 || numLimpo.length === 13)) {
+                        numLimpo = numLimpo.slice(2);
+                    }
+                    inputWhats.value = numLimpo;
+                    if (typeof mascaraWhatsApp === 'function') {
+                        mascaraWhatsApp(inputWhats);
+                    }
+                }
+
+                // 5. Exibe aviso visual elegante indicando o preenchimento automático
+                if ((nomeEncontrado || whatsEncontrado) && inputNome) {
+                    const idAviso = 'aviso-autologin-lead';
+                    if (!document.getElementById(idAviso)) {
+                        const aviso = document.createElement('div');
+                        aviso.id = idAviso;
+                        aviso.className = 'bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 p-3 rounded-xl text-xs font-bold flex items-center gap-2 mb-4 animate-fade-in shadow-inner';
+                        aviso.innerHTML = `
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-sm shrink-0"></i>
+                            <span>✨ Olá, <strong>${nomeEncontrado || 'bem-vindo'}</strong>! Suas informações foram preenchidas no automático.</span>
+                        `;
+                        const form = document.getElementById('form-cadastro-vip');
+                        if (form) form.prepend(aviso);
+                    }
+                }
+            } catch (e) {
+                console.warn("Erro no preenchimento automático do lead VIP:", e);
+            }
+        }
+
         // Inicialização ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
             const destino = determinarGrupoDestino();
@@ -532,6 +656,9 @@
             // Aplica máscara automática se já houver valor
             const inputWhats = document.getElementById('lead-whatsapp');
             if (inputWhats && inputWhats.value) mascaraWhatsApp(inputWhats);
+
+            // Puxa no automático as informações do consultor ou cliente
+            preencherDadosLeadSeJaLogado();
         });
     </script>
 </body>

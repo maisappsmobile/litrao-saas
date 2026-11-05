@@ -281,7 +281,44 @@
             document.getElementById('form-avaliacao').classList.add('hidden');
             document.getElementById('tela-sucesso').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Salva dados do cliente no navegador para reutilização automática
+            try {
+                const nomePuro = document.getElementById('campo-nome').value.replace(/\[INÍCIO\]|\[FINAL\]/g, '').trim();
+                const zapPuro = document.getElementById('campo-whatsapp').value.trim();
+                if (nomePuro) localStorage.setItem('litrao_cliente_nome', nomePuro);
+                if (zapPuro) localStorage.setItem('litrao_cliente_whatsapp', zapPuro);
+            } catch (_) {}
         }
+
+        // Auto-preenchimento ao carregar caso o cliente já esteja identificado
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const nomeUrl = urlParams.get('nome');
+                const zapUrl = urlParams.get('whatsapp') || urlParams.get('zap');
+
+                let nomeSalvo = nomeUrl || localStorage.getItem('litrao_cliente_nome') || '';
+                let zapSalvo = zapUrl || localStorage.getItem('litrao_cliente_whatsapp') || '';
+
+                if (!nomeSalvo || !zapSalvo) {
+                    const ult = localStorage.getItem('litrao_ultimo_cliente');
+                    if (ult) {
+                        try {
+                            const p = JSON.parse(ult);
+                            if (!nomeSalvo && p.nome) nomeSalvo = p.nome;
+                            if (!zapSalvo && p.whatsapp) zapSalvo = p.whatsapp;
+                        } catch (_) {}
+                    }
+                }
+
+                const inNome = document.getElementById('campo-nome');
+                const inZap = document.getElementById('campo-whatsapp');
+
+                if (inNome && !inNome.value && nomeSalvo) inNome.value = nomeSalvo;
+                if (inZap && !inZap.value && zapSalvo) inZap.value = zapSalvo;
+            } catch (_) {}
+        });
     </script>
 </body>
 </html>
