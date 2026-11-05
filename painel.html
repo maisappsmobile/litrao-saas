@@ -28544,11 +28544,13 @@ ${escapeHtml(textoFinal)}
                     }
                 }
 
+                // Trata Email ou ID com as 3 Letras Oficiais Herbalife
                 let infoFinal = '';
-                if (consultorAtual.email && consultorAtual.email.includes('@')) {
+                if (consultorAtual.herbalife_id) {
+                    const letras = (consultorAtual.letras || '').toUpperCase().trim();
+                    infoFinal = `ID Herbalife: ${consultorAtual.herbalife_id}${letras ? ' ' + letras : ''}`;
+                } else if (consultorAtual.email && consultorAtual.email.includes('@')) {
                     infoFinal = consultorAtual.email.trim();
-                } else if (consultorAtual.herbalife_id) {
-                    infoFinal = `ID Herbalife: ${consultorAtual.herbalife_id}`;
                 } else {
                     infoFinal = 'Distribuidor Independente Oficial';
                 }

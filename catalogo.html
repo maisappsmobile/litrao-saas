@@ -747,6 +747,7 @@
         let consultorAtual = {
             id: '433005811',
             herbalife_id: '433005811',
+            letras: 'BRA',
             slug: 'forboss-espaco-fitness',
             nome_espaco: 'Edwan Braga • ForBoss Espaço Fitness',
             whatsapp: '66981411234',
@@ -2009,6 +2010,7 @@
                     if (data && !error) {
                         consultorAtual.id = data.id;
                         consultorAtual.herbalife_id = data.herbalife_id || consultorAtual.herbalife_id;
+                        consultorAtual.letras = data.letras || consultorAtual.letras || '';
                         consultorAtual.slug = data.slug || consultorAtual.slug;
                         consultorAtual.whatsapp = normalizarTelefone(data.whatsapp || consultorAtual.whatsapp);
                         consultorAtual.email = data.email || '';
@@ -2756,12 +2758,13 @@
                     }
                 }
 
-                // Trata Email ou ID
+                // Trata Email ou ID com as 3 Letras Oficiais Herbalife
                 let infoFinal = '';
-                if (consultorAtual && consultorAtual.email && consultorAtual.email.includes('@')) {
+                if (consultorAtual && consultorAtual.herbalife_id) {
+                    const letras = (consultorAtual.letras || '').toUpperCase().trim();
+                    infoFinal = `ID Herbalife: ${consultorAtual.herbalife_id}${letras ? ' ' + letras : ''}`;
+                } else if (consultorAtual && consultorAtual.email && consultorAtual.email.includes('@')) {
                     infoFinal = consultorAtual.email.trim();
-                } else if (consultorAtual && consultorAtual.herbalife_id) {
-                    infoFinal = `ID Herbalife: ${consultorAtual.herbalife_id}`;
                 } else {
                     infoFinal = 'Distribuidor Independente Oficial';
                 }
