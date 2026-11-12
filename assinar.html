@@ -1515,7 +1515,8 @@
                 nomeEspacoCompleto += ` <!--CUPOM_UTILIZADO:${JSON.stringify(cupomPorcentagemObj)}-->`;
             }
 
-            const { error } = await supabaseClient.from('consultores').insert([{
+            let inseriuOuAtualizou = false;
+            const resInsert = await supabaseClient.from('consultores').insert([{
                 slug: slug,
                 herbalife_id: hid,
                 letras: letras,
@@ -1525,7 +1526,23 @@
                 vencimento: vencimento
             }]);
 
-            if (error) {
+            if (!resInsert.error) {
+                inseriuOuAtualizou = true;
+            } else {
+                // Se o ID já existe no banco, atualiza os dados do consultor existente
+                const resUpdate = await supabaseClient.from('consultores').update({
+                    whatsapp: zap,
+                    nome_espaco: nomeEspacoCompleto,
+                    status: 'Ativo',
+                    vencimento: vencimento
+                }).eq('herbalife_id', hid);
+
+                if (!resUpdate.error) {
+                    inseriuOuAtualizou = true;
+                }
+            }
+
+            if (!inseriuOuAtualizou) {
                 alert("Erro! O ID " + hid + " já está em uso.");
                 btn.innerHTML = 'GERAR MEU LINK AGORA';
                 btn.disabled = false;
