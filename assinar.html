@@ -1308,6 +1308,7 @@
             let codigoFundadorGerado = null;
             let cfgFundadorAssinar = { preco: 0, semValidade: true, dataValidade: '' };
             let isPresidente = cupom === 'MEUPRESIDENTE';
+            let isTeste10 = cupom === 'TESTE10';
             let cupomPorcentagemObj = null;
 
             if (isFundador) {
@@ -1508,6 +1509,8 @@
 
             if (isPresidente) {
                 nomeEspacoCompleto += ` <!--CUPOM:MEUPRESIDENTE|MENSALIDADE:20|CARENCIA:60-->`;
+            } else if (isTeste10) {
+                nomeEspacoCompleto += ` <!--CUPOM:TESTE10|VALOR:0.10-->`;
             } else if (cupomPorcentagemObj) {
                 nomeEspacoCompleto += ` <!--CUPOM_UTILIZADO:${JSON.stringify(cupomPorcentagemObj)}-->`;
             }
@@ -1597,6 +1600,29 @@
                             </p>
                         </div>
                     `;
+                } else if (isTeste10) {
+                    const valorComDesconto = 0.10;
+                    pixPayloadAtivo = gerarPixPayloadDinamico(0.10, `TESTE10_${Date.now().toString().slice(-4)}`);
+
+                    document.getElementById('msg-sucesso').innerHTML = `
+                        <div class="bg-purple-50 border-2 border-purple-400 p-4 rounded-2xl mb-4 text-left shadow-xs">
+                            <span class="text-purple-800 font-black text-base flex items-center">
+                                <i class="fa-solid fa-vial text-purple-600 mr-2 text-lg"></i> CUPOM DE TESTE "TESTE10" ATIVADO!
+                            </span>
+                            <p class="text-purple-950 font-bold text-xs mt-1.5 leading-relaxed">
+                                🧪 Modo de teste SuperAdmin: O valor do Pix foi ajustado para apenas <strong>R$ 0,10</strong> (10 centavos) para teste de pagamento.
+                            </p>
+                            <p class="text-purple-800 text-xs mt-1">
+                                Escaneie o QR Code abaixo ou utilize o código Copia e Cola para pagar os R$ 0,10 pelo seu banco.
+                            </p>
+                        </div>
+                    `;
+
+                    // Atualiza exibição de valor no box do Pix
+                    const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
+                    if (valorPixBox) {
+                        valorPixBox.innerHTML = `R$ 0,10`;
+                    }
                 } else if (cupomPorcentagemObj) {
                     const valorOriginal = 199.00;
                     let descontoReais = 0;
@@ -1657,7 +1683,7 @@
                 // Inicia o monitor de Pix Onramp automático para liberação instantânea
                 const valorCobradoFinal = isFundador 
                     ? ((modalidadeFundadorSelecionada === 'anual') ? (parseFloat(cfgFundadorAssinar.precoAnual) || 290.00) : (parseFloat(cfgFundadorAssinar.precoMensal) || 39.90))
-                    : (cupomPorcentagemObj ? (typeof valorComDesconto !== 'undefined' ? valorComDesconto : 199.00) : 199.00);
+                    : (isTeste10 ? 0.10 : (cupomPorcentagemObj ? (typeof valorComDesconto !== 'undefined' ? valorComDesconto : 199.00) : 199.00));
                 
                 iniciarMonitoramentoPixAutomatico(hid, valorCobradoFinal, `RESET_${hid}_${Date.now().toString().slice(-6)}`);
                 
@@ -2158,6 +2184,17 @@
                 `;
                 feedback.classList.remove('hidden');
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-amber-50 border-2 border-amber-400 rounded-xl focus:outline-none ring-2 ring-amber-300 uppercase font-black text-amber-950';
+            } else if (cod === 'TESTE10') {
+                feedback.className = 'mt-2 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-400 rounded-xl text-xs text-purple-950 font-bold flex items-center gap-2.5 shadow-sm';
+                feedback.innerHTML = `
+                    <i class="fa-solid fa-vial text-purple-600 text-lg shrink-0"></i>
+                    <div>
+                        <span class="text-purple-900 font-black block">🧪 CUPOM DE TESTE ATIVO (SUPERADMIN)!</span>
+                        <span class="text-[11px] text-purple-800">O valor do Pix será gerado em <strong>R$ 0,10</strong> para teste de pagamento.</span>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-50 border-2 border-purple-400 rounded-xl focus:outline-none ring-2 ring-purple-300 uppercase font-black text-purple-950';
             } else if (cod === 'MEUPRESIDENTE') {
                 feedback.className = 'mt-2 p-2.5 bg-emerald-50 border border-emerald-400 rounded-xl text-xs text-emerald-950 font-bold flex items-center gap-2';
                 feedback.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i><span>Cupom <strong>MEUPRESIDENTE</strong> ativo: R$ 20/mês com 60 dias de carência.</span>`;

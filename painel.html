@@ -10331,6 +10331,31 @@
             feedback.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Validando cupom ${codigo}...`;
 
             try {
+                // Caso 0: Cupom de Teste SuperAdmin TESTE10 (Gera R$ 0,10 para teste de pagamento)
+                if (codigo === 'TESTE10') {
+                    cupomAtivoModal = {
+                        tipo: 'teste10',
+                        codigo: 'TESTE10',
+                        descontoPorcentagem: 0,
+                        valorFixoFinal: 0.10,
+                        carenciaDias: 0,
+                        dataPrimeiraMensalidade: ''
+                    };
+
+                    feedback.className = "mt-2.5 text-xs font-bold p-3 rounded-xl text-purple-900 bg-purple-100 border-2 border-purple-400 block animate-fade-in";
+                    feedback.innerHTML = `
+                        <div class="flex items-center justify-center gap-1.5 text-sm font-black text-purple-800">
+                            <i class="fa-solid fa-vial text-purple-600"></i> CUPOM DE TESTE TESTE10 APLICADO!
+                        </div>
+                        <p class="mt-1 text-purple-950 font-semibold text-[11px]">
+                            🧪 Modo de teste ativado: O valor de adesão do plano foi definido para <strong>R$ 0,10</strong> para teste de pagamento.
+                        </p>
+                    `;
+
+                    selecionarPlano(planoSelecionadoAtual);
+                    return;
+                }
+
                 // Caso 1: Cupom MEUPRESIDENTE
                 if (codigo === 'MEUPRESIDENTE') {
                     const urlVerif = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:MEUPRESIDENTE*&select=id,herbalife_id,nome_espaco`;
@@ -10587,7 +10612,23 @@
             let valorFinal = valorBase;
             let payloadPixFinal = p.payloadPix || gerarPixPayloadDinamico(valorBase, `RESET${Math.round(valorBase)}`);
 
-            if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+                valorFinal = 0.10;
+                payloadPixFinal = gerarPixPayloadDinamico(0.10, 'TESTE10');
+                if (txtValor) {
+                    txtValor.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs text-red-500 line-through font-bold">${p.adesao}</span>
+                            <span class="text-2xl sm:text-3xl font-black text-purple-700 leading-tight">
+                                R$ 0,10
+                            </span>
+                            <span class="text-[10px] font-black uppercase bg-purple-600 text-white px-2 py-0.5 rounded-full mt-0.5">
+                                🧪 TESTE 0,10 R$ (SUPERADMIN)
+                            </span>
+                        </div>
+                    `;
+                }
+            } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
                 const descontoValor = (valorBase * cupomAtivoModal.descontoPorcentagem) / 100;
                 valorFinal = Math.max(1, valorBase - descontoValor);
                 payloadPixFinal = gerarPixPayloadDinamico(valorFinal, `RESET${Math.round(valorFinal)}`);
@@ -11978,7 +12019,9 @@
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
             
             let valorAdesao = p.adesao;
-            if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+                valorAdesao = `R$ 0,10 (Taxa de Teste)`;
+            } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
                 const desc = (p.valorAdesaoNum * cupomAtivoModal.descontoPorcentagem) / 100;
                 const vf = Math.max(1, p.valorAdesaoNum - desc);
                 valorAdesao = `R$ ${vf.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (com ${cupomAtivoModal.descontoPorcentagem}% OFF)`;
@@ -11986,7 +12029,9 @@
 
             let msg = `Olá! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\nAcabei de realizar o PIX de adesão no valor de *${valorAdesao}* referente ao *${p.nome}* no Litrão do Reset! 🚀\n`;
             
-            if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+                msg += `\n🧪 *CUPOM DE TESTE:* TESTE10\n🔬 *VALOR DE TESTE:* R$ 0,10\n`;
+            } else if (cupomAtivoModal && cupomAtivoModal.codigo === 'MEUPRESIDENTE') {
                 msg += `\n🎟️ *CUPOM APLICADO:* MEUPRESIDENTE\n⭐ *BENEFÍCIO ATIVADO:* Mensalidade promocional de *R$ 20,00/mês* com *60 DIAS DE CARÊNCIA* (1ª mensalidade apenas em ${cupomAtivoModal.dataPrimeiraMensalidade})!\n`;
             } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
                 msg += `\n🎟️ *CUPOM APLICADO:* ${cupomAtivoModal.codigo} (${cupomAtivoModal.descontoPorcentagem}% OFF na taxa de adesão)!\n`;
@@ -18750,6 +18795,18 @@
                 const consultores = await res.json();
 
                 const cuponsEncontrados = [];
+
+                // Inclui o cupom TESTE10 exclusivamente para o Super Admin
+                if (typeof isSuperAdminLogado === 'function' && isSuperAdminLogado()) {
+                    cuponsEncontrados.push({
+                        codigo: 'TESTE10',
+                        nome: '🧪 Teste de Pagamento Pix (SuperAdmin)',
+                        desconto: 'R$ 0,10 (Taxa de Teste)',
+                        limite: 'Ilimitado (Exclusivo SuperAdmin)',
+                        criador: 'SUPERADMIN'
+                    });
+                }
+
                 // Inclui sempre o cupom nativo MEUPRESIDENTE
                 cuponsEncontrados.push({
                     codigo: 'MEUPRESIDENTE',

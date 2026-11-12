@@ -984,6 +984,14 @@
             if (!cupom || !verificarCupomAplicaNoPlano(cupom, plano)) {
                 return { aplica: false, valorFinal: valorOriginal, descontoReais: 0, badgeHtml: '' };
             }
+            if (cupom.isTeste10 || cupom.codigo === 'TESTE10') {
+                return {
+                    aplica: true,
+                    valorFinal: 0.10,
+                    descontoReais: Math.max(0, valorOriginal - 0.10),
+                    badgeHtml: `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">🧪 TESTE R$ 0,10</span>`
+                };
+            }
             let descReais = 0;
             let badgeTexto = '';
             if (cupom.tipoDesconto === 'valor_fixo') {
@@ -1006,7 +1014,30 @@
         function renderizarFeedbackCupomVendas(cupom, descTexto, planosTexto) {
             const feedback = document.getElementById('feedback-cupom-vendas');
             if (!feedback) return;
-            if (cupom.isFundador) {
+            if (cupom.isTeste10) {
+                feedback.className = 'mt-3 text-xs text-purple-200 bg-gradient-to-r from-purple-950/90 via-slate-900 to-purple-950/90 border-2 border-purple-400 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl';
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-3 text-left">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg font-black shrink-0 shadow-md">
+                            <i class="fa-solid fa-vial"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-purple-300 uppercase tracking-wider text-sm">CUPOM DE TESTE ATIVO: TESTE10</span>
+                                <span class="bg-purple-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">SUPERADMIN</span>
+                            </div>
+                            <p class="text-[11px] text-purple-100/90 mt-0.5">
+                                Valor de adesão ajustado para <strong>R$ 0,10</strong> para teste de pagamento.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                        <button type="button" onclick="removerCupomDesconto()" class="text-rose-400 hover:text-rose-300 font-bold text-xs p-2 cursor-pointer" title="Remover Cupom">
+                            <i class="fa-solid fa-times mr-1"></i> Remover
+                        </button>
+                    </div>
+                `;
+            } else if (cupom.isFundador) {
                 feedback.className = 'mt-3 text-xs text-amber-200 bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-2 border-amber-400 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl';
                 feedback.innerHTML = `
                     <div class="flex items-center gap-3 text-left">
@@ -1072,8 +1103,21 @@
 
             let cupomEncontrado = null;
 
-            // 0. Cupom Exclusivo Grupo Fundadores
-            if (codigo === 'FUNDADOR100') {
+            // 0. Cupom de Teste SuperAdmin TESTE10
+            if (codigo === 'TESTE10') {
+                cupomEncontrado = {
+                    nome: 'Teste de Pagamento (SuperAdmin)',
+                    codigo: 'TESTE10',
+                    tipoDesconto: 'valor_fixo',
+                    desconto: 0.10,
+                    planos: 'todos',
+                    carenciaDias: 0,
+                    isTeste10: true,
+                    descricao: 'Valor especial de teste de R$ 0,10'
+                };
+            }
+            // 0.1 Cupom Exclusivo Grupo Fundadores
+            else if (codigo === 'FUNDADOR100') {
                 let cfgFund = { preco: 0, semValidade: true, dataValidade: '' };
                 try {
                     const res = await fetch(`${SUPABASE_URL}/consultores?nome_espaco=ilike.*<!--CONFIG_FUNDADORES:*&select=nome_espaco`, {
