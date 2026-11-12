@@ -6726,10 +6726,17 @@
                         <i class="fa-solid fa-check mr-1 text-emerald-600"></i> Copiado para a área de transferência!
                     </div>
 
-                    <!-- BOTÃO ENVIAR COMPROVANTE PIX -->
-                    <div class="mt-4 pt-2 flex flex-col gap-2">
-                        <button onclick="enviarComprovanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center text-sm cursor-pointer">
-                            <i class="fa-brands fa-whatsapp mr-2 text-xl text-emerald-200"></i> JÁ PAGUEI VIA PIX! ENVIAR COMPROVANTE
+                    <!-- AÇÕES PÓS-PAGAMENTO PIX -->
+                    <div class="mt-4 pt-2 flex flex-col gap-2.5">
+                        <!-- 1. BOTÃO DE LIBERAÇÃO INSTANTÂNEA DIRETA -->
+                        <button type="button" id="btn-confirmar-pix-modal" onclick="confirmarPagamentoPixModal()" class="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black py-4 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 text-sm cursor-pointer border-2 border-emerald-300 animate-pulse">
+                            <i class="fa-solid fa-bolt text-amber-300 text-lg"></i>
+                            <span>⚡ JÁ FIZ O PIX! ATUALIZAR MEU STATUS AGORA</span>
+                        </button>
+
+                        <!-- 2. BOTÃO ENVIAR COMPROVANTE NO WHATSAPP (OPCIONAL/SUPORTE) -->
+                        <button type="button" onclick="enviarComprovanteWhatsApp()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl border border-slate-300 transition flex items-center justify-center text-xs cursor-pointer shadow-xs">
+                            <i class="fa-brands fa-whatsapp mr-2 text-base text-emerald-600"></i> Ou enviar comprovante no WhatsApp
                         </button>
                     </div>
                 </div>
@@ -7513,6 +7520,68 @@
                     <button type="button" id="btn-compartilhar-whatsapp-opcional" onclick="compartilharAtivacaoFitcoinWhatsApp()" class="w-full bg-slate-900 hover:bg-slate-800 text-gray-300 hover:text-white font-bold py-2.5 px-4 rounded-xl border border-slate-800 transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
                         <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
                         <span>Enviar comprovante para a Central (Opcional)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CELEBRAÇÃO: ATIVAÇÃO IMEDIATA PIX -->
+        <div id="modal-sucesso-ativacao-pix" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+            <div class="bg-gradient-to-b from-slate-900 via-slate-950 to-black border-2 border-emerald-400 text-white rounded-3xl max-w-lg w-full p-6 sm:p-7 text-center shadow-[0_0_60px_rgba(16,185,129,0.35)] relative overflow-hidden">
+                <!-- Luzes de fundo neon -->
+                <div class="absolute -top-20 -right-20 w-44 h-44 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-20 -left-20 w-44 h-44 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Ícone com animação de celebração -->
+                <div class="relative mb-3">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-emerald-500 via-teal-400 to-green-400 text-slate-950 flex items-center justify-center text-4xl shadow-2xl shadow-emerald-500/50">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <span class="inline-block mt-3 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 text-[10px] font-black uppercase px-3.5 py-1 rounded-full shadow-md tracking-wider">
+                        ⚡ Pagamento PIX Confirmado & Status Atualizado!
+                    </span>
+                </div>
+
+                <h3 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-teal-300 leading-tight">
+                    PLANO ATIVADO COM SUCESSO!
+                </h3>
+                
+                <p class="text-xs sm:text-sm text-gray-300 mt-2 leading-relaxed">
+                    Seu pagamento via <strong>PIX</strong> foi confirmado e o sistema <strong>atualizou seu status e data de vencimento imediatamente</strong> no banco de dados.
+                </p>
+
+                <!-- Box Resumo da Ativação Imediata -->
+                <div class="my-4 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 text-left space-y-2.5 text-xs shadow-inner">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-gray-400 font-bold uppercase text-[10px]">Status da Conta:</span>
+                        <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-0.5 rounded-full uppercase flex items-center gap-1.5 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+                            <span>ATIVO & LIBERADO</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-gray-400 font-bold uppercase text-[10px]">Plano Selecionado:</span>
+                        <span id="sucesso-pix-plano-nome" class="font-black text-emerald-300 text-sm">Start Pro</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-gray-400 font-bold uppercase text-[10px]">Valor Registrado:</span>
+                        <strong id="sucesso-pix-valor" class="text-amber-300 font-mono text-sm font-black">R$ 0,10</strong>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-gray-400 font-bold uppercase text-[10px]">Novo Vencimento:</span>
+                        <strong id="sucesso-pix-vencimento" class="text-emerald-400 font-mono text-sm font-black">04/01/2027</strong>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="space-y-2.5">
+                    <button type="button" onclick="fecharModalSucessoAtivacaoPix()" class="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-xl transition transform hover:scale-[1.01] cursor-pointer text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rocket"></i>
+                        <span>CONTINUAR NO MEU PAINEL</span>
+                    </button>
+                    <button type="button" onclick="enviarComprovanteWhatsApp(); fecharModalSucessoAtivacaoPix();" class="w-full bg-slate-900 hover:bg-slate-800 text-gray-300 hover:text-white font-bold py-2.5 px-4 rounded-xl border border-slate-800 transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                        <span>Enviar comprovante no WhatsApp (Opcional)</span>
                     </button>
                 </div>
             </div>
@@ -12048,6 +12117,224 @@
         }
         window.enviarComprovanteWhatsApp = enviarComprovanteWhatsApp;
 
+        // =========================================================================
+        // CONFIRMAÇÃO E ATIVAÇÃO IMEDIATA DO PAGAMENTO PIX (SEM ESPERA)
+        // =========================================================================
+        let confirmandoPixEmAndamento = false;
+        async function confirmarPagamentoPixModal() {
+            if (confirmandoPixEmAndamento) return;
+            if (!consultorAtual) {
+                alert("Atenção: Nenhum consultor autenticado nesta sessão. Faça login novamente.");
+                return;
+            }
+
+            const pKey = planoSelecionadoAtual || 'plano1';
+            const p = DADOS_PLANOS[pKey] || DADOS_PLANOS.plano1;
+            const btn = document.getElementById('btn-confirmar-pix-modal');
+            const textoOriginal = btn ? btn.innerHTML : '';
+
+            try {
+                confirmandoPixEmAndamento = true;
+                if (btn) {
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Verificando e Atualizando Status...`;
+                    btn.disabled = true;
+                }
+
+                // 1. Cálculo da nova data de validade
+                let novoVencimento = '';
+                if (pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
+                    novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
+                } else {
+                    let baseDate = new Date();
+                    if (consultorAtual.vencimento) {
+                        const partes = String(consultorAtual.vencimento).split('-');
+                        if (partes.length === 3) {
+                            const ano = parseInt(partes[0], 10);
+                            const mes = parseInt(partes[1], 10) - 1;
+                            const dia = parseInt(partes[2], 10);
+                            const dtVencAtual = new Date(ano, mes, dia, 23, 59, 59);
+                            if (dtVencAtual > baseDate) {
+                                baseDate = dtVencAtual;
+                            }
+                        }
+                    }
+                    const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
+                    baseDate.setDate(baseDate.getDate() + diasCiclo);
+                    const anoStr = baseDate.getFullYear();
+                    const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
+                    const diaStr = String(baseDate.getDate()).padStart(2, '0');
+                    novoVencimento = `${anoStr}-${mesStr}-${diaStr}`;
+                }
+
+                // 2. Determina valor pago e cupom
+                let valorPagoNum = p.valorAdesaoNum || 99.00;
+                let cupomCod = null;
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+                    valorPagoNum = 0.10;
+                    cupomCod = 'TESTE10';
+                } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+                    const desc = (p.valorAdesaoNum * cupomAtivoModal.descontoPorcentagem) / 100;
+                    valorPagoNum = Math.max(1, p.valorAdesaoNum - desc);
+                    cupomCod = cupomAtivoModal.codigo;
+                }
+
+                // 3. Monta tag de auditoria
+                let rawEspaco = consultorAtual.nome_espaco || '';
+                const infoPix = {
+                    plano: pKey,
+                    nomePlano: p.nome,
+                    valor: valorPagoNum,
+                    cupom: cupomCod,
+                    data: new Date().toISOString(),
+                    metodo: 'PIX_CONFIRMADO_IMEDIATO'
+                };
+                const tagPix = `<!--PAGAMENTO_PIX:${JSON.stringify(infoPix)}-->`;
+                if (rawEspaco.includes('<!--PAGAMENTO_PIX:')) {
+                    rawEspaco = rawEspaco.replace(/<!--PAGAMENTO_PIX:[\s\S]*?-->/, tagPix);
+                } else {
+                    rawEspaco = rawEspaco + ' ' + tagPix;
+                }
+
+                // 4. Salva no Supabase via PATCH
+                let res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(consultorAtual.herbalife_id)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        status: 'Ativo',
+                        vencimento: novoVencimento,
+                        nome_espaco: rawEspaco
+                    })
+                });
+
+                if (!res.ok && consultorAtual.id) {
+                    res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${encodeURIComponent(consultorAtual.id)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({
+                            status: 'Ativo',
+                            vencimento: novoVencimento,
+                            nome_espaco: rawEspaco
+                        })
+                    });
+                }
+
+                if (!res.ok) {
+                    const errTxt = await res.text();
+                    throw new Error(errTxt || `Erro HTTP ${res.status}`);
+                }
+
+                // 5. Atualiza estado em memória e localStorage
+                consultorAtual.status = 'Ativo';
+                consultorAtual.vencimento = novoVencimento;
+                consultorAtual.nome_espaco = rawEspaco;
+
+                try {
+                    const authLocal = localStorage.getItem('litrao_consultor_auth');
+                    if (authLocal) {
+                        const parsed = JSON.parse(authLocal);
+                        parsed.status = 'Ativo';
+                        parsed.vencimento = novoVencimento;
+                        localStorage.setItem('litrao_consultor_auth', JSON.stringify(parsed));
+                    }
+                } catch(e) {}
+
+                // 6. Atualiza elementos visuais do Dashboard na hora!
+                const elDashVenc = document.getElementById('dash-vencimento');
+                if (elDashVenc && novoVencimento) {
+                    const partes = novoVencimento.split('-');
+                    if (partes.length === 3) elDashVenc.innerText = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+                const elDashVencMini = document.getElementById('dash-vencimento-mini');
+                if (elDashVencMini && novoVencimento) {
+                    const partes = novoVencimento.split('-');
+                    if (partes.length === 3) elDashVencMini.innerText = `Vencimento: ${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+                const elDashStatus = document.getElementById('dash-status');
+                if (elDashStatus) {
+                    elDashStatus.innerText = 'ATIVO';
+                    elDashStatus.className = 'bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-black uppercase';
+                }
+                const elDashStatusMini = document.getElementById('dash-status-mini');
+                if (elDashStatusMini) {
+                    elDashStatusMini.innerText = 'Ativo';
+                }
+
+                // Remove avisos de expiração / redirecionamento
+                const alertaVenc = document.getElementById('dash-vencimento-alerta');
+                if (alertaVenc) alertaVenc.classList.add('hidden');
+                const alertaRedir = document.getElementById('alerta-link-redirecionado');
+                if (alertaRedir) alertaRedir.classList.add('hidden');
+                const bannerTrial = document.getElementById('banner-promocao-trial');
+                if (bannerTrial) bannerTrial.classList.add('hidden');
+                const badgeStatus = document.getElementById('badge-trial-status');
+                if (badgeStatus) badgeStatus.classList.add('hidden');
+
+                if (typeof verificarStatusVencimentoConsultor === 'function') {
+                    verificarStatusVencimentoConsultor();
+                }
+
+                // 7. Fecha o modal de compra e abre o modal de sucesso do PIX
+                fecharModalPromocao();
+                abrirModalSucessoAtivacaoPix(infoPix, novoVencimento);
+
+            } catch (err) {
+                console.error("Erro na ativação do PIX:", err);
+                alert(`Erro ao salvar no banco de dados: ${err.message}.\n\nVocê também pode enviar o comprovante pelo WhatsApp.`);
+            } finally {
+                confirmandoPixEmAndamento = false;
+                if (btn) {
+                    btn.innerHTML = textoOriginal;
+                    btn.disabled = false;
+                }
+            }
+        }
+        window.confirmarPagamentoPixModal = confirmarPagamentoPixModal;
+
+        function abrirModalSucessoAtivacaoPix(infoPix, novoVencimento) {
+            const modal = document.getElementById('modal-sucesso-ativacao-pix');
+            const pKey = (infoPix && infoPix.plano) || planoSelecionadoAtual || 'plano1';
+            const p = DADOS_PLANOS[pKey] || DADOS_PLANOS.plano1;
+
+            if (!modal) {
+                const dataFormatada = novoVencimento ? novoVencimento.split('-').reverse().join('/') : '30 dias';
+                alert(`🎉 PAGAMENTO PIX CONFIRMADO COM SUCESSO!\n\nSeu plano ${p.nome} está ATIVO!\nNovo vencimento da licença: ${dataFormatada}\n\nObrigado por assinar o Litrão do Reset!`);
+                return;
+            }
+
+            const elPlano = document.getElementById('sucesso-pix-plano-nome');
+            const elVenc = document.getElementById('sucesso-pix-vencimento');
+            const elValor = document.getElementById('sucesso-pix-valor');
+
+            if (elPlano) elPlano.innerText = (infoPix && infoPix.nomePlano) || p.nome;
+            if (elValor && infoPix) elValor.innerText = `R$ ${infoPix.valor.toFixed(2).replace('.', ',')}`;
+            if (elVenc) {
+                if (novoVencimento === '2036-12-31') {
+                    elVenc.innerHTML = 'Acesso Vitalício Permanente (2036)';
+                } else if (novoVencimento) {
+                    const pData = novoVencimento.split('-');
+                    elVenc.innerText = `${pData[2]}/${pData[1]}/${pData[0]}`;
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+        window.abrirModalSucessoAtivacaoPix = abrirModalSucessoAtivacaoPix;
+
+        function fecharModalSucessoAtivacaoPix() {
+            const modal = document.getElementById('modal-sucesso-ativacao-pix');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalSucessoAtivacaoPix = fecharModalSucessoAtivacaoPix;
+
         function alternarVisibilidadeSenha(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -12677,6 +12964,18 @@
                 } catch (avErr) {
                     console.warn("Erro ao carregar avaliações:", avErr);
                 }
+
+                // Abre o modal de planos se solicitado na URL (ex: redirecionado de assinar.html)
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('abrirPlanos') === 'true' || urlParams.get('planos') === 'true') {
+                        setTimeout(() => {
+                            if (typeof abrirModalPromocao === 'function') {
+                                abrirModalPromocao();
+                            }
+                        }, 500);
+                    }
+                } catch(pErr) {}
             } catch (err) {
                 console.error("Erro geral em mostrarDashboard:", err);
             }

@@ -1543,7 +1543,13 @@
             }
 
             if (!inseriuOuAtualizou) {
-                alert("Erro! O ID " + hid + " já está em uso.");
+                if (confirm("O ID " + hid + " já possui cadastro no Litrão do Reset!\n\nDeseja acessar o seu Painel agora para escolher seu plano ou renovar sua assinatura?")) {
+                    try {
+                        localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: hid, letras: letras }));
+                    } catch (e) {}
+                    window.location.href = `painel.html?id=${encodeURIComponent(hid)}&letras=${encodeURIComponent(letras)}&abrirPlanos=true`;
+                    return;
+                }
                 btn.innerHTML = 'GERAR MEU LINK AGORA';
                 btn.disabled = false;
             } else {
