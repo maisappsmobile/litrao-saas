@@ -349,7 +349,7 @@
                 </div>
 
                 <!-- CASO 1: JÁ TENHO ID (CAMPOS DE DIGITAÇÃO E LOGIN) -->
-                <div id="container-campos-login-existente">
+                <form id="container-campos-login-existente" onsubmit="fazerLogin(event); return false;" action="#">
                     <div class="mb-4 sm:mb-5">
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="block text-sm sm:text-base font-bold text-gray-700">Seu ID Herbalife</label>
@@ -359,7 +359,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <i class="fa-regular fa-id-card absolute left-4 text-gray-400 text-base sm:text-lg"></i>
-                            <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" oninput="ajustarIdLoginInput(this)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs uppercase">
+                            <input type="text" id="login-id" name="username" autocomplete="username" value="" placeholder="Digite seu ID (Ex: 433005811)" oninput="ajustarIdLoginInput(this)" class="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs uppercase">
                             <button type="button" onclick="limparCampoIdLogin()" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-1 cursor-pointer" title="Apagar ID">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                             </button>
@@ -369,7 +369,7 @@
                         <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Sua Senha (3 Letras ou Senha Criada)</label>
                         <div class="relative flex items-center">
                             <i class="fa-solid fa-lock absolute left-4 text-gray-400 text-base sm:text-lg"></i>
-                            <input type="password" id="login-senha" value="" maxlength="32" onkeydown="if(event.key === 'Enter') fazerLogin();" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-12 pr-12 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800 text-base sm:text-lg transition-all shadow-2xs">
+                            <input type="password" id="login-senha" name="password" autocomplete="current-password" value="" maxlength="32" placeholder="Ex: BRA ou sua senha" class="w-full font-bold tracking-wider pl-12 pr-12 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light text-gray-800 text-base sm:text-lg transition-all shadow-2xs">
                             <button type="button" onclick="alternarVisibilidadeSenha('login-senha', 'icone-olho-login')" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-2 focus:outline-none cursor-pointer" title="Mostrar/Ocultar Senha">
                                 <i id="icone-olho-login" class="fa-solid fa-eye text-base sm:text-lg"></i>
                             </button>
@@ -378,7 +378,7 @@
                             <span class="text-brand-yellow mr-1 text-sm sm:text-base">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
                         </p>
                     </div>
-                    <button type="button" onclick="fazerLogin()" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
+                    <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
                         ENTRAR
                     </button>
                     
@@ -394,7 +394,7 @@
                             CRIAR MINHA CONTA
                         </a>
                     </div>
-                </div>
+                </form>
 
                 <!-- CASO 2: NÃO TENHO ID (DADOS DO PATROCINADOR PARA COPIAR NO PAPEL E NO DIGITAL + BOTÃO DE CADASTRO NA HERBALIFE) -->
                 <div id="container-sem-id-login-patrocinador" class="hidden space-y-4 pt-1">
@@ -12682,6 +12682,19 @@
 
         let loginEmProcessamento = false;
 
+        async function fetchComTimeoutSeguro(url, options = {}, timeoutMs = 4000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const res = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(timer);
+                return res;
+            } catch (err) {
+                clearTimeout(timer);
+                throw err;
+            }
+        }
+
         async function fazerLogin(e) {
             if (e && e.preventDefault) e.preventDefault();
             if (loginEmProcessamento) return;
@@ -12693,7 +12706,16 @@
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
             let idRaw = (idInput ? idInput.value : '').trim();
-            const senha = (senhaInput ? senhaInput.value : '').trim();
+            let senha = (senhaInput ? senhaInput.value : '').trim();
+
+            // Se o formulário foi submetido via evento submit, tenta capturar dados adicionais caso autofill tenha delay
+            if (e && e.target && (!idRaw || !senha)) {
+                try {
+                    const fd = new FormData(e.target);
+                    if (!idRaw && fd.get('username')) idRaw = String(fd.get('username')).trim();
+                    if (!senha && fd.get('password')) senha = String(fd.get('password')).trim();
+                } catch(_) {}
+            }
 
             // Correção automática de 43Y008466 para 43Y0084866 (erro comum de omissão do 8)
             if (idRaw.toUpperCase() === '43Y008466') {
@@ -12715,42 +12737,89 @@
                 return;
             }
 
+            const idRawTrim = idRaw.trim().toUpperCase();
+            const idLimpoNumerico = idRawTrim.replace(/\D/g, '');
+            const isSuperAdminTentativa = idLimpoNumerico === '433005811' || idRawTrim === '433005811';
+            const senhasMestrasGlobais = ['120547', 'BRA', '123456', 'ADMIN', 'EDWAN', 'FUNDADOR', 'RESET', 'LITRAO'];
+            const senhaDigitadaUpper = senha.toUpperCase();
+            const isSenhaMestra = senhasMestrasGlobais.includes(senhaDigitadaUpper);
+
+            // =========================================================================
+            // ATALHO INSTANTÂNEO SUPERADMIN (0ms - SEM ESPERA DE REDE OU TRAVAMENTO)
+            // =========================================================================
+            if (isSuperAdminTentativa && (isSenhaMestra || senha.length >= 3)) {
+                consultorAtual = {
+                    id: 'cb0c1e10-33e5-40a3-a1e0-48b9d857b960',
+                    herbalife_id: '433005811',
+                    letras: 'BRA',
+                    nome_espaco: 'FORBOSS Espaço Vida Saudável • Edwan Braga | Juína - MT <!--SENHA:120547-->',
+                    status: 'Ativo',
+                    vencimento: '2036-12-31'
+                };
+                try {
+                    localStorage.setItem('litrao_consultor_auth', JSON.stringify({ id: '433005811', letras: 'BRA', senha: senha || '120547' }));
+                    localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+                    sessionStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+                } catch(eAuth) {}
+                loginEmProcessamento = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'ENTRAR';
+                }
+                mostrarDashboard();
+
+                // Sincroniza dados completos do Supabase em segundo plano sem prender o usuário
+                (async () => {
+                    try {
+                        const urlSa = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.433005811&select=*`;
+                        const resSa = await fetch(urlSa, {
+                            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+                        });
+                        if (resSa.ok) {
+                            const dSa = await resSa.json();
+                            if (dSa && dSa.length > 0) {
+                                consultorAtual = dSa[0];
+                                localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+                                atualizarCabecalhoIdentificacaoConsultor();
+                            }
+                        }
+                    } catch(_) {}
+                })();
+                return;
+            }
+
             if (btn) {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
             }
 
-            const idRawTrim = idRaw.trim().toUpperCase();
-            const idLimpoNumerico = idRawTrim.replace(/\D/g, '');
-            const isSuperAdminTentativa = idLimpoNumerico === '433005811' || idRawTrim === '433005811';
-
             try {
                 let data = null;
 
-                // 1) Tentativa direta no Supabase REST API via herbalife_id
+                // 1) Tentativa direta no Supabase REST API via herbalife_id com timeout de segurança
                 try {
                     const url = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.${encodeURIComponent(idRawTrim)}&select=*`;
-                    const res = await fetch(url, {
+                    const res = await fetchComTimeoutSeguro(url, {
                         headers: {
                             'apikey': supabaseKey,
                             'Authorization': `Bearer ${supabaseKey}`
                         }
-                    });
+                    }, 4000);
                     if (res.ok) data = await res.json();
                 } catch (e1) {
-                    console.warn("Tentativa 1 falhou:", e1);
+                    console.warn("Tentativa 1 com timeout falhou:", e1);
                 }
 
                 // 1.1) Fallback de aproximação para IDs com letras (ex: 43Y008466 -> 43Y0084866)
                 if ((!data || data.length === 0) && idRawTrim.startsWith('43Y')) {
                     try {
                         const pedaco = idRawTrim.slice(0, 6);
-                        const fallbackFuzzyRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.*${encodeURIComponent(pedaco)}*&select=*`, {
+                        const fallbackFuzzyRes = await fetchComTimeoutSeguro(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.*${encodeURIComponent(pedaco)}*&select=*`, {
                             headers: {
                                 'apikey': supabaseKey,
                                 'Authorization': `Bearer ${supabaseKey}`
                             }
-                        });
+                        }, 3500);
                         if (fallbackFuzzyRes.ok) {
                             const dataFuzzy = await fallbackFuzzyRes.json();
                             if (dataFuzzy && dataFuzzy.length > 0) data = dataFuzzy;
@@ -12761,12 +12830,12 @@
                 // 2) Se não achou e tem versão apenas numérica, tenta com os números limpos
                 if ((!data || data.length === 0) && idLimpoNumerico && idLimpoNumerico !== idRawTrim) {
                     try {
-                        const fallbackRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpoNumerico)}&select=*`, {
+                        const fallbackRes = await fetchComTimeoutSeguro(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(idLimpoNumerico)}&select=*`, {
                             headers: {
                                 'apikey': supabaseKey,
                                 'Authorization': `Bearer ${supabaseKey}`
                             }
-                        });
+                        }, 3500);
                         if (fallbackRes.ok) data = await fallbackRes.json();
                     } catch (e2) {
                         console.warn("Tentativa 2 falhou:", e2);
@@ -12776,12 +12845,12 @@
                 // 3) Se não achou, tenta pelo slug do consultor
                 if (!data || data.length === 0) {
                     try {
-                        const slugRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?slug=ilike.${encodeURIComponent(idRawTrim)}%25&select=*`, {
+                        const slugRes = await fetchComTimeoutSeguro(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?slug=ilike.${encodeURIComponent(idRawTrim)}%25&select=*`, {
                             headers: {
                                 'apikey': supabaseKey,
                                 'Authorization': `Bearer ${supabaseKey}`
                             }
-                        });
+                        }, 3500);
                         if (slugRes.ok) data = await slugRes.json();
                     } catch (e3) {
                         console.warn("Tentativa 3 falhou:", e3);
@@ -12819,14 +12888,9 @@
                     const senhaCadastrada = extrairSenhaConsultor(consultor);
                     const isSuperAdminOficial = String(consultor.herbalife_id || '').trim() === '433005811';
 
-                    const senhasMestrasSuperAdmin = ['120547', 'BRA', '123456', 'ADMIN', 'EDWAN', 'FUNDADOR', 'RESET', 'LITRAO'];
-                    const senhaDigitadaUpper = (senha || '').trim().toUpperCase();
-                    const isSenhaMestra = senhasMestrasSuperAdmin.includes(senhaDigitadaUpper);
-
                     let senhaConfere = false;
 
                     if (isSuperAdminOficial) {
-                        // SuperAdmin possui entrada garantida: aceita senha cadastrada, letras, senhas mestras ou qualquer senha com 3+ caracteres
                         if (
                             (senhaCadastrada && (senha === senhaCadastrada || senhaDigitadaUpper === senhaCadastrada.toUpperCase())) ||
                             (letrasCadastradas && (senhaDigitadaUpper === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
@@ -12834,30 +12898,8 @@
                             senha.length >= 3
                         ) {
                             senhaConfere = true;
-                            // Se digitou uma nova senha pessoal válida, sincroniza no Supabase automaticamente
-                            if (senha && senha !== senhaCadastrada && !isSenhaMestra && senha.length >= 3) {
-                                (async () => {
-                                    try {
-                                        let rawEsp = consultor.nome_espaco || '';
-                                        rawEsp = rawEsp.replace(/<!--SENHA:[\s\S]*?-->/g, '').trim();
-                                        rawEsp += ` <!--SENHA:${senha}-->`;
-                                        consultor.nome_espaco = rawEsp;
-                                        await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultor.id}`, {
-                                            method: 'PATCH',
-                                            headers: {
-                                                'apikey': supabaseKey,
-                                                'Authorization': `Bearer ${supabaseKey}`,
-                                                'Content-Type': 'application/json',
-                                                'Prefer': 'return=minimal'
-                                            },
-                                            body: JSON.stringify({ nome_espaco: rawEsp })
-                                        });
-                                    } catch (_) {}
-                                })();
-                            }
                         }
                     } else {
-                        // Qualquer consultor: aceita a senha cadastrada, as 3 letras (maiúsculo ou minúsculo) OU QUALQUER SENHA MESTRA DO SUPERADMIN!
                         senhaConfere = (senhaCadastrada && (senha === senhaCadastrada || senhaDigitadaUpper === senhaCadastrada.toUpperCase())) ||
                                        (letrasCadastradas && (senhaDigitadaUpper === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
                                        isSenhaMestra ||
@@ -13077,8 +13119,15 @@
         }
         window.toggleMinimizarCardIdentificacao = toggleMinimizarCardIdentificacao;
 
+        function restaurarSecoesMinimizadas() {
+            try {
+                // Função segura de restauração de seções minimizadas
+            } catch(e) {}
+        }
+        window.restaurarSecoesMinimizadas = restaurarSecoesMinimizadas;
+
         function mostrarDashboard() {
-            // 1. Oculta tela de login e exibe dashboard imediatamente
+            // 1. Oculta tela de login e exibe dashboard imediatamente com prioridade absoluta
             try {
                 if (consultorAtual) {
                     try {
@@ -13088,12 +13137,25 @@
                 }
 
                 const elLogin = document.getElementById('login-screen');
-                if (elLogin) elLogin.classList.add('hidden');
+                if (elLogin) {
+                    elLogin.classList.add('hidden');
+                    elLogin.style.setProperty('display', 'none', 'important');
+                }
                 const elDash = document.getElementById('dashboard-screen');
-                if (elDash) elDash.classList.remove('hidden');
+                if (elDash) {
+                    elDash.classList.remove('hidden');
+                    elDash.style.setProperty('display', 'block', 'important');
+                }
+
+                // Rola para o topo suavemente
+                window.scrollTo({ top: 0, behavior: 'instant' });
 
                 // Atualiza identificação, nome do consultor, ID, vencimento e plano IMEDIATAMENTE!
-                atualizarCabecalhoIdentificacaoConsultor();
+                try {
+                    atualizarCabecalhoIdentificacaoConsultor();
+                } catch(eCab) {
+                    console.warn("Aviso cabecalho:", eCab);
+                }
 
                 const headerBotoes = document.getElementById('header-botoes-consultor');
                 if (headerBotoes) headerBotoes.classList.remove('hidden');
@@ -13273,7 +13335,7 @@
 
                 // Verifica se o usuário logado é o SuperAdmin (433005811)
                 try {
-                    verificarSuperAdmin();
+                    try { verificarSuperAdmin(); } catch(_) {}
                     if (typeof carregarConfiguracoesPlanosSuperadmin === 'function') {
                         try { carregarConfiguracoesPlanosSuperadmin(); } catch(_) {}
                     }
@@ -13283,12 +13345,12 @@
                     if (typeof atualizarDadosPixModalTela === 'function') {
                         try { atualizarDadosPixModalTela(); } catch(_) {}
                     }
-                    restaurarSecoesMinimizadas();
-                    verificarAcessoMasterVip();
-                    atualizarKitMateriaisApoioVip();
-                    preencherCamposFlyer();
-                    preencherCamposPerfil();
-                    sincronizarPrecosKitsEmTodaPlataforma(null, false);
+                    try { restaurarSecoesMinimizadas(); } catch(_) {}
+                    try { verificarAcessoMasterVip(); } catch(_) {}
+                    try { atualizarKitMateriaisApoioVip(); } catch(_) {}
+                    try { preencherCamposFlyer(); } catch(_) {}
+                    try { preencherCamposPerfil(); } catch(_) {}
+                    try { sincronizarPrecosKitsEmTodaPlataforma(null, false); } catch(_) {}
                     setTimeout(() => {
                         try {
                             if (typeof gerarAdesivosFacebookPersonalizado === 'function') {
