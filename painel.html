@@ -6816,6 +6816,9 @@
                         <button type="button" onclick="aplicarCupomPlano()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-brand-dark font-black text-xs px-5 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
                             <i class="fa-solid fa-tag text-xs"></i> APLICAR CUPOM
                         </button>
+                        <button type="button" onclick="removerCupomPlano()" class="bg-white/80 hover:bg-white text-slate-700 hover:text-red-700 font-bold text-xs px-3 py-2.5 rounded-xl border border-amber-300 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shadow-xs" title="Limpar cupom e restaurar valores originais">
+                            <i class="fa-solid fa-xmark text-xs"></i> Limpar
+                        </button>
                     </div>
                     <p class="text-[10px] text-amber-900 font-bold mt-1.5 ml-0.5">
                         <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i> <strong>Regra de Descontos:</strong> Cupons incidem exclusivamente sobre a taxa de adesão do PIX Normal e <strong>NUNCA são cumulativos</strong> com o desconto promocional de 22% da FitCoin ou outros descontos já aplicados.
@@ -6861,7 +6864,7 @@
                     </div>
 
                     <p class="text-xs font-black text-teal-950 uppercase tracking-wider mb-3 flex items-center justify-center">
-                        <i class="fa-solid fa-qrcode mr-2 text-base text-teal-600"></i> Escaneie o QR Code no seu aplicativo do banco:
+                        <i class="fa-solid fa-qrcode mr-2 text-base text-teal-600"></i> <span id="txt-label-escaneie-qrcode">Escaneie o QR Code no seu aplicativo do banco:</span>
                     </p>
                     
                     <div class="bg-white p-3 rounded-2xl border-2 border-teal-300 shadow-md inline-block mx-auto mb-3">
@@ -6872,7 +6875,7 @@
                         <!-- 1. Pix Copia e Cola Oficial Banco Central -->
                         <div>
                             <label class="block text-[11px] font-black text-teal-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                                <span>Código Pix Copia e Cola (Adesão do Plano):</span>
+                                <span id="txt-label-pix-copia-cola">Código Pix Copia e Cola (Adesão do Plano):</span>
                                 <span class="text-[10px] text-emerald-700 font-bold">Padrão Banco Central</span>
                             </label>
                             <div class="flex items-center space-x-1.5">
@@ -10582,8 +10585,7 @@
                     tagDestaque: p.tagDestaque || '',
                     corTema: p.corTema || 'emerald',
                     exibirNaPaginaVendas: p.exibirNaPaginaVendas !== false,
-                    recursos: p.recursos || [],
-                    payloadPix: gerarPixPayloadDinamico(adNum, `RESET${Math.round(adNum)}`)
+                    recursos: p.recursos || []
                 };
             });
         }
@@ -10632,6 +10634,19 @@
             res += '6304';
             return res + crc16Pix(res);
         }
+
+        function removerCupomPlano() {
+            cupomAtivoModal = null;
+            const input = document.getElementById('cupom-modal-plano');
+            if (input) input.value = '';
+            const feedback = document.getElementById('cupom-modal-feedback');
+            if (feedback) {
+                feedback.className = "hidden";
+                feedback.innerHTML = '';
+            }
+            selecionarPlano(planoSelecionadoAtual);
+        }
+        window.removerCupomPlano = removerCupomPlano;
 
         async function aplicarCupomPlano() {
             const input = document.getElementById('cupom-modal-plano');
@@ -11070,15 +11085,49 @@
                 if (txtValor) txtValor.innerText = p.adesao;
             }
 
-            // GERA O CÓDIGO PIX COPIA E COLA OFICIAL (PADRÃO BANCO CENTRAL - 100% ESCANEÁVEL EM QUALQUER BANCO)
-            let payloadPixFinal = p.payloadPix || gerarPixPayloadDinamico(valorBase, `RESET${Math.round(valorBase)}`);
+            // ============================================================
+            // CÁLCULO DINÂMICO E PRECISO DO VALOR DO PIX (SEM CACHE ESTÁTICO)
+            // ============================================================
+            let valorPixDinamico = valorFinal;
+            let txidPix = `RESET_${planoKey.toUpperCase()}`;
+            let descricaoPixLabel = 'Adesão do Plano';
 
             if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
-                payloadPixFinal = gerarPixPayloadDinamico(0.10, 'FUNDADOR100');
+                // Adesão é 100% ISENTA (R$ 0,00). O Pix cobra a 1ª Mensalidade Promocional de Fundador exclusiva do plano:
+                // Plano 1 (Start Pro) = R$ 29,00 | Plano 2 (Smart Pro) = R$ 39,00 | Plano 3 (Master VIP) = R$ 47,00
+                const tabelaMensalidadesFundadorNum = { plano1: 29.00, plano2: 39.00, plano3: 47.00 };
+                valorPixDinamico = tabelaMensalidadesFundadorNum[planoKey] || 29.00;
+                txidPix = `FD_${planoKey.toUpperCase()}_${Math.round(valorPixDinamico)}`;
+                descricaoPixLabel = `1ª Mensalidade Fundador (Adesão R$ 0,00 Isenta)`;
             } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
-                payloadPixFinal = gerarPixPayloadDinamico(0.10, 'TESTE10');
-            } else if (valorFinal > 0) {
-                payloadPixFinal = gerarPixPayloadDinamico(valorFinal, `RESET${Math.round(valorFinal)}`);
+                valorPixDinamico = 0.10;
+                txidPix = `T10_${planoKey.toUpperCase()}`;
+                descricaoPixLabel = 'Teste SuperAdmin (R$ 0,10)';
+            } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'presidente') {
+                valorPixDinamico = valorBase;
+                txidPix = `PRES_${planoKey.toUpperCase()}`;
+                descricaoPixLabel = 'Adesão Normal (Mensalidade R$ 20 c/ 60 dias carência)';
+            } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
+                valorPixDinamico = valorFinal;
+                txidPix = `DESC_${planoKey.toUpperCase()}_${Math.round(valorFinal)}`;
+                descricaoPixLabel = `Adesão com ${cupomAtivoModal.descontoPorcentagem}% OFF`;
+            } else {
+                valorPixDinamico = valorBase;
+                txidPix = `ADESAO_${planoKey.toUpperCase()}_${Math.round(valorBase)}`;
+                descricaoPixLabel = 'Adesão Oficial';
+            }
+
+            // GERA O NOVO PAYLOAD PIX DINÂMICO OFICIAL NO PADRÃO BANCO CENTRAL
+            const payloadPixFinal = gerarPixPayloadDinamico(valorPixDinamico, txidPix);
+
+            // Atualiza os labels informando o valor dinâmico em tempo real
+            const labelPixInput = document.getElementById('txt-label-pix-copia-cola');
+            if (labelPixInput) {
+                labelPixInput.innerText = `Código Pix Copia e Cola (${descricaoPixLabel}: R$ ${formatarFloatParaMoeda(valorPixDinamico)}):`;
+            }
+            const labelQr = document.getElementById('txt-label-escaneie-qrcode');
+            if (labelQr) {
+                labelQr.innerText = `Escaneie o QR Code no seu aplicativo do banco (R$ ${formatarFloatParaMoeda(valorPixDinamico)}):`;
             }
             
             if (txtMensalidade) {
