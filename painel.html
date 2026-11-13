@@ -25113,10 +25113,12 @@
             todasAvaliacoesCache = [];
             clienteExpandidoKey = null;
             if (clientesSelecionadosSet) clientesSelecionadosSet.clear();
+            
             try {
                 localStorage.removeItem('litrao_consultor_auth');
                 localStorage.removeItem('litrao_consultor_dados');
                 sessionStorage.removeItem('litrao_consultor_dados');
+                sessionStorage.clear();
             } catch (e) {}
 
             const statCardTotalAvaliacoes = document.getElementById('stat-card-total-avaliacoes');
@@ -25130,11 +25132,26 @@
             const corpo = document.getElementById('tabela-avaliacoes-corpo');
             if (corpo) corpo.innerHTML = '';
 
-            document.getElementById('dashboard-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
+            // Oculta dashboard-screen resetando tanto a classe quanto o estilo inline !important
+            const elDash = document.getElementById('dashboard-screen');
+            if (elDash) {
+                elDash.classList.add('hidden');
+                elDash.style.removeProperty('display');
+                elDash.style.setProperty('display', 'none', 'important');
+            }
+
+            // Exibe login-screen resetando tanto a classe quanto o estilo inline !important
+            const elLogin = document.getElementById('login-screen');
+            if (elLogin) {
+                elLogin.classList.remove('hidden');
+                elLogin.style.removeProperty('display');
+                elLogin.style.setProperty('display', 'block', 'important');
+            }
+
             const headerBotoes = document.getElementById('header-botoes-consultor');
             if (headerBotoes) headerBotoes.classList.add('hidden');
-            document.getElementById('btn-logout').classList.add('hidden');
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) btnLogout.classList.add('hidden');
             const btnNotifTopo = document.getElementById('btn-central-notificacoes');
             if (btnNotifTopo) btnNotifTopo.classList.add('hidden');
             const btnInstalarApp = document.getElementById('btn-instalar-app-consultor');
@@ -25166,15 +25183,30 @@
             const btnMenuSand = document.getElementById('btn-menu-sanduiche');
             if (btnMenuSand) btnMenuSand.classList.add('hidden');
             if (typeof fecharMenuSanduiche === 'function') fecharMenuSanduiche();
+
             const directLink = document.getElementById('direct-campo-link');
             if (directLink) directLink.value = '';
             const directNome = document.getElementById('direct-campo-nome');
             if (directNome) directNome.value = '';
             const directCidade = document.getElementById('direct-campo-cidade');
             if (directCidade) directCidade.value = '';
-            document.getElementById('login-senha').value = '';
-            ocultarErroLogin();
+            
+            const inSenha = document.getElementById('login-senha');
+            if (inSenha) inSenha.value = '';
+            const btnEntrar = document.getElementById('btn-fazer-login');
+            if (btnEntrar) {
+                btnEntrar.disabled = false;
+                btnEntrar.innerText = 'ENTRAR';
+            }
+            if (typeof ocultarErroLogin === 'function') ocultarErroLogin();
+
+            // Rola suavemente para o topo e recarrega limpo para eliminar qualquer estado residual
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 60);
         }
+        window.logout = logout;
 
         // ==========================================
         // GESTÃO COMPLETA DO PERFIL DO CONSULTOR
