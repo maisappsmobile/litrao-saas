@@ -10549,6 +10549,37 @@
                     return;
                 }
 
+                // Caso FUNDADOR100 / FUNDADOR / FUNDADORES: Membro Fundador Oficial (Adesão Zerada R$ 0,00 e Mensalidade Exclusiva)
+                if (codigo === 'FUNDADOR100' || codigo === 'FUNDADOR' || codigo === 'FUNDADORES') {
+                    cupomAtivoModal = {
+                        tipo: 'fundador100',
+                        codigo: 'FUNDADOR100',
+                        descontoPorcentagem: 100,
+                        valorFixoFinal: 0.00,
+                        carenciaDias: 0,
+                        dataPrimeiraMensalidade: '',
+                        mensalidadesFundador: {
+                            plano1: 'R$ 29,00/mês',
+                            plano2: 'R$ 39,00/mês',
+                            plano3: 'R$ 47,00/mês'
+                        }
+                    };
+
+                    feedback.className = "mt-2.5 text-xs font-bold p-3.5 rounded-2xl text-amber-950 bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-2 border-amber-400 block animate-fade-in shadow-md";
+                    feedback.innerHTML = `
+                        <div class="flex items-center justify-center gap-2 text-sm font-black text-amber-900">
+                            <i class="fa-solid fa-crown text-amber-600 text-base animate-bounce"></i>
+                            <span>👑 CUPOM OFICIAL MEMBRO FUNDADOR APLICADO!</span>
+                        </div>
+                        <p class="mt-1 text-amber-950 font-semibold text-[11px] leading-relaxed">
+                            🎉 Parabéns! Sua taxa de adesão foi <strong>100% ISENTA (R$ 0,00)</strong> e você garantiu o valor vitalício promocional de Membro Fundador com todas as ferramentas VIP liberadas!
+                        </p>
+                    `;
+
+                    selecionarPlano(planoSelecionadoAtual);
+                    return;
+                }
+
                 // Caso 1: Cupom MEUPRESIDENTE
                 if (codigo === 'MEUPRESIDENTE') {
                     const urlVerif = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:MEUPRESIDENTE*&select=id,herbalife_id,nome_espaco`;
@@ -10849,7 +10880,23 @@
             let valorFinal = valorBase;
             let payloadPixFinal = p.payloadPix || gerarPixPayloadDinamico(valorBase, `RESET${Math.round(valorBase)}`);
 
-            if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+                valorFinal = 0.00;
+                payloadPixFinal = gerarPixPayloadDinamico(0.10, 'FUNDADOR100');
+                if (txtValor) {
+                    txtValor.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs text-red-500 line-through font-bold">${p.adesao}</span>
+                            <span class="text-2xl sm:text-3xl font-black text-amber-600 leading-tight">
+                                R$ 0,00
+                            </span>
+                            <span class="text-[10px] font-black uppercase bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 px-2.5 py-0.5 rounded-full mt-0.5 shadow-xs">
+                                👑 ADESÃO 100% ISENTA (MEMBRO FUNDADOR)
+                            </span>
+                        </div>
+                    `;
+                }
+            } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
                 valorFinal = 0.10;
                 payloadPixFinal = gerarPixPayloadDinamico(0.10, 'TESTE10');
                 if (txtValor) {
@@ -10888,7 +10935,19 @@
             }
             
             if (txtMensalidade) {
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'presidente') {
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+                    const mensFundador = (cupomAtivoModal.mensalidadesFundador && cupomAtivoModal.mensalidadesFundador[planoKey]) || 'R$ 39,00/mês';
+                    txtMensalidade.innerHTML = `
+                        <div class="inline-flex flex-col items-center mt-1">
+                            <span class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 px-3 py-1 rounded-full font-black text-xs shadow-xs">
+                                👑 MEMBRO FUNDADOR: Mensalidade Promocional de ${mensFundador}
+                            </span>
+                            <span class="text-amber-900 font-extrabold text-[11px] mt-1">
+                                💎 Selo Fundador Vitalício • Todas as Ferramentas VIP Liberadas
+                            </span>
+                        </div>
+                    `;
+                } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'presidente') {
                     txtMensalidade.innerHTML = `
                         <div class="inline-flex flex-col items-center mt-1">
                             <span class="bg-emerald-600 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs animate-pulse">
@@ -10904,6 +10963,24 @@
                         <span>${p.descricaoMensalidade || ''}</span>
                         ${cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0 ? '<span class="block text-[10px] text-teal-800 font-bold mt-0.5">* Mensalidade/Anuidade contratual fixa (sem alteração por cupons).</span>' : ''}
                     `;
+                }
+            }
+
+            // Atualiza texto e estilo do botão de confirmação conforme o cupom
+            const btnConfirmarPix = document.getElementById('btn-confirmar-pix-modal');
+            if (btnConfirmarPix) {
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+                    btnConfirmarPix.innerHTML = `
+                        <i class="fa-solid fa-crown text-amber-300 text-lg"></i>
+                        <span>👑 ATIVAR MINHA VAGA DE FUNDADOR AGORA (ADESÃO R$ 0,00)</span>
+                    `;
+                    btnConfirmarPix.className = "w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 text-sm cursor-pointer border-2 border-amber-300 animate-pulse";
+                } else {
+                    btnConfirmarPix.innerHTML = `
+                        <i class="fa-solid fa-bolt text-amber-300 text-lg"></i>
+                        <span>⚡ JÁ FIZ O PIX! ATUALIZAR MEU STATUS AGORA</span>
+                    `;
+                    btnConfirmarPix.className = "w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black py-4 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 text-sm cursor-pointer border-2 border-emerald-300 animate-pulse";
                 }
             }
 
@@ -11552,19 +11629,13 @@
             const vencimentoOriginal = consultorAtual.vencimento;
             const txtStatus = document.getElementById('txt-status-monitor-pix-plano');
             if (txtStatus) {
-                txtStatus.innerText = 'Aguardando confirmação bancária... (Verificação automática ativa)';
+                txtStatus.innerText = 'Aguardando confirmação bancária... (Verificação automática ativa via PIX Stone/BragaPay)';
             }
 
             let tentativas = 0;
             const maxTentativas = 180; // Monitora por até 10 minutos (a cada 3.5s)
 
-            monitorPixPlanoInterval = setInterval(async () => {
-                tentativas++;
-                if (tentativas > maxTentativas) {
-                    clearInterval(monitorPixPlanoInterval);
-                    return;
-                }
-
+            const checarStatusBanco = async () => {
                 try {
                     // 1. Checa no Supabase se já consta ativação/renovação
                     if (supabaseKey) {
@@ -11578,20 +11649,25 @@
                             const dados = await res.json();
                             if (dados && dados.length > 0) {
                                 const c = dados[0];
-                                if (c.vencimento && c.vencimento !== vencimentoOriginal && c.status === 'Ativo') {
-                                    clearInterval(monitorPixPlanoInterval);
+                                const teveRenovacao = c.vencimento && (c.vencimento !== vencimentoOriginal);
+                                const temTagPixRecente = c.nome_espaco && c.nome_espaco.includes('<!--PAGAMENTO_PIX:');
+                                if (c.status === 'Ativo' && (teveRenovacao || temTagPixRecente)) {
+                                    if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
                                     consultorAtual.status = c.status;
                                     consultorAtual.vencimento = c.vencimento;
                                     consultorAtual.nome_espaco = c.nome_espaco;
                                     fecharModalPromocao();
-                                    abrirModalSucessoAtivacaoPix({ nomePlano: DADOS_PLANOS[planoSelecionadoAtual]?.nome || 'Start Pro', valor: (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') ? 0.10 : (DADOS_PLANOS[planoSelecionadoAtual]?.valorAdesaoNum || 99.00) }, c.vencimento);
-                                    return;
+                                    abrirModalSucessoAtivacaoPix({ 
+                                        nomePlano: DADOS_PLANOS[planoSelecionadoAtual]?.nome || 'Start Pro', 
+                                        valor: (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') ? 0.10 : ((cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') ? 0.00 : (DADOS_PLANOS[planoSelecionadoAtual]?.valorAdesaoNum || 99.00)) 
+                                    }, c.vencimento);
+                                    return true;
                                 }
                             }
                         }
                     }
 
-                    // 2. Checa se a Carteira Solana Oficial Mestre (On-Ramp) recebeu transação nos últimos 4 minutos
+                    // 2. Checa se a Carteira Solana Oficial Mestre (BragaPay On-Ramp) recebeu transação nos últimos 4 minutos
                     if (typeof solanaWeb3 !== 'undefined') {
                         try {
                             const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
@@ -11602,14 +11678,35 @@
                                 const agora = Math.floor(Date.now() / 1000);
                                 if (rec.blockTime && (agora - rec.blockTime) < 240) {
                                     console.log("Transação on-ramp Solana detectada:", rec.signature);
-                                    clearInterval(monitorPixPlanoInterval);
+                                    if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
                                     await confirmarPagamentoPixModal();
-                                    return;
+                                    return true;
                                 }
                             }
                         } catch(eSol) {}
                     }
                 } catch(e) {}
+                return false;
+            };
+
+            // Listener ao voltar do app do banco para o navegador
+            const onVisibilityChange = async () => {
+                if (document.visibilityState === 'visible') {
+                    if (txtStatus) txtStatus.innerText = 'Detectando pagamento PIX realizado... Verificando agora!';
+                    await checarStatusBanco();
+                }
+            };
+            document.removeEventListener('visibilitychange', window._pixVisibilityHandler || (() => {}));
+            window._pixVisibilityHandler = onVisibilityChange;
+            document.addEventListener('visibilitychange', onVisibilityChange);
+
+            monitorPixPlanoInterval = setInterval(async () => {
+                tentativas++;
+                if (tentativas > maxTentativas) {
+                    clearInterval(monitorPixPlanoInterval);
+                    return;
+                }
+                await checarStatusBanco();
             }, 3500);
         }
         window.iniciarMonitoramentoPixPlano = iniciarMonitoramentoPixPlano;
@@ -12432,7 +12529,9 @@
 
                 // 1. Cálculo da nova data de validade
                 let novoVencimento = '';
-                if (pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
+                const isMembroFundador = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100');
+
+                if (isMembroFundador || pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
                     novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
                 } else {
                     let baseDate = new Date();
@@ -12459,7 +12558,10 @@
                 // 2. Determina valor pago e cupom
                 let valorPagoNum = p.valorAdesaoNum || 99.00;
                 let cupomCod = null;
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
+                if (isMembroFundador) {
+                    valorPagoNum = 0.00;
+                    cupomCod = 'FUNDADOR100';
+                } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
                     valorPagoNum = 0.10;
                     cupomCod = 'TESTE10';
                 } else if (cupomAtivoModal && cupomAtivoModal.descontoPorcentagem > 0) {
@@ -12468,21 +12570,37 @@
                     cupomCod = cupomAtivoModal.codigo;
                 }
 
-                // 3. Monta tag de auditoria
+                // 3. Monta tag de auditoria integrada ao ecossistema BragaPay & Carteira Solana
                 let rawEspaco = consultorAtual.nome_espaco || '';
                 const infoPix = {
                     plano: pKey,
                     nomePlano: p.nome,
                     valor: valorPagoNum,
                     cupom: cupomCod,
+                    metodo: 'PIX_SOLANA_BRAGAPAY',
+                    rede: 'Solana Mainnet (BragaPay On-Ramp)',
+                    walletSolanaMestre: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+                    chavePixLiquidacao: 'maisappsmobile@gmail.com',
+                    titular: 'LUCIA SANTANA S. BRAGA',
                     data: new Date().toISOString(),
-                    metodo: 'PIX_CONFIRMADO_IMEDIATO'
+                    confirmacao: 'INSTANTANEA_SUCESSO'
                 };
                 const tagPix = `<!--PAGAMENTO_PIX:${JSON.stringify(infoPix)}-->`;
                 if (rawEspaco.includes('<!--PAGAMENTO_PIX:')) {
                     rawEspaco = rawEspaco.replace(/<!--PAGAMENTO_PIX:[\s\S]*?-->/, tagPix);
                 } else {
                     rawEspaco = rawEspaco + ' ' + tagPix;
+                }
+
+                // Se ativou via FUNDADOR100, grava a condição VIP permanente no perfil
+                if (isMembroFundador) {
+                    const mensProm = (cupomAtivoModal.mensalidadesFundador && cupomAtivoModal.mensalidadesFundador[pKey]) || 'R$ 39,00/mês';
+                    const tagFundador = `<!--GRUPO_FUNDADORES:{"numero":"FD-${Math.floor(1000 + Math.random()*9000)}","cupom":"FUNDADOR100","dataAtivacao":"${new Date().toISOString()}","plano":"${pKey}","mensalidadePromocional":"${mensProm}"}-->`;
+                    if (rawEspaco.includes('<!--GRUPO_FUNDADORES:')) {
+                        rawEspaco = rawEspaco.replace(/<!--GRUPO_FUNDADORES:[\s\S]*?-->/, tagFundador);
+                    } else {
+                        rawEspaco = rawEspaco + ' ' + tagFundador;
+                    }
                 }
 
                 // 4. Salva no Supabase via PATCH
