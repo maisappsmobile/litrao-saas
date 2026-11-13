@@ -6883,6 +6883,18 @@
                             </div>
                         </div>
 
+                        <!-- Chave Pix Direta (Celular Neon) -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-teal-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+                            <div>
+                                <span class="block text-gray-500 text-[10px] font-black uppercase tracking-wider">Chave PIX Oficial (Celular Neon):</span>
+                                <strong id="modal-pix-chave-texto" class="text-teal-950 text-xs sm:text-sm select-all font-mono">+5566981411234</strong>
+                                <span class="block text-gray-500 text-[11px] font-medium mt-0.5">Favorecido: <strong id="modal-pix-titular-texto" class="text-teal-900 font-bold">EDWAN BRAGA DE OLIVEIRA (NEON)</strong></span>
+                            </div>
+                            <button type="button" onclick="copiarChavePixTelefoneModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer shadow-xs self-start sm:self-auto">
+                                <i class="fa-regular fa-clone"></i> Copiar Chave
+                            </button>
+                        </div>
+
                         <!-- 2. Opção Alternativa: Pagar com Carteira Solana / Cripto (BragaPay) -->
                         <div class="bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 text-white p-3.5 rounded-2xl border-2 border-purple-400/60 shadow-lg text-left space-y-2">
                             <div class="flex items-center justify-between gap-2">
@@ -7157,12 +7169,12 @@
 
                             <!-- Campos de Cópia: Chave Pix maisappsmobile@gmail.com e Copia e Cola -->
                             <div class="space-y-3 mt-3 text-left">
-                                <!-- Chave Pix E-mail -->
+                                <!-- Chave Pix Celular -->
                                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                     <div>
-                                        <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider">Chave PIX Oficial (E-mail):</span>
-                                        <strong id="txt-chave-pix-facilitada" class="text-amber-300 text-sm sm:text-base select-all font-mono">maisappsmobile@gmail.com</strong>
-                                        <span class="block text-gray-400 text-[11px] font-medium mt-0.5">Destino: <strong id="txt-favorecida-pix-facilitada" class="text-amber-200">BRAGAPAY • MOEDA VIRTUAL DÓLAR</strong></span>
+                                        <span class="block text-gray-400 text-[10px] font-bold uppercase tracking-wider">Chave PIX Oficial (Celular Neon):</span>
+                                        <strong id="txt-chave-pix-facilitada" class="text-amber-300 text-sm sm:text-base select-all font-mono">+5566981411234</strong>
+                                        <span class="block text-gray-400 text-[11px] font-medium mt-0.5">Favorecido: <strong id="txt-favorecida-pix-facilitada" class="text-amber-200">EDWAN BRAGA DE OLIVEIRA (BANCO NEON)</strong></span>
                                     </div>
                                     <button type="button" onclick="copiarPixFacilitadoEmail()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 self-start sm:self-auto cursor-pointer shadow-md whitespace-nowrap">
                                         <i class="fa-regular fa-clone"></i> Copiar Chave
@@ -10175,8 +10187,9 @@
             mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
             discountPercent: 22, // 22% de desconto no pagamento com FitCoin
             tokensPerBrl: 10,    // 10 FIT = R$ 1,00
-            pixChave: 'maisappsmobile@gmail.com',
-            pixTitular: 'BRAGAPAY DIGITAL'
+            pixChave: '+5566981411234',
+            pixTitular: 'EDWAN BRAGA DE OLIVEIRA',
+            pixBanco: 'BANCO NEON'
         };
         window.FITCOIN_SOLANA_CONFIG = FITCOIN_SOLANA_CONFIG;
 
@@ -10583,9 +10596,14 @@
                 const lenStr = String(val.length).padStart(2, '0');
                 return idStr + lenStr + val;
             }
-            const chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : 'maisappsmobile@gmail.com';
-            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'BRAGAPAY DIGITAL';
-            const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'BRAGAPAY';
+            let chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : '+5566981411234';
+            // Se for celular (10 ou 11 digitos) e nao comecar com +, adiciona o codigo do pais +55 exigido pelo Banco Central
+            const apenasDigitos = chave.replace(/\D/g, '');
+            if ((apenasDigitos.length === 10 || apenasDigitos.length === 11) && !chave.startsWith('+')) {
+                chave = '+55' + apenasDigitos;
+            }
+            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'EDWAN BRAGA';
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
             let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, titularFormatado) + fld(60, 'JUINA') + fld(62, fld(5, txid));
             res += '6304';
@@ -11125,8 +11143,9 @@
             mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
             discountPercent: 22, // 22% de desconto no pagamento com FitCoin
             tokensPerBrl: 10,    // 10 FIT = R$ 1,00
-            pixChave: 'maisappsmobile@gmail.com',
-            pixTitular: 'BRAGAPAY DIGITAL'
+            pixChave: '+5566981411234',
+            pixTitular: 'EDWAN BRAGA DE OLIVEIRA',
+            pixBanco: 'BANCO NEON'
         });
 
         let dadosCalculadosFitcoin = {
@@ -11304,7 +11323,7 @@
         window.ativarPixFacilitadoFitcoin = ativarPixFacilitadoFitcoin;
 
         function copiarPixFacilitadoEmail() {
-            const chave = FITCOIN_SOLANA_CONFIG.pixChave || "maisappsmobile@gmail.com";
+            const chave = FITCOIN_SOLANA_CONFIG.pixChave || "+5566981411234";
             navigator.clipboard.writeText(chave).then(() => {
                 mostrarAvisoPixFacilitado(`Chave PIX (${chave}) copiada com sucesso! Escaneie o QR Code ou cole no seu app de banco.`);
             });
@@ -11336,7 +11355,7 @@
             const idConsultor = (consultorAtual && consultorAtual.herbalife_id) || "";
 
             let msg = `Olá Edwan! Sou o consultor *${nomeConsultor}* (ID: *${idConsultor}*).\n\n`;
-            msg += `Acabei de realizar o PIX no valor de *R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}* (com *${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% DE DESCONTO FITCOIN*) referente ao *${p.nome}* para a chave *${FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com'}*! 🚀🪙\n\n`;
+            msg += `Acabei de realizar o PIX no valor de *R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}* (com *${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% DE DESCONTO FITCOIN*) referente ao *${p.nome}* para a chave *${FITCOIN_SOLANA_CONFIG.pixChave || '+5566981411234'}*! 🚀🪙\n\n`;
             msg += `Valor original: R$ ${dadosCalculadosFitcoin.valorOriginalBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
             msg += `Total de FitCoins equivalentes: ${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT\n\n`;
             msg += `Segue o comprovante de pagamento em anexo para ativação imediata da minha conta!`;
@@ -11695,7 +11714,7 @@
             msg += `💰 *Valor Normal:* R$ ${dadosCalculadosFitcoin.valorOriginalBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
             msg += `⭐ *Valor c/ ${FITCOIN_SOLANA_CONFIG.discountPercent || 22}% OFF FitCoin:* R$ ${dadosCalculadosFitcoin.valorComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${dadosCalculadosFitcoin.fitTokens.toLocaleString('pt-BR')} FIT)\n`;
             msg += `📅 *Mensalidade c/ Desconto:* R$ ${dadosCalculadosFitcoin.mensalidadeComDescontoBrl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês (${dadosCalculadosFitcoin.mensalidadeFitTokens.toLocaleString('pt-BR')} FIT)\n\n`;
-            msg += `Chave PIX: ${FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com'}\n`;
+            msg += `Chave PIX: ${FITCOIN_SOLANA_CONFIG.pixChave || '+5566981411234'}\n`;
             msg += `Estou com o QR Code na tela e gostaria de confirmar para ativação rápida.`;
 
             window.open(`https://wa.me/5566981411234?text=${encodeURIComponent(msg)}`, '_blank');
@@ -12168,8 +12187,8 @@
             if (inFitPar) inFitPar.value = FITCOIN_SOLANA_CONFIG.tokensPerBrl || 10;
             if (inFitCart) inFitCart.value = FITCOIN_SOLANA_CONFIG.walletReceiver || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
             if (inFitMint) inFitMint.value = FITCOIN_SOLANA_CONFIG.mintAddress || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK';
-            if (inFitChave) inFitChave.value = FITCOIN_SOLANA_CONFIG.pixChave || 'maisappsmobile@gmail.com';
-            if (inFitTitular) inFitTitular.value = FITCOIN_SOLANA_CONFIG.pixTitular || 'BRAGAPAY DIGITAL';
+            if (inFitChave) inFitChave.value = FITCOIN_SOLANA_CONFIG.pixChave || '+5566981411234';
+            if (inFitTitular) inFitTitular.value = FITCOIN_SOLANA_CONFIG.pixTitular || 'EDWAN BRAGA DE OLIVEIRA';
 
             // Renderiza lista de planos com máscara de moeda
             renderizarPlanosEditorSuperadmin();
@@ -12289,8 +12308,8 @@
                 const fitPar = parseFloat(document.getElementById('cfg-fit-paridade')?.value) || 10;
                 const fitCart = (document.getElementById('cfg-fit-carteira')?.value || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy').trim();
                 const fitMint = (document.getElementById('cfg-fit-mint')?.value || '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK').trim();
-                const fitChave = (document.getElementById('cfg-fit-pix-chave')?.value || 'maisappsmobile@gmail.com').trim();
-                const fitTitular = (document.getElementById('cfg-fit-pix-titular')?.value || 'BRAGAPAY DIGITAL').trim();
+                const fitChave = (document.getElementById('cfg-fit-pix-chave')?.value || '+5566981411234').trim();
+                const fitTitular = (document.getElementById('cfg-fit-pix-titular')?.value || 'EDWAN BRAGA DE OLIVEIRA').trim();
 
                 FITCOIN_SOLANA_CONFIG = {
                     walletReceiver: fitCart,
@@ -12468,8 +12487,8 @@
                 mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
                 discountPercent: 22,
                 tokensPerBrl: 10,
-                pixChave: 'maisappsmobile@gmail.com',
-                pixTitular: 'BRAGAPAY DIGITAL'
+                pixChave: '+5566981411234',
+                pixTitular: 'EDWAN BRAGA DE OLIVEIRA'
             };
 
             localStorage.removeItem('cfg_planos_superadmin');
@@ -12536,8 +12555,8 @@
         window.carregarConfiguracoesPlanosSuperadmin = carregarConfiguracoesPlanosSuperadmin;
 
         function atualizarDadosPixModalTela() {
-            const chave = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || 'maisappsmobile@gmail.com';
-            const titular = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'BRAGAPAY DIGITAL';
+            const chave = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || '+5566981411234';
+            const titular = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'EDWAN BRAGA DE OLIVEIRA';
 
             const elChavePix = document.getElementById('txt-chave-pix-facilitada');
             const elFavorecidaPix = document.getElementById('txt-favorecida-pix-facilitada');
@@ -12580,6 +12599,14 @@
             copiarCarteiraSolanaBragaPay();
         }
         window.copiarPixModalEmail = copiarPixModalEmail;
+
+        function copiarChavePixTelefoneModal() {
+            const chave = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || '+5566981411234';
+            navigator.clipboard.writeText(chave).then(() => {
+                mostrarAvisoModalPix(`📋 Chave PIX (${chave}) copiada com sucesso!`);
+            });
+        }
+        window.copiarChavePixTelefoneModal = copiarChavePixTelefoneModal;
 
         function mostrarAvisoModalPix(msg) {
             const el = document.getElementById('modal-msg-pix-copiado');
@@ -12726,8 +12753,8 @@
                     moedaVirtual: 'USDC (Dólar Digital Solana SPL)',
                     tokenMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
                     walletSolanaMestre: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
-                    chavePixLiquidacao: (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || 'maisappsmobile@gmail.com',
-                    titular: (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'BRAGAPAY DIGITAL',
+                    chavePixLiquidacao: (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || '+5566981411234',
+                    titular: (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'EDWAN BRAGA DE OLIVEIRA',
                     cupom: cupomCod,
                     metodo: 'PIX_ONRAMP_USDC_SOLANA',
                     hashSolana: txDetectada || null,
@@ -26892,9 +26919,14 @@
                 const lenStr = String(val.length).padStart(2, '0');
                 return idStr + lenStr + val;
             }
-            const chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : 'maisappsmobile@gmail.com';
-            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'BRAGAPAY DIGITAL';
-            const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'BRAGAPAY';
+            let chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : '+5566981411234';
+            // Se for celular (10 ou 11 digitos) e nao comecar com +, adiciona o codigo do pais +55 exigido pelo Banco Central
+            const apenasDigitos = chave.replace(/\D/g, '');
+            if ((apenasDigitos.length === 10 || apenasDigitos.length === 11) && !chave.startsWith('+')) {
+                chave = '+55' + apenasDigitos;
+            }
+            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'EDWAN BRAGA';
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
             let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, titularFormatado) + fld(60, 'JUINA') + fld(62, fld(5, txid));
             res += '6304';

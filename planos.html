@@ -954,8 +954,8 @@
             mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
             discountPercent: 22,
             tokensPerBrl: 10,
-            pixChave: 'maisappsmobile@gmail.com',
-            pixTitular: 'LUCIA SANTANA S. BRAGA'
+            pixChave: '+5566981411234',
+            pixTitular: 'EDWAN BRAGA DE OLIVEIRA'
         };
 
         let planoCheckoutAtual = null;
@@ -1609,7 +1609,7 @@
 
             const chavePix = FITCOIN_CONFIG.pixChave || 'maisappsmobile@gmail.com';
             if (elChavePix) elChavePix.value = chavePix;
-            if (elTitular) elTitular.innerText = `Titular: ${FITCOIN_CONFIG.pixTitular || 'LUCIA SANTANA S. BRAGA'}`;
+            if (elTitular) elTitular.innerText = `Favorecido: ${FITCOIN_CONFIG.pixTitular || 'EDWAN BRAGA DE OLIVEIRA (NEON)'}`;
             if (elCarteira) elCarteira.value = FITCOIN_CONFIG.walletReceiver || '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy';
 
             // Cálculo FitCoin com 22% de desconto sobre o valor final
@@ -1658,7 +1658,10 @@
             qrContainer.innerHTML = '';
 
             // Texto EMV simplificado ou Chave direta
-            const payload = `00020126460014BR.GOV.BCB.PIX0124${chavePix}520400005303986540${valor.toFixed(2).length < 10 ? '0' : ''}${valor.toFixed(2).length}${valor.toFixed(2)}5802BR5921LUCIA SANTANA S BRAGA6005JUINA62070503***6304`;
+            const titularFmt = (FITCOIN_CONFIG.pixTitular || 'EDWAN BRAGA').replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25);
+            const mai = `0014BR.GOV.BCB.PIX01${String(chavePix.length).padStart(2, '0')}${chavePix}`;
+            const valStr = valor.toFixed(2);
+            let payload = `00020126${String(mai.length).padStart(2, '0')}${mai}52040000530398654${String(valStr.length).padStart(2, '0')}${valStr}5802BR59${String(titularFmt.length).padStart(2, '0')}${titularFmt}6005JUINA62070503***6304`;
 
             try {
                 new QRCode(qrContainer, {
