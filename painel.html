@@ -378,7 +378,7 @@
                             <span class="text-brand-yellow mr-1 text-sm sm:text-base">⚠️</span> Padrão inicial: 3 letras do cadastro (ou senha personalizada).
                         </p>
                     </div>
-                    <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
+                    <button type="submit" id="btn-login" onclick="fazerLogin(event)" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
                         ENTRAR
                     </button>
                     
@@ -10085,6 +10085,17 @@
 
         let consultorAtual = null;
 
+        // CONFIGURAÇÃO GLOBAL DA FITCOIN & PIX FACILITADO (DISPONÍVEL DESDE O INÍCIO DO RUNTIME)
+        var FITCOIN_SOLANA_CONFIG = {
+            walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
+            mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
+            discountPercent: 22, // 22% de desconto no pagamento com FitCoin
+            tokensPerBrl: 10,    // 10 FIT = R$ 1,00
+            pixChave: 'maisappsmobile@gmail.com',
+            pixTitular: 'LUCIA SANTANA S. BRAGA'
+        };
+        window.FITCOIN_SOLANA_CONFIG = FITCOIN_SOLANA_CONFIG;
+
         // DEFINIÇÃO GLOBAL IMEDIATA DO SUPERADMIN (ID: 433005811)
         window.SUPERADMIN_ID = "433005811";
         var SUPERADMIN_ID = "433005811";
@@ -10915,14 +10926,14 @@
         // SISTEMA DE PAGAMENTO FITCOIN & PIX FACILITADO (22% OFF)
         // ==========================================
         let metodoPagamentoAtual = 'pix';
-        let FITCOIN_SOLANA_CONFIG = {
+        FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG || {}, {
             walletReceiver: '4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy',
             mintAddress: '6Qbjez3gQH15DUb3YCzSyBuMz5Jxrr6icsGs19o4zhjK',
             discountPercent: 22, // 22% de desconto no pagamento com FitCoin
             tokensPerBrl: 10,    // 10 FIT = R$ 1,00
             pixChave: 'maisappsmobile@gmail.com',
             pixTitular: 'LUCIA SANTANA S. BRAGA'
-        };
+        });
 
         let dadosCalculadosFitcoin = {
             valorOriginalBrl: 199.00,
@@ -13245,7 +13256,8 @@
                 // 2. Badge e Botão CRM Kanban & Extrator
                 const badgeCrmAcesso = document.getElementById('badge-crm-extrator-acesso-status');
                 const btnCrmCard = document.getElementById('btn-abrir-card-crm');
-                if (btnCrmTopo) btnCrmTopo.classList.remove('hidden');
+                const elCrmTopo = document.getElementById('btn-abrir-crm-kanban');
+                if (elCrmTopo) elCrmTopo.classList.remove('hidden');
                 if (badgeCrmAcesso) {
                     if (isSuperAdminUser) {
                         badgeCrmAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
