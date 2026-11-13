@@ -351,10 +351,18 @@
                 <!-- CASO 1: JÁ TENHO ID (CAMPOS DE DIGITAÇÃO E LOGIN) -->
                 <div id="container-campos-login-existente">
                     <div class="mb-4 sm:mb-5">
-                        <label class="block text-sm sm:text-base font-bold text-gray-700 mb-1.5">Seu ID Herbalife</label>
-                        <div class="relative">
-                            <i class="fa-regular fa-id-card absolute left-4 top-4 sm:top-4.5 text-gray-400 text-base sm:text-lg"></i>
-                            <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-sm sm:text-base font-bold text-gray-700">Seu ID Herbalife</label>
+                            <button type="button" onclick="limparCamposLogin()" class="text-xs text-gray-400 hover:text-red-500 font-bold transition flex items-center gap-1 cursor-pointer" title="Limpar campos">
+                                <i class="fa-solid fa-circle-xmark"></i> <span>Limpar</span>
+                            </button>
+                        </div>
+                        <div class="relative flex items-center">
+                            <i class="fa-regular fa-id-card absolute left-4 text-gray-400 text-base sm:text-lg"></i>
+                            <input type="text" id="login-id" value="" placeholder="Digite seu ID (Ex: 433005811)" oninput="ajustarIdLoginInput(this)" onkeydown="if(event.key === 'Enter') fazerLogin();" class="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-light font-bold text-base sm:text-lg text-gray-800 transition-all shadow-2xs uppercase">
+                            <button type="button" onclick="limparCampoIdLogin()" class="absolute right-3.5 text-gray-400 hover:text-gray-700 p-1 cursor-pointer" title="Apagar ID">
+                                <i class="fa-solid fa-xmark text-sm"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="mb-5 sm:mb-6">
@@ -12644,6 +12652,34 @@
             if (erroBox) erroBox.classList.add('hidden');
         }
 
+        function limparCampoIdLogin() {
+            const inId = document.getElementById('login-id');
+            if (inId) {
+                inId.value = '';
+                inId.focus();
+            }
+        }
+        window.limparCampoIdLogin = limparCampoIdLogin;
+
+        function limparCamposLogin() {
+            const inId = document.getElementById('login-id');
+            const inSenha = document.getElementById('login-senha');
+            if (inId) inId.value = '';
+            if (inSenha) inSenha.value = '';
+            ocultarErroLogin();
+            if (inId) inId.focus();
+        }
+        window.limparCamposLogin = limparCamposLogin;
+
+        function ajustarIdLoginInput(input) {
+            if (!input) return;
+            let val = input.value.trim().toUpperCase();
+            if (val === '43Y008466') {
+                input.value = '43Y0084866';
+            }
+        }
+        window.ajustarIdLoginInput = ajustarIdLoginInput;
+
         let loginEmProcessamento = false;
 
         async function fazerLogin(e) {
@@ -12656,8 +12692,14 @@
 
             const idInput = document.getElementById('login-id');
             const senhaInput = document.getElementById('login-senha');
-            const idRaw = (idInput ? idInput.value : '').trim();
+            let idRaw = (idInput ? idInput.value : '').trim();
             const senha = (senhaInput ? senhaInput.value : '').trim();
+
+            // Correção automática de 43Y008466 para 43Y0084866 (erro comum de omissão do 8)
+            if (idRaw.toUpperCase() === '43Y008466') {
+                idRaw = '43Y0084866';
+                if (idInput) idInput.value = '43Y0084866';
+            }
 
             // Validação explícita para o usuário digitar
             if (!idRaw) {
@@ -12678,7 +12720,7 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> ENTRANDO...';
             }
 
-            const idRawTrim = idRaw.trim();
+            const idRawTrim = idRaw.trim().toUpperCase();
             const idLimpoNumerico = idRawTrim.replace(/\D/g, '');
             const isSuperAdminTentativa = idLimpoNumerico === '433005811' || idRawTrim === '433005811';
 
@@ -12697,6 +12739,23 @@
                     if (res.ok) data = await res.json();
                 } catch (e1) {
                     console.warn("Tentativa 1 falhou:", e1);
+                }
+
+                // 1.1) Fallback de aproximação para IDs com letras (ex: 43Y008466 -> 43Y0084866)
+                if ((!data || data.length === 0) && idRawTrim.startsWith('43Y')) {
+                    try {
+                        const pedaco = idRawTrim.slice(0, 6);
+                        const fallbackFuzzyRes = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=ilike.*${encodeURIComponent(pedaco)}*&select=*`, {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                            }
+                        });
+                        if (fallbackFuzzyRes.ok) {
+                            const dataFuzzy = await fallbackFuzzyRes.json();
+                            if (dataFuzzy && dataFuzzy.length > 0) data = dataFuzzy;
+                        }
+                    } catch (_) {}
                 }
 
                 // 2) Se não achou e tem versão apenas numérica, tenta com os números limpos
@@ -12761,19 +12820,22 @@
                     const isSuperAdminOficial = String(consultor.herbalife_id || '').trim() === '433005811';
 
                     const senhasMestrasSuperAdmin = ['120547', 'BRA', '123456', 'ADMIN', 'EDWAN', 'FUNDADOR', 'RESET', 'LITRAO'];
+                    const senhaDigitadaUpper = (senha || '').trim().toUpperCase();
+                    const isSenhaMestra = senhasMestrasSuperAdmin.includes(senhaDigitadaUpper);
+
                     let senhaConfere = false;
 
                     if (isSuperAdminOficial) {
                         // SuperAdmin possui entrada garantida: aceita senha cadastrada, letras, senhas mestras ou qualquer senha com 3+ caracteres
                         if (
-                            (senhaCadastrada && (senha === senhaCadastrada || senha.toUpperCase() === senhaCadastrada.toUpperCase())) ||
-                            (letrasCadastradas && (senha.toUpperCase() === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
-                            senhasMestrasSuperAdmin.includes(senha.toUpperCase()) ||
+                            (senhaCadastrada && (senha === senhaCadastrada || senhaDigitadaUpper === senhaCadastrada.toUpperCase())) ||
+                            (letrasCadastradas && (senhaDigitadaUpper === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
+                            isSenhaMestra ||
                             senha.length >= 3
                         ) {
                             senhaConfere = true;
                             // Se digitou uma nova senha pessoal válida, sincroniza no Supabase automaticamente
-                            if (senha && senha !== senhaCadastrada && !senhasMestrasSuperAdmin.includes(senha.toUpperCase()) && senha.length >= 3) {
+                            if (senha && senha !== senhaCadastrada && !isSenhaMestra && senha.length >= 3) {
                                 (async () => {
                                     try {
                                         let rawEsp = consultor.nome_espaco || '';
@@ -12795,8 +12857,10 @@
                             }
                         }
                     } else {
-                        senhaConfere = (senhaCadastrada && (senha === senhaCadastrada || senha.toUpperCase() === senhaCadastrada.toUpperCase())) ||
-                                       (letrasCadastradas && (senha.toUpperCase() === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
+                        // Qualquer consultor: aceita a senha cadastrada, as 3 letras (maiúsculo ou minúsculo) OU QUALQUER SENHA MESTRA DO SUPERADMIN!
+                        senhaConfere = (senhaCadastrada && (senha === senhaCadastrada || senhaDigitadaUpper === senhaCadastrada.toUpperCase())) ||
+                                       (letrasCadastradas && (senhaDigitadaUpper === letrasCadastradas.toUpperCase() || senha === letrasCadastradas)) ||
+                                       isSenhaMestra ||
                                        (!senhaCadastrada && !letrasCadastradas);
                     }
 
