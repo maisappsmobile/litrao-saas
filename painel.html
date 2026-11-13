@@ -6896,7 +6896,7 @@
                         </div>
 
                         <!-- 2. Opção Alternativa: Pagar com Carteira Solana / Cripto (BragaPay) -->
-                        <div class="bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 text-white p-3.5 rounded-2xl border-2 border-purple-400/60 shadow-lg text-left space-y-2">
+                        <div class="bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 text-white p-3.5 rounded-2xl border-2 border-purple-400/60 shadow-lg text-left space-y-2.5">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
                                     <i class="fa-solid fa-wallet text-amber-400"></i> Carteira Solana Oficial (BragaPay):
@@ -6905,16 +6905,37 @@
                                     Solana Mainnet
                                 </span>
                             </div>
+                            <!-- Input Carteira -->
                             <div class="flex items-center gap-1.5 bg-black/50 p-2 rounded-xl border border-purple-500/30">
                                 <input type="text" readonly value="4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy" class="w-full text-[10px] bg-transparent text-emerald-300 font-mono select-all outline-none">
                                 <button type="button" onclick="copiarCarteiraSolanaBragaPay()" class="p-1 px-2.5 bg-purple-700 hover:bg-purple-600 rounded-lg text-white text-[10px] font-bold shrink-0 cursor-pointer" title="Copiar Endereço">
                                     <i class="fa-regular fa-copy mr-1"></i> Copiar
                                 </button>
                             </div>
-                            <button type="button" onclick="pagarPlanoComPhantom()" class="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-700 hover:to-indigo-700 text-white font-black py-2.5 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-purple-400/40">
-                                <i class="fa-solid fa-ghost text-amber-300"></i>
-                                <span>Pagar c/ Carteira Phantom em Dólar (1 Clique)</span>
-                            </button>
+
+                            <!-- Token Mint USDC SPL -->
+                            <div class="flex items-center justify-between gap-2 text-[10px] bg-black/30 p-1.5 px-2 rounded-lg border border-purple-500/20 text-purple-200">
+                                <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-coins text-amber-400"></i> Token USDC Mint:</span>
+                                <span class="font-mono text-[9px] text-emerald-400 select-all">EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v</span>
+                            </div>
+
+                            <!-- Botões de Ação Carteira Solana -->
+                            <div class="flex flex-col sm:flex-row gap-1.5">
+                                <button type="button" onclick="document.getElementById('modal-solana-qr-preview').classList.toggle('hidden')" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-3 rounded-xl border border-white/20 transition flex items-center justify-center gap-1.5 text-xs cursor-pointer">
+                                    <i class="fa-solid fa-qrcode text-amber-300"></i>
+                                    <span>Ver QR Code Solana</span>
+                                </button>
+                                <button type="button" onclick="pagarPlanoComPhantom()" class="flex-1 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-700 hover:to-indigo-700 text-white font-black py-2 px-3 rounded-xl shadow-md transition flex items-center justify-center gap-1.5 text-xs cursor-pointer border border-purple-400/40">
+                                    <i class="fa-solid fa-ghost text-amber-300"></i>
+                                    <span>Pagar c/ Phantom</span>
+                                </button>
+                            </div>
+
+                            <!-- Preview do QR Code da Solana (Print 2) -->
+                            <div id="modal-solana-qr-preview" class="hidden p-3 bg-black/70 rounded-xl border border-purple-500/40 text-center animate-fade-in">
+                                <img src="qrcode_solana_bragapay.jpg" alt="QR Code Solana BragaPay" class="w-44 h-44 mx-auto rounded-xl border-2 border-purple-400 shadow-lg object-contain">
+                                <p class="text-[10px] text-gray-300 font-bold mt-2">Escaneie com sua carteira Solana (Phantom / Solflare)</p>
+                            </div>
                         </div>
                     </div>
 
@@ -10227,7 +10248,7 @@
         }
         window.isSuperAdminLogado = isSuperAdminLogado;
 
-        const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0124maisappsmobile@gmail.com5204000053039865406199.005802BR5908BRAGAPAY6005JUINA62120508RESET199630434E3";
+        const PIX_PROMO_PAYLOAD = "00020126460014BR.GOV.BCB.PIX0114+55669814112345204000053039865406199.005802BR5911EDWAN BRAGA6005JUINA62120508RESET1996304E6BC";
 
         // Utilitário global para normalizar qualquer número de WhatsApp garantindo o código do país (+55) no automático sem duplicar
         function normalizarNumeroWhatsApp(num) {
@@ -10597,12 +10618,14 @@
                 return idStr + lenStr + val;
             }
             let chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : '+5566981411234';
+            if (chave === 'maisappsmobile@gmail.com') chave = '+5566981411234';
             // Se for celular (10 ou 11 digitos) e nao comecar com +, adiciona o codigo do pais +55 exigido pelo Banco Central
             const apenasDigitos = chave.replace(/\D/g, '');
             if ((apenasDigitos.length === 10 || apenasDigitos.length === 11) && !chave.startsWith('+')) {
                 chave = '+55' + apenasDigitos;
             }
-            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            let titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            if (titular.includes('LUCIA')) titular = 'EDWAN BRAGA DE OLIVEIRA';
             const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'EDWAN BRAGA';
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
             let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, titularFormatado) + fld(60, 'JUINA') + fld(62, fld(5, txid));
@@ -12529,7 +12552,14 @@
                             p3.valorMensalidadeNum = parsed.planos.plano3.valorMensalidadeNum ?? p3.valorMensalidadeNum;
                         }
                     }
-                    if (parsed.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsed.fitcoin);
+                    if (parsed.fitcoin) {
+                        if (parsed.fitcoin.pixChave === 'maisappsmobile@gmail.com' || (parsed.fitcoin.pixTitular && parsed.fitcoin.pixTitular.includes('LUCIA'))) {
+                            parsed.fitcoin.pixChave = '+5566981411234';
+                            parsed.fitcoin.pixTitular = 'EDWAN BRAGA DE OLIVEIRA';
+                            try { localStorage.setItem('cfg_planos_superadmin', JSON.stringify(parsed)); } catch(_) {}
+                        }
+                        FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsed.fitcoin);
+                    }
                     if (parsed.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsed.tempo);
                 }
 
@@ -12541,7 +12571,13 @@
                         if (parsedRemote.planosSistema && Array.isArray(parsedRemote.planosSistema)) {
                             PLANOS_SISTEMA = parsedRemote.planosSistema;
                         }
-                        if (parsedRemote.fitcoin) FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsedRemote.fitcoin);
+                        if (parsedRemote.fitcoin) {
+                            if (parsedRemote.fitcoin.pixChave === 'maisappsmobile@gmail.com' || (parsedRemote.fitcoin.pixTitular && parsedRemote.fitcoin.pixTitular.includes('LUCIA'))) {
+                                parsedRemote.fitcoin.pixChave = '+5566981411234';
+                                parsedRemote.fitcoin.pixTitular = 'EDWAN BRAGA DE OLIVEIRA';
+                            }
+                            FITCOIN_SOLANA_CONFIG = Object.assign(FITCOIN_SOLANA_CONFIG, parsedRemote.fitcoin);
+                        }
                         if (parsedRemote.tempo) CONFIG_TEMPO_PLANOS = Object.assign(CONFIG_TEMPO_PLANOS, parsedRemote.tempo);
                     }
                 }
@@ -12555,8 +12591,14 @@
         window.carregarConfiguracoesPlanosSuperadmin = carregarConfiguracoesPlanosSuperadmin;
 
         function atualizarDadosPixModalTela() {
-            const chave = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || '+5566981411234';
-            const titular = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'EDWAN BRAGA DE OLIVEIRA';
+            let chave = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixChave) || '+5566981411234';
+            let titular = (FITCOIN_SOLANA_CONFIG && FITCOIN_SOLANA_CONFIG.pixTitular) || 'EDWAN BRAGA DE OLIVEIRA';
+            if (chave === 'maisappsmobile@gmail.com') chave = '+5566981411234';
+            if (titular.includes('LUCIA')) titular = 'EDWAN BRAGA DE OLIVEIRA';
+            if (FITCOIN_SOLANA_CONFIG) {
+                FITCOIN_SOLANA_CONFIG.pixChave = chave;
+                FITCOIN_SOLANA_CONFIG.pixTitular = titular;
+            }
 
             const elChavePix = document.getElementById('txt-chave-pix-facilitada');
             const elFavorecidaPix = document.getElementById('txt-favorecida-pix-facilitada');
@@ -26920,12 +26962,14 @@
                 return idStr + lenStr + val;
             }
             let chave = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixChave) ? FITCOIN_SOLANA_CONFIG.pixChave : '+5566981411234';
+            if (chave === 'maisappsmobile@gmail.com') chave = '+5566981411234';
             // Se for celular (10 ou 11 digitos) e nao comecar com +, adiciona o codigo do pais +55 exigido pelo Banco Central
             const apenasDigitos = chave.replace(/\D/g, '');
             if ((apenasDigitos.length === 10 || apenasDigitos.length === 11) && !chave.startsWith('+')) {
                 chave = '+55' + apenasDigitos;
             }
-            const titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            let titular = (typeof FITCOIN_SOLANA_CONFIG !== 'undefined' && FITCOIN_SOLANA_CONFIG.pixTitular) ? FITCOIN_SOLANA_CONFIG.pixTitular : 'EDWAN BRAGA DE OLIVEIRA';
+            if (titular.includes('LUCIA')) titular = 'EDWAN BRAGA DE OLIVEIRA';
             const titularFormatado = titular.replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase().slice(0, 25) || 'EDWAN BRAGA';
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
             let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, titularFormatado) + fld(60, 'JUINA') + fld(62, fld(5, txid));
