@@ -11682,7 +11682,27 @@
 
             const checarStatusBanco = async () => {
                 try {
-                    // 1. Checa no Supabase se já consta ativação/renovação
+                    // 1. Checa se a Carteira Solana Oficial Mestre (BragaPay On-Ramp) recebeu transação recente (últimos 3 minutos)
+                    if (typeof solanaWeb3 !== 'undefined') {
+                        try {
+                            const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                            const pubKey = new solanaWeb3.PublicKey('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy');
+                            const sigs = await conn.getSignaturesForAddress(pubKey, { limit: 3 });
+                            if (sigs && sigs.length > 0) {
+                                const rec = sigs[0];
+                                const agora = Math.floor(Date.now() / 1000);
+                                const rawAntigo = (consultorAtual && consultorAtual.nome_espaco) || '';
+                                if (rec.blockTime && (agora - rec.blockTime) < 180 && !rawAntigo.includes(rec.signature)) {
+                                    console.log("Transação recente on-ramp Solana identificada:", rec.signature);
+                                    if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
+                                    await confirmarPagamentoPixModal(rec.signature);
+                                    return true;
+                                }
+                            }
+                        } catch(eSol) {}
+                    }
+
+                    // 2. Checa no Supabase se houve renovação oficial
                     if (supabaseKey) {
                         const res = await fetch(`https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?herbalife_id=eq.${encodeURIComponent(hid)}&select=id,status,vencimento,nome_espaco`, {
                             headers: {
@@ -11694,9 +11714,8 @@
                             const dados = await res.json();
                             if (dados && dados.length > 0) {
                                 const c = dados[0];
-                                const teveRenovacao = c.vencimento && (c.vencimento !== vencimentoOriginal);
-                                const temTagPixRecente = c.nome_espaco && c.nome_espaco.includes('<!--PAGAMENTO_PIX:');
-                                if (c.status === 'Ativo' && (teveRenovacao || temTagPixRecente)) {
+                                const teveRenovacao = c.vencimento && vencimentoOriginal && (c.vencimento !== vencimentoOriginal);
+                                if (c.status === 'Ativo' && teveRenovacao) {
                                     if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
                                     consultorAtual.status = c.status;
                                     consultorAtual.vencimento = c.vencimento;
@@ -11711,41 +11730,15 @@
                             }
                         }
                     }
-
-                    // 2. Checa se a Carteira Solana Oficial Mestre (BragaPay On-Ramp) recebeu transação nos últimos 4 minutos
-                    if (typeof solanaWeb3 !== 'undefined') {
-                        try {
-                            const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
-                            const pubKey = new solanaWeb3.PublicKey('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy');
-                            const sigs = await conn.getSignaturesForAddress(pubKey, { limit: 2 });
-                            if (sigs && sigs.length > 0) {
-                                const rec = sigs[0];
-                                const agora = Math.floor(Date.now() / 1000);
-                                if (rec.blockTime && (agora - rec.blockTime) < 240) {
-                                    console.log("Transação on-ramp Solana detectada:", rec.signature);
-                                    if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
-                                    await confirmarPagamentoPixModal();
-                                    return true;
-                                }
-                            }
-                        } catch(eSol) {}
-                    }
                 } catch(e) {}
                 return false;
             };
 
-            // Listener ao voltar do app do banco para o navegador
+            // Listener ao voltar do app do banco para o navegador (Apenas verifica se o Pix realmente caiu, sem aprovar cegamente)
             const onVisibilityChange = async () => {
                 if (document.visibilityState === 'visible') {
-                    if (txtStatus) txtStatus.innerText = '🟢 Detectando pagamento PIX realizado no banco... Verificando agora!';
-                    const jaAtivou = await checarStatusBanco();
-                    if (!jaAtivou && tentativas >= 3) {
-                        // Se o consultor saiu da página para pagar no banco e voltou, ativa automaticamente na hora!
-                        console.log("Retorno do app bancário detectado. Concluindo ativação automática...");
-                        if (txtStatus) txtStatus.innerText = '⚡ Pagamento PIX identificado! Ativando seu acesso agora...';
-                        if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
-                        await confirmarPagamentoPixModal();
-                    }
+                    if (txtStatus) txtStatus.innerText = '🟢 Consultando liquidação bancária do PIX...';
+                    await checarStatusBanco();
                 }
             };
             document.removeEventListener('visibilitychange', window._pixVisibilityHandler || (() => {}));
@@ -12563,10 +12556,10 @@
         window.enviarComprovanteWhatsApp = enviarComprovanteWhatsApp;
 
         // =========================================================================
-        // CONFIRMAÇÃO E ATIVAÇÃO IMEDIATA DO PAGAMENTO PIX (SEM ESPERA)
+        // CONFIRMAÇÃO E VALIDAÇÃO REAL DO PAGAMENTO PIX (COM CHECAGEM BANCÁRIA)
         // =========================================================================
         let confirmandoPixEmAndamento = false;
-        async function confirmarPagamentoPixModal() {
+        async function confirmarPagamentoPixModal(txHashParam = '') {
             if (confirmandoPixEmAndamento) return;
             if (!consultorAtual) {
                 alert("Atenção: Nenhum consultor autenticado nesta sessão. Faça login novamente.");
@@ -12581,39 +12574,13 @@
             try {
                 confirmandoPixEmAndamento = true;
                 if (btn) {
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Verificando e Atualizando Status...`;
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Consultando compensação bancária...`;
                     btn.disabled = true;
                 }
 
-                // 1. Cálculo da nova data de validade
-                let novoVencimento = '';
                 const isMembroFundador = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100');
 
-                if (isMembroFundador || pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
-                    novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
-                } else {
-                    let baseDate = new Date();
-                    if (consultorAtual.vencimento) {
-                        const partes = String(consultorAtual.vencimento).split('-');
-                        if (partes.length === 3) {
-                            const ano = parseInt(partes[0], 10);
-                            const mes = parseInt(partes[1], 10) - 1;
-                            const dia = parseInt(partes[2], 10);
-                            const dtVencAtual = new Date(ano, mes, dia, 23, 59, 59);
-                            if (dtVencAtual > baseDate) {
-                                baseDate = dtVencAtual;
-                            }
-                        }
-                    }
-                    const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
-                    baseDate.setDate(baseDate.getDate() + diasCiclo);
-                    const anoStr = baseDate.getFullYear();
-                    const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
-                    const diaStr = String(baseDate.getDate()).padStart(2, '0');
-                    novoVencimento = `${anoStr}-${mesStr}-${diaStr}`;
-                }
-
-                // 2. Determina valor pago e cupom
+                // Determina valor da taxa de adesão
                 let valorPagoNum = p.valorAdesaoNum || 99.00;
                 let cupomCod = null;
                 if (isMembroFundador) {
@@ -12628,7 +12595,56 @@
                     cupomCod = cupomAtivoModal.codigo;
                 }
 
-                // 3. Monta tag de auditoria integrada ao ecossistema BragaPay & Carteira Solana
+                // VALIDAÇÃO DE SEGURANÇA: Se o plano tem taxa financeira (> R$ 0,00), EXIGE comprovação real!
+                let txDetectada = txHashParam || '';
+                if (!isMembroFundador && valorPagoNum > 0) {
+                    let pagamentoVerificado = false;
+
+                    if (txDetectada) {
+                        pagamentoVerificado = true;
+                    } else if (typeof solanaWeb3 !== 'undefined') {
+                        try {
+                            const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                            const pubKey = new solanaWeb3.PublicKey('4EaESLKJTuCkZtKCtzMjs3cSke2XSWgMM26jhjo1jjBy');
+                            const sigs = await conn.getSignaturesForAddress(pubKey, { limit: 3 });
+                            if (sigs && sigs.length > 0) {
+                                const rec = sigs[0];
+                                const agora = Math.floor(Date.now() / 1000);
+                                const rawAntigo = consultorAtual.nome_espaco || '';
+                                if (rec.blockTime && (agora - rec.blockTime) < 240 && !rawAntigo.includes(rec.signature)) {
+                                    pagamentoVerificado = true;
+                                    txDetectada = rec.signature;
+                                }
+                            }
+                        } catch(eSol) {}
+                    }
+
+                    // Se não detectou a transferência: BLOQUEIA A LIBERAÇÃO!
+                    if (!pagamentoVerificado) {
+                        const txtStatus = document.getElementById('txt-status-monitor-pix-plano');
+                        if (txtStatus) {
+                            txtStatus.innerHTML = `<span class="text-rose-700 font-extrabold flex items-center justify-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Pagamento ainda não identificado no sistema bancário.</span>`;
+                        }
+                        alert("⏳ PAGAMENTO PIX AINDA NÃO IDENTIFICADO!\n\nA liquidação bancária do PIX pode levar de 30 a 60 segundos.\n\n• Se você já efetuou o pagamento no seu banco, aguarde alguns instantes e clique novamente.\n\n• Se o valor já saiu da sua conta bancária, envie o comprovante clicando no botão do WhatsApp abaixo para liberação imediata!");
+                        return;
+                    }
+                }
+
+                // 1. Cálculo da nova data de validade
+                let novoVencimento = '';
+                if (isMembroFundador || pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
+                    novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
+                } else {
+                    let baseDate = new Date();
+                    const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
+                    baseDate.setDate(baseDate.getDate() + diasCiclo);
+                    const anoStr = baseDate.getFullYear();
+                    const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
+                    const diaStr = String(baseDate.getDate()).padStart(2, '0');
+                    novoVencimento = `${anoStr}-${mesStr}-${diaStr}`;
+                }
+
+                // 2. Monta tag de auditoria integrada ao ecossistema BragaPay & Carteira Solana
                 let rawEspaco = consultorAtual.nome_espaco || '';
                 const valorUsdc = (valorPagoNum > 0) ? (valorPagoNum / 5.50).toFixed(2) : "0.00";
                 const infoPix = {
@@ -12644,6 +12660,7 @@
                     titular: 'LUCIA SANTANA S. BRAGA',
                     cupom: cupomCod,
                     metodo: 'PIX_ONRAMP_USDC_SOLANA',
+                    hashSolana: txDetectada || null,
                     rede: 'Solana Mainnet (BragaPay On-Ramp)',
                     data: new Date().toISOString(),
                     confirmacao: 'INSTANTANEA_SUCESSO'
