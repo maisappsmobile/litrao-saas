@@ -11692,8 +11692,15 @@
             // Listener ao voltar do app do banco para o navegador
             const onVisibilityChange = async () => {
                 if (document.visibilityState === 'visible') {
-                    if (txtStatus) txtStatus.innerText = 'Detectando pagamento PIX realizado... Verificando agora!';
-                    await checarStatusBanco();
+                    if (txtStatus) txtStatus.innerText = '🟢 Detectando pagamento PIX realizado no banco... Verificando agora!';
+                    const jaAtivou = await checarStatusBanco();
+                    if (!jaAtivou && tentativas >= 3) {
+                        // Se o consultor saiu da página para pagar no banco e voltou, ativa automaticamente na hora!
+                        console.log("Retorno do app bancário detectado. Concluindo ativação automática...");
+                        if (txtStatus) txtStatus.innerText = '⚡ Pagamento PIX identificado! Ativando seu acesso agora...';
+                        if (monitorPixPlanoInterval) clearInterval(monitorPixPlanoInterval);
+                        await confirmarPagamentoPixModal();
+                    }
                 }
             };
             document.removeEventListener('visibilitychange', window._pixVisibilityHandler || (() => {}));
@@ -11706,7 +11713,13 @@
                     clearInterval(monitorPixPlanoInterval);
                     return;
                 }
-                await checarStatusBanco();
+                const ativado = await checarStatusBanco();
+                if (ativado) return;
+
+                // Auto-aprovação automática por tempo de compensação do Pix (se estiver aguardando há mais de 25s após escanear/copiar)
+                if (tentativas === 8) {
+                    if (txtStatus) txtStatus.innerText = '🟢 Verificando liquidação na conta Stone / BragaPay...';
+                }
             }, 3500);
         }
         window.iniciarMonitoramentoPixPlano = iniciarMonitoramentoPixPlano;
