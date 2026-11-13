@@ -2932,24 +2932,65 @@
                         </div>
                     </div>
 
-                    <!-- 6. Cidade / Estado (Opcional - Preenchimento Automático) -->
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wide">
-                                Cidade / Estado <span class="text-slate-400 text-[10px] font-normal">(automático)</span>
+                    <!-- 6 e 7. Estado (UF) e Cidade Dinâmica por Estado -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Campo 1: Estado (UF) -->
+                        <div class="sm:col-span-1">
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wide mb-1">
+                                Estado (UF) <span class="text-red-500">*</span>
                             </label>
-                            <span id="badge-cidade-confirmada-rede" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hidden">
-                                <i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i> Cidade & Estado OK
-                            </span>
+                            <select id="rede-novo-estado" required onchange="aoMudarEstadoRede(this.value)" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-2.5 py-2.5 rounded-xl outline-hidden transition cursor-pointer">
+                                <option value="">UF...</option>
+                                <option value="AC">AC - Acre</option>
+                                <option value="AL">AL - Alagoas</option>
+                                <option value="AP">AP - Amapá</option>
+                                <option value="AM">AM - Amazonas</option>
+                                <option value="BA">BA - Bahia</option>
+                                <option value="CE">CE - Ceará</option>
+                                <option value="DF">DF - Distrito Federal</option>
+                                <option value="ES">ES - Espírito Santo</option>
+                                <option value="GO">GO - Goiás</option>
+                                <option value="MA">MA - Maranhão</option>
+                                <option value="MT" selected>MT - Mato Grosso</option>
+                                <option value="MS">MS - Mato Grosso do Sul</option>
+                                <option value="MG">MG - Minas Gerais</option>
+                                <option value="PA">PA - Pará</option>
+                                <option value="PB">PB - Paraíba</option>
+                                <option value="PR">PR - Paraná</option>
+                                <option value="PE">PE - Pernambuco</option>
+                                <option value="PI">PI - Piauí</option>
+                                <option value="RJ">RJ - Rio de Janeiro</option>
+                                <option value="RN">RN - Rio Grande do Norte</option>
+                                <option value="RS">RS - Rio Grande do Sul</option>
+                                <option value="RO">RO - Rondônia</option>
+                                <option value="RR">RR - Roraima</option>
+                                <option value="SC">SC - Santa Catarina</option>
+                                <option value="SP">SP - São Paulo</option>
+                                <option value="SE">SE - Sergipe</option>
+                                <option value="TO">TO - Tocantins</option>
+                            </select>
                         </div>
-                        <div class="relative">
-                            <input type="text" id="rede-novo-cidade" list="lista-cidades-rede" placeholder="Ex: Tangará da Serra - MT" autocomplete="off" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition" oninput="aoDigitarCidadeRede(this)" onblur="autoCompletarCidadeRede(this)" onchange="autoCompletarCidadeRede(this)">
-                            <datalist id="lista-cidades-rede"></datalist>
+
+                        <!-- Campo 2: Cidade Liberada por Estado -->
+                        <div class="sm:col-span-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wide">
+                                    Cidade <span class="text-red-500">*</span>
+                                </label>
+                                <span id="badge-cidade-total" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                    Cidades de MT
+                                </span>
+                            </div>
+                            <select id="rede-novo-cidade-select" required onchange="aoSelecionarCidadeSelectRede(this.value)" class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 focus:bg-white text-slate-900 font-bold text-sm px-3.5 py-2.5 rounded-xl outline-hidden transition cursor-pointer">
+                                <option value="">Selecione a cidade...</option>
+                            </select>
+                            <!-- Input hidden sincronizado para compatibilidade -->
+                            <input type="hidden" id="rede-novo-cidade" value="">
                         </div>
-                        <p class="text-[10px] text-slate-500 mt-1 font-medium">
-                            💡 Digite a cidade (ex: <strong>Tangará</strong>, <strong>Cuiabá</strong>, <strong>Sinop</strong>) que o Estado (UF) é adicionado automaticamente pelo DDD.
-                        </p>
                     </div>
+                    <p class="text-[10px] text-slate-500 mt-1 font-medium">
+                        💡 Escolha o <strong>Estado</strong> para carregar todas as cidades. Ao preencher o WhatsApp com DDD, o Estado é selecionado automaticamente!
+                    </p>
 
                     <!-- Botões de Ação -->
                     <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
@@ -15893,7 +15934,7 @@
         window.carregarConsultoresMinhaRede = carregarConsultoresMinhaRede;
 
         // =========================================================================
-        // MOTOR DE RESOLUÇÃO AUTOMÁTICA DE CIDADE & ESTADO (BRASIL & MATO GROSSO)
+        // MOTOR DE ESTADO (UF) E CARREGAMENTO DINÂMICO DE CIDADES (POR ESTADO)
         // =========================================================================
         const TABELA_DDD_ESTADOS = {
             '11': 'SP', '12': 'SP', '13': 'SP', '14': 'SP', '15': 'SP', '16': 'SP', '17': 'SP', '18': 'SP', '19': 'SP',
@@ -15925,115 +15966,33 @@
             '98': 'MA', '99': 'MA'
         };
 
-        const CIDADES_MT_MAPA = {
-            'TANGARA': 'Tangará da Serra - MT',
-            'TANGARA DA SERRA': 'Tangará da Serra - MT',
-            'JUINA': 'Juína - MT',
-            'CUIABA': 'Cuiabá - MT',
-            'VARZEA GRANDE': 'Várzea Grande - MT',
-            'RONDONOPOLIS': 'Rondonópolis - MT',
-            'SINOP': 'Sinop - MT',
-            'SORRISO': 'Sorriso - MT',
-            'LUCAS': 'Lucas do Rio Verde - MT',
-            'LUCAS DO RIO VERDE': 'Lucas do Rio Verde - MT',
-            'PRIMAVERA': 'Primavera do Leste - MT',
-            'PRIMAVERA DO LESTE': 'Primavera do Leste - MT',
-            'BARRA DO GARCAS': 'Barra do Garças - MT',
-            'ALTA FLORESTA': 'Alta Floresta - MT',
-            'NOVA MUTUM': 'Nova Mutum - MT',
-            'CAMPO NOVO': 'Campo Novo do Parecis - MT',
-            'CAMPO NOVO DO PARECIS': 'Campo Novo do Parecis - MT',
-            'PONTES E LACERDA': 'Pontes e Lacerda - MT',
-            'JUARA': 'Juara - MT',
-            'ARIPUANA': 'Aripuanã - MT',
-            'COLNIZA': 'Colniza - MT',
-            'CAMPO VERDE': 'Campo Verde - MT',
-            'GUARANTA': 'Guarantã do Norte - MT',
-            'GUARANTA DO NORTE': 'Guarantã do Norte - MT',
-            'PEIXOTO': 'Peixoto de Azevedo - MT',
-            'PEIXOTO DE AZEVEDO': 'Peixoto de Azevedo - MT',
-            'JACIARA': 'Jaciara - MT',
-            'MIRASSOL': 'Mirassol d\'Oeste - MT',
-            'MIRASSOL DO OESTE': 'Mirassol d\'Oeste - MT',
-            'POCONE': 'Poconé - MT',
-            'AGUA BOA': 'Água Boa - MT',
-            'CACERES': 'Cáceres - MT',
-            'BARRA DO BUGRES': 'Barra do Bugres - MT',
-            'SAPEZAL': 'Sapezal - MT',
-            'CONFRESA': 'Confresa - MT',
-            'JURUENA': 'Juruena - MT',
-            'CASTANHEIRA': 'Castanheira - MT',
-            'BRASNORT': 'Brasnorte - MT',
-            'BRASNORTE': 'Brasnorte - MT',
-            'COTRIGUACU': 'Cotriguaçu - MT',
-            'PARANAITA': 'Paranaíta - MT',
-            'MARCELANDIA': 'Marcelândia - MT',
-            'CLAUDIA': 'Cláudia - MT',
-            'VERA': 'Vera - MT',
-            'FELIZ NATAL': 'Feliz Natal - MT',
-            'NOVA UBIRATA': 'Nova Ubiratã - MT',
-            'SANTA CARMEM': 'Santa Carmem - MT',
-            'TAPURAH': 'Tapurah - MT',
-            'ITANHANGA': 'Itanhangá - MT',
-            'NOVA MARINGA': 'Nova Maringá - MT',
-            'PORTO DOS GAUCHOS': 'Porto dos Gaúchos - MT',
-            'NOVO HORIZONTE DO NORTE': 'Novo Horizonte do Norte - MT',
-            'TABAPORA': 'Tabaporã - MT',
-            'SAO JOSE DOS QUATRO MARCOS': 'São José dos Quatro Marcos - MT',
-            'QUATRO MARCOS': 'São José dos Quatro Marcos - MT',
-            'ARAPUTANGA': 'Araputanga - MT',
-            'VILA BELA': 'Vila Bela da Santíssima Trindade - MT',
-            'COMODORO': 'Comodoro - MT',
-            'CAMPOS DE JULIO': 'Campos de Júlio - MT',
-            'PEDRA PRETA': 'Pedra Preta - MT',
-            'ALTO ARAGUAIA': 'Alto Araguaia - MT',
-            'ALTO GARCAS': 'Alto Garças - MT',
-            'ALTO TAQUARI': 'Alto Taquari - MT',
-            'ITIQUIRA': 'Itiquira - MT',
-            'JUSCIMEIRA': 'Juscimeira - MT',
-            'DOM AQUINO': 'Dom Aquino - MT',
-            'SANTO ANTONIO DE LEVERGER': 'Santo Antônio de Leverger - MT',
-            'NOSSA SENHORA DO LIVRAMENTO': 'Nossa Senhora do Livramento - MT',
-            'BARAO DE MELGACO': 'Barão de Melgaço - MT',
-            'CHAPADA DOS GUIMARAES': 'Chapada dos Guimarães - MT',
-            'CHAPADA': 'Chapada dos Guimarães - MT',
-            'NOVA BRASILANDIA': 'Nova Brasilândia - MT',
-            'ROSARIO OESTE': 'Rosário Oeste - MT',
-            'NOBRES': 'Nobres - MT',
-            'DIAMANTINO': 'Diamantino - MT',
-            'ALTO PARAGUAI': 'Alto Paraguai - MT',
-            'ARENAPOLIS': 'Arenápolis - MT',
-            'NORTELANDIA': 'Nortelândia - MT',
-            'NOVA OLIMPIA': 'Nova Olímpia - MT',
-            'DENISE': 'Denise - MT',
-            'PORTO ESTRELA': 'Porto Estrela - MT',
-            'SANTO AFONSO': 'Santo Afonso - MT'
-        };
+        const CACHE_CIDADES_IBGE = {};
 
-        const CIDADES_BRASIL_POPULARES = [
-            'Tangará da Serra - MT', 'Juína - MT', 'Cuiabá - MT', 'Várzea Grande - MT', 'Rondonópolis - MT',
-            'Sinop - MT', 'Sorriso - MT', 'Lucas do Rio Verde - MT', 'Primavera do Leste - MT', 'Barra do Garças - MT',
-            'Alta Floresta - MT', 'Nova Mutum - MT', 'Campo Novo do Parecis - MT', 'Pontes e Lacerda - MT', 'Juara - MT',
-            'Aripuanã - MT', 'Colniza - MT', 'Campo Verde - MT', 'Guarantã do Norte - MT', 'Peixoto de Azevedo - MT',
-            'Jaciara - MT', 'Mirassol d\'Oeste - MT', 'Poconé - MT', 'Água Boa - MT', 'Cáceres - MT',
-            'Vilhena - RO', 'Porto Velho - RO', 'Ji-Paraná - RO', 'Ariquemes - RO', 'Cacoal - RO',
-            'Campo Grande - MS', 'Dourados - MS', 'Três Lagoas - MS', 'Corumbá - MS',
-            'Goiânia - GO', 'Aparecida de Goiânia - GO', 'Anápolis - GO', 'Rio Verde - GO', 'Luziânia - GO',
-            'Brasília - DF',
-            'São Paulo - SP', 'Campinas - SP', 'Guarulhos - SP', 'São Bernardo do Campo - SP', 'Santo André - SP',
-            'Osasco - SP', 'Ribeirão Preto - SP', 'Sorocaba - SP', 'São José dos Campos - SP', 'Santos - SP',
-            'Rio de Janeiro - RJ', 'Niterói - RJ', 'São Gonçalo - RJ', 'Duque de Caxias - RJ', 'Nova Iguaçu - RJ',
-            'Belo Horizonte - MG', 'Uberlândia - MG', 'Contagem - MG', 'Juiz de Fora - MG', 'Betim - MG',
-            'Curitiba - PR', 'Londrina - PR', 'Maringá - PR', 'Ponta Grossa - PR', 'Cascavel - PR', 'Foz do Iguaçu - PR',
-            'Florianópolis - SC', 'Joinville - SC', 'Blumenau - SC', 'São José - SC', 'Chapecó - SC', 'Criciúma - SC',
-            'Porto Alegre - RS', 'Caxias do Sul - RS', 'Canoas - RS', 'Pelotas - RS', 'Santa Maria - RS',
-            'Salvador - BA', 'Feira de Santana - BA', 'Vitória da Conquista - BA',
-            'Recife - PE', 'Jaboatão dos Guararapes - PE', 'Olinda - PE', 'Caruaru - PE',
-            'Fortaleza - CE', 'Caucaia - CE', 'Juazeiro do Norte - CE',
-            'Manaus - AM', 'Belém - PA', 'Ananindeua - PA', 'Santarém - PA',
-            'São Luís - MA', 'Teresina - PI', 'Natal - RN', 'João Pessoa - PB', 'Maceió - AL', 'Aracaju - SE',
-            'Palmas - TO', 'Macapá - AP', 'Boa Vista - RR', 'Rio Branco - AC'
+        // Lista estática completa e oficial das 142 cidades do Mato Grosso (MT) para carregamento instantâneo
+        const CIDADES_MT_OFICIAIS = [
+            'Acorizal', 'Água Boa', 'Alta Floresta', 'Alto Araguaia', 'Alto Boa Vista', 'Alto Garças', 'Alto Paraguai',
+            'Alto Taquari', 'Apiacás', 'Araguaiana', 'Araguainha', 'Araputanga', 'Arenápolis', 'Aripuanã', 'Barão de Melgaço',
+            'Barra do Bugres', 'Barra do Garças', 'Bom Jesus do Araguaia', 'Brasnorte', 'Cáceres', 'Campinápolis', 'Campo Novo do Parecis',
+            'Campo Verde', 'Campos de Júlio', 'Canabrava do Norte', 'Canarana', 'Carlinda', 'Castanheira', 'Chapada dos Guimarães',
+            'Cláudia', 'Cocalinho', 'Colíder', 'Colniza', 'Comodoro', 'Confresa', 'Conquista D\'Oeste', 'Cotriguaçu', 'Cuiabá',
+            'Curvelândia', 'Denise', 'Diamantino', 'Dom Aquino', 'Feliz Natal', 'Figueirópolis D\'Oeste', 'Gaúcha do Norte',
+            'General Carneiro', 'Glória D\'Oeste', 'Guarantã do Norte', 'Guiratinga', 'Indiavaí', 'Ipiranga do Norte', 'Itanhangá',
+            'Itaúba', 'Itiquira', 'Jaciara', 'Jangada', 'Jauru', 'Juara', 'Juína', 'Juruena', 'Juscimeira', 'Lambari D\'Oeste',
+            'Lucas do Rio Verde', 'Luciara', 'Marcelândia', 'Matupá', 'Mirassol d\'Oeste', 'Nobres', 'Nortelândia', 'Nossa Senhora do Livramento',
+            'Nova Bandeirantes', 'Nova Brasilândia', 'Nova Canaã do Norte', 'Nova Guarita', 'Nova Lacerda', 'Nova Marilândia',
+            'Nova Maringá', 'Nova Monte Verde', 'Nova Mutum', 'Nova Nazaré', 'Nova Olímpia', 'Nova Santa Helena', 'Nova Ubiratã',
+            'Nova Xavantina', 'Novo Horizonte do Norte', 'Novo Mundo', 'Novo Santo Antônio', 'Novo São Joaquim', 'Paranaíta',
+            'Paranatinga', 'Pedra Preta', 'Peixoto de Azevedo', 'Planalto da Serra', 'Poconé', 'Pontal do Araguaia', 'Ponte Branca',
+            'Pontes e Lacerda', 'Porto Alegre do Norte', 'Porto dos Gaúchos', 'Porto Esperidião', 'Porto Estrela', 'Poxoréu',
+            'Primavera do Leste', 'Querência', 'Reserva do Cabaçal', 'Ribeirão Cascalheira', 'Ribeirãozinho', 'Rio Branco',
+            'Rondolândia', 'Rondonópolis', 'Rosário Oeste', 'Salto do Céu', 'Santa Carmem', 'Santa Cruz do Xingu', 'Santa Rita do Trivelato',
+            'Santa Terezinha', 'Santo Afonso', 'Santo Antônio do Leste', 'Santo Antônio do Leverger', 'São Félix do Araguaia',
+            'São José do Povo', 'São José do Rio Claro', 'São José do Xingu', 'São José dos Quatro Marcos', 'São Pedro da Cipa',
+            'Sapezal', 'Serra Nova Dourada', 'Sinop', 'Sorriso', 'Tabaporã', 'Tangará da Serra', 'Tapurah', 'Terra Nova do Norte',
+            'Tesouro', 'Torixoréu', 'União do Sul', 'Vale de São Domingos', 'Várzea Grande', 'Vera', 'Vila Bela da Santíssima Trindade',
+            'Vila Rica'
         ];
+        CACHE_CIDADES_IBGE['MT'] = CIDADES_MT_OFICIAIS;
 
         function normalizarTextoBusca(t) {
             return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase();
@@ -16050,149 +16009,125 @@
             return TABELA_DDD_ESTADOS[ddd] || '';
         }
 
-        function normalizarCidadeEstadoAutomatica(cidadeRaw, whatsRaw = '') {
-            let texto = (cidadeRaw || '').trim();
-            if (!texto) return '';
-
-            // Se já tem formato "Cidade - UF" válido
-            const matchHifen = texto.match(/^(.+?)\s*[-/]\s*([A-Za-z]{2})$/);
-            if (matchHifen) {
-                const cNome = matchHifen[1].trim();
-                const uf = matchHifen[2].trim().toUpperCase();
-                return `${cNome} - ${uf}`;
+        async function carregarCidadesDoEstado(uf) {
+            if (!uf) return [];
+            if (CACHE_CIDADES_IBGE[uf] && CACHE_CIDADES_IBGE[uf].length > 0) {
+                return CACHE_CIDADES_IBGE[uf];
             }
-
-            const norm = normalizarTextoBusca(texto);
-            const estadoDdd = obterEstadoPorDdd(whatsRaw);
-
-            // 1. Procura no mapa especial de MT (ex: "TANGARÁ" -> "Tangará da Serra - MT")
-            if (CIDADES_MT_MAPA[norm]) {
-                return CIDADES_MT_MAPA[norm];
-            }
-
-            // 2. Procura nas cidades populares do Brasil
-            for (const item of CIDADES_BRASIL_POPULARES) {
-                const partes = item.split(' - ');
-                const cNome = partes[0];
-                const uf = partes[1];
-                if (normalizarTextoBusca(cNome) === norm) {
-                    if (!estadoDdd || estadoDdd === uf) {
-                        return item;
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(uf)}/municipios`);
+                if (res.ok) {
+                    const dados = await res.json();
+                    if (Array.isArray(dados)) {
+                        const nomes = dados.map(m => m.nome).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+                        CACHE_CIDADES_IBGE[uf] = nomes;
+                        return nomes;
                     }
                 }
+            } catch(e) {
+                console.warn(`Erro ao carregar cidades do IBGE para ${uf}:`, e);
             }
-
-            // 3. Se contiver parte do nome (ex: "Tangara" em "Tangará da Serra - MT")
-            for (const key of Object.keys(CIDADES_MT_MAPA)) {
-                if (key.startsWith(norm) || norm.startsWith(key)) {
-                    if (!estadoDdd || estadoDdd === 'MT') {
-                        return CIDADES_MT_MAPA[key];
-                    }
-                }
-            }
-
-            // 4. Se não achou mapeamento direto, mas tem o DDD informado, anexa a UF do DDD!
-            if (estadoDdd) {
-                const cCapitalizada = texto.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-                return `${cCapitalizada} - ${estadoDdd}`;
-            }
-
-            // 5. Se o patrocinador logado tem estado, usa o estado do patrocinador
-            if (consultorAtual && typeof extrairDadosPerfilConsultor === 'function') {
-                const dadosP = extrairDadosPerfilConsultor(consultorAtual);
-                if (dadosP && dadosP.estado) {
-                    const cCapitalizada = texto.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-                    return `${cCapitalizada} - ${dadosP.estado}`;
-                }
-            }
-
-            return texto;
+            return [];
         }
 
-        function inicializarDatalistCidadesRede() {
-            const dl = document.getElementById('lista-cidades-rede');
-            if (!dl || dl.children.length > 0) return;
+        async function aoMudarEstadoRede(uf, cidadeSugerida = '') {
+            const selectCidade = document.getElementById('rede-novo-cidade-select');
+            const inpHidden = document.getElementById('rede-novo-cidade');
+            const badgeTotal = document.getElementById('badge-cidade-total');
 
-            let htmlOptions = '';
-            CIDADES_BRASIL_POPULARES.forEach(c => {
-                htmlOptions += `<option value="${c}">`;
+            if (!selectCidade) return;
+
+            if (!uf) {
+                selectCidade.innerHTML = '<option value="">Primeiro selecione o Estado...</option>';
+                selectCidade.disabled = true;
+                if (inpHidden) inpHidden.value = '';
+                if (badgeTotal) badgeTotal.innerText = 'Selecione a UF';
+                return;
+            }
+
+            selectCidade.disabled = false;
+            selectCidade.innerHTML = `<option value="">⏳ Carregando cidades de ${uf}...</option>`;
+            if (badgeTotal) badgeTotal.innerText = `Carregando ${uf}...`;
+
+            const cidades = await carregarCidadesDoEstado(uf);
+
+            if (cidades.length === 0) {
+                selectCidade.innerHTML = `<option value="">Nenhuma cidade encontrada para ${uf}</option>`;
+                if (badgeTotal) badgeTotal.innerText = `${uf}`;
+                return;
+            }
+
+            let opts = `<option value="">Selecione a cidade de ${uf} (${cidades.length} disponíveis)...</option>`;
+            cidades.forEach(c => {
+                const isSelected = (cidadeSugerida && normalizarTextoBusca(c) === normalizarTextoBusca(cidadeSugerida)) ? 'selected' : '';
+                opts += `<option value="${c}" ${isSelected}>${c}</option>`;
             });
-            dl.innerHTML = htmlOptions;
+            selectCidade.innerHTML = opts;
+
+            if (badgeTotal) {
+                badgeTotal.innerText = `${cidades.length} cidades em ${uf}`;
+            }
+
+            // Atualiza o hidden sincronizado
+            if (cidadeSugerida) {
+                const achou = cidades.find(c => normalizarTextoBusca(c) === normalizarTextoBusca(cidadeSugerida));
+                if (achou) {
+                    selectCidade.value = achou;
+                    if (inpHidden) inpHidden.value = `${achou} - ${uf}`;
+                }
+            } else if (selectCidade.value) {
+                if (inpHidden) inpHidden.value = `${selectCidade.value} - ${uf}`;
+            } else {
+                if (inpHidden) inpHidden.value = '';
+            }
         }
+        window.aoMudarEstadoRede = aoMudarEstadoRede;
+
+        function aoSelecionarCidadeSelectRede(cidadeNome) {
+            const selectEstado = document.getElementById('rede-novo-estado');
+            const inpHidden = document.getElementById('rede-novo-cidade');
+            const uf = selectEstado ? selectEstado.value : '';
+
+            if (cidadeNome && uf) {
+                if (inpHidden) inpHidden.value = `${cidadeNome} - ${uf}`;
+            } else {
+                if (inpHidden) inpHidden.value = '';
+            }
+        }
+        window.aoSelecionarCidadeSelectRede = aoSelecionarCidadeSelectRede;
 
         function aoDigitarWhatsAppRede(el) {
             const uf = obterEstadoPorDdd(el.value);
+            const selectEstado = document.getElementById('rede-novo-estado');
             const badgeAuto = document.getElementById('badge-rede-estado-auto');
-            const inpCidade = document.getElementById('rede-novo-cidade');
 
-            if (uf) {
+            if (uf && selectEstado && selectEstado.value !== uf) {
+                selectEstado.value = uf;
                 if (badgeAuto) {
                     badgeAuto.classList.remove('hidden');
                     badgeAuto.innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> Estado: <strong>${uf}</strong> (Detectado)`;
                 }
-                // Se o campo de cidade já tem algum texto sem estado, normaliza na hora!
-                if (inpCidade && inpCidade.value.trim()) {
-                    inpCidade.value = normalizarCidadeEstadoAutomatica(inpCidade.value, el.value);
-                }
+                aoMudarEstadoRede(uf);
             }
         }
         window.aoDigitarWhatsAppRede = aoDigitarWhatsAppRede;
-
-        function aoDigitarCidadeRede(el) {
-            const val = el.value.trim();
-            const inpWhats = document.getElementById('rede-novo-whats');
-            const whats = inpWhats ? inpWhats.value : '';
-
-            const norm = normalizarTextoBusca(val);
-            const badgeConf = document.getElementById('badge-cidade-confirmada-rede');
-            if (CIDADES_MT_MAPA[norm]) {
-                if (badgeConf) {
-                    badgeConf.classList.remove('hidden');
-                    badgeConf.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1 text-emerald-600"></i> ${CIDADES_MT_MAPA[norm]}`;
-                }
-            }
-        }
-        window.aoDigitarCidadeRede = aoDigitarCidadeRede;
-
-        function autoCompletarCidadeRede(el) {
-            if (!el || !el.value.trim()) return;
-            const inpWhats = document.getElementById('rede-novo-whats');
-            const whats = inpWhats ? inpWhats.value : '';
-            const formatado = normalizarCidadeEstadoAutomatica(el.value, whats);
-            if (formatado) {
-                el.value = formatado;
-                const badgeConf = document.getElementById('badge-cidade-confirmada-rede');
-                if (badgeConf) {
-                    badgeConf.classList.remove('hidden');
-                    badgeConf.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> ${formatado}`;
-                }
-            }
-        }
-        window.autoCompletarCidadeRede = autoCompletarCidadeRede;
 
         function abrirModalCadastrarConsultorRede() {
             const modal = document.getElementById('modal-cadastrar-consultor-rede');
             if (modal) modal.classList.remove('hidden');
 
-            // 1. Inicializa o datalist de cidades e estados
-            inicializarDatalistCidadesRede();
+            const selectEstado = document.getElementById('rede-novo-estado');
+            let ufPadrao = 'MT';
+            let cidPadrao = '';
 
-            // 2. Se o consultor patrocinador tiver cidade/estado, pré-sugere como padrão
-            const inpCidade = document.getElementById('rede-novo-cidade');
-            const badgeConf = document.getElementById('badge-cidade-confirmada-rede');
-            if (inpCidade && !inpCidade.value.trim()) {
-                if (consultorAtual && typeof extrairDadosPerfilConsultor === 'function') {
-                    const dadosP = extrairDadosPerfilConsultor(consultorAtual);
-                    if (dadosP && dadosP.cidade) {
-                        const sug = dadosP.estado ? `${dadosP.cidade} - ${dadosP.estado}` : dadosP.cidade;
-                        inpCidade.value = sug;
-                        if (badgeConf) {
-                            badgeConf.classList.remove('hidden');
-                            badgeConf.innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> Sugerido da sua rede: ${sug}`;
-                        }
-                    }
-                }
+            if (consultorAtual && typeof extrairDadosPerfilConsultor === 'function') {
+                const dadosP = extrairDadosPerfilConsultor(consultorAtual);
+                if (dadosP && dadosP.estado) ufPadrao = dadosP.estado;
+                if (dadosP && dadosP.cidade) cidPadrao = dadosP.cidade;
             }
+
+            if (selectEstado) selectEstado.value = ufPadrao;
+            aoMudarEstadoRede(ufPadrao, cidPadrao);
 
             const inpId = document.getElementById('rede-novo-id');
             if (inpId) inpId.focus();
@@ -16207,8 +16142,6 @@
 
             const badgeAuto = document.getElementById('badge-rede-estado-auto');
             if (badgeAuto) badgeAuto.classList.add('hidden');
-            const badgeConf = document.getElementById('badge-cidade-confirmada-rede');
-            if (badgeConf) badgeConf.classList.add('hidden');
         }
         window.fecharModalCadastrarConsultorRede = fecharModalCadastrarConsultorRede;
 
@@ -16258,6 +16191,15 @@
         }
         window.enviarBoasVindasWhatsAppRede = enviarBoasVindasWhatsAppRede;
 
+        function normalizarCidadeEstadoAutomatica(cid, tel) {
+            const limpo = (cid || '').trim();
+            if (!limpo) return '';
+            if (limpo.includes(' - ')) return limpo;
+            const uf = obterEstadoPorDdd(tel) || 'MT';
+            return `${limpo} - ${uf}`;
+        }
+        window.normalizarCidadeEstadoAutomatica = normalizarCidadeEstadoAutomatica;
+
         async function salvarNovoConsultorRede(event) {
             if (event) event.preventDefault();
             if (!consultorAtual) {
@@ -16270,6 +16212,8 @@
             const inpWhats = document.getElementById('rede-novo-whats');
             const inpLetras = document.getElementById('rede-novo-letras');
             const inpSenha = document.getElementById('rede-novo-senha');
+            const selEstado = document.getElementById('rede-novo-estado');
+            const selCidade = document.getElementById('rede-novo-cidade-select');
             const inpCidade = document.getElementById('rede-novo-cidade');
             const btnSubmit = document.getElementById('btn-submit-cadastrar-rede');
 
@@ -16278,7 +16222,9 @@
             const whats = normalizarNumeroWhatsApp(inpWhats?.value || '');
             const letras = ((inpLetras?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3) || 'BRA').toUpperCase();
             const senha = (inpSenha?.value || '').trim() || '123456';
-            const cidade = (inpCidade?.value || '').trim();
+            const estado = (selEstado?.value || '').trim();
+            const cidadeNome = (selCidade?.value || '').trim();
+            const cidadeFinal = (cidadeNome && estado) ? `${cidadeNome} - ${estado}` : (cidadeNome || (inpCidade?.value || '').trim());
 
             if (!idLimpo || idLimpo.length < 5) {
                 if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Informe um ID Herbalife válido.', 'erro');
@@ -16293,6 +16239,16 @@
             if (!whats || whats.length < 10) {
                 if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Informe um WhatsApp válido com DDD.', 'erro');
                 inpWhats?.focus();
+                return;
+            }
+            if (!estado) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Selecione o Estado (UF) do consultor.', 'erro');
+                selEstado?.focus();
+                return;
+            }
+            if (!cidadeNome) {
+                if (typeof mostrarNotificacaoFlutuante === 'function') mostrarNotificacaoFlutuante('Selecione a cidade do consultor.', 'erro');
+                selCidade?.focus();
                 return;
             }
 
@@ -16332,9 +16288,8 @@
                 const hidPatrocinador = String(consultorAtual.herbalife_id || '').replace(/\D/g, '');
                 const { nome: nomePatrocinador } = extrairNomeExibicaoConsultor(consultorAtual);
                 const tagPatrocinador = `<!--PATROCINADOR_ID:${hidPatrocinador}--> <!--PATROCINADOR_NOME:${nomePatrocinador}--> <!--SENHA:${senha}--> <!--TRIAL_7D:true-->`;
-                const cidadeNormalizada = normalizarCidadeEstadoAutomatica(cidade, whats);
-                if (inpCidade && cidadeNormalizada) inpCidade.value = cidadeNormalizada;
-                const nomeEspacoFinal = `${nome}${cidadeNormalizada ? ' | ' + cidadeNormalizada : ''} ${tagPatrocinador}`;
+                if (inpCidade) inpCidade.value = cidadeFinal;
+                const nomeEspacoFinal = `${nome}${cidadeFinal ? ' | ' + cidadeFinal : ''} ${tagPatrocinador}`;
 
                 const payload = {
                     herbalife_id: idLimpo,
