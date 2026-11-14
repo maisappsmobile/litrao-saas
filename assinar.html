@@ -829,7 +829,18 @@
             }
             const chave = PIX_ONRAMP_CONFIG.pixChave;
             const mai = fld(0, 'BR.GOV.BCB.PIX') + fld(1, chave);
-            let res = fld(0, '01') + fld(26, mai) + fld(52, '0000') + fld(53, '986') + fld(54, valor.toFixed(2)) + fld(58, 'BR') + fld(59, PIX_ONRAMP_CONFIG.titular) + fld(60, PIX_ONRAMP_CONFIG.cidade) + fld(62, fld(5, txid));
+            let txidLimpo = String(txid || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 25);
+            if (!txidLimpo) txidLimpo = '***';
+            let res = fld(0, '01') +
+                      fld(1, '11') +
+                      fld(26, mai) +
+                      fld(52, '0000') +
+                      fld(53, '986') +
+                      fld(54, valor.toFixed(2)) +
+                      fld(58, 'BR') +
+                      fld(59, PIX_ONRAMP_CONFIG.titular) +
+                      fld(60, PIX_ONRAMP_CONFIG.cidade) +
+                      fld(62, fld(5, txidLimpo));
             res += '6304';
             return res + crc16Pix(res);
         }
