@@ -13,16 +13,17 @@
         }
 
         :root {
-            --bg-opacity: 0.55; /* Transparência padrão de 55% */
+            --bg-opacity: 0.65; /* Transparência padrão de 65% */
             --bg-color: rgba(11, 15, 25, var(--bg-opacity));
         }
 
-        body {
+        html, body {
             background-color: var(--bg-color);
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
             transition: background-color 0.2s ease;
@@ -30,16 +31,17 @@
 
         /* BARRA SUPERIOR ULTRA COMPACTA E MINIMALISTA */
         header {
-            background: rgba(17, 24, 39, 0.85);
+            background: rgba(17, 24, 39, 0.92);
             backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 5px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 6px;
             z-index: 50;
             font-size: 11px;
+            flex-shrink: 0;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
@@ -54,48 +56,53 @@
         /* BOTÃO FLUTUANTE PARA MOSTRAR/OCULTAR BARRA */
         #btn-toggle-toolbar {
             position: fixed;
-            top: 2px;
+            top: 4px;
             right: 8px;
             z-index: 60;
-            background: rgba(31, 41, 55, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(31, 41, 55, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fbbf24;
             border-radius: 6px;
-            padding: 2px 6px;
+            padding: 3px 8px;
             font-size: 10px;
-            font-weight: bold;
+            font-weight: 800;
             cursor: pointer;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            transition: all 0.15s ease;
         }
 
         #btn-toggle-toolbar:hover {
             background: #374151;
+            color: #fef08a;
         }
 
         .controls-left, .controls-right {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            flex-wrap: nowrap;
         }
 
         button {
-            background: rgba(31, 41, 55, 0.8);
+            background: rgba(31, 41, 55, 0.85);
             color: #f3f4f6;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 3px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 4px 9px;
             border-radius: 6px;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 4px;
             transition: all 0.15s ease;
+            white-space: nowrap;
         }
 
         button:hover {
             background: #374151;
-            border-color: #6b7280;
+            border-color: #9ca3af;
         }
 
         button:active {
@@ -106,7 +113,8 @@
             background: #10b981;
             border-color: #059669;
             color: #042f2e;
-            padding: 3px 12px;
+            padding: 4px 12px;
+            font-weight: 900;
         }
 
         .btn-play:hover {
@@ -123,41 +131,52 @@
             background: #6366f1;
             border-color: #4f46e5;
             color: #ffffff;
+            font-weight: 800;
         }
 
         .btn-pip:hover {
             background: #818cf8;
         }
 
+        .btn-pip.ativo {
+            background: #ec4899;
+            border-color: #db2777;
+        }
+
         .control-item {
             display: flex;
             align-items: center;
             gap: 3px;
-            background: rgba(31, 41, 55, 0.7);
-            padding: 2px 5px;
+            background: rgba(31, 41, 55, 0.75);
+            padding: 2px 6px;
             border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             font-size: 10px;
             color: #9ca3af;
+            white-space: nowrap;
         }
 
         .control-item span {
             font-weight: bold;
             color: #ffffff;
-            min-width: 22px;
+            min-width: 24px;
             text-align: center;
         }
 
         select {
-            background: rgba(31, 41, 55, 0.8);
+            background: rgba(31, 41, 55, 0.85);
             color: #f3f4f6;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 3px 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 6px;
             border-radius: 6px;
-            font-size: 10px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 700;
             cursor: pointer;
             outline: none;
+        }
+
+        select:focus {
+            border-color: #6366f1;
         }
 
         /* ÁREA DE ROLAGEM TRANSPARENTE */
@@ -167,6 +186,7 @@
             position: relative;
             scroll-behavior: auto;
             padding: 0 16px;
+            width: 100%;
         }
 
         #prompter-container::-webkit-scrollbar {
@@ -176,7 +196,7 @@
             background: transparent;
         }
         #prompter-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             border-radius: 4px;
         }
 
@@ -187,43 +207,53 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.5), transparent);
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.6), transparent);
             pointer-events: none;
             z-index: 10;
         }
 
-        /* TEXTO ULTRA NÍTIDO COM SOMBRA FORTE (Legível mesmo sobre fundo transparente) */
+        /* TEXTO ULTRA NÍTIDO COM CONTORNO 360° FORTE */
         #prompter-content {
-            max-width: 620px;
+            max-width: 680px;
             margin: 0 auto;
-            padding-top: 28vh;
+            padding-top: 26vh;
             padding-bottom: 65vh;
             text-align: center;
-            line-height: 1.45;
+            line-height: 1.5;
             font-weight: 800;
+            color: #ffffff;
             text-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.95),
-                0 0 12px rgba(0, 0, 0, 0.9),
-                0 0 20px rgba(0, 0, 0, 0.7);
+                -1.5px -1.5px 0 #000,
+                 1.5px -1.5px 0 #000,
+                -1.5px  1.5px 0 #000,
+                 1.5px  1.5px 0 #000,
+                 0 2px 4px rgba(0, 0, 0, 0.95),
+                 0 0 12px rgba(0, 0, 0, 0.9);
             letter-spacing: 0.3px;
         }
 
         .highlight {
             color: #fbbf24;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.95);
+            text-shadow: 
+                -1.5px -1.5px 0 #000,
+                 1.5px -1.5px 0 #000,
+                -1.5px  1.5px 0 #000,
+                 1.5px  1.5px 0 #000,
+                 0 0 10px rgba(251, 191, 36, 0.5),
+                 0 2px 4px rgba(0, 0, 0, 0.95);
         }
 
         .action-tag {
             display: inline-block;
-            background: rgba(30, 58, 138, 0.85);
+            background: rgba(30, 58, 138, 0.9);
             color: #bfdbfe;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            font-size: 0.5em;
-            padding: 2px 6px;
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            font-size: 0.52em;
+            padding: 3px 8px;
             border-radius: 4px;
             text-transform: uppercase;
             font-weight: 900;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             backdrop-filter: blur(2px);
         }
 
@@ -231,10 +261,11 @@
             color: #34d399;
             font-size: 0.55em;
             display: block;
-            margin: 8px 0 4px 0;
+            margin: 8px 0 6px 0;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.8px;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
         }
 
         /* CONTAGEM REGRESSIVA */
@@ -257,6 +288,7 @@
             font-size: 80px;
             font-weight: 900;
             color: #fbbf24;
+            text-shadow: 0 0 25px rgba(251, 191, 36, 0.8), -2px -2px 0 #000, 2px 2px 0 #000;
             animation: pulse 1s infinite;
         }
 
@@ -273,7 +305,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             display: none;
             align-items: center;
             justify-content: center;
@@ -288,12 +320,12 @@
             max-width: 580px;
             width: 100%;
             padding: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
         }
 
         textarea {
             width: 100%;
-            height: 220px;
+            height: 200px;
             background: #1f2937;
             border: 1px solid #4b5563;
             border-radius: 8px;
@@ -306,22 +338,35 @@
             user-select: text;
         }
 
-        /* BANNER INFORMATIVO FIXO NO TOPO DO WINDOWS */
-        #pip-helper-banner {
+        /* MENSAGEM QUANDO PIP ESTÁ ATIVO NA GUIA ORIGINAL */
+        #pip-placeholder-message {
             display: none;
-            background: #4338ca;
-            color: #e0e7ff;
-            font-size: 11px;
-            padding: 4px 10px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             text-align: center;
-            font-weight: bold;
+            padding: 24px;
+            background: rgba(11, 15, 25, 0.95);
+            color: #e0e7ff;
+        }
+        #pip-placeholder-message h2 {
+            font-size: 18px;
+            color: #818cf8;
+            margin-bottom: 8px;
+        }
+        #pip-placeholder-message p {
+            font-size: 13px;
+            color: #9ca3af;
+            max-width: 480px;
+            margin-bottom: 16px;
         }
     </style>
 </head>
 <body>
 
     <!-- BOTÃO PARA RECOLHER/MOSTRAR OS BOTÕES (ECONOMIZA ESPAÇO) -->
-    <button id="btn-toggle-toolbar" onclick="alternarBarraBotoes()" title="Ocultar botões para economizar espaço">
+    <button id="btn-toggle-toolbar" type="button" title="Ocultar botões para economizar espaço">
         ▲ Ocultar Botões
     </button>
 
@@ -329,19 +374,19 @@
     <header id="main-header">
         <div class="controls-left">
             <!-- PLAY / PAUSE -->
-            <button id="btn-play-toggle" class="btn-play" onclick="alternarPlayPause()">
+            <button id="btn-play-toggle" type="button" class="btn-play">
                 <span id="play-icon">▶</span>
                 <span id="play-text">PLAY (Espaço)</span>
             </button>
 
             <!-- REINICIAR -->
-            <button onclick="reiniciarPrompter()" title="Voltar ao início (Tecla R)">
+            <button id="btn-reiniciar" type="button" title="Voltar ao início (Tecla R)">
                 ↺
             </button>
 
             <!-- SELETOR DE ROTEIRO -->
-            <select id="select-roteiro" onchange="trocarRoteiro(this.value)">
-                <option value="viral1" selected>Roteiro 1: Pedidos WhatsApp (45s)</option>
+            <select id="select-roteiro">
+                <option value="viral1">Roteiro 1: Pedidos WhatsApp (45s)</option>
                 <option value="viral2">Roteiro 2: Cartão Fidelidade (45s)</option>
                 <option value="viral3">Roteiro 3: Top Consultores (50s)</option>
                 <option value="completo">Roteiro Master: Apresentação (2m)</option>
@@ -351,14 +396,14 @@
 
         <div class="controls-right">
             <!-- BOTÃO FIXAR NO TOPO (PICTURE-IN-PICTURE SEMPRE NO TOPO) -->
-            <button id="btn-pip" class="btn-pip" onclick="ativarSempreNoTopoPiP()" title="Abre em Janela Flutuante que NUNCA vai para trás!">
+            <button id="btn-pip" type="button" class="btn-pip" title="Abre em Janela Flutuante que NUNCA vai para trás!">
                 📌 Fixar no Topo
             </button>
 
             <!-- CONTROLE DE TRANSPARÊNCIA -->
             <div class="control-item" title="Transparência do Fundo">
                 <label>Fundo:</label>
-                <select id="select-opacidade" onchange="mudarOpacidade(this.value)">
+                <select id="select-opacidade">
                     <option value="0.25">25% (Muito Transparente)</option>
                     <option value="0.45">45% (Transparente)</option>
                     <option value="0.65" selected>65% (Equilibrado)</option>
@@ -370,20 +415,20 @@
             <!-- VELOCIDADE -->
             <div class="control-item">
                 <label>Vel:</label>
-                <button type="button" onclick="alterarVelocidade(-0.5)" style="padding: 1px 5px;">-</button>
+                <button id="btn-vel-diminuir" type="button" style="padding: 1px 5px;">-</button>
                 <span id="txt-velocidade">1.5</span>
-                <button type="button" onclick="alterarVelocidade(+0.5)" style="padding: 1px 5px;">+</button>
+                <button id="btn-vel-aumentar" type="button" style="padding: 1px 5px;">+</button>
             </div>
 
             <!-- FONTE -->
             <div class="control-item">
-                <button type="button" onclick="alterarFonte(-2)" style="padding: 1px 5px;">A-</button>
+                <button id="btn-fonte-diminuir" type="button" style="padding: 1px 5px;">A-</button>
                 <span id="txt-fonte">34px</span>
-                <button type="button" onclick="alterarFonte(+2)" style="padding: 1px 5px;">A+</button>
+                <button id="btn-fonte-aumentar" type="button" style="padding: 1px 5px;">A+</button>
             </div>
 
             <!-- EDITAR TEXTO -->
-            <button onclick="abrirModalEdicao()" title="Editar ou colar seu próprio roteiro">
+            <button id="btn-abrir-edicao" type="button" title="Editar ou colar seu próprio roteiro">
                 ✏️
             </button>
         </div>
@@ -399,6 +444,15 @@
         </div>
     </div>
 
+    <!-- MENSAGEM QUANDO PIP ESTÁ ABERTO NA OUTRA JANELA -->
+    <div id="pip-placeholder-message">
+        <h2>📌 Teleprompter Ativo na Janela Flutuante</h2>
+        <p>O teleprompter está fixado no topo da sua tela, flutuando sobre qualquer aplicativo ou navegador.</p>
+        <button id="btn-fechar-pip-placeholder" type="button" class="btn-pip">
+            🗗 Restaurar Teleprompter Nesta Aba
+        </button>
+    </div>
+
     <!-- CONTAGEM REGRESSIVA 3, 2, 1 -->
     <div id="countdown-overlay">
         <div id="countdown-number">3</div>
@@ -410,57 +464,15 @@
             <h3 style="color: #fbbf24; font-size: 15px; margin-bottom: 8px;">✏️ Editar / Colar seu Roteiro</h3>
             <textarea id="custom-text-input" placeholder="Cole ou digite seu roteiro aqui..."></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-                <button type="button" onclick="fecharModalEdicao()">Cancelar</button>
-                <button type="button" class="btn-play" onclick="salvarTextoCustomizado()">Salvar & Usar</button>
+                <button id="btn-cancelar-edicao" type="button">Cancelar</button>
+                <button id="btn-salvar-edicao" type="button" class="btn-play">Salvar & Usar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ROTEIROS
+        // BANCO DE ROTEIROS OFICIAIS
         const ROTEIROS = {
-            completo: `
-                <div class="action-tag">Abertura com Sorriso e Firmeza</div>
-                <p>Olá líder, olá consultor!</p>
-                <p>Meu nome é <span class="highlight">Edwan Braga</span>.</p>
-                <p>Hoje eu quero te apresentar a plataforma oficial do <span class="highlight">Litrão do Reset</span>!</p>
-
-                <div class="pause-point">• Respire e dê uma breve pausa •</div>
-
-                <div class="action-tag">Mostrando a Tela no Painel</div>
-                <p>Esta ferramenta foi criada sob medida</p>
-                <p>para você que quer multiplicar suas vendas de pacotes</p>
-                <p>e gerenciar toda a sua rede de distribuidores.</p>
-
-                <div class="pause-point">• Mostre os botões na tela com o mouse •</div>
-
-                <p>Veja como é simples:</p>
-                <p>Seus clientes acessam uma página moderna,</p>
-                <p>onde escolhem os pacotes do Litrão</p>
-                <p>e fazem o pedido <span class="highlight">direto no seu WhatsApp</span>!</p>
-
-                <div class="pause-point">• Pause 1 segundo •</div>
-
-                <p>E aqui no seu painel de controle:</p>
-                <p>Você cadastra os novos consultores da sua equipe,</p>
-                <p>e o sistema já libera <span class="highlight">7 dias de teste grátis</span> para eles na mesma hora!</p>
-                <p>Você define os preços da sua região,</p>
-                <p>taxa de entrega por bairro,</p>
-                <p>e tem acesso a todo o material de divulgação VIP.</p>
-
-                <div class="pause-point">• Olhe direto para a lente e aponte para o QR Code •</div>
-
-                <div class="action-tag">Chamada para Ação Final</div>
-                <p>Para você ativar o seu acesso agora,</p>
-                <p>com a condição especial de <span class="highlight">Membro Fundador</span>,</p>
-                <p>basta apontar a câmera do seu celular</p>
-                <p>para este <span class="highlight">QR Code aqui no cantinho da tela</span>,</p>
-                <p>ou clicar no link logo abaixo deste vídeo!</p>
-
-                <div class="pause-point">• Sorriso final •</div>
-
-                <p>Te vejo lá dentro da plataforma para acelerar seus resultados!</p>
-            `,
             viral1: `
                 <div class="action-tag">Roteiro 1 • 45s • Eliminar Pedidos Perdidos</div>
                 <p>Se você vende Litrão da Herbalife</p>
@@ -538,10 +550,52 @@
                 <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
                 <p>que apontarem a câmera para o <span class="highlight">QR Code na tela agora mesmo</span>.</p>
                 <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+            `,
+            completo: `
+                <div class="action-tag">Abertura com Sorriso e Firmeza</div>
+                <p>Olá líder, olá consultor!</p>
+                <p>Meu nome é <span class="highlight">Edwan Braga</span>.</p>
+                <p>Hoje eu quero te apresentar a plataforma oficial do <span class="highlight">Litrão do Reset</span>!</p>
+
+                <div class="pause-point">• Respire e dê uma breve pausa •</div>
+
+                <div class="action-tag">Mostrando a Tela no Painel</div>
+                <p>Esta ferramenta foi criada sob medida</p>
+                <p>para você que quer multiplicar suas vendas de pacotes</p>
+                <p>e gerenciar toda a sua rede de distribuidores.</p>
+
+                <div class="pause-point">• Mostre os botões na tela com o mouse •</div>
+
+                <p>Veja como é simples:</p>
+                <p>Seus clientes acessam uma página moderna,</p>
+                <p>onde escolhem os pacotes do Litrão</p>
+                <p>e fazem o pedido <span class="highlight">direto no seu WhatsApp</span>!</p>
+
+                <div class="pause-point">• Pause 1 segundo •</div>
+
+                <p>E aqui no seu painel de controle:</p>
+                <p>Você cadastra os novos consultores da sua equipe,</p>
+                <p>e o sistema já libera <span class="highlight">7 dias de teste grátis</span> para eles na mesma hora!</p>
+                <p>Você define os preços da sua região,</p>
+                <p>taxa de entrega por bairro,</p>
+                <p>e tem acesso a todo o material de divulgação VIP.</p>
+
+                <div class="pause-point">• Olhe direto para a lente e aponte para o QR Code •</div>
+
+                <div class="action-tag">Chamada para Ação Final</div>
+                <p>Para você ativar o seu acesso agora,</p>
+                <p>com a condição especial de <span class="highlight">Membro Fundador</span>,</p>
+                <p>basta apontar a câmera do seu celular</p>
+                <p>para este <span class="highlight">QR Code aqui no cantinho da tela</span>,</p>
+                <p>ou clicar no link logo abaixo deste vídeo!</p>
+
+                <div class="pause-point">• Sorriso final •</div>
+
+                <p>Te vejo lá dentro da plataforma para acelerar seus resultados!</p>
             `
         };
 
-        // ESTADO
+        // ESTADO GLOBAL
         let isRunning = false;
         let scrollSpeed = 1.5;
         let fontSize = 34;
@@ -549,50 +603,417 @@
         let customUserText = '';
         let toolbarVisivel = true;
         let pipWindow = null;
+        let currentRoteiroId = 'viral1';
 
+        // ELEMENTOS DOM BASE
         const container = document.getElementById('prompter-container');
         const content = document.getElementById('prompter-content');
+        const mainHeader = document.getElementById('main-header');
         const btnPlay = document.getElementById('btn-play-toggle');
         const playIcon = document.getElementById('play-icon');
         const playText = document.getElementById('play-text');
+        const btnReiniciar = document.getElementById('btn-reiniciar');
+        const selectRoteiro = document.getElementById('select-roteiro');
+        const btnPip = document.getElementById('btn-pip');
+        const selectOpacidade = document.getElementById('select-opacidade');
         const txtSpeed = document.getElementById('txt-velocidade');
+        const btnVelMenos = document.getElementById('btn-vel-diminuir');
+        const btnVelMais = document.getElementById('btn-vel-aumentar');
         const txtFont = document.getElementById('txt-fonte');
+        const btnFonteMenos = document.getElementById('btn-fonte-diminuir');
+        const btnFonteMais = document.getElementById('btn-fonte-aumentar');
+        const btnAbrirEdicao = document.getElementById('btn-abrir-edicao');
         const countdownOverlay = document.getElementById('countdown-overlay');
         const countdownNumber = document.getElementById('countdown-number');
         const editModal = document.getElementById('edit-modal');
         const customInput = document.getElementById('custom-text-input');
-        const mainHeader = document.getElementById('main-header');
+        const btnCancelarEdicao = document.getElementById('btn-cancelar-edicao');
+        const btnSalvarEdicao = document.getElementById('btn-salvar-edicao');
         const btnToggleToolbar = document.getElementById('btn-toggle-toolbar');
+        const pipPlaceholder = document.getElementById('pip-placeholder-message');
+        const btnFecharPipPlaceholder = document.getElementById('btn-fechar-pip-placeholder');
 
-        content.innerHTML = ROTEIROS.completo;
+        // RETORNA O CONTAINER ATIVO (JANELA NORMAL OU PIP)
+        function getActiveContainer() {
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                return pipWindow.document.getElementById('prompter-container') || container;
+            }
+            return container;
+        }
+
+        function getActiveContent() {
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                return pipWindow.document.getElementById('prompter-content') || content;
+            }
+            return content;
+        }
+
+        function getActiveCountdownOverlay() {
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                return pipWindow.document.getElementById('countdown-overlay') || countdownOverlay;
+            }
+            return countdownOverlay;
+        }
+
+        function getActiveCountdownNumber() {
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                return pipWindow.document.getElementById('countdown-number') || countdownNumber;
+            }
+            return countdownNumber;
+        }
+
+        function getActiveWindow() {
+            return (pipWindow && !pipWindow.closed) ? pipWindow : window;
+        }
 
         // OCULTAR / MOSTRAR BARRA DE BOTÕES
         function alternarBarraBotoes() {
             toolbarVisivel = !toolbarVisivel;
-            if (toolbarVisivel) {
-                mainHeader.classList.remove('recolhido');
-                btnToggleToolbar.innerText = '▲ Ocultar Botões';
-            } else {
-                mainHeader.classList.add('recolhido');
-                btnToggleToolbar.innerText = '▼ Mostrar Botões';
+            const headers = [mainHeader];
+            const toggleBtns = [btnToggleToolbar];
+
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipHeader = pipWindow.document.getElementById('main-header');
+                const pipToggle = pipWindow.document.getElementById('btn-toggle-toolbar');
+                if (pipHeader) headers.push(pipHeader);
+                if (pipToggle) toggleBtns.push(pipToggle);
             }
+
+            headers.forEach(h => {
+                if (toolbarVisivel) h.classList.remove('recolhido');
+                else h.classList.add('recolhido');
+            });
+
+            toggleBtns.forEach(b => {
+                b.innerText = toolbarVisivel ? '▲ Ocultar Botões' : '▼ Mostrar Botões';
+            });
         }
 
         // MUDAR TRANSPARÊNCIA
         function mudarOpacidade(val) {
             document.documentElement.style.setProperty('--bg-opacity', val);
+            if (pipWindow && !pipWindow.closed && pipWindow.document && pipWindow.document.documentElement) {
+                pipWindow.document.documentElement.style.setProperty('--bg-opacity', val);
+            }
+            if (selectOpacidade) selectOpacidade.value = val;
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipSel = pipWindow.document.getElementById('select-opacidade');
+                if (pipSel) pipSel.value = val;
+            }
         }
 
-        // RECURSO NATIVO: SEMPRE NO TOPO (DOCUMENT PICTURE-IN-PICTURE)
+        // TROCAR ROTEIRO
+        function trocarRoteiro(tipo) {
+            currentRoteiroId = tipo;
+            pausarPrompter();
+
+            let novoHtml = '';
+            if (tipo === 'personalizado') {
+                if (!customUserText) {
+                    abrirModalEdicao();
+                    return;
+                }
+                novoHtml = customUserText;
+            } else if (ROTEIROS[tipo]) {
+                novoHtml = ROTEIROS[tipo];
+            } else {
+                novoHtml = ROTEIROS.viral1;
+                tipo = 'viral1';
+            }
+
+            // Atualiza em ambas as instâncias se existirem
+            if (content) content.innerHTML = novoHtml;
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipContent = pipWindow.document.getElementById('prompter-content');
+                if (pipContent) pipContent.innerHTML = novoHtml;
+            }
+
+            // Sincroniza o seletor visualmente
+            if (selectRoteiro) selectRoteiro.value = tipo;
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipSelect = pipWindow.document.getElementById('select-roteiro');
+                if (pipSelect) pipSelect.value = tipo;
+            }
+
+            reiniciarPrompter();
+        }
+
+        // PLAY / PAUSA
+        function alternarPlayPause() {
+            if (isRunning) {
+                pausarPrompter();
+            } else {
+                iniciarComContagem();
+            }
+        }
+
+        function iniciarComContagem() {
+            const targetContainer = getActiveContainer();
+            // Se já tiver rolado um pouco, inicia imediatamente sem contagem regressiva
+            if (targetContainer && targetContainer.scrollTop > 60) {
+                iniciarScroll();
+                return;
+            }
+
+            const overlay = getActiveCountdownOverlay();
+            const numberEl = getActiveCountdownNumber();
+
+            if (overlay && numberEl) {
+                overlay.style.display = 'flex';
+                let count = 3;
+                numberEl.innerText = count;
+
+                const timer = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        numberEl.innerText = count;
+                    } else {
+                        clearInterval(timer);
+                        overlay.style.display = 'none';
+                        iniciarScroll();
+                    }
+                }, 700);
+            } else {
+                iniciarScroll();
+            }
+        }
+
+        function atualizarBotoesPlay(tocando) {
+            const btns = [btnPlay];
+            const icons = [playIcon];
+            const texts = [playText];
+
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pBtn = pipWindow.document.getElementById('btn-play-toggle');
+                const pIcon = pipWindow.document.getElementById('play-icon');
+                const pText = pipWindow.document.getElementById('play-text');
+                if (pBtn) btns.push(pBtn);
+                if (pIcon) icons.push(pIcon);
+                if (pText) texts.push(pText);
+            }
+
+            btns.forEach(b => {
+                if (!b) return;
+                if (tocando) b.classList.add('playing');
+                else b.classList.remove('playing');
+            });
+
+            icons.forEach(i => { if (i) i.innerText = tocando ? '⏸' : '▶'; });
+            texts.forEach(t => { if (t) t.innerText = tocando ? 'PAUSAR' : 'PLAY (Espaço)'; });
+        }
+
+        function iniciarScroll() {
+            isRunning = true;
+            atualizarBotoesPlay(true);
+            loopScroll();
+        }
+
+        function pausarPrompter() {
+            isRunning = false;
+            atualizarBotoesPlay(false);
+            if (animationFrameId) {
+                window.cancelAnimationFrame(animationFrameId);
+                if (pipWindow && !pipWindow.closed) {
+                    pipWindow.cancelAnimationFrame(animationFrameId);
+                }
+                animationFrameId = null;
+            }
+        }
+
+        function loopScroll() {
+            if (!isRunning) return;
+
+            const targetContainer = getActiveContainer();
+            if (targetContainer) {
+                targetContainer.scrollTop += (scrollSpeed * 0.85);
+                if (targetContainer.scrollTop >= (targetContainer.scrollHeight - targetContainer.clientHeight - 6)) {
+                    pausarPrompter();
+                    return;
+                }
+            }
+
+            const activeWin = getActiveWindow();
+            animationFrameId = activeWin.requestAnimationFrame(loopScroll);
+        }
+
+        function reiniciarPrompter() {
+            pausarPrompter();
+            const targetContainer = getActiveContainer();
+            if (targetContainer) targetContainer.scrollTop = 0;
+            if (container && container !== targetContainer) container.scrollTop = 0;
+            atualizarBotoesPlay(false);
+        }
+
+        function alterarVelocidade(delta) {
+            scrollSpeed = Math.max(0.5, Math.min(8.0, scrollSpeed + delta));
+            const formatted = scrollSpeed.toFixed(1);
+            if (txtSpeed) txtSpeed.innerText = formatted;
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipTxt = pipWindow.document.getElementById('txt-velocidade');
+                if (pipTxt) pipTxt.innerText = formatted;
+            }
+        }
+
+        function alterarFonte(delta) {
+            fontSize = Math.max(20, Math.min(60, fontSize + delta));
+            const fontVal = fontSize + 'px';
+            if (content) content.style.fontSize = fontVal;
+            if (txtFont) txtFont.innerText = fontVal;
+
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pipContent = pipWindow.document.getElementById('prompter-content');
+                const pipFont = pipWindow.document.getElementById('txt-fonte');
+                if (pipContent) pipContent.style.fontSize = fontVal;
+                if (pipFont) pipFont.innerText = fontVal;
+            }
+        }
+
+        function abrirModalEdicao() {
+            pausarPrompter();
+            const currentText = getActiveContent().innerText.trim();
+            customInput.value = customUserText || currentText;
+
+            // Se PiP estiver aberto, abre no PiP
+            const activeModal = (pipWindow && !pipWindow.closed && pipWindow.document) 
+                ? pipWindow.document.getElementById('edit-modal') 
+                : editModal;
+
+            if (activeModal) activeModal.style.display = 'flex';
+        }
+
+        function fecharModalEdicao() {
+            editModal.style.display = 'none';
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pModal = pipWindow.document.getElementById('edit-modal');
+                if (pModal) pModal.style.display = 'none';
+            }
+        }
+
+        function salvarTextoCustomizado() {
+            const inputEl = (pipWindow && !pipWindow.closed && pipWindow.document)
+                ? pipWindow.document.getElementById('custom-text-input')
+                : customInput;
+
+            const val = (inputEl ? inputEl.value : customInput.value).trim();
+            if (val) {
+                customUserText = val.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+                trocarRoteiro('personalizado');
+            }
+            fecharModalEdicao();
+        }
+
+        // TRATADOR DE ATALHOS NO TECLADO (DISPARADO NA JANELA PRINCIPAL OU NO PIP)
+        function tratarAtalhosTeclado(e) {
+            const isEditing = (editModal && editModal.style.display === 'flex') || 
+                              (pipWindow && !pipWindow.closed && pipWindow.document && pipWindow.document.getElementById('edit-modal')?.style.display === 'flex');
+            if (isEditing) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                alternarPlayPause();
+            } else if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                alterarVelocidade(+0.5);
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                alterarVelocidade(-0.5);
+            } else if (e.code === 'KeyR' || e.code === 'Escape') {
+                e.preventDefault();
+                reiniciarPrompter();
+            }
+        }
+
+        // BINDING DE EVENTOS ROBUSTO E PROGRAMÁTICO
+        function vincularEventos(doc = document, win = window) {
+            const el = (id) => doc.getElementById(id);
+
+            const bPlay = el('btn-play-toggle');
+            if (bPlay) bPlay.onclick = alternarPlayPause;
+
+            const bReiniciar = el('btn-reiniciar');
+            if (bReiniciar) bReiniciar.onclick = reiniciarPrompter;
+
+            const sRoteiro = el('select-roteiro');
+            if (sRoteiro) sRoteiro.onchange = (e) => trocarRoteiro(e.target.value);
+
+            const bPip = el('btn-pip');
+            if (bPip) bPip.onclick = ativarSempreNoTopoPiP;
+
+            const sOpacidade = el('select-opacidade');
+            if (sOpacidade) sOpacidade.onchange = (e) => mudarOpacidade(e.target.value);
+
+            const bVelMenos = el('btn-vel-diminuir');
+            if (bVelMenos) bVelMenos.onclick = () => alterarVelocidade(-0.5);
+
+            const bVelMais = el('btn-vel-aumentar');
+            if (bVelMais) bVelMais.onclick = () => alterarVelocidade(+0.5);
+
+            const bFontMenos = el('btn-fonte-diminuir');
+            if (bFontMenos) bFontMenos.onclick = () => alterarFonte(-2);
+
+            const bFontMais = el('btn-fonte-aumentar');
+            if (bFontMais) bFontMais.onclick = () => alterarFonte(+2);
+
+            const bEdicao = el('btn-abrir-edicao');
+            if (bEdicao) bEdicao.onclick = abrirModalEdicao;
+
+            const bCancEdicao = el('btn-cancelar-edicao');
+            if (bCancEdicao) bCancEdicao.onclick = fecharModalEdicao;
+
+            const bSalvEdicao = el('btn-salvar-edicao');
+            if (bSalvEdicao) bSalvEdicao.onclick = salvarTextoCustomizado;
+
+            const bToggle = el('btn-toggle-toolbar');
+            if (bToggle) bToggle.onclick = alternarBarraBotoes;
+
+            // Suporte a cliques na área do prompter para alternar Play/Pausa rapidamente
+            const cPrompter = el('prompter-container');
+            if (cPrompter) {
+                cPrompter.onclick = (e) => {
+                    // Evita disparar se clicou na barra ou em modal
+                    if (e.target.closest('header') || e.target.closest('#edit-modal')) return;
+                    alternarPlayPause();
+                };
+            }
+
+            win.removeEventListener('keydown', tratarAtalhosTeclado);
+            win.addEventListener('keydown', tratarAtalhosTeclado);
+        }
+
+        // EXPOR FUNÇÕES PARA O ESCOPO DA JANELA (EVITA REFERENCEERROR EM ATRIBUTOS INLINE)
+        function exporFuncoesParaJanela(alvo) {
+            alvo.alternarPlayPause = alternarPlayPause;
+            alvo.trocarRoteiro = trocarRoteiro;
+            alvo.reiniciarPrompter = reiniciarPrompter;
+            alvo.alterarVelocidade = alterarVelocidade;
+            alvo.alterarFonte = alterarFonte;
+            alvo.mudarOpacidade = mudarOpacidade;
+            alvo.abrirModalEdicao = abrirModalEdicao;
+            alvo.fecharModalEdicao = fecharModalEdicao;
+            alvo.salvarTextoCustomizado = salvarTextoCustomizado;
+            alvo.alternarBarraBotoes = alternarBarraBotoes;
+            alvo.ativarSempreNoTopoPiP = ativarSempreNoTopoPiP;
+        }
+
+        // RECURSO NATIVO: SEMPRE NO TOPO (DOCUMENT PICTURE-IN-PICTURE CHROME/EDGE)
         async function ativarSempreNoTopoPiP() {
+            // Se já estiver aberto, fecha e volta para a aba
+            if (pipWindow && !pipWindow.closed) {
+                pipWindow.close();
+                return;
+            }
+
             if ('documentPictureInPicture' in window) {
                 try {
                     pipWindow = await window.documentPictureInPicture.requestWindow({
-                        width: 600,
-                        height: 280
+                        width: 660,
+                        height: 310
                     });
 
-                    // Copia o estilo e o conteúdo para a janela flutuante que é SEMPRE NO TOPO!
+                    // Injeta todas as funções globais no novo window do PiP
+                    exporFuncoesParaJanela(pipWindow);
+
+                    // Copia folhas de estilo para a janela PiP
                     [...document.styleSheets].forEach((styleSheet) => {
                         try {
                             const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
@@ -609,16 +1030,50 @@
                         }
                     });
 
-                    // Move o prompter para dentro da janela PiP
+                    // Define variáveis de transparência no PiP
+                    const opac = document.documentElement.style.getPropertyValue('--bg-opacity') || '0.65';
+                    pipWindow.document.documentElement.style.setProperty('--bg-opacity', opac);
+
+                    // Move elementos para a janela flutuante
+                    pipWindow.document.body.appendChild(btnToggleToolbar);
                     pipWindow.document.body.appendChild(mainHeader);
                     pipWindow.document.body.appendChild(container);
                     pipWindow.document.body.appendChild(countdownOverlay);
+                    pipWindow.document.body.appendChild(editModal);
 
+                    // Mostra aviso na aba original
+                    if (pipPlaceholder) pipPlaceholder.style.display = 'flex';
+
+                    // Atualiza o botão PiP para modo "Restaurar"
+                    const pipBtn = pipWindow.document.getElementById('btn-pip');
+                    if (pipBtn) {
+                        pipBtn.innerText = '🗗 Restaurar';
+                        pipBtn.classList.add('ativo');
+                        pipBtn.title = 'Voltar para a aba normal do navegador';
+                    }
+
+                    // Vincula todos os eventos de clique, teclado e select no documento PiP
+                    vincularEventos(pipWindow.document, pipWindow);
+
+                    // Ao fechar a janela PiP (pelo X ou botão)
                     pipWindow.addEventListener('pagehide', () => {
+                        document.body.appendChild(btnToggleToolbar);
                         document.body.appendChild(mainHeader);
                         document.body.appendChild(container);
                         document.body.appendChild(countdownOverlay);
+                        document.body.appendChild(editModal);
+
+                        if (pipPlaceholder) pipPlaceholder.style.display = 'none';
+
+                        const origBtn = document.getElementById('btn-pip');
+                        if (origBtn) {
+                            origBtn.innerText = '📌 Fixar no Topo';
+                            origBtn.classList.remove('ativo');
+                            origBtn.title = 'Abre em Janela Flutuante que NUNCA vai para trás!';
+                        }
+
                         pipWindow = null;
+                        vincularEventos(document, window);
                     });
 
                     return;
@@ -627,143 +1082,25 @@
                 }
             }
 
-            // Se o navegador não suportar PiP de documentos:
-            alert("Dica de ouro do Windows:\n\nPara travar qualquer janela SEMPRE NO TOPO no Windows 10/11:\nInstale o utilitário oficial e gratuito 'Microsoft PowerToys' e aperte a tecla:\n👉 Windows + Ctrl + T\n\nA janela fica travada na frente de tudo!");
+            // Alternativa informativa caso o navegador não suporte a API PiP de Documentos:
+            alert("Dica de ouro do Windows:\n\nPara fixar qualquer janela SEMPRE NO TOPO no Windows 10/11:\nCom a ferramenta gratuita oficial da Microsoft 'PowerToys', basta pressionar:\n👉 Windows + Ctrl + T\n\nA janela fica travada na frente de tudo enquanto você grava!");
         }
 
-        function trocarRoteiro(tipo) {
-            pausarPrompter();
-            if (tipo === 'personalizado') {
-                if (!customUserText) {
-                    abrirModalEdicao();
-                    return;
+        // BOTÃO DA ABA ORIGINAL PARA RESTAURAR PIP
+        if (btnFecharPipPlaceholder) {
+            btnFecharPipPlaceholder.onclick = () => {
+                if (pipWindow && !pipWindow.closed) {
+                    pipWindow.close();
                 }
-                content.innerHTML = customUserText;
-            } else if (ROTEIROS[tipo]) {
-                content.innerHTML = ROTEIROS[tipo];
-            }
-            reiniciarPrompter();
+            };
         }
 
-        function alternarPlayPause() {
-            if (isRunning) pausarPrompter();
-            else iniciarComContagem();
-        }
+        // INICIALIZAÇÃO
+        exporFuncoesParaJanela(window);
+        vincularEventos(document, window);
 
-        function iniciarComContagem() {
-            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
-            if (targetContainer && targetContainer.scrollTop > 50) {
-                iniciarScroll();
-                return;
-            }
-
-            countdownOverlay.style.display = 'flex';
-            let count = 3;
-            countdownNumber.innerText = count;
-
-            const timer = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownNumber.innerText = count;
-                } else {
-                    clearInterval(timer);
-                    countdownOverlay.style.display = 'none';
-                    iniciarScroll();
-                }
-            }, 750);
-        }
-
-        function iniciarScroll() {
-            isRunning = true;
-            btnPlay.classList.add('playing');
-            playIcon.innerText = '⏸';
-            playText.innerText = 'PAUSAR';
-            loopScroll();
-        }
-
-        function pausarPrompter() {
-            isRunning = false;
-            btnPlay.classList.remove('playing');
-            playIcon.innerText = '▶';
-            playText.innerText = 'PLAY';
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-        }
-
-        function loopScroll() {
-            if (!isRunning) return;
-
-            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
-            if (targetContainer) {
-                targetContainer.scrollTop += (scrollSpeed * 0.85);
-                if (targetContainer.scrollTop >= (targetContainer.scrollHeight - targetContainer.clientHeight - 5)) {
-                    pausarPrompter();
-                    return;
-                }
-            }
-
-            animationFrameId = requestAnimationFrame(loopScroll);
-        }
-
-        function reiniciarPrompter() {
-            pausarPrompter();
-            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
-            if (targetContainer) targetContainer.scrollTop = 0;
-            playText.innerText = 'PLAY';
-        }
-
-        function alterarVelocidade(delta) {
-            scrollSpeed = Math.max(0.5, Math.min(8.0, scrollSpeed + delta));
-            txtSpeed.innerText = scrollSpeed.toFixed(1);
-        }
-
-        function alterarFonte(delta) {
-            fontSize = Math.max(20, Math.min(56, fontSize + delta));
-            content.style.fontSize = fontSize + 'px';
-            txtFont.innerText = fontSize + 'px';
-        }
-
-        function abrirModalEdicao() {
-            pausarPrompter();
-            customInput.value = customUserText || content.innerText.trim();
-            editModal.style.display = 'flex';
-        }
-
-        function fecharModalEdicao() {
-            editModal.style.display = 'none';
-        }
-
-        function salvarTextoCustomizado() {
-            const val = customInput.value.trim();
-            if (val) {
-                customUserText = val.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-                content.innerHTML = customUserText;
-                document.getElementById('select-roteiro').value = 'personalizado';
-            }
-            fecharModalEdicao();
-            reiniciarPrompter();
-        }
-
-        // ATALHOS NO TECLADO
-        window.addEventListener('keydown', (e) => {
-            if (editModal.style.display === 'flex') return;
-
-            if (e.code === 'Space') {
-                e.preventDefault();
-                alternarPlayPause();
-            } else if (e.code === 'ArrowUp') {
-                e.preventDefault();
-                alterarVelocidade(+0.5);
-            } else if (e.code === 'ArrowDown') {
-                e.preventDefault();
-                alterarVelocidade(-0.5);
-            } else if (e.code === 'KeyR' || e.code === 'Escape') {
-                e.preventDefault();
-                reiniciarPrompter();
-            }
-        });
+        // Inicializa com o roteiro selecionado no HTML (viral1)
+        trocarRoteiro('viral1');
     </script>
 </body>
 </html>
