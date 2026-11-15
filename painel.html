@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -1514,10 +1514,18 @@
                         </p>
                     </div>
 
-                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
-                        <a id="btn-abrir-card-prompter" href="teleprompter.html" target="_blank" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-play text-gray-950 text-[11px]"></i> Abrir Prompter & Roteiros
-                        </a>
+                    <div class="pt-2.5 border-t border-slate-100 flex flex-col gap-1.5 mt-auto">
+                        <div class="flex items-center gap-1.5">
+                            <button id="btn-abrir-prompter-vidro-tela" type="button" onclick="abrirWidgetTeleprompterVidro()" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-black py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-wand-magic-sparkles text-gray-950 text-[11px]"></i> Prompter de Vidro (Nesta Tela)
+                            </button>
+                            <a id="btn-abrir-card-prompter" href="teleprompter.html" target="_blank" title="Abrir em Nova Aba" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                        <button type="button" onclick="baixarKitTeleprompterPc()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 px-2.5 rounded-lg text-[11px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-download text-amber-400"></i> Baixar App para PC (Invisível no OBS)
+                        </button>
                     </div>
                 </div>
 
@@ -13769,19 +13777,16 @@
                         badgePrompterAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-amber-600"></i> Exclusivo VIP';
                     }
                 }
-                if (btnPrompterCard) {
+                const btnPrompterVidroTela = document.getElementById('btn-abrir-prompter-vidro-tela');
+                if (btnPrompterVidroTela) {
                     if (isSuperAdminUser || isPrompterLib) {
-                        btnPrompterCard.className = "flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
-                        btnPrompterCard.innerHTML = '<i class="fa-solid fa-play text-gray-950 text-[11px]"></i> Abrir Prompter & Roteiros';
-                        btnPrompterCard.href = "teleprompter.html";
-                        btnPrompterCard.target = "_blank";
-                        btnPrompterCard.onclick = null;
+                        btnPrompterVidroTela.className = "flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-black py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnPrompterVidroTela.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-gray-950 text-[11px]"></i> Prompter de Vidro (Nesta Tela)';
+                        btnPrompterVidroTela.onclick = abrirWidgetTeleprompterVidro;
                     } else {
-                        btnPrompterCard.className = "flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
-                        btnPrompterCard.innerHTML = '<i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Solicitar com SuperAdmin';
-                        btnPrompterCard.removeAttribute('href');
-                        btnPrompterCard.removeAttribute('target');
-                        btnPrompterCard.onclick = function() {
+                        btnPrompterVidroTela.className = "flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnPrompterVidroTela.innerHTML = '<i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Solicitar com SuperAdmin';
+                        btnPrompterVidroTela.onclick = function() {
                             const msg = encodeURIComponent("Olá Edwan! Gostaria de solicitar a liberação do Estúdio de Gravação & Teleprompter com IA no meu painel do Litrão do Reset!");
                             window.open(`https://wa.me/5599981111212?text=${msg}`, '_blank');
                         };
@@ -14452,7 +14457,352 @@
                 </head>
                 <body>
                     <img src="${dataUrl}" onload="setTimeout(() => { window.print(); window.close(); }, 300);" />
-                </body>
+                
+    <!-- ========================================================================= -->
+    <!-- WIDGET TELEPROMPTER DE VIDRO REAL (GLASSMORPHISM EMBUTIDO NO PAINEL) -->
+    <!-- ========================================================================= -->
+    <div id="widget-teleprompter-vidro" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 780px; max-width: 96vw; height: 320px; z-index: 999999; flex-direction: column;">
+        <div id="widget-prompter-inner" style="width: 100%; height: 100%; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(15, 23, 42, 0.45); border: 1.5px solid rgba(251, 191, 36, 0.55); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <!-- BARRA SUPERIOR DE CONTROLES -->
+            <div id="widget-prompter-header" style="background: rgba(17, 24, 39, 0.88); backdrop-filter: blur(8px); padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: #fff; cursor: move; border-bottom: 1px solid rgba(255, 255, 255, 0.12); flex-shrink: 0; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <button type="button" id="w-btn-play" onclick="wAlternarPlayPause()" style="background: #10b981; color: #042f2e; font-weight: 900; padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <span id="w-play-icon">▶</span> <span id="w-play-txt">PLAY (Espaço)</span>
+                    </button>
+                    <button type="button" onclick="wReiniciarPrompter()" title="Voltar ao início" style="background: #374151; color: #fff; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">↺</button>
+                    <select id="w-select-roteiro" onchange="wTrocarRoteiro(this.value)" style="background: #1f2937; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: bold; cursor: pointer; outline: none;">
+                        <option value="viral1">1: Pedidos WhatsApp (45s)</option>
+                        <option value="viral2">2: Cartão Fidelidade (45s)</option>
+                        <option value="viral3">3: Top Consultores (50s)</option>
+                        <option value="completo">4: Apresentação Geral (2m)</option>
+                    </select>
+                    <button type="button" id="w-btn-pass-through" onclick="wAlternarPassThrough()" title="Quando ativo, você pode clicar nos botões do painel atrás das letras!" style="background: #374151; color: #fff; font-weight: bold; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 10px;">
+                        🖱️ Clicar Atrás: NÃO
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <span style="color:#9ca3af;">Vidro:</span>
+                        <select id="w-select-opacidade" onchange="wMudarOpacidade(this.value)" style="background: transparent; color: #fff; border: none; font-size: 10px; outline: none; cursor: pointer;">
+                            <option value="0.20">20% (Cristal)</option>
+                            <option value="0.45" selected>45% (Fosco)</option>
+                            <option value="0.70">70% (Escuro)</option>
+                            <option value="0.95">95% (Sólido)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarVelocidade(-0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">-</button>
+                        <span id="w-txt-vel" style="font-weight:bold; color:#fbbf24; min-width: 20px; text-align:center;">1.5</span>
+                        <button type="button" onclick="wAlterarVelocidade(+0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">+</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarFonte(-2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A-</button>
+                        <span id="w-txt-fonte" style="font-weight:bold; color:#fff; min-width: 24px; text-align:center;">26px</span>
+                        <button type="button" onclick="wAlterarFonte(+2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A+</button>
+                    </div>
+                    <button type="button" onclick="fecharWidgetTeleprompterVidro()" style="background: #ef4444; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 6px; border: none; cursor: pointer;">✖</button>
+                </div>
+            </div>
+            <!-- ÁREA DO TEXTO TRANSPARENTE -->
+            <div id="w-prompter-container" style="flex: 1; overflow-y: auto; padding: 0 16px; position: relative;">
+                <div id="w-prompter-content" style="max-width: 680px; margin: 0 auto; padding-top: 50px; padding-bottom: 220px; text-align: center; line-height: 1.5; font-weight: 800; font-size: 26px; color: #fff; text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9);">
+                </div>
+            </div>
+            <!-- RESIZE GRIP -->
+            <div id="w-resize-grip" style="position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; opacity: 0.6; display: flex; align-items: flex-end; justify-content: flex-end; padding: 2px; font-size: 11px; color: #fbbf24; user-select: none;">◢</div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO WIDGET DE VIDRO -->
+    <script>
+        (function() {
+            const W_ROTEIROS = {
+                viral1: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 1 • 45s • Pedidos WhatsApp</div>
+                    <p>Se você vende Litrão da Herbalife</p>
+                    <p>e ainda anota pedidos em papel de pão</p>
+                    <p>ou no bloco de notas do celular...</p>
+                    <p style="color:#fbbf24;">você está deixando pelo menos 2 mil reais na mesa todo mês!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire 1 segundo •</div>
+                    <p>Quantas vezes um cliente te chamou,</p>
+                    <p>você demorou pra responder o cardápio,</p>
+                    <p>ele comprou em outro lugar</p>
+                    <p>ou você simplesmente esqueceu de cobrar o próximo galão?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a plataforma na tela •</div>
+                    <p>Olha como isso acabou:</p>
+                    <p>Com a nossa plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>,</p>
+                    <p>o cliente clica no seu link próprio,</p>
+                    <p>escolhe os sabores, os adicionais de fibras e proteínas,</p>
+                    <p>e o pedido chega prontinho <span style="color:#fbbf24;">no seu WhatsApp</span>!</p>
+                    <p>E o sistema ainda te avisa a hora exata que o Litrão dele vai acabar!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code na tela •</div>
+                    <p>Aponte a câmera pro <span style="color:#fbbf24;">QR Code aqui na tela</span> ou clica no link da minha bio.</p>
+                    <p>Você tem <span style="color:#fbbf24;">7 dias grátis</span> pra testar e dobrar suas vendas sem gastar 1 real!</p>
+                `,
+                viral2: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 2 • 45s • Retenção e Fidelidade</div>
+                    <p>Como fazer o mesmo cliente comprar</p>
+                    <p><span style="color:#fbbf24;">4 Litrões de Reset de você todo mês</span>,</p>
+                    <p>sem você precisar ficar mandando mensagem chata insistindo pra ele comprar?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire com calma •</div>
+                    <p>O maior erro da maioria dos consultores é vender um Litrão hoje</p>
+                    <p>e torcer pro cliente lembrar de pedir semana que vem.</p>
+                    <p>Os consultores que mais faturam usam uma única coisa: <span style="color:#fbbf24;">Retenção Automática</span>.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o Cartão Fidelidade na tela •</div>
+                    <p>Aqui na plataforma do Litrão do Reset,</p>
+                    <p>seu cliente tem um <span style="color:#fbbf24;">Cartão Fidelidade Digital</span> no celular.</p>
+                    <p>A cada Litrão ou detox que ele toma, ele ganha um carimbo digital.</p>
+                    <p>Ao completar 10 carimbos, ganha um brinde ou desconto exclusivo no seu Espaço!</p>
+                    <p>Ele passa a comprar de você por vício de completar a cartela!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code •</div>
+                    <p>Quer colocar esse cartão rodando pro seu negócio ainda hoje?</p>
+                    <p>Aponte o celular pro <span style="color:#fbbf24;">QR Code aqui no cantinho</span> ou clica no link abaixo</p>
+                    <p>e garanta sua vaga de Membro Fundador com 7 dias grátis!</p>
+                `,
+                viral3: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 3 • 50s • Expansão e Top Consultores</div>
+                    <p>Para de mandar foto pesada de cardápio em PDF que ninguém abre no WhatsApp!</p>
+                    <p>O jogo das vendas de Litrão mudou completamente.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Olhe direto para a lente •</div>
+                    <p>Quem tem página moderna e rápida vende <span style="color:#fbbf24;">até 3 vezes mais</span></p>
+                    <p>do que quem fica digitando preço e chave Pix na mão toda vez que o cliente pergunta.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o painel na tela •</div>
+                    <p>Com a plataforma do Litrão do Reset, você tem:</p>
+                    <p>Seu <span style="color:#fbbf24;">Catálogo Digital próprio</span>,</p>
+                    <p>Extrator de Contatos pra encontrar clientes na sua cidade,</p>
+                    <p>e ainda cadastra novos consultores na sua equipe,</p>
+                    <p>dando <span style="color:#fbbf24;">7 dias grátis</span> pra eles começarem faturando com você!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Sorriso e Chamada Final •</div>
+                    <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
+                    <p>que apontarem a câmera para o <span style="color:#fbbf24;">QR Code na tela agora mesmo</span>.</p>
+                    <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+                `,
+                completo: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Apresentação Geral Master</div>
+                    <p>Olá líder, olá consultor!</p>
+                    <p>Meu nome é <span style="color:#fbbf24;">Edwan Braga</span>.</p>
+                    <p>Hoje eu quero te apresentar a plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire e dê uma breve pausa •</div>
+                    <p>Esta ferramenta foi criada sob medida</p>
+                    <p>para você que quer multiplicar suas vendas de pacotes</p>
+                    <p>e gerenciar toda a sua rede de distribuidores.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a tela no painel •</div>
+                    <p>Veja como é simples:</p>
+                    <p>Seus clientes acessam uma página moderna,</p>
+                    <p>onde escolhem os pacotes do Litrão</p>
+                    <p>e fazem o pedido <span style="color:#fbbf24;">direto no seu WhatsApp</span>!</p>
+                    <p>E aqui no seu painel de controle:</p>
+                    <p>Você cadastra novos consultores da sua equipe com 7 dias grátis na hora!</p>
+                `
+            };
+
+            let wRunning = false;
+            let wSpeed = 1.5;
+            let wFont = 26;
+            let wAnimId = null;
+            let wPassThrough = false;
+
+            window.abrirWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (!widget) return;
+                widget.style.display = 'flex';
+                wTrocarRoteiro(document.getElementById('w-select-roteiro')?.value || 'viral1');
+            };
+
+            window.fecharWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (widget) widget.style.display = 'none';
+                wPausarPrompter();
+            };
+
+            window.wTrocarRoteiro = function(tipo) {
+                wPausarPrompter();
+                const contentEl = document.getElementById('w-prompter-content');
+                if (contentEl && W_ROTEIROS[tipo]) {
+                    contentEl.innerHTML = W_ROTEIROS[tipo];
+                }
+                const containerEl = document.getElementById('w-prompter-container');
+                if (containerEl) containerEl.scrollTop = 0;
+            };
+
+            window.wAlternarPlayPause = function() {
+                if (wRunning) wPausarPrompter();
+                else wIniciarScroll();
+            };
+
+            function wIniciarScroll() {
+                wRunning = true;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#f59e0b';
+                if (icon) icon.innerText = '⏸';
+                if (txt) txt.innerText = 'PAUSAR';
+                wLoop();
+            }
+
+            function wPausarPrompter() {
+                wRunning = false;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#10b981';
+                if (icon) icon.innerText = '▶';
+                if (txt) txt.innerText = 'PLAY (Espaço)';
+                if (wAnimId) {
+                    cancelAnimationFrame(wAnimId);
+                    wAnimId = null;
+                }
+            }
+
+            function wLoop() {
+                if (!wRunning) return;
+                const c = document.getElementById('w-prompter-container');
+                if (c) {
+                    c.scrollTop += (wSpeed * 0.85);
+                    if (c.scrollTop >= (c.scrollHeight - c.clientHeight - 5)) {
+                        wPausarPrompter();
+                        return;
+                    }
+                }
+                wAnimId = requestAnimationFrame(wLoop);
+            }
+
+            window.wReiniciarPrompter = function() {
+                wPausarPrompter();
+                const c = document.getElementById('w-prompter-container');
+                if (c) c.scrollTop = 0;
+            };
+
+            window.wAlterarVelocidade = function(delta) {
+                wSpeed = Math.max(0.5, Math.min(8.0, wSpeed + delta));
+                const el = document.getElementById('w-txt-vel');
+                if (el) el.innerText = wSpeed.toFixed(1);
+            };
+
+            window.wAlterarFonte = function(delta) {
+                wFont = Math.max(18, Math.min(50, wFont + delta));
+                const el = document.getElementById('w-txt-fonte');
+                const contentEl = document.getElementById('w-prompter-content');
+                if (el) el.innerText = wFont + 'px';
+                if (contentEl) contentEl.style.fontSize = wFont + 'px';
+            };
+
+            window.wMudarOpacidade = function(val) {
+                const inner = document.getElementById('widget-prompter-inner');
+                if (inner) inner.style.background = `rgba(15, 23, 42, ${val})`;
+            };
+
+            window.wAlternarPassThrough = function() {
+                wPassThrough = !wPassThrough;
+                const btn = document.getElementById('w-btn-pass-through');
+                const c = document.getElementById('w-prompter-container');
+                if (wPassThrough) {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: SIM';
+                        btn.style.background = '#059669';
+                    }
+                    if (c) c.style.pointerEvents = 'none';
+                } else {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: NÃO';
+                        btn.style.background = '#374151';
+                    }
+                    if (c) c.style.pointerEvents = 'auto';
+                }
+            };
+
+            window.baixarKitTeleprompterPc = function() {
+                try {
+                    const a = document.createElement('a');
+                    a.href = 'estudio_teleprompter_pc.zip';
+                    a.download = 'estudio_teleprompter_pc.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } catch(e) {
+                    window.open('estudio_teleprompter_pc.zip', '_blank');
+                }
+            };
+
+            // Arrastar widget pela barra de título
+            document.addEventListener('DOMContentLoaded', () => {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                const header = document.getElementById('widget-prompter-header');
+                const grip = document.getElementById('w-resize-grip');
+                if (!widget || !header) return;
+
+                let isDragging = false;
+                let startX, startY, initLeft, initTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = widget.getBoundingClientRect();
+                    initLeft = rect.left;
+                    initTop = rect.top;
+                    widget.style.transform = 'none';
+                    widget.style.left = initLeft + 'px';
+                    widget.style.top = initTop + 'px';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    widget.style.left = Math.max(10, initLeft + dx) + 'px';
+                    widget.style.top = Math.max(10, initTop + dy) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => { isDragging = false; });
+
+                // Redimensionamento pelo grip
+                if (grip) {
+                    let isResizing = false;
+                    let rStartX, rStartY, rInitW, rInitH;
+                    grip.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        isResizing = true;
+                        rStartX = e.clientX;
+                        rStartY = e.clientY;
+                        rInitW = widget.offsetWidth;
+                        rInitH = widget.offsetHeight;
+                    });
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing) return;
+                        widget.style.width = Math.max(360, rInitW + (e.clientX - rStartX)) + 'px';
+                        widget.style.height = Math.max(160, rInitH + (e.clientY - rStartY)) + 'px';
+                    });
+                    document.addEventListener('mouseup', () => { isResizing = false; });
+                }
+
+                // Atalhos de teclado quando o widget está visível
+                window.addEventListener('keydown', (e) => {
+                    if (widget.style.display !== 'flex') return;
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        wAlternarPlayPause();
+                    } else if (e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        wAlterarVelocidade(+0.5);
+                    } else if (e.code === 'ArrowDown') {
+                        e.preventDefault();
+                        wAlterarVelocidade(-0.5);
+                    } else if (e.code === 'KeyR') {
+                        e.preventDefault();
+                        wReiniciarPrompter();
+                    } else if (e.code === 'Escape') {
+                        fecharWidgetTeleprompterVidro();
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
                 </html>
             `);
             win.document.close();
@@ -19455,7 +19805,352 @@
                     <div class="grid-a4">
                         ${cartoesHTML}
                     </div>
-                </body>
+                
+    <!-- ========================================================================= -->
+    <!-- WIDGET TELEPROMPTER DE VIDRO REAL (GLASSMORPHISM EMBUTIDO NO PAINEL) -->
+    <!-- ========================================================================= -->
+    <div id="widget-teleprompter-vidro" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 780px; max-width: 96vw; height: 320px; z-index: 999999; flex-direction: column;">
+        <div id="widget-prompter-inner" style="width: 100%; height: 100%; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(15, 23, 42, 0.45); border: 1.5px solid rgba(251, 191, 36, 0.55); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <!-- BARRA SUPERIOR DE CONTROLES -->
+            <div id="widget-prompter-header" style="background: rgba(17, 24, 39, 0.88); backdrop-filter: blur(8px); padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: #fff; cursor: move; border-bottom: 1px solid rgba(255, 255, 255, 0.12); flex-shrink: 0; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <button type="button" id="w-btn-play" onclick="wAlternarPlayPause()" style="background: #10b981; color: #042f2e; font-weight: 900; padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <span id="w-play-icon">▶</span> <span id="w-play-txt">PLAY (Espaço)</span>
+                    </button>
+                    <button type="button" onclick="wReiniciarPrompter()" title="Voltar ao início" style="background: #374151; color: #fff; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">↺</button>
+                    <select id="w-select-roteiro" onchange="wTrocarRoteiro(this.value)" style="background: #1f2937; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: bold; cursor: pointer; outline: none;">
+                        <option value="viral1">1: Pedidos WhatsApp (45s)</option>
+                        <option value="viral2">2: Cartão Fidelidade (45s)</option>
+                        <option value="viral3">3: Top Consultores (50s)</option>
+                        <option value="completo">4: Apresentação Geral (2m)</option>
+                    </select>
+                    <button type="button" id="w-btn-pass-through" onclick="wAlternarPassThrough()" title="Quando ativo, você pode clicar nos botões do painel atrás das letras!" style="background: #374151; color: #fff; font-weight: bold; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 10px;">
+                        🖱️ Clicar Atrás: NÃO
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <span style="color:#9ca3af;">Vidro:</span>
+                        <select id="w-select-opacidade" onchange="wMudarOpacidade(this.value)" style="background: transparent; color: #fff; border: none; font-size: 10px; outline: none; cursor: pointer;">
+                            <option value="0.20">20% (Cristal)</option>
+                            <option value="0.45" selected>45% (Fosco)</option>
+                            <option value="0.70">70% (Escuro)</option>
+                            <option value="0.95">95% (Sólido)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarVelocidade(-0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">-</button>
+                        <span id="w-txt-vel" style="font-weight:bold; color:#fbbf24; min-width: 20px; text-align:center;">1.5</span>
+                        <button type="button" onclick="wAlterarVelocidade(+0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">+</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarFonte(-2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A-</button>
+                        <span id="w-txt-fonte" style="font-weight:bold; color:#fff; min-width: 24px; text-align:center;">26px</span>
+                        <button type="button" onclick="wAlterarFonte(+2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A+</button>
+                    </div>
+                    <button type="button" onclick="fecharWidgetTeleprompterVidro()" style="background: #ef4444; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 6px; border: none; cursor: pointer;">✖</button>
+                </div>
+            </div>
+            <!-- ÁREA DO TEXTO TRANSPARENTE -->
+            <div id="w-prompter-container" style="flex: 1; overflow-y: auto; padding: 0 16px; position: relative;">
+                <div id="w-prompter-content" style="max-width: 680px; margin: 0 auto; padding-top: 50px; padding-bottom: 220px; text-align: center; line-height: 1.5; font-weight: 800; font-size: 26px; color: #fff; text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9);">
+                </div>
+            </div>
+            <!-- RESIZE GRIP -->
+            <div id="w-resize-grip" style="position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; opacity: 0.6; display: flex; align-items: flex-end; justify-content: flex-end; padding: 2px; font-size: 11px; color: #fbbf24; user-select: none;">◢</div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO WIDGET DE VIDRO -->
+    <script>
+        (function() {
+            const W_ROTEIROS = {
+                viral1: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 1 • 45s • Pedidos WhatsApp</div>
+                    <p>Se você vende Litrão da Herbalife</p>
+                    <p>e ainda anota pedidos em papel de pão</p>
+                    <p>ou no bloco de notas do celular...</p>
+                    <p style="color:#fbbf24;">você está deixando pelo menos 2 mil reais na mesa todo mês!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire 1 segundo •</div>
+                    <p>Quantas vezes um cliente te chamou,</p>
+                    <p>você demorou pra responder o cardápio,</p>
+                    <p>ele comprou em outro lugar</p>
+                    <p>ou você simplesmente esqueceu de cobrar o próximo galão?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a plataforma na tela •</div>
+                    <p>Olha como isso acabou:</p>
+                    <p>Com a nossa plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>,</p>
+                    <p>o cliente clica no seu link próprio,</p>
+                    <p>escolhe os sabores, os adicionais de fibras e proteínas,</p>
+                    <p>e o pedido chega prontinho <span style="color:#fbbf24;">no seu WhatsApp</span>!</p>
+                    <p>E o sistema ainda te avisa a hora exata que o Litrão dele vai acabar!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code na tela •</div>
+                    <p>Aponte a câmera pro <span style="color:#fbbf24;">QR Code aqui na tela</span> ou clica no link da minha bio.</p>
+                    <p>Você tem <span style="color:#fbbf24;">7 dias grátis</span> pra testar e dobrar suas vendas sem gastar 1 real!</p>
+                `,
+                viral2: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 2 • 45s • Retenção e Fidelidade</div>
+                    <p>Como fazer o mesmo cliente comprar</p>
+                    <p><span style="color:#fbbf24;">4 Litrões de Reset de você todo mês</span>,</p>
+                    <p>sem você precisar ficar mandando mensagem chata insistindo pra ele comprar?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire com calma •</div>
+                    <p>O maior erro da maioria dos consultores é vender um Litrão hoje</p>
+                    <p>e torcer pro cliente lembrar de pedir semana que vem.</p>
+                    <p>Os consultores que mais faturam usam uma única coisa: <span style="color:#fbbf24;">Retenção Automática</span>.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o Cartão Fidelidade na tela •</div>
+                    <p>Aqui na plataforma do Litrão do Reset,</p>
+                    <p>seu cliente tem um <span style="color:#fbbf24;">Cartão Fidelidade Digital</span> no celular.</p>
+                    <p>A cada Litrão ou detox que ele toma, ele ganha um carimbo digital.</p>
+                    <p>Ao completar 10 carimbos, ganha um brinde ou desconto exclusivo no seu Espaço!</p>
+                    <p>Ele passa a comprar de você por vício de completar a cartela!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code •</div>
+                    <p>Quer colocar esse cartão rodando pro seu negócio ainda hoje?</p>
+                    <p>Aponte o celular pro <span style="color:#fbbf24;">QR Code aqui no cantinho</span> ou clica no link abaixo</p>
+                    <p>e garanta sua vaga de Membro Fundador com 7 dias grátis!</p>
+                `,
+                viral3: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 3 • 50s • Expansão e Top Consultores</div>
+                    <p>Para de mandar foto pesada de cardápio em PDF que ninguém abre no WhatsApp!</p>
+                    <p>O jogo das vendas de Litrão mudou completamente.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Olhe direto para a lente •</div>
+                    <p>Quem tem página moderna e rápida vende <span style="color:#fbbf24;">até 3 vezes mais</span></p>
+                    <p>do que quem fica digitando preço e chave Pix na mão toda vez que o cliente pergunta.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o painel na tela •</div>
+                    <p>Com a plataforma do Litrão do Reset, você tem:</p>
+                    <p>Seu <span style="color:#fbbf24;">Catálogo Digital próprio</span>,</p>
+                    <p>Extrator de Contatos pra encontrar clientes na sua cidade,</p>
+                    <p>e ainda cadastra novos consultores na sua equipe,</p>
+                    <p>dando <span style="color:#fbbf24;">7 dias grátis</span> pra eles começarem faturando com você!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Sorriso e Chamada Final •</div>
+                    <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
+                    <p>que apontarem a câmera para o <span style="color:#fbbf24;">QR Code na tela agora mesmo</span>.</p>
+                    <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+                `,
+                completo: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Apresentação Geral Master</div>
+                    <p>Olá líder, olá consultor!</p>
+                    <p>Meu nome é <span style="color:#fbbf24;">Edwan Braga</span>.</p>
+                    <p>Hoje eu quero te apresentar a plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire e dê uma breve pausa •</div>
+                    <p>Esta ferramenta foi criada sob medida</p>
+                    <p>para você que quer multiplicar suas vendas de pacotes</p>
+                    <p>e gerenciar toda a sua rede de distribuidores.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a tela no painel •</div>
+                    <p>Veja como é simples:</p>
+                    <p>Seus clientes acessam uma página moderna,</p>
+                    <p>onde escolhem os pacotes do Litrão</p>
+                    <p>e fazem o pedido <span style="color:#fbbf24;">direto no seu WhatsApp</span>!</p>
+                    <p>E aqui no seu painel de controle:</p>
+                    <p>Você cadastra novos consultores da sua equipe com 7 dias grátis na hora!</p>
+                `
+            };
+
+            let wRunning = false;
+            let wSpeed = 1.5;
+            let wFont = 26;
+            let wAnimId = null;
+            let wPassThrough = false;
+
+            window.abrirWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (!widget) return;
+                widget.style.display = 'flex';
+                wTrocarRoteiro(document.getElementById('w-select-roteiro')?.value || 'viral1');
+            };
+
+            window.fecharWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (widget) widget.style.display = 'none';
+                wPausarPrompter();
+            };
+
+            window.wTrocarRoteiro = function(tipo) {
+                wPausarPrompter();
+                const contentEl = document.getElementById('w-prompter-content');
+                if (contentEl && W_ROTEIROS[tipo]) {
+                    contentEl.innerHTML = W_ROTEIROS[tipo];
+                }
+                const containerEl = document.getElementById('w-prompter-container');
+                if (containerEl) containerEl.scrollTop = 0;
+            };
+
+            window.wAlternarPlayPause = function() {
+                if (wRunning) wPausarPrompter();
+                else wIniciarScroll();
+            };
+
+            function wIniciarScroll() {
+                wRunning = true;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#f59e0b';
+                if (icon) icon.innerText = '⏸';
+                if (txt) txt.innerText = 'PAUSAR';
+                wLoop();
+            }
+
+            function wPausarPrompter() {
+                wRunning = false;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#10b981';
+                if (icon) icon.innerText = '▶';
+                if (txt) txt.innerText = 'PLAY (Espaço)';
+                if (wAnimId) {
+                    cancelAnimationFrame(wAnimId);
+                    wAnimId = null;
+                }
+            }
+
+            function wLoop() {
+                if (!wRunning) return;
+                const c = document.getElementById('w-prompter-container');
+                if (c) {
+                    c.scrollTop += (wSpeed * 0.85);
+                    if (c.scrollTop >= (c.scrollHeight - c.clientHeight - 5)) {
+                        wPausarPrompter();
+                        return;
+                    }
+                }
+                wAnimId = requestAnimationFrame(wLoop);
+            }
+
+            window.wReiniciarPrompter = function() {
+                wPausarPrompter();
+                const c = document.getElementById('w-prompter-container');
+                if (c) c.scrollTop = 0;
+            };
+
+            window.wAlterarVelocidade = function(delta) {
+                wSpeed = Math.max(0.5, Math.min(8.0, wSpeed + delta));
+                const el = document.getElementById('w-txt-vel');
+                if (el) el.innerText = wSpeed.toFixed(1);
+            };
+
+            window.wAlterarFonte = function(delta) {
+                wFont = Math.max(18, Math.min(50, wFont + delta));
+                const el = document.getElementById('w-txt-fonte');
+                const contentEl = document.getElementById('w-prompter-content');
+                if (el) el.innerText = wFont + 'px';
+                if (contentEl) contentEl.style.fontSize = wFont + 'px';
+            };
+
+            window.wMudarOpacidade = function(val) {
+                const inner = document.getElementById('widget-prompter-inner');
+                if (inner) inner.style.background = `rgba(15, 23, 42, ${val})`;
+            };
+
+            window.wAlternarPassThrough = function() {
+                wPassThrough = !wPassThrough;
+                const btn = document.getElementById('w-btn-pass-through');
+                const c = document.getElementById('w-prompter-container');
+                if (wPassThrough) {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: SIM';
+                        btn.style.background = '#059669';
+                    }
+                    if (c) c.style.pointerEvents = 'none';
+                } else {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: NÃO';
+                        btn.style.background = '#374151';
+                    }
+                    if (c) c.style.pointerEvents = 'auto';
+                }
+            };
+
+            window.baixarKitTeleprompterPc = function() {
+                try {
+                    const a = document.createElement('a');
+                    a.href = 'estudio_teleprompter_pc.zip';
+                    a.download = 'estudio_teleprompter_pc.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } catch(e) {
+                    window.open('estudio_teleprompter_pc.zip', '_blank');
+                }
+            };
+
+            // Arrastar widget pela barra de título
+            document.addEventListener('DOMContentLoaded', () => {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                const header = document.getElementById('widget-prompter-header');
+                const grip = document.getElementById('w-resize-grip');
+                if (!widget || !header) return;
+
+                let isDragging = false;
+                let startX, startY, initLeft, initTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = widget.getBoundingClientRect();
+                    initLeft = rect.left;
+                    initTop = rect.top;
+                    widget.style.transform = 'none';
+                    widget.style.left = initLeft + 'px';
+                    widget.style.top = initTop + 'px';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    widget.style.left = Math.max(10, initLeft + dx) + 'px';
+                    widget.style.top = Math.max(10, initTop + dy) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => { isDragging = false; });
+
+                // Redimensionamento pelo grip
+                if (grip) {
+                    let isResizing = false;
+                    let rStartX, rStartY, rInitW, rInitH;
+                    grip.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        isResizing = true;
+                        rStartX = e.clientX;
+                        rStartY = e.clientY;
+                        rInitW = widget.offsetWidth;
+                        rInitH = widget.offsetHeight;
+                    });
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing) return;
+                        widget.style.width = Math.max(360, rInitW + (e.clientX - rStartX)) + 'px';
+                        widget.style.height = Math.max(160, rInitH + (e.clientY - rStartY)) + 'px';
+                    });
+                    document.addEventListener('mouseup', () => { isResizing = false; });
+                }
+
+                // Atalhos de teclado quando o widget está visível
+                window.addEventListener('keydown', (e) => {
+                    if (widget.style.display !== 'flex') return;
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        wAlternarPlayPause();
+                    } else if (e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        wAlterarVelocidade(+0.5);
+                    } else if (e.code === 'ArrowDown') {
+                        e.preventDefault();
+                        wAlterarVelocidade(-0.5);
+                    } else if (e.code === 'KeyR') {
+                        e.preventDefault();
+                        wReiniciarPrompter();
+                    } else if (e.code === 'Escape') {
+                        fecharWidgetTeleprompterVidro();
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
                 </html>
             `);
             win.document.close();
@@ -24100,7 +24795,352 @@
                             window.open(link, '_blank');
                         }
                     <\/script>
-                </body>
+                
+    <!-- ========================================================================= -->
+    <!-- WIDGET TELEPROMPTER DE VIDRO REAL (GLASSMORPHISM EMBUTIDO NO PAINEL) -->
+    <!-- ========================================================================= -->
+    <div id="widget-teleprompter-vidro" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 780px; max-width: 96vw; height: 320px; z-index: 999999; flex-direction: column;">
+        <div id="widget-prompter-inner" style="width: 100%; height: 100%; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(15, 23, 42, 0.45); border: 1.5px solid rgba(251, 191, 36, 0.55); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <!-- BARRA SUPERIOR DE CONTROLES -->
+            <div id="widget-prompter-header" style="background: rgba(17, 24, 39, 0.88); backdrop-filter: blur(8px); padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: #fff; cursor: move; border-bottom: 1px solid rgba(255, 255, 255, 0.12); flex-shrink: 0; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <button type="button" id="w-btn-play" onclick="wAlternarPlayPause()" style="background: #10b981; color: #042f2e; font-weight: 900; padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <span id="w-play-icon">▶</span> <span id="w-play-txt">PLAY (Espaço)</span>
+                    </button>
+                    <button type="button" onclick="wReiniciarPrompter()" title="Voltar ao início" style="background: #374151; color: #fff; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">↺</button>
+                    <select id="w-select-roteiro" onchange="wTrocarRoteiro(this.value)" style="background: #1f2937; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: bold; cursor: pointer; outline: none;">
+                        <option value="viral1">1: Pedidos WhatsApp (45s)</option>
+                        <option value="viral2">2: Cartão Fidelidade (45s)</option>
+                        <option value="viral3">3: Top Consultores (50s)</option>
+                        <option value="completo">4: Apresentação Geral (2m)</option>
+                    </select>
+                    <button type="button" id="w-btn-pass-through" onclick="wAlternarPassThrough()" title="Quando ativo, você pode clicar nos botões do painel atrás das letras!" style="background: #374151; color: #fff; font-weight: bold; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 10px;">
+                        🖱️ Clicar Atrás: NÃO
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <span style="color:#9ca3af;">Vidro:</span>
+                        <select id="w-select-opacidade" onchange="wMudarOpacidade(this.value)" style="background: transparent; color: #fff; border: none; font-size: 10px; outline: none; cursor: pointer;">
+                            <option value="0.20">20% (Cristal)</option>
+                            <option value="0.45" selected>45% (Fosco)</option>
+                            <option value="0.70">70% (Escuro)</option>
+                            <option value="0.95">95% (Sólido)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarVelocidade(-0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">-</button>
+                        <span id="w-txt-vel" style="font-weight:bold; color:#fbbf24; min-width: 20px; text-align:center;">1.5</span>
+                        <button type="button" onclick="wAlterarVelocidade(+0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">+</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarFonte(-2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A-</button>
+                        <span id="w-txt-fonte" style="font-weight:bold; color:#fff; min-width: 24px; text-align:center;">26px</span>
+                        <button type="button" onclick="wAlterarFonte(+2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A+</button>
+                    </div>
+                    <button type="button" onclick="fecharWidgetTeleprompterVidro()" style="background: #ef4444; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 6px; border: none; cursor: pointer;">✖</button>
+                </div>
+            </div>
+            <!-- ÁREA DO TEXTO TRANSPARENTE -->
+            <div id="w-prompter-container" style="flex: 1; overflow-y: auto; padding: 0 16px; position: relative;">
+                <div id="w-prompter-content" style="max-width: 680px; margin: 0 auto; padding-top: 50px; padding-bottom: 220px; text-align: center; line-height: 1.5; font-weight: 800; font-size: 26px; color: #fff; text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9);">
+                </div>
+            </div>
+            <!-- RESIZE GRIP -->
+            <div id="w-resize-grip" style="position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; opacity: 0.6; display: flex; align-items: flex-end; justify-content: flex-end; padding: 2px; font-size: 11px; color: #fbbf24; user-select: none;">◢</div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO WIDGET DE VIDRO -->
+    <script>
+        (function() {
+            const W_ROTEIROS = {
+                viral1: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 1 • 45s • Pedidos WhatsApp</div>
+                    <p>Se você vende Litrão da Herbalife</p>
+                    <p>e ainda anota pedidos em papel de pão</p>
+                    <p>ou no bloco de notas do celular...</p>
+                    <p style="color:#fbbf24;">você está deixando pelo menos 2 mil reais na mesa todo mês!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire 1 segundo •</div>
+                    <p>Quantas vezes um cliente te chamou,</p>
+                    <p>você demorou pra responder o cardápio,</p>
+                    <p>ele comprou em outro lugar</p>
+                    <p>ou você simplesmente esqueceu de cobrar o próximo galão?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a plataforma na tela •</div>
+                    <p>Olha como isso acabou:</p>
+                    <p>Com a nossa plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>,</p>
+                    <p>o cliente clica no seu link próprio,</p>
+                    <p>escolhe os sabores, os adicionais de fibras e proteínas,</p>
+                    <p>e o pedido chega prontinho <span style="color:#fbbf24;">no seu WhatsApp</span>!</p>
+                    <p>E o sistema ainda te avisa a hora exata que o Litrão dele vai acabar!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code na tela •</div>
+                    <p>Aponte a câmera pro <span style="color:#fbbf24;">QR Code aqui na tela</span> ou clica no link da minha bio.</p>
+                    <p>Você tem <span style="color:#fbbf24;">7 dias grátis</span> pra testar e dobrar suas vendas sem gastar 1 real!</p>
+                `,
+                viral2: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 2 • 45s • Retenção e Fidelidade</div>
+                    <p>Como fazer o mesmo cliente comprar</p>
+                    <p><span style="color:#fbbf24;">4 Litrões de Reset de você todo mês</span>,</p>
+                    <p>sem você precisar ficar mandando mensagem chata insistindo pra ele comprar?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire com calma •</div>
+                    <p>O maior erro da maioria dos consultores é vender um Litrão hoje</p>
+                    <p>e torcer pro cliente lembrar de pedir semana que vem.</p>
+                    <p>Os consultores que mais faturam usam uma única coisa: <span style="color:#fbbf24;">Retenção Automática</span>.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o Cartão Fidelidade na tela •</div>
+                    <p>Aqui na plataforma do Litrão do Reset,</p>
+                    <p>seu cliente tem um <span style="color:#fbbf24;">Cartão Fidelidade Digital</span> no celular.</p>
+                    <p>A cada Litrão ou detox que ele toma, ele ganha um carimbo digital.</p>
+                    <p>Ao completar 10 carimbos, ganha um brinde ou desconto exclusivo no seu Espaço!</p>
+                    <p>Ele passa a comprar de você por vício de completar a cartela!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code •</div>
+                    <p>Quer colocar esse cartão rodando pro seu negócio ainda hoje?</p>
+                    <p>Aponte o celular pro <span style="color:#fbbf24;">QR Code aqui no cantinho</span> ou clica no link abaixo</p>
+                    <p>e garanta sua vaga de Membro Fundador com 7 dias grátis!</p>
+                `,
+                viral3: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 3 • 50s • Expansão e Top Consultores</div>
+                    <p>Para de mandar foto pesada de cardápio em PDF que ninguém abre no WhatsApp!</p>
+                    <p>O jogo das vendas de Litrão mudou completamente.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Olhe direto para a lente •</div>
+                    <p>Quem tem página moderna e rápida vende <span style="color:#fbbf24;">até 3 vezes mais</span></p>
+                    <p>do que quem fica digitando preço e chave Pix na mão toda vez que o cliente pergunta.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o painel na tela •</div>
+                    <p>Com a plataforma do Litrão do Reset, você tem:</p>
+                    <p>Seu <span style="color:#fbbf24;">Catálogo Digital próprio</span>,</p>
+                    <p>Extrator de Contatos pra encontrar clientes na sua cidade,</p>
+                    <p>e ainda cadastra novos consultores na sua equipe,</p>
+                    <p>dando <span style="color:#fbbf24;">7 dias grátis</span> pra eles começarem faturando com você!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Sorriso e Chamada Final •</div>
+                    <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
+                    <p>que apontarem a câmera para o <span style="color:#fbbf24;">QR Code na tela agora mesmo</span>.</p>
+                    <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+                `,
+                completo: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Apresentação Geral Master</div>
+                    <p>Olá líder, olá consultor!</p>
+                    <p>Meu nome é <span style="color:#fbbf24;">Edwan Braga</span>.</p>
+                    <p>Hoje eu quero te apresentar a plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire e dê uma breve pausa •</div>
+                    <p>Esta ferramenta foi criada sob medida</p>
+                    <p>para você que quer multiplicar suas vendas de pacotes</p>
+                    <p>e gerenciar toda a sua rede de distribuidores.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a tela no painel •</div>
+                    <p>Veja como é simples:</p>
+                    <p>Seus clientes acessam uma página moderna,</p>
+                    <p>onde escolhem os pacotes do Litrão</p>
+                    <p>e fazem o pedido <span style="color:#fbbf24;">direto no seu WhatsApp</span>!</p>
+                    <p>E aqui no seu painel de controle:</p>
+                    <p>Você cadastra novos consultores da sua equipe com 7 dias grátis na hora!</p>
+                `
+            };
+
+            let wRunning = false;
+            let wSpeed = 1.5;
+            let wFont = 26;
+            let wAnimId = null;
+            let wPassThrough = false;
+
+            window.abrirWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (!widget) return;
+                widget.style.display = 'flex';
+                wTrocarRoteiro(document.getElementById('w-select-roteiro')?.value || 'viral1');
+            };
+
+            window.fecharWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (widget) widget.style.display = 'none';
+                wPausarPrompter();
+            };
+
+            window.wTrocarRoteiro = function(tipo) {
+                wPausarPrompter();
+                const contentEl = document.getElementById('w-prompter-content');
+                if (contentEl && W_ROTEIROS[tipo]) {
+                    contentEl.innerHTML = W_ROTEIROS[tipo];
+                }
+                const containerEl = document.getElementById('w-prompter-container');
+                if (containerEl) containerEl.scrollTop = 0;
+            };
+
+            window.wAlternarPlayPause = function() {
+                if (wRunning) wPausarPrompter();
+                else wIniciarScroll();
+            };
+
+            function wIniciarScroll() {
+                wRunning = true;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#f59e0b';
+                if (icon) icon.innerText = '⏸';
+                if (txt) txt.innerText = 'PAUSAR';
+                wLoop();
+            }
+
+            function wPausarPrompter() {
+                wRunning = false;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#10b981';
+                if (icon) icon.innerText = '▶';
+                if (txt) txt.innerText = 'PLAY (Espaço)';
+                if (wAnimId) {
+                    cancelAnimationFrame(wAnimId);
+                    wAnimId = null;
+                }
+            }
+
+            function wLoop() {
+                if (!wRunning) return;
+                const c = document.getElementById('w-prompter-container');
+                if (c) {
+                    c.scrollTop += (wSpeed * 0.85);
+                    if (c.scrollTop >= (c.scrollHeight - c.clientHeight - 5)) {
+                        wPausarPrompter();
+                        return;
+                    }
+                }
+                wAnimId = requestAnimationFrame(wLoop);
+            }
+
+            window.wReiniciarPrompter = function() {
+                wPausarPrompter();
+                const c = document.getElementById('w-prompter-container');
+                if (c) c.scrollTop = 0;
+            };
+
+            window.wAlterarVelocidade = function(delta) {
+                wSpeed = Math.max(0.5, Math.min(8.0, wSpeed + delta));
+                const el = document.getElementById('w-txt-vel');
+                if (el) el.innerText = wSpeed.toFixed(1);
+            };
+
+            window.wAlterarFonte = function(delta) {
+                wFont = Math.max(18, Math.min(50, wFont + delta));
+                const el = document.getElementById('w-txt-fonte');
+                const contentEl = document.getElementById('w-prompter-content');
+                if (el) el.innerText = wFont + 'px';
+                if (contentEl) contentEl.style.fontSize = wFont + 'px';
+            };
+
+            window.wMudarOpacidade = function(val) {
+                const inner = document.getElementById('widget-prompter-inner');
+                if (inner) inner.style.background = `rgba(15, 23, 42, ${val})`;
+            };
+
+            window.wAlternarPassThrough = function() {
+                wPassThrough = !wPassThrough;
+                const btn = document.getElementById('w-btn-pass-through');
+                const c = document.getElementById('w-prompter-container');
+                if (wPassThrough) {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: SIM';
+                        btn.style.background = '#059669';
+                    }
+                    if (c) c.style.pointerEvents = 'none';
+                } else {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: NÃO';
+                        btn.style.background = '#374151';
+                    }
+                    if (c) c.style.pointerEvents = 'auto';
+                }
+            };
+
+            window.baixarKitTeleprompterPc = function() {
+                try {
+                    const a = document.createElement('a');
+                    a.href = 'estudio_teleprompter_pc.zip';
+                    a.download = 'estudio_teleprompter_pc.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } catch(e) {
+                    window.open('estudio_teleprompter_pc.zip', '_blank');
+                }
+            };
+
+            // Arrastar widget pela barra de título
+            document.addEventListener('DOMContentLoaded', () => {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                const header = document.getElementById('widget-prompter-header');
+                const grip = document.getElementById('w-resize-grip');
+                if (!widget || !header) return;
+
+                let isDragging = false;
+                let startX, startY, initLeft, initTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = widget.getBoundingClientRect();
+                    initLeft = rect.left;
+                    initTop = rect.top;
+                    widget.style.transform = 'none';
+                    widget.style.left = initLeft + 'px';
+                    widget.style.top = initTop + 'px';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    widget.style.left = Math.max(10, initLeft + dx) + 'px';
+                    widget.style.top = Math.max(10, initTop + dy) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => { isDragging = false; });
+
+                // Redimensionamento pelo grip
+                if (grip) {
+                    let isResizing = false;
+                    let rStartX, rStartY, rInitW, rInitH;
+                    grip.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        isResizing = true;
+                        rStartX = e.clientX;
+                        rStartY = e.clientY;
+                        rInitW = widget.offsetWidth;
+                        rInitH = widget.offsetHeight;
+                    });
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing) return;
+                        widget.style.width = Math.max(360, rInitW + (e.clientX - rStartX)) + 'px';
+                        widget.style.height = Math.max(160, rInitH + (e.clientY - rStartY)) + 'px';
+                    });
+                    document.addEventListener('mouseup', () => { isResizing = false; });
+                }
+
+                // Atalhos de teclado quando o widget está visível
+                window.addEventListener('keydown', (e) => {
+                    if (widget.style.display !== 'flex') return;
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        wAlternarPlayPause();
+                    } else if (e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        wAlterarVelocidade(+0.5);
+                    } else if (e.code === 'ArrowDown') {
+                        e.preventDefault();
+                        wAlterarVelocidade(-0.5);
+                    } else if (e.code === 'KeyR') {
+                        e.preventDefault();
+                        wReiniciarPrompter();
+                    } else if (e.code === 'Escape') {
+                        fecharWidgetTeleprompterVidro();
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
                 </html>
             `);
             janelaImpr.document.close();
@@ -37197,5 +38237,350 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
 
     </script>
     <script src="/pwa-install.js"></script>
+
+    <!-- ========================================================================= -->
+    <!-- WIDGET TELEPROMPTER DE VIDRO REAL (GLASSMORPHISM EMBUTIDO NO PAINEL) -->
+    <!-- ========================================================================= -->
+    <div id="widget-teleprompter-vidro" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); width: 780px; max-width: 96vw; height: 320px; z-index: 999999; flex-direction: column;">
+        <div id="widget-prompter-inner" style="width: 100%; height: 100%; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(15, 23, 42, 0.45); border: 1.5px solid rgba(251, 191, 36, 0.55); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; overflow: hidden; position: relative;">
+            <!-- BARRA SUPERIOR DE CONTROLES -->
+            <div id="widget-prompter-header" style="background: rgba(17, 24, 39, 0.88); backdrop-filter: blur(8px); padding: 5px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: #fff; cursor: move; border-bottom: 1px solid rgba(255, 255, 255, 0.12); flex-shrink: 0; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <button type="button" id="w-btn-play" onclick="wAlternarPlayPause()" style="background: #10b981; color: #042f2e; font-weight: 900; padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <span id="w-play-icon">▶</span> <span id="w-play-txt">PLAY (Espaço)</span>
+                    </button>
+                    <button type="button" onclick="wReiniciarPrompter()" title="Voltar ao início" style="background: #374151; color: #fff; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">↺</button>
+                    <select id="w-select-roteiro" onchange="wTrocarRoteiro(this.value)" style="background: #1f2937; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: bold; cursor: pointer; outline: none;">
+                        <option value="viral1">1: Pedidos WhatsApp (45s)</option>
+                        <option value="viral2">2: Cartão Fidelidade (45s)</option>
+                        <option value="viral3">3: Top Consultores (50s)</option>
+                        <option value="completo">4: Apresentação Geral (2m)</option>
+                    </select>
+                    <button type="button" id="w-btn-pass-through" onclick="wAlternarPassThrough()" title="Quando ativo, você pode clicar nos botões do painel atrás das letras!" style="background: #374151; color: #fff; font-weight: bold; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-size: 10px;">
+                        🖱️ Clicar Atrás: NÃO
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <span style="color:#9ca3af;">Vidro:</span>
+                        <select id="w-select-opacidade" onchange="wMudarOpacidade(this.value)" style="background: transparent; color: #fff; border: none; font-size: 10px; outline: none; cursor: pointer;">
+                            <option value="0.20">20% (Cristal)</option>
+                            <option value="0.45" selected>45% (Fosco)</option>
+                            <option value="0.70">70% (Escuro)</option>
+                            <option value="0.95">95% (Sólido)</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarVelocidade(-0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">-</button>
+                        <span id="w-txt-vel" style="font-weight:bold; color:#fbbf24; min-width: 20px; text-align:center;">1.5</span>
+                        <button type="button" onclick="wAlterarVelocidade(+0.5)" style="background:transparent; color:#fff; border:none; cursor:pointer;">+</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; background: rgba(31,41,55,0.7); padding: 2px 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); font-size: 10px;">
+                        <button type="button" onclick="wAlterarFonte(-2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A-</button>
+                        <span id="w-txt-fonte" style="font-weight:bold; color:#fff; min-width: 24px; text-align:center;">26px</span>
+                        <button type="button" onclick="wAlterarFonte(+2)" style="background:transparent; color:#fff; border:none; cursor:pointer;">A+</button>
+                    </div>
+                    <button type="button" onclick="fecharWidgetTeleprompterVidro()" style="background: #ef4444; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 6px; border: none; cursor: pointer;">✖</button>
+                </div>
+            </div>
+            <!-- ÁREA DO TEXTO TRANSPARENTE -->
+            <div id="w-prompter-container" style="flex: 1; overflow-y: auto; padding: 0 16px; position: relative;">
+                <div id="w-prompter-content" style="max-width: 680px; margin: 0 auto; padding-top: 50px; padding-bottom: 220px; text-align: center; line-height: 1.5; font-weight: 800; font-size: 26px; color: #fff; text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 2px 4px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9);">
+                </div>
+            </div>
+            <!-- RESIZE GRIP -->
+            <div id="w-resize-grip" style="position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; opacity: 0.6; display: flex; align-items: flex-end; justify-content: flex-end; padding: 2px; font-size: 11px; color: #fbbf24; user-select: none;">◢</div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DO WIDGET DE VIDRO -->
+    <script>
+        (function() {
+            const W_ROTEIROS = {
+                viral1: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 1 • 45s • Pedidos WhatsApp</div>
+                    <p>Se você vende Litrão da Herbalife</p>
+                    <p>e ainda anota pedidos em papel de pão</p>
+                    <p>ou no bloco de notas do celular...</p>
+                    <p style="color:#fbbf24;">você está deixando pelo menos 2 mil reais na mesa todo mês!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire 1 segundo •</div>
+                    <p>Quantas vezes um cliente te chamou,</p>
+                    <p>você demorou pra responder o cardápio,</p>
+                    <p>ele comprou em outro lugar</p>
+                    <p>ou você simplesmente esqueceu de cobrar o próximo galão?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a plataforma na tela •</div>
+                    <p>Olha como isso acabou:</p>
+                    <p>Com a nossa plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>,</p>
+                    <p>o cliente clica no seu link próprio,</p>
+                    <p>escolhe os sabores, os adicionais de fibras e proteínas,</p>
+                    <p>e o pedido chega prontinho <span style="color:#fbbf24;">no seu WhatsApp</span>!</p>
+                    <p>E o sistema ainda te avisa a hora exata que o Litrão dele vai acabar!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code na tela •</div>
+                    <p>Aponte a câmera pro <span style="color:#fbbf24;">QR Code aqui na tela</span> ou clica no link da minha bio.</p>
+                    <p>Você tem <span style="color:#fbbf24;">7 dias grátis</span> pra testar e dobrar suas vendas sem gastar 1 real!</p>
+                `,
+                viral2: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 2 • 45s • Retenção e Fidelidade</div>
+                    <p>Como fazer o mesmo cliente comprar</p>
+                    <p><span style="color:#fbbf24;">4 Litrões de Reset de você todo mês</span>,</p>
+                    <p>sem você precisar ficar mandando mensagem chata insistindo pra ele comprar?</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire com calma •</div>
+                    <p>O maior erro da maioria dos consultores é vender um Litrão hoje</p>
+                    <p>e torcer pro cliente lembrar de pedir semana que vem.</p>
+                    <p>Os consultores que mais faturam usam uma única coisa: <span style="color:#fbbf24;">Retenção Automática</span>.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o Cartão Fidelidade na tela •</div>
+                    <p>Aqui na plataforma do Litrão do Reset,</p>
+                    <p>seu cliente tem um <span style="color:#fbbf24;">Cartão Fidelidade Digital</span> no celular.</p>
+                    <p>A cada Litrão ou detox que ele toma, ele ganha um carimbo digital.</p>
+                    <p>Ao completar 10 carimbos, ganha um brinde ou desconto exclusivo no seu Espaço!</p>
+                    <p>Ele passa a comprar de você por vício de completar a cartela!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Aponte para o QR Code •</div>
+                    <p>Quer colocar esse cartão rodando pro seu negócio ainda hoje?</p>
+                    <p>Aponte o celular pro <span style="color:#fbbf24;">QR Code aqui no cantinho</span> ou clica no link abaixo</p>
+                    <p>e garanta sua vaga de Membro Fundador com 7 dias grátis!</p>
+                `,
+                viral3: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Roteiro 3 • 50s • Expansão e Top Consultores</div>
+                    <p>Para de mandar foto pesada de cardápio em PDF que ninguém abre no WhatsApp!</p>
+                    <p>O jogo das vendas de Litrão mudou completamente.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Olhe direto para a lente •</div>
+                    <p>Quem tem página moderna e rápida vende <span style="color:#fbbf24;">até 3 vezes mais</span></p>
+                    <p>do que quem fica digitando preço e chave Pix na mão toda vez que o cliente pergunta.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre o painel na tela •</div>
+                    <p>Com a plataforma do Litrão do Reset, você tem:</p>
+                    <p>Seu <span style="color:#fbbf24;">Catálogo Digital próprio</span>,</p>
+                    <p>Extrator de Contatos pra encontrar clientes na sua cidade,</p>
+                    <p>e ainda cadastra novos consultores na sua equipe,</p>
+                    <p>dando <span style="color:#fbbf24;">7 dias grátis</span> pra eles começarem faturando com você!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Sorriso e Chamada Final •</div>
+                    <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
+                    <p>que apontarem a câmera para o <span style="color:#fbbf24;">QR Code na tela agora mesmo</span>.</p>
+                    <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+                `,
+                completo: `
+                    <div style="display:inline-block; background:rgba(30,58,138,0.9); color:#bfdbfe; font-size:12px; padding:2px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px; font-weight:900;">Apresentação Geral Master</div>
+                    <p>Olá líder, olá consultor!</p>
+                    <p>Meu nome é <span style="color:#fbbf24;">Edwan Braga</span>.</p>
+                    <p>Hoje eu quero te apresentar a plataforma oficial do <span style="color:#fbbf24;">Litrão do Reset</span>!</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Respire e dê uma breve pausa •</div>
+                    <p>Esta ferramenta foi criada sob medida</p>
+                    <p>para você que quer multiplicar suas vendas de pacotes</p>
+                    <p>e gerenciar toda a sua rede de distribuidores.</p>
+                    <div style="color:#34d399; font-size:13px; margin:8px 0; font-weight:900;">• Mostre a tela no painel •</div>
+                    <p>Veja como é simples:</p>
+                    <p>Seus clientes acessam uma página moderna,</p>
+                    <p>onde escolhem os pacotes do Litrão</p>
+                    <p>e fazem o pedido <span style="color:#fbbf24;">direto no seu WhatsApp</span>!</p>
+                    <p>E aqui no seu painel de controle:</p>
+                    <p>Você cadastra novos consultores da sua equipe com 7 dias grátis na hora!</p>
+                `
+            };
+
+            let wRunning = false;
+            let wSpeed = 1.5;
+            let wFont = 26;
+            let wAnimId = null;
+            let wPassThrough = false;
+
+            window.abrirWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (!widget) return;
+                widget.style.display = 'flex';
+                wTrocarRoteiro(document.getElementById('w-select-roteiro')?.value || 'viral1');
+            };
+
+            window.fecharWidgetTeleprompterVidro = function() {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                if (widget) widget.style.display = 'none';
+                wPausarPrompter();
+            };
+
+            window.wTrocarRoteiro = function(tipo) {
+                wPausarPrompter();
+                const contentEl = document.getElementById('w-prompter-content');
+                if (contentEl && W_ROTEIROS[tipo]) {
+                    contentEl.innerHTML = W_ROTEIROS[tipo];
+                }
+                const containerEl = document.getElementById('w-prompter-container');
+                if (containerEl) containerEl.scrollTop = 0;
+            };
+
+            window.wAlternarPlayPause = function() {
+                if (wRunning) wPausarPrompter();
+                else wIniciarScroll();
+            };
+
+            function wIniciarScroll() {
+                wRunning = true;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#f59e0b';
+                if (icon) icon.innerText = '⏸';
+                if (txt) txt.innerText = 'PAUSAR';
+                wLoop();
+            }
+
+            function wPausarPrompter() {
+                wRunning = false;
+                const btn = document.getElementById('w-btn-play');
+                const icon = document.getElementById('w-play-icon');
+                const txt = document.getElementById('w-play-txt');
+                if (btn) btn.style.background = '#10b981';
+                if (icon) icon.innerText = '▶';
+                if (txt) txt.innerText = 'PLAY (Espaço)';
+                if (wAnimId) {
+                    cancelAnimationFrame(wAnimId);
+                    wAnimId = null;
+                }
+            }
+
+            function wLoop() {
+                if (!wRunning) return;
+                const c = document.getElementById('w-prompter-container');
+                if (c) {
+                    c.scrollTop += (wSpeed * 0.85);
+                    if (c.scrollTop >= (c.scrollHeight - c.clientHeight - 5)) {
+                        wPausarPrompter();
+                        return;
+                    }
+                }
+                wAnimId = requestAnimationFrame(wLoop);
+            }
+
+            window.wReiniciarPrompter = function() {
+                wPausarPrompter();
+                const c = document.getElementById('w-prompter-container');
+                if (c) c.scrollTop = 0;
+            };
+
+            window.wAlterarVelocidade = function(delta) {
+                wSpeed = Math.max(0.5, Math.min(8.0, wSpeed + delta));
+                const el = document.getElementById('w-txt-vel');
+                if (el) el.innerText = wSpeed.toFixed(1);
+            };
+
+            window.wAlterarFonte = function(delta) {
+                wFont = Math.max(18, Math.min(50, wFont + delta));
+                const el = document.getElementById('w-txt-fonte');
+                const contentEl = document.getElementById('w-prompter-content');
+                if (el) el.innerText = wFont + 'px';
+                if (contentEl) contentEl.style.fontSize = wFont + 'px';
+            };
+
+            window.wMudarOpacidade = function(val) {
+                const inner = document.getElementById('widget-prompter-inner');
+                if (inner) inner.style.background = `rgba(15, 23, 42, ${val})`;
+            };
+
+            window.wAlternarPassThrough = function() {
+                wPassThrough = !wPassThrough;
+                const btn = document.getElementById('w-btn-pass-through');
+                const c = document.getElementById('w-prompter-container');
+                if (wPassThrough) {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: SIM';
+                        btn.style.background = '#059669';
+                    }
+                    if (c) c.style.pointerEvents = 'none';
+                } else {
+                    if (btn) {
+                        btn.innerText = '🖱️ Clicar Atrás: NÃO';
+                        btn.style.background = '#374151';
+                    }
+                    if (c) c.style.pointerEvents = 'auto';
+                }
+            };
+
+            window.baixarKitTeleprompterPc = function() {
+                try {
+                    const a = document.createElement('a');
+                    a.href = 'estudio_teleprompter_pc.zip';
+                    a.download = 'estudio_teleprompter_pc.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } catch(e) {
+                    window.open('estudio_teleprompter_pc.zip', '_blank');
+                }
+            };
+
+            // Arrastar widget pela barra de título
+            document.addEventListener('DOMContentLoaded', () => {
+                const widget = document.getElementById('widget-teleprompter-vidro');
+                const header = document.getElementById('widget-prompter-header');
+                const grip = document.getElementById('w-resize-grip');
+                if (!widget || !header) return;
+
+                let isDragging = false;
+                let startX, startY, initLeft, initTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = widget.getBoundingClientRect();
+                    initLeft = rect.left;
+                    initTop = rect.top;
+                    widget.style.transform = 'none';
+                    widget.style.left = initLeft + 'px';
+                    widget.style.top = initTop + 'px';
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    widget.style.left = Math.max(10, initLeft + dx) + 'px';
+                    widget.style.top = Math.max(10, initTop + dy) + 'px';
+                });
+
+                document.addEventListener('mouseup', () => { isDragging = false; });
+
+                // Redimensionamento pelo grip
+                if (grip) {
+                    let isResizing = false;
+                    let rStartX, rStartY, rInitW, rInitH;
+                    grip.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        isResizing = true;
+                        rStartX = e.clientX;
+                        rStartY = e.clientY;
+                        rInitW = widget.offsetWidth;
+                        rInitH = widget.offsetHeight;
+                    });
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing) return;
+                        widget.style.width = Math.max(360, rInitW + (e.clientX - rStartX)) + 'px';
+                        widget.style.height = Math.max(160, rInitH + (e.clientY - rStartY)) + 'px';
+                    });
+                    document.addEventListener('mouseup', () => { isResizing = false; });
+                }
+
+                // Atalhos de teclado quando o widget está visível
+                window.addEventListener('keydown', (e) => {
+                    if (widget.style.display !== 'flex') return;
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        wAlternarPlayPause();
+                    } else if (e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        wAlterarVelocidade(+0.5);
+                    } else if (e.code === 'ArrowDown') {
+                        e.preventDefault();
+                        wAlterarVelocidade(-0.5);
+                    } else if (e.code === 'KeyR') {
+                        e.preventDefault();
+                        wReiniciarPrompter();
+                    } else if (e.code === 'Escape') {
+                        fecharWidgetTeleprompterVidro();
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>
