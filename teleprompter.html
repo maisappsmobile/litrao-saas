@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter Transparente • Litrão do Reset</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        :root {
+            --bg-opacity: 0.55; /* Transparência padrão de 55% */
+            --bg-color: rgba(11, 15, 25, var(--bg-opacity));
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s ease;
+        }
+
+        /* BARRA SUPERIOR ULTRA COMPACTA E MINIMALISTA */
+        header {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            z-index: 50;
+            font-size: 11px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        header.recolhido {
+            transform: translateY(-100%);
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* BOTÃO FLUTUANTE PARA MOSTRAR/OCULTAR BARRA */
+        #btn-toggle-toolbar {
+            position: fixed;
+            top: 2px;
+            right: 8px;
+            z-index: 60;
+            background: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fbbf24;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
+        #btn-toggle-toolbar:hover {
+            background: #374151;
+        }
+
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button {
+            background: rgba(31, 41, 55, 0.8);
+            color: #f3f4f6;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        button:hover {
+            background: #374151;
+            border-color: #6b7280;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .btn-play {
+            background: #10b981;
+            border-color: #059669;
+            color: #042f2e;
+            padding: 3px 12px;
+        }
+
+        .btn-play:hover {
+            background: #34d399;
+        }
+
+        .btn-play.playing {
+            background: #f59e0b;
+            border-color: #d97706;
+            color: #451a03;
+        }
+
+        .btn-pip {
+            background: #6366f1;
+            border-color: #4f46e5;
+            color: #ffffff;
+        }
+
+        .btn-pip:hover {
+            background: #818cf8;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(31, 41, 55, 0.7);
+            padding: 2px 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .control-item span {
+            font-weight: bold;
+            color: #ffffff;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        select {
+            background: rgba(31, 41, 55, 0.8);
+            color: #f3f4f6;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* ÁREA DE ROLAGEM TRANSPARENTE */
+        #prompter-container {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            scroll-behavior: auto;
+            padding: 0 16px;
+        }
+
+        #prompter-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        #prompter-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #prompter-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* LINHA GUIA DE FOCO */
+        .focus-line {
+            position: fixed;
+            top: 30%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.5), transparent);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* TEXTO ULTRA NÍTIDO COM SOMBRA FORTE (Legível mesmo sobre fundo transparente) */
+        #prompter-content {
+            max-width: 620px;
+            margin: 0 auto;
+            padding-top: 28vh;
+            padding-bottom: 65vh;
+            text-align: center;
+            line-height: 1.45;
+            font-weight: 800;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.95),
+                0 0 12px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(0, 0, 0, 0.7);
+            letter-spacing: 0.3px;
+        }
+
+        .highlight {
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.95);
+        }
+
+        .action-tag {
+            display: inline-block;
+            background: rgba(30, 58, 138, 0.85);
+            color: #bfdbfe;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            font-size: 0.5em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 900;
+            margin-bottom: 4px;
+            backdrop-filter: blur(2px);
+        }
+
+        .pause-point {
+            color: #34d399;
+            font-size: 0.55em;
+            display: block;
+            margin: 8px 0 4px 0;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* CONTAGEM REGRESSIVA */
+        #countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 15, 25, 0.75);
+            backdrop-filter: blur(3px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        #countdown-number {
+            font-size: 80px;
+            font-weight: 900;
+            color: #fbbf24;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* MODAL DE EDIÇÃO */
+        #edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            max-width: 580px;
+            width: 100%;
+            padding: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            background: #1f2937;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 13px;
+            padding: 10px;
+            font-family: inherit;
+            outline: none;
+            resize: vertical;
+            user-select: text;
+        }
+
+        /* BANNER INFORMATIVO FIXO NO TOPO DO WINDOWS */
+        #pip-helper-banner {
+            display: none;
+            background: #4338ca;
+            color: #e0e7ff;
+            font-size: 11px;
+            padding: 4px 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÃO PARA RECOLHER/MOSTRAR OS BOTÕES (ECONOMIZA ESPAÇO) -->
+    <button id="btn-toggle-toolbar" onclick="alternarBarraBotoes()" title="Ocultar botões para economizar espaço">
+        ▲ Ocultar Botões
+    </button>
+
+    <!-- BARRA SUPERIOR DE CONTROLES COMPACTA -->
+    <header id="main-header">
+        <div class="controls-left">
+            <!-- PLAY / PAUSE -->
+            <button id="btn-play-toggle" class="btn-play" onclick="alternarPlayPause()">
+                <span id="play-icon">▶</span>
+                <span id="play-text">PLAY (Espaço)</span>
+            </button>
+
+            <!-- REINICIAR -->
+            <button onclick="reiniciarPrompter()" title="Voltar ao início (Tecla R)">
+                ↺
+            </button>
+
+            <!-- SELETOR DE ROTEIRO -->
+            <select id="select-roteiro" onchange="trocarRoteiro(this.value)">
+                <option value="viral1" selected>Roteiro 1: Pedidos WhatsApp (45s)</option>
+                <option value="viral2">Roteiro 2: Cartão Fidelidade (45s)</option>
+                <option value="viral3">Roteiro 3: Top Consultores (50s)</option>
+                <option value="completo">Roteiro Master: Apresentação (2m)</option>
+                <option value="personalizado">Meu Texto Customizado</option>
+            </select>
+        </div>
+
+        <div class="controls-right">
+            <!-- BOTÃO FIXAR NO TOPO (PICTURE-IN-PICTURE SEMPRE NO TOPO) -->
+            <button id="btn-pip" class="btn-pip" onclick="ativarSempreNoTopoPiP()" title="Abre em Janela Flutuante que NUNCA vai para trás!">
+                📌 Fixar no Topo
+            </button>
+
+            <!-- CONTROLE DE TRANSPARÊNCIA -->
+            <div class="control-item" title="Transparência do Fundo">
+                <label>Fundo:</label>
+                <select id="select-opacidade" onchange="mudarOpacidade(this.value)">
+                    <option value="0.25">25% (Muito Transparente)</option>
+                    <option value="0.45">45% (Transparente)</option>
+                    <option value="0.65" selected>65% (Equilibrado)</option>
+                    <option value="0.85">85% (Mais Escuro)</option>
+                    <option value="1.0">100% (Sólido)</option>
+                </select>
+            </div>
+
+            <!-- VELOCIDADE -->
+            <div class="control-item">
+                <label>Vel:</label>
+                <button type="button" onclick="alterarVelocidade(-0.5)" style="padding: 1px 5px;">-</button>
+                <span id="txt-velocidade">1.5</span>
+                <button type="button" onclick="alterarVelocidade(+0.5)" style="padding: 1px 5px;">+</button>
+            </div>
+
+            <!-- FONTE -->
+            <div class="control-item">
+                <button type="button" onclick="alterarFonte(-2)" style="padding: 1px 5px;">A-</button>
+                <span id="txt-fonte">34px</span>
+                <button type="button" onclick="alterarFonte(+2)" style="padding: 1px 5px;">A+</button>
+            </div>
+
+            <!-- EDITAR TEXTO -->
+            <button onclick="abrirModalEdicao()" title="Editar ou colar seu próprio roteiro">
+                ✏️
+            </button>
+        </div>
+    </header>
+
+    <!-- LINHA GUIA FIXA NO OLHO -->
+    <div class="focus-line"></div>
+
+    <!-- ÁREA DO TEXTO ROLANTE -->
+    <div id="prompter-container">
+        <div id="prompter-content" style="font-size: 34px;">
+            <!-- Roteiro injetado aqui -->
+        </div>
+    </div>
+
+    <!-- CONTAGEM REGRESSIVA 3, 2, 1 -->
+    <div id="countdown-overlay">
+        <div id="countdown-number">3</div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="edit-modal">
+        <div class="modal-card">
+            <h3 style="color: #fbbf24; font-size: 15px; margin-bottom: 8px;">✏️ Editar / Colar seu Roteiro</h3>
+            <textarea id="custom-text-input" placeholder="Cole ou digite seu roteiro aqui..."></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+                <button type="button" onclick="fecharModalEdicao()">Cancelar</button>
+                <button type="button" class="btn-play" onclick="salvarTextoCustomizado()">Salvar & Usar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ROTEIROS
+        const ROTEIROS = {
+            completo: `
+                <div class="action-tag">Abertura com Sorriso e Firmeza</div>
+                <p>Olá líder, olá consultor!</p>
+                <p>Meu nome é <span class="highlight">Edwan Braga</span>.</p>
+                <p>Hoje eu quero te apresentar a plataforma oficial do <span class="highlight">Litrão do Reset</span>!</p>
+
+                <div class="pause-point">• Respire e dê uma breve pausa •</div>
+
+                <div class="action-tag">Mostrando a Tela no Painel</div>
+                <p>Esta ferramenta foi criada sob medida</p>
+                <p>para você que quer multiplicar suas vendas de pacotes</p>
+                <p>e gerenciar toda a sua rede de distribuidores.</p>
+
+                <div class="pause-point">• Mostre os botões na tela com o mouse •</div>
+
+                <p>Veja como é simples:</p>
+                <p>Seus clientes acessam uma página moderna,</p>
+                <p>onde escolhem os pacotes do Litrão</p>
+                <p>e fazem o pedido <span class="highlight">direto no seu WhatsApp</span>!</p>
+
+                <div class="pause-point">• Pause 1 segundo •</div>
+
+                <p>E aqui no seu painel de controle:</p>
+                <p>Você cadastra os novos consultores da sua equipe,</p>
+                <p>e o sistema já libera <span class="highlight">7 dias de teste grátis</span> para eles na mesma hora!</p>
+                <p>Você define os preços da sua região,</p>
+                <p>taxa de entrega por bairro,</p>
+                <p>e tem acesso a todo o material de divulgação VIP.</p>
+
+                <div class="pause-point">• Olhe direto para a lente e aponte para o QR Code •</div>
+
+                <div class="action-tag">Chamada para Ação Final</div>
+                <p>Para você ativar o seu acesso agora,</p>
+                <p>com a condição especial de <span class="highlight">Membro Fundador</span>,</p>
+                <p>basta apontar a câmera do seu celular</p>
+                <p>para este <span class="highlight">QR Code aqui no cantinho da tela</span>,</p>
+                <p>ou clicar no link logo abaixo deste vídeo!</p>
+
+                <div class="pause-point">• Sorriso final •</div>
+
+                <p>Te vejo lá dentro da plataforma para acelerar seus resultados!</p>
+            `,
+            viral1: `
+                <div class="action-tag">Roteiro 1 • 45s • Eliminar Pedidos Perdidos</div>
+                <p>Se você vende Litrão da Herbalife</p>
+                <p>e ainda anota pedidos em papel de pão</p>
+                <p>ou no bloco de notas do celular...</p>
+                <p class="highlight">você está deixando pelo menos 2 mil reais na mesa todo mês!</p>
+
+                <div class="pause-point">• Respire 1 segundo •</div>
+
+                <p>Quantas vezes um cliente te chamou,</p>
+                <p>você demorou pra responder o cardápio,</p>
+                <p>ele comprou em outro lugar</p>
+                <p>ou você simplesmente esqueceu de cobrar o próximo galão?</p>
+
+                <div class="pause-point">• Mostre a plataforma na tela •</div>
+
+                <p>Olha como isso acabou:</p>
+                <p>Com a nossa plataforma oficial do <span class="highlight">Litrão do Reset</span>,</p>
+                <p>o cliente clica no seu link próprio,</p>
+                <p>escolhe os sabores, os adicionais de fibras e proteínas,</p>
+                <p>e o pedido chega prontinho <span class="highlight">no seu WhatsApp</span>!</p>
+                <p>E o sistema ainda te avisa a hora exata que o Litrão dele vai acabar!</p>
+
+                <div class="pause-point">• Aponte para o QR Code no canto da tela •</div>
+
+                <p>Aponte a câmera pro <span class="highlight">QR Code aqui na tela</span> ou clica no link da minha bio.</p>
+                <p>Você tem <span class="highlight">7 dias grátis</span> pra testar e dobrar suas vendas sem gastar 1 real!</p>
+            `,
+            viral2: `
+                <div class="action-tag">Roteiro 2 • 45s • Retenção e Fidelidade</div>
+                <p>Como fazer o mesmo cliente comprar</p>
+                <p><span class="highlight">4 Litrões de Reset de você todo mês</span>,</p>
+                <p>sem você precisar ficar mandando mensagem chata insistindo pra ele comprar?</p>
+
+                <div class="pause-point">• Respire com calma •</div>
+
+                <p>O maior erro da maioria dos consultores é vender um Litrão hoje</p>
+                <p>e torcer pro cliente lembrar de pedir semana que vem.</p>
+                <p>Os consultores que mais faturam usam uma única coisa: <span class="highlight">Retenção Automática</span>.</p>
+
+                <div class="pause-point">• Mostre o Cartão Fidelidade na tela •</div>
+
+                <p>Aqui na plataforma do Litrão do Reset,</p>
+                <p>seu cliente tem um <span class="highlight">Cartão Fidelidade Digital</span> no celular.</p>
+                <p>A cada Litrão ou detox que ele toma, ele ganha um carimbo digital.</p>
+                <p>Ao completar 10 carimbos, ganha um brinde ou desconto exclusivo no seu Espaço!</p>
+                <p>Ele passa a comprar de você por vício de completar a cartela!</p>
+
+                <div class="pause-point">• Aponte firme para o QR Code •</div>
+
+                <p>Quer colocar esse cartão rodando pro seu negócio ainda hoje?</p>
+                <p>Aponte o celular pro <span class="highlight">QR Code aqui no cantinho</span> ou clica no link abaixo</p>
+                <p>e garanta sua vaga de Membro Fundador com 7 dias grátis!</p>
+            `,
+            viral3: `
+                <div class="action-tag">Roteiro 3 • 50s • Expansão e Top Consultores</div>
+                <p>Para de mandar foto pesada de cardápio em PDF que ninguém abre no WhatsApp!</p>
+                <p>O jogo das vendas de Litrão mudou completamente.</p>
+
+                <div class="pause-point">• Olhe direto para a lente •</div>
+
+                <p>Quem tem página moderna e rápida vende <span class="highlight">até 3 vezes mais</span></p>
+                <p>do que quem fica digitando preço e chave Pix na mão toda vez que o cliente pergunta.</p>
+
+                <div class="pause-point">• Mostre a tela do painel e botão consultores •</div>
+
+                <p>Com a plataforma do Litrão do Reset, você tem:</p>
+                <p>Seu <span class="highlight">Catálogo Digital próprio</span>,</p>
+                <p>Extrator de Contatos pra encontrar clientes na sua cidade,</p>
+                <p>e ainda cadastra novos consultores na sua equipe,</p>
+                <p>dando <span class="highlight">7 dias grátis</span> pra eles começarem faturando com você!</p>
+
+                <div class="pause-point">• Sorriso e Chamada Final •</div>
+
+                <p>Liberei o acesso gratuito por 7 dias para os primeiros consultores</p>
+                <p>que apontarem a câmera para o <span class="highlight">QR Code na tela agora mesmo</span>.</p>
+                <p>Aperta no link, testa no seu celular e comece a receber pedidos no automático!</p>
+            `
+        };
+
+        // ESTADO
+        let isRunning = false;
+        let scrollSpeed = 1.5;
+        let fontSize = 34;
+        let animationFrameId = null;
+        let customUserText = '';
+        let toolbarVisivel = true;
+        let pipWindow = null;
+
+        const container = document.getElementById('prompter-container');
+        const content = document.getElementById('prompter-content');
+        const btnPlay = document.getElementById('btn-play-toggle');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        const txtSpeed = document.getElementById('txt-velocidade');
+        const txtFont = document.getElementById('txt-fonte');
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownNumber = document.getElementById('countdown-number');
+        const editModal = document.getElementById('edit-modal');
+        const customInput = document.getElementById('custom-text-input');
+        const mainHeader = document.getElementById('main-header');
+        const btnToggleToolbar = document.getElementById('btn-toggle-toolbar');
+
+        content.innerHTML = ROTEIROS.completo;
+
+        // OCULTAR / MOSTRAR BARRA DE BOTÕES
+        function alternarBarraBotoes() {
+            toolbarVisivel = !toolbarVisivel;
+            if (toolbarVisivel) {
+                mainHeader.classList.remove('recolhido');
+                btnToggleToolbar.innerText = '▲ Ocultar Botões';
+            } else {
+                mainHeader.classList.add('recolhido');
+                btnToggleToolbar.innerText = '▼ Mostrar Botões';
+            }
+        }
+
+        // MUDAR TRANSPARÊNCIA
+        function mudarOpacidade(val) {
+            document.documentElement.style.setProperty('--bg-opacity', val);
+        }
+
+        // RECURSO NATIVO: SEMPRE NO TOPO (DOCUMENT PICTURE-IN-PICTURE)
+        async function ativarSempreNoTopoPiP() {
+            if ('documentPictureInPicture' in window) {
+                try {
+                    pipWindow = await window.documentPictureInPicture.requestWindow({
+                        width: 600,
+                        height: 280
+                    });
+
+                    // Copia o estilo e o conteúdo para a janela flutuante que é SEMPRE NO TOPO!
+                    [...document.styleSheets].forEach((styleSheet) => {
+                        try {
+                            const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+                            const style = document.createElement('style');
+                            style.textContent = cssRules;
+                            pipWindow.document.head.appendChild(style);
+                        } catch (e) {
+                            const link = document.createElement('link');
+                            link.rel = 'stylesheet';
+                            link.type = styleSheet.type;
+                            link.media = styleSheet.media;
+                            link.href = styleSheet.href;
+                            pipWindow.document.head.appendChild(link);
+                        }
+                    });
+
+                    // Move o prompter para dentro da janela PiP
+                    pipWindow.document.body.appendChild(mainHeader);
+                    pipWindow.document.body.appendChild(container);
+                    pipWindow.document.body.appendChild(countdownOverlay);
+
+                    pipWindow.addEventListener('pagehide', () => {
+                        document.body.appendChild(mainHeader);
+                        document.body.appendChild(container);
+                        document.body.appendChild(countdownOverlay);
+                        pipWindow = null;
+                    });
+
+                    return;
+                } catch (err) {
+                    console.warn("PiP API falhou:", err);
+                }
+            }
+
+            // Se o navegador não suportar PiP de documentos:
+            alert("Dica de ouro do Windows:\n\nPara travar qualquer janela SEMPRE NO TOPO no Windows 10/11:\nInstale o utilitário oficial e gratuito 'Microsoft PowerToys' e aperte a tecla:\n👉 Windows + Ctrl + T\n\nA janela fica travada na frente de tudo!");
+        }
+
+        function trocarRoteiro(tipo) {
+            pausarPrompter();
+            if (tipo === 'personalizado') {
+                if (!customUserText) {
+                    abrirModalEdicao();
+                    return;
+                }
+                content.innerHTML = customUserText;
+            } else if (ROTEIROS[tipo]) {
+                content.innerHTML = ROTEIROS[tipo];
+            }
+            reiniciarPrompter();
+        }
+
+        function alternarPlayPause() {
+            if (isRunning) pausarPrompter();
+            else iniciarComContagem();
+        }
+
+        function iniciarComContagem() {
+            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
+            if (targetContainer && targetContainer.scrollTop > 50) {
+                iniciarScroll();
+                return;
+            }
+
+            countdownOverlay.style.display = 'flex';
+            let count = 3;
+            countdownNumber.innerText = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    countdownOverlay.style.display = 'none';
+                    iniciarScroll();
+                }
+            }, 750);
+        }
+
+        function iniciarScroll() {
+            isRunning = true;
+            btnPlay.classList.add('playing');
+            playIcon.innerText = '⏸';
+            playText.innerText = 'PAUSAR';
+            loopScroll();
+        }
+
+        function pausarPrompter() {
+            isRunning = false;
+            btnPlay.classList.remove('playing');
+            playIcon.innerText = '▶';
+            playText.innerText = 'PLAY';
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        function loopScroll() {
+            if (!isRunning) return;
+
+            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
+            if (targetContainer) {
+                targetContainer.scrollTop += (scrollSpeed * 0.85);
+                if (targetContainer.scrollTop >= (targetContainer.scrollHeight - targetContainer.clientHeight - 5)) {
+                    pausarPrompter();
+                    return;
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(loopScroll);
+        }
+
+        function reiniciarPrompter() {
+            pausarPrompter();
+            const targetContainer = pipWindow ? pipWindow.document.getElementById('prompter-container') : container;
+            if (targetContainer) targetContainer.scrollTop = 0;
+            playText.innerText = 'PLAY';
+        }
+
+        function alterarVelocidade(delta) {
+            scrollSpeed = Math.max(0.5, Math.min(8.0, scrollSpeed + delta));
+            txtSpeed.innerText = scrollSpeed.toFixed(1);
+        }
+
+        function alterarFonte(delta) {
+            fontSize = Math.max(20, Math.min(56, fontSize + delta));
+            content.style.fontSize = fontSize + 'px';
+            txtFont.innerText = fontSize + 'px';
+        }
+
+        function abrirModalEdicao() {
+            pausarPrompter();
+            customInput.value = customUserText || content.innerText.trim();
+            editModal.style.display = 'flex';
+        }
+
+        function fecharModalEdicao() {
+            editModal.style.display = 'none';
+        }
+
+        function salvarTextoCustomizado() {
+            const val = customInput.value.trim();
+            if (val) {
+                customUserText = val.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+                content.innerHTML = customUserText;
+                document.getElementById('select-roteiro').value = 'personalizado';
+            }
+            fecharModalEdicao();
+            reiniciarPrompter();
+        }
+
+        // ATALHOS NO TECLADO
+        window.addEventListener('keydown', (e) => {
+            if (editModal.style.display === 'flex') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                alternarPlayPause();
+            } else if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                alterarVelocidade(+0.5);
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                alterarVelocidade(-0.5);
+            } else if (e.code === 'KeyR' || e.code === 'Escape') {
+                e.preventDefault();
+                reiniciarPrompter();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1468,6 +1468,59 @@
                     </div>
                 </div>
 
+                <!-- NOVO: CARD ESTÚDIO DE GRAVAÇÃO & TELEPROMPTER COM IA -->
+                <div id="card-ferramenta-estudio-teleprompter" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-video"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-amber-700 transition leading-tight truncate">
+                                        Estúdio & Prompter IA
+                                    </h3>
+                                    <span class="text-[10px] text-amber-700 font-bold uppercase tracking-wider block truncate">Vídeos Virais • Reels/TikTok</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-status-prompter-consultor" class="bg-amber-100 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0">
+                                    <i class="fa-solid fa-lock mr-1 text-amber-600"></i> Exclusivo VIP
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Contadores Inline -->
+                        <div class="grid grid-cols-3 gap-1.5 my-2">
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Roteiros</span>
+                                <span class="text-xs font-black text-amber-600">4</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">Formato</span>
+                                <span class="text-xs font-black text-blue-600">45-60s</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200/80 py-1 px-2 rounded-lg flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase">OBS Studio</span>
+                                <span class="text-xs font-black text-emerald-600">Invisível</span>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                            Grave vídeos profissionais com teleprompter transparente com contorno preto 360°, clique através da tela e roteiros magnéticos de alta conversão.
+                        </p>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <a id="btn-abrir-card-prompter" href="teleprompter.html" target="_blank" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-play text-gray-950 text-[11px]"></i> Abrir Prompter & Roteiros
+                        </a>
+                    </div>
+                </div>
+
                 <!-- NOVO: CARD EXTRATOR & DISPARADOR FACEBOOK GRUPOS (SUPERADMIN & 20K+ LEADS - OCULTO POR PADRÃO) -->
                 <div id="card-ferramenta-facebook-superadmin" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-blue-300/80 shadow-2xs hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between group hidden" style="display: none;">
                     <div>
@@ -13697,6 +13750,41 @@
                     } else {
                         badgeCatAcesso.className = "bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 shrink-0";
                         badgeCatAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-slate-500"></i> Restrito';
+                    }
+                }
+
+                // 4. Badge e Botão Estúdio & Teleprompter IA
+                const isPrompterLib = isModuloEstudioTeleprompterLiberadoParaConsultor();
+                const badgePrompterAcesso = document.getElementById('badge-status-prompter-consultor');
+                const btnPrompterCard = document.getElementById('btn-abrir-card-prompter');
+                if (badgePrompterAcesso) {
+                    if (isSuperAdminUser) {
+                        badgePrompterAcesso.className = "bg-amber-50 text-amber-900 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shrink-0";
+                        badgePrompterAcesso.innerHTML = '<i class="fa-solid fa-crown mr-1 text-amber-600"></i> SuperAdmin';
+                    } else if (isPrompterLib) {
+                        badgePrompterAcesso.className = "bg-emerald-50 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0";
+                        badgePrompterAcesso.innerHTML = '<i class="fa-solid fa-check-circle mr-1 text-emerald-600"></i> Liberado';
+                    } else {
+                        badgePrompterAcesso.className = "bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0";
+                        badgePrompterAcesso.innerHTML = '<i class="fa-solid fa-lock mr-1 text-amber-600"></i> Exclusivo VIP';
+                    }
+                }
+                if (btnPrompterCard) {
+                    if (isSuperAdminUser || isPrompterLib) {
+                        btnPrompterCard.className = "flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 text-gray-950 font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnPrompterCard.innerHTML = '<i class="fa-solid fa-play text-gray-950 text-[11px]"></i> Abrir Prompter & Roteiros';
+                        btnPrompterCard.href = "teleprompter.html";
+                        btnPrompterCard.target = "_blank";
+                        btnPrompterCard.onclick = null;
+                    } else {
+                        btnPrompterCard.className = "flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer";
+                        btnPrompterCard.innerHTML = '<i class="fa-solid fa-lock text-amber-400 text-[11px]"></i> Solicitar com SuperAdmin';
+                        btnPrompterCard.removeAttribute('href');
+                        btnPrompterCard.removeAttribute('target');
+                        btnPrompterCard.onclick = function() {
+                            const msg = encodeURIComponent("Olá Edwan! Gostaria de solicitar a liberação do Estúdio de Gravação & Teleprompter com IA no meu painel do Litrão do Reset!");
+                            window.open(`https://wa.me/5599981111212?text=${msg}`, '_blank');
+                        };
                     }
                 }
 
@@ -33036,6 +33124,17 @@ ${escapeHtml(textoFinal)}
             return false;
         }
         window.isModuloCrmExtratorLiberadoParaConsultor = isModuloCrmExtratorLiberadoParaConsultor;
+
+        function isModuloEstudioTeleprompterLiberadoParaConsultor() {
+            if (!consultorAtual) return false;
+            const hid = String(consultorAtual.herbalife_id || '').trim();
+            if (hid === '433005811') return true; // SuperAdmin Edwan tem acesso irrestrito permanente
+            if (consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--MODULO_ESTUDIO_TELEPROMPTER:true-->')) {
+                return true;
+            }
+            return false;
+        }
+        window.isModuloEstudioTeleprompterLiberadoParaConsultor = isModuloEstudioTeleprompterLiberadoParaConsultor;
 
         function baixarExtensaoWhatsapp(abrirGuia = true) {
             try {
