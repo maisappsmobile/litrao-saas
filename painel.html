@@ -9155,117 +9155,110 @@
     <!-- MODAL: GESTÃO COMPLETA DOS PRODUTOS DO CATÁLOGO (PREÇOS, FOTOS, DESCRIÇÃO) -->
     <!-- ========================================================================= -->
     <div id="modal-gerenciar-produtos-catalogo" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden animate-fade-in">
-        <div class="bg-slate-50 rounded-3xl max-w-5xl w-full p-4 sm:p-7 shadow-2xl border-2 border-emerald-500 relative max-h-[94vh] flex flex-col">
+        <div class="bg-slate-50 rounded-3xl max-w-5xl w-full p-3 sm:p-5 shadow-2xl border-2 border-emerald-500 relative max-h-[94vh] flex flex-col">
             <!-- Botão Fechar -->
-            <button onclick="fecharModalGerenciarProdutosCatalogo()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer z-20">
+            <button onclick="fecharModalGerenciarProdutosCatalogo()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold p-1 cursor-pointer z-20">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <!-- Topo -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-200 gap-3 flex-shrink-0">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-2xl font-black shadow-md">
+            <!-- Topo Otimizado e Compacto -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 mb-2.5 border-b border-gray-200 gap-2 flex-shrink-0">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-lg font-black shadow-sm flex-shrink-0">
                         <i class="fa-solid fa-boxes-packing"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">VITRINE DO CLIENTE</span>
-                            <span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black uppercase px-2 py-0.2 rounded-full">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-black text-emerald-700 tracking-wider uppercase">VITRINE DO CLIENTE</span>
+                            <span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full">
                                 Personalização Total
                             </span>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">
+                        <h2 class="text-base sm:text-lg font-black text-gray-900 leading-tight">
                             Editar Preços, Fotos e Descrições dos Produtos
                         </h2>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button type="button" onclick="abrirEditorNovoProdutoCatalogo()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95">
-                        <i class="fa-solid fa-plus-circle text-amber-300"></i> + Criar Novo Produto
+                    <!-- Pill Dinâmico Nível de Compra Herbalife (Permite abrir/fechar com 1 toque) -->
+                    <button type="button" onclick="toggleBannerNivelCompraModal()" id="btn-toggle-nivel-compra-topo" title="Clique para alternar o seletor de desconto Herbalife" class="bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95">
+                        <i class="fa-solid fa-percent text-slate-950 text-[10px]"></i>
+                        <span id="badge-nivel-compra-topo">50% Supervisor</span>
+                        <i id="icone-chevron-nivel-compra" class="fa-solid fa-chevron-up text-[9px]"></i>
                     </button>
-                    <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-900 hover:bg-black text-white text-xs font-black px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-300"></i> Ver Catálogo ao Vivo
+                    <button type="button" onclick="abrirEditorNovoProdutoCatalogo()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95">
+                        <i class="fa-solid fa-plus-circle text-amber-300 text-[11px]"></i> + Criar Produto
                     </button>
-                </div>
-            </div>
-
-            <!-- SELETOR DE CATEGORIA DE COMPRA / NÍVEL DE DESCONTO HERBALIFE (25% | 35% | 42% | 50%) -->
-            <div class="bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 text-white p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-400 shadow-lg mb-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-md flex-shrink-0">
-                        <i class="fa-solid fa-percent"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-amber-300">Tabela Oficial de Custos Herbalife</span>
-                            <span id="badge-nivel-compra-ativo" class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs">
-                                50% Supervisor Ativo
-                            </span>
-                        </div>
-                        <h3 class="text-sm sm:text-base font-black text-white">Sua Categoria de Compra / Nível de Desconto:</h3>
-                        <p class="text-[11px] text-emerald-100">Com base nesta opção o sistema calcula automaticamente o valor de custo de cada produto e sua margem de lucro.</p>
-                    </div>
-                </div>
-
-                <!-- Botões 25% | 35% | 42% | 50% -->
-                <div class="grid grid-cols-4 gap-1.5 w-full md:w-auto flex-shrink-0">
-                    <button type="button" onclick="definirCategoriaCompraConsultor('25')" id="btn-faixa-compra-25" class="btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
-                        <span class="block text-sm font-black">25%</span>
-                        <span class="block text-[9px] opacity-80 uppercase">Distribuidor</span>
-                    </button>
-                    <button type="button" onclick="definirCategoriaCompraConsultor('35')" id="btn-faixa-compra-35" class="btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
-                        <span class="block text-sm font-black">35%</span>
-                        <span class="block text-[9px] opacity-80 uppercase">Sênior</span>
-                    </button>
-                    <button type="button" onclick="definirCategoriaCompraConsultor('42')" id="btn-faixa-compra-42" class="btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
-                        <span class="block text-sm font-black">42%</span>
-                        <span class="block text-[9px] opacity-80 uppercase">Construtor</span>
-                    </button>
-                    <button type="button" onclick="definirCategoriaCompraConsultor('50')" id="btn-faixa-compra-50" class="btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black border-amber-300 shadow-md">
-                        <span class="block text-sm font-black">50%</span>
-                        <span class="block text-[9px] uppercase font-black">Supervisor</span>
+                    <button type="button" onclick="abrirVisualizadorMeuCatalogo()" class="bg-slate-900 hover:bg-black text-white text-xs font-black px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-300 text-[10px]"></i> Ver Catálogo
                     </button>
                 </div>
             </div>
 
-            <!-- Barra de Busca e Filtros de Categoria -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200 shadow-2xs mb-4 flex-shrink-0">
+            <!-- Barra de Busca e Filtros de Categoria (Fixo, fininho e ultra-útil) -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-2 sm:p-2.5 rounded-2xl border border-gray-200 shadow-2xs mb-2.5 flex-shrink-0">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
-                    <input type="text" id="busca-produtos-catalogo-input" oninput="filtrarProdutosCatalogoPainel(this.value)" placeholder="Buscar por produto, sabor ou SKU..." class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    <input type="text" id="busca-produtos-catalogo-input" oninput="filtrarProdutosCatalogoPainel(this.value)" placeholder="Buscar por produto, sabor ou SKU..." class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs flex-shrink-0">
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('TODOS')" id="btn-cat-filtro-TODOS" class="px-3 py-1.5 rounded-xl font-black text-xs transition bg-emerald-700 text-white shadow-2xs">
-                        Todos
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('litrao')" id="btn-cat-filtro-litrao" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Litrão
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('shakes')" id="btn-cat-filtro-shakes" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Shakes
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('chas')" id="btn-cat-filtro-chas" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Chás & NRG
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('fibras')" id="btn-cat-filtro-fibras" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Fibras
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('sports')" id="btn-cat-filtro-sports" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Linha 24H & Snacks
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('vitaminas')" id="btn-cat-filtro-vitaminas" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Tabletes & Vitaminas
-                    </button>
-                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('skin')" id="btn-cat-filtro-skin" class="px-3 py-1.5 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Nutrição Externa & Skin
-                    </button>
+                <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 text-xs flex-shrink-0">
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('TODOS')" id="btn-cat-filtro-TODOS" class="px-2.5 py-1 rounded-xl font-black text-xs transition bg-emerald-700 text-white shadow-2xs">Todos</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('litrao')" id="btn-cat-filtro-litrao" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Litrão</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('shakes')" id="btn-cat-filtro-shakes" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Shakes</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('chas')" id="btn-cat-filtro-chas" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Chás & NRG</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('fibras')" id="btn-cat-filtro-fibras" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Fibras</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('linha24h')" id="btn-cat-filtro-linha24h" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Linha 24H & Snacks</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('tabletes')" id="btn-cat-filtro-tabletes" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Tabletes & Vitaminas</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('nutricao_externa')" id="btn-cat-filtro-nutricao_externa" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Nutrição Externa & Skin</button>
                 </div>
             </div>
 
-            <!-- Grade de Produtos para Edição (Scrollável) -->
-            <div id="container-lista-produtos-catalogo" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <!-- Injetado dinamicamente via JS -->
+            <!-- ÁREA ROLÁVEL PRINCIPAL (O BANNER DO PRINT 2 ROLA JUNTO COM OS PRODUTOS! NUNCA MAIS PERMANECE FIXO TAMPANDO A TELA!) -->
+            <div class="flex-1 overflow-y-auto space-y-3 pr-1">
+                <!-- SELETOR DE CATEGORIA DE COMPRA / NÍVEL DE DESCONTO HERBALIFE (COMPACTO + ROLÁVEL + OCULTÁVEL) -->
+                <div id="banner-nivel-compra-modal" class="bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 text-white p-2 sm:p-2.5 rounded-2xl border border-emerald-400 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-2 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-amber-300">Tabela de Custos Herbalife</span>
+                                <span id="badge-nivel-compra-ativo" class="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-full">
+                                    50% Supervisor Ativo
+                                </span>
+                            </div>
+                            <span class="text-[11px] font-bold text-emerald-100">Sua Categoria de Compra:</span>
+                        </div>
+                    </div>
+
+                    <!-- Botões Compactos 25% | 35% | 42% | 50% + Botão Ocultar -->
+                    <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end flex-wrap">
+                        <div class="grid grid-cols-4 gap-1 flex-1 sm:flex-initial">
+                            <button type="button" onclick="definirCategoriaCompraConsultor('25')" id="btn-faixa-compra-25" class="btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
+                                25% <span class="hidden sm:inline text-[8px] font-normal opacity-75">Distrib.</span>
+                            </button>
+                            <button type="button" onclick="definirCategoriaCompraConsultor('35')" id="btn-faixa-compra-35" class="btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
+                                35% <span class="hidden sm:inline text-[8px] font-normal opacity-75">Sênior</span>
+                            </button>
+                            <button type="button" onclick="definirCategoriaCompraConsultor('42')" id="btn-faixa-compra-42" class="btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20">
+                                42% <span class="hidden sm:inline text-[8px] font-normal opacity-75">Constr.</span>
+                            </button>
+                            <button type="button" onclick="definirCategoriaCompraConsultor('50')" id="btn-faixa-compra-50" class="btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black border-amber-300 shadow-xs">
+                                50% <span class="hidden sm:inline text-[8px] font-black uppercase">Superv.</span>
+                            </button>
+                        </div>
+                        <button type="button" onclick="toggleBannerNivelCompraModal()" title="Ocultar para ter mais espaço livre" class="text-gray-300 hover:text-white px-1.5 py-1 text-xs cursor-pointer rounded-lg hover:bg-white/10 transition flex items-center gap-1">
+                            <i class="fa-solid fa-chevron-up text-[9px]"></i> <span class="text-[10px]">Ocultar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grade de Produtos para Edição (Scrollável com o banner!) -->
+                <div id="container-lista-produtos-catalogo" class="space-y-3">
+                    <!-- Injetado dinamicamente via JS -->
+                </div>
             </div>
         </div>
     </div>
@@ -33601,27 +33594,50 @@ ${escapeHtml(textoFinal)}
                 const btn = document.getElementById('btn-faixa-compra-' + f);
                 if (btn) {
                     if (f === String(nivel)) {
-                        btn.className = "btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black border-amber-300 shadow-md scale-105";
+                        btn.className = "btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black border-amber-300 shadow-xs scale-105";
                     } else {
-                        btn.className = "btn-faixa-compra px-3 py-2 rounded-xl text-xs font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20";
+                        btn.className = "btn-faixa-compra px-2 py-1 rounded-lg text-[10px] font-black transition border text-center cursor-pointer bg-white/10 hover:bg-white/20 text-white border-white/20";
                     }
                 }
             });
 
             const badge = document.getElementById('badge-nivel-compra-ativo');
+            const badgeTopo = document.getElementById('badge-nivel-compra-topo');
+            const nomes = { '25': '25% Distribuidor', '35': '35% Sênior', '42': '42% Construtor', '50': '50% Supervisor' };
+            const textoFormatado = nomes[String(nivel)] || (nivel + '% Ativo');
+
             if (badge) {
-                const nomes = { '25': '25% Distribuidor Ativo', '35': '35% Consultor Sênior Ativo', '42': '42% Construtor Ativo', '50': '50% Supervisor Ativo' };
-                badge.innerText = nomes[String(nivel)] || (nivel + '% Ativo');
+                badge.innerText = textoFormatado + ' Ativo';
+            }
+            if (badgeTopo) {
+                badgeTopo.innerText = textoFormatado;
             }
 
             // Sincroniza seletor do módulo financeiro
             const selectFin = document.getElementById('fin-select-desconto-nivel');
             if (selectFin) {
-                const descDecimal = nivel === '25' ? '0.25' : (nivel === '35' ? '0.35' : (nivel === '42' ? '0.42' : '0.50'));
-                selectFin.value = descDecimal;
+                const dec = (parseInt(nivel) || 50) / 100;
+                selectFin.value = dec.toFixed(2);
             }
         }
         window.atualizarBotoesCategoriaCompra = atualizarBotoesCategoriaCompra;
+
+        function toggleBannerNivelCompraModal() {
+            const banner = document.getElementById('banner-nivel-compra-modal');
+            const chevron = document.getElementById('icone-chevron-nivel-compra');
+            if (!banner) return;
+            const estaOculto = banner.classList.contains('hidden');
+            if (estaOculto) {
+                banner.classList.remove('hidden');
+                if (chevron) { chevron.className = 'fa-solid fa-chevron-up text-[9px]'; }
+                try { localStorage.setItem('litrao_banner_nivel_compra_visivel', '1'); } catch(e){}
+            } else {
+                banner.classList.add('hidden');
+                if (chevron) { chevron.className = 'fa-solid fa-chevron-down text-[9px]'; }
+                try { localStorage.setItem('litrao_banner_nivel_compra_visivel', '0'); } catch(e){}
+            }
+        }
+        window.toggleBannerNivelCompraModal = toggleBannerNivelCompraModal;
 
         async function definirCategoriaCompraConsultor(nivel) {
             if (!['25', '35', '42', '50'].includes(String(nivel))) return;
@@ -33711,6 +33727,18 @@ ${escapeHtml(textoFinal)}
             atualizarBotoesCategoriaCompra();
             renderizarListaProdutosCatalogoPainel();
             document.getElementById('modal-gerenciar-produtos-catalogo').classList.remove('hidden');
+            try {
+                const salvo = localStorage.getItem('litrao_banner_nivel_compra_visivel');
+                const banner = document.getElementById('banner-nivel-compra-modal');
+                const chevron = document.getElementById('icone-chevron-nivel-compra');
+                if (salvo === '0') {
+                    if (banner) banner.classList.add('hidden');
+                    if (chevron) chevron.className = 'fa-solid fa-chevron-down text-[9px]';
+                } else {
+                    if (banner) banner.classList.remove('hidden');
+                    if (chevron) chevron.className = 'fa-solid fa-chevron-up text-[9px]';
+                }
+            } catch(e){}
         }
         window.abrirModalGerenciarProdutosCatalogo = abrirModalGerenciarProdutosCatalogo;
 
