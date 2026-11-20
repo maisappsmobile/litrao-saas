@@ -9204,6 +9204,9 @@
                 </div>
                 <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 text-xs flex-shrink-0">
                     <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('TODOS')" id="btn-cat-filtro-TODOS" class="px-2.5 py-1 rounded-xl font-black text-xs transition bg-emerald-700 text-white shadow-2xs">Todos</button>
+                    <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('mais-vendidos')" id="btn-cat-filtro-mais-vendidos" class="px-2.5 py-1 rounded-xl font-black text-xs transition bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-2xs">
+                        🔥 Mais Vendidos <span id="badge-contador-mais-vendidos-filtro" class="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">0/7</span>
+                    </button>
                     <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('litrao')" id="btn-cat-filtro-litrao" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Litrão</button>
                     <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('shakes')" id="btn-cat-filtro-shakes" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Shakes</button>
                     <button type="button" onclick="filtrarCategoriaProdutosCatalogoPainel('chas')" id="btn-cat-filtro-chas" class="px-2.5 py-1 rounded-xl font-bold text-xs transition bg-gray-100 text-gray-700 hover:bg-gray-200">Chás & NRG</button>
@@ -33799,6 +33802,89 @@ ${escapeHtml(textoFinal)}
 
 
 
+        const MAIS_VENDIDOS_PADRAO = ['reset-1l', 'reset-kit5', 'reset-kit10', 'shake-f1', 'protein-complete-choc', 'cha-herbal-102g', 'nrg-100g'];
+
+        function obterMaisVendidosIdsPainel() {
+            if (consultorAtual && consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--CATALOGO_CUSTOM:')) {
+                try {
+                    const m = consultorAtual.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        const parsed = JSON.parse(m[1]);
+                        if (parsed.maisVendidos && Array.isArray(parsed.maisVendidos) && parsed.maisVendidos.length > 0) {
+                            return parsed.maisVendidos;
+                        }
+                    }
+                } catch(e) {}
+            }
+            try {
+                if (consultorAtual && consultorAtual.herbalife_id) {
+                    const local = localStorage.getItem('catalogo_mais_vendidos_' + consultorAtual.herbalife_id);
+                    if (local) {
+                        const parsedLocal = JSON.parse(local);
+                        if (Array.isArray(parsedLocal) && parsedLocal.length > 0) return parsedLocal;
+                    }
+                }
+            } catch(e) {}
+            return [...MAIS_VENDIDOS_PADRAO];
+        }
+
+        async function alternarMaisVendidoProduto(prodId) {
+            let lista = [...obterMaisVendidosIdsPainel()];
+            const idx = lista.indexOf(prodId);
+            if (idx !== -1) {
+                lista.splice(idx, 1);
+            } else {
+                if (lista.length >= 7) {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Limite Máximo Atingido!',
+                            text: 'Você já selecionou o limite máximo de 7 produtos Mais Vendidos. Desmarque um produto antes para adicionar este!',
+                            confirmButtonColor: '#059669'
+                        });
+                    } else {
+                        alert('Limite Máximo Atingido! Você já selecionou o limite de 7 produtos Mais Vendidos. Desmarque um antes para adicionar este.');
+                    }
+                    return;
+                }
+                lista.push(prodId);
+            }
+
+            // Salva no Supabase (<!--CATALOGO_CUSTOM:...-->)
+            let rawNome = consultorAtual.nome_espaco || '';
+            let custom = {};
+            if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                const m = rawNome.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                if (m && m[1]) {
+                    try { custom = JSON.parse(m[1]); } catch (e) {}
+                }
+            }
+            custom.maisVendidos = lista;
+            const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+            if (rawNome.includes('<!--CATALOGO_CUSTOM:')) {
+                rawNome = rawNome.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova);
+            } else {
+                rawNome += ' ' + tagNova;
+            }
+            consultorAtual.nome_espaco = rawNome;
+
+            try {
+                if (supabaseClient && consultorAtual && consultorAtual.id) {
+                    await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
+                }
+            } catch (e) {
+                console.warn("Erro ao salvar mais vendidos no Supabase:", e);
+            }
+
+            try {
+                if (consultorAtual && consultorAtual.herbalife_id) {
+                    localStorage.setItem('catalogo_mais_vendidos_' + consultorAtual.herbalife_id, JSON.stringify(lista));
+                }
+            } catch(e) {}
+
+            renderizarListaProdutosCatalogoPainel();
+        }
+
         let filtroCategoriaCatalogoPainelAtiva = 'TODOS';
         let termoBuscaCatalogoPainelAtivo = '';
 
@@ -34017,7 +34103,7 @@ ${escapeHtml(textoFinal)}
 
         function filtrarCategoriaProdutosCatalogoPainel(cat) {
             filtroCategoriaCatalogoPainelAtiva = cat;
-            const botoes = ['TODOS', 'litrao', 'shakes', 'chas', 'fibras', 'sports', 'vitaminas', 'skin', 'acessorios'];
+            const botoes = ['TODOS', 'mais-vendidos', 'litrao', 'shakes', 'chas', 'fibras', 'sports', 'vitaminas', 'skin', 'acessorios'];
             botoes.forEach(b => {
                 const el = document.getElementById('btn-cat-filtro-' + b);
                 if (!el) return;
@@ -34076,7 +34162,10 @@ ${escapeHtml(textoFinal)}
             const nivelAtivo = obterNivelCompraConsultor();
             let lista = obterTodosProdutosCatalogoParaPainel();
 
-            if (filtroCategoriaCatalogoPainelAtiva !== 'TODOS') {
+            if (filtroCategoriaCatalogoPainelAtiva === 'mais-vendidos') {
+                const topIds = obterMaisVendidosIdsPainel();
+                lista = lista.filter(p => topIds.includes(p.id));
+            } else if (filtroCategoriaCatalogoPainelAtiva !== 'TODOS') {
                 lista = lista.filter(p => p.categoriaKey === filtroCategoriaCatalogoPainelAtiva);
             }
 
@@ -34109,8 +34198,15 @@ ${escapeHtml(textoFinal)}
                 return;
             }
 
+            const topIdsAtivos = obterMaisVendidosIdsPainel();
+            const elContadorFiltro = document.getElementById('badge-contador-mais-vendidos-filtro');
+            if (elContadorFiltro) {
+                elContadorFiltro.textContent = `${topIdsAtivos.length}/7`;
+            }
+
             container.innerHTML = '';
             lista.forEach(prod => {
+                const isMaisVendido = topIdsAtivos.includes(prod.id);
                 const cItem = custom[prod.id] || {};
                 const isCriado = !!prod.isCriado || !!cItem.isCriado;
                 const nomeAtual = (cItem.nome && cItem.nome.trim()) ? cItem.nome.trim() : prod.nome;
@@ -34148,6 +34244,7 @@ ${escapeHtml(textoFinal)}
                                 <span class="text-[10px] text-gray-400 font-mono">${prod.sku}</span>
                                 ${qtdVariacoes > 0 ? `<span class="bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold px-1.5 py-0.2 rounded"><i class="fa-solid fa-sliders text-[9px]"></i> ${qtdVariacoes} opções / sabores</span>` : ''}
                                 ${isCriado ? `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-1.5 py-0.2 rounded">✨ Criado por Você</span>` : (temAlgumaCustomizacao ? `<span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-1.5 py-0.2 rounded">Personalizado</span>` : '')}
+                                ${isMaisVendido ? `<span class="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-2 py-0.2 rounded-full flex items-center gap-1 shadow-2xs animate-pulse"><i class="fa-solid fa-fire text-yellow-200"></i> Mais Vendido</span>` : ''}
                             </div>
                             <h4 class="font-black text-sm text-gray-900 truncate flex items-center gap-1.5">
                                 <span>${nomeAtual}</span>
@@ -34186,6 +34283,10 @@ ${escapeHtml(textoFinal)}
                     </div>
 
                     <div class="flex items-center gap-2 flex-shrink-0 self-end md:self-center">
+                        <button type="button" onclick="alternarMaisVendidoProduto('${prod.id}')" class="px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer border ${isMaisVendido ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-sm' : 'bg-gray-50 hover:bg-amber-50 text-gray-700 hover:text-amber-800 border-gray-200'}" title="${isMaisVendido ? 'Clique para desmarcar dos Mais Vendidos' : 'Clique para marcar como Mais Vendido (máx 7)'}">
+                            <i class="fa-solid fa-fire ${isMaisVendido ? 'text-yellow-200 animate-pulse' : 'text-gray-400'}"></i>
+                            <span>${isMaisVendido ? '⭐ Mais Vendido' : '+ Marcar Top'}</span>
+                        </button>
                         <button type="button" onclick="abrirEditorItemCatalogo('${prod.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
                             <i class="fa-solid fa-pen-to-square"></i> Editar Nome / Variações / Preço
                         </button>
