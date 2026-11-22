@@ -1,5 +1,5 @@
 // Service Worker - Litrão do Reset & Plataforma Herbalife (PWA)
-const CACHE_NAME = 'litrao-reset-v52';
+const CACHE_NAME = 'litrao-reset-v53';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -8,6 +8,10 @@ const ASSETS_TO_CACHE = [
   '/catalogo.html',
   '/teleprompter.html',
   '/avaliacao.html',
+  '/quiz.html',
+  '/placa.html',
+  '/leads.html',
+  '/img_produtos/kit-reset-5dias.jpg',
   '/favicon.ico',
   '/favicon.png',
   '/favicon-16x16.png',

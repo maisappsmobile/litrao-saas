@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM de Leads & Funil de Resultados • Litrão do Reset</title>
+    <link rel="icon" type="image/png" href="/reset-icon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen font-sans">
+
+    <!-- Topo / Cabeçalho -->
+    <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-50 backdrop-blur-md px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="painel.html" class="p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white transition text-xs font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Painel
+                </a>
+                <div class="flex items-center gap-2">
+                    <img src="/reset-logo.png" alt="Logo" class="w-8 h-8 object-contain">
+                    <div>
+                        <h1 class="text-sm md:text-base font-black text-white leading-tight">CRM de Leads & Funil de Vendas</h1>
+                        <p class="text-[10px] text-emerald-400 font-bold">Quiz de Desinchaço & Balcão A4</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="carregarMetricasLeads()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrows-rotate text-[11px]"></i> Atualizar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- Barra de Links Rápidos do Consultor -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-link"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-xs font-black text-white">Seu Link do Quiz para a Bio do Instagram:</p>
+                    <p id="lbl-link-quiz" class="text-xs text-emerald-400 font-mono truncate select-all">https://litraodoreset.com.br/quiz.html</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <button onclick="copiarLinkQuiz()" class="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-copy"></i> Copiar Link
+                </button>
+                <a id="btn-testar-quiz" href="quiz.html" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-gray-200 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Testar
+                </a>
+                <a id="btn-ir-placa" href="placa.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-print"></i> Placa Balcão
+                </a>
+            </div>
+        </div>
+
+        <!-- FUNIL DE CONVERSÃO EM 3 PASSOS -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-filter text-emerald-400"></i> Funil de Conversão em Tempo Real
+                </h2>
+                <span class="text-[11px] text-gray-400">Atualizado automaticamente</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Passo 1: Abriram -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-md">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-blue-500/30">
+                            1. Visualizações
+                        </span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-black text-white" id="stat-abriram">0</h3>
+                        <p class="text-xs font-bold text-slate-300 mt-1">Abriram o Link</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Acessaram o teste na bio ou no balcão</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">Topo do Funil</span>
+                        <span class="text-blue-400 font-black">100%</span>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Responderam -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-md">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-amber-500/30">
+                            2. Engajamento
+                        </span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-black text-white" id="stat-responderam">0</h3>
+                        <p class="text-xs font-bold text-slate-300 mt-1">Responderam o Teste</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Preencheram os sintomas e viram o diagnóstico</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">Taxa de Conclusão</span>
+                        <span class="text-amber-400 font-black" id="taxa-responderam">0%</span>
+                    </div>
+                </div>
+
+                <!-- Passo 3: Clicaram - Leads Quentes -->
+                <div class="bg-slate-800/90 border-2 border-emerald-500/60 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-md">
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/20 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1">
+                            <i class="fa-solid fa-fire text-amber-400"></i> 3. Leads Quentes
+                        </span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-black text-emerald-400" id="stat-clicaram">0</h3>
+                        <p class="text-xs font-bold text-slate-200 mt-1">Clicaram no WhatsApp</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Leads com intenção alta de comprar o Kit 5 Dias</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">Conversão Final</span>
+                        <span class="text-emerald-400 font-black" id="taxa-clicaram">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE LEADS CAPTURADOS -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-address-book text-emerald-400"></i> Leads Capturados no Quiz
+                    </h2>
+                    <p class="text-xs text-gray-400">Pessoas que iniciaram contato pelo seu diagnóstico</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="badge-total-leads" class="text-xs font-black bg-slate-700 text-gray-300 px-3 py-1 rounded-full">
+                        0 leads registrados
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tabela / Lista de Leads -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-gray-400 uppercase tracking-wider text-[10px]">
+                            <th class="py-3 px-3">Lead</th>
+                            <th class="py-3 px-3">Foco & Sintomas</th>
+                            <th class="py-3 px-3">Data / Hora</th>
+                            <th class="py-3 px-3">Status</th>
+                            <th class="py-3 px-3 text-right">Ação Rápida</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-leads-tbody" class="divide-y divide-slate-700/60">
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-500">
+                                <i class="fa-solid fa-user-slash text-2xl mb-2 block"></i>
+                                Nenhum lead capturado ainda. Divulgue o seu link na bio do Instagram ou coloque a placa de balcão na sua academia parceira!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const SUPABASE_ANON = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+        let consultorSlug = 'oficial';
+        let consultorId = null;
+
+        function copiarLinkQuiz() {
+            const url = `https://litraodoreset.com.br/quiz.html?c=${consultorSlug}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("✅ Link do Quiz copiado com sucesso! Cole na Bio do seu Instagram ou envie no WhatsApp.");
+            }).catch(() => {
+                prompt("Copie seu link do Quiz:", url);
+            });
+        }
+
+        async function carregarMetricasLeads() {
+            let consultorDados = null;
+            try {
+                const salvo = localStorage.getItem('consultor_logado');
+                if (salvo) consultorDados = JSON.parse(salvo);
+            } catch(e) {}
+
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('c') || params.get('slug');
+            const hid = params.get('id') || params.get('herbalife_id');
+
+            if (slug) consultorSlug = slug;
+            else if (consultorDados && consultorDados.slug) consultorSlug = consultorDados.slug;
+            else if (consultorDados && consultorDados.herbalife_id) consultorSlug = consultorDados.herbalife_id;
+
+            if (consultorDados && consultorDados.id) consultorId = consultorDados.id;
+
+            const urlQuiz = `https://litraodoreset.com.br/quiz.html?c=${consultorSlug}`;
+            document.getElementById('lbl-link-quiz').textContent = urlQuiz;
+            document.getElementById('btn-testar-quiz').href = urlQuiz;
+            document.getElementById('btn-ir-placa').href = `placa.html?c=${consultorSlug}`;
+
+            let metricas = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
+
+            // Tenta carregar do localStorage
+            try {
+                const salvo = localStorage.getItem('metricas_quiz_' + consultorSlug);
+                if (salvo) metricas = JSON.parse(salvo);
+            } catch(e) {}
+
+            // Tenta carregar do Supabase se tiver ID
+            if (supabaseClient && (consultorId || slug || hid)) {
+                try {
+                    let q = supabaseClient.from('consultores').select('id, nome_espaco');
+                    if (consultorId) q = q.eq('id', consultorId);
+                    else if (slug) q = q.eq('slug', slug);
+                    else if (hid) q = q.eq('herbalife_id', hid);
+
+                    const { data } = await q.single();
+                    if (data && data.nome_espaco) {
+                        const m = data.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                        if (m && m[1]) {
+                            const custom = JSON.parse(m[1]);
+                            if (custom.metricasQuiz) {
+                                metricas.abriram = Math.max(metricas.abriram || 0, custom.metricasQuiz.abriram || 0);
+                                metricas.responderam = Math.max(metricas.responderam || 0, custom.metricasQuiz.responderam || 0);
+                                metricas.clicaram = Math.max(metricas.clicaram || 0, custom.metricasQuiz.clicaram || 0);
+                                if (custom.metricasQuiz.ultimosLeads && custom.metricasQuiz.ultimosLeads.length > 0) {
+                                    metricas.leads = custom.metricasQuiz.ultimosLeads;
+                                }
+                            }
+                        }
+                    }
+                } catch(err) {
+                    console.warn("Aviso ao buscar métricas remotas:", err);
+                }
+            }
+
+            renderizarMetricas(metricas);
+        }
+
+        function renderizarMetricas(metricas) {
+            const abriram = metricas.abriram || 0;
+            const responderam = metricas.responderam || 0;
+            const clicaram = metricas.clicaram || 0;
+
+            document.getElementById('stat-abriram').textContent = abriram;
+            document.getElementById('stat-responderam').textContent = responderam;
+            document.getElementById('stat-clicaram').textContent = clicaram;
+
+            const taxaResp = abriram > 0 ? Math.round((responderam / abriram) * 100) : 0;
+            const taxaClic = responderam > 0 ? Math.round((clicaram / responderam) * 100) : 0;
+
+            document.getElementById('taxa-responderam').textContent = taxaResp + '%';
+            document.getElementById('taxa-clicaram').textContent = taxaClic + '%';
+
+            const leads = metricas.leads || [];
+            document.getElementById('badge-total-leads').textContent = `${leads.length} leads registrados`;
+
+            const tbody = document.getElementById('lista-leads-tbody');
+            if (leads.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-500">
+                            <i class="fa-solid fa-user-slash text-2xl mb-2 block"></i>
+                            Nenhum lead capturado ainda. Divulgue o seu link na bio do Instagram ou coloque a placa de balcão na sua academia parceira!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = leads.map(l => {
+                const dataFormatada = l.data ? new Date(l.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Hoje';
+                const isQuente = l.status && l.status.includes('Quente');
+                const badgeStatus = isQuente 
+                    ? `<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-fire text-amber-400"></i> Lead Quente</span>`
+                    : `<span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-amber-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-circle-check text-amber-400"></i> Respondeu</span>`;
+
+                const telLimpo = (l.whatsapp || '').replace(/\D/g, '');
+                const zapBtn = telLimpo ? `
+                    <a href="https://wa.me/55${telLimpo}?text=${encodeURIComponent('Olá ' + l.nome + '! Tudo bem? Vi que você fez o Teste de Desinchaço em 1 Minuto no Litrão do Reset. Como posso te ajudar a começar seu protocolo?')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1 w-max ml-auto">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Chamar Lead
+                    </a>
+                ` : `<span class="text-gray-500 text-[11px]">Sem tel</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-700/30 transition">
+                        <td class="py-3 px-3">
+                            <p class="font-bold text-white text-xs">${l.nome || 'Lead Sem Nome'}</p>
+                            <p class="text-[11px] text-gray-400">${l.whatsapp || 'WhatsApp não informado'}</p>
+                        </td>
+                        <td class="py-3 px-3">
+                            <p class="text-slate-200 font-semibold text-[11px]">${l.objetivo || '-'}</p>
+                            <p class="text-gray-400 text-[10px]">${l.sintomas || '-'}</p>
+                        </td>
+                        <td class="py-3 px-3 text-gray-400 text-[11px] whitespace-nowrap">
+                            ${dataFormatada}
+                        </td>
+                        <td class="py-3 px-3">
+                            ${badgeStatus}
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            ${zapBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', carregarMetricasLeads);
+    </script>
+</body>
+</html>

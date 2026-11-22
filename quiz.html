@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz de Desinchaço em 1 Minuto • Litrão do Reset</title>
+    <meta name="description" content="Descubra seu nível de retenção de líquidos e o protocolo ideal do Litrão do Reset para secar até 3kg em 5 dias.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/reset-icon.png">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes pulseSlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .anim-pulse-slow {
+            animation: pulseSlow 2.5s infinite ease-in-out;
+        }
+        .gradient-brand {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen flex flex-col justify-between font-sans selection:bg-emerald-500 selection:text-white">
+
+    <!-- Supabase Config -->
+    <script>
+        const SUPABASE_URL = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
+        const SUPABASE_ANON = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+    </script>
+
+    <!-- Topo / Cabeçalho do Consultor -->
+    <header class="w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 py-3 px-4">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img id="consultor-foto" src="/reset-logo.png" alt="Logo" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-500 shadow-sm bg-white p-0.5">
+                <div>
+                    <h2 id="consultor-nome" class="text-xs font-black text-white leading-tight">Litrão do Reset Oficial</h2>
+                    <p id="consultor-sub" class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check text-[9px]"></i> Consultor Credenciado
+                    </p>
+                </div>
+            </div>
+            <div class="bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-1 rounded-full text-[10px] font-black text-emerald-300 flex items-center gap-1">
+                <i class="fa-solid fa-stopwatch text-emerald-400"></i> 1 Minuto
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Progresso Superior -->
+    <div class="w-full bg-slate-800 h-1.5 sticky top-[57px] z-40">
+        <div id="progresso-barra" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 transition-all duration-300 w-1/4"></div>
+    </div>
+
+    <!-- Conteúdo Central / Quiz -->
+    <main class="max-w-md w-full mx-auto px-4 py-6 flex-1 flex flex-col justify-center">
+
+        <!-- ETAPA 1: Boas-vindas e Objetivo -->
+        <div id="etapa-1" class="quiz-etapa space-y-5">
+            <div class="text-center space-y-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-fire text-amber-400"></i> Teste Rápido de Retenção
+                </span>
+                <h1 class="text-2xl font-black text-white leading-tight">
+                    Descubra quanto você pode <span class="text-emerald-400">desinchar</span> em apenas 5 dias!
+                </h1>
+                <p class="text-xs text-gray-400">
+                    Responda 3 perguntas rápidas para calcular seu nível de retenção hídrica e receber seu diagnóstico personalizado.
+                </p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <p class="text-xs font-black uppercase text-gray-300 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-emerald-500 text-slate-900 font-black flex items-center justify-center text-[10px]">1</span>
+                    Qual é o seu foco principal hoje?
+                </p>
+
+                <button type="button" onclick="selecionarOpcao(1, 'objetivo', 'Desinchar a barriga e medidas rápidas')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🔥</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Desinchar a barriga urgente</p>
+                            <p class="text-[11px] text-gray-400">Eliminar retenção de líquidos e estômago alto</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+
+                <button type="button" onclick="selecionarOpcao(1, 'objetivo', 'Secar até 3kg nesta semana com detox')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">⚡</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Secar até 3kg nesta semana</p>
+                            <p class="text-[11px] text-gray-400">Reset metabólico completo após exagero ou estagnação</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+
+                <button type="button" onclick="selecionarOpcao(1, 'objetivo', 'Mais energia, foco e fim do inchaço diário')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🥤</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Mais energia e disposição</p>
+                            <p class="text-[11px] text-gray-400">Combater cansaço, fadiga e retenção nas pernas</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ETAPA 2: Sintomas e Retenção -->
+        <div id="etapa-2" class="quiz-etapa hidden space-y-5">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Passo 2 de 3</span>
+                <h2 class="text-xl font-black text-white">Como você sente seu corpo no dia a dia?</h2>
+            </div>
+
+            <div class="space-y-3">
+                <button type="button" onclick="selecionarOpcao(2, 'sintomas', 'Acordo leve mas incho muito até a noite')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">⏳</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Inchaço progressivo</p>
+                            <p class="text-[11px] text-gray-400">Acordo desinchada mas termino o dia com roupa apertando</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+
+                <button type="button" onclick="selecionarOpcao(2, 'sintomas', 'Retenção constante, pernas pesadas e digestão lenta')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">💧</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Retenção constante e peso</p>
+                            <p class="text-[11px] text-gray-400">Sensação de inchaço contínuo e intestino travado</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+
+                <button type="button" onclick="selecionarOpcao(2, 'sintomas', 'Exagerei no fim de semana ou festa e preciso limpar o corpo')" class="w-full p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 text-left transition flex items-center justify-between group cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🥂</span>
+                        <div>
+                            <p class="font-bold text-sm text-white group-hover:text-emerald-400">Exagero pontual</p>
+                            <p class="text-[11px] text-gray-400">Comi ou bebi a mais e preciso de um protocolo de resgate</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-500 group-hover:text-emerald-400 text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ETAPA 3: Hábitos & Identificação -->
+        <div id="etapa-3" class="quiz-etapa hidden space-y-5">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Último Passo</span>
+                <h2 class="text-xl font-black text-white">Quase lá! Onde devemos enviar seu resultado?</h2>
+                <p class="text-xs text-gray-400">Para liberar seu diagnóstico e o protocolo termogênico recomendado:</p>
+            </div>
+
+            <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user text-emerald-400"></i> Seu Primeiro Nome:
+                    </label>
+                    <input type="text" id="lead-nome" placeholder="Ex: Camila" class="w-full p-3.5 bg-slate-900 border border-slate-600 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1.5 flex items-center gap-1.5">
+                        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Seu WhatsApp com DDD:
+                    </label>
+                    <input type="tel" id="lead-whatsapp" placeholder="(00) 90000-0000" class="w-full p-3.5 bg-slate-900 border border-slate-600 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                </div>
+
+                <button type="button" onclick="calcularResultadoDiagnostico()" class="w-full py-4 gradient-brand hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-900/50 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Ver Meu Diagnóstico Gratuito
+                </button>
+            </div>
+        </div>
+
+        <!-- ETAPA 4: Tela de Carregamento / Análise com IA -->
+        <div id="etapa-loading" class="quiz-etapa hidden text-center py-12 space-y-4">
+            <div class="relative w-20 h-20 mx-auto">
+                <div class="w-20 h-20 border-4 border-slate-800 border-t-emerald-400 rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-xl">🥤</div>
+            </div>
+            <h3 class="text-lg font-black text-white">Analisando respostas metabólicas...</h3>
+            <p id="loading-texto" class="text-xs text-gray-400 animate-pulse">Calculando índice de retenção hídrica...</p>
+        </div>
+
+        <!-- ETAPA 5: RESULTADO DO DIAGNÓSTICO -->
+        <div id="etapa-resultado" class="quiz-etapa hidden space-y-5">
+            <div class="text-center space-y-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase">
+                    <i class="fa-solid fa-circle-check"></i> Diagnóstico Concluído
+                </span>
+                <h2 class="text-2xl font-black text-white">
+                    Olá, <span id="res-nome" class="text-emerald-400">Cliente</span>!
+                </h2>
+                <p class="text-xs text-gray-300">
+                    Com base no seu perfil, seu corpo está acumulando líquidos e toxinas que inflamam o tecido adiposo.
+                </p>
+            </div>
+
+            <!-- Card de Diagnóstico Metabólico -->
+            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border border-emerald-500/40 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-gray-400">Nível de Retenção Hídrica</span>
+                        <h4 class="text-lg font-black text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> ALTO (78% a 85%)
+                        </h4>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-black uppercase text-gray-400">Potencial em 5 Dias</span>
+                        <p class="text-sm font-black text-emerald-400">-1kg a -3kg</p>
+                    </div>
+                </div>
+
+                <!-- Barra Visual -->
+                <div class="space-y-1">
+                    <div class="flex justify-between text-[10px] text-gray-400 font-bold">
+                        <span>Retenção Normal</span>
+                        <span class="text-amber-400">Retenção Severa Identificada</span>
+                    </div>
+                    <div class="w-full bg-slate-700 h-3 rounded-full overflow-hidden p-0.5 border border-slate-600">
+                        <div class="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 h-full rounded-full w-[82%]"></div>
+                    </div>
+                </div>
+
+                <!-- Protocolo Recomendado -->
+                <div class="bg-emerald-950/60 border border-emerald-500/30 p-3.5 rounded-2xl flex items-center gap-3">
+                    <img src="/img_produtos/kit-reset-5dias.jpg" alt="Kit 5 Dias" class="w-16 h-16 rounded-xl object-contain bg-white p-1 shadow-sm flex-shrink-0" onerror="this.onerror=null; this.src='/reset-logo.png'">
+                    <div>
+                        <span class="bg-emerald-500 text-slate-900 text-[9px] font-black uppercase px-2 py-0.5 rounded-md">Protocolo Recomendado</span>
+                        <h5 class="text-xs font-black text-white mt-0.5">Kit Semanal Litrão do Reset (5 Dias)</h5>
+                        <p class="text-[10px] text-gray-300 line-clamp-2">5 garrafas termogênicas de 500ml para queima calórica e desinchaço imediato.</p>
+                    </div>
+                </div>
+
+                <!-- Botão CTA WhatsApp Principal -->
+                <a id="btn-cta-whatsapp" href="#" target="_blank" onclick="registrarCliqueLead()" class="anim-pulse-slow w-full py-4 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500 hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl shadow-emerald-900/60 flex items-center justify-center gap-2.5 transition">
+                    <i class="fa-brands fa-whatsapp text-2xl text-emerald-100"></i>
+                    <span>Receber Meu Protocolo no WhatsApp</span>
+                </a>
+                <p class="text-[10px] text-center text-gray-400 flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-lock text-emerald-400"></i> Atendimento com seu Consultor Oficial
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="w-full py-4 text-center border-t border-slate-800 text-[10px] text-gray-500">
+        <p>© 2026 Litrão do Reset • Plataforma Oficial de Bem-Estar</p>
+    </footer>
+
+    <!-- Lógica do Quiz e Sincronização de Métricas -->
+    <script>
+        // Dados do Consultor e Respostas
+        let consultorAtual = {
+            id: null,
+            nome: 'Litrão do Reset Oficial',
+            whatsapp: '5566981411234',
+            foto: '/reset-logo.png',
+            slug: 'oficial'
+        };
+
+        let respostasQuiz = {
+            objetivo: '',
+            sintomas: '',
+            nome: '',
+            whatsapp: '',
+            data: new Date().toISOString()
+        };
+
+        // Identifica o consultor por URL (?c=slug ou ?id=herbalife_id)
+        async function carregarConsultor() {
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('c') || params.get('slug');
+            const hid = params.get('id') || params.get('herbalife_id');
+
+            if (supabaseClient && (slug || hid)) {
+                try {
+                    let query = supabaseClient.from('consultores').select('*');
+                    if (slug) query = query.eq('slug', slug);
+                    else if (hid) query = query.eq('herbalife_id', hid);
+
+                    const { data, error } = await query.single();
+                    if (data && !error) {
+                        consultorAtual.id = data.id;
+                        consultorAtual.nome = data.nome_espaco ? data.nome_espaco.split('•')[0].trim() : data.nome;
+                        consultorAtual.whatsapp = data.whatsapp ? data.whatsapp.replace(/\D/g, '') : consultorAtual.whatsapp;
+                        consultorAtual.slug = data.slug || slug;
+
+                        // Atualiza elementos visuais do cabeçalho
+                        document.getElementById('consultor-nome').textContent = consultorAtual.nome;
+                        
+                        // Extrai foto se houver custom
+                        if (data.nome_espaco && data.nome_espaco.includes('<!--CATALOGO_CUSTOM:')) {
+                            try {
+                                const m = data.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                                if (m && m[1]) {
+                                    const parsed = JSON.parse(m[1]);
+                                    if (parsed.foto) {
+                                        consultorAtual.foto = parsed.foto;
+                                        document.getElementById('consultor-foto').src = parsed.foto;
+                                    }
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                } catch(err) {
+                    console.warn("Erro ao buscar consultor:", err);
+                }
+            }
+
+            // Registra a métrica de ABERTURA (Funil: Abriram)
+            registrarMetricaFunil('abriram');
+        }
+
+        // Navegação das opções
+        function selecionarOpcao(etapa, chave, valor) {
+            respostasQuiz[chave] = valor;
+            const barra = document.getElementById('progresso-barra');
+
+            if (etapa === 1) {
+                document.getElementById('etapa-1').classList.add('hidden');
+                document.getElementById('etapa-2').classList.remove('hidden');
+                barra.style.width = '60%';
+            } else if (etapa === 2) {
+                document.getElementById('etapa-2').classList.add('hidden');
+                document.getElementById('etapa-3').classList.remove('hidden');
+                barra.style.width = '85%';
+            }
+        }
+
+        // Finaliza o questionário e calcula o resultado
+        function calcularResultadoDiagnostico() {
+            const nomeInput = document.getElementById('lead-nome').value.trim();
+            const telInput = document.getElementById('lead-whatsapp').value.trim();
+
+            if (!nomeInput) {
+                alert("Por favor, digite seu nome para personalizar seu diagnóstico.");
+                document.getElementById('lead-nome').focus();
+                return;
+            }
+
+            respostasQuiz.nome = nomeInput;
+            respostasQuiz.whatsapp = telInput;
+
+            // Mostra tela de loading com IA
+            document.getElementById('etapa-3').classList.add('hidden');
+            document.getElementById('etapa-loading').classList.remove('hidden');
+            document.getElementById('progresso-barra').style.width = '95%';
+
+            setTimeout(() => {
+                document.getElementById('loading-texto').textContent = "Identificando protocolo acelerador...";
+            }, 800);
+
+            setTimeout(() => {
+                document.getElementById('etapa-loading').classList.add('hidden');
+                document.getElementById('etapa-resultado').classList.remove('hidden');
+                document.getElementById('progresso-barra').style.width = '100%';
+
+                document.getElementById('res-nome').textContent = nomeInput;
+
+                // Registra métrica de RESPOSTA (Funil: Responderam)
+                registrarMetricaFunil('responderam', respostasQuiz);
+
+                // Configura link do WhatsApp com mensagem pronta
+                const msgZap = `Olá ${consultorAtual.nome}! Eu sou *${nomeInput}* e acabei de fazer o *Diagnóstico de Desinchaço em 1 Minuto* no seu link! 🥤✨\n\n🎯 *Meu Foco:* ${respostasQuiz.objetivo}\n⏳ *Meu Sintoma:* ${respostasQuiz.sintomas}\n📊 *Diagnóstico:* Retenção Hídrica Severa (78%-85%)\n\nGostaria de conhecer o *Kit Semanal 5 Dias* e saber como começar meu protocolo de desinchaço!`;
+
+                const linkZap = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgZap)}`;
+                document.getElementById('btn-cta-whatsapp').href = linkZap;
+
+            }, 1800);
+        }
+
+        // Registra o CLIQUE no botão do WhatsApp (Funil: Clicaram - Lead Quente)
+        function registrarCliqueLead() {
+            registrarMetricaFunil('clicaram', respostasQuiz);
+        }
+
+        // Sincroniza métricas com Supabase e LocalStorage
+        async function registrarMetricaFunil(tipo, leadData = null) {
+            const consultorKey = consultorAtual.slug || 'oficial';
+            const storageKey = 'metricas_quiz_' + consultorKey;
+            
+            let metricas = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
+            try {
+                const salvo = localStorage.getItem(storageKey);
+                if (salvo) metricas = JSON.parse(salvo);
+            } catch(e) {}
+
+            if (tipo === 'abriram') metricas.abriram = (metricas.abriram || 0) + 1;
+            if (tipo === 'responderam') {
+                metricas.responderam = (metricas.responderam || 0) + 1;
+                if (leadData && leadData.nome) {
+                    metricas.leads = metricas.leads || [];
+                    metricas.leads.unshift({ ...leadData, status: 'Respondeu' });
+                }
+            }
+            if (tipo === 'clicaram') {
+                metricas.clicaram = (metricas.clicaram || 0) + 1;
+                if (metricas.leads && metricas.leads.length > 0) {
+                    metricas.leads[0].status = 'Lead Quente (Clicou Zap)';
+                }
+            }
+
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(metricas));
+            } catch(e) {}
+
+            // Persiste no Supabase se houver consultor identificado
+            if (supabaseClient && consultorAtual.id) {
+                try {
+                    // Pega o registro atual para atualizar a tag <!--METRICAS_LEADS:...-->
+                    const { data } = await supabaseClient.from('consultores').select('nome_espaco').eq('id', consultorAtual.id).single();
+                    if (data && data.nome_espaco) {
+                        let raw = data.nome_espaco;
+                        let custom = {};
+                        const m = raw.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                        if (m && m[1]) {
+                            try { custom = JSON.parse(m[1]); } catch(e) {}
+                        }
+                        custom.metricasQuiz = {
+                            abriram: metricas.abriram,
+                            responderam: metricas.responderam,
+                            clicaram: metricas.clicaram,
+                            ultimosLeads: (metricas.leads || []).slice(0, 50)
+                        };
+
+                        const tagNova = `<!--CATALOGO_CUSTOM:${JSON.stringify(custom)}-->`;
+                        raw = raw.includes('<!--CATALOGO_CUSTOM:') 
+                            ? raw.replace(/<!--CATALOGO_CUSTOM:[\s\S]*?-->/, tagNova) 
+                            : raw + ' ' + tagNova;
+
+                        await supabaseClient.from('consultores').update({ nome_espaco: raw }).eq('id', consultorAtual.id);
+                    }
+                } catch(err) {
+                    console.warn("Aviso ao persistir métricas remotas:", err);
+                }
+            }
+        }
+
+        // Inicializa
+        window.addEventListener('DOMContentLoaded', carregarConsultor);
+    </script>
+</body>
+</html>
