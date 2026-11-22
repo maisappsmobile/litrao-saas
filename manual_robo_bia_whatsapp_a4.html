@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Apoio • Scripts do Robô Atendente Bia WhatsApp</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        .pagina-a4 {
+            width: 210mm;
+            height: 297mm;
+            max-height: 297mm;
+            padding: 10mm 13mm;
+            margin: 0 auto;
+            background: white;
+            position: relative;
+            page-break-after: always;
+            break-after: page;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        @media screen {
+            body {
+                background-color: #0b1120;
+                padding: 20px 10px;
+            }
+            .pagina-a4 {
+                box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0,0,0,0.1);
+                margin-bottom: 25px;
+                border-radius: 8px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .pagina-a4 {
+                box-shadow: none !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-800">
+
+    <!-- BARRA FLUTUANTE DE IMPRESSÃO (NÃO SAI NO PDF) -->
+    <div class="no-print max-w-4xl mx-auto mb-6 bg-slate-800 border border-slate-700 p-4 rounded-2xl flex items-center justify-between text-white shadow-xl">
+        <div class="flex items-center gap-3">
+            <a href="painel.html" class="p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1.5 text-gray-200">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Painel
+            </a>
+            <div>
+                <h1 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-teal-400"></i> Manual de Apoio: Robô Bia no WhatsApp (A4)
+                </h1>
+                <p class="text-[11px] text-gray-400">Fluxos oficiais de fechamento no Cardápio e Triagem/Recrutamento na Home.</p>
+            </div>
+        </div>
+        <button onclick="window.print()" class="bg-gradient-to-r from-teal-500 to-emerald-600 hover:brightness-110 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-print"></i> Imprimir / Salvar em PDF
+        </button>
+    </div>
+
+    <!-- PÁGINA 1: INTRODUÇÃO, DICA TÉCNICA E FLUXO 1 (CLIENTE NO CARDÁPIO) -->
+    <div class="pagina-a4">
+        <div>
+            <!-- Cabeçalho -->
+            <div class="flex items-center justify-between border-b-2 border-teal-600 pb-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <img src="/reset-logo.png" alt="Logo" class="h-10 w-auto object-contain">
+                    <div>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md inline-block">
+                            Material Oficial de Apoio & Automação X1
+                        </span>
+                        <h2 class="text-base font-black text-slate-900 leading-tight mt-0.5">
+                            Roteiro de Atendimento: Robô Bia no WhatsApp
+                        </h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-bold text-slate-500 block">Litrão do Reset</span>
+                    <span class="text-[11px] font-black text-teal-700">Edição Oficial 2026</span>
+                </div>
+            </div>
+
+            <!-- Dica Técnica de Ouro em Destaque -->
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded-r-xl mb-3 text-slate-800 text-[11px] leading-snug">
+                <div class="flex items-center gap-1.5 font-black text-amber-950 uppercase text-[10px] mb-0.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Dica Técnica Obrigatória para o Link do Catálogo:
+                </div>
+                <p>
+                    O link oficial do seu cardápio sempre deve conter o seu ID ou Slug após o sinal de igual (exemplo: <strong class="text-emerald-800 font-mono">https://litraodoreset.com.br/catalogo.html?c=433005811</strong>). Dessa forma, qualquer pedido feito pelo cliente cai vinculado diretamente ao seu painel, com sua chave PIX e para seu WhatsApp!
+                </p>
+            </div>
+
+            <!-- BLOCO FLUXO 1 -->
+            <div class="space-y-2.5">
+                <div class="bg-teal-900 text-white p-2 rounded-xl flex items-center justify-between">
+                    <h3 class="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-teal-300"></i> Fluxo 1: Cliente Direto no Cardápio (.../catalogo.html?c=)
+                    </h3>
+                    <span class="text-[9px] bg-teal-800 text-teal-200 px-2 py-0.5 rounded-md font-bold">Foco: Fechamento Rápido & PIX</span>
+                </div>
+                <p class="text-[10px] text-slate-600 italic">
+                    Quem clica neste link já está focado em escolher e reservar um pacote. O atendimento deve ser rápido e direto para o pagamento.
+                </p>
+
+                <!-- Mensagem 1 Boas-vindas -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                    <span class="text-[10px] font-black uppercase text-teal-800 block mb-1">
+                        📩 Mensagem 1 (Boas-vindas e Direcionamento):
+                    </span>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[10px] text-slate-800 leading-relaxed whitespace-pre-line">
+Olá! Eu sou a Bia, assistente virtual do Litrão do Reset 🥤✨.
+Vi que você acessou o nosso Cardápio Oficial! Para agilizar o seu pedido da semana, escolha uma das opções abaixo digitando o número correspondente:
+1️⃣ Fazer meu pedido pelo Catálogo (Garantir meu kit semanal)
+2️⃣ Tirar dúvidas sobre os pacotes (Reset, Reset + ou Reset Turbo)
+3️⃣ Agendar minha Avaliação de Bioimpedância
+4️⃣ Falar direto com o Consultor
+                    </div>
+                </div>
+
+                <!-- Respostas Automáticas 1 e 2 -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <span class="text-[10px] font-black uppercase text-emerald-800 block mb-1">
+                            ✅ Se digitar 1 (Fazer Pedido):
+                        </span>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[9px] text-slate-800 leading-snug">
+Excelente escolha! 🚀 Acesse o catálogo abaixo, escolha seu pacote, preencha o endereço de entrega ou retirada e finalize sua reserva:<br>
+👉 <strong>https://litraodoreset.com.br/catalogo.html?c=[SEU_ID]</strong><br><br>
+Assim que finalizar no site, me envie o resumo ou o comprovante do PIX aqui para liberarmos o preparo imediatamente!
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <span class="text-[10px] font-black uppercase text-blue-800 block mb-1">
+                            💬 Se digitar 2 (Dúvidas sobre os Pacotes):
+                        </span>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[9px] text-slate-800 leading-snug">
+Nossos kits vêm com 5 garrafas (1 por dia) para transformar sua energia e desinchar:<br>
+🔹 <strong>RESET (500ml):</strong> Desintoxica e elimina a retenção.<br>
+⭐ <strong>RESET + (1L - Popular):</strong> Potencializa a queima, dá saciedade e inclui Bioimpedância.<br>
+🔥 <strong>RESET TURBO (1L):</strong> Concentração máxima metabólica com suporte prioritário.<br><br>
+Qual combina mais com você? Digite 1 para pedir ou 4 para falar comigo!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé da Página 1 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Litrão do Reset • Manual de Atendimento Automatizado WhatsApp</span>
+            <span>Página 1 de 2</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: CONTINUAÇÃO DO FLUXO 1 E FLUXO 2 (TRIAGEM & EQUIPE) -->
+    <div class="pagina-a4">
+        <div>
+            <!-- Cabeçalho Página 2 -->
+            <div class="flex items-center justify-between border-b-2 border-teal-600 pb-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <img src="/reset-logo.png" alt="Logo" class="h-8 w-auto object-contain">
+                    <h2 class="text-sm font-black text-slate-900">
+                        Manual Robô Bia: Continuação do Fluxo 1 & Fluxo 2 (Home)
+                    </h2>
+                </div>
+                <span class="text-[10px] font-bold text-teal-700">Página 2</span>
+            </div>
+
+            <!-- Respostas Automáticas 3 e 4 do Fluxo 1 -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                    <span class="text-[10px] font-black uppercase text-purple-800 block mb-1">
+                        📊 Se digitar 3 (Bioimpedância):
+                    </span>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[9px] text-slate-800 leading-snug">
+A Avaliação de Bioimpedância mostra seu % de gordura, massa muscular, metabolismo basal e idade corporal. Ela já está inclusa nos pacotes Reset + e Reset Turbo!<br><br>
+Digite 4 para falar comigo e agendar seu horário presencial ou online.
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                    <span class="text-[10px] font-black uppercase text-amber-800 block mb-1">
+                        👤 Se digitar 4 (Falar com o Consultor):
+                    </span>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[9px] text-slate-800 leading-snug">
+Perfeito! Já estou transferindo seu atendimento para o nosso consultor especialista. Ele já vai te responder por aqui! ⏳
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCO FLUXO 2: PÁGINA PRINCIPAL / TRIAGEM GERAL -->
+            <div class="space-y-2.5">
+                <div class="bg-indigo-900 text-white p-2 rounded-xl flex items-center justify-between">
+                    <h3 class="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-house-chimney text-indigo-300"></i> Fluxo 2: Página Principal (https://litraodoreset.com.br)
+                    </h3>
+                    <span class="text-[9px] bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded-md font-bold">Triagem: Cliente vs. Novo Consultor</span>
+                </div>
+                <p class="text-[10px] text-slate-600 italic">
+                    A home apresenta tanto os benefícios da bebida quanto a Oportunidade de Negócio. O robô faz a triagem imediata.
+                </p>
+
+                <!-- Mensagem 1 Boas-vindas Fluxo 2 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                    <span class="text-[10px] font-black uppercase text-indigo-800 block mb-1">
+                        📩 Mensagem 1 (Boas-vindas e Triagem Mestre):
+                    </span>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[10px] text-slate-800 leading-relaxed whitespace-pre-line">
+Olá! Seja muito bem-vindo(a) ao projeto Litrão do Reset — Energia Natural em Movimento 🥤⚡.
+Eu sou a Bia, sua assistente virtual. Como posso te ajudar hoje? (Digite o número da opção):
+1️⃣ Quero pedir meu Litrão (Conhecer pacotes e preços)
+2️⃣ Quero revender / Fazer parte da equipe (Oportunidade de Negócio e Renda Extra)
+3️⃣ Já sou Consultor(a) (Suporte e Acesso ao Painel)
+                    </div>
+                </div>
+
+                <!-- Respostas Automáticas do Fluxo 2 -->
+                <div class="grid grid-cols-3 gap-2">
+                    <!-- Opção 1 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <span class="text-[9px] font-black uppercase text-emerald-800 block mb-1">
+                            🥤 1. Pedir Litrão:
+                        </span>
+                        <div class="bg-white p-1.5 rounded-lg border border-slate-200 font-mono text-[8.5px] text-slate-800 leading-snug">
+Que ótima decisão! 💪 O Litrão elimina a retenção logo na 1ª semana e traz disposição constante.<br><br>
+Toque no link para ver os pacotes e reservar:<br>
+👉 <strong>https://litraodoreset.com.br/catalogo.html?c=[SEU_ID]</strong>
+                        </div>
+                    </div>
+
+                    <!-- Opção 2 Recrutamento -->
+                    <div class="bg-emerald-50 border-2 border-emerald-400 rounded-xl p-2">
+                        <span class="text-[9px] font-black uppercase text-emerald-950 block mb-1">
+                            🚀 2. Novo Consultor / Renda:
+                        </span>
+                        <div class="bg-white p-1.5 rounded-lg border border-emerald-300 font-mono text-[8.5px] text-slate-800 leading-snug">
+Incrível ter você interessado(a) em empreender! 🚀<br>
+Para liberar seu acesso à equipe, faça o cadastro de Distribuidor com os dados do patrocinador:<br><br>
+<strong>ID: 433005811</strong><br>
+<strong>3 Letras: BRA</strong><br><br>
+Digite OK se quiser que o líder te chame agora para te guiar passo a passo!
+                        </div>
+                    </div>
+
+                    <!-- Opção 3 Suporte -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <span class="text-[9px] font-black uppercase text-slate-800 block mb-1">
+                            🤝 3. Já é Consultor:
+                        </span>
+                        <div class="bg-white p-1.5 rounded-lg border border-slate-200 font-mono text-[8.5px] text-slate-800 leading-snug">
+Olá, parceiro(a)! Para acessar sua Área do Consultor, entre pelo portal oficial:<br>
+👉 <strong>https://litraodoreset.com.br</strong><br><br>
+(Acesso com ID e 3 letras).<br>
+Escreva sua dúvida abaixo que nosso suporte já vai te atender!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box Como Ativar no WhatsApp Business -->
+            <div class="mt-2.5 bg-slate-900 text-white rounded-xl p-2.5 flex items-center justify-between text-[10px]">
+                <div>
+                    <strong class="text-teal-400 uppercase text-[9px] block">⚡ Como Ativar no seu WhatsApp Business:</strong>
+                    <span>1. Abra Configurações da Empresa > Mensagem de Saudação e cole a Mensagem 1.</span><br>
+                    <span>2. Cadastre Respostas Rápidas com os atalhos <code>/1</code>, <code>/2</code>, <code>/3</code> e <code>/4</code> para responder com 1 toque!</span>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="bg-teal-500/20 text-teal-300 border border-teal-500/30 font-black text-[9px] px-2 py-1 rounded-lg">
+                        100% Validado
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé da Página 2 -->
+        <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[9px] text-slate-400">
+            <span>Litrão do Reset • Plataforma Oficial de Nutrição e Negócios</span>
+            <span>Página 2 de 2</span>
+        </div>
+    </div>
+
+</body>
+</html>
