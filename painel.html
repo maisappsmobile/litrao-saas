@@ -19182,68 +19182,232 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         }
         window.copiarTextoBia = copiarTextoBia;
 
+        
+        function obterDadosCompletosConsultorAtivo() {
+            let id = '433005811';
+            let letras = 'BRA';
+            let nome = 'Edwan Braga';
+            let nomeEspaco = 'FORBOSS Espaço Vida Saudável';
+            let whatsapp = '(66) 98141-1234';
+            let cidade = 'Juína';
+            let estado = 'MT';
+            let chavePix = '';
+            let titularPix = '';
+            let slug = 'oficial';
+
+            // 1. Dados em memória de consultorAtual
+            if (window.consultorAtual) {
+                const c = window.consultorAtual;
+                if (c.herbalife_id) id = String(c.herbalife_id).trim();
+                else if (c.id && !c.id.includes('-')) id = String(c.id).trim();
+
+                if (c.slug) slug = c.slug;
+                else slug = id;
+
+                if (typeof extrairLetrasHerbalife === 'function') {
+                    letras = extrairLetrasHerbalife(c) || 'BRA';
+                } else if (c.letras) {
+                    letras = String(c.letras).trim().toUpperCase();
+                }
+
+                if (c.nome) nome = c.nome;
+                if (c.whatsapp || c.telefone) whatsapp = c.whatsapp || c.telefone;
+                if (c.cidade) cidade = c.cidade;
+                if (c.estado) estado = c.estado;
+                if (c.nome_espaco) {
+                    const limpo = c.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                    const partes = limpo.split('|');
+                    if (partes[0]) nomeEspaco = partes[0].trim();
+                    if (partes[1] && (!cidade || cidade === 'Juína')) cidade = partes[1].trim();
+                }
+            }
+
+            // 2. Complementa com LocalStorage
+            try {
+                const dadosLocais = localStorage.getItem('litrao_consultor_dados') || localStorage.getItem('consultor_logado');
+                if (dadosLocais) {
+                    const parsed = JSON.parse(dadosLocais);
+                    if (parsed.herbalife_id && (!id || id === '433005811')) id = parsed.herbalife_id;
+                    if (parsed.slug && (!slug || slug === 'oficial')) slug = parsed.slug;
+                    if (parsed.letras && (!letras || letras === 'BRA')) letras = parsed.letras.toUpperCase();
+                    if (parsed.nome) nome = parsed.nome;
+                    if (parsed.whatsapp) whatsapp = parsed.whatsapp;
+                    if (parsed.cidade) cidade = parsed.cidade;
+                    if (parsed.estado) estado = parsed.estado;
+                    if (parsed.pix) {
+                        if (parsed.pix.chave) chavePix = parsed.pix.chave;
+                        if (parsed.pix.titular) titularPix = parsed.pix.titular;
+                    }
+                }
+                const authLocal = localStorage.getItem('litrao_consultor_auth');
+                if (authLocal) {
+                    const a = JSON.parse(authLocal);
+                    if (a.id && (!id || id === '433005811')) id = a.id;
+                    if (a.letras && (!letras || letras === 'BRA')) letras = a.letras.toUpperCase();
+                }
+            } catch(e) {}
+
+            // 3. Complementa com inputs do formulário de Perfil se preenchidos
+            const inPixChave = document.getElementById('perfil-pix-chave');
+            if (inPixChave && inPixChave.value) chavePix = inPixChave.value.trim();
+            const inPixTitular = document.getElementById('perfil-pix-titular');
+            if (inPixTitular && inPixTitular.value) titularPix = inPixTitular.value.trim();
+            const inNome = document.getElementById('perfil-nome-consultor');
+            if (inNome && inNome.value) nome = inNome.value.trim();
+            const inWhats = document.getElementById('perfil-whatsapp');
+            if (inWhats && inWhats.value) whatsapp = inWhats.value.trim();
+            const inCid = document.getElementById('perfil-cidade');
+            if (inCid && inCid.value) cidade = inCid.value.trim();
+            const inEst = document.getElementById('perfil-estado');
+            if (inEst && inEst.value) estado = inEst.value.trim();
+            const inEsp = document.getElementById('perfil-nome-espaco');
+            if (inEsp && inEsp.value) nomeEspaco = inEsp.value.trim();
+
+            if (!chavePix) chavePix = (whatsapp ? whatsapp.replace(/\D/g, '') : '') || id;
+            if (!titularPix) titularPix = nome || 'Consultor Oficial';
+
+            let localizacao = cidade ? (estado ? (cidade + ' - ' + estado) : cidade) : 'nosso Espaço Vida Saudável';
+            let linkCat = 'https://litraodoreset.com.br/catalogo.html?c=' + (slug || id);
+            let linkQuiz = 'https://litraodoreset.com.br/quiz.html?c=' + (slug || id);
+            let linkAval = 'https://litraodoreset.com.br/avaliacao.html?c=' + (slug || id);
+
+            return {
+                id: id,
+                letras: letras,
+                nome: nome,
+                nomeEspaco: nomeEspaco,
+                whatsapp: whatsapp,
+                cidade: cidade,
+                estado: estado,
+                localizacao: localizacao,
+                chavePix: chavePix,
+                titularPix: titularPix,
+                slug: slug || id,
+                linkCat: linkCat,
+                linkQuiz: linkQuiz,
+                linkAval: linkAval
+            };
+        }
+        window.obterDadosCompletosConsultorAtivo = obterDadosCompletosConsultorAtivo;
+
         function abrirModalRoboBia() {
             const modal = document.getElementById('modal-robo-bia');
             if (!modal) return;
 
-            const slug = obterConsultorSlugAtivo();
-            const linkCat = 'https://litraodoreset.com.br/catalogo.html?c=' + slug;
+            const dados = obterDadosCompletosConsultorAtivo();
 
-            // Injeta link do catálogo no atalho /cardapio
+            // 1. Mensagem de Saudação Oficial
+            const elSaudacao = document.getElementById('texto-saudacao-oficial');
+            if (elSaudacao) {
+                elSaudacao.textContent = 'Olá! Seja muito bem-vindo(a) ao Litrão do Reset — Energia Natural em Movimento 🥤⚡.\n\n' +
+'Eu sou a Bia, assistente virtual do consultor(a) *' + dados.nome + '* no *' + dados.nomeEspaco + '* (' + dados.localizacao + '). Para eu te direcionar rapidinho, me responde o que você busca hoje:\n\n' +
+'1️⃣ Pedir meu Litrão (Conhecer pacotes e preços)\n' +
+'2️⃣ Agendar Bioimpedância\n' +
+'3️⃣ Revender / Renda Extra (Fazer parte da equipe de ' + dados.nome + ')\n' +
+'4️⃣ Já sou Consultor(a) (Suporte e Painel)';
+            }
+
+            // 2. Atalho /cardapio
             const elAtalhoCardapio = document.getElementById('texto-atalho-cardapio');
             if (elAtalhoCardapio) {
                 elAtalhoCardapio.textContent = 'Que ótima escolha! 🚀 O Litrão ajuda a eliminar a retenção de líquidos logo na primeira semana, traz disposição constante e acelera o metabolismo.\n\n' +
 'Acesse nosso cardápio oficial para escolher seu pacote (Reset, Reset + ou Reset Turbo) e reservar seu kit semanal (5 garrafas):\n' +
-'👉 ' + linkCat + '\n\n' +
+'👉 ' + dados.linkCat + '\n\n' +
+'📍 *Local / Espaço:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'📱 *WhatsApp:* ' + dados.whatsapp + '\n\n' +
 'Assim que finalizar a reserva no site, me envie o resumo ou o comprovante do PIX por aqui para liberarmos o preparo!';
             }
 
-            // Injeta link na mensagem de ausência
-            const elAusencia = document.getElementById('texto-ausencia-oficial');
-            if (elAusencia) {
-                elAusencia.textContent = 'Olá! Nosso atendimento humano está temporariamente ausente, mas você já pode garantir o seu kit semanal agora mesmo! 🥤✨\n\n' +
-'Acesse nosso cardápio oficial para escolher seu pacote (Reset, Reset + ou Reset Turbo) e reservar seu kit semanal (5 garrafas):\n' +
-'👉 ' + linkCat + '\n\n' +
-'Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no início do nosso expediente seu pedido será preparado com prioridade máxima!';
+            // 3. Atalho /pacotes
+            const elAtalhoPacotes = document.getElementById('texto-atalho-pacotes');
+            if (elAtalhoPacotes) {
+                elAtalhoPacotes.textContent = 'Nossos kits semanais vêm com 5 garrafas (1 por dia) para transformar sua rotina:\n\n' +
+'🔹 *RESET (500ml):* Desintoxica, elimina retenção líquida e renova o corpo.\n' +
+'⭐ *RESET + (1 Litro - Mais Popular):* Potencializa a queima, dá saciedade prolongada, foco mental e inclui Avaliação de Bioimpedância.\n' +
+'🔥 *RESET TURBO (1 Litro):* Concentração máxima para acelerar o metabolismo no limite, com Relatório de Bioimpedância VIP e suporte prioritário 1 a 1 comigo (' + dados.nome + ').\n\n' +
+'Qual deles combina mais com o seu objetivo hoje? Dúvidas: ' + dados.whatsapp;
             }
 
-            // Busca chave PIX e Favorecido do consultor
-            let chavePix = '';
-            let titularPix = '';
-            try {
-                const salvo = localStorage.getItem('litrao_consultor_dados');
-                if (salvo) {
-                    const cDados = JSON.parse(salvo);
-                    if (cDados.pix && cDados.pix.chave) chavePix = cDados.pix.chave;
-                    if (cDados.pix && cDados.pix.titular) titularPix = cDados.pix.titular;
-                    if (!titularPix && cDados.nome) titularPix = cDados.nome;
-                }
-            } catch(e) {}
-            if (!chavePix) {
-                chavePix = (consultorAtual && consultorAtual.whatsapp) ? consultorAtual.whatsapp : '(Cadastre sua chave PIX no perfil)';
-            }
-            if (!titularPix) {
-                titularPix = (consultorAtual && consultorAtual.nome) ? consultorAtual.nome : 'Consultor Oficial';
+            // 4. Atalho /bio
+            const elAtalhoBio = document.getElementById('texto-atalho-bio');
+            if (elAtalhoBio) {
+                elAtalhoBio.textContent = 'A Avaliação de Bioimpedância analisa seu percentual de gordura, massa muscular, metabolismo basal e idade corporal — e já está inclusa nos pacotes Reset + e Reset Turbo!\n\n' +
+'📍 *Presencial no Espaço:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'🌐 *Pré-Avaliação Online:* ' + dados.linkAval + '\n' +
+'📱 *Agendar com ' + dados.nome + ':* ' + dados.whatsapp + '\n\n' +
+'Você prefere agendar sua avaliação presencial aqui no espaço ou fazer a pré-avaliação online pelo celular?';
             }
 
+            // 5. Atalho /negocio (Recrutamento Oficial com ID e 3 Letras)
+            const elAtalhoNegocio = document.getElementById('texto-atalho-negocio');
+            if (elAtalhoNegocio) {
+                elAtalhoNegocio.textContent = 'Que incrível ter você interessado(a) em empreender com a gente! 🚀\n\n' +
+'Nosso projeto une bebidas funcionais de alta demanda com treinamento prático, materiais prontos de divulgação e suporte 1 a 1 para você lucrar desde a primeira semana.\n\n' +
+'Para liberar seu acesso à equipe de *' + dados.nome + '*, o primeiro passo é o cadastro oficial de Distribuidor Independente no link abaixo usando os dados do seu patrocinador:\n\n' +
+'👤 *Patrocinador:* ' + dados.nome + '\n' +
+'🆔 *ID do Patrocinador:* ' + dados.id + '\n' +
+'🔤 *3 Letras do Patrocinador:* ' + dados.letras + '\n' +
+'👉 https://accounts.myherbalife.com/Account/Create\n' +
+'📱 *WhatsApp de Suporte:* ' + dados.whatsapp + '\n\n' +
+'Me avise assim que abrir a tela para eu te acompanhar passo a passo no seu cadastro!';
+            }
+
+            // 6. Atalho /consultor
+            const elAtalhoConsultor = document.getElementById('texto-atalho-consultor');
+            if (elAtalhoConsultor) {
+                elAtalhoConsultor.textContent = 'Olá, parceiro(a)! 🤝 Para acessar sua Área do Consultor, gerenciar preços, entregas e gerar seu link oficial, entre pelo portal:\n' +
+'👉 https://litraodoreset.com.br\n' +
+'*(Seu acesso inicial é feito com seu ID: ' + dados.id + ' e suas 3 letras: ' + dados.letras + ').*\n\n' +
+'Precisa de ajuda com seu painel, planos ou materiais de divulgação? Escreva sua dúvida que eu (' + dados.nome + ') já vou te atender!';
+            }
+
+            // 7. Atalho /pix
             const elAtalhoPix = document.getElementById('texto-atalho-pix');
             if (elAtalhoPix) {
                 elAtalhoPix.textContent = 'Pedido confirmado! ✅ Para liberarmos o preparo e a entrega do seu kit, segue a chave PIX para pagamento:\n\n' +
-'🔑 *Chave PIX:* ' + chavePix + '\n' +
-'👤 *Favorecido(a):* ' + titularPix + '\n\n' +
-'Assim que concluir, me envie o comprovante por aqui!';
+'🔑 *Chave PIX:* ' + dados.chavePix + '\n' +
+'👤 *Favorecido(a):* ' + dados.titularPix + '\n' +
+'📍 *Espaço / Local:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'📱 *WhatsApp:* ' + dados.whatsapp + '\n\n' +
+'Assim que concluir, me envie o comprovante por aqui para colocarmos seu pedido na esteira de produção! 🥤✨';
             }
 
-            // Injeta na Dica Técnica
+            // 8. Mensagem de Ausência
+            const elAusencia = document.getElementById('texto-ausencia-oficial');
+            if (elAusencia) {
+                elAusencia.textContent = 'Olá! O atendimento humano do consultor(a) *' + dados.nome + '* está temporariamente ausente, mas você já pode garantir o seu kit semanal agora mesmo! 🥤✨\n\n' +
+'Acesse nosso cardápio oficial para escolher seu pacote (Reset, Reset + ou Reset Turbo) e reservar seu kit semanal (5 garrafas):\n' +
+'👉 ' + dados.linkCat + '\n\n' +
+'📍 *Espaço:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'📱 *Contato:* ' + dados.whatsapp + '\n\n' +
+'Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no início do nosso expediente seu pedido será preparado com prioridade máxima!';
+            }
+
+            // Dica Técnica
             const elDicaEx = document.getElementById('dica-link-exemplo');
-            if (elDicaEx) elDicaEx.textContent = '?c=' + slug;
+            if (elDicaEx) elDicaEx.textContent = '?c=' + dados.slug;
             const elDicaComp = document.getElementById('dica-link-completo-display');
-            if (elDicaComp) elDicaComp.textContent = linkCat;
+            if (elDicaComp) elDicaComp.textContent = dados.linkCat;
+
+            // Atualiza links do Manual A4 no modal
+            const urlManualA4 = 'manual_robo_bia_whatsapp_a4.html?c=' + dados.slug +
+                '&id=' + dados.id +
+                '&letras=' + dados.letras +
+                '&nome=' + encodeURIComponent(dados.nome) +
+                '&espaco=' + encodeURIComponent(dados.nomeEspaco) +
+                '&endereco=' + encodeURIComponent(dados.localizacao) +
+                '&whats=' + encodeURIComponent(dados.whatsapp) +
+                '&pix=' + encodeURIComponent(dados.chavePix) +
+                '&titular=' + encodeURIComponent(dados.titularPix);
+
+            const linksManual = modal.querySelectorAll('a[href*="manual_robo_bia_whatsapp_a4.html"]');
+            linksManual.forEach(function(l) { l.href = urlManualA4; });
 
             alternarAbaRoboBia('atalhos');
             modal.classList.remove('hidden');
         }
         window.abrirModalRoboBia = abrirModalRoboBia;
+
 
 
 

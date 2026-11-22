@@ -245,45 +245,126 @@
             });
         }
 
-        function copiarAtalhoCrm(atalho) {
-            const urlCat = `https://litraodoreset.com.br/catalogo.html?c=${consultorSlug}`;
+        
+        function obterDadosCompletosLeads() {
+            let id = '433005811';
+            let letras = 'BRA';
+            let nome = 'Edwan Braga';
+            let nomeEspaco = 'FORBOSS Espaço Vida Saudável';
+            let whatsapp = '(66) 98141-1234';
+            let cidade = 'Juína';
+            let estado = 'MT';
             let chavePix = '';
             let titularPix = '';
+            let slug = consultorSlug || '433005811';
+
             try {
-                const salvo = localStorage.getItem('consultor_logado') || localStorage.getItem('litrao_consultor_dados');
+                const salvo = localStorage.getItem('litrao_consultor_dados') || localStorage.getItem('consultor_logado');
                 if (salvo) {
                     const c = JSON.parse(salvo);
-                    if (c.pix && c.pix.chave) chavePix = c.pix.chave;
-                    if (c.pix && c.pix.titular) titularPix = c.pix.titular;
-                    if (!titularPix && c.nome) titularPix = c.nome;
+                    if (c.herbalife_id) id = c.herbalife_id;
+                    if (c.slug) slug = c.slug;
+                    if (c.letras) letras = c.letras.toUpperCase();
+                    if (c.nome) nome = c.nome;
+                    if (c.whatsapp) whatsapp = c.whatsapp;
+                    if (c.cidade) cidade = c.cidade;
+                    if (c.estado) estado = c.estado;
+                    if (c.nome_espaco) {
+                        const limpo = c.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                        const partes = limpo.split('|');
+                        if (partes[0]) nomeEspaco = partes[0].trim();
+                        if (partes[1]) cidade = partes[1].trim();
+                    }
+                    if (c.pix) {
+                        if (c.pix.chave) chavePix = c.pix.chave;
+                        if (c.pix.titular) titularPix = c.pix.titular;
+                    }
+                }
+                const auth = localStorage.getItem('litrao_consultor_auth');
+                if (auth) {
+                    const a = JSON.parse(auth);
+                    if (a.id) id = a.id;
+                    if (a.letras) letras = a.letras.toUpperCase();
                 }
             } catch(e) {}
-            if (!chavePix) chavePix = '(Cadastre sua chave PIX no perfil)';
-            if (!titularPix) titularPix = 'Consultor Oficial';
 
+            if (!chavePix) chavePix = (whatsapp ? whatsapp.replace(/\D/g, '') : '') || id;
+            if (!titularPix) titularPix = nome;
+
+            let localizacao = cidade ? (estado ? (cidade + ' - ' + estado) : cidade) : 'nosso Espaço Vida Saudável';
+            let linkCat = 'https://litraodoreset.com.br/catalogo.html?c=' + slug;
+            let linkAval = 'https://litraodoreset.com.br/avaliacao.html?c=' + slug;
+
+            return {
+                id: id,
+                letras: letras,
+                nome: nome,
+                nomeEspaco: nomeEspaco,
+                whatsapp: whatsapp,
+                localizacao: localizacao,
+                chavePix: chavePix,
+                titularPix: titularPix,
+                slug: slug,
+                linkCat: linkCat,
+                linkAval: linkAval
+            };
+        }
+
+        function copiarAtalhoCrm(atalho) {
+            const dados = obterDadosCompletosLeads();
             let texto = '';
+
             if (atalho === '/cardapio') {
-                texto = `Que ótima escolha! 🚀 O Litrão ajuda a eliminar a retenção de líquidos logo na primeira semana, traz disposição constante e acelera o metabolismo.\n\nAcesse nosso cardápio oficial para escolher seu pacote (Reset, Reset + ou Reset Turbo) e reservar seu kit semanal (5 garrafas):\n👉 ${urlCat}\n\nAssim que finalizar a reserva no site, me envie o resumo ou o comprovante do PIX por aqui para liberarmos o preparo!`;
+                texto = 'Que ótima escolha! 🚀 O Litrão ajuda a eliminar a retenção de líquidos logo na primeira semana, traz disposição constante e acelera o metabolismo.\n\n' +
+'Acesse nosso cardápio oficial para escolher seu pacote (Reset, Reset + ou Reset Turbo) e reservar seu kit semanal (5 garrafas):\n' +
+'👉 ' + dados.linkCat + '\n\n' +
+'📍 *Local / Espaço:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'📱 *WhatsApp:* ' + dados.whatsapp + '\n\n' +
+'Assim que finalizar a reserva no site, me envie o resumo ou o comprovante do PIX por aqui para liberarmos o preparo!';
             } else if (atalho === '/pacotes') {
-                texto = `Nossos kits semanais vêm com 5 garrafas (1 por dia) para transformar sua rotina:\n\n🔹 *RESET (500ml):* Desintoxica, elimina retenção líquida e renova o corpo.\n⭐ *RESET + (1 Litro - Mais Popular):* Potencializa a queima, dá saciedade prolongada, foco mental e inclui Avaliação de Bioimpedância.\n🔥 *RESET TURBO (1 Litro):* Concentração máxima para acelerar o metabolismo no limite, com Relatório de Bioimpedância VIP e suporte prioritário 1 a 1.\n\nQual deles combina mais com o seu objetivo hoje?`;
+                texto = 'Nossos kits semanais vêm com 5 garrafas (1 por dia) para transformar sua rotina:\n\n' +
+'🔹 *RESET (500ml):* Desintoxica, elimina retenção líquida e renova o corpo.\n' +
+'⭐ *RESET + (1 Litro - Mais Popular):* Potencializa a queima, dá saciedade prolongada, foco mental e inclui Avaliação de Bioimpedância.\n' +
+'🔥 *RESET TURBO (1 Litro):* Concentração máxima para acelerar o metabolismo no limite, com Relatório de Bioimpedância VIP e suporte prioritário 1 a 1 comigo (' + dados.nome + ').\n\n' +
+'Qual deles combina mais com o seu objetivo hoje? Dúvidas: ' + dados.whatsapp;
             } else if (atalho === '/bio') {
-                texto = `A Avaliação de Bioimpedância analisa seu percentual de gordura, massa muscular, metabolismo basal e idade corporal — e já está inclusa nos pacotes Reset + e Reset Turbo!\n\nVocê prefere agendar sua avaliação presencial ou online?`;
+                texto = 'A Avaliação de Bioimpedância analisa seu percentual de gordura, massa muscular, metabolismo basal e idade corporal — e já está inclusa nos pacotes Reset + e Reset Turbo!\n\n' +
+'📍 *Presencial no Espaço:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'🌐 *Pré-Avaliação Online:* ' + dados.linkAval + '\n' +
+'📱 *Agendar com ' + dados.nome + ':* ' + dados.whatsapp + '\n\n' +
+'Você prefere agendar sua avaliação presencial aqui no espaço ou fazer a pré-avaliação online pelo celular?';
             } else if (atalho === '/negocio') {
-                texto = `Que incrível ter você interessado(a) em empreender com a gente! 🚀\n\nNosso projeto une bebidas funcionais de alta demanda com treinamento prático, materiais prontos de divulgação e suporte 1 a 1 para você lucrar desde a primeira semana.\n\nPara liberar seu acesso à equipe, o primeiro passo é o cadastro oficial de Distribuidor Independente no link abaixo usando os dados do patrocinador:\n\n*ID:* 433005811\n*Letras:* BRA\n👉 https://accounts.myherbalife.com/Account/Create\n\nMe avise assim que abrir a tela para eu te acompanhar no passo a passo!`;
+                texto = 'Que incrível ter você interessado(a) em empreender com a gente! 🚀\n\n' +
+'Nosso projeto une bebidas funcionais de alta demanda com treinamento prático, materiais prontos de divulgação e suporte 1 a 1 para você lucrar desde a primeira semana.\n\n' +
+'Para liberar seu acesso à equipe de *' + dados.nome + '*, o primeiro passo é o cadastro oficial de Distribuidor Independente no link abaixo usando os dados do seu patrocinador:\n\n' +
+'👤 *Patrocinador:* ' + dados.nome + '\n' +
+'🆔 *ID do Patrocinador:* ' + dados.id + '\n' +
+'🔤 *3 Letras do Patrocinador:* ' + dados.letras + '\n' +
+'👉 https://accounts.myherbalife.com/Account/Create\n' +
+'📱 *WhatsApp de Suporte:* ' + dados.whatsapp + '\n\n' +
+'Me avise assim que abrir a tela para eu te acompanhar passo a passo no seu cadastro!';
             } else if (atalho === '/consultor') {
-                texto = `Olá, parceiro(a)! 🤝 Para acessar sua Área do Consultor, gerenciar preços, entregas e gerar seu link oficial, entre pelo portal:\n👉 https://litraodoreset.com.br\n*(Seu acesso inicial é feito com seu ID e as 3 letras do cadastro Herbalife).*\n\nComo posso te ajudar com seu painel hoje?`;
+                texto = 'Olá, parceiro(a)! 🤝 Para acessar sua Área do Consultor, gerenciar preços, entregas e gerar seu link oficial, entre pelo portal:\n' +
+'👉 https://litraodoreset.com.br\n' +
+'*(Seu acesso inicial é feito com seu ID: ' + dados.id + ' e suas 3 letras: ' + dados.letras + ').*\n\n' +
+'Precisa de ajuda com seu painel, planos ou materiais de divulgação? Escreva sua dúvida que eu (' + dados.nome + ') já vou te atender!';
             } else if (atalho === '/pix') {
-                texto = `Pedido confirmado! ✅ Para liberarmos o preparo e a entrega do seu kit, segue a chave PIX para pagamento:\n\n🔑 *Chave PIX:* ${chavePix}\n👤 *Favorecido(a):* ${titularPix}\n\nAssim que concluir, me envie o comprovante por aqui!`;
+                texto = 'Pedido confirmado! ✅ Para liberarmos o preparo e a entrega do seu kit, segue a chave PIX para pagamento:\n\n' +
+'🔑 *Chave PIX:* ' + dados.chavePix + '\n' +
+'👤 *Favorecido(a):* ' + dados.titularPix + '\n' +
+'📍 *Espaço / Local:* ' + dados.nomeEspaco + ' (' + dados.localizacao + ')\n' +
+'📱 *WhatsApp:* ' + dados.whatsapp + '\n\n' +
+'Assim que concluir, me envie o comprovante por aqui para colocarmos seu pedido na esteira de produção! 🥤✨';
             }
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(texto).then(() => {
-                    alert(`✅ Atalho ${atalho} copiado! Cole no WhatsApp do seu cliente.`);
+                    alert('✅ Atalho ' + atalho + ' copiado com seus dados oficiais! Cole no WhatsApp.');
                 }).catch(() => {
-                    prompt(`Copie o atalho ${atalho}:`, texto);
+                    prompt('Copie o atalho ' + atalho + ':', texto);
                 });
             } else {
-                prompt(`Copie o atalho ${atalho}:`, texto);
+                prompt('Copie o atalho ' + atalho + ':', texto);
             }
         }
 
