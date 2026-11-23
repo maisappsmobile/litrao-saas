@@ -385,22 +385,56 @@
             }
         }
 
-        async function carregarMetricasLeads() {
-            let consultorDados = null;
+        
+        function obterSlugLeads() {
+            const params = new URLSearchParams(window.location.search);
+            let slug = params.get('c') || params.get('slug') || params.get('id') || params.get('herbalife_id');
+            if (slug) return slug;
+
             try {
-                const salvo = localStorage.getItem('consultor_logado');
-                if (salvo) consultorDados = JSON.parse(salvo);
+                const dadosLitrao = localStorage.getItem('litrao_consultor_dados');
+                if (dadosLitrao) {
+                    const parsed = JSON.parse(dadosLitrao);
+                    if (parsed.slug) return parsed.slug;
+                    if (parsed.herbalife_id) return parsed.herbalife_id;
+                }
             } catch(e) {}
 
-            const params = new URLSearchParams(window.location.search);
-            const slug = params.get('c') || params.get('slug');
-            const hid = params.get('id') || params.get('herbalife_id');
+            try {
+                const authLitrao = localStorage.getItem('litrao_consultor_auth');
+                if (authLitrao) {
+                    const parsed = JSON.parse(authLitrao);
+                    if (parsed.id) return parsed.id;
+                }
+            } catch(e) {}
 
-            if (slug) consultorSlug = slug;
-            else if (consultorDados && consultorDados.slug) consultorSlug = consultorDados.slug;
-            else if (consultorDados && consultorDados.herbalife_id) consultorSlug = consultorDados.herbalife_id;
+            try {
+                const consLog = localStorage.getItem('consultor_logado');
+                if (consLog) {
+                    const parsed = JSON.parse(consLog);
+                    if (parsed.slug) return parsed.slug;
+                    if (parsed.herbalife_id) return parsed.herbalife_id;
+                }
+            } catch(e) {}
 
-            if (consultorDados && consultorDados.id) consultorId = consultorDados.id;
+            // Varre o localStorage procurando chaves metricas_quiz_* com leads salvos
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('metricas_quiz_')) {
+                        const val = localStorage.getItem(k);
+                        if (val && val.includes('"leads"') && !val.includes('"leads":[]')) {
+                            return k.replace('metricas_quiz_', '');
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            return '433005811bra';
+        }
+
+        async function carregarMetricasLeads() {
+            consultorSlug = obterSlugLeads();
 
             const urlQuiz = `https://litraodoreset.com.br/quiz.html?c=${consultorSlug}`;
             document.getElementById('lbl-link-quiz').textContent = urlQuiz;
@@ -409,19 +443,67 @@
 
             let metricas = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
 
-            // Tenta carregar do localStorage
+            // 1. Tenta carregar do localStorage pelo slug
             try {
                 const salvo = localStorage.getItem('metricas_quiz_' + consultorSlug);
                 if (salvo) metricas = JSON.parse(salvo);
             } catch(e) {}
 
-            // Tenta carregar do Supabase se tiver ID
-            if (supabaseClient && (consultorId || slug || hid)) {
+            // 2. Se os leads estiverem vazios, varre chaves conhecidas (433005811bra, 433005811, etc.)
+            if (!metricas.leads || metricas.leads.length === 0) {
+                const candidatos = ['433005811bra', '433005811', 'oficial'];
+                for (const cand of candidatos) {
+                    try {
+                        const cVal = localStorage.getItem('metricas_quiz_' + cand);
+                        if (cVal) {
+                            const p = JSON.parse(cVal);
+                            if (p.leads && p.leads.length > 0) {
+                                metricas = p;
+                                consultorSlug = cand;
+                                break;
+                            }
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            // 3. Varredura completa no localStorage caso ainda esteja vazio
+            if (!metricas.leads || metricas.leads.length === 0) {
                 try {
-                    let q = supabaseClient.from('consultores').select('id, nome_espaco');
-                    if (consultorId) q = q.eq('id', consultorId);
-                    else if (slug) q = q.eq('slug', slug);
-                    else if (hid) q = q.eq('herbalife_id', hid);
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('metricas_quiz_')) {
+                            const val = localStorage.getItem(k);
+                            if (val) {
+                                const p = JSON.parse(val);
+                                if (p.leads && p.leads.length > 0) {
+                                    metricas = p;
+                                    consultorSlug = k.replace('metricas_quiz_', '');
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // Garante que abriram seja ao menos o número de leads
+            if (metricas.leads && metricas.leads.length > 0) {
+                metricas.abriram = Math.max(metricas.abriram || 0, metricas.leads.length);
+                metricas.responderam = Math.max(metricas.responderam || 0, metricas.leads.length);
+                const qtdQuentes = metricas.leads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap'))).length;
+                metricas.clicaram = Math.max(metricas.clicaram || 0, qtdQuentes);
+            }
+
+            // 4. Sincroniza com Supabase se cliente disponível
+            if (supabaseClient) {
+                try {
+                    let q = supabaseClient.from('consultores').select('id, nome_espaco, herbalife_id, slug');
+                    if (consultorSlug) {
+                        const hidLimpo = consultorSlug.replace(/\D/g, '');
+                        if (hidLimpo) q = q.or(`slug.eq.${consultorSlug},herbalife_id.eq.${hidLimpo}`);
+                        else q = q.eq('slug', consultorSlug);
+                    }
 
                     const { data } = await q.single();
                     if (data && data.nome_espaco) {
@@ -433,7 +515,15 @@
                                 metricas.responderam = Math.max(metricas.responderam || 0, custom.metricasQuiz.responderam || 0);
                                 metricas.clicaram = Math.max(metricas.clicaram || 0, custom.metricasQuiz.clicaram || 0);
                                 if (custom.metricasQuiz.ultimosLeads && custom.metricasQuiz.ultimosLeads.length > 0) {
-                                    metricas.leads = custom.metricasQuiz.ultimosLeads;
+                                    // Junta leads sem duplicar
+                                    const idsExistentes = new Set((metricas.leads || []).map(l => (l.nome || '') + (l.whatsapp || '')));
+                                    custom.metricasQuiz.ultimosLeads.forEach(remoto => {
+                                        const chave = (remoto.nome || '') + (remoto.whatsapp || '');
+                                        if (!idsExistentes.has(chave)) {
+                                            metricas.leads.push(remoto);
+                                            idsExistentes.add(chave);
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -446,7 +536,6 @@
             renderizarMetricas(metricas);
         }
 
-        
         window.metricasAtuaisQuiz = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
         window.filtroCrmAtivo = 'todos';
         window.leadSelecionadoAcaoRapida = null;
@@ -484,14 +573,14 @@
             const elSub = document.getElementById('subtitulo-secao-leads');
             if (elTitulo) {
                 if (estagio === 'clicaram') {
-                    elTitulo.innerHTML = '<i class="fa-solid fa-fire text-amber-400"></i> Leads Quentes (Clicaram no WhatsApp)';
-                    if (elSub) elSub.textContent = 'Leads prontos para fechar o pedido ou agendar bioimpedância';
+                    elTitulo.innerHTML = '<i class="fa-solid fa-fire text-amber-400"></i> 3. Leads Quentes (Clicaram no WhatsApp)';
+                    if (elSub) elSub.textContent = 'Leads com alta intenção de compra prontos para fechar';
                 } else if (estagio === 'responderam') {
-                    elTitulo.innerHTML = '<i class="fa-solid fa-list-check text-amber-400"></i> Responderam o Teste (Com Diagnóstico)';
+                    elTitulo.innerHTML = '<i class="fa-solid fa-list-check text-amber-400"></i> 2. Responderam o Teste (Com Diagnóstico)';
                     if (elSub) elSub.textContent = 'Pessoas que responderam os sintomas e viram o nível de retenção hídrica';
                 } else if (estagio === 'abriram') {
-                    elTitulo.innerHTML = '<i class="fa-solid fa-eye text-blue-400"></i> Abriram o Link (Topo do Funil)';
-                    if (elSub) elSub.textContent = 'Cliques e acessos registrados pelo link da Bio ou balcão da academia';
+                    elTitulo.innerHTML = '<i class="fa-solid fa-eye text-blue-400"></i> 1. Abriram o Link (Topo do Funil)';
+                    if (elSub) elSub.textContent = 'Pessoas que acessaram o teste e iniciaram o funil de desinchaço';
                 } else {
                     elTitulo.innerHTML = '<i class="fa-solid fa-address-book text-emerald-400"></i> Todos os Leads Capturados';
                     if (elSub) elSub.textContent = 'Lista completa de contatos gerados no seu Quiz de Desinchaço';
@@ -521,58 +610,6 @@
             renderizarTabelaLeadsFiltrados();
         }
 
-        function gerarCopysPersonalizadas(lead) {
-            const dados = obterDadosCompletosLeads();
-            const nomeLead = (lead && lead.nome) ? lead.nome.trim() : 'Amigo(a)';
-            const foco = (lead && (lead.objetivo || lead.sintomas)) ? (lead.objetivo || lead.sintomas) : 'desinchar e ganhar energia';
-
-            // 1. Copy Oficial com Robô e Opções Numeradas (EXATAMENTE COMO NO PRINT 1 DO USUÁRIO!)
-            const copyRobo = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome} do Litrão do Reset 🥤⚡.
-Vi que você fez o Teste de Desinchaço em 1 Minuto e identificou retenção líquida severa!
-
-Para eu agilizar seu atendimento e liberar seu protocolo, escolha uma das opções abaixo digitando o número correspondente:
-
-1️⃣ Fazer meu pedido do Kit 5 Dias (Desinchar até 3kg)
-2️⃣ Agendar minha Avaliação de Bioimpedância Gratuita
-3️⃣ Conhecer os pacotes (Reset, Reset + e Reset Turbo)
-4️⃣ Falar comigo agora
-
-Qual dessas opções você prefere?`;
-
-            // 2. Foco Direto no Sintoma e Desinchaço em 5 Dias
-            const copyDesinchar = `Oi ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome} do Litrão do Reset.
-Vi que no seu teste de desinchaço você marcou foco em: *${foco}*.
-
-Nosso Kit Semanal de 5 Dias foi formulado exatamente para destravar a queima calórica e eliminar até 3kg de retenção logo na primeira semana! 🥤✨
-
-Você prefere receber gelado no seu endereço ou retirar aqui no nosso Espaço em ${dados.localizacao}?`;
-
-            // 3. Avaliação de Bioimpedância VIP
-            const copyBio = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome}.
-Como você concluiu nosso Teste de Desinchaço, liberei para você uma Avaliação de Bioimpedância VIP gratuita! 📊✨
-
-Nela analisamos seu percentual de gordura, retenção hídrica e metabolismo corporal.
-
-Você prefere agendar presencialmente aqui no ${dados.nomeEspaco} em ${dados.localizacao} ou fazer a pré-avaliação online pelo celular?`;
-
-            // 4. Cardápio Oficial e Pagamento PIX
-            const copyCatalogo = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome}.
-Segue o link oficial do nosso cardápio para você garantir seu pacote semanal do Litrão do Reset:
-👉 ${dados.linkCat}
-
-Chave PIX Oficial: ${dados.chavePix} (${dados.titularPix})
-Espaço: ${dados.nomeEspaco} • ${dados.localizacao}
-
-Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui para liberarmos seu kit com prioridade máxima! 🥤⚡`;
-
-            return {
-                robo: copyRobo,
-                desinchar: copyDesinchar,
-                bio: copyBio,
-                catalogo: copyCatalogo
-            };
-        }
-
         function renderizarTabelaLeadsFiltrados() {
             const metricas = window.metricasAtuaisQuiz;
             const todosLeads = metricas.leads || [];
@@ -580,22 +617,28 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
             let leadsExibidos = todosLeads;
             if (filtro === 'clicaram') {
+                // Leads Quentes (Clicaram no WhatsApp)
                 leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap')));
             } else if (filtro === 'responderam') {
-                leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Respondeu') || !l.status.includes('Quente')));
+                // Responderam o teste (todos os preenchimentos com diagnóstico)
+                leadsExibidos = todosLeads.filter(l => l.nome || l.sintomas || (l.status && l.status.includes('Respondeu')));
             } else if (filtro === 'abriram') {
-                leadsExibidos = todosLeads.filter(l => l.status && l.status.includes('Abriu'));
+                // Todos os leads que entraram pelo topo do funil
+                leadsExibidos = todosLeads;
+            } else {
+                // Todos os leads
+                leadsExibidos = todosLeads;
             }
 
             document.getElementById('badge-total-leads').textContent = `${leadsExibidos.length} de ${todosLeads.length} leads`;
 
             const tbody = document.getElementById('lista-leads-tbody');
             if (leadsExibidos.length === 0) {
-                let msgVazio = 'Nenhum lead encontrado neste estágio.';
+                let msgVazio = 'Nenhum lead encontrado ainda.';
                 if (filtro === 'abriram') {
                     msgVazio = '👀 ' + (metricas.abriram || 0) + ' acessos ao link registrados no topo do funil. Compartilhe o link na bio do Instagram ou coloque a placa de balcão para mais pessoas responderem!';
                 } else if (filtro === 'responderam') {
-                    msgVazio = 'Nenhum lead preencheu apenas o questionário sem clicar no WhatsApp ainda.';
+                    msgVazio = 'Nenhum lead preencheu o teste ainda.';
                 } else if (filtro === 'clicaram') {
                     msgVazio = 'Nenhum lead clicou no botão de ir para o WhatsApp ainda.';
                 }
@@ -658,107 +701,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             }).join('');
         }
 
-        // Funções do Modal de Ação Rápida
-        function abrirModalAcaoRapidaLead(index) {
-            const metricas = window.metricasAtuaisQuiz;
-            const todosLeads = metricas.leads || [];
-            const filtro = window.filtroCrmAtivo;
-
-            let leadsExibidos = todosLeads;
-            if (filtro === 'clicaram') leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap')));
-            else if (filtro === 'responderam') leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Respondeu') || !l.status.includes('Quente')));
-            else if (filtro === 'abriram') leadsExibidos = todosLeads.filter(l => l.status && l.status.includes('Abriu'));
-
-            const lead = leadsExibidos[index];
-            if (!lead) return;
-
-            window.leadSelecionadoAcaoRapida = lead;
-
-            document.getElementById('modal-lead-nome-titulo').textContent = lead.nome || 'Cliente';
-            document.getElementById('modal-lead-tel-titulo').textContent = lead.whatsapp || '(Sem número)';
-            document.getElementById('modal-lead-foco-desc').textContent = lead.objetivo || lead.sintomas || 'Foco em desinchaço e mais energia';
-
-            const isQuente = lead.status && (lead.status.includes('Quente') || lead.status.includes('Clicou') || lead.status.includes('Zap'));
-            const elBadge = document.getElementById('modal-lead-estagio-badge');
-            if (elBadge) {
-                if (isQuente) {
-                    elBadge.textContent = '🔥 3. Lead Quente (Clicou no WhatsApp)';
-                    elBadge.className = 'bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-500/40';
-                } else {
-                    elBadge.textContent = '📝 2. Respondeu o Teste';
-                    elBadge.className = 'bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-amber-500/40';
-                }
-            }
-
-            selecionarAbaCopy('robo');
-
-            const modal = document.getElementById('modal-acao-rapida-lead');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function fecharModalAcaoRapidaLead() {
-            const modal = document.getElementById('modal-acao-rapida-lead');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function selecionarAbaCopy(tipo) {
-            window.tipoCopySelecionada = tipo;
-            const lead = window.leadSelecionadoAcaoRapida;
-            if (!lead) return;
-
-            const copys = gerarCopysPersonalizadas(lead);
-            const textarea = document.getElementById('modal-lead-texto-copy');
-            if (textarea && copys[tipo]) {
-                textarea.value = copys[tipo];
-            }
-
-            // Atualiza botões de aba
-            ['robo', 'desinchar', 'bio', 'catalogo'].forEach(t => {
-                const btn = document.getElementById('tab-copy-' + t);
-                if (btn) {
-                    if (t === tipo) {
-                        btn.className = 'tab-copy-btn p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-500/20 text-white font-bold text-xs text-left transition cursor-pointer';
-                    } else {
-                        btn.className = 'tab-copy-btn p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-gray-300 font-bold text-xs text-left transition cursor-pointer hover:bg-slate-700';
-                    }
-                }
-            });
-        }
-
-        function enviarAcaoRapidaWhatsApp() {
-            const lead = window.leadSelecionadoAcaoRapida;
-            if (!lead) return;
-
-            const telLimpo = (lead.whatsapp || '').replace(/\D/g, '');
-            if (!telLimpo) {
-                alert('Este lead não possui WhatsApp cadastrado.');
-                return;
-            }
-
-            const textarea = document.getElementById('modal-lead-texto-copy');
-            const texto = textarea ? textarea.value : '';
-
-            const url = `https://wa.me/55${telLimpo}?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
-        }
-
-        function copiarTextoAcaoRapida() {
-            const textarea = document.getElementById('modal-lead-texto-copy');
-            const texto = textarea ? textarea.value : '';
-            if (!texto) return;
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(texto).then(() => {
-                    alert('✅ Copy copiada com sucesso! Cole na sua conversa com o cliente no WhatsApp.');
-                }).catch(() => {
-                    prompt('Copie a mensagem:', texto);
-                });
-            } else {
-                prompt('Copie a mensagem:', texto);
-            }
-        }
-
         window.addEventListener('DOMContentLoaded', carregarMetricasLeads);
+
 
     </script>
 

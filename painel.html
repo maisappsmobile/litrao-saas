@@ -1314,7 +1314,7 @@
                         <button type="button" onclick="abrirModalCrmLeads()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-chart-pie text-[11px]"></i> Abrir CRM de Leads
                         </button>
-                        <a href="leads.html" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Tela Cheia /pt/leads">
+                        <a id="card-btn-leads-telacheia" href="leads.html" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Tela Cheia /pt/leads">
                             <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-purple-600"></i>
                         </a>
                     </div>
@@ -9587,7 +9587,7 @@
             </div>
 
             <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
-                <a href="leads.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
+                <a id="modal-crm-btn-link-leads-telacheia" href="leads.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir CRM em Tela Cheia (/pt/leads)
                 </a>
                 <button type="button" onclick="fecharModalCrmLeads()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-xl text-xs transition cursor-pointer">
@@ -19144,6 +19144,12 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             const btnTestar = document.getElementById('crm-btn-testar-quiz');
             if (btnTestar) btnTestar.href = urlQuiz;
 
+            // Atualiza links para o CRM em Tela Cheia passando o slug correto do consultor
+            const linkTelaCheia = document.getElementById('modal-crm-btn-link-leads-telacheia');
+            if (linkTelaCheia) linkTelaCheia.href = 'leads.html?c=' + encodeURIComponent(slug);
+            const cardLinkTelaCheia = document.getElementById('card-btn-leads-telacheia');
+            if (cardLinkTelaCheia) cardLinkTelaCheia.href = 'leads.html?c=' + encodeURIComponent(slug);
+
             await carregarMetricasQuizPainel();
             modal.classList.remove('hidden');
         }
@@ -19272,9 +19278,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             if (filtro === 'clicaram') {
                 leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap')));
             } else if (filtro === 'responderam') {
-                leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Respondeu') || !l.status.includes('Quente')));
+                leadsExibidos = todosLeads.filter(l => l.nome || l.sintomas || (l.status && l.status.includes('Respondeu')));
             } else if (filtro === 'abriram') {
-                leadsExibidos = todosLeads.filter(l => l.status && l.status.includes('Abriu'));
+                leadsExibidos = todosLeads;
+            } else {
+                leadsExibidos = todosLeads;
             }
 
             const crmBadge = document.getElementById('crm-stat-total-badge');
