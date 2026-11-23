@@ -189,7 +189,7 @@
                 <img id="placa-consultor-foto" src="/reset-logo.png" alt="Foto Consultor" class="w-11 h-11 rounded-full object-cover border-2 border-emerald-400 bg-white p-0.5 shrink-0">
                 <div>
                     <span class="text-[9px] uppercase tracking-wider text-emerald-400 font-bold block">Seu Consultor Oficial de Bem-Estar:</span>
-                    <h4 id="placa-consultor-nome" class="text-sm font-black text-white leading-tight">Edwan Braga</h4>
+                    <h4 id="placa-consultor-nome" class="text-sm font-black text-white leading-tight">Consultor Oficial de Juína - MT</h4>
                     <p id="placa-consultor-whats" class="text-xs text-slate-300 font-bold flex items-center gap-1.5 mt-0.5">
                         <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i> <span id="placa-consultor-tel">(66) 98141-1234</span>
                     </p>
@@ -268,48 +268,71 @@
             }
 
             // Tenta carregar dados do consultor logado localmente ou via query param
+            let cidade = params.get('cidade') || params.get('endereco') || '';
+            let nomeConsultor = params.get('nome') || '';
+            let whatsConsultor = params.get('whats') || params.get('whatsapp') || '';
+            
             let consultorDados = null;
             try {
-                const salvo = localStorage.getItem('consultor_logado');
+                const salvo = localStorage.getItem('litrao_consultor_dados') || localStorage.getItem('consultor_logado');
                 if (salvo) consultorDados = JSON.parse(salvo);
             } catch(e) {}
-
-            if (slug) consultorSlug = slug;
-            else if (consultorDados && consultorDados.slug) consultorSlug = consultorDados.slug;
-
+            
             if (consultorDados) {
-                document.getElementById('placa-consultor-nome').textContent = consultorDados.nome || 'Consultor Oficial';
-                if (consultorDados.whatsapp) {
-                    document.getElementById('placa-consultor-tel').textContent = formatarTelefone(consultorDados.whatsapp);
+                if (!nomeConsultor && consultorDados.nome) nomeConsultor = consultorDados.nome;
+                if (!whatsConsultor && consultorDados.whatsapp) whatsConsultor = consultorDados.whatsapp;
+                if (!cidade && consultorDados.cidade) cidade = consultorDados.cidade + (consultorDados.estado ? ' - ' + consultorDados.estado : '');
+                if (consultorDados.nome_espaco && (!cidade || cidade === 'Juína')) {
+                    const limpo = consultorDados.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                    const partes = limpo.split('|');
+                    if (partes[1]) cidade = partes[1].trim();
                 }
                 if (consultorDados.foto_url) {
                     document.getElementById('placa-consultor-foto').src = consultorDados.foto_url;
                 }
             }
-
+            
+            if (slug) consultorSlug = slug;
+            else if (consultorDados && consultorDados.slug) consultorSlug = consultorDados.slug;
+            
             // Se temos supabase e parâmetros, busca dados oficiais
             if (supabaseClient && (slug || hid)) {
                 try {
                     let q = supabaseClient.from('consultores').select('*');
                     if (slug) q = q.eq('slug', slug);
                     else if (hid) q = q.eq('herbalife_id', hid);
-
+            
                     const { data } = await q.single();
                     if (data) {
                         consultorSlug = data.slug || data.herbalife_id || 'oficial';
-                        document.getElementById('placa-consultor-nome').textContent = data.nome || 'Consultor Oficial';
-                        if (data.whatsapp) {
-                            document.getElementById('placa-consultor-tel').textContent = formatarTelefone(data.whatsapp);
+                        if (!nomeConsultor && data.nome) nomeConsultor = data.nome;
+                        if (!whatsConsultor && data.whatsapp) whatsConsultor = data.whatsapp;
+                        if (!cidade && data.cidade) cidade = data.cidade + (data.estado ? ' - ' + data.estado : '');
+                        if (data.nome_espaco && (!cidade || cidade === 'Juína')) {
+                            const limpo = data.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                            const partes = limpo.split('|');
+                            if (partes[1]) cidade = partes[1].trim();
                         }
                         if (data.foto_url) {
                             document.getElementById('placa-consultor-foto').src = data.foto_url;
                         }
                     }
                 } catch(err) {
-                    console.warn("Aviso ao carregar consultor para placa:", err);
+                    console.warn('Aviso ao carregar consultor para placa:', err);
                 }
             }
-
+            
+            cidade = cidade || 'Juína - MT';
+            whatsConsultor = whatsConsultor || '(66) 98141-1234';
+            
+            // Regra oficial solicitada no PRINT 3: 'Consultor Oficial de [CIDADE]' mantendo o WhatsApp
+            const textoConsultor = (nomeConsultor && nomeConsultor !== 'Consultor Oficial')
+                ? (nomeConsultor + ' • Consultor Oficial de ' + cidade)
+                : ('Consultor Oficial de ' + cidade);
+            
+            document.getElementById('placa-consultor-nome').textContent = textoConsultor;
+            document.getElementById('placa-consultor-tel').textContent = formatarTelefone(whatsConsultor);
+            
             gerarQRCode();
         }
 

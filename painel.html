@@ -9478,9 +9478,14 @@
             </div>
 
             <!-- FUNIL EM 3 PASSOS -->
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <i class="fa-solid fa-hand-pointer text-[10px]"></i> Clique no card para filtrar os leads na tabela abaixo
+                </span>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-6">
                 <!-- 1. ABRIRAM -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div id="crm-card-funil-abriram" onclick="filtrarLeadsFunilPainel('abriram')" class="card-filtro-funil-painel cursor-pointer hover:scale-[1.02] hover:border-blue-400 transition-all bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-blue-500/30">1. ABRIRAM</span>
                         <i class="fa-solid fa-eye text-blue-400 text-sm"></i>
@@ -9497,7 +9502,7 @@
                 </div>
 
                 <!-- 2. RESPONDERAM -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div id="crm-card-funil-responderam" onclick="filtrarLeadsFunilPainel('responderam')" class="card-filtro-funil-painel cursor-pointer hover:scale-[1.02] hover:border-amber-400 transition-all bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-500/30">2. RESPONDERAM</span>
                         <i class="fa-solid fa-list-check text-amber-400 text-sm"></i>
@@ -9514,7 +9519,7 @@
                 </div>
 
                 <!-- 3. CLICARAM - LEADS QUENTES -->
-                <div class="bg-slate-800 border-2 border-emerald-500/80 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                <div id="crm-card-funil-clicaram" onclick="filtrarLeadsFunilPainel('clicaram')" class="card-filtro-funil-painel cursor-pointer hover:scale-[1.02] hover:border-emerald-400 transition-all bg-slate-800 border-2 border-emerald-500/80 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-2">
                         <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-500/40 flex items-center gap-1">
                             <i class="fa-solid fa-fire text-amber-400"></i> 3. LEADS QUENTES
@@ -9535,11 +9540,28 @@
 
             <!-- LISTA DE LEADS -->
             <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-users text-emerald-400"></i> Lista de Leads do Quiz
-                    </h4>
-                    <span id="crm-stat-total-badge" class="text-[11px] font-black bg-slate-700 text-slate-300 px-2.5 py-0.5 rounded-full">0 leads</span>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 border-b border-slate-700/80 pb-3">
+                    <div>
+                        <h4 id="crm-titulo-tabela-leads" class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-users text-emerald-400"></i> Lista de Leads do Quiz
+                        </h4>
+                        <p id="crm-subtitulo-tabela-leads" class="text-[10px] text-slate-400 mt-0.5">Leads capturados pelo Quiz da Bio ou balcão</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <button type="button" onclick="filtrarLeadsFunilPainel('todos')" id="crm-btn-filtro-todos" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer">
+                            ✨ Todos
+                        </button>
+                        <button type="button" onclick="filtrarLeadsFunilPainel('abriram')" id="crm-btn-filtro-abriram" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-slate-700 hover:bg-slate-600 text-blue-300 border border-blue-500/30 cursor-pointer">
+                            👀 1. Abriram
+                        </button>
+                        <button type="button" onclick="filtrarLeadsFunilPainel('responderam')" id="crm-btn-filtro-responderam" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-slate-700 hover:bg-slate-600 text-amber-300 border border-amber-500/30 cursor-pointer">
+                            📝 2. Responderam
+                        </button>
+                        <button type="button" onclick="filtrarLeadsFunilPainel('clicaram')" id="crm-btn-filtro-clicaram" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/30 cursor-pointer">
+                            🔥 3. Quentes
+                        </button>
+                        <span id="crm-stat-total-badge" class="text-[11px] font-black bg-slate-900 border border-slate-700 text-slate-300 px-2.5 py-0.5 rounded-full ml-1">0 leads</span>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto max-h-72 custom-modal-scrollbar-dark">
@@ -15190,7 +15212,85 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 </head>
                 <body>
                     <img src="${dataUrl}" onload="setTimeout(() => { window.print(); window.close(); }, 300);" />
-                </body>
+                
+    <!-- MODAL DE AÇÃO RÁPIDA (CRM PAINEL) -->
+    <div id="modal-acao-rapida-painel" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-3 sm:p-5 overflow-y-auto hidden animate-fade-in">
+        <div class="bg-slate-900 text-gray-100 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl relative border border-emerald-500/40 max-h-[94vh] overflow-y-auto custom-modal-scrollbar-dark">
+            <button type="button" onclick="fecharModalAcaoRapidaPainel()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center cursor-pointer transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Cabeçalho do Lead -->
+            <div class="flex items-start gap-3.5 mb-5 border-b border-slate-800 pb-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-2xl shadow-xs shrink-0">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                </div>
+                <div class="min-w-0 pr-8">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-500/40">Ação Rápida no WhatsApp</span>
+                        <span id="crm-modal-lead-estagio-badge" class="bg-purple-500/20 text-purple-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-purple-500/30">Lead Quente</span>
+                    </div>
+                    <h3 class="text-lg font-black text-white mt-1 flex items-center gap-2 truncate">
+                        <span id="crm-modal-lead-nome-titulo">Camila</span>
+                        <span id="crm-modal-lead-tel-titulo" class="text-xs font-mono font-normal text-gray-400">(66) 98141-1234</span>
+                    </h3>
+                    <p id="crm-modal-lead-foco-desc" class="text-xs text-slate-300 mt-0.5 flex items-center gap-1.5 truncate">
+                        <i class="fa-solid fa-bullseye text-emerald-400 text-xs"></i> <span>Mais energia e fim do inchaço</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Seletor de Copys Prontas -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-black uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Escolha a Copy Pronta para este Lead:
+                    </label>
+                    <span class="text-[10px] text-gray-400">Personalizado com seus dados</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button type="button" onclick="selecionarAbaCopyPainel('robo')" id="crm-tab-copy-robo" class="tab-copy-painel-btn p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-500/20 text-white font-bold text-xs text-left transition cursor-pointer">
+                        <span class="block text-emerald-400 text-[11px] mb-0.5">1️⃣ Robô (Print 1)</span>
+                        <span class="text-[10px] text-gray-300 font-normal block leading-tight">Opções numeradas</span>
+                    </button>
+                    <button type="button" onclick="selecionarAbaCopyPainel('desinchar')" id="crm-tab-copy-desinchar" class="tab-copy-painel-btn p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-gray-300 font-bold text-xs text-left transition cursor-pointer hover:bg-slate-700">
+                        <span class="block text-amber-400 text-[11px] mb-0.5">🔥 Desinchar 3kg</span>
+                        <span class="text-[10px] text-gray-400 font-normal block leading-tight">Kit 5 Dias direto</span>
+                    </button>
+                    <button type="button" onclick="selecionarAbaCopyPainel('bio')" id="crm-tab-copy-bio" class="tab-copy-painel-btn p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-gray-300 font-bold text-xs text-left transition cursor-pointer hover:bg-slate-700">
+                        <span class="block text-purple-400 text-[11px] mb-0.5">📊 Bioimpedância</span>
+                        <span class="text-[10px] text-gray-400 font-normal block leading-tight">Avaliação VIP</span>
+                    </button>
+                    <button type="button" onclick="selecionarAbaCopyPainel('catalogo')" id="crm-tab-copy-catalogo" class="tab-copy-painel-btn p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-gray-300 font-bold text-xs text-left transition cursor-pointer hover:bg-slate-700">
+                        <span class="block text-blue-400 text-[11px] mb-0.5">🥤 Cardápio & PIX</span>
+                        <span class="text-[10px] text-gray-400 font-normal block leading-tight">Link e chave PIX</span>
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <textarea id="crm-modal-lead-texto-copy" rows="8" class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-3.5 text-xs text-slate-200 font-sans leading-relaxed focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 custom-modal-scrollbar-dark"></textarea>
+                    <span class="absolute bottom-3 right-3 text-[10px] text-slate-500 pointer-events-none">
+                        Você pode editar o texto antes de enviar
+                    </span>
+                </div>
+
+                <div class="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+                    <button type="button" onclick="enviarAcaoRapidaPainelWhatsApp()" class="w-full sm:flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-emerald-950/60 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Mensagem no WhatsApp
+                    </button>
+                    <button type="button" onclick="copiarTextoAcaoRapidaPainel()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-gray-200 font-bold py-3 px-4 rounded-xl text-xs transition flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> Copiar Mensagem
+                    </button>
+                    <button type="button" onclick="fecharModalAcaoRapidaPainel()" class="w-full sm:w-auto bg-transparent hover:bg-slate-800 text-gray-400 hover:text-white font-bold py-3 px-4 rounded-xl text-xs transition border border-slate-800 cursor-pointer">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
                 </html>
             `);
             win.document.close();
@@ -19017,10 +19117,18 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         window.fecharModalPlacaBalcao = fecharModalPlacaBalcao;
 
         function imprimirPlacaBalcao() {
-            const slug = obterConsultorSlugAtivo();
+            const dados = (typeof obterDadosCompletosConsultorAtivo === 'function') 
+                ? obterDadosCompletosConsultorAtivo() 
+                : { slug: obterConsultorSlugAtivo(), localizacao: 'Juína - MT', nome: 'Edwan Braga', whatsapp: '(66) 98141-1234' };
+            const slug = dados.slug || obterConsultorSlugAtivo();
             const inputParceiro = document.getElementById('placa-input-parceiro-modal');
             const parceiro = (inputParceiro && inputParceiro.value ? inputParceiro.value.trim() : '') || 'Academia Parceira';
-            window.open('placa.html?c=' + encodeURIComponent(slug) + '&parceiro=' + encodeURIComponent(parceiro), '_blank');
+            const url = 'placa.html?c=' + encodeURIComponent(slug) + 
+                '&parceiro=' + encodeURIComponent(parceiro) +
+                '&cidade=' + encodeURIComponent(dados.localizacao || dados.cidade || 'Juína - MT') +
+                '&nome=' + encodeURIComponent(dados.nome || '') +
+                '&whats=' + encodeURIComponent(dados.whatsapp || '');
+            window.open(url, '_blank');
         }
         window.imprimirPlacaBalcao = imprimirPlacaBalcao;
 
@@ -19047,6 +19155,182 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         }
         window.fecharModalCrmLeads = fecharModalCrmLeads;
 
+        
+        window.metricasPainelQuiz = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
+        window.filtroCrmPainelAtivo = 'todos';
+        window.leadSelecionadoAcaoRapidaPainel = null;
+        window.tipoCopySelecionadaPainel = 'robo';
+
+        function filtrarLeadsFunilPainel(estagio) {
+            window.filtroCrmPainelAtivo = estagio;
+
+            // Atualiza visual dos cards
+            ['abriram', 'responderam', 'clicaram'].forEach(card => {
+                const elCard = document.getElementById('crm-card-funil-' + card);
+                if (elCard) {
+                    if (card === estagio) {
+                        elCard.classList.add('ring-2', 'ring-emerald-400', 'bg-slate-800');
+                    } else {
+                        elCard.classList.remove('ring-2', 'ring-emerald-400');
+                    }
+                }
+            });
+
+            // Atualiza visual das pílulas
+            ['todos', 'abriram', 'responderam', 'clicaram'].forEach(btn => {
+                const elBtn = document.getElementById('crm-btn-filtro-' + btn);
+                if (elBtn) {
+                    if (btn === estagio) {
+                        elBtn.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-emerald-600 text-white cursor-pointer';
+                    } else {
+                        elBtn.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold transition bg-slate-700 hover:bg-slate-600 text-gray-300 border border-slate-600 cursor-pointer';
+                    }
+                }
+            });
+
+            // Atualiza título da tabela
+            const elTitulo = document.getElementById('crm-titulo-tabela-leads');
+            const elSub = document.getElementById('crm-subtitulo-tabela-leads');
+            if (elTitulo) {
+                if (estagio === 'clicaram') {
+                    elTitulo.innerHTML = '<i class="fa-solid fa-fire text-amber-400"></i> Leads Quentes (Clicaram no WhatsApp)';
+                    if (elSub) elSub.textContent = 'Leads com alta intenção de compra prontos para fechar';
+                } else if (estagio === 'responderam') {
+                    elTitulo.innerHTML = '<i class="fa-solid fa-list-check text-amber-400"></i> Responderam o Teste';
+                    if (elSub) elSub.textContent = 'Preencheram os sintomas e viram o nível de retenção';
+                } else if (estagio === 'abriram') {
+                    elTitulo.innerHTML = '<i class="fa-solid fa-eye text-blue-400"></i> Abriram o Link (Topo do Funil)';
+                    if (elSub) elSub.textContent = 'Cliques e visitas no link da Bio do Instagram ou balcão';
+                } else {
+                    elTitulo.innerHTML = '<i class="fa-solid fa-users text-emerald-400"></i> Lista de Leads do Quiz';
+                    if (elSub) elSub.textContent = 'Todos os contatos capturados no Quiz de Desinchaço';
+                }
+            }
+
+            renderizarTabelaLeadsFiltradosPainel();
+        }
+        window.filtrarLeadsFunilPainel = filtrarLeadsFunilPainel;
+
+        function gerarCopysPersonalizadasPainel(lead) {
+            const dados = obterDadosCompletosConsultorAtivo();
+            const nomeLead = (lead && lead.nome) ? lead.nome.trim() : 'Amigo(a)';
+            const foco = (lead && (lead.objetivo || lead.sintomas)) ? (lead.objetivo || lead.sintomas) : 'desinchar e ter mais energia';
+
+            // 1. Copy Oficial com Robô e Opções Numeradas (EXATAMENTE COMO NO PRINT 1 DO USUÁRIO!)
+            const copyRobo = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome} do Litrão do Reset 🥤⚡.
+Vi que você fez o Teste de Desinchaço em 1 Minuto e identificou retenção líquida severa!
+
+Para eu agilizar seu atendimento e liberar seu protocolo, escolha uma das opções abaixo digitando o número correspondente:
+
+1️⃣ Fazer meu pedido do Kit 5 Dias (Desinchar até 3kg)
+2️⃣ Agendar minha Avaliação de Bioimpedância Gratuita
+3️⃣ Conhecer os pacotes (Reset, Reset + e Reset Turbo)
+4️⃣ Falar comigo agora
+
+Qual dessas opções você prefere?`;
+
+            // 2. Foco Direto no Sintoma e Desinchaço em 5 Dias
+            const copyDesinchar = `Oi ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome} do Litrão do Reset.
+Vi que no seu teste de desinchaço você marcou foco em: *${foco}*.
+
+Nosso Kit Semanal de 5 Dias foi formulado exatamente para destravar a queima calórica e eliminar até 3kg de retenção logo na primeira semana! 🥤✨
+
+Você prefere receber gelado no seu endereço ou retirar aqui no nosso Espaço em ${dados.localizacao}?`;
+
+            // 3. Avaliação de Bioimpedância VIP
+            const copyBio = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome}.
+Como você concluiu nosso Teste de Desinchaço, liberei para você uma Avaliação de Bioimpedância VIP gratuita! 📊✨
+
+Nela analisamos seu percentual de gordura, retenção hídrica e metabolismo corporal.
+
+Você prefere agendar presencialmente aqui no ${dados.nomeEspaco} em ${dados.localizacao} ou fazer a pré-avaliação online pelo celular?`;
+
+            // 4. Cardápio Oficial e Pagamento PIX
+            const copyCatalogo = `Olá ${nomeLead}! Tudo bem? Aqui é o(a) ${dados.nome}.
+Segue o link oficial do nosso cardápio para você garantir seu pacote semanal do Litrão do Reset:
+👉 ${dados.linkCat}
+
+Chave PIX Oficial: ${dados.chavePix} (${dados.titularPix})
+Espaço: ${dados.nomeEspaco} • ${dados.localizacao}
+
+Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui para liberarmos seu kit com prioridade máxima! 🥤⚡`;
+
+            return {
+                robo: copyRobo,
+                desinchar: copyDesinchar,
+                bio: copyBio,
+                catalogo: copyCatalogo
+            };
+        }
+
+        function renderizarTabelaLeadsFiltradosPainel() {
+            const metricas = window.metricasPainelQuiz;
+            const todosLeads = metricas.leads || [];
+            const filtro = window.filtroCrmPainelAtivo;
+
+            let leadsExibidos = todosLeads;
+            if (filtro === 'clicaram') {
+                leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap')));
+            } else if (filtro === 'responderam') {
+                leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Respondeu') || !l.status.includes('Quente')));
+            } else if (filtro === 'abriram') {
+                leadsExibidos = todosLeads.filter(l => l.status && l.status.includes('Abriu'));
+            }
+
+            const crmBadge = document.getElementById('crm-stat-total-badge');
+            if (crmBadge) crmBadge.textContent = `${leadsExibidos.length} de ${todosLeads.length} leads`;
+
+            const tbody = document.getElementById('crm-leads-tbody');
+            if (!tbody) return;
+
+            if (leadsExibidos.length === 0) {
+                let msgVazio = 'Nenhum lead encontrado neste estágio.';
+                if (filtro === 'abriram') {
+                    msgVazio = '👀 ' + (metricas.abriram || 0) + ' acessos ao link registrados no topo do funil.';
+                } else if (filtro === 'responderam') {
+                    msgVazio = 'Nenhum lead preencheu apenas o questionário sem clicar no WhatsApp ainda.';
+                } else if (filtro === 'clicaram') {
+                    msgVazio = 'Nenhum lead clicou no botão de ir para o WhatsApp ainda.';
+                }
+
+                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">' + msgVazio + 
+                    (filtro !== 'todos' ? ' <button onclick="filtrarLeadsFunilPainel(\'todos\')" class="text-xs text-emerald-400 hover:underline font-bold ml-1">Ver todos</button>' : '') + 
+                    '</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = leadsExibidos.map(function(l, index) {
+                const telLimpo = (l.whatsapp || '').replace(/\D/g, '');
+                const isQuente = l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap'));
+                const statusBadge = isQuente
+                    ? '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-fire text-amber-400"></i> Quente</span>'
+                    : '<span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-amber-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-check text-amber-400"></i> Respondeu</span>';
+
+                const copys = gerarCopysPersonalizadasPainel(l);
+
+                const acaoBtns = telLimpo ? (
+                    '<div class="flex items-center justify-end gap-1.5">' +
+                        '<button type="button" onclick="abrirModalAcaoRapidaPainel(' + index + ')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-black px-2.5 py-1 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-xs" title="Escolher Copy Pronta">' +
+                            '<i class="fa-solid fa-bolt text-amber-300"></i> Ação Rápida' +
+                        '</button>' +
+                        '<a href="https://wa.me/55' + telLimpo + '?text=' + encodeURIComponent(copys.robo) + '" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-1.5 rounded-lg text-xs transition flex items-center justify-center cursor-pointer" title="Chamar no WhatsApp com Robô Oficial">' +
+                            '<i class="fa-brands fa-whatsapp text-sm"></i>' +
+                        '</a>' +
+                    '</div>'
+                ) : '<span class="text-slate-500 text-[10px]">-</span>';
+
+                return (
+                    '<tr class="hover:bg-slate-800/60 transition">' +
+                        '<td class="py-2.5 px-3"><p class="font-bold text-white text-xs">' + (l.nome || 'Lead') + '</p></td>' +
+                        '<td class="py-2.5 px-3 text-slate-300 text-xs">' + (l.whatsapp || '-') + '</td>' +
+                        '<td class="py-2.5 px-3 text-slate-400 text-[11px]">' + (l.objetivo || l.sintomas || '-') + '</td>' +
+                        '<td class="py-2.5 px-3">' + statusBadge + '</td>' +
+                        '<td class="py-2.5 px-3 text-right">' + acaoBtns + '</td>' +
+                    '</tr>'
+                );
+            }).join('');
+        }
+
         async function carregarMetricasQuizPainel() {
             const slug = obterConsultorSlugAtivo();
             let metricas = { abriram: 0, responderam: 0, clicaram: 0, leads: [] };
@@ -19059,25 +19343,27 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             // Sincroniza com Supabase se consultorAtual tiver ID
             if (window.supabaseClient && window.consultorAtual && window.consultorAtual.id) {
                 try {
-                    const res = await window.supabaseClient.from('consultores').select('nome_espaco').eq('id', window.consultorAtual.id).single();
-                    if (res && res.data && res.data.nome_espaco) {
-                        const m = res.data.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
+                    const { data } = await window.supabaseClient.from('consultores').select('nome_espaco').eq('id', window.consultorAtual.id).single();
+                    if (data && data.nome_espaco && data.nome_espaco.includes('<!--CATALOGO_CUSTOM:')) {
+                        const m = data.nome_espaco.match(/<!--CATALOGO_CUSTOM:([\s\S]*?)-->/);
                         if (m && m[1]) {
-                            const custom = JSON.parse(m[1]);
-                            if (custom.metricasQuiz) {
-                                metricas.abriram = Math.max(metricas.abriram || 0, custom.metricasQuiz.abriram || 0);
-                                metricas.responderam = Math.max(metricas.responderam || 0, custom.metricasQuiz.responderam || 0);
-                                metricas.clicaram = Math.max(metricas.clicaram || 0, custom.metricasQuiz.clicaram || 0);
-                                if (custom.metricasQuiz.ultimosLeads && custom.metricasQuiz.ultimosLeads.length > 0) {
-                                    metricas.leads = custom.metricasQuiz.ultimosLeads;
-                                }
+                            const parsed = JSON.parse(m[1]);
+                            if (parsed.metricasQuiz) {
+                                metricas = {
+                                    abriram: Math.max(metricas.abriram || 0, parsed.metricasQuiz.abriram || 0),
+                                    responderam: Math.max(metricas.responderam || 0, parsed.metricasQuiz.responderam || 0),
+                                    clicaram: Math.max(metricas.clicaram || 0, parsed.metricasQuiz.clicaram || 0),
+                                    leads: (parsed.metricasQuiz.ultimosLeads && parsed.metricasQuiz.ultimosLeads.length > 0) ? parsed.metricasQuiz.ultimosLeads : (metricas.leads || [])
+                                };
                             }
                         }
                     }
                 } catch(err) {
-                    console.warn('Aviso métricas CRM:', err);
+                    console.warn("Aviso ao buscar métricas remotas do Quiz:", err);
                 }
             }
+
+            window.metricasPainelQuiz = metricas;
 
             // Atualiza os contadores no Card do Painel
             const cardAbr = document.getElementById('card-stat-quiz-abriram');
@@ -19093,7 +19379,6 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             const crmClic = document.getElementById('crm-stat-clicaram');
             const crmTaxaResp = document.getElementById('crm-stat-taxa-resp');
             const crmTaxaClic = document.getElementById('crm-stat-taxa-clic');
-            const crmBadge = document.getElementById('crm-stat-total-badge');
 
             if (crmAbr) crmAbr.textContent = metricas.abriram || 0;
             if (crmResp) crmResp.textContent = metricas.responderam || 0;
@@ -19105,41 +19390,115 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             if (crmTaxaResp) crmTaxaResp.textContent = taxaR + '%';
             if (crmTaxaClic) crmTaxaClic.textContent = taxaC + '%';
 
-            const leads = metricas.leads || [];
-            if (crmBadge) crmBadge.textContent = leads.length + ' leads';
-
-            const tbody = document.getElementById('crm-leads-tbody');
-            if (tbody) {
-                if (leads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">Nenhum lead registrado ainda. Cole o seu link do Quiz na bio do Instagram ou gere a Placa de Balcão para começar a captar!</td></tr>';
-                } else {
-                    tbody.innerHTML = leads.map(function(l) {
-                        const telLimpo = (l.whatsapp || '').replace(/\D/g, '');
-                        const isQuente = l.status && l.status.includes('Quente');
-                        const statusBadge = isQuente
-                            ? '<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-fire text-amber-400"></i> Quente</span>'
-                            : '<span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold text-[10px] border border-amber-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-check text-amber-400"></i> Respondeu</span>';
-
-                        const zapBtn = telLimpo ? (
-                            '<a href="https://wa.me/55' + telLimpo + '?text=' + encodeURIComponent('Olá ' + l.nome + '! Vi que você fez o Teste de Desinchaço do Litrão do Reset. Como posso te ajudar a começar seu protocolo?') + '" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition flex items-center gap-1 w-max ml-auto">' +
-                                '<i class="fa-brands fa-whatsapp"></i> Chamar' +
-                            '</a>'
-                        ) : '<span class="text-slate-500 text-[10px]">-</span>';
-
-                        return (
-                            '<tr class="hover:bg-slate-800/60 transition">' +
-                                '<td class="py-2.5 px-3"><p class="font-bold text-white text-xs">' + (l.nome || 'Lead') + '</p></td>' +
-                                '<td class="py-2.5 px-3 text-slate-300 text-xs">' + (l.whatsapp || '-') + '</td>' +
-                                '<td class="py-2.5 px-3 text-slate-400 text-[11px]">' + (l.objetivo || l.sintomas || '-') + '</td>' +
-                                '<td class="py-2.5 px-3">' + statusBadge + '</td>' +
-                                '<td class="py-2.5 px-3 text-right">' + zapBtn + '</td>' +
-                            '</tr>'
-                        );
-                    }).join('');
-                }
-            }
+            renderizarTabelaLeadsFiltradosPainel();
         }
         window.carregarMetricasQuizPainel = carregarMetricasQuizPainel;
+
+        // Funções do Modal de Ação Rápida no Painel
+        function abrirModalAcaoRapidaPainel(index) {
+            const metricas = window.metricasPainelQuiz;
+            const todosLeads = metricas.leads || [];
+            const filtro = window.filtroCrmPainelAtivo;
+
+            let leadsExibidos = todosLeads;
+            if (filtro === 'clicaram') leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Quente') || l.status.includes('Clicou') || l.status.includes('Zap')));
+            else if (filtro === 'responderam') leadsExibidos = todosLeads.filter(l => l.status && (l.status.includes('Respondeu') || !l.status.includes('Quente')));
+            else if (filtro === 'abriram') leadsExibidos = todosLeads.filter(l => l.status && l.status.includes('Abriu'));
+
+            const lead = leadsExibidos[index];
+            if (!lead) return;
+
+            window.leadSelecionadoAcaoRapidaPainel = lead;
+
+            document.getElementById('crm-modal-lead-nome-titulo').textContent = lead.nome || 'Cliente';
+            document.getElementById('crm-modal-lead-tel-titulo').textContent = lead.whatsapp || '(Sem número)';
+            document.getElementById('crm-modal-lead-foco-desc').textContent = lead.objetivo || lead.sintomas || 'Foco em desinchaço e mais energia';
+
+            const isQuente = lead.status && (lead.status.includes('Quente') || lead.status.includes('Clicou') || lead.status.includes('Zap'));
+            const elBadge = document.getElementById('crm-modal-lead-estagio-badge');
+            if (elBadge) {
+                if (isQuente) {
+                    elBadge.textContent = '🔥 3. Lead Quente (Clicou no WhatsApp)';
+                    elBadge.className = 'bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-500/40';
+                } else {
+                    elBadge.textContent = '📝 2. Respondeu o Teste';
+                    elBadge.className = 'bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-amber-500/40';
+                }
+            }
+
+            selecionarAbaCopyPainel('robo');
+
+            const modal = document.getElementById('modal-acao-rapida-painel');
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalAcaoRapidaPainel = abrirModalAcaoRapidaPainel;
+
+        function fecharModalAcaoRapidaPainel() {
+            const modal = document.getElementById('modal-acao-rapida-painel');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalAcaoRapidaPainel = fecharModalAcaoRapidaPainel;
+
+        function selecionarAbaCopyPainel(tipo) {
+            window.tipoCopySelecionadaPainel = tipo;
+            const lead = window.leadSelecionadoAcaoRapidaPainel;
+            if (!lead) return;
+
+            const copys = gerarCopysPersonalizadasPainel(lead);
+            const textarea = document.getElementById('crm-modal-lead-texto-copy');
+            if (textarea && copys[tipo]) {
+                textarea.value = copys[tipo];
+            }
+
+            // Atualiza botões de aba
+            ['robo', 'desinchar', 'bio', 'catalogo'].forEach(t => {
+                const btn = document.getElementById('crm-tab-copy-' + t);
+                if (btn) {
+                    if (t === tipo) {
+                        btn.className = 'tab-copy-painel-btn p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-500/20 text-white font-bold text-xs text-left transition cursor-pointer';
+                    } else {
+                        btn.className = 'tab-copy-painel-btn p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-gray-300 font-bold text-xs text-left transition cursor-pointer hover:bg-slate-700';
+                    }
+                }
+            });
+        }
+        window.selecionarAbaCopyPainel = selecionarAbaCopyPainel;
+
+        function enviarAcaoRapidaPainelWhatsApp() {
+            const lead = window.leadSelecionadoAcaoRapidaPainel;
+            if (!lead) return;
+
+            const telLimpo = (lead.whatsapp || '').replace(/\D/g, '');
+            if (!telLimpo) {
+                alert('Este lead não possui WhatsApp cadastrado.');
+                return;
+            }
+
+            const textarea = document.getElementById('crm-modal-lead-texto-copy');
+            const texto = textarea ? textarea.value : '';
+
+            const url = `https://wa.me/55${telLimpo}?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+        }
+        window.enviarAcaoRapidaPainelWhatsApp = enviarAcaoRapidaPainelWhatsApp;
+
+        function copiarTextoAcaoRapidaPainel() {
+            const textarea = document.getElementById('crm-modal-lead-texto-copy');
+            const texto = textarea ? textarea.value : '';
+            if (!texto) return;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto).then(() => {
+                    alert('✅ Copy copiada com sucesso! Cole no chat com o lead no WhatsApp.');
+                }).catch(() => {
+                    prompt('Copie a mensagem:', texto);
+                });
+            } else {
+                prompt('Copie a mensagem:', texto);
+            }
+        }
+        window.copiarTextoAcaoRapidaPainel = copiarTextoAcaoRapidaPainel;
+
 
         
         

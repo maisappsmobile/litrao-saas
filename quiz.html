@@ -43,7 +43,7 @@
                 <div>
                     <h2 id="consultor-nome" class="text-xs font-black text-white leading-tight">Litrão do Reset Oficial</h2>
                     <p id="consultor-sub" class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-circle-check text-[9px]"></i> Consultor Credenciado
+                        <i class="fa-solid fa-circle-check text-[9px]"></i> Consultor Credenciado • <span id="consultor-cidade-header" class="text-emerald-300 font-bold">Juína - MT</span>
                     </p>
                 </div>
             </div>
@@ -204,6 +204,10 @@
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase">
                     <i class="fa-solid fa-circle-check"></i> Diagnóstico Concluído
                 </span>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] text-gray-300 font-medium mb-2">
+                    <i class="fa-solid fa-location-dot text-emerald-400 text-xs"></i>
+                    <span>Consultor Oficial em <strong id="res-cidade-badge" class="text-white font-bold">Juína - MT</strong></span>
+                </div>
                 <h2 class="text-2xl font-black text-white">
                     Olá, <span id="res-nome" class="text-emerald-400">Cliente</span>!
                 </h2>
@@ -256,7 +260,7 @@
                     <span>Receber Meu Protocolo no WhatsApp</span>
                 </a>
                 <p class="text-[10px] text-center text-gray-400 flex items-center justify-center gap-1">
-                    <i class="fa-solid fa-lock text-emerald-400"></i> Atendimento com seu Consultor Oficial
+                    <i class="fa-solid fa-lock text-emerald-400"></i> Atendimento com seu Consultor Oficial de <span id="res-cidade-rodape" class="text-emerald-300 font-bold">Juína - MT</span>
                 </p>
             </div>
         </div>
@@ -292,20 +296,42 @@
             const params = new URLSearchParams(window.location.search);
             const slug = params.get('c') || params.get('slug');
             const hid = params.get('id') || params.get('herbalife_id');
-
+            let cidade = params.get('cidade') || params.get('endereco') || '';
+        
+            // Tenta dados locais
+            try {
+                const salvo = localStorage.getItem('litrao_consultor_dados') || localStorage.getItem('consultor_logado');
+                if (salvo) {
+                    const c = JSON.parse(salvo);
+                    if (!cidade && c.cidade) cidade = c.cidade + (c.estado ? ' - ' + c.estado : '');
+                    if (c.nome_espaco && (!cidade || cidade === 'Juína')) {
+                        const limpo = c.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                        const partes = limpo.split('|');
+                        if (partes[1]) cidade = partes[1].trim();
+                    }
+                }
+            } catch(e) {}
+        
             if (supabaseClient && (slug || hid)) {
                 try {
                     let query = supabaseClient.from('consultores').select('*');
                     if (slug) query = query.eq('slug', slug);
                     else if (hid) query = query.eq('herbalife_id', hid);
-
+        
                     const { data, error } = await query.single();
                     if (data && !error) {
                         consultorAtual.id = data.id;
                         consultorAtual.nome = data.nome_espaco ? data.nome_espaco.split('•')[0].trim() : data.nome;
                         consultorAtual.whatsapp = data.whatsapp ? data.whatsapp.replace(/\D/g, '') : consultorAtual.whatsapp;
                         consultorAtual.slug = data.slug || slug;
-
+        
+                        if (!cidade && data.cidade) cidade = data.cidade + (data.estado ? ' - ' + data.estado : '');
+                        if (data.nome_espaco && (!cidade || cidade === 'Juína')) {
+                            const limpo = data.nome_espaco.replace(/<!--[\s\S]*?-->/g, '').trim();
+                            const partes = limpo.split('|');
+                            if (partes[1]) cidade = partes[1].trim();
+                        }
+        
                         // Atualiza elementos visuais do cabeçalho
                         document.getElementById('consultor-nome').textContent = consultorAtual.nome;
                         
@@ -324,10 +350,20 @@
                         }
                     }
                 } catch(err) {
-                    console.warn("Erro ao buscar consultor:", err);
+                    console.warn('Erro ao buscar consultor:', err);
                 }
             }
-
+        
+            cidade = cidade || 'Juína - MT';
+            consultorAtual.cidade = cidade;
+        
+            const elCidHeader = document.getElementById('consultor-cidade-header');
+            if (elCidHeader) elCidHeader.textContent = cidade;
+            const elResCid = document.getElementById('res-cidade-badge');
+            if (elResCid) elResCid.textContent = cidade;
+            const elResCidRodape = document.getElementById('res-cidade-rodape');
+            if (elResCidRodape) elResCidRodape.textContent = cidade;
+        
             // Registra a métrica de ABERTURA (Funil: Abriram)
             registrarMetricaFunil('abriram');
         }
