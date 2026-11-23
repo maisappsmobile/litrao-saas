@@ -108,71 +108,41 @@
         .drag-handle-card:active {
             cursor: grabbing;
         }
-        @media (max-width: 767px) {
-            .header-desktop-only {
-                display: none !important;
-            }
+        .header-desktop-only {
+            display: none !important;
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
-    <!-- CABEÇALHO -->
-    <header class="bg-white shadow-sm border-b-4 border-brand-light sticky top-0 z-40 overflow-hidden sm:overflow-visible">
+    <!-- CABEÇALHO (RELATIVO COM MENU SANDUÍCHE LIMPO) -->
+    <header class="bg-white shadow-sm border-b-4 border-brand-light relative z-40 overflow-hidden sm:overflow-visible">
         <div class="w-full max-w-[98%] xl:max-w-[1650px] 2xl:max-w-[1800px] mx-auto p-2 sm:p-4 flex justify-between items-center gap-2">
             <a href="painel.html" class="shrink-0 flex items-center min-w-[110px] max-w-[130px] sm:max-w-none">
                 <img src="reset-logo.png" alt="Reset Metabólico" class="h-8 sm:h-10 object-contain shrink-0">
             </a>
 
             <!-- AÇÕES DO CONSULTOR (VISÍVEIS APENAS APÓS LOGIN) -->
-            <div id="header-botoes-consultor" class="hidden flex items-center space-x-1 sm:space-x-2 shrink-0">
-                <span class="text-xs font-bold text-gray-400 uppercase hidden lg:inline mr-1">Área do Consultor</span>
+            <div id="header-botoes-consultor" class="hidden flex items-center space-x-2 shrink-0">
+                <!-- BOTÕES DE BACKUP OCULTOS NO TOPO (MANTIDOS NO DOM PARA SCRIPTS) -->
+                <button id="btn-abrir-crm-kanban" onclick="abrirModuloCrmKanban()" class="hidden" style="display: none !important;"></button>
+                <button id="btn-facebook-topo" type="button" onclick="abrirModalExtratorFacebookSuperadmin()" class="hidden" style="display: none !important;"></button>
+                <button id="btn-abrir-catalogo-interativo" onclick="abrirModuloCatalogoInterativo()" class="hidden" style="display: none !important;"></button>
+                <button type="button" onclick="abrirModalPromocao()" id="btn-pagina-vendas-topo" class="hidden" style="display: none !important;"></button>
+                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="hidden" style="display: none !important;"></button>
+                <a href="admin.html" target="_blank" id="btn-admin-dedicado-topo" class="hidden" style="display: none !important;"></a>
 
-                <!-- 1. BOTÁO CRM -->
-                <button id="btn-abrir-crm-kanban" onclick="abrirModuloCrmKanban()" class="header-desktop-only text-xs font-black bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="CRM & Extrator WhatsApp">
-                    <i class="fa-solid fa-layer-group text-purple-600 text-sm"></i>
-                    <span class="inline">CRM</span>
-                </button>
-
-                <!-- NOVO: BOTÁO FACEBOOK TOPO (20K+ LEADS - EXCLUSIVO SUPERADMIN / LIBERADO MANUALMENTE) -->
-                <button id="btn-facebook-topo" type="button" onclick="abrirModalExtratorFacebookSuperadmin()" class="header-desktop-only text-xs font-black bg-blue-600 hover:bg-blue-700 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs border border-blue-500 cursor-pointer hidden" style="display: none !important;" title="Abrir Base de Leads do Facebook (20k+ Contatos)">
-                    <i class="fa-brands fa-facebook text-white text-xs sm:text-sm"></i>
-                    <span class="inline">Facebook (20k+)</span>
-                </button>
-
-                <!-- 2. BOTÁO COPIAR LINK -->
-                <button id="btn-copiar-link-topo" onclick="copiarLink()" class="text-xs font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1 shadow-2xs cursor-pointer hidden shrink-0" title="Copiar Meu Link Oficial">
+                <!-- 1. BOTÃO COPIAR LINK (ATALHO RÁPIDO DO CONSULTOR) -->
+                <button id="btn-copiar-link-topo" onclick="copiarLink()" class="text-xs font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden shrink-0" title="Copiar Meu Link Oficial">
                     <i class="fa-regular fa-copy text-emerald-600 text-xs sm:text-sm"></i>
                     <span id="btn-copiar-link-texto" class="inline">COPIAR LINK</span>
                 </button>
 
-                <!-- 3. BOTÁO CATÁLOGO -->
-                <button id="btn-abrir-catalogo-interativo" onclick="abrirModuloCatalogoInterativo()" class="header-desktop-only text-xs font-black bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="Meu Catálogo Interativo Digital">
-                    <i class="fa-solid fa-book-open-reader text-blue-600 text-sm"></i>
-                    <span class="inline">Catálogo</span>
-                </button>
-
-                <!-- BOTÁO ESCOLHER PLANO & PAGAR MENSALIDADE -->
-                <button type="button" onclick="abrirModalPromocao()" id="btn-pagina-vendas-topo" class="header-desktop-only text-xs font-black bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-sm transform hover:scale-105 border border-amber-300 cursor-pointer hidden" title="Escolher Plano e Pagar Mensalidade">
-                    <i class="fa-solid fa-credit-card text-slate-950 text-xs"></i>
-                    <span class="inline">Escolher Plano & Pagar</span>
-                </button>
-                
-                <!-- BOTÁO RÁPIDO GERENCIAR CONSULTORES (SUPERADMIN - OCULTO POR PADRÁO) -->
-                <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" id="btn-admin-consultores-topo" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md border-2 border-purple-400 cursor-pointer hidden" style="display: none !important;" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
-                    <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
-                    <span class="inline">👑 Gestão Consultores</span>
-                </button>
-                <a href="admin.html" target="_blank" id="btn-admin-dedicado-topo" class="header-desktop-only text-xs font-black bg-slate-900 hover:bg-slate-800 text-purple-300 hover:text-white px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 shadow-sm border border-purple-500/40 cursor-pointer hidden" style="display: none !important;" title="Abrir Painel Admin Dedicado em Nova Aba">
-                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
-                    <span class="inline">Admin SaaS</span>
-                </a>
-
-                <!-- 4. MENU SANDUÍCHE (☰) -->
+                <!-- 2. MENU SANDUÍCHE (☰) -->
                 <div class="relative inline-block text-left shrink-0" id="container-menu-sanduiche">
-                    <button id="btn-menu-sanduiche" type="button" onclick="toggleMenuSanduiche(event)" class="text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden" title="Mais Opções do Menu">
-                        <i class="fa-solid fa-bars text-slate-800 text-sm"></i>
-                        <span class="hidden sm:inline font-bold">Menu</span>
+                    <button id="btn-menu-sanduiche" type="button" onclick="toggleMenuSanduiche(event)" class="text-xs sm:text-sm font-black bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-600 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-2 shadow-xs cursor-pointer hidden" title="Abrir Menu de Funções">
+                        <i class="fa-solid fa-bars text-yellow-300 text-sm sm:text-base"></i>
+                        <span class="inline font-black uppercase tracking-wider">Menu</span>
                         <span id="badge-contador-notificacoes-topo" class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-2xs hidden">0</span>
                     </button>
 
@@ -183,7 +153,7 @@
                             <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">ResetFIT</span>
                         </div>
 
-                        <!-- GESTÁO DE CONSULTORES NO MENU SANDUÍCHE (SUPERADMIN) -->
+                        <!-- GESTÃO DE CONSULTORES NO MENU SANDUÍCHE (SUPERADMIN) -->
                         <div id="item-menu-gerenciar-consultores" class="px-2 mb-1.5 hidden">
                             <button type="button" onclick="abrirGestaoConsultoresSuperadmin(); fecharMenuSanduiche();" class="w-full text-left px-3 py-2 text-xs font-black text-white bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 transition flex items-center justify-between cursor-pointer rounded-xl border border-purple-400 shadow-xs" title="Gerenciar Consultores da Plataforma (SuperAdmin)">
                                 <div class="flex items-center gap-2">
@@ -192,6 +162,17 @@
                                 </div>
                                 <span class="bg-amber-400 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-2xs">ADMIN</span>
                             </button>
+                        </div>
+
+                        <!-- ADMIN SAAS DEDICADO NO MENU SANDUÍCHE (SUPERADMIN) -->
+                        <div id="item-menu-admin-dedicado" class="px-2 mb-1.5 hidden">
+                            <a href="admin.html" target="_blank" onclick="fecharMenuSanduiche();" class="w-full text-left px-3 py-2 text-xs font-black text-purple-200 bg-slate-900 hover:bg-slate-800 transition flex items-center justify-between cursor-pointer rounded-xl border border-purple-500/40 shadow-xs" title="Abrir Painel Admin Dedicado em Nova Aba">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-up-right-from-square text-purple-400 text-sm"></i>
+                                    <span>Admin SaaS Dedicado</span>
+                                </div>
+                                <span class="bg-purple-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-2xs">ADMIN</span>
+                            </a>
                         </div>
 
                         <!-- DESTAQUE NO MENU: ESCOLHER PLANO & PAGAR MENSALIDADE -->
@@ -16750,41 +16731,29 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 secaoConteudo.style.setProperty('display', 'none', 'important');
             }
 
-            // 3. Botões do Header do Topo
+            // 3. Botões do Header do Topo (Mantidos ocultos na barra para manter o cabeçalho limpo com Menu Sanduíche)
             if (btnTopoCons) {
-                if (isGestaoLiberada) {
-                    btnTopoCons.classList.remove('hidden');
-                    btnTopoCons.style.setProperty('display', 'inline-flex', 'important');
-                } else {
-                    btnTopoCons.classList.add('hidden');
-                    btnTopoCons.style.setProperty('display', 'none', 'important');
-                }
+                btnTopoCons.classList.add('hidden');
+                btnTopoCons.style.setProperty('display', 'none', 'important');
             }
-
             if (btnAdminDedicado) {
-                if (isSA) {
-                    btnAdminDedicado.classList.remove('hidden');
-                    btnAdminDedicado.style.setProperty('display', 'inline-flex', 'important');
-                } else {
-                    btnAdminDedicado.classList.add('hidden');
-                    btnAdminDedicado.style.setProperty('display', 'none', 'important');
-                }
+                btnAdminDedicado.classList.add('hidden');
+                btnAdminDedicado.style.setProperty('display', 'none', 'important');
             }
-
             if (btnTopoFb) {
-                if (isFbLiberado) {
-                    btnTopoFb.classList.remove('hidden');
-                    btnTopoFb.style.setProperty('display', 'inline-flex', 'important');
-                } else {
-                    btnTopoFb.classList.add('hidden');
-                    btnTopoFb.style.setProperty('display', 'none', 'important');
-                }
+                btnTopoFb.classList.add('hidden');
+                btnTopoFb.style.setProperty('display', 'none', 'important');
             }
 
             // 4. Itens do Menu Sanduíche
             if (itemMenuCons) {
                 if (isGestaoLiberada) itemMenuCons.classList.remove('hidden');
                 else itemMenuCons.classList.add('hidden');
+            }
+            const itemMenuAdmin = document.getElementById('item-menu-admin-dedicado');
+            if (itemMenuAdmin) {
+                if (isSA) itemMenuAdmin.classList.remove('hidden');
+                else itemMenuAdmin.classList.add('hidden');
             }
             if (btnExtratorFbMenu) {
                 if (isFbLiberado) btnExtratorFbMenu.classList.remove('hidden');

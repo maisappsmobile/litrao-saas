@@ -64,7 +64,7 @@
         }
     </style>
 </head>
-<body class="bg-brand-bg text-gray-800 font-sans antialiased pt-16">
+<body class="bg-brand-bg text-gray-800 font-sans antialiased">
 
     <!-- TOP BAR DE LANÇAMENTO OFICIAL -->
     <aside id="top-bar-alerta-lancamento" aria-label="Alerta de Lançamento" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-emerald-700 via-green-700 to-teal-800 text-white text-[11px] md:text-xs font-extrabold py-2 px-3 shadow-md hidden items-center justify-center gap-2 border-b border-emerald-500/40" style="display: none !important;">
@@ -73,103 +73,92 @@
         <a href="grupo-vip.html" class="underline text-yellow-200 hover:text-white font-black shrink-0 flex items-center gap-1">Entrar no Grupo VIP 👉</a>
     </aside>
 
-    <!-- HEADER / MENU SUPERIOR -->
-    <header id="main-header" class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs transition-all duration-200">
+    <!-- HEADER / MENU SUPERIOR (RELATIVO COM MENU SANDUÍCHE UNIVERSAL) -->
+    <header id="main-header" class="relative z-40 bg-white border-b border-gray-200/80 shadow-xs">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <!-- Logo & Marca -->
             <a href="index.html" class="flex items-center space-x-2.5">
                 <img src="reset-logo.png" alt="Reset Metabólico" class="h-9 sm:h-10 object-contain">
             </a>
 
-            <!-- Menu Desktop -->
-            <nav class="hidden md:flex items-center space-x-6 text-sm font-bold text-gray-700">
-                <a href="#produtos" id="nav-link-produtos" class="text-emerald-700 hover:text-emerald-800 transition flex items-center font-black" style="display: none;">
-                    <i class="fa-solid fa-bottle-droplet mr-1.5 text-xs text-emerald-600"></i> Pedir Litrão
-                </a>
-                <a href="#beneficios" class="hover:text-brand-dark-green transition">Benefícios</a>
-                <a href="#oportunidade" class="hover:text-brand-dark-green transition">Oportunidade</a>
-                <a href="avaliacao.html" class="hover:text-brand-dark-green transition flex items-center text-emerald-700">
-                    <i class="fa-solid fa-clipboard-check mr-1.5 text-xs text-emerald-600"></i> Avaliação Grátis
-                </a>
-            </nav>
+            <!-- Ações do Topo: Carrinho + Botão Menu Sanduíche -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Atalho Carrinho -->
+                <button type="button" onclick="abrirModalCarrinhoDireto()" class="inline-flex items-center bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition transform hover:scale-105 cursor-pointer">
+                    <i class="fa-solid fa-cart-shopping mr-1.5 text-yellow-300"></i>
+                    <span class="hidden sm:inline">CARRINHO</span>
+                    <span id="badge-qtd-carrinho" class="hidden ml-1.5 bg-yellow-400 text-gray-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
+                </button>
 
-            <!-- Botões Desktop: Painel, Instalar App & Cadastro -->
-            <div class="hidden md:flex items-center space-x-3">
-                <button type="button" onclick="iniciarInstalacaoApp()" class="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-xs font-black px-3.5 py-2.5 rounded-full shadow-md transition transform hover:scale-105 cursor-pointer" title="Instalar aplicativo no celular ou computador">
-                    <i class="fa-solid fa-mobile-screen-button mr-1.5 text-yellow-300"></i> INSTALAR APP
-                </button>
-                <button type="button" onclick="abrirModalCarrinhoDireto()" class="inline-flex items-center bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3.5 py-2.5 rounded-full shadow-md transition transform hover:scale-105 cursor-pointer">
-                    <i class="fa-solid fa-cart-shopping mr-1.5 text-yellow-300"></i> MEU CARRINHO <span id="badge-qtd-carrinho" class="hidden ml-1.5 bg-yellow-400 text-gray-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">1</span>
-                </button>
-                <a href="painel.html" class="inline-flex items-center bg-brand-dark-green hover:bg-green-950 text-white text-xs font-black px-4 py-2.5 rounded-full shadow-md transition transform hover:scale-105">
-                    <i class="fa-solid fa-user-gear mr-1.5 text-sm text-yellow-300"></i> ENTRAR NO PAINEL
+                <!-- Atalho Painel (rápido em desktop) -->
+                <a href="painel.html" class="hidden sm:inline-flex items-center bg-brand-dark-green hover:bg-green-950 text-white text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition transform hover:scale-105">
+                    <i class="fa-solid fa-user-gear mr-1.5 text-yellow-300"></i> PAINEL
                 </a>
-                <a href="planos.html" class="inline-flex items-center bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-3.5 py-2 rounded-full shadow-md transition transform hover:scale-105" title="Planos e Preços com Cupom de Desconto"><i class="fa-solid fa-crown mr-1.5 text-xs"></i> PLANOS</a>
-                <a href="assinar.html" class="inline-flex items-center border border-brand-yellow text-brand-dark-green hover:bg-yellow-50 text-xs font-extrabold px-3.5 py-2 rounded-full transition">
-                    Cadastrar
-                </a>
-            </div>
 
-            <!-- Botão Menu Mobile (Hambúrguer) -->
-            <div class="flex items-center space-x-2 md:hidden">
-                <button type="button" onclick="iniciarInstalacaoApp()" class="inline-flex items-center bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[11px] font-black px-2.5 py-1.5 rounded-full shadow-sm" title="Instalar aplicativo no celular">
-                    <i class="fa-solid fa-download text-yellow-300 mr-1"></i> APP
-                </button>
-                <button type="button" onclick="abrirModalCarrinhoDireto()" class="inline-flex items-center bg-emerald-700 text-white text-[11px] font-black px-2.5 py-1.5 rounded-full shadow-sm">
-                    <i class="fa-solid fa-cart-shopping text-yellow-300 mr-1"></i> <span id="badge-qtd-carrinho-mob">CARRINHO</span>
-                </button>
-                <a href="painel.html" class="inline-flex items-center bg-brand-dark-green text-white text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm">
-                    <i class="fa-solid fa-user mr-1 text-yellow-300"></i> PAINEL
-                </a>
-                <button type="button" onclick="toggleMenuMobile()" class="p-2 text-gray-700 hover:text-black rounded-lg focus:outline-none" aria-label="Abrir Menu">
-                    <i id="icone-menu-mobile" class="fa-solid fa-bars text-xl"></i>
+                <!-- Botão Menu Sanduíche (☰) -->
+                <button type="button" onclick="toggleMenuSanduiche()" class="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 font-black px-3 py-2 rounded-xl text-xs sm:text-sm transition border border-emerald-200 cursor-pointer shadow-xs" aria-label="Abrir Menu">
+                    <i id="icone-menu-sanduiche" class="fa-solid fa-bars text-lg text-emerald-800"></i>
+                    <span class="uppercase tracking-wider">Menu</span>
                 </button>
             </div>
         </div>
 
-        <!-- Gaveta Menu Mobile (Dropdown) -->
-        <div id="menu-mobile-gaveta" class="hidden md:hidden border-t border-gray-100 bg-white px-4 pt-3 pb-5 shadow-lg space-y-3">
-            <button type="button" onclick="iniciarInstalacaoApp(); toggleMenuMobile();" class="w-full text-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2">
-                <i class="fa-solid fa-mobile-screen-button text-yellow-300 text-sm"></i> INSTALAR APP NO CELULAR (ATALHO)
-            </button>
-            <a href="#produtos" id="nav-link-produtos-mobile" onclick="toggleMenuMobile()" class="block font-black text-emerald-800 py-1.5 border-b border-gray-50 text-sm" style="display: none;">
-                <i class="fa-solid fa-bottle-droplet text-emerald-600 mr-2"></i> Pedir o Litrão Oficial
-            </a>
-            <a href="#beneficios" onclick="toggleMenuMobile()" class="block font-bold text-gray-700 hover:text-brand-dark-green py-1.5 border-b border-gray-50 text-sm">
-                <i class="fa-solid fa-bottle-droplet text-brand-light-green mr-2"></i> Benefícios da Bebida
-            </a>
-            <a href="#oportunidade" onclick="toggleMenuMobile()" class="block font-bold text-gray-700 hover:text-brand-dark-green py-1.5 border-b border-gray-50 text-sm">
-                <i class="fa-solid fa-chart-line text-brand-yellow mr-2"></i> Oportunidade de Negócio
-            </a>
-            <a href="avaliacao.html" class="block font-bold text-emerald-800 py-1.5 border-b border-gray-50 text-sm">
-                <i class="fa-solid fa-clipboard-check text-emerald-600 mr-2"></i> Formulário de Avaliação
-            </a>
-            <div class="pt-2 flex flex-col gap-2">
-                <a href="painel.html" class="w-full text-center bg-brand-dark-green text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow">
-                    <i class="fa-solid fa-user-gear mr-1.5 text-yellow-300"></i> ACESSAR PAINEL DO CONSULTOR
+        <!-- Gaveta Menu Sanduíche (Dropdown Universal: Desktop e Mobile) -->
+        <div id="menu-sanduiche-gaveta" class="hidden border-t border-gray-100 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 shadow-xl space-y-3 max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-3xl mx-auto pt-2">
+                <button type="button" onclick="iniciarInstalacaoApp(); toggleMenuSanduiche();" class="text-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-700 hover:opacity-95 text-white font-black py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-yellow-300 text-sm"></i> INSTALAR APP NO CELULAR / PC
+                </button>
+                <button type="button" onclick="abrirModalCarrinhoDireto(); toggleMenuSanduiche();" class="text-center bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-yellow-300 text-sm"></i> MEU CARRINHO DE PEDIDOS
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-w-3xl mx-auto pt-1">
+                <a href="#produtos" id="nav-link-produtos-menu" onclick="toggleMenuSanduiche()" class="flex items-center font-black text-emerald-800 p-2.5 rounded-lg hover:bg-emerald-50 text-sm border border-gray-100" style="display: none;">
+                    <i class="fa-solid fa-bottle-droplet text-emerald-600 mr-2.5 text-base"></i> Pedir o Litrão Oficial
                 </a>
-                <a href="planos.html" class="w-full text-center bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-1.5"><i class="fa-solid fa-crown text-slate-900"></i> VER PLANOS & CUPONS</a>
-                <a href="assinar.html" class="w-full text-center border-2 border-brand-yellow text-brand-dark-green font-bold py-2.5 rounded-xl text-xs">
-                    Criar Cadastro de Consultor
+                <a href="#beneficios" onclick="toggleMenuSanduiche()" class="flex items-center font-bold text-gray-700 hover:text-brand-dark-green p-2.5 rounded-lg hover:bg-gray-50 text-sm border border-gray-100">
+                    <i class="fa-solid fa-bottle-droplet text-brand-light-green mr-2.5 text-base"></i> Benefícios da Bebida
+                </a>
+                <a href="#oportunidade" onclick="toggleMenuSanduiche()" class="flex items-center font-bold text-gray-700 hover:text-brand-dark-green p-2.5 rounded-lg hover:bg-gray-50 text-sm border border-gray-100">
+                    <i class="fa-solid fa-chart-line text-brand-yellow mr-2.5 text-base"></i> Oportunidade de Negócio
+                </a>
+                <a href="avaliacao.html" class="flex items-center font-bold text-emerald-800 p-2.5 rounded-lg hover:bg-emerald-50 text-sm border border-gray-100">
+                    <i class="fa-solid fa-clipboard-check text-emerald-600 mr-2.5 text-base"></i> Formulário de Avaliação
+                </a>
+                <a href="planos.html" class="flex items-center font-black text-slate-900 p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-sm border border-amber-200">
+                    <i class="fa-solid fa-crown text-amber-600 mr-2.5 text-base"></i> Planos & Cupons VIP
+                </a>
+                <a href="assinar.html" class="flex items-center font-bold text-emerald-900 p-2.5 rounded-lg hover:bg-emerald-50 text-sm border border-emerald-200">
+                    <i class="fa-solid fa-user-plus text-emerald-600 mr-2.5 text-base"></i> Criar Cadastro Consultor
+                </a>
+            </div>
+
+            <div class="max-w-3xl mx-auto pt-2">
+                <a href="painel.html" class="w-full text-center bg-brand-dark-green hover:bg-green-950 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-gear text-yellow-300 text-sm"></i> ENTRAR NO PAINEL DO CONSULTOR
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Script Toggle Menu Mobile -->
+    <!-- Script Toggle Menu Sanduíche -->
     <script>
-        function toggleMenuMobile() {
-            const gaveta = document.getElementById('menu-mobile-gaveta');
-            const icone = document.getElementById('icone-menu-mobile');
+        function toggleMenuSanduiche() {
+            const gaveta = document.getElementById('menu-sanduiche-gaveta');
+            const icone = document.getElementById('icone-menu-sanduiche');
             if (!gaveta) return;
             if (gaveta.classList.contains('hidden')) {
                 gaveta.classList.remove('hidden');
-                if (icone) icone.className = 'fa-solid fa-xmark text-xl';
+                if (icone) icone.className = 'fa-solid fa-xmark text-lg text-red-600';
             } else {
                 gaveta.classList.add('hidden');
-                if (icone) icone.className = 'fa-solid fa-bars text-xl';
+                if (icone) icone.className = 'fa-solid fa-bars text-lg text-emerald-800';
             }
         }
+        window.toggleMenuSanduiche = toggleMenuSanduiche;
+        window.toggleMenuMobile = toggleMenuSanduiche;
     </script>
 
     <!-- Seção Hero -->
@@ -520,18 +509,6 @@
             <h2 class="text-3xl md:text-4xl font-extrabold text-white text-center mb-4">Oportunidade de Negócio</h2>
             <div class="w-48 gradient-bar mb-8 opacity-80"></div>
 
-            <p class="text-white font-semibold mb-5 text-base md:text-lg text-center">Vídeo: Conheça o projeto</p>
-
-            <div class="w-full max-w-3xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl relative mb-10 border-2 md:border-4 border-black">
-                <video 
-                    src="oportunidade.mp4" 
-                    class="absolute inset-0 w-full h-full object-cover"
-                    controls 
-                    playsinline>
-                    Seu navegador não suporta a reprodução deste vídeo.
-                </video>
-            </div>
-
             <p class="text-white text-center text-base md:text-xl max-w-3xl mb-8 leading-relaxed font-medium">
                 Como parte do projeto Litrão, você faz parte de um movimento de bebidas funcionais com a força da Herbalife: produto reconhecido e suporte para crescer no negócio.
             </p>
@@ -590,6 +567,25 @@
                     <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Sem experiência prévia</span>
                     <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Suporte 1 a 1 no WhatsApp</span>
                     <span class="bg-white px-3 py-1 rounded-full border border-yellow-200 shadow-sm">✅ Método 100% validado</span>
+                </div>
+            </div>
+
+            <!-- VÍDEO OFICIAL DA OPORTUNIDADE (Exibido sob demanda ao clicar no botão) -->
+            <div id="container-video-oportunidade" class="w-full max-w-3xl mx-auto mb-10 text-center">
+                <div class="mb-4">
+                    <span class="inline-flex items-center gap-1.5 bg-brand-dark-green text-yellow-300 text-xs md:text-sm font-black px-4 py-2 rounded-full shadow-md uppercase tracking-wider">
+                        <i class="fa-solid fa-play text-yellow-300 text-xs"></i> Vídeo Oficial: Conheça o Projeto Litrão
+                    </span>
+                </div>
+                <div class="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative border-2 md:border-4 border-emerald-800">
+                    <video 
+                        id="video-oportunidade"
+                        src="oportunidade.mp4" 
+                        class="absolute inset-0 w-full h-full object-cover"
+                        controls 
+                        playsinline>
+                        Seu navegador não suporta a reprodução deste vídeo.
+                    </video>
                 </div>
             </div>
 
@@ -1089,6 +1085,12 @@
             if (estaAberto) {
                 // MINIMIZAR / RECOLHER
                 secao.classList.add('hidden');
+                // Pausa o vídeo se estiver tocando ao minimizar
+                try {
+                    const vid = document.getElementById('video-oportunidade');
+                    if (vid && !vid.paused) vid.pause();
+                } catch(eVid) {}
+
                 if (btn) {
                     btn.classList.remove('border-brand-yellow', 'bg-white/20');
                     btn.innerHTML = `
