@@ -7955,6 +7955,10 @@
                             <i class="fa-solid fa-crown text-amber-400"></i>
                             <span>Link Grupo Wendell (VIP)</span>
                         </button>
+                        <button type="button" onclick="copiarLinkGrupoLilian()" class="bg-gradient-to-r from-purple-900/90 via-slate-800 to-amber-950/90 hover:from-purple-800 hover:to-amber-900 text-amber-300 border border-amber-400 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer shadow-sm" title="Copiar link exclusivo do Grupo Lilian (100 Vagas VIP)">
+                            <i class="fa-solid fa-crown text-amber-400"></i>
+                            <span>Link Grupo Lilian (VIP)</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11636,30 +11640,37 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     return;
                 }
 
-                // Caso GRUPOWENDELL100: Membro VIP Wendell (100 Vagas VIP, 1º Isento Vitalício R$ 0,00 e Demais R$ 41,00/mês)
-                if (codigo === 'GRUPOWENDELL100' || codigo === 'WENDELL100' || codigo === 'WENDELL') {
-                    let totalWendell = 0;
+                // Caso GRUPOWENDELL100 / GRUPOLILIAN100: Membro VIP (100 Vagas VIP, 1º Isento Vitalício R$ 0,00 e Demais R$ 41,00/mês)
+                if (codigo === 'GRUPOWENDELL100' || codigo === 'WENDELL100' || codigo === 'WENDELL' ||
+                    codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN') {
+                    const isLilian = (codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN');
+                    const nomeGrupo = isLilian ? 'Grupo Lilian' : 'Grupo Wendell';
+                    const codOficial = isLilian ? 'GRUPOLILIAN100' : 'GRUPOWENDELL100';
+                    const tagBusca = isLilian ? '*CUPOM:GRUPOLILIAN100*' : '*CUPOM:GRUPOWENDELL100*';
+
+                    let totalVagas = 0;
                     try {
-                        const urlW = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:GRUPOWENDELL100*&select=id`;
+                        const urlW = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.${tagBusca}&select=id`;
                         const resW = await fetch(urlW, {
                             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
                         });
                         if (resW.ok) {
                             const dataW = await resW.json();
-                            totalWendell = (dataW && dataW.length) || 0;
+                            totalVagas = (dataW && dataW.length) || 0;
                         }
                     } catch (_) {}
 
-                    if (totalWendell >= 100) {
+                    if (totalVagas >= 100) {
                         feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
-                        feedback.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> <strong>VAGAS ESGOTADAS!</strong> O cupom <code>GRUPOWENDELL100</code> era exclusivo para os primeiros 100 a pagarem e todas as 100 vagas já foram preenchidas.';
+                        feedback.innerHTML = `<i class="fa-solid fa-lock mr-1.5"></i> <strong>VAGAS ESGOTADAS!</strong> O cupom <code>${codOficial}</code> era exclusivo para os primeiros 100 a pagarem e todas as 100 vagas já foram preenchidas.`;
                         return;
                     }
 
-                    const isPrimeiro = (totalWendell === 0);
+                    const isPrimeiro = (totalVagas === 0);
                     cupomAtivoModal = {
-                        tipo: 'grupowendell100',
-                        codigo: 'GRUPOWENDELL100',
+                        tipo: isLilian ? 'grupolilian100' : 'grupowendell100',
+                        codigo: codOficial,
+                        nomeGrupo: nomeGrupo,
                         descontoPorcentagem: 100,
                         valorFixoFinal: 0.00,
                         carenciaDias: 0,
@@ -11677,12 +11688,12 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     feedback.innerHTML = `
                         <div class="flex items-center justify-center gap-2 text-sm font-black text-purple-950">
                             <i class="fa-solid fa-crown text-amber-500 text-base animate-bounce"></i>
-                            <span>👑 CUPOM OFICIAL GRUPO WENDELL VIP APLICADO!</span>
+                            <span>👑 CUPOM OFICIAL ${nomeGrupo.toUpperCase()} VIP APLICADO!</span>
                         </div>
                         <p class="mt-1 text-slate-800 font-semibold text-[11px] leading-relaxed">
                             ${isPrimeiro 
                                 ? '🏆 <strong>VOCÊ É O #001: ISENÇÃO TOTAL DE TAXAS E MENSALIDADE VITALÍCIA (R$ 0,00)!</strong> Todos os recursos VIP liberados sem cobrança para sempre!'
-                                : `🔥 Vaga VIP garantida (${100 - totalWendell} vagas restantes)! <strong>Adesão R$ 0,00 (100% Isenta)</strong> e mensalidade congelada em <strong>apenas R$ 41,00/mês</strong> com Status VIP permanente!`
+                                : `🔥 Vaga VIP garantida (${100 - totalVagas} vagas restantes)! <strong>Adesão R$ 0,00 (100% Isenta)</strong> e mensalidade congelada em <strong>apenas R$ 41,00/mês</strong> com Status VIP permanente!`
                             }
                         </p>
                     `;
@@ -12022,7 +12033,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
             let valorFinal = valorBase;
 
-            if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
+                const labelGrupo = (cupomAtivoModal.tipo === 'grupolilian100') ? 'GRUPO LILIAN VIP' : 'GRUPO WENDELL VIP';
                 valorFinal = 0.00;
                 if (txtValor) {
                     txtValor.innerHTML = `
@@ -12032,7 +12044,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                 R$ 0,00
                             </span>
                             <span class="text-[10px] font-black uppercase bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white px-2.5 py-0.5 rounded-full mt-0.5 shadow-xs">
-                                👑 ADESÃO 100% ISENTA (GRUPO WENDELL VIP)
+                                👑 ADESÃO 100% ISENTA (${labelGrupo})
                             </span>
                         </div>
                     `;
@@ -12095,11 +12107,14 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             let txidPix = `RESET_${planoKey.toUpperCase()}`;
             let descricaoPixLabel = 'Adesão do Plano';
 
-            if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
+                const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
                 const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                const nomeG = isLilian ? 'Lilian' : 'Wendell';
+                const prefixTx = isLilian ? 'LILIAN' : 'WENDELL';
                 valorPixDinamico = isPrimeiro ? 0.00 : 41.00;
-                txidPix = isPrimeiro ? 'VIP_001_ISENTO' : 'WENDELL_41';
-                descricaoPixLabel = isPrimeiro ? 'Adesão e Mensalidade Vitalícia R$ 0,00' : '1ª Mensalidade VIP Wendell (Adesão R$ 0,00 Isenta)';
+                txidPix = isPrimeiro ? `${prefixTx}_001_ISENTO` : `${prefixTx}_41`;
+                descricaoPixLabel = isPrimeiro ? 'Adesão e Mensalidade Vitalícia R$ 0,00' : `1ª Mensalidade VIP ${nomeG} (Adesão R$ 0,00 Isenta)`;
             } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                 // Adesão é 100% ISENTA (R$ 0,00). O Pix cobra a 1ª Mensalidade Promocional de Fundador exclusiva do plano:
                 // Plano 1 (Start Pro) = R$ 29,00 | Plano 2 (Smart Pro) = R$ 39,00 | Plano 3 (Master VIP) = R$ 47,00
@@ -12139,12 +12154,14 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             }
             
             if (txtMensalidade) {
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
+                    const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
                     const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                    const nomeG = isLilian ? 'LILIAN' : 'WENDELL';
                     txtMensalidade.innerHTML = `
                         <div class="inline-flex flex-col items-center mt-1">
                             <span class="bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs">
-                                👑 MEMBRO VIP WENDELL: ${isPrimeiro ? 'Isenção Total Vitalícia (R$ 0,00)' : 'Mensalidade Promocional de R$ 41,00/mês'}
+                                👑 MEMBRO VIP ${nomeG}: ${isPrimeiro ? 'Isenção Total Vitalícia (R$ 0,00)' : 'Mensalidade Promocional de R$ 41,00/mês'}
                             </span>
                             <span class="text-purple-950 font-extrabold text-[11px] mt-1">
                                 💎 Selo VIP Permanente • Todas as Ferramentas VIP Liberadas
@@ -12196,11 +12213,13 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             // Atualiza texto e estilo do botão de confirmação conforme o cupom
             const btnConfirmarPix = document.getElementById('btn-confirmar-pix-modal');
             if (btnConfirmarPix) {
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
+                    const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
                     const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                    const nomeG = isLilian ? 'LILIAN' : 'WENDELL';
                     btnConfirmarPix.innerHTML = isPrimeiro
                         ? `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR MINHA ISENÇÃO VITALÍCIA AGORA (R$ 0,00)</span>`
-                        : `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR VAGA VIP WENDELL (ADESÃO R$ 0,00)</span>`;
+                        : `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR VAGA VIP ${nomeG} (ADESÃO R$ 0,00)</span>`;
                     btnConfirmarPix.className = "w-full bg-gradient-to-r from-purple-700 via-indigo-600 to-amber-500 hover:from-purple-800 hover:to-amber-600 text-white font-black py-4 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 text-sm cursor-pointer border-2 border-amber-300 animate-pulse";
                 } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                     btnConfirmarPix.innerHTML = `
@@ -13798,14 +13817,15 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 }
 
                 const isMembroWendell = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100');
-                const isMembroFundador = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'fundador100' || cupomAtivoModal.tipo === 'grupowendell100'));
+                const isMembroLilian = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'grupolilian100');
+                const isMembroFundador = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'fundador100' || cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100'));
 
                 // Determina valor da taxa de adesão
                 let valorPagoNum = p.valorAdesaoNum || 99.00;
                 let cupomCod = null;
-                if (isMembroWendell) {
+                if (isMembroWendell || isMembroLilian) {
                     valorPagoNum = (cupomAtivoModal.isPrimeiro) ? 0.00 : 41.00;
-                    cupomCod = 'GRUPOWENDELL100';
+                    cupomCod = isMembroLilian ? 'GRUPOLILIAN100' : 'GRUPOWENDELL100';
                 } else if (isMembroFundador) {
                     const tabelaMensalidadesFundadorNum = { plano1: 29.00, plano2: 39.00, plano3: 47.00 };
                     valorPagoNum = tabelaMensalidadesFundadorNum[pKey] || 29.00;
@@ -13915,16 +13935,21 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     rawEspaco = rawEspaco + ' ' + tagPix;
                 }
 
-                // Se ativou via GRUPOWENDELL100 ou FUNDADOR100, grava a condição VIP permanente no perfil
-                if (isMembroWendell) {
+                // Se ativou via GRUPOWENDELL100, GRUPOLILIAN100 ou FUNDADOR100, grava a condição VIP permanente no perfil
+                if (isMembroWendell || isMembroLilian) {
                     const isPrimeiroW = cupomAtivoModal.isPrimeiro;
-                    const tagWendell = isPrimeiroW
-                        ? `<!--GRUPO_WENDELL:A001--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`
-                        : `<!--GRUPO_WENDELL:VIP--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
-                    if (rawEspaco.includes('<!--GRUPO_WENDELL:')) {
-                        rawEspaco = rawEspaco.replace(/<!--GRUPO_WENDELL:[\s\S]*?-->/g, '');
+                    const tagPrefix = isMembroLilian ? 'GRUPO_LILIAN' : 'GRUPO_WENDELL';
+                    const cupomStr = isMembroLilian ? 'CUPOM:GRUPOLILIAN100' : 'CUPOM:GRUPOWENDELL100';
+                    const condicaoStr = isMembroLilian ? 'Membro VIP Lilian' : 'Membro VIP Wendell';
+
+                    const tagVip = isPrimeiroW
+                        ? `<!--${tagPrefix}:A001--> <!--${cupomStr}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoStr}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`
+                        : `<!--${tagPrefix}:VIP--> <!--${cupomStr}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoStr}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                    if (rawEspaco.includes(`<!--${tagPrefix}:`)) {
+                        const regexTag = new RegExp(`<!--${tagPrefix}:[\\s\\S]*?-->`, 'g');
+                        rawEspaco = rawEspaco.replace(regexTag, '');
                     }
-                    rawEspaco += ' ' + tagWendell;
+                    rawEspaco += ' ' + tagVip;
                 } else if (isMembroFundador) {
                     const mensProm = (cupomAtivoModal.mensalidadesFundador && cupomAtivoModal.mensalidadesFundador[pKey]) || 'R$ 39,00/mês';
                     const tagFundador = `<!--GRUPO_FUNDADORES:{"numero":"FD-${Math.floor(1000 + Math.random()*9000)}","cupom":"FUNDADOR100","dataAtivacao":"${new Date().toISOString()}","plano":"${pKey}","mensalidadePromocional":"${mensProm}"}--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
@@ -22807,35 +22832,43 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         }
         window.calcularCodigoFundador = calcularCodigoFundador;
 
-        // Extrai dados de fundador ou VIP de um consultor (incluindo Grupo Wendell)
+        // Extrai dados de fundador ou VIP de um consultor (incluindo Grupo Wendell e Grupo Lilian)
         function extrairDadosFundador(consultor) {
             if (!consultor) return null;
             const raw = (consultor.nome_espaco || '') + ' ' + (consultor.status || '');
             const matchCod = raw.match(/<!--GRUPO_FUNDADORES:(.*?)-->/);
             const matchWendell = raw.match(/<!--GRUPO_WENDELL:(.*?)-->/);
+            const matchLilian = raw.match(/<!--GRUPO_LILIAN:(.*?)-->/);
             const matchCup = raw.match(/<!--CUPOM:FUNDADOR100-->/);
             const matchCupWendell = raw.match(/<!--CUPOM:GRUPOWENDELL100-->/);
+            const matchCupLilian = raw.match(/<!--CUPOM:GRUPOLILIAN100-->/);
             const matchPlano = raw.match(/<!--PLANO_FUNDADOR:(.*?)-->/);
             const matchValor = raw.match(/<!--VALOR_ADESAO:(.*?)-->/);
             const isWendell = !!(matchWendell || matchCupWendell);
-            const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador') || isWendell;
+            const isLilian = !!(matchLilian || matchCupLilian);
+            const isVipParceiro = isWendell || isLilian;
+            const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador') || isVipParceiro;
 
             if (!isFundador) return null;
 
             let codigo = '';
-            if (matchWendell && matchWendell[1]) codigo = matchWendell[1].trim();
+            if (matchLilian && matchLilian[1]) codigo = matchLilian[1].trim();
+            else if (matchWendell && matchWendell[1]) codigo = matchWendell[1].trim();
             else if (matchCod && matchCod[1]) codigo = matchCod[1].trim();
 
-            const isIsentoVit = raw.includes('ISENTO_VITALICIO:true') || (isWendell && (codigo === 'A001' || raw.includes('MENSALIDADE:0')));
+            const isIsentoVit = raw.includes('ISENTO_VITALICIO:true') || (isVipParceiro && (codigo === 'A001' || raw.includes('MENSALIDADE:0')));
+
+            const labelGrupo = isLilian ? 'VIP LILIAN' : (isWendell ? 'VIP WENDELL' : 'FUNDADOR');
 
             return {
-                codigo: codigo || (isWendell ? 'VIP-WENDELL' : 'FUNDADOR'),
+                codigo: codigo || (isVipParceiro ? labelGrupo : 'FUNDADOR'),
                 letra: codigo ? codigo.charAt(0).toUpperCase() : 'A',
-                plano: matchPlano ? matchPlano[1].trim().toUpperCase() : (isWendell ? 'VIP WENDELL' : ''),
+                plano: matchPlano ? matchPlano[1].trim().toUpperCase() : (isVipParceiro ? labelGrupo : ''),
                 valor: matchValor ? matchValor[1].trim() : (isIsentoVit ? '0' : '41.00'),
                 isWendell: isWendell,
+                isLilian: isLilian,
                 isIsentoVitalicio: isIsentoVit,
-                statusVip: isWendell ? 'VIP' : 'Fundador'
+                statusVip: isVipParceiro ? 'VIP' : 'Fundador'
             };
         }
         window.extrairDadosFundador = extrairDadosFundador;
@@ -23189,6 +23222,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             });
         }
         window.copiarLinkGrupoWendell = copiarLinkGrupoWendell;
+
+        function copiarLinkGrupoLilian() {
+            const link = `https://litraodoreset.com.br/assinar.html?cupom=GRUPOLILIAN100`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert(`🔥 LINK EXCLUSIVO DO GRUPO LILIAN VIP COPIADO!\n\n${link}\n\nAo acessar este link:\n- Vagas limitadas para os primeiros 100 a pagarem\n- O 1º ganha Isenção 100% Total e Mensalidade Vitalícia R$ 0,00\n- Os demais 99: Adesão R$ 0,00 e Mensalidade R$ 41,00/mês com Status VIP e todos os bônus!`);
+            }).catch(() => {
+                prompt("Copie o link exclusivo do Grupo Lilian abaixo:", link);
+            });
+        }
+        window.copiarLinkGrupoLilian = copiarLinkGrupoLilian;
 
         function toggleSecaoAvaliacoes(e) {
             if (e && e.stopPropagation) e.stopPropagation();

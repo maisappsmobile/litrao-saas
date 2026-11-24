@@ -419,7 +419,7 @@
                         <div class="absolute -top-10 -right-10 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
 
                         <div class="flex items-center justify-between mb-2.5 flex-wrap gap-2 relative z-10">
-                            <span class="text-xs sm:text-sm font-black uppercase text-amber-300 flex items-center gap-1.5">
+                            <span id="label-titulo-lote-vip" class="text-xs sm:text-sm font-black uppercase text-amber-300 flex items-center gap-1.5">
                                 <i class="fa-solid fa-crown text-amber-400 text-base animate-bounce"></i> LOTE VIP: GRUPO WENDELL (100 VAGAS)
                             </span>
                             <span class="bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-[9px] px-2.5 py-0.5 rounded-full uppercase shadow-xs animate-pulse">
@@ -1368,8 +1368,11 @@
             let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
-            // Lógica dos Cupons Especiais: GRUPOWENDELL100, FUNDADOR100, MEUPRESIDENTE, TESTE10
+            // Lógica dos Cupons Especiais: GRUPOWENDELL100, GRUPOLILIAN100, FUNDADOR100, MEUPRESIDENTE, TESTE10
             let isGrupoWendell = cupom === 'GRUPOWENDELL100';
+            let isGrupoLilian = cupom === 'GRUPOLILIAN100';
+            let isGrupoParceiro = isGrupoWendell || isGrupoLilian;
+            let nomeGrupoParceiro = isGrupoLilian ? 'Grupo Lilian' : 'Grupo Wendell';
             let isPrimeiroWendell = false;
             let codigoWendellGerado = null;
             let isFundador = cupom === 'FUNDADOR100';
@@ -1379,18 +1382,21 @@
             let isTeste10 = cupom === 'TESTE10';
             let cupomPorcentagemObj = null;
 
-            if (isGrupoWendell) {
+            if (isGrupoParceiro) {
                 try {
+                    const tagOr = isGrupoLilian
+                        ? 'nome_espaco.ilike.%CUPOM:GRUPOLILIAN100%,nome_espaco.ilike.%GRUPO_LILIAN:%'
+                        : 'nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%';
                     const { data: wendellExistentes } = await supabaseClient
                         .from('consultores')
                         .select('id,nome_espaco')
-                        .or('nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%');
+                        .or(tagOr);
                     
                     const totalWend = wendellExistentes ? wendellExistentes.length : 0;
                     isPrimeiroWendell = (totalWend === 0);
                     codigoWendellGerado = calcularCodigoFundador(totalWend);
                 } catch (eWend) {
-                    console.warn("Erro ao processar Grupo Wendell:", eWend);
+                    console.warn(`Erro ao processar ${nomeGrupoParceiro}:`, eWend);
                     codigoWendellGerado = 'A001';
                     isPrimeiroWendell = true;
                 }
@@ -1563,7 +1569,7 @@
             }
 
             let vencimento = '';
-            if (isGrupoWendell) {
+            if (isGrupoParceiro) {
                 if (isPrimeiroWendell) {
                     vencimento = '2099-12-31';
                 } else {
@@ -1635,11 +1641,14 @@
                 nomeEspacoCompleto += ` <!--PIX:${JSON.stringify(pixObj)}-->`;
             }
 
-            if (isGrupoWendell) {
+            if (isGrupoParceiro) {
+                const tagPrefix = isGrupoLilian ? 'GRUPO_LILIAN' : 'GRUPO_WENDELL';
+                const tagCupom = isGrupoLilian ? 'CUPOM:GRUPOLILIAN100' : 'CUPOM:GRUPOWENDELL100';
+                const condicaoVip = isGrupoLilian ? 'Membro VIP Lilian' : 'Membro VIP Wendell';
                 if (isPrimeiroWendell) {
-                    nomeEspacoCompleto += ` <!--GRUPO_WENDELL:${codigoWendellGerado}--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                    nomeEspacoCompleto += ` <!--${tagPrefix}:${codigoWendellGerado}--> <!--${tagCupom}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoVip}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
                 } else {
-                    nomeEspacoCompleto += ` <!--GRUPO_WENDELL:${codigoWendellGerado}--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                    nomeEspacoCompleto += ` <!--${tagPrefix}:${codigoWendellGerado}--> <!--${tagCupom}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoVip}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
                 }
             } else if (isFundador) {
                 const tabelaFd = TABELA_PRECOS_FUNDADOR[planoFundadorSelecionado] || TABELA_PRECOS_FUNDADOR.master;
@@ -1701,7 +1710,7 @@
                 document.getElementById('form-container').classList.add('hidden');
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
-                if (isGrupoWendell) {
+                if (isGrupoParceiro) {
                     const precoFormatado = isPrimeiroWendell 
                         ? '100% ISENTO VITALÍCIO (R$ 0,00)' 
                         : 'Adesão R$ 0,00 (Isenta) • Mensalidade: R$ 41,00/mês';
@@ -1709,8 +1718,8 @@
                         ? '🏆 VOCÊ É O #001: ISENÇÃO TOTAL VITALÍCIA!' 
                         : `👑 VAGA VIP CONFIRMADA (#${codigoWendellGerado})`;
                     const textoDesc = isPrimeiroWendell
-                        ? `Parabéns histórico! Você foi o <strong>1º consultor a ativar</strong> com o cupom do Grupo Wendell e conquistou <strong>ISENÇÃO TOTAL DE TAXAS E MENSALIDADE VITALÍCIA</strong> para sempre com Status VIP!`
-                        : `Parabéns! Você garantiu uma das 100 vagas oficiais do <strong>Grupo Wendell</strong> com a numeração <strong class="text-amber-300">#${codigoWendellGerado}</strong>! Sua adesão de R$ 699 foi 100% ZERADA e sua mensalidade foi congelada em apenas R$ 41,00/mês com Status VIP permanente!`;
+                        ? `Parabéns histórico! Você foi o <strong>1º consultor a ativar</strong> com o cupom do ${nomeGrupoParceiro} e conquistou <strong>ISENÇÃO TOTAL DE TAXAS E MENSALIDADE VITALÍCIA</strong> para sempre com Status VIP!`
+                        : `Parabéns! Você garantiu uma das 100 vagas oficiais do <strong>${nomeGrupoParceiro}</strong> com a numeração <strong class="text-amber-300">#${codigoWendellGerado}</strong>! Sua adesão de R$ 699 foi 100% ZERADA e sua mensalidade foi congelada em apenas R$ 41,00/mês com Status VIP permanente!`;
 
                     document.getElementById('msg-sucesso').innerHTML = `
                         <div class="bg-gradient-to-br from-purple-950 via-slate-900 to-amber-950 border-2 border-amber-400 p-5 rounded-2xl mb-4 text-left shadow-2xl text-white">
@@ -1753,7 +1762,8 @@
                         }
                     } else {
                         // Para os demais: adesão isenta + mensalidade R$ 41,00
-                        pixPayloadAtivo = gerarPixPayloadDinamico(41.00, `VIP${codigoWendellGerado}`);
+                        const prefixoTxid = isGrupoLilian ? 'LILIAN' : 'VIP';
+                        pixPayloadAtivo = gerarPixPayloadDinamico(41.00, `${prefixoTxid}${codigoWendellGerado}`);
                         const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
                         if (valorPixBox) valorPixBox.innerText = 'R$ 41,00';
                         const elSubVal = document.getElementById('pix-subtotal-texto');
@@ -2387,22 +2397,29 @@
             if (!feedback) return;
             const cod = (valor || '').toUpperCase().trim();
 
-            if (cod === 'GRUPOWENDELL100') {
+            if (cod === 'GRUPOWENDELL100' || cod === 'GRUPOLILIAN100') {
+                const isLilian = (cod === 'GRUPOLILIAN100');
+                const nomeGrupo = isLilian ? 'GRUPO LILIAN' : 'GRUPO WENDELL';
                 if (boxFundador) boxFundador.classList.add('hidden');
                 if (boxWendell) boxWendell.classList.remove('hidden');
+
+                const elTituloLote = document.getElementById('label-titulo-lote-vip');
+                if (elTituloLote) {
+                    elTituloLote.innerHTML = `<i class="fa-solid fa-crown text-amber-400 text-base animate-bounce"></i> LOTE VIP: ${nomeGrupo} (100 VAGAS)`;
+                }
 
                 feedback.className = 'mt-2 p-3 bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950 border-2 border-amber-400 rounded-xl text-xs text-white font-bold flex items-center gap-2.5 shadow-lg';
                 feedback.innerHTML = `
                     <i class="fa-solid fa-crown text-amber-400 text-xl shrink-0 animate-bounce"></i>
                     <div>
-                        <span class="text-amber-300 font-black block tracking-wide">👑 CUPOM EXCLUSIVO: GRUPO WENDELL VIP (100 VAGAS)!</span>
+                        <span class="text-amber-300 font-black block tracking-wide">👑 CUPOM EXCLUSIVO: ${nomeGrupo} VIP (100 VAGAS)!</span>
                         <span class="text-[11px] text-slate-200">Condição exclusiva para os <strong>primeiros 100 a pagarem</strong> com Status VIP e todos os bônus inclusos!</span>
                     </div>
                 `;
                 feedback.classList.remove('hidden');
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-950/20 border-2 border-amber-400 rounded-xl focus:outline-none ring-2 ring-amber-300 uppercase font-black text-amber-900';
 
-                atualizarBoxGrupoWendell();
+                atualizarBoxGrupoWendell(isLilian ? 'lilian' : 'wendell');
             } else if (cod === 'FUNDADOR100') {
                 if (boxWendell) boxWendell.classList.add('hidden');
                 if (boxFundador) boxFundador.classList.remove('hidden');
@@ -2476,17 +2493,24 @@
             }
         }
 
-        // Atualização Dinâmica do Box do Grupo Wendell com Escassez Real
-        async function atualizarBoxGrupoWendell() {
+        // Atualização Dinâmica do Box do Grupo VIP (Wendell ou Lilian) com Escassez Real
+        async function atualizarBoxGrupoWendell(tipoGrupo = null) {
             const elAviso = document.getElementById('aviso-escassez-wendell');
             const elValorMensal = document.getElementById('valor-mensalidade-wendell-box');
             if (!elAviso) return;
+
+            const inCod = (document.getElementById('cupom')?.value || '').toUpperCase().trim();
+            const isLilian = (tipoGrupo === 'lilian') || (inCod === 'GRUPOLILIAN100');
+            const nomeGrupo = isLilian ? 'Grupo Lilian' : 'Grupo Wendell';
+            const orQuery = isLilian 
+                ? 'nome_espaco.ilike.%CUPOM:GRUPOLILIAN100%,nome_espaco.ilike.%GRUPO_LILIAN:%'
+                : 'nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%';
 
             try {
                 const { data: wendellDb, error } = await supabaseClient
                     .from('consultores')
                     .select('id,nome_espaco')
-                    .or('nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%');
+                    .or(orQuery);
 
                 const total = (wendellDb && !error) ? wendellDb.length : 0;
                 const vagasRestantes = Math.max(0, 100 - total);
@@ -2502,7 +2526,7 @@
                                 <span class="text-emerald-400 font-black text-xs">100 VAGAS RESTANTES</span>
                             </div>
                             <p class="text-slate-100 font-bold text-xs leading-relaxed">
-                                🏆 <strong class="text-amber-300">VOCÊ SERÁ O PRIMEIRO A ATIVAR!</strong> O 1º consultor que finalizar o cadastro com este cupom ganha <strong class="text-emerald-300 underline">ISENÇÃO TOTAL VITALÍCIA</strong>: Taxa de adesão ZERO e <strong>MENSALIDADE VITALÍCIA R$ 0,00</strong> para sempre!
+                                🏆 <strong class="text-amber-300">VOCÊ SERÁ O PRIMEIRO A ATIVAR!</strong> O 1º consultor que finalizar o cadastro com este cupom do ${nomeGrupo} ganha <strong class="text-emerald-300 underline">ISENÇÃO TOTAL VITALÍCIA</strong>: Taxa de adesão ZERO e <strong>MENSALIDADE VITALÍCIA R$ 0,00</strong> para sempre!
                             </p>
                             <p class="text-[11px] text-amber-200">
                                 ⚡ Código oficial da sua vaga: <span class="font-mono font-black text-white bg-slate-900 px-1.5 py-0.5 rounded border border-amber-400">A001</span>
@@ -2528,7 +2552,7 @@
                                 </span>
                             </div>
                             <p class="text-slate-100 font-bold text-xs leading-relaxed">
-                                ⚡ <strong class="text-amber-300">VOCÊ GARANTIU A VAGA #${codigoPrevisto}!</strong> Condição válida exclusivamente para os <strong>primeiros 100 a pagarem</strong>. Você garante: Taxa de Adesão 100% Zerada (Economia de R$ 699) + Mensalidade congelada em apenas <strong>R$ 41,00/mês</strong>!
+                                ⚡ <strong class="text-amber-300">VOCÊ GARANTIU A VAGA #${codigoPrevisto}!</strong> Condição válida exclusivamente para os <strong>primeiros 100 a pagarem</strong> do ${nomeGrupo}. Você garante: Taxa de Adesão 100% Zerada (Economia de R$ 699) + Mensalidade congelada em apenas <strong>R$ 41,00/mês</strong>!
                             </p>
                             <p class="text-[11px] text-amber-200">
                                 🏃‍♂️ Corra antes que o lote de 100 encerre e o valor retorne para a tabela padrão!
@@ -2550,7 +2574,7 @@
                                 <span class="text-rose-300 font-black text-xs">VAGA DE REPESCAGEM</span>
                             </div>
                             <p class="text-slate-100 font-bold text-xs leading-relaxed">
-                                ⚠️ As primeiras 100 vagas principais foram preenchidas! Sua vaga será registrada na série estendida <span class="font-mono font-black text-white bg-slate-900 px-1.5 py-0.5 rounded border border-amber-400">#${codigoPrevisto}</span> mantendo a isenção de adesão e mensalidade promocional de R$ 41,00/mês por tempo limitado!
+                                ⚠️ As primeiras 100 vagas principais do ${nomeGrupo} foram preenchidas! Sua vaga será registrada na série estendida <span class="font-mono font-black text-white bg-slate-900 px-1.5 py-0.5 rounded border border-amber-400">#${codigoPrevisto}</span> mantendo a isenção de adesão e mensalidade promocional de R$ 41,00/mês por tempo limitado!
                             </p>
                         </div>
                     `;
@@ -2561,7 +2585,7 @@
                     }
                 }
             } catch (err) {
-                console.warn("Erro ao verificar vagas do Grupo Wendell:", err);
+                console.warn(`Erro ao verificar vagas do ${nomeGrupo}:`, err);
             }
         }
         window.atualizarBoxGrupoWendell = atualizarBoxGrupoWendell;
