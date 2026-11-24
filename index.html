@@ -961,8 +961,8 @@
                     <textarea id="carrinho-cliente-obs" rows="2" placeholder="Ex: Preferência sabor uva, preparar para retirada às 14h..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 resize-none"></textarea>
                 </div>
 
-                <!-- Bloco de Cupom Promocional no Carrinho -->
-                <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-3.5 space-y-2">
+                <!-- Bloco de Cupom Promocional no Carrinho (Exibido SOMENTE quando houver promoção liberada no painel) -->
+                <div id="carrinho-bloco-cupom-promocional" class="hidden bg-amber-50/80 border border-amber-200/90 rounded-2xl p-3.5 space-y-2" style="display: none;">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black text-amber-950 flex items-center gap-1.5">
                             <i class="fa-solid fa-ticket text-amber-600"></i> Cupom Promocional
@@ -974,7 +974,7 @@
                     <div class="flex items-center gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-3 top-2.5 text-xs text-amber-600 font-bold"><i class="fa-solid fa-tag"></i></span>
-                            <input type="text" id="carrinho-input-cupom" placeholder="Digite seu cupom aqui" class="w-full pl-8 pr-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-black uppercase text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
+                            <input type="text" id="carrinho-input-cupom" placeholder="DIGITE SEU CUPOM AQUI" class="w-full pl-8 pr-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-black uppercase text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs">
                         </div>
                         <button type="button" id="btn-aplicar-cupom-carrinho" onclick="aplicarCupomCarrinho()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-black text-xs px-4 py-2 rounded-xl transition cursor-pointer shadow-xs flex items-center gap-1">
                             <i class="fa-solid fa-check"></i> <span>Aplicar</span>
@@ -1734,9 +1734,14 @@
 
                 const bannerPromo = document.getElementById('banner-promocao-kits');
                 const badgeAvisoPromo = document.getElementById('carrinho-promo-badge-aviso');
+                const blocoCupomCarrinho = document.getElementById('carrinho-bloco-cupom-promocional');
 
                 if (promoValida) {
                     window.promoKitsAtiva = promoKits;
+                    if (blocoCupomCarrinho) {
+                        blocoCupomCarrinho.classList.remove('hidden');
+                        blocoCupomCarrinho.style.display = 'block';
+                    }
                     if (bannerPromo) {
                         bannerPromo.classList.remove('hidden');
                         const elNome = document.getElementById('banner-promo-nome');
@@ -1764,8 +1769,13 @@
                     }
                 } else {
                     window.promoKitsAtiva = null;
+                    if (blocoCupomCarrinho) {
+                        blocoCupomCarrinho.classList.add('hidden');
+                        blocoCupomCarrinho.style.display = 'none';
+                    }
                     if (bannerPromo) bannerPromo.classList.add('hidden');
                     if (badgeAvisoPromo) badgeAvisoPromo.classList.add('hidden');
+                    carrinhoAtual.cupomAplicado = null;
                 }
 
                 // Se todos os pacotes estiverem sem valor ou 0,00, oculta a seção inteira
@@ -2653,6 +2663,20 @@
 
             const subtotalEl = document.getElementById('carrinho-subtotal-itens');
             if (subtotalEl) subtotalEl.innerText = subtotalFormatado;
+
+            // Controle da visibilidade do bloco de Cupom Promocional (Aparece no carrinho SOMENTE se liberado no painel)
+            const blocoCupomEl = document.getElementById('carrinho-bloco-cupom-promocional');
+            const temPromoLiberada = !!(window.promoKitsAtiva && window.promoKitsAtiva.ativa && window.promoKitsAtiva.cupom);
+            if (blocoCupomEl) {
+                if (temPromoLiberada) {
+                    blocoCupomEl.classList.remove('hidden');
+                    blocoCupomEl.style.display = 'block';
+                } else {
+                    blocoCupomEl.classList.add('hidden');
+                    blocoCupomEl.style.display = 'none';
+                    carrinhoAtual.cupomAplicado = null;
+                }
+            }
 
             // Cálculo do Desconto do Cupom Promocional
             let valorDescontoCupomNum = 0;
