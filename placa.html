@@ -43,28 +43,68 @@
 <body class="bg-slate-100 text-slate-800 font-sans p-4 md:p-8 flex flex-col items-center min-h-screen">
 
     <!-- BARRA SUPERIOR DE CONTROLES (NÃO IMPRIME) -->
-    <div class="no-print w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-md flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-            <a href="painel.html" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-bold text-xs flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-left"></i> Painel
-            </a>
-            <div>
-                <h1 class="text-sm md:text-base font-black text-slate-900 leading-tight flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-emerald-600"></i> Gerador de Placa de Balcão (A4)
-                </h1>
-                <p class="text-[11px] text-slate-500">Imprima e coloque em balcões de academias, salões de beleza e comércios parceiros.</p>
+    <div class="no-print w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-md flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <a href="painel.html" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-bold text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Painel
+                </a>
+                <div>
+                    <h1 class="text-sm md:text-base font-black text-slate-900 leading-tight flex items-center gap-2">
+                        <i class="fa-solid fa-qrcode text-emerald-600"></i> Gerador de Placa de Balcão (A4)
+                    </h1>
+                    <p class="text-[11px] text-slate-500">Imprima para balcões de academias, salões de beleza e comércios parceiros.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="toggleDicaRecepcao()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer" title="Ver fala sugerida para o atendente do balcão">
+                    <i class="fa-solid fa-lightbulb text-amber-600"></i>
+                    <span>Dica da Recepção</span>
+                </button>
+
+                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs shadow-sm hover:shadow transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-print text-sm"></i> Imprimir / Salvar PDF
+                </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap">
+        <!-- CONTROLES DO PARCEIRO E GATILHOS DO CTA -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-0.5">
             <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
-                <label for="input-parceiro" class="text-xs font-bold text-slate-600">Nome do Parceiro:</label>
-                <input type="text" id="input-parceiro" placeholder="Ex: Academia BioFit, Salão Bella..." value="Academia Parceira" oninput="atualizarNomeParceiro(this.value)" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-emerald-500 w-44">
+                <label for="input-parceiro" class="text-xs font-bold text-slate-600 whitespace-nowrap">Nome do Parceiro:</label>
+                <input type="text" id="input-parceiro" placeholder="Ex: Academia BioFit, Salão Bella..." value="Academia Parceira" oninput="atualizarNomeParceiro(this.value)" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-emerald-500 w-48">
             </div>
 
-            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2.5 rounded-xl text-xs shadow-sm hover:shadow transition flex items-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-print text-sm"></i> Imprimir / Salvar PDF
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+                    <label for="select-gatilho-cta" class="text-xs font-bold text-slate-600 whitespace-nowrap">Gatilho do CTA:</label>
+                    <select id="select-gatilho-cta" onchange="aplicarCtaPorIndice(this.value)" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-emerald-500 max-w-[260px] truncate">
+                        <!-- Preenchido via script -->
+                    </select>
+                </div>
+
+                <button type="button" onclick="sortearCtaAleatorio()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Sorteia uma frase aleatória com gatilho mental para o CTA">
+                    <i class="fa-solid fa-dice text-sm"></i>
+                    <span>Gerar Frase Aleatória (CTA)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- BOX RETRÁTIL: DICA DA RECEPÇÃO (VISÍVEL APENAS NA TELA, NÃO SAI NA IMPRESSÃO) -->
+        <div id="box-dica-recepcao" class="hidden mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-slate-800 text-xs">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="font-black text-amber-900 uppercase text-[11px] flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb text-amber-600"></i> Dica de Ouro para a Recepção / Atendente do Balcão:
+                </span>
+                <button type="button" onclick="copiarDicaRecepcao(this)" class="text-[11px] font-bold text-emerald-800 hover:text-emerald-900 flex items-center gap-1 bg-white px-2 py-0.5 rounded-lg border border-amber-300 cursor-pointer shadow-2xs">
+                    <i class="fa-regular fa-copy"></i> Copiar Fala
+                </button>
+            </div>
+            <p class="text-slate-700 leading-relaxed text-[11px]">
+                <strong class="text-slate-900">Ao atender o aluno ou cliente, aponte para a placa no balcão e diga:</strong><br>
+                <span id="texto-fala-recepcao" class="italic">"Oi! Você já fez o nosso teste rápido de desinchaço em 1 minuto? É só apontar a câmera do celular para este QR Code aqui no balcão: você faz o teste na hora e recebe seu diagnóstico gratuito direto no WhatsApp!"</span>
+            </p>
         </div>
     </div>
 
@@ -95,16 +135,16 @@
             </div>
         </div>
 
-        <!-- 2. HEADLINE DE MÁXIMO IMPACTO -->
+        <!-- 2. HEADLINE DE MÁXIMO IMPACTO COM GATILHOS MENTAIS DINÂMICOS -->
         <div class="text-center my-4 space-y-2 relative z-10">
-            <div class="inline-block bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs md:text-sm px-4 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            <div id="placa-badge-tag" class="inline-block bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs md:text-sm px-4 py-1 rounded-full uppercase tracking-wider shadow-sm">
                 Desafio Detox & Reset Metabólico
             </div>
-            <h1 class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+            <h1 id="placa-headline-cta" class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
                 QUER <span class="text-emerald-600 underline decoration-amber-400 decoration-4">DESINCHAR ATÉ 3KG</span><br>
                 EM APENAS 5 DIAS?
             </h1>
-            <p class="text-sm font-bold text-slate-600 max-w-lg mx-auto">
+            <p id="placa-subheadline-cta" class="text-sm font-bold text-slate-600 max-w-lg mx-auto">
                 Faça o Teste Rápido de Retenção de Líquidos no seu celular e receba seu protocolo personalizado agora mesmo!
             </p>
         </div>
@@ -134,7 +174,7 @@
                         <i class="fa-solid fa-camera text-emerald-600"></i> Aponte a Câmera Aqui
                     </span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-500 mt-2">
+                <p id="placa-qr-subtexto" class="text-[10px] font-bold text-slate-500 mt-2">
                     Escaneie e responda 3 perguntas em menos de 1 minuto!
                 </p>
             </div>
@@ -202,26 +242,137 @@
             </div>
         </div>
 
-        <!-- 6. SCRIPT DE ABORDAGEM PARA A RECEPÇÃO / ATENDENTE (Área Picotada) -->
-        <div class="mt-3 border-t-2 border-dashed border-slate-300 pt-2.5 relative z-10">
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-slate-800">
-                <div class="flex items-center gap-2 mb-1">
-                    <i class="fa-solid fa-scissors text-amber-600 text-xs"></i>
-                    <span class="text-[10px] font-black uppercase text-amber-900 tracking-wider">
-                        💡 Dica de Ouro para a Recepção / Atendente do Balcão:
-                    </span>
-                </div>
-                <p class="text-[10px] text-slate-700 leading-snug">
-                    <strong class="text-slate-900">Ao atender o aluno ou cliente, aponte para esta placa e diga:</strong><br>
-                    <em>"Oi! Você já fez o nosso teste rápido de desinchaço em 1 minuto? É só apontar a câmera do celular para este QR Code aqui no balcão: você faz o teste na hora e recebe seu diagnóstico gratuito direto no WhatsApp!"</em>
-                </p>
-            </div>
-        </div>
-
     </div>
 
     <!-- Script de Configuração Dinâmica do Consultor e Geração do QR Code -->
     <script>
+        // =========================================================================
+        // BANCO DE FRASES E GATILHOS MENTAIS PARA O CTA DA PLACA
+        // =========================================================================
+        const FRASES_GATILHOS_CTA = [
+            {
+                nome: "1. Desinchar até 3kg (Resultado Tangível & Prazo Curto)",
+                tag: "Desafio Detox & Reset Metabólico",
+                headline: "QUER <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">DESINCHAR ATÉ 3KG</span><br>EM APENAS 5 DIAS?",
+                subheadline: "Faça o Teste Rápido de Retenção de Líquidos no seu celular e receba seu protocolo personalizado agora mesmo!",
+                qrTexto: "Escaneie e responda 3 perguntas em menos de 1 minuto!"
+            },
+            {
+                nome: "2. Gordura ou Retenção? (Curiosidade & Autodiagnóstico)",
+                tag: "Avaliação Corporal Express",
+                headline: "É GORDURA OU <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">APENAS RETENÇÃO</span><br>DE LÍQUIDOS?",
+                subheadline: "Descubra em 60 segundos por que seu corpo acumula inchaço e receba o protocolo ideal no WhatsApp!",
+                qrTexto: "Aponte a câmera e faça o teste gratuito no balcão!"
+            },
+            {
+                nome: "3. Barriga Estufada (Dor Imediata & Alívio)",
+                tag: "Destrave Metabólico 2026",
+                headline: "BARRIGA ESTUFADA E <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">METABOLISMO LENTO</span>?",
+                subheadline: "Descubra a fórmula natural que ativa seu metabolismo e seca o estômago alto em até 5 dias!",
+                qrTexto: "Escaneie agora e receba seu teste metabólico gratuito!"
+            },
+            {
+                nome: "4. Secar 4cm de Cintura (Especificidade & Facilidade)",
+                tag: "Protocolo Diurético Inteligente",
+                headline: "SEQUE ATÉ <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">4CM DE CINTURA</span><br>SEM PASSAR FOME!",
+                subheadline: "Veja em 1 minuto quanto peso de água retida você pode eliminar já nos próximos dias!",
+                qrTexto: "Responda 3 perguntas e veja seu resultado na hora!"
+            },
+            {
+                nome: "5. Entrar na Roupa (Urgência & Ocasião)",
+                tag: "Detox Express de Alto Impacto",
+                headline: "PRECISA ENTRAR NAQUELA ROUPA <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">AINDA ESTA SEMANA</span>?",
+                subheadline: "Faça o teste rápido de desinchaço e descubra a fórmula diurética pronta para tomar gelada!",
+                qrTexto: "Aponte a câmera: diagnóstico liberado em 60 segundos!"
+            },
+            {
+                nome: "6. Cansaço e Peso (Sintoma Físico & Energia)",
+                tag: "Reset Celular & Disposição",
+                headline: "ACORDA CANSADO E COM <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">SENSAÇÃO DE PESO</span>?",
+                subheadline: "A retenção pode estar travando sua energia e digestão. Faça o teste gratuito e destrave seu corpo!",
+                qrTexto: "Escaneie o QR Code e libere sua avaliação instantânea!"
+            },
+            {
+                nome: "7. Desafio 5 Dias (Desafio & Prova Social)",
+                tag: "Desafio VIP dos 5 Dias",
+                headline: "ACEITA O DESAFIO DE <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">ELIMINAR O INCHAÇO</span> EM 5 DIAS?",
+                subheadline: "Descubra seu perfil metabólico em 1 minuto e ganhe acompanhamento VIP com consultor oficial!",
+                qrTexto: "Aponte a câmera e inicie seu desafio detox gratuito!"
+            },
+            {
+                nome: "8. 100% Gratuito (Risco Zero & Facilidade)",
+                tag: "Diagnóstico 100% Gratuito",
+                headline: "QUAL É O SEU NÍVEL DE <span class=\"text-emerald-600 underline decoration-amber-400 decoration-4\">RETENÇÃO DE LÍQUIDOS</span>?",
+                subheadline: "Aponte o celular, responda 3 perguntas e receba a resposta personalizada no WhatsApp sem pagar nada!",
+                qrTexto: "Teste rápido, discreto e 100% gratuito no celular!"
+            }
+        ];
+
+        let indiceCtaAtual = 0;
+
+        function popularSelectGatilhos() {
+            const select = document.getElementById('select-gatilho-cta');
+            if (!select) return;
+            select.innerHTML = '';
+            FRASES_GATILHOS_CTA.forEach((item, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = item.nome;
+                select.appendChild(opt);
+            });
+            select.value = indiceCtaAtual;
+        }
+
+        function aplicarCtaPorIndice(indice) {
+            indice = parseInt(indice, 10);
+            if (isNaN(indice) || indice < 0 || indice >= FRASES_GATILHOS_CTA.length) indice = 0;
+            indiceCtaAtual = indice;
+
+            const cta = FRASES_GATILHOS_CTA[indice];
+            const badge = document.getElementById('placa-badge-tag');
+            const headline = document.getElementById('placa-headline-cta');
+            const sub = document.getElementById('placa-subheadline-cta');
+            const qrSub = document.getElementById('placa-qr-subtexto');
+
+            if (badge) badge.textContent = cta.tag;
+            if (headline) headline.innerHTML = cta.headline;
+            if (sub) sub.textContent = cta.subheadline;
+            if (qrSub) qrSub.textContent = cta.qrTexto;
+
+            const select = document.getElementById('select-gatilho-cta');
+            if (select) select.value = indice;
+        }
+
+        function sortearCtaAleatorio() {
+            let novoIndice;
+            do {
+                novoIndice = Math.floor(Math.random() * FRASES_GATILHOS_CTA.length);
+            } while (novoIndice === indiceCtaAtual && FRASES_GATILHOS_CTA.length > 1);
+
+            aplicarCtaPorIndice(novoIndice);
+        }
+
+        function toggleDicaRecepcao() {
+            const box = document.getElementById('box-dica-recepcao');
+            if (!box) return;
+            box.classList.toggle('hidden');
+        }
+
+        function copiarDicaRecepcao(btn) {
+            const texto = document.getElementById('texto-fala-recepcao');
+            if (!texto) return;
+            navigator.clipboard.writeText(texto.textContent).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-600"></i> Copiado!';
+                setTimeout(() => { btn.innerHTML = original; }, 2000);
+            });
+        }
+
+        window.popularSelectGatilhos = popularSelectGatilhos;
+        window.aplicarCtaPorIndice = aplicarCtaPorIndice;
+        window.sortearCtaAleatorio = sortearCtaAleatorio;
+        window.toggleDicaRecepcao = toggleDicaRecepcao;
+        window.copiarDicaRecepcao = copiarDicaRecepcao;
         const SUPABASE_URL = 'https://ufgcjzhecpmhsavppjyn.supabase.co';
         const SUPABASE_ANON = 'sb_publishable_kAMJXskqnvsFfBVw5vPNOw_9RVAAOYX';
         const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
@@ -333,6 +484,15 @@
             document.getElementById('placa-consultor-nome').textContent = textoConsultor;
             document.getElementById('placa-consultor-tel').textContent = formatarTelefone(whatsConsultor);
             
+            // Inicializa o seletor de frases com gatilhos do CTA
+            popularSelectGatilhos();
+            const ctaParam = params.get('cta');
+            if (ctaParam !== null && !isNaN(parseInt(ctaParam, 10))) {
+                aplicarCtaPorIndice(parseInt(ctaParam, 10));
+            } else {
+                aplicarCtaPorIndice(0);
+            }
+
             gerarQRCode();
         }
 
