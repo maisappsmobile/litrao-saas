@@ -1531,15 +1531,46 @@
             } else if (cupomPorcentagemObj && cupomPorcentagemObj.carenciaDias > 0) {
                 diasCarenciaAplicados = parseInt(cupomPorcentagemObj.carenciaDias, 10);
             }
-            hoje.setDate(hoje.getDate() + diasCarenciaAplicados);
+            // REGRA CUMULATIVA GLOBAL:
+            // "Os dias de testes que ainda não foram usados serão somados com a mensalidade em todos os planos e cupons"
+            // Se o consultor já possui cadastro no Supabase e tem dias de teste válidos (vencimento >= hoje),
+            // calculamos os dias restantes não usados.
+            // Se for um novo cadastro, recebe integralmente seus dias de degustação (diasCarenciaAplicados, padrão 7 dias)
+            // somados ao ciclo contratado!
+            let diasTesteNaoUsados = diasCarenciaAplicados;
+            try {
+                const { data: cExistente } = await supabaseClient
+                    .from('consultores')
+                    .select('id, vencimento')
+                    .eq('herbalife_id', hid)
+                    .maybeSingle();
+                if (cExistente && cExistente.vencimento) {
+                    const partesV = String(cExistente.vencimento).trim().split('T')[0].split('-');
+                    if (partesV.length === 3) {
+                        const hojeZero = new Date();
+                        hojeZero.setHours(0, 0, 0, 0);
+                        const dtVenc = new Date(parseInt(partesV[0], 10), parseInt(partesV[1], 10) - 1, parseInt(partesV[2], 10), 0, 0, 0);
+                        if (dtVenc.getTime() >= hojeZero.getTime()) {
+                            const diasRest = Math.ceil((dtVenc.getTime() - hojeZero.getTime()) / (1000 * 60 * 60 * 24));
+                            if (diasRest > 0) {
+                                diasTesteNaoUsados = diasRest;
+                            }
+                        }
+                    }
+                }
+            } catch (eChecaVenc) {
+                console.warn("Aviso ao checar vencimento prévio:", eChecaVenc);
+            }
+
             let vencimento = '';
             if (isGrupoWendell) {
                 if (isPrimeiroWendell) {
                     vencimento = '2099-12-31';
                 } else {
+                    // Ciclo de 30 dias + dias de teste não usados
                     const dCiclo = 30;
                     const dHoje = new Date();
-                    dHoje.setDate(dHoje.getDate() + dCiclo);
+                    dHoje.setDate(dHoje.getDate() + diasTesteNaoUsados + dCiclo);
                     vencimento = dHoje.toISOString().split('T')[0];
                 }
             } else if (isFundador) {
@@ -1551,21 +1582,28 @@
                 } else if (tipoV === 'carencia_dias') {
                     const dCar = parseInt(cfgFundadorAssinar.carenciaDias, 10) || 30;
                     const dHoje = new Date();
-                    dHoje.setDate(dHoje.getDate() + dCar);
+                    dHoje.setDate(dHoje.getDate() + diasTesteNaoUsados + dCar);
                     vencimento = dHoje.toISOString().split('T')[0];
                 } else {
-                    // ciclo_padrao: 30 dias se mensal, 365 dias se anual
+                    // ciclo_padrao: 30 dias se mensal, 365 dias se anual + dias de teste não usados
                     const dCiclo = (modalidadeFundadorSelecionada === 'anual') ? 365 : 30;
                     const dHoje = new Date();
-                    dHoje.setDate(dHoje.getDate() + dCiclo);
+                    dHoje.setDate(dHoje.getDate() + diasTesteNaoUsados + dCiclo);
                     vencimento = dHoje.toISOString().split('T')[0];
                 }
+            } else if (cupomPorcentagemObj || isTeste10) {
+                const dCiclo = 30;
+                const dHoje = new Date();
+                dHoje.setDate(dHoje.getDate() + diasTesteNaoUsados + dCiclo);
+                vencimento = dHoje.toISOString().split('T')[0];
             } else {
-                vencimento = hoje.toISOString().split('T')[0];
+                const dHoje = new Date();
+                dHoje.setDate(dHoje.getDate() + diasTesteNaoUsados);
+                vencimento = dHoje.toISOString().split('T')[0];
             }
-            let vencimentoFormatado = isGrupoWendell 
-                ? (isPrimeiroWendell ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/'))
-                : (isFundador ? (vencimento === '2099-12-31' ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/')) : hoje.toLocaleDateString('pt-BR'));
+            let vencimentoFormatado = (vencimento === '2099-12-31' || vencimento === '2036-12-31')
+                ? 'Vitalício (Sem Validade)'
+                : vencimento.split('-').reverse().join('/');
 
             // Formatação do Espaço e Consultor
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"

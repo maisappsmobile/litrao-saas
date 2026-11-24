@@ -11559,6 +11559,61 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     return;
                 }
 
+                // Caso GRUPOWENDELL100: Membro VIP Wendell (100 Vagas VIP, 1º Isento Vitalício R$ 0,00 e Demais R$ 41,00/mês)
+                if (codigo === 'GRUPOWENDELL100' || codigo === 'WENDELL100' || codigo === 'WENDELL') {
+                    let totalWendell = 0;
+                    try {
+                        const urlW = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?nome_espaco=ilike.*CUPOM:GRUPOWENDELL100*&select=id`;
+                        const resW = await fetch(urlW, {
+                            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+                        });
+                        if (resW.ok) {
+                            const dataW = await resW.json();
+                            totalWendell = (dataW && dataW.length) || 0;
+                        }
+                    } catch (_) {}
+
+                    if (totalWendell >= 100) {
+                        feedback.className = "mt-2.5 text-xs font-bold p-2.5 rounded-xl text-red-800 bg-red-100 border border-red-300 block";
+                        feedback.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> <strong>VAGAS ESGOTADAS!</strong> O cupom <code>GRUPOWENDELL100</code> era exclusivo para os primeiros 100 a pagarem e todas as 100 vagas já foram preenchidas.';
+                        return;
+                    }
+
+                    const isPrimeiro = (totalWendell === 0);
+                    cupomAtivoModal = {
+                        tipo: 'grupowendell100',
+                        codigo: 'GRUPOWENDELL100',
+                        descontoPorcentagem: 100,
+                        valorFixoFinal: 0.00,
+                        carenciaDias: 0,
+                        dataPrimeiraMensalidade: '',
+                        isPrimeiro: isPrimeiro,
+                        mensalidade: isPrimeiro ? 'Isento Vitalício (R$ 0,00)' : 'R$ 41,00/mês',
+                        mensalidadesFundador: {
+                            plano1: isPrimeiro ? 'R$ 0,00 (Vitalício)' : 'R$ 41,00/mês',
+                            plano2: isPrimeiro ? 'R$ 0,00 (Vitalício)' : 'R$ 41,00/mês',
+                            plano3: isPrimeiro ? 'R$ 0,00 (Vitalício)' : 'R$ 41,00/mês'
+                        }
+                    };
+
+                    feedback.className = "mt-2.5 text-xs font-bold p-3.5 rounded-2xl text-amber-950 bg-gradient-to-r from-purple-100 via-amber-100 to-yellow-100 border-2 border-amber-400 block animate-fade-in shadow-md";
+                    feedback.innerHTML = `
+                        <div class="flex items-center justify-center gap-2 text-sm font-black text-purple-950">
+                            <i class="fa-solid fa-crown text-amber-500 text-base animate-bounce"></i>
+                            <span>👑 CUPOM OFICIAL GRUPO WENDELL VIP APLICADO!</span>
+                        </div>
+                        <p class="mt-1 text-slate-800 font-semibold text-[11px] leading-relaxed">
+                            ${isPrimeiro 
+                                ? '🏆 <strong>VOCÊ É O #001: ISENÇÃO TOTAL DE TAXAS E MENSALIDADE VITALÍCIA (R$ 0,00)!</strong> Todos os recursos VIP liberados sem cobrança para sempre!'
+                                : `🔥 Vaga VIP garantida (${100 - totalWendell} vagas restantes)! <strong>Adesão R$ 0,00 (100% Isenta)</strong> e mensalidade congelada em <strong>apenas R$ 41,00/mês</strong> com Status VIP permanente!`
+                            }
+                        </p>
+                    `;
+
+                    selecionarPlano(planoSelecionadoAtual);
+                    return;
+                }
+
                 // Caso FUNDADOR100 / FUNDADOR / FUNDADORES: Membro Fundador Oficial (Adesão Zerada R$ 0,00 e Mensalidade Exclusiva)
                 if (codigo === 'FUNDADOR100' || codigo === 'FUNDADOR' || codigo === 'FUNDADORES') {
                     cupomAtivoModal = {
@@ -11890,7 +11945,22 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
             let valorFinal = valorBase;
 
-            if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                valorFinal = 0.00;
+                if (txtValor) {
+                    txtValor.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs text-red-500 line-through font-bold">${p.adesao}</span>
+                            <span class="text-2xl sm:text-3xl font-black text-amber-500 leading-tight">
+                                R$ 0,00
+                            </span>
+                            <span class="text-[10px] font-black uppercase bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white px-2.5 py-0.5 rounded-full mt-0.5 shadow-xs">
+                                👑 ADESÃO 100% ISENTA (GRUPO WENDELL VIP)
+                            </span>
+                        </div>
+                    `;
+                }
+            } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                 valorFinal = 0.00;
                 if (txtValor) {
                     txtValor.innerHTML = `
@@ -11948,7 +12018,12 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             let txidPix = `RESET_${planoKey.toUpperCase()}`;
             let descricaoPixLabel = 'Adesão do Plano';
 
-            if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+            if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                valorPixDinamico = isPrimeiro ? 0.00 : 41.00;
+                txidPix = isPrimeiro ? 'VIP_001_ISENTO' : 'WENDELL_41';
+                descricaoPixLabel = isPrimeiro ? 'Adesão e Mensalidade Vitalícia R$ 0,00' : '1ª Mensalidade VIP Wendell (Adesão R$ 0,00 Isenta)';
+            } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                 // Adesão é 100% ISENTA (R$ 0,00). O Pix cobra a 1ª Mensalidade Promocional de Fundador exclusiva do plano:
                 // Plano 1 (Start Pro) = R$ 29,00 | Plano 2 (Smart Pro) = R$ 39,00 | Plano 3 (Master VIP) = R$ 47,00
                 const tabelaMensalidadesFundadorNum = { plano1: 29.00, plano2: 39.00, plano3: 47.00 };
@@ -11987,7 +12062,19 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             }
             
             if (txtMensalidade) {
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                    const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                    txtMensalidade.innerHTML = `
+                        <div class="inline-flex flex-col items-center mt-1">
+                            <span class="bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs">
+                                👑 MEMBRO VIP WENDELL: ${isPrimeiro ? 'Isenção Total Vitalícia (R$ 0,00)' : 'Mensalidade Promocional de R$ 41,00/mês'}
+                            </span>
+                            <span class="text-purple-950 font-extrabold text-[11px] mt-1">
+                                💎 Selo VIP Permanente • Todas as Ferramentas VIP Liberadas
+                            </span>
+                        </div>
+                    `;
+                } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                     const mensFundador = (cupomAtivoModal.mensalidadesFundador && cupomAtivoModal.mensalidadesFundador[planoKey]) || 'R$ 39,00/mês';
                     txtMensalidade.innerHTML = `
                         <div class="inline-flex flex-col items-center mt-1">
@@ -12032,7 +12119,13 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             // Atualiza texto e estilo do botão de confirmação conforme o cupom
             const btnConfirmarPix = document.getElementById('btn-confirmar-pix-modal');
             if (btnConfirmarPix) {
-                if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
+                if (cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100') {
+                    const isPrimeiro = cupomAtivoModal.isPrimeiro;
+                    btnConfirmarPix.innerHTML = isPrimeiro
+                        ? `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR MINHA ISENÇÃO VITALÍCIA AGORA (R$ 0,00)</span>`
+                        : `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR VAGA VIP WENDELL (ADESÃO R$ 0,00)</span>`;
+                    btnConfirmarPix.className = "w-full bg-gradient-to-r from-purple-700 via-indigo-600 to-amber-500 hover:from-purple-800 hover:to-amber-600 text-white font-black py-4 px-4 rounded-2xl shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 text-sm cursor-pointer border-2 border-amber-300 animate-pulse";
+                } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100') {
                     btnConfirmarPix.innerHTML = `
                         <i class="fa-solid fa-crown text-amber-300 text-lg"></i>
                         <span>👑 ATIVAR MINHA VAGA DE FUNDADOR AGORA (ADESÁO R$ 0,00)</span>
@@ -12321,19 +12414,20 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
             } else {
                 let baseDate = new Date();
-                if (consultorAtual.vencimento) {
-                    const partes = String(consultorAtual.vencimento).split('-');
+                baseDate.setHours(0, 0, 0, 0);
+                if (consultorAtual && consultorAtual.vencimento) {
+                    const partes = String(consultorAtual.vencimento).trim().split('T')[0].split('-');
                     if (partes.length === 3) {
                         const ano = parseInt(partes[0], 10);
                         const mes = parseInt(partes[1], 10) - 1;
                         const dia = parseInt(partes[2], 10);
-                        const dtVencAtual = new Date(ano, mes, dia, 23, 59, 59);
-                        if (dtVencAtual > baseDate) {
-                            baseDate = dtVencAtual;
+                        const dtVencAtual = new Date(ano, mes, dia, 0, 0, 0);
+                        if (dtVencAtual.getTime() >= baseDate.getTime()) {
+                            baseDate = new Date(dtVencAtual);
                         }
                     }
                 }
-                const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
+                const diasCiclo = (infoPlano && infoPlano.diasCiclo) || (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
                 baseDate.setDate(baseDate.getDate() + diasCiclo);
                 const anoStr = baseDate.getFullYear();
                 const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
@@ -13622,13 +13716,18 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     btn.disabled = true;
                 }
 
-                const isMembroFundador = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'fundador100');
+                const isMembroWendell = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100');
+                const isMembroFundador = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'fundador100' || cupomAtivoModal.tipo === 'grupowendell100'));
 
                 // Determina valor da taxa de adesão
                 let valorPagoNum = p.valorAdesaoNum || 99.00;
                 let cupomCod = null;
-                if (isMembroFundador) {
-                    valorPagoNum = 0.00;
+                if (isMembroWendell) {
+                    valorPagoNum = (cupomAtivoModal.isPrimeiro) ? 0.00 : 41.00;
+                    cupomCod = 'GRUPOWENDELL100';
+                } else if (isMembroFundador) {
+                    const tabelaMensalidadesFundadorNum = { plano1: 29.00, plano2: 39.00, plano3: 47.00 };
+                    valorPagoNum = tabelaMensalidadesFundadorNum[pKey] || 29.00;
                     cupomCod = 'FUNDADOR100';
                 } else if (cupomAtivoModal && cupomAtivoModal.tipo === 'teste10') {
                     valorPagoNum = 0.10;
@@ -13641,7 +13740,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
                 // VALIDAÇÁO DE SEGURANÇA: Se o plano tem taxa financeira (> R$ 0,00), EXIGE comprovação real!
                 let txDetectada = txHashParam || '';
-                if (!isMembroFundador && valorPagoNum > 0) {
+                const isTotalmenteIsento = (isMembroWendell && cupomAtivoModal.isPrimeiro);
+                if (!isTotalmenteIsento && valorPagoNum > 0) {
                     let pagamentoVerificado = false;
 
                     if (txDetectada) {
@@ -13674,13 +13774,31 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     }
                 }
 
-                // 1. Cálculo da nova data de validade
+                // 1. Cálculo da nova data de validade (REGRA CUMULATIVA: soma dias de teste/plano restantes à nova mensalidade)
                 let novoVencimento = '';
-                if (isMembroFundador || pKey === 'plano3' || (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio)) {
-                    novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2036-12-31';
+                const isVitalicio = (isMembroWendell && cupomAtivoModal.isPrimeiro) || 
+                                    (isMembroFundador && !isMembroWendell && (!CONFIG_TEMPO_PLANOS || CONFIG_TEMPO_PLANOS.fundadorSemValidade)) || 
+                                    pKey === 'plano3' || 
+                                    (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio);
+
+                if (isVitalicio) {
+                    novoVencimento = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio) || '2099-12-31';
                 } else {
                     let baseDate = new Date();
-                    const diasCiclo = (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
+                    baseDate.setHours(0, 0, 0, 0);
+
+                    // REGRA DE OURO: Preserva e soma os dias de teste grátis ou dias restantes do plano anterior
+                    if (consultorAtual && consultorAtual.vencimento) {
+                        const partes = String(consultorAtual.vencimento).trim().split('T')[0].split('-');
+                        if (partes.length === 3) {
+                            const dtVencAtual = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 0, 0, 0);
+                            if (dtVencAtual.getTime() >= baseDate.getTime()) {
+                                baseDate = new Date(dtVencAtual);
+                            }
+                        }
+                    }
+
+                    const diasCiclo = (p && p.diasCiclo) || (CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.diasCicloPlano1) || 30;
                     baseDate.setDate(baseDate.getDate() + diasCiclo);
                     const anoStr = baseDate.getFullYear();
                     const mesStr = String(baseDate.getMonth() + 1).padStart(2, '0');
@@ -13716,10 +13834,19 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     rawEspaco = rawEspaco + ' ' + tagPix;
                 }
 
-                // Se ativou via FUNDADOR100, grava a condição VIP permanente no perfil
-                if (isMembroFundador) {
+                // Se ativou via GRUPOWENDELL100 ou FUNDADOR100, grava a condição VIP permanente no perfil
+                if (isMembroWendell) {
+                    const isPrimeiroW = cupomAtivoModal.isPrimeiro;
+                    const tagWendell = isPrimeiroW
+                        ? `<!--GRUPO_WENDELL:A001--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`
+                        : `<!--GRUPO_WENDELL:VIP--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                    if (rawEspaco.includes('<!--GRUPO_WENDELL:')) {
+                        rawEspaco = rawEspaco.replace(/<!--GRUPO_WENDELL:[\s\S]*?-->/g, '');
+                    }
+                    rawEspaco += ' ' + tagWendell;
+                } else if (isMembroFundador) {
                     const mensProm = (cupomAtivoModal.mensalidadesFundador && cupomAtivoModal.mensalidadesFundador[pKey]) || 'R$ 39,00/mês';
-                    const tagFundador = `<!--GRUPO_FUNDADORES:{"numero":"FD-${Math.floor(1000 + Math.random()*9000)}","cupom":"FUNDADOR100","dataAtivacao":"${new Date().toISOString()}","plano":"${pKey}","mensalidadePromocional":"${mensProm}"}-->`;
+                    const tagFundador = `<!--GRUPO_FUNDADORES:{"numero":"FD-${Math.floor(1000 + Math.random()*9000)}","cupom":"FUNDADOR100","dataAtivacao":"${new Date().toISOString()}","plano":"${pKey}","mensalidadePromocional":"${mensProm}"}--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
                     if (rawEspaco.includes('<!--GRUPO_FUNDADORES:')) {
                         rawEspaco = rawEspaco.replace(/<!--GRUPO_FUNDADORES:[\s\S]*?-->/, tagFundador);
                     } else {
