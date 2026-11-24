@@ -85,16 +85,19 @@
             scrollbar-color: #6366f1 #0b1120;
         }
 
-        /* Estilos de Arrastar e Soltar dos Cards de Ferramentas */
-        .card-ferramenta-arrastavel {
+        /* Estilos de Arrastar e Soltar dos Cards de Ferramentas e Cards Principais */
+        .card-ferramenta-arrastavel,
+        .card-principal-arrastavel {
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
             cursor: grab;
             position: relative;
         }
-        .card-ferramenta-arrastavel:active {
+        .card-ferramenta-arrastavel:active,
+        .card-principal-arrastavel:active {
             cursor: grabbing;
         }
-        .card-ferramenta-arrastavel.is-dragging {
+        .card-ferramenta-arrastavel.is-dragging,
+        .card-principal-arrastavel.is-dragging {
             opacity: 0.35 !important;
             transform: scale(0.97) translateY(-2px) !important;
             border: 2px dashed #10b981 !important;
@@ -985,109 +988,307 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- CARD BIOIMPEDÂNCIA ON-LINE (PRINT 1 - ACIMA DOS MÓDULOS DE GESTÁO)          -->
+        <!-- MÓDULOS PRINCIPAIS DE GESTÃO & OPERAÇÃO (CARDS REORDENÁVEIS / ARRASTÁVEIS) -->
         <!-- ========================================================================= -->
-        <div id="card-bioimpedancia-topo" class="w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/90 relative overflow-hidden group mb-6 hover:shadow-md hover:border-blue-300 transition-all duration-300">
-            
-            <!-- Barra Minimizada (exibida apenas quando minimizado) -->
-            <div id="barra-bioimpedancia-minimizada" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-lg shadow-2xs shrink-0">
-                        <i class="fa-solid fa-weight-scale"></i>
+        <div id="secao-modulos-principais-painel" class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-slate-200/80 gap-2">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            Gestão & Operação
+                        </span>
+                        <span class="text-xs text-slate-400 font-medium">Controle Diário do Consultor</span>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base sm:text-lg font-black text-slate-900">BioImpedância On-line</h3>
-                            <span class="inline-flex items-center space-x-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span>Online</span>
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-500 font-medium">Diagnósticos corporais inteligentes e fichas de bioimpedância.</p>
-                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                        Módulos Principais
+                    </h2>
                 </div>
-                <div class="flex items-center gap-2 self-end sm:self-center">
-                    <button type="button" onclick="toggleSecaoAvaliacoes()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                        <i class="fa-solid fa-chart-line text-xs"></i> <span>Avaliações</span>
-                    </button>
-                    <button type="button" onclick="toggleMinimizarSecao('bioimpedancia')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer" title="Expandir Seção de Bioimpedância">
-                        <span>Expandir</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="badge-instrucao-arrastar-cards-principais" class="text-[11px] text-slate-500 font-medium inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1 rounded-xl transition select-none cursor-default" title="Clique e arraste qualquer card para mudar sua posição no painel">
+                        <i class="fa-solid fa-up-down-left-right text-emerald-600 text-xs"></i>
+                        <span>Arraste os cards para reordenar</span>
+                    </span>
+                    <button type="button" id="btn-restaurar-ordem-cards-principais" onclick="restaurarOrdemPadraoCardsPrincipais()" class="hidden text-[11px] text-slate-400 hover:text-rose-600 transition font-bold px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer" title="Voltar para a ordem original dos cards">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Ordem Padrão
                     </button>
                 </div>
             </div>
 
-            <!-- Conteúdo Normal Completo -->
-            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6" id="conteudo-bioimpedancia-topo">
-                <!-- Lado Esquerdo: Identificação & Texto em Destaque -->
-                <div class="flex-1">
-                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                        <span class="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
-                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
-                            <span>IA & BIOIMPEDÂNCIA 2.0</span>
-                        </span>
-                        <span class="inline-flex items-center space-x-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>Online & Sincronizado</span>
-                        </span>
+            <!-- GRADE DOS 3 CARDS: 1. BIOIMPEDÂNCIA | 2. PEDIDOS & ENTREGAS | 3. MATERIAIS DE APOIO -->
+            <div id="grid-cards-principais-painel" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 items-start">
+                
+                <!-- CARD 1: BIOIMPEDÂNCIA ON-LINE (PRINT 2) -->
+                <div id="card-bioimpedancia-topo" draggable="true" class="card-principal-arrastavel select-none bg-white text-slate-900 rounded-3xl p-5 sm:p-6 shadow-md border-2 border-blue-500/30 hover:border-blue-400 hover:shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden">
+                    <!-- Efeito Glow sutil -->
+                    <div class="absolute -right-12 -top-12 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-500/15 transition"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                                <span>IA & BIOIMPEDÂNCIA 2.0</span>
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span>Online
+                                </span>
+                                <span class="text-slate-400 hover:text-slate-600 transition drag-handle-card cursor-grab active:cursor-grabbing p-1" title="Arraste para reordenar este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 mt-2">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-xl shadow-2xs shrink-0 group-hover:scale-105 transition">
+                                <i class="fa-solid fa-weight-scale"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+                                    BioImpedância <span class="text-blue-600 font-bold text-sm block sm:inline">On-line</span>
+                                </h3>
+                                <p class="text-slate-500 text-xs mt-1 leading-relaxed">
+                                    Diagnósticos corporais inteligentes, histórico de evolução e fichas completas de bioimpedância dos clientes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STATS / AÇÕES RÁPIDAS BIOIMPEDÂNCIA -->
+                        <div class="grid grid-cols-2 gap-2 my-4">
+                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-center flex flex-col justify-center">
+                                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Total Avaliações</span>
+                                <span id="stat-card-total-avaliacoes" class="text-xl font-black text-slate-900 block mt-0.5">0</span>
+                            </div>
+                            <div class="flex flex-col gap-1.5 justify-center">
+                                <button type="button" onclick="abrirNovaAvaliacao()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap">
+                                    <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> Nova Avaliação
+                                </button>
+                                <button type="button" onclick="abrirModuloRelatorios()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap" title="Exportar Planilhas">
+                                    <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Planilhas
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-start space-x-4">
-                        <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-2xl shadow-2xs flex-shrink-0 group-hover:scale-105 transition transform">
-                            <i class="fa-solid fa-weight-scale"></i>
+                    <!-- RODAPÉ DO CARD: BOTÃO GESTÃO DE AVALIAÇÕES -->
+                    <div class="relative z-10 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-slate-400 font-medium">Fichas & Evolução</span>
+                        <button type="button" onclick="toggleSecaoAvaliacoes()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap">
+                            <i class="fa-solid fa-chart-line text-xs"></i>
+                            <span>Gestão de Avaliações</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARD 2: PEDIDOS & ENTREGAS (PRINT 4) -->
+                <div id="card-pedidos-entregas" draggable="true" class="card-principal-arrastavel select-none bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-md border-2 border-emerald-500/40 hover:border-emerald-400 hover:shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden">
+                    <!-- Efeito Glow -->
+                    <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/25 transition"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span>Gestão & Delivery</span>
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-emerald-200/80 flex items-center gap-1">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> Tempo Real
+                                </span>
+                                <span class="text-emerald-400/40 hover:text-emerald-300 transition drag-handle-card cursor-grab active:cursor-grabbing p-1" title="Arraste para reordenar este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <div class="inline-block leading-none">
-                                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                                    BioImpedância
+
+                        <div class="flex items-start gap-3 mt-2">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl shadow-2xs shrink-0 group-hover:scale-105 transition">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-black text-white leading-tight">
+                                    Pedidos & Entregas
                                 </h3>
-                                <div class="text-right -mt-0.5 sm:-mt-1">
-                                    <span class="text-base sm:text-lg font-black text-blue-600 tracking-wider">On-line</span>
+                                <p class="text-emerald-100/85 text-xs mt-1 leading-relaxed">
+                                    Toda movimentação, controle de garrafas, rotas no Google Maps e agilização de entregas do seu Litrão.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- MINI DASHBOARD DE MOVIMENTAÇÁO NO CARD (PRINT 3) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 my-4">
+                            <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2 text-center">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-amber-300">🟡 Pendentes</span>
+                                <span id="card-pedidos-stat-pendente" class="text-lg font-black text-white block mt-0.5">0</span>
+                            </div>
+                            <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2 text-center">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-blue-300">🥣 Preparo</span>
+                                <span id="card-pedidos-stat-preparo" class="text-lg font-black text-white block mt-0.5">0</span>
+                            </div>
+                            <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2 text-center">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-purple-300">🛵 Em Rota</span>
+                                <span id="card-pedidos-stat-entrega" class="text-lg font-black text-white block mt-0.5">0</span>
+                            </div>
+                            <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2 text-center">
+                                <span class="block text-[9px] font-black uppercase tracking-wider text-cyan-300">📦 Retirada</span>
+                                <span id="card-pedidos-stat-retirada" class="text-lg font-black text-white block mt-0.5">0</span>
+                            </div>
+                        </div>
+
+                        <!-- SEÇÁO EXPANSÍVEL: CENTRAL DE GESTÁO DE PEDIDOS & AGILIZAÇÁO DE ENTREGAS (ABERTA DENTRO DO CARD) -->
+                        <div id="secao-central-pedidos" class="hidden my-4 bg-white rounded-3xl shadow-2xl p-4 sm:p-5 border-2 border-emerald-500/30 text-gray-900 transition-all">
+                            <!-- CABEÇALHO DA CENTRAL DE PEDIDOS -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-gray-100 pb-3">
+                                <div>
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">
+                                            <i class="fa-solid fa-bolt mr-1"></i> Delivery & Retirada
+                                        </span>
+                                        <span id="badge-pedidos-contador-geral" class="text-xs font-bold text-gray-500">0 pedidos</span>
+                                    </div>
+                                    <h3 class="text-lg sm:text-xl font-black text-gray-900 flex items-center">
+                                        <i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> Central de Pedidos
+                                    </h3>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="relative flex-1 sm:flex-initial">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                                        <input type="text" id="busca-pedidos-central" oninput="filtrarCentralPedidos(this.value)" placeholder="Buscar cliente..." class="pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-44">
+                                    </div>
+                                    <button type="button" onclick="carregarAvaliacoes();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer" title="Atualizar Pedidos">
+                                        <i class="fa-solid fa-rotate text-xs"></i>
+                                    </button>
+                                    <button type="button" onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center gap-1 cursor-pointer">
+                                        <i class="fa-solid fa-chevron-up text-xs"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <p class="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed mt-2 max-w-xl">
-                                Diagnósticos corporais inteligentes, histórico de evolução e fichas completas de bioimpedância dos clientes.
-                            </p>
+
+                            <!-- ABAS DE STATUS DOS PEDIDOS (FILTROS RÁPIDOS) -->
+                            <div class="flex flex-wrap items-center gap-1.5 mb-3 pb-2.5 border-b border-gray-100 text-[11px]">
+                                <button id="tab-pedidos-status-todos" onclick="filtrarAbaStatusPedidos('TODOS')" class="px-2.5 py-1 rounded-xl font-black transition bg-gray-900 text-white shadow-xs flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> Todos (<span id="cont-status-todos">0</span>)
+                                </button>
+                                <button id="tab-pedidos-status-pendente" onclick="filtrarAbaStatusPedidos('PENDENTE')" class="px-2.5 py-1 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1 cursor-pointer">
+                                    🟡 Pendentes (<span id="cont-status-pendente">0</span>)
+                                </button>
+                                <button id="tab-pedidos-status-preparo" onclick="filtrarAbaStatusPedidos('PREPARO')" class="px-2.5 py-1 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1 cursor-pointer">
+                                    🥣 Preparo (<span id="cont-status-preparo">0</span>)
+                                </button>
+                                <button id="tab-pedidos-status-entrega" onclick="filtrarAbaStatusPedidos('SAIU_ENTREGA')" class="px-2.5 py-1 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1 cursor-pointer">
+                                    🛵 Rota (<span id="cont-status-entrega">0</span>)
+                                </button>
+                                <button id="tab-pedidos-status-retirada" onclick="filtrarAbaStatusPedidos('PRONTO_RETIRADA')" class="px-2.5 py-1 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1 cursor-pointer">
+                                    📦 Retirada (<span id="cont-status-retirada">0</span>)
+                                </button>
+                                <button id="tab-pedidos-status-concluido" onclick="filtrarAbaStatusPedidos('CONCLUIDO')" class="px-2.5 py-1 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1 cursor-pointer">
+                                    ✅ Concluídos (<span id="cont-status-concluido">0</span>)
+                                </button>
+                            </div>
+
+                            <!-- CONTAINER DA LISTA DE PEDIDOS -->
+                            <div id="container-lista-pedidos-central" class="space-y-3">
+                                <div class="p-8 text-center text-gray-400">
+                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando pedidos...
+                                </div>
+                            </div>
+
+                            <!-- RODAPÉ DA CENTRAL -->
+                            <div class="mt-4 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                                <span class="text-[11px]">💡 Rotas no Maps, comandas e avisos WhatsApp.</span>
+                                <button type="button" onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1 px-3 rounded-lg transition cursor-pointer text-xs">
+                                    <i class="fa-solid fa-chevron-up text-[10px] mr-1"></i> Minimizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RODAPÉ DO CARD: TOTAL FATURADO + BOTÁO ABRIR -->
+                    <div class="relative z-10 pt-3 border-t border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <div class="text-xs">
+                            <span class="text-emerald-200/80 block text-[10px] font-medium">Total em Pedidos:</span>
+                            <span id="card-pedidos-stat-total-faturado" class="text-sm font-black text-emerald-300">R$ 0,00</span>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="abrirModalConfigPrecosKits()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Configurar Tabela de Preços">
+                                <i class="fa-solid fa-tags text-[10px]"></i>
+                                <span>Preços</span>
+                            </button>
+                            <button type="button" onclick="abrirModalConfigTaxasEntrega()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Configurar Taxa de Entrega">
+                                <i class="fa-solid fa-motorcycle text-[10px]"></i>
+                                <span>Taxa</span>
+                            </button>
+                            <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs py-2 px-3.5 rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer whitespace-nowrap">
+                                <span id="label-toggle-pedidos">Abrir Pedidos</span>
+                                <i id="icone-toggle-pedidos" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Lado Direito: Ações e Box de AVALIAÇÕES -->
-                <div class="flex flex-col gap-2.5 lg:w-96 flex-shrink-0">
-                    <div class="flex items-center justify-end">
-                        <button type="button" onclick="toggleMinimizarSecao('bioimpedancia')" class="text-xs text-slate-400 hover:text-slate-700 font-bold transition flex items-center gap-1 py-1 px-2.5 rounded-lg hover:bg-slate-100 cursor-pointer" title="Minimizar Seção de Bioimpedância">
-                            <span>Minimizar</span>
-                            <i class="fa-solid fa-chevron-up text-[10px]"></i>
-                        </button>
-                    </div>
-                    <!-- Botão Principal Gestão de Avaliações -->
-                    <button onclick="toggleSecaoAvaliacoes()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-5 rounded-xl shadow-xs transition flex items-center justify-between text-sm cursor-pointer group/btn">
-                        <span class="flex items-center font-black">
-                            <i class="fa-solid fa-chart-line mr-2.5 text-blue-200 text-base"></i> GESTÁO DE AVALIAÇÕES
-                        </span>
-                        <span class="bg-blue-700/60 px-2.5 py-0.5 rounded-lg text-xs font-bold flex items-center group-hover/btn:translate-x-0.5 transition">
-                            Abrir <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>
-                        </span>
-                    </button>
+                <!-- CARD 3: MATERIAIS DE APOIO & COMO DIVULGAR (PRINT 3) -->
+                <div id="card-materiais-apoio" draggable="true" class="card-principal-arrastavel select-none bg-gradient-to-br from-brand-dark via-[#244b2c] to-[#1c3822] rounded-3xl p-5 sm:p-6 text-white shadow-md border-2 border-yellow-500/30 hover:border-yellow-400 hover:shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden">
+                    <!-- Efeito Glow -->
+                    <div class="absolute -right-12 -top-12 w-48 h-48 bg-yellow-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-yellow-500/20 transition"></div>
 
-                    <!-- Ações Rápidas: Nova Avaliação + Planilhas -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="abrirNovaAvaliacao()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer">
-                            <i class="fa-solid fa-plus-circle text-blue-600 mr-1.5"></i> Nova Avaliação
-                        </button>
-                        <button onclick="abrirModuloRelatorios()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer" title="Exportar Planilhas">
-                            <i class="fa-solid fa-file-excel text-emerald-600 mr-1.5"></i> Planilhas
-                        </button>
-                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="inline-block bg-brand-yellow text-brand-dark font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                                Treinamento Oficial
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-yellow-200/80 flex items-center gap-1">
+                                    <i class="fa-solid fa-book-open"></i> Scripts & Mídias
+                                </span>
+                                <span class="text-yellow-400/40 hover:text-yellow-300 transition drag-handle-card cursor-grab active:cursor-grabbing p-1" title="Arraste para reordenar este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
 
-                    <!-- Card Exclusivo: AVALIAÇÕES -->
-                    <div class="flex justify-end pt-0.5">
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-2 text-center min-w-[150px]">
-                            <span class="block text-[9px] uppercase tracking-wider font-extrabold text-slate-400">Total Avaliações</span>
-                            <span id="stat-card-total-avaliacoes" class="text-2xl font-black text-slate-900 leading-tight block mt-0.5">0</span>
+                        <div class="flex items-start gap-3 mt-2">
+                            <div class="w-11 h-11 rounded-2xl bg-yellow-500/20 text-brand-yellow border border-yellow-400/30 flex items-center justify-center text-xl shadow-2xs shrink-0 group-hover:scale-105 transition">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-black text-white leading-tight">
+                                    Materiais de Apoio & Divulgação
+                                </h3>
+                                <p class="text-gray-200 text-xs mt-1 leading-relaxed">
+                                    Aprenda a atrair clientes todos os dias usando seu link oficial, roteiros validados de WhatsApp e a estratégia da sacola com os tíquetes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- TAGS DE RECURSOS NO CARD -->
+                        <div class="flex flex-wrap items-center gap-1.5 my-4">
+                            <span class="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/10">
+                                🏷️ Tíquetes Sacola
+                            </span>
+                            <span class="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/10">
+                                💬 Roteiros WhatsApp
+                            </span>
+                            <span class="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/10">
+                                🖼️ Gerador de Flyers
+                            </span>
+                            <span class="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/10">
+                                👑 Kit Equipe VIP
+                            </span>
                         </div>
                     </div>
+
+                    <!-- RODAPÉ DO CARD: BOTÁO ABRIR -->
+                    <div class="relative z-10 pt-3 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <span class="text-[10px] text-gray-300 font-medium">Acesso liberado a todas as ferramentas</span>
+                        <button type="button" onclick="toggleMateriaisApoio()" id="btn-toggle-materiais" class="bg-brand-yellow hover:bg-yellow-400 text-brand-dark font-black text-xs py-2 px-3.5 rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap">
+                            <span id="label-toggle-materiais">Abrir Materiais</span>
+                            <i id="icone-toggle-materiais" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </div>
 
@@ -5878,197 +6079,7 @@
             </div>
         </div>
 
-        <!-- SEÇÁO: 2 CARDS LADO A LADO (1. PEDIDOS & ENTREGAS | 2. MATERIAIS DE APOIO & TREINAMENTO) -->
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
-            
-            <!-- CARD 1: PEDIDOS & ENTREGAS (MOVIMENTAÇÁO EM TEMPO REAL) -->
-            <div id="card-pedidos-entregas" class="bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-xl border-2 border-emerald-500/40 relative overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all">
-                <!-- Efeito Glow -->
-                <div class="absolute -right-12 -top-12 w-52 h-52 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/25 transition"></div>
 
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span>Gestão & Delivery</span>
-                        </span>
-                        <span class="text-xs font-bold text-emerald-200/80 flex items-center gap-1">
-                            <i class="fa-solid fa-clock-rotate-left"></i> Tempo Real
-                        </span>
-                    </div>
-
-                    <h3 class="text-xl sm:text-2xl font-black text-white flex items-center leading-tight">
-                        <i class="fa-solid fa-cart-shopping text-emerald-400 mr-2.5"></i> Pedidos & Entregas
-                    </h3>
-                    <p class="text-emerald-100/85 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Toda movimentação, controle de garrafas, rotas no Google Maps e agilização de entregas do seu Litrão.
-                    </p>
-
-                    <!-- MINI DASHBOARD DE MOVIMENTAÇÁO NO CARD -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 my-4">
-                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-amber-300">🟡 Pendentes</span>
-                            <span id="card-pedidos-stat-pendente" class="text-xl font-black text-white block mt-0.5">0</span>
-                        </div>
-                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-blue-300">🥣 Preparo</span>
-                            <span id="card-pedidos-stat-preparo" class="text-xl font-black text-white block mt-0.5">0</span>
-                        </div>
-                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-purple-300">🛵 Em Rota</span>
-                            <span id="card-pedidos-stat-entrega" class="text-xl font-black text-white block mt-0.5">0</span>
-                        </div>
-                        <div class="bg-black/35 border border-emerald-500/30 rounded-2xl p-2.5 text-center">
-                            <span class="block text-[10px] font-black uppercase tracking-wider text-cyan-300">📦 Retirada</span>
-                            <span id="card-pedidos-stat-retirada" class="text-xl font-black text-white block mt-0.5">0</span>
-                        </div>
-                    </div>
-
-                    <!-- SEÇÁO EXPANSÍVEL: CENTRAL DE GESTÁO DE PEDIDOS & AGILIZAÇÁO DE ENTREGAS (ABERTA DENTRO DO CARD) -->
-                    <div id="secao-central-pedidos" class="hidden my-4 bg-white rounded-3xl shadow-2xl p-4 sm:p-6 border-2 border-emerald-500/30 text-gray-900 transition-all">
-                        <!-- CABEÇALHO DA CENTRAL DE PEDIDOS -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-gray-100 pb-4">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-300">
-                                        <i class="fa-solid fa-bolt mr-1"></i> Despacho Rápido & Delivery
-                                    </span>
-                                    <span id="badge-pedidos-contador-geral" class="text-xs font-bold text-gray-500">0 pedidos registrados</span>
-                                </div>
-                                <h3 class="text-xl sm:text-2xl font-black text-gray-900 flex items-center">
-                                    <i class="fa-solid fa-truck-fast text-emerald-600 mr-2.5"></i> Central de Pedidos & Agilização de Entregas
-                                </h3>
-                                <p class="text-xs sm:text-sm text-gray-500 mt-0.5">Gerencie status, rotas de entrega no GPS, imprima comandas e notifique no WhatsApp.</p>
-                            </div>
-
-                            <div class="flex flex-wrap items-center gap-2">
-                                <!-- BUSCA RÁPIDA -->
-                                <div class="relative">
-                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
-                                    <input type="text" id="busca-pedidos-central" oninput="filtrarCentralPedidos(this.value)" placeholder="Buscar cliente, rua, produto..." class="pl-9 pr-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-52 sm:w-64">
-                                </div>
-                                <button type="button" onclick="carregarAvaliacoes();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer" title="Atualizar Pedidos">
-                                    <i class="fa-solid fa-rotate"></i> Atualizar
-                                </button>
-                                <button type="button" onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-chevron-up text-xs"></i> Minimizar
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- ABAS DE STATUS DOS PEDIDOS (FILTROS RÁPIDOS) -->
-                        <div class="flex flex-wrap items-center gap-2 mb-4 pb-3 border-b border-gray-100 text-xs">
-                            <button id="tab-pedidos-status-todos" onclick="filtrarAbaStatusPedidos('TODOS')" class="px-3.5 py-1.5 rounded-xl font-black transition bg-gray-900 text-white shadow-xs flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-layer-group"></i> Todos (<span id="cont-status-todos">0</span>)
-                            </button>
-                            <button id="tab-pedidos-status-pendente" onclick="filtrarAbaStatusPedidos('PENDENTE')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
-                                🟡 Pendentes (<span id="cont-status-pendente">0</span>)
-                            </button>
-                            <button id="tab-pedidos-status-preparo" onclick="filtrarAbaStatusPedidos('PREPARO')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
-                                🥣 Em Preparo (<span id="cont-status-preparo">0</span>)
-                            </button>
-                            <button id="tab-pedidos-status-entrega" onclick="filtrarAbaStatusPedidos('SAIU_ENTREGA')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
-                                🛵 Em Entrega (<span id="cont-status-entrega">0</span>)
-                            </button>
-                            <button id="tab-pedidos-status-retirada" onclick="filtrarAbaStatusPedidos('PRONTO_RETIRADA')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
-                                📦 Pronto Retirada (<span id="cont-status-retirada">0</span>)
-                            </button>
-                            <button id="tab-pedidos-status-concluido" onclick="filtrarAbaStatusPedidos('CONCLUIDO')" class="px-3.5 py-1.5 rounded-xl font-bold transition bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center gap-1.5 cursor-pointer">
-                                ✅ Entregues (<span id="cont-status-concluido">0</span>)
-                            </button>
-                        </div>
-
-                        <!-- CONTAINER DA LISTA DE PEDIDOS -->
-                        <div id="container-lista-pedidos-central" class="space-y-3">
-                            <div class="p-8 text-center text-gray-400">
-                                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando pedidos...
-                            </div>
-                        </div>
-
-                        <!-- RODAPÉ DA CENTRAL -->
-                        <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                            <span>💡 Clique em <strong>"Abrir Rota GPS"</strong> para traçar a rota da entrega no Google Maps.</span>
-                            <button type="button" onclick="toggleCentralPedidos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3.5 rounded-lg transition cursor-pointer">
-                                <i class="fa-solid fa-chevron-up text-xs mr-1"></i> Minimizar Pedidos
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RODAPÉ DO CARD: TOTAL FATURADO + BOTÁO ABRIR -->
-                <div class="relative z-10 pt-3 border-t border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="text-xs">
-                        <span class="text-emerald-200/80 block text-[11px] font-medium">Total em Pedidos:</span>
-                        <span id="card-pedidos-stat-total-faturado" class="text-base font-black text-emerald-300">R$ 0,00</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="abrirModalConfigPrecosKits()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs sm:text-sm py-2.5 px-3.5 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap" title="Configurar Tabela de Preços dos Pacotes (Kits) da Região">
-                            <i class="fa-solid fa-tags text-xs"></i>
-                            <span>Preços da Região</span>
-                        </button>
-                        <button type="button" onclick="abrirModalConfigTaxasEntrega()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm py-2.5 px-3.5 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap" title="Configurar Taxa de Entrega por Bairros ou Taxa Única">
-                            <i class="fa-solid fa-motorcycle text-xs"></i>
-                            <span>Taxa de Entrega</span>
-                        </button>
-                        <button type="button" onclick="toggleCentralPedidos()" id="btn-toggle-pedidos" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
-                            <span id="label-toggle-pedidos">Abrir Pedidos</span>
-                            <i id="icone-toggle-pedidos" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD 2: MATERIAIS DE APOIO & COMO DIVULGAR -->
-            <div class="bg-gradient-to-br from-brand-dark via-[#244b2c] to-[#1c3822] rounded-3xl p-6 sm:p-7 text-white shadow-xl border border-white/10 relative overflow-hidden flex flex-col justify-between group hover:border-yellow-400/40 transition-all">
-                <!-- Efeito Glow -->
-                <div class="absolute -right-12 -top-12 w-52 h-52 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-yellow-500/20 transition"></div>
-
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="inline-block bg-brand-yellow text-brand-dark font-black text-xs px-3 py-1 rounded-full uppercase">
-                            Treinamento Oficial
-                        </span>
-                        <span class="text-xs font-bold text-yellow-200/80 flex items-center gap-1">
-                            <i class="fa-solid fa-book-open"></i> Scripts & Mídias
-                        </span>
-                    </div>
-
-                    <h3 class="text-xl sm:text-2xl font-black text-white flex items-center leading-tight">
-                        <i class="fa-solid fa-graduation-cap text-brand-yellow mr-2.5"></i> Materiais de Apoio & Divulgação
-                    </h3>
-                    <p class="text-gray-200 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Aprenda a atrair clientes todos os dias usando seu link oficial, roteiros validados de WhatsApp e a estratégia da sacola com os tíquetes.
-                    </p>
-
-                    <!-- TAGS DE RECURSOS NO CARD -->
-                    <div class="flex flex-wrap items-center gap-1.5 my-4">
-                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            🏷️ Tíquetes da Sacola
-                        </span>
-                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            💬 Roteiros WhatsApp
-                        </span>
-                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            🖼️ Gerador de Flyers
-                        </span>
-                        <span class="bg-white/10 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            👑 Kit Equipe VIP
-                        </span>
-                    </div>
-                </div>
-
-                <!-- RODAPÉ DO CARD: BOTÁO ABRIR -->
-                <div class="relative z-10 pt-3 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <span class="text-[11px] text-gray-300 font-medium">Acesso liberado a todas as ferramentas de divulgação</span>
-                    <button type="button" onclick="toggleMateriaisApoio()" id="btn-toggle-materiais" class="bg-brand-yellow hover:bg-yellow-400 text-brand-dark font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer whitespace-nowrap">
-                        <span id="label-toggle-materiais">Abrir Materiais</span>
-                        <i id="icone-toggle-materiais" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
-                    </button>
-                </div>
-            </div>
-
-        </div>
 
         <!-- CONTEÚDO DOS MATERIAIS DE APOIO (EXPANSÍVEL) -->
         <div id="conteudo-materiais-apoio" class="hidden mt-6 bg-gradient-to-r from-brand-dark to-[#2c5835] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300 border border-yellow-400/20">
@@ -15298,11 +15309,275 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
             atualizarVisibilidadeBotaoResetOrdem();
             inicializarDragAndDropCardsFerramentas();
+            if (typeof organizarPosicionamentoCardsPrincipais === 'function') {
+                organizarPosicionamentoCardsPrincipais();
+            }
         }
         window.organizarPosicionamentoFerramentasTrabalho = organizarPosicionamentoFerramentasTrabalho;
         window.inicializarDragAndDropCardsFerramentas = inicializarDragAndDropCardsFerramentas;
         window.obterOrdemCardsFerramentasSalva = obterOrdemCardsFerramentasSalva;
         window.salvarOrdemCardsFerramentas = salvarOrdemCardsFerramentas;
+
+        // ==========================================
+        // ARRASTAR E REORDENAR: CARDS PRINCIPAIS (BIOIMPEDÂNCIA, PEDIDOS & MATERIAIS)
+        // ==========================================
+        let cardPrincipalArrastando = null;
+        let touchPrincipalArrastandoAtivo = false;
+        let touchPrincipalInicialX = 0;
+        let touchPrincipalInicialY = 0;
+        let timerNotificacaoOrdemPrincipais = null;
+
+        function obterChaveStorageOrdemCardsPrincipais() {
+            const hid = (consultorAtual && consultorAtual.herbalife_id) ? String(consultorAtual.herbalife_id).trim() : 'padrao';
+            return `litrao_ordem_cards_principais_${hid}`;
+        }
+
+        function obterOrdemCardsPrincipaisSalva() {
+            try {
+                const chave = obterChaveStorageOrdemCardsPrincipais();
+                const dado = localStorage.getItem(chave);
+                if (dado) {
+                    const parsed = JSON.parse(dado);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch(e) {
+                console.warn("Erro ao ler ordem dos cards principais:", e);
+            }
+            return null;
+        }
+
+        function salvarOrdemCardsPrincipais(ordemIds) {
+            if (!Array.isArray(ordemIds) || ordemIds.length === 0) return;
+            try {
+                const chave = obterChaveStorageOrdemCardsPrincipais();
+                localStorage.setItem(chave, JSON.stringify(ordemIds));
+                atualizarVisibilidadeBotaoResetOrdemPrincipais();
+            } catch(e) {
+                console.warn("Erro ao salvar ordem dos cards principais:", e);
+            }
+        }
+
+        function restaurarOrdemPadraoCardsPrincipais() {
+            try {
+                const chave = obterChaveStorageOrdemCardsPrincipais();
+                localStorage.removeItem(chave);
+                atualizarVisibilidadeBotaoResetOrdemPrincipais();
+                organizarPosicionamentoCardsPrincipais();
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante('Ordem original dos cards principais restaurada! ✅', 'sucesso');
+                }
+            } catch(e) {
+                console.warn("Erro ao resetar ordem dos cards principais:", e);
+            }
+        }
+        window.restaurarOrdemPadraoCardsPrincipais = restaurarOrdemPadraoCardsPrincipais;
+
+        function atualizarVisibilidadeBotaoResetOrdemPrincipais() {
+            const btnReset = document.getElementById('btn-restaurar-ordem-cards-principais');
+            if (!btnReset) return;
+            const ordem = obterOrdemCardsPrincipaisSalva();
+            if (ordem && ordem.length > 0) {
+                btnReset.classList.remove('hidden');
+            } else {
+                btnReset.classList.add('hidden');
+            }
+        }
+
+        function salvarOrdemAtualGridPrincipais(notificar = false) {
+            const grid = document.getElementById('grid-cards-principais-painel');
+            if (!grid) return;
+
+            const novaOrdem = Array.from(grid.children)
+                .map(c => c.id)
+                .filter(id => id && id.startsWith('card-'));
+
+            if (novaOrdem.length > 0) {
+                salvarOrdemCardsPrincipais(novaOrdem);
+                if (notificar) {
+                    clearTimeout(timerNotificacaoOrdemPrincipais);
+                    timerNotificacaoOrdemPrincipais = setTimeout(() => {
+                        if (typeof mostrarNotificacaoFlutuante === 'function') {
+                            mostrarNotificacaoFlutuante('Nova ordem dos cards principais salva! ✅', 'sucesso');
+                        }
+                    }, 250);
+                }
+            }
+        }
+
+        function organizarPosicionamentoCardsPrincipais() {
+            const grid = document.getElementById('grid-cards-principais-painel');
+            if (!grid) return;
+
+            const ordemPadrao = ['card-bioimpedancia-topo', 'card-pedidos-entregas', 'card-materiais-apoio'];
+            const ordemSalva = obterOrdemCardsPrincipaisSalva() || ordemPadrao;
+
+            const cardsMap = {};
+            Array.from(grid.children).forEach(c => {
+                if (c && c.id) cardsMap[c.id] = c;
+            });
+
+            ordemSalva.forEach(id => {
+                if (cardsMap[id]) {
+                    grid.appendChild(cardsMap[id]);
+                }
+            });
+
+            ordemPadrao.forEach(id => {
+                if (cardsMap[id] && !ordemSalva.includes(id)) {
+                    grid.appendChild(cardsMap[id]);
+                }
+            });
+
+            atualizarVisibilidadeBotaoResetOrdemPrincipais();
+            inicializarDragAndDropCardsPrincipais();
+        }
+        window.organizarPosicionamentoCardsPrincipais = organizarPosicionamentoCardsPrincipais;
+
+        function inicializarDragAndDropCardsPrincipais() {
+            const grid = document.getElementById('grid-cards-principais-painel');
+            if (!grid) return;
+
+            const cards = Array.from(grid.children).filter(el => el && el.id);
+            cards.forEach(card => {
+                card.classList.add('card-principal-arrastavel');
+                card.setAttribute('draggable', 'true');
+
+                const elementosInterativos = card.querySelectorAll('button, a, input, select, textarea');
+                elementosInterativos.forEach(el => {
+                    el.setAttribute('draggable', 'false');
+                });
+
+                card.removeEventListener('dragstart', tratarCardPrincipalDragStart);
+                card.removeEventListener('dragover', tratarCardPrincipalDragOver);
+                card.removeEventListener('dragend', tratarCardPrincipalDragEnd);
+                card.removeEventListener('drop', tratarCardPrincipalDrop);
+
+                card.addEventListener('dragstart', tratarCardPrincipalDragStart);
+                card.addEventListener('dragover', tratarCardPrincipalDragOver);
+                card.addEventListener('dragend', tratarCardPrincipalDragEnd);
+                card.addEventListener('drop', tratarCardPrincipalDrop);
+
+                card.removeEventListener('touchstart', tratarCardPrincipalTouchStart);
+                card.removeEventListener('touchmove', tratarCardPrincipalTouchMove);
+                card.removeEventListener('touchend', tratarCardPrincipalTouchEnd);
+
+                card.addEventListener('touchstart', tratarCardPrincipalTouchStart, { passive: false });
+                card.addEventListener('touchmove', tratarCardPrincipalTouchMove, { passive: false });
+                card.addEventListener('touchend', tratarCardPrincipalTouchEnd);
+            });
+        }
+        window.inicializarDragAndDropCardsPrincipais = inicializarDragAndDropCardsPrincipais;
+
+        function tratarCardPrincipalDragStart(e) {
+            if (e.target.closest('button, a, input, select, textarea')) {
+                e.preventDefault();
+                return;
+            }
+            cardPrincipalArrastando = e.currentTarget;
+            e.dataTransfer.setData('text/plain', cardPrincipalArrastando.id);
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => {
+                if (cardPrincipalArrastando) cardPrincipalArrastando.classList.add('is-dragging');
+            }, 10);
+        }
+
+        function tratarCardPrincipalDragOver(e) {
+            e.preventDefault();
+            if (!cardPrincipalArrastando) return;
+            e.dataTransfer.dropEffect = 'move';
+
+            const target = e.currentTarget;
+            if (target === cardPrincipalArrastando) return;
+
+            const grid = target.parentElement;
+            if (!grid || grid.id !== 'grid-cards-principais-painel') return;
+
+            const cards = Array.from(grid.children).filter(el => el.classList.contains('card-principal-arrastavel'));
+            const indexArrastando = cards.indexOf(cardPrincipalArrastando);
+            const indexAlvo = cards.indexOf(target);
+            if (indexArrastando < 0 || indexAlvo < 0) return;
+
+            if (indexArrastando < indexAlvo) {
+                grid.insertBefore(cardPrincipalArrastando, target.nextSibling);
+            } else {
+                grid.insertBefore(cardPrincipalArrastando, target);
+            }
+        }
+
+        function tratarCardPrincipalDrop(e) {
+            e.preventDefault();
+            salvarOrdemAtualGridPrincipais(true);
+        }
+
+        function tratarCardPrincipalDragEnd(e) {
+            if (cardPrincipalArrastando) {
+                cardPrincipalArrastando.classList.remove('is-dragging');
+            }
+            cardPrincipalArrastando = null;
+            salvarOrdemAtualGridPrincipais(true);
+        }
+
+        function tratarCardPrincipalTouchStart(e) {
+            if (e.target.closest('button, a, input, select, textarea')) {
+                touchPrincipalArrastandoAtivo = false;
+                return;
+            }
+            const touch = e.touches[0];
+            touchPrincipalInicialX = touch.clientX;
+            touchPrincipalInicialY = touch.clientY;
+            cardPrincipalArrastando = e.currentTarget;
+            touchPrincipalArrastandoAtivo = false;
+        }
+
+        function tratarCardPrincipalTouchMove(e) {
+            if (!cardPrincipalArrastando) return;
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - touchPrincipalInicialX);
+            const deltaY = Math.abs(touch.clientY - touchPrincipalInicialY);
+
+            if (!touchPrincipalArrastandoAtivo) {
+                const tocouNoGrip = e.target.closest('.drag-handle-card');
+                if (tocouNoGrip || (deltaX > 12 && deltaX > deltaY)) {
+                    touchPrincipalArrastandoAtivo = true;
+                    cardPrincipalArrastando.classList.add('is-dragging');
+                }
+            }
+
+            if (touchPrincipalArrastandoAtivo) {
+                e.preventDefault();
+                const elAbaixo = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!elAbaixo) return;
+
+                const cardAlvo = elAbaixo.closest('.card-principal-arrastavel');
+                if (cardAlvo && cardAlvo !== cardPrincipalArrastando && cardAlvo.parentElement === cardPrincipalArrastando.parentElement) {
+                    const grid = cardAlvo.parentElement;
+                    const cards = Array.from(grid.children).filter(el => el.classList.contains('card-principal-arrastavel'));
+                    const idxArrastando = cards.indexOf(cardPrincipalArrastando);
+                    const idxAlvo = cards.indexOf(cardAlvo);
+
+                    if (idxArrastando >= 0 && idxAlvo >= 0) {
+                        if (idxArrastando < idxAlvo) {
+                            grid.insertBefore(cardPrincipalArrastando, cardAlvo.nextSibling);
+                        } else {
+                            grid.insertBefore(cardPrincipalArrastando, cardAlvo);
+                        }
+                    }
+                }
+            }
+        }
+
+        function tratarCardPrincipalTouchEnd(e) {
+            if (cardPrincipalArrastando) {
+                cardPrincipalArrastando.classList.remove('is-dragging');
+            }
+            if (touchPrincipalArrastandoAtivo) {
+                salvarOrdemAtualGridPrincipais(true);
+            }
+            touchPrincipalArrastandoAtivo = false;
+            cardPrincipalArrastando = null;
+        }
 
         let dadosDataURLAdesivos = null;
         let dadosDataURLTiquetes = null;
@@ -22733,12 +23008,10 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const secao = document.getElementById('secao-central-pedidos');
             const label = document.getElementById('label-toggle-pedidos');
             const icone = document.getElementById('icone-toggle-pedidos');
-            const card = document.getElementById('card-pedidos-entregas');
             if (secao && secao.classList.contains('hidden')) {
                 secao.classList.remove('hidden');
                 if (label) label.innerText = 'Minimizar Pedidos';
                 if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
-                if (card) card.classList.add('lg:col-span-2');
             }
             const whatsDigitos = (whats || '').replace(/\D/g, '');
             const termo = (whatsDigitos.length >= 8) 
@@ -25931,21 +26204,18 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const secao = document.getElementById('secao-central-pedidos');
             const label = document.getElementById('label-toggle-pedidos');
             const icone = document.getElementById('icone-toggle-pedidos');
-            const card = document.getElementById('card-pedidos-entregas');
             if (!secao) return;
 
             if (secao.classList.contains('hidden')) {
                 secao.classList.remove('hidden');
                 if (label) label.innerText = 'Minimizar Pedidos';
                 if (icone) icone.className = 'fa-solid fa-chevron-up text-xs transition-transform duration-200';
-                if (card) card.classList.add('lg:col-span-2');
                 renderizarCentralPedidos();
                 secao.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } else {
                 secao.classList.add('hidden');
                 if (label) label.innerText = 'Abrir Pedidos';
                 if (icone) icone.className = 'fa-solid fa-chevron-down text-xs transition-transform duration-200';
-                if (card) card.classList.remove('lg:col-span-2');
             }
         }
         window.toggleCentralPedidos = toggleCentralPedidos;
