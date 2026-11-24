@@ -412,6 +412,59 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- BOX SELETOR DE PLANO & ESCASSEZ GRUPO WENDELL VIP (100 VAGAS) -->
+                    <div id="box-escolha-plano-wendell" class="hidden mt-3 p-4 sm:p-5 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 border-2 border-amber-400 rounded-2xl text-left shadow-2xl animate-fade-in text-white relative overflow-hidden">
+                        <!-- Glow de fundo -->
+                        <div class="absolute -top-10 -right-10 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <div class="flex items-center justify-between mb-2.5 flex-wrap gap-2 relative z-10">
+                            <span class="text-xs sm:text-sm font-black uppercase text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-crown text-amber-400 text-base animate-bounce"></i> LOTE VIP: GRUPO WENDELL (100 VAGAS)
+                            </span>
+                            <span class="bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-[9px] px-2.5 py-0.5 rounded-full uppercase shadow-xs animate-pulse">
+                                🔥 ESCASSEZ MÁXIMA
+                            </span>
+                        </div>
+
+                        <!-- Chamada Forte de Escassez Dinâmica -->
+                        <div id="aviso-escassez-wendell" class="bg-amber-400/10 border border-amber-400/40 rounded-xl p-3 mb-3 text-xs leading-relaxed relative z-10">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-spinner fa-spin text-amber-400"></i>
+                                <span>Verificando disponibilidade de vagas do Grupo Wendell...</span>
+                            </div>
+                        </div>
+
+                        <!-- Bônus Liberados no Grupo Wendell VIP -->
+                        <div class="bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-3 mb-3 text-xs text-emerald-200 relative z-10">
+                            <span class="font-black text-emerald-400 uppercase text-[10px] block mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-gift text-amber-400 text-sm"></i> Todos os Benefícios de Fundador com Status VIP:
+                            </span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-bold text-[11px]">
+                                <div><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Catálogo Digital VIP Liberado</div>
+                                <div><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Cartão Fidelidade Digital Liberado</div>
+                                <div><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Módulo Financeiro EVS Completo</div>
+                                <div><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Bioimpedância Visual (PNG) Ilimitada</div>
+                            </div>
+                        </div>
+
+                        <!-- Resumo dos Valores para o Grupo Wendell -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 text-xs relative z-10">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                                <span class="text-slate-300">Taxa de Adesão / Ativação:</span>
+                                <div class="text-right">
+                                    <span class="text-rose-400 line-through text-[11px] font-bold mr-1.5">R$ 699,00</span>
+                                    <span class="text-emerald-400 font-black text-xs sm:text-sm uppercase">R$ 0,00 (100% ISENTA)</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-300">Mensalidade:</span>
+                                <div id="valor-mensalidade-wendell-box" class="text-right">
+                                    <span class="text-amber-300 font-black text-base">R$ 41,00<span class="text-xs font-medium text-slate-400">/mês</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="text-[10px] text-gray-500 font-semibold mt-1">
                         <i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Descontos não cumulativos. Cupons não são aplicáveis caso opte pelo desconto promocional de 22% da FitCoin.
                     </p>
@@ -1315,13 +1368,33 @@
             let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
-            // Lógica do Cupom MEUPRESIDENTE (Validade de 1 uso, Mensalidade R$ 20,00 e 60 dias de carência)
+            // Lógica dos Cupons Especiais: GRUPOWENDELL100, FUNDADOR100, MEUPRESIDENTE, TESTE10
+            let isGrupoWendell = cupom === 'GRUPOWENDELL100';
+            let isPrimeiroWendell = false;
+            let codigoWendellGerado = null;
             let isFundador = cupom === 'FUNDADOR100';
             let codigoFundadorGerado = null;
             let cfgFundadorAssinar = { preco: 0, semValidade: true, dataValidade: '' };
             let isPresidente = cupom === 'MEUPRESIDENTE';
             let isTeste10 = cupom === 'TESTE10';
             let cupomPorcentagemObj = null;
+
+            if (isGrupoWendell) {
+                try {
+                    const { data: wendellExistentes } = await supabaseClient
+                        .from('consultores')
+                        .select('id,nome_espaco')
+                        .or('nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%');
+                    
+                    const totalWend = wendellExistentes ? wendellExistentes.length : 0;
+                    isPrimeiroWendell = (totalWend === 0);
+                    codigoWendellGerado = calcularCodigoFundador(totalWend);
+                } catch (eWend) {
+                    console.warn("Erro ao processar Grupo Wendell:", eWend);
+                    codigoWendellGerado = 'A001';
+                    isPrimeiroWendell = true;
+                }
+            }
 
             if (isFundador) {
                 try {
@@ -1460,7 +1533,16 @@
             }
             hoje.setDate(hoje.getDate() + diasCarenciaAplicados);
             let vencimento = '';
-            if (isFundador) {
+            if (isGrupoWendell) {
+                if (isPrimeiroWendell) {
+                    vencimento = '2099-12-31';
+                } else {
+                    const dCiclo = 30;
+                    const dHoje = new Date();
+                    dHoje.setDate(dHoje.getDate() + dCiclo);
+                    vencimento = dHoje.toISOString().split('T')[0];
+                }
+            } else if (isFundador) {
                 const tipoV = cfgFundadorAssinar.tipoValidade || (cfgFundadorAssinar.semValidade ? 'vitalicio' : 'ciclo_padrao');
                 if (tipoV === 'vitalicio' || cfgFundadorAssinar.semValidade) {
                     vencimento = '2099-12-31';
@@ -1481,7 +1563,9 @@
             } else {
                 vencimento = hoje.toISOString().split('T')[0];
             }
-            let vencimentoFormatado = isFundador ? (vencimento === '2099-12-31' ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/')) : hoje.toLocaleDateString('pt-BR');
+            let vencimentoFormatado = isGrupoWendell 
+                ? (isPrimeiroWendell ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/'))
+                : (isFundador ? (vencimento === '2099-12-31' ? 'Vitalício (Sem Validade)' : vencimento.split('-').reverse().join('/')) : hoje.toLocaleDateString('pt-BR'));
 
             // Formatação do Espaço e Consultor
             // Se tiver espaço: "Nome Espaço • Nome Consultor | Cidade - UF"
@@ -1513,7 +1597,13 @@
                 nomeEspacoCompleto += ` <!--PIX:${JSON.stringify(pixObj)}-->`;
             }
 
-            if (isFundador) {
+            if (isGrupoWendell) {
+                if (isPrimeiroWendell) {
+                    nomeEspacoCompleto += ` <!--GRUPO_WENDELL:${codigoWendellGerado}--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                } else {
+                    nomeEspacoCompleto += ` <!--GRUPO_WENDELL:${codigoWendellGerado}--> <!--CUPOM:GRUPOWENDELL100--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:Membro VIP Wendell--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:41.00--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
+                }
+            } else if (isFundador) {
                 const tabelaFd = TABELA_PRECOS_FUNDADOR[planoFundadorSelecionado] || TABELA_PRECOS_FUNDADOR.master;
                 const valorFdCobrado = (modalidadeFundadorSelecionada === 'anual') ? tabelaFd.anual : tabelaFd.mensal;
                 nomeEspacoCompleto += ` <!--GRUPO_FUNDADORES:${codigoFundadorGerado}--> <!--CUPOM:FUNDADOR100--> <!--STATUS_FUNDADOR:ATIVO--> <!--PLANO_ESCOLHIDO:${planoFundadorSelecionado.toUpperCase()}--> <!--PLANO_FUNDADOR:${modalidadeFundadorSelecionada.toUpperCase()}--> <!--VALOR_ADESAO:${valorFdCobrado}--> <!--ADESAO_ISENTA:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
@@ -1573,7 +1663,66 @@
                 document.getElementById('form-container').classList.add('hidden');
                 document.getElementById('sucesso-container').classList.remove('hidden');
                 
-                if (isFundador) {
+                if (isGrupoWendell) {
+                    const precoFormatado = isPrimeiroWendell 
+                        ? '100% ISENTO VITALÍCIO (R$ 0,00)' 
+                        : 'Adesão R$ 0,00 (Isenta) • Mensalidade: R$ 41,00/mês';
+                    const tituloDestaque = isPrimeiroWendell 
+                        ? '🏆 VOCÊ É O #001: ISENÇÃO TOTAL VITALÍCIA!' 
+                        : `👑 VAGA VIP CONFIRMADA (#${codigoWendellGerado})`;
+                    const textoDesc = isPrimeiroWendell
+                        ? `Parabéns histórico! Você foi o <strong>1º consultor a ativar</strong> com o cupom do Grupo Wendell e conquistou <strong>ISENÇÃO TOTAL DE TAXAS E MENSALIDADE VITALÍCIA</strong> para sempre com Status VIP!`
+                        : `Parabéns! Você garantiu uma das 100 vagas oficiais do <strong>Grupo Wendell</strong> com a numeração <strong class="text-amber-300">#${codigoWendellGerado}</strong>! Sua adesão de R$ 699 foi 100% ZERADA e sua mensalidade foi congelada em apenas R$ 41,00/mês com Status VIP permanente!`;
+
+                    document.getElementById('msg-sucesso').innerHTML = `
+                        <div class="bg-gradient-to-br from-purple-950 via-slate-900 to-amber-950 border-2 border-amber-400 p-5 rounded-2xl mb-4 text-left shadow-2xl text-white">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-amber-300 font-black text-base flex items-center">
+                                    <i class="fa-solid fa-crown text-amber-400 mr-2 text-xl animate-bounce"></i> ${tituloDestaque}
+                                </span>
+                                <span class="bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-black px-3 py-1 rounded-full text-xs shadow-xs tracking-wider border border-amber-300">
+                                    CÓDIGO: ${codigoWendellGerado}
+                                </span>
+                            </div>
+                            <p class="text-slate-200 font-bold text-xs mt-2.5 leading-relaxed">
+                                ${textoDesc}
+                            </p>
+                            <div class="mt-3 pt-3 border-t border-slate-800 text-xs flex flex-wrap gap-3 text-amber-300">
+                                <span><strong>Status:</strong> VIP Oficial</span>
+                                <span>•</span>
+                                <span><strong>Validade:</strong> ${vencimentoFormatado}</span>
+                                <span>•</span>
+                                <span><strong>Investimento:</strong> ${precoFormatado}</span>
+                            </div>
+                            <div class="mt-2.5 flex items-center gap-2 text-[11px] text-emerald-400 font-bold">
+                                <i class="fa-solid fa-circle-check text-xs"></i> <span>Catálogo Digital, Cartão Fidelidade e Módulo Financeiro EVS Liberados!</span>
+                            </div>
+                        </div>
+                    `;
+
+                    if (isPrimeiroWendell) {
+                        const pixBox = document.getElementById('pix-box');
+                        if (pixBox) pixBox.classList.add('hidden');
+                        const fitcoinBox = document.getElementById('fitcoin-box');
+                        if (fitcoinBox) fitcoinBox.classList.add('hidden');
+                        const toggleBox = document.getElementById('toggle-metodos-pagamento');
+                        if (toggleBox) toggleBox.classList.add('hidden');
+
+                        const btnAcessar = document.getElementById('link-acessar');
+                        if (btnAcessar) {
+                            btnAcessar.innerHTML = `<i class="fa-solid fa-crown text-amber-300 mr-2"></i> ACESSAR MEU PAINEL (100% VITALÍCIO LIBERADO)`;
+                            btnAcessar.className = "inline-block bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 px-8 rounded-full shadow-2xl transition w-full text-center text-base cursor-pointer ring-4 ring-amber-400/50";
+                        }
+                    } else {
+                        // Para os demais: adesão isenta + mensalidade R$ 41,00
+                        pixPayloadAtivo = gerarPixPayloadDinamico(41.00, `VIP${codigoWendellGerado}`);
+                        const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
+                        if (valorPixBox) valorPixBox.innerText = 'R$ 41,00';
+                        const elSubVal = document.getElementById('pix-subtotal-texto');
+                        if (elSubVal) elSubVal.innerHTML = 'Adesão: <span class="line-through text-rose-500">R$ 699,00</span> <strong>R$ 0,00 (ISENTA)</strong> • Mensalidade VIP: <strong>R$ 41,00</strong>';
+                        desenharQrCodePix(pixPayloadAtivo);
+                    }
+                } else if (isFundador) {
                     const precoFundador = (modalidadeFundadorSelecionada === 'anual') ? (parseFloat(cfgFundadorAssinar.precoAnual) || 290.00) : (parseFloat(cfgFundadorAssinar.precoMensal) || 39.90);
                     const nomePlanoFd = (modalidadeFundadorSelecionada === 'anual') ? 'Plano Anual' : 'Plano Mensal';
                     const precoFormatado = precoFundador > 0 
@@ -2195,11 +2344,30 @@
         function aoDigitarCupomAssinar(valor) {
             const feedback = document.getElementById('feedback-cupom-ao-vivo');
             const inCupom = document.getElementById('cupom');
+            const boxFundador = document.getElementById('box-escolha-plano-fundador');
+            const boxWendell = document.getElementById('box-escolha-plano-wendell');
             if (!feedback) return;
             const cod = (valor || '').toUpperCase().trim();
-            if (cod === 'FUNDADOR100') {
-                const boxEscolha = document.getElementById('box-escolha-plano-fundador');
-                if (boxEscolha) boxEscolha.classList.remove('hidden');
+
+            if (cod === 'GRUPOWENDELL100') {
+                if (boxFundador) boxFundador.classList.add('hidden');
+                if (boxWendell) boxWendell.classList.remove('hidden');
+
+                feedback.className = 'mt-2 p-3 bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950 border-2 border-amber-400 rounded-xl text-xs text-white font-bold flex items-center gap-2.5 shadow-lg';
+                feedback.innerHTML = `
+                    <i class="fa-solid fa-crown text-amber-400 text-xl shrink-0 animate-bounce"></i>
+                    <div>
+                        <span class="text-amber-300 font-black block tracking-wide">👑 CUPOM EXCLUSIVO: GRUPO WENDELL VIP (100 VAGAS)!</span>
+                        <span class="text-[11px] text-slate-200">Condição exclusiva para os <strong>primeiros 100 a pagarem</strong> com Status VIP e todos os bônus inclusos!</span>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-950/20 border-2 border-amber-400 rounded-xl focus:outline-none ring-2 ring-amber-300 uppercase font-black text-amber-900';
+
+                atualizarBoxGrupoWendell();
+            } else if (cod === 'FUNDADOR100') {
+                if (boxWendell) boxWendell.classList.add('hidden');
+                if (boxFundador) boxFundador.classList.remove('hidden');
 
                 // Atualiza valores nos botões com base nas regras do superadmin
                 const pM = (cfgFundadorAssinar && cfgFundadorAssinar.precoMensal !== undefined) ? cfgFundadorAssinar.precoMensal : 39.90;
@@ -2262,11 +2430,103 @@
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-50 border-2 border-purple-400 rounded-xl focus:outline-none ring-2 ring-purple-300 uppercase font-black text-purple-950';
             } else {
                 const boxEscolha = document.getElementById('box-escolha-plano-fundador');
+                const boxWendell = document.getElementById('box-escolha-plano-wendell');
                 if (boxEscolha) boxEscolha.classList.add('hidden');
+                if (boxWendell) boxWendell.classList.add('hidden');
                 feedback.classList.add('hidden');
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-light uppercase font-bold text-brand-dark';
             }
         }
+
+        // Atualização Dinâmica do Box do Grupo Wendell com Escassez Real
+        async function atualizarBoxGrupoWendell() {
+            const elAviso = document.getElementById('aviso-escassez-wendell');
+            const elValorMensal = document.getElementById('valor-mensalidade-wendell-box');
+            if (!elAviso) return;
+
+            try {
+                const { data: wendellDb, error } = await supabaseClient
+                    .from('consultores')
+                    .select('id,nome_espaco')
+                    .or('nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%');
+
+                const total = (wendellDb && !error) ? wendellDb.length : 0;
+                const vagasRestantes = Math.max(0, 100 - total);
+                const codigoPrevisto = calcularCodigoFundador(total);
+
+                if (total === 0) {
+                    elAviso.innerHTML = `
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-black px-2.5 py-0.5 rounded-full text-[10px] uppercase shadow-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-trophy"></i> VAGA #001 DISPONÍVEL AGORA
+                                </span>
+                                <span class="text-emerald-400 font-black text-xs">100 VAGAS RESTANTES</span>
+                            </div>
+                            <p class="text-slate-100 font-bold text-xs leading-relaxed">
+                                🏆 <strong class="text-amber-300">VOCÊ SERÁ O PRIMEIRO A ATIVAR!</strong> O 1º consultor que finalizar o cadastro com este cupom ganha <strong class="text-emerald-300 underline">ISENÇÃO TOTAL VITALÍCIA</strong>: Taxa de adesão ZERO e <strong>MENSALIDADE VITALÍCIA R$ 0,00</strong> para sempre!
+                            </p>
+                            <p class="text-[11px] text-amber-200">
+                                ⚡ Código oficial da sua vaga: <span class="font-mono font-black text-white bg-slate-900 px-1.5 py-0.5 rounded border border-amber-400">A001</span>
+                            </p>
+                        </div>
+                    `;
+                    if (elValorMensal) {
+                        elValorMensal.innerHTML = `
+                            <span class="text-emerald-400 font-black text-base flex items-center justify-end gap-1">
+                                <i class="fa-solid fa-infinity"></i> R$ 0,00 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">VITALÍCIO ISENTO</span>
+                            </span>
+                        `;
+                    }
+                } else if (total < 100) {
+                    elAviso.innerHTML = `
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-amber-400 text-slate-950 font-black px-2.5 py-0.5 rounded-full text-[10px] uppercase shadow-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-fire"></i> LOTE DE 100 VAGAS ATIVO
+                                </span>
+                                <span class="text-amber-300 font-black text-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-hourglass-half"></i> RESTAM ${vagasRestantes} VAGAS
+                                </span>
+                            </div>
+                            <p class="text-slate-100 font-bold text-xs leading-relaxed">
+                                ⚡ <strong class="text-amber-300">VOCÊ GARANTIU A VAGA #${codigoPrevisto}!</strong> Condição válida exclusivamente para os <strong>primeiros 100 a pagarem</strong>. Você garante: Taxa de Adesão 100% Zerada (Economia de R$ 699) + Mensalidade congelada em apenas <strong>R$ 41,00/mês</strong>!
+                            </p>
+                            <p class="text-[11px] text-amber-200">
+                                🏃‍♂️ Corra antes que o lote de 100 encerre e o valor retorne para a tabela padrão!
+                            </p>
+                        </div>
+                    `;
+                    if (elValorMensal) {
+                        elValorMensal.innerHTML = `
+                            <span class="text-amber-300 font-black text-base">R$ 41,00<span class="text-xs font-medium text-slate-400">/mês</span></span>
+                        `;
+                    }
+                } else {
+                    elAviso.innerHTML = `
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-rose-500 text-white font-black px-2.5 py-0.5 rounded-full text-[10px] uppercase shadow-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> LOTE 100 PREENCHIDO
+                                </span>
+                                <span class="text-rose-300 font-black text-xs">VAGA DE REPESCAGEM</span>
+                            </div>
+                            <p class="text-slate-100 font-bold text-xs leading-relaxed">
+                                ⚠️ As primeiras 100 vagas principais foram preenchidas! Sua vaga será registrada na série estendida <span class="font-mono font-black text-white bg-slate-900 px-1.5 py-0.5 rounded border border-amber-400">#${codigoPrevisto}</span> mantendo a isenção de adesão e mensalidade promocional de R$ 41,00/mês por tempo limitado!
+                            </p>
+                        </div>
+                    `;
+                    if (elValorMensal) {
+                        elValorMensal.innerHTML = `
+                            <span class="text-amber-300 font-black text-base">R$ 41,00<span class="text-xs font-medium text-slate-400">/mês</span></span>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.warn("Erro ao verificar vagas do Grupo Wendell:", err);
+            }
+        }
+        window.atualizarBoxGrupoWendell = atualizarBoxGrupoWendell;
         
         // ==========================================
         // MODO "NÃO TENHO ID HERBALIFE" (PATROCINADOR E CADASTRO)

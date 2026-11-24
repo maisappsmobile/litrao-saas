@@ -7865,14 +7865,18 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
                         <button type="button" onclick="exportarGrupoFundadoresCsv()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer" title="Exportar lista da turma atual para Excel/CSV">
                             <i class="fa-solid fa-file-csv text-emerald-400"></i>
                             <span>Exportar CSV</span>
                         </button>
-                        <button type="button" onclick="copiarLinkFundadorSecreto()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer" title="Copiar link secreto com cupom FUNDADOR100 aplicado">
+                        <button type="button" onclick="copiarLinkFundadorSecreto()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer" title="Copiar link com cupom FUNDADOR100 aplicado">
                             <i class="fa-solid fa-copy"></i>
-                            <span>Copiar Link c/ Cupom</span>
+                            <span>Link Fundador</span>
+                        </button>
+                        <button type="button" onclick="copiarLinkGrupoWendell()" class="bg-gradient-to-r from-purple-900/90 via-slate-800 to-amber-950/90 hover:from-purple-800 hover:to-amber-900 text-amber-300 border border-amber-400 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer shadow-sm" title="Copiar link exclusivo do Grupo Wendell (100 Vagas VIP)">
+                            <i class="fa-solid fa-crown text-amber-400"></i>
+                            <span>Link Grupo Wendell (VIP)</span>
                         </button>
                     </div>
                 </div>
@@ -17895,7 +17899,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                             ` : ''}
                                             <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
                                                 ${statusBadge}
-                                                ${dadosFdCard ? `<span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded-full text-[10px] shadow-xs flex items-center gap-1 border border-amber-300"><i class="fa-solid fa-crown text-[9px]"></i> Fundador ${dadosFdCard.codigo}</span>` : ''}
+                                                ${dadosFdCard ? `<span class="${dadosFdCard.isWendell ? 'bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white' : 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950'} font-black px-2 py-0.5 rounded-full text-[10px] shadow-xs flex items-center gap-1 border border-amber-300"><i class="fa-solid fa-crown text-[9px] ${dadosFdCard.isWendell ? 'text-amber-300' : ''}"></i> ${dadosFdCard.isWendell ? 'VIP Wendell ' + dadosFdCard.codigo : 'Fundador ' + dadosFdCard.codigo}</span>` : ''}
                                                 ${isVitalicio && !dadosFdCard ? `<span class="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fa-solid fa-infinity mr-1 text-emerald-600"></i> Vitalício</span>` : ''}
                                                 ${isTrial ? `<span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full text-[10px] font-bold"><i class="fa-solid fa-gift mr-1 text-amber-600"></i> Trial</span>` : ''}
                                                 ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `
@@ -18114,7 +18118,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                         ` : '';
                                     })()}
                                     <div class="flex items-center gap-1 flex-wrap mt-0.5">
-                                        ${dadosFdTab ? `<span class="inline-flex items-center text-[10px] bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black px-1.5 py-0.2 rounded-full border border-amber-300 shadow-2xs"><i class="fa-solid fa-crown text-[8px] mr-0.5"></i>${dadosFdTab.codigo}</span>` : ''}
+                                        ${dadosFdTab ? `<span class="inline-flex items-center text-[10px] ${dadosFdTab.isWendell ? 'bg-gradient-to-r from-purple-700 to-amber-500 text-white' : 'bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950'} font-black px-1.5 py-0.2 rounded-full border border-amber-300 shadow-2xs"><i class="fa-solid fa-crown text-[8px] mr-0.5 ${dadosFdTab.isWendell ? 'text-amber-300' : ''}"></i>${dadosFdTab.isWendell ? 'VIP ' + dadosFdTab.codigo : dadosFdTab.codigo}</span>` : ''}
                                         ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `<span class="inline-flex items-center text-[10px] bg-purple-50 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded font-black">R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês</span>` : ''}
                                         ${isVitalicio && !dadosFdTab ? `<span class="inline-flex items-center text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded-full font-black">Vitalício</span>` : ''}
                                     </div>
@@ -21251,12 +21255,24 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                     periodicidade = planoDefinidoManual.periodicidade;
                 }
             } else if (dadosFd) {
-                const isAnual = espacoLower.includes('plano_fundador:anual');
-                base = isAnual 
-                    ? ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoAnual !== undefined) ? CONFIG_FUNDADORES.precoAnual : 290.00)
-                    : ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoMensal !== undefined) ? CONFIG_FUNDADORES.precoMensal : 39.90);
-                planoNome = isAnual ? 'Fundador Anual' : 'Fundador Mensal';
-                periodicidade = isAnual ? 'anual' : 'mensal';
+                if (dadosFd.isWendell) {
+                    if (dadosFd.isIsentoVitalicio) {
+                        base = 0.00;
+                        planoNome = 'VIP Wendell Vitalício (Isento)';
+                        periodicidade = 'vitalicio';
+                    } else {
+                        base = 41.00;
+                        planoNome = 'VIP Wendell';
+                        periodicidade = 'mensal';
+                    }
+                } else {
+                    const isAnual = espacoLower.includes('plano_fundador:anual');
+                    base = isAnual 
+                        ? ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoAnual !== undefined) ? CONFIG_FUNDADORES.precoAnual : 290.00)
+                        : ((CONFIG_FUNDADORES && CONFIG_FUNDADORES.precoMensal !== undefined) ? CONFIG_FUNDADORES.precoMensal : 39.90);
+                    planoNome = isAnual ? 'Fundador Anual' : 'Fundador Mensal';
+                    periodicidade = isAnual ? 'anual' : 'mensal';
+                }
             } else if (espacoLower.includes('plano 3') || espacoLower.includes('master vip') || espacoLower.includes('plano:plano3') || espacoLower.includes('master_vip')) {
                 base = 49.00;
                 planoNome = 'Master VIP';
@@ -21970,24 +21986,35 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         }
         window.calcularCodigoFundador = calcularCodigoFundador;
 
-        // Extrai dados de fundador de um consultor
+        // Extrai dados de fundador ou VIP de um consultor (incluindo Grupo Wendell)
         function extrairDadosFundador(consultor) {
             if (!consultor) return null;
             const raw = (consultor.nome_espaco || '') + ' ' + (consultor.status || '');
             const matchCod = raw.match(/<!--GRUPO_FUNDADORES:(.*?)-->/);
+            const matchWendell = raw.match(/<!--GRUPO_WENDELL:(.*?)-->/);
             const matchCup = raw.match(/<!--CUPOM:FUNDADOR100-->/);
+            const matchCupWendell = raw.match(/<!--CUPOM:GRUPOWENDELL100-->/);
             const matchPlano = raw.match(/<!--PLANO_FUNDADOR:(.*?)-->/);
             const matchValor = raw.match(/<!--VALOR_ADESAO:(.*?)-->/);
-            const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador');
+            const isWendell = !!(matchWendell || matchCupWendell);
+            const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador') || isWendell;
 
             if (!isFundador) return null;
 
-            let codigo = matchCod ? matchCod[1].trim() : '';
+            let codigo = '';
+            if (matchWendell && matchWendell[1]) codigo = matchWendell[1].trim();
+            else if (matchCod && matchCod[1]) codigo = matchCod[1].trim();
+
+            const isIsentoVit = raw.includes('ISENTO_VITALICIO:true') || (isWendell && (codigo === 'A001' || raw.includes('MENSALIDADE:0')));
+
             return {
-                codigo: codigo || 'FUNDADOR',
+                codigo: codigo || (isWendell ? 'VIP-WENDELL' : 'FUNDADOR'),
                 letra: codigo ? codigo.charAt(0).toUpperCase() : 'A',
-                plano: matchPlano ? matchPlano[1].trim().toUpperCase() : '',
-                valor: matchValor ? matchValor[1].trim() : ''
+                plano: matchPlano ? matchPlano[1].trim().toUpperCase() : (isWendell ? 'VIP WENDELL' : ''),
+                valor: matchValor ? matchValor[1].trim() : (isIsentoVit ? '0' : '41.00'),
+                isWendell: isWendell,
+                isIsentoVitalicio: isIsentoVit,
+                statusVip: isWendell ? 'VIP' : 'Fundador'
             };
         }
         window.extrairDadosFundador = extrairDadosFundador;
@@ -22331,6 +22358,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             });
         }
         window.copiarLinkFundadorSecreto = copiarLinkFundadorSecreto;
+
+        function copiarLinkGrupoWendell() {
+            const link = `https://litraodoreset.com.br/assinar.html?cupom=GRUPOWENDELL100`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert(`🔥 LINK EXCLUSIVO DO GRUPO WENDELL VIP COPIADO!\n\n${link}\n\nAo acessar este link:\n- Vagas limitadas para os primeiros 100 a pagarem\n- O 1º ganha Isenção 100% Total e Mensalidade Vitalícia R$ 0,00\n- Os demais 99: Adesão R$ 0,00 e Mensalidade R$ 41,00/mês com Status VIP e todos os bônus!`);
+            }).catch(() => {
+                prompt("Copie o link exclusivo do Grupo Wendell abaixo:", link);
+            });
+        }
+        window.copiarLinkGrupoWendell = copiarLinkGrupoWendell;
 
         function toggleSecaoAvaliacoes() {
             const secao = document.getElementById('secao-avaliacoes');
