@@ -162,7 +162,7 @@
                     <!-- Toggle Ativar/Desativar -->
                     <div class="flex items-center gap-2 pr-3 border-r border-slate-800">
                         <label class="relative inline-flex items-center cursor-pointer select-none">
-                            <input type="checkbox" id="toggle-banner-vip-meteorico" class="sr-only peer" onchange="alternarBannerGrupoVipMeteorico(this.checked)" checked>
+                            <input type="checkbox" id="toggle-banner-vip-meteorico" class="sr-only peer" onchange="alternarBannerGrupoVipMeteorico(this.checked)">
                             <div class="w-10 h-6 bg-slate-850 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                         </label>
                         <span id="label-status-banner-meteorico" class="text-xs font-black uppercase text-emerald-400">Ativo no Site</span>
@@ -2928,14 +2928,14 @@ O link com as condições de Membro Fundador vai fechar assim que bater o limite
                 if (salvo) {
                     const cfg = JSON.parse(salvo);
                     return {
-                        ativo: cfg.ativo !== false,
-                        posicao: cfg.posicao || 'topo'
+                        ativo: cfg.ativo === true,
+                        posicao: cfg.posicao || 'planos'
                     };
                 }
             } catch (e) {
                 console.warn('Erro ao obter config do banner no meteorico:', e);
             }
-            return { ativo: true, posicao: 'topo' };
+            return { ativo: false, posicao: 'planos' };
         }
 
         function salvarConfigBannerGrupoVipMeteorico(cfg) {
