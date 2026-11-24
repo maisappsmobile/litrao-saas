@@ -48,9 +48,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-light selection:text-slate-950">
 
-    <!-- CABEÇALHO OFICIAL -->
-    <header class="glass-header relative sm:sticky sm:top-0 z-40 border-b border-emerald-900/60 shadow-lg">
+    <!-- CABEÇALHO OFICIAL (RELATIVO COM MENU SANDUÍCHE UNIVERSAL) -->
+    <header class="glass-header relative z-40 border-b border-emerald-900/60 shadow-lg">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+            <!-- Logo & Marca -->
             <div class="flex items-center min-w-0">
                 <a href="painel.html" class="flex items-center gap-2 group">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-brand-light to-brand-yellow flex items-center justify-center text-slate-950 font-black text-lg sm:text-xl shadow-md group-hover:scale-105 transition transform flex-shrink-0">
@@ -65,21 +66,75 @@
                 </a>
             </div>
 
-            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-                <a href="#secao-planos" class="inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-2 sm:py-2 rounded-xl shadow-md transition transform hover:scale-105 border border-amber-300 whitespace-nowrap">
-                    <i class="fa-solid fa-crown text-[10px] sm:text-xs"></i>
-                    <span><span class="hidden sm:inline">Ver </span>Planos<span class="hidden md:inline"> & Preços</span></span>
+            <!-- Ações do Topo: Botão Planos + Botão Menu Sanduíche -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <a href="#secao-planos" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md transition transform hover:scale-105 border border-amber-300 whitespace-nowrap">
+                    <i class="fa-solid fa-crown text-xs sm:text-sm"></i>
+                    <span>Ver Planos</span>
                 </a>
-                <a href="painel.html" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition whitespace-nowrap">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar ao Painel
+
+                <!-- Botão Menu Sanduíche (☰) -->
+                <button type="button" onclick="toggleMenuSanduichePlanos()" class="inline-flex items-center gap-2 bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 hover:text-white font-black px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition border border-emerald-700/60 shadow-xs cursor-pointer" aria-label="Abrir Menu">
+                    <i id="icone-menu-sanduiche-planos" class="fa-solid fa-bars text-base text-brand-yellow"></i>
+                    <span class="uppercase tracking-wider">Menu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Gaveta Menu Sanduíche (Dropdown) -->
+        <div id="menu-sanduiche-planos-gaveta" class="hidden border-t border-emerald-900/80 bg-slate-950/98 backdrop-blur-md px-4 pt-3 pb-6 shadow-2xl space-y-3 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-w-4xl mx-auto pt-2">
+                <a href="#secao-planos" onclick="toggleMenuSanduichePlanos()" class="flex items-center font-black text-slate-950 p-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-xs sm:text-sm shadow-md transition">
+                    <i class="fa-solid fa-crown mr-2.5 text-base text-slate-900"></i>
+                    <span>Escolher Plano & Preços</span>
                 </a>
-                <a href="assinar.html" class="inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-[11px] sm:text-xs px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md transition transform hover:scale-105 whitespace-nowrap">
-                    <i class="fa-solid fa-user-plus text-[10px] sm:text-xs"></i>
-                    <span><span class="hidden sm:inline">Criar Conta </span>Grátis</span>
+                <a href="painel.html" class="flex items-center font-bold text-slate-200 hover:text-white p-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm border border-slate-700/80 transition">
+                    <i class="fa-solid fa-user-gear text-emerald-400 mr-2.5 text-base"></i>
+                    <span>Acessar Painel do Consultor</span>
+                </a>
+                <a href="assinar.html" class="flex items-center font-bold text-slate-200 hover:text-white p-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm border border-slate-700/80 transition">
+                    <i class="fa-solid fa-user-plus text-emerald-400 mr-2.5 text-base"></i>
+                    <span>Criar Conta de Consultor</span>
+                </a>
+                <a href="#secao-dores" onclick="toggleMenuSanduichePlanos()" class="flex items-center font-bold text-slate-200 hover:text-white p-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm border border-slate-700/80 transition">
+                    <i class="fa-solid fa-heart-pulse text-rose-400 mr-2.5 text-base"></i>
+                    <span>As 5 Dores do Consultor</span>
+                </a>
+                <a href="#secao-o-que-voce-recebe" onclick="toggleMenuSanduichePlanos()" class="flex items-center font-bold text-slate-200 hover:text-white p-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm border border-slate-700/80 transition">
+                    <i class="fa-solid fa-box-open text-amber-400 mr-2.5 text-base"></i>
+                    <span>Tudo o Que Você Recebe</span>
+                </a>
+                <a href="index.html" target="_blank" class="flex items-center font-bold text-slate-200 hover:text-white p-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs sm:text-sm border border-slate-700/80 transition">
+                    <i class="fa-solid fa-globe text-blue-400 mr-2.5 text-base"></i>
+                    <span>Ver Página Modelo de Vendas</span>
+                </a>
+            </div>
+
+            <div class="max-w-4xl mx-auto pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800 text-xs text-slate-400">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Plataforma Oficial dos Consultores • 7 Dias Grátis com Risco Zero</span>
+                <a href="https://wa.me/5566981411234?text=Ol%C3%A1%2C%20gostaria%20de%20tirar%20d%C3%BAvidas%20sobre%20os%20planos%20do%20Litr%C3%A3o%20do%20Reset." target="_blank" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
+                    <i class="fa-brands fa-whatsapp"></i> Falar com Suporte VIP no WhatsApp
                 </a>
             </div>
         </div>
     </header>
+
+    <!-- Script Menu Sanduíche Planos -->
+    <script>
+        function toggleMenuSanduichePlanos() {
+            const gaveta = document.getElementById('menu-sanduiche-planos-gaveta');
+            const icone = document.getElementById('icone-menu-sanduiche-planos');
+            if (!gaveta) return;
+            if (gaveta.classList.contains('hidden')) {
+                gaveta.classList.remove('hidden');
+                if (icone) icone.className = 'fa-solid fa-xmark text-base text-rose-400';
+            } else {
+                gaveta.classList.add('hidden');
+                if (icone) icone.className = 'fa-solid fa-bars text-base text-brand-yellow';
+            }
+        }
+        window.toggleMenuSanduichePlanos = toggleMenuSanduichePlanos;
+    </script>
 
     <!-- HERO SECTION DE ALTA CONVERSÃO -->
     <main class="flex-1">
@@ -99,22 +154,33 @@
                 O <strong>Litrão do Reset</strong> é o ecossistema inteligente criado sob medida para Consultores Independentes: atrai contatos qualificados 24h por dia, gera avaliações corporais digitais que vendem kits e multiplica a frequência com sorteios automáticos de sacolas.
             </p>
 
-            <!-- BOTÕES DE CTA DO HERO (LEVAM DIRETO AOS PLANOS, DORES E PÁGINA MODELO) -->
+            <!-- BOTÕES DE CTA DO HERO COM GATILHOS MENTAIS FORTES -->
             <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="#secao-planos" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-sm sm:text-base px-8 py-4 rounded-2xl shadow-xl transition transform hover:scale-105 border-2 border-amber-300 cursor-pointer">
-                    <i class="fa-solid fa-crown text-base"></i>
-                    <span>Ver Planos & Preços Disponíveis</span>
-                    <i class="fa-solid fa-arrow-down text-xs animate-bounce"></i>
+                <a href="#secao-planos" class="w-full sm:w-auto inline-flex flex-col items-center justify-center bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 px-8 py-3.5 rounded-2xl shadow-2xl transition transform hover:scale-105 border-2 border-amber-300 cursor-pointer group">
+                    <span class="inline-flex items-center gap-2 font-black text-sm sm:text-base">
+                        <i class="fa-solid fa-crown text-base text-slate-950"></i>
+                        <span>DESTRAVAR MEU PLANO COM DESCONTO AGORA</span>
+                        <i class="fa-solid fa-arrow-down text-xs animate-bounce"></i>
+                    </span>
+                    <span class="text-[11px] font-bold text-slate-900/90 flex items-center gap-1.5 mt-0.5">
+                        <i class="fa-solid fa-shield-halved text-xs"></i> 7 Dias de Teste Grátis • Risco Zero Absoluto
+                    </span>
                 </a>
                 <a href="#secao-o-que-voce-recebe" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs sm:text-sm px-6 py-4 rounded-2xl border border-slate-700 transition cursor-pointer">
                     <i class="fa-solid fa-box-open text-emerald-400"></i>
-                    <span>O Que Você Recebe</span>
+                    <span>Ver as 12 Ferramentas Inclusas</span>
                 </a>
                 <a href="index.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs sm:text-sm px-6 py-4 rounded-2xl border border-emerald-400/40 shadow-lg transition transform hover:scale-105 cursor-pointer" title="Ver como é a página que seus clientes acessam">
                     <i class="fa-solid fa-circle-play text-amber-300 text-sm"></i>
-                    <span>Ver Página com os 2 Vídeos</span>
+                    <span>Ver Página com os 2 Vídeos (R$ 500/Semana)</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-emerald-200"></i>
                 </a>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400 font-semibold">
+                <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-bolt"></i> Ativação Instantânea via Pix</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-check text-brand-yellow"></i> 100% Configurado em 2 Minutos</span>
+                <span class="flex items-center gap-1 text-amber-300"><i class="fa-solid fa-fire"></i> Mais de 25+ Consultores Ativos Faturando Alto</span>
             </div>
         </section>
 
@@ -161,8 +227,8 @@
                         <a href="video-dores-litrao.mp4" download class="inline-flex items-center gap-1.5 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl font-bold transition">
                             <i class="fa-solid fa-download"></i> Baixar MP4
                         </a>
-                        <a href="#secao-planos" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 px-4 py-2 rounded-xl font-black uppercase tracking-wider shadow-md transition transform hover:scale-105">
-                            <i class="fa-solid fa-crown text-slate-950"></i> Ver Planos
+                        <a href="#secao-planos" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 px-5 py-2 rounded-xl font-black uppercase tracking-wider shadow-lg transition transform hover:scale-105">
+                            <i class="fa-solid fa-crown text-slate-950"></i> Ver Planos com Desconto
                         </a>
                     </div>
                 </div>
@@ -401,37 +467,43 @@
             <!-- CARD CHAMADA DESTACADA (CARD 6 DE ALTA CONVERSÃO) -->
             <div class="mt-8 bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-6 sm:p-8 text-slate-950 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl">
                 <div class="text-center sm:text-left">
-                    <div class="inline-flex items-center gap-1 bg-slate-950 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase mb-2">
-                        <i class="fa-solid fa-bolt"></i> Aceleração Imediata
+                    <div class="inline-flex items-center gap-1.5 bg-slate-950 text-amber-300 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-2 shadow-sm">
+                        <i class="fa-solid fa-bolt"></i> Aceleração Imediata • Vagas Limitadas
                     </div>
                     <h3 class="text-xl sm:text-2xl font-black leading-tight text-slate-950">
                         Pronto para Transformar Seu Negócio Hoje?
                     </h3>
                     <p class="text-xs sm:text-sm font-bold text-slate-900 mt-2 max-w-xl leading-relaxed">
-                        Tenha em mãos as ferramentas que organizam seu financeiro, atraem novos clientes pelo seu link próprio e automatizam a retenção do seu EVS.
+                        Tenha em mãos as 12 ferramentas do ecossistema que organizam seu financeiro, atraem novos clientes pelo seu link próprio e automatizam a retenção do seu EVS.
                     </p>
                 </div>
                 <div class="w-full sm:w-auto shrink-0">
-                    <a href="#secao-planos" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-slate-950 hover:bg-slate-900 text-white font-black text-xs sm:text-sm uppercase px-6 py-4 rounded-2xl shadow-xl transition transform hover:scale-105 cursor-pointer">
-                        <i class="fa-solid fa-crown text-amber-400"></i>
-                        <span>Ir Direto para os Planos</span>
-                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                    <a href="#secao-planos" class="w-full sm:w-auto inline-flex flex-col items-center justify-center bg-slate-950 hover:bg-slate-900 text-white font-black text-xs sm:text-sm uppercase px-7 py-3.5 rounded-2xl shadow-xl transition transform hover:scale-105 cursor-pointer border border-amber-400/40">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-crown text-amber-400"></i>
+                            <span>Destravar Meu Acesso Agora</span>
+                            <i class="fa-solid fa-arrow-down text-xs"></i>
+                        </span>
+                        <span class="text-[10px] text-emerald-400 font-bold mt-0.5">Teste de 7 Dias com Risco Zero</span>
                     </a>
                 </div>
             </div>
 
-            <!-- BANNER INTERMEDIÁRIO COM BOTÃO E ÍCONE PARA ROLAR ATÉ OS PLANOS -->
+            <!-- BANNER INTERMEDIÁRIO COM GATILHO DE GANHO E ESCASSEZ -->
             <div class="mt-14 bg-gradient-to-r from-purple-900/60 via-slate-900 to-emerald-900/60 p-6 sm:p-8 rounded-3xl border-2 border-emerald-500/40 text-center shadow-2xl relative overflow-hidden">
                 <span class="inline-block bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-3 py-1 rounded-full mb-3 shadow-xs">
-                    ⭐ Chega de Ficar no Escuro
+                    ⭐ Multiplique Seu Lucro no EVS
                 </span>
                 <h3 class="text-xl sm:text-3xl font-black text-white max-w-2xl mx-auto leading-tight">
-                    Escolha o plano ideal programado pelo SuperAdmin e ative sua licença agora mesmo!
+                    Fature de R$ 500 a R$ 1.500 a mais por semana com as ferramentas certas!
                 </h3>
+                <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl mx-auto">
+                    Ativação imediata no Pix, garantia de 7 dias e suporte VIP humano para tirar seu Espaço do manual.
+                </p>
                 <div class="mt-6 flex justify-center">
                     <a href="#secao-planos" class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm px-8 py-3.5 rounded-2xl shadow-xl transition transform hover:scale-105 border border-emerald-300 cursor-pointer">
                         <i class="fa-solid fa-arrow-down animate-bounce text-base"></i>
-                        <span>Escolher Meu Plano Abaixo</span>
+                        <span>Escolher Meu Plano com Garantia</span>
                     </a>
                 </div>
             </div>
@@ -443,32 +515,33 @@
         <section id="secao-o-que-voce-recebe" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-800/80">
             <div class="text-center max-w-3xl mx-auto mb-12">
                 <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-box-open text-amber-400"></i> Entrega Completa & Ferramentas
+                    <i class="fa-solid fa-box-open text-amber-400"></i> Entrega Completa do Ecossistema
                 </div>
                 <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
-                    Veja exatamente o que você vai <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">receber</span> ao entrar:
+                    Veja exatamente as <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">12 ferramentas</span> que você recebe:
                 </h2>
                 <p class="text-slate-400 text-sm mt-3 font-medium">
-                    Tudo pronto, testado e validado para você começar a faturar mais com seu Espaço desde o primeiro dia.
+                    Tudo 100% pronto, testado e validado pelos maiores consultores para você multiplicar o lucro do seu EVS desde o primeiro dia.
                 </p>
             </div>
 
-            <!-- GRID COM OS 6 PRINCIPAIS ENTREGÁVEIS -->
+            <!-- GRID COM AS 12 FERRAMENTAS DO ECOSSISTEMA ATUAL -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                
                 <!-- 1. Página de Captura 24h & Link Próprio -->
                 <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-emerald-500/30 hover:border-emerald-400 transition shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-xl mb-4">
                             <i class="fa-solid fa-globe"></i>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Página de Captura 24h & Link Próprio</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">1. Página de Captura 24h & Link Próprio</h3>
                         <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Um site profissional com o seu nome, seu WhatsApp, tabela de preços dos Litrões e botão de pedidos diretos para colocar na bio do Instagram e em anúncios locais.
+                            Site oficial do seu espaço com seu nome, WhatsApp, catálogo dos Litrões e botão de pedidos diretos para colocar na bio do Instagram e em anúncios locais.
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-800">
                         <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check"></i> Ativo 24h por dia gerando contatos
+                            <i class="fa-solid fa-circle-check"></i> Ativo 24h gerando contatos qualificados
                         </span>
                     </div>
                 </div>
@@ -482,86 +555,176 @@
                                 <i class="fa-solid fa-film"></i>
                             </div>
                             <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase shadow-xs">
-                                🎬 2 Vídeos Prontos
+                                🎬 2 Vídeos Oficiais
                             </span>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Página Modelo com os 2 Vídeos de Vendas</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">2. Página Modelo com os 2 Vídeos de Vendas</h3>
                         <p class="text-xs text-purple-200/90 mt-2 leading-relaxed">
-                            A estrutura exata onde o cliente assiste ao <strong>Vídeo Vertical do Litrão</strong> (atração para desinchar) e ao <strong>Vídeo de Oportunidade de Negócios</strong> (renda de R$ 500/semana), com anúncio e área de cadastro!
+                            O cliente assiste ao <strong>Vídeo Vertical de Atração</strong> (para desinchar) e ao <strong>Vídeo de Renda Extra (R$ 500/semana)</strong>, com botão direto de cadastro para a sua rede!
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-purple-800/60">
                         <a href="index.html" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs py-3 px-4 rounded-xl shadow-lg transition transform group-hover:scale-[1.02] cursor-pointer">
                             <i class="fa-solid fa-play-circle text-amber-300 text-sm"></i>
-                            <span>Ver Página Modelo com os 2 Vídeos</span>
+                            <span>Ver Página com os 2 Vídeos</span>
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                         </a>
                     </div>
                 </div>
 
-                <!-- 3. Bioimpedância Digital 2.0 (PNG) -->
+                <!-- 3. CRM Kanban WhatsApp com Funil de Vendas -->
                 <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-blue-500/30 hover:border-blue-400 transition shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center justify-center text-xl mb-4">
-                            <i class="fa-solid fa-person-arrow-up-from-line"></i>
+                            <i class="fa-solid fa-table-columns"></i>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Bioimpedância Digital Visual (PNG)</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">3. CRM Kanban WhatsApp com Funil Visual</h3>
                         <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Ficha digital que calcula massa magra, gordura e calorias, gerando um relatório em alta definição em formato de foto (PNG) para enviar no WhatsApp e fechar pacotes no balcão.
+                            Controle total de clientes em colunas: Novos Leads, Em Avaliação, Fechou Kit e Recompra. Dispare mensagens pré-formatadas no WhatsApp em 1 clique sem perder vendas.
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-800">
                         <span class="text-[11px] font-bold text-blue-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check"></i> Gera imagem personalizada em 1 clique
+                            <i class="fa-solid fa-circle-check"></i> Organização total do seu atendimento
                         </span>
                     </div>
                 </div>
 
-                <!-- 4. Sistema da Sacola & Sorteios A4 -->
-                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-yellow-500/30 hover:border-yellow-400 transition shadow-xl flex flex-col justify-between">
+                <!-- 4. Extrator de Clientes Facebook (20.000+ Contatos) -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-indigo-500/30 hover:border-indigo-400 transition shadow-xl flex flex-col justify-between">
                     <div>
-                        <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 flex items-center justify-center text-xl mb-4">
-                            <i class="fa-solid fa-ticket"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-brands fa-facebook"></i>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Campanha da Sacola & Tíquetes A4</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">4. Extrator Facebook (20.000+ Contatos)</h3>
                         <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Gerador automático de cupons e tíquetes da sorte numerados no tamanho exato para grampear na Sacola Turbinada ou enviar digitalmente pelo WhatsApp.
+                            Mineração ativa de clientes qualificados em grupos e páginas da sua cidade/região para encher sua lista de transmissão e WhatsApp todos os dias no piloto semi-automático.
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-800">
-                        <span class="text-[11px] font-bold text-yellow-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check"></i> Fidelização e recompra diária
+                        <span class="text-[11px] font-bold text-indigo-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Prospecção em massa na sua cidade
                         </span>
                     </div>
                 </div>
 
-                <!-- 5. Módulo Financeiro & Custos de Dose EVS -->
+                <!-- 5. Catálogo Digital Interativo por UF & Localidade -->
                 <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-emerald-600/30 hover:border-emerald-500 transition shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="w-12 h-12 rounded-2xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-xl mb-4">
-                            <i class="fa-solid fa-calculator"></i>
+                            <i class="fa-solid fa-book-open"></i>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Módulo Financeiro EVS Completo</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">5. Catálogo Digital por UF com Carrinho</h3>
                         <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Custo exato de cada dose calculado de acordo com seu desconto Herbalife (25%, 35%, 42% ou 50%), controle de clientes fiados e seu lucro líquido em tempo real.
+                            Vitrine oficial de produtos com fotos HD, tabela de preços personalizada pelo seu estado (UF), carrinho de compras com campo de cupom promocional e envio do pedido no WhatsApp.
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-800">
                         <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check"></i> Fim do prejuízo com fiados e desperdício
+                            <i class="fa-solid fa-circle-check"></i> Tabela oficial automática por estado
                         </span>
                     </div>
                 </div>
 
-                <!-- 6. Radar de Clientes & Central de Aniversariantes -->
+                <!-- 6. Placa de Balcão A4 com QR Code Inteligente -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-amber-500/30 hover:border-amber-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">6. Placa de Balcão A4 com QR Code</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Arte gráfica pronta em tamanho A4 para imprimir e colocar no balcão do seu EVS. O cliente aponta a câmera do celular para pedir, avaliar ou se cadastrar na hora no seu espaço.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Autoatendimento moderno no balcão
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 7. Quiz Metabólico / Diagnóstico de Saúde Interativo -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-violet-500/30 hover:border-violet-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-violet-500/20 text-violet-300 border border-violet-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-clipboard-question"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">7. Quiz Metabólico de Saúde Interativo</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Funil interativo com perguntas estratégicas que diagnosticam retenção de líquidos, sono e energia do lead, recomendando na hora o Litrão ou kit ideal para ele fechar.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-violet-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> 3x mais conversão que conversa fria
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 8. Cartão Fidelidade Digital & Sistema de Selos -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-rose-500/30 hover:border-rose-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-stamp"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">8. Cartão Fidelidade Digital</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Incentivo gamificado onde o cliente ganha selos digitais a cada consumo no EVS e desbloqueia prêmios exclusivos, garantindo que ele retorne de segunda a sábado.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-rose-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Frequência diária garantida no espaço
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 9. Bioimpedância Digital 2.0 (PNG & A4) -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-cyan-500/30 hover:border-cyan-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-person-arrow-up-from-line"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">9. Bioimpedância Digital Visual (PNG)</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Ficha digital que calcula massa magra, gordura, IMC e calorias basais, gerando um relatório em alta definição em foto (PNG) para mandar no WhatsApp e fechar programas na hora.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-cyan-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Relatório em foto de alto impacto
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 10. Módulo Financeiro & Custos de Dose EVS -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-emerald-500/30 hover:border-emerald-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">10. Módulo Financeiro & Custo de Doses</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Custo exato por dose calculado pelo seu desconto Herbalife (25%, 35%, 42% ou 50%), controle de clientes fiados e seu lucro líquido em tempo real por dia e por mês.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Fim do prejuízo com fiados e doses
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 11. Radar de Clientes & Central de Aniversariantes -->
                 <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-teal-500/30 hover:border-teal-400 transition shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-300 border border-teal-500/40 flex items-center justify-center text-xl mb-4">
                             <i class="fa-solid fa-cake-candles"></i>
                         </div>
-                        <h3 class="text-lg font-black text-white leading-snug">Radar de Clientes & Aniversariantes</h3>
+                        <h3 class="text-lg font-black text-white leading-snug">11. Radar de Clientes & Aniversariantes</h3>
                         <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Identifica na hora quem não consome há mais de 15 dias e quem faz aniversário hoje, com botão de parabéns e convite prontos para disparar no WhatsApp em 1 clique.
+                            Identifica quem sumiu há mais de 15 dias e aniversariantes do dia, gerando mensagens carinhosas e cupons automáticos prontos para disparar no WhatsApp com 1 toque.
                         </p>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-800">
@@ -569,6 +732,51 @@
                             <i class="fa-solid fa-circle-check"></i> Reativação de clientes adormecidos
                         </span>
                     </div>
+                </div>
+
+                <!-- 12. Campanha da Sacola & Sorteios Automáticos A4 -->
+                <div class="bg-slate-900/90 rounded-3xl p-6 border-2 border-yellow-500/30 hover:border-yellow-400 transition shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug">12. Sorteios da Sacola & Tíquetes A4</h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Gerador automático de cupons e tíquetes da sorte numerados prontos para impressão A4 ou envio digital no WhatsApp para grampear na sacola e explodir suas vendas diárias.
+                        </p>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-slate-800">
+                        <span class="text-[11px] font-bold text-yellow-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> Viralização e fidelização no espaço
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BÔNUS ESPECIAIS INCLUSOS: ESTÚDIO TELEPROMPTER IA & DOSSIÊ A4 -->
+            <div class="mt-8 bg-gradient-to-r from-purple-950/70 via-slate-900 to-indigo-950/70 border-2 border-purple-500/40 rounded-3xl p-6 sm:p-7 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-5 text-left">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-600/30 text-purple-300 border border-purple-400/50 flex items-center justify-center text-2xl shrink-0 shadow-lg">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <span class="inline-block bg-purple-500/20 text-purple-300 border border-purple-400/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">
+                            🎁 BÔNUS EXCLUSIVOS INCLUSOS
+                        </span>
+                        <h4 class="text-base sm:text-lg font-black text-white leading-snug">
+                            Teleprompter & Estúdio IA + Dossiê A4 de Fechamento
+                        </h4>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                            Grave stories e vídeos de alta conversão sem gaguejar usando o Teleprompter com scripts validados, e entregue um Dossiê A4 profissional com anamnese para fechar programas de alto valor.
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0 w-full sm:w-auto">
+                    <a href="#secao-planos" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs uppercase px-5 py-3 rounded-xl shadow-md transition transform hover:scale-105 cursor-pointer">
+                        <i class="fa-solid fa-crown"></i>
+                        <span>Garantir Todos os Recursos</span>
+                    </a>
                 </div>
             </div>
 
@@ -579,10 +787,10 @@
                         <i class="fa-solid fa-eye"></i> Demonstração Ao Vivo
                     </span>
                     <h3 class="text-xl sm:text-2xl font-black text-white leading-tight">
-                        Quer ver como é a página onde a pessoa vende?
+                        Quer ver como é a página oficial que seus clientes e consultores acessam?
                     </h3>
                     <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                        Acesse a página modelo oficial: veja o anúncio de bebidas funcionais, assista aos <strong>dois vídeos do Litrão</strong> e confira a área de cadastro com campo de cupom!
+                        Acesse a página modelo: confira a vitrine de bebidas funcionais, assista aos <strong>dois vídeos de alta conversão</strong> (Litrão Desincha + Oportunidade R$ 500/Semana) e o formulário com cupom!
                     </p>
                 </div>
                 <div class="shrink-0 w-full lg:w-auto">
@@ -692,6 +900,37 @@
                     <div>
                         <h4 class="text-sm font-black text-white">Segurança Total</h4>
                         <p class="text-xs text-slate-400 mt-0.5">Dados protegidos em nuvem com backup contínuo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- SEÇÃO: GARANTIA BLINDADA DE 7 DIAS (RISCO ZERO ABSOLUTO)                 -->
+        <!-- ========================================================================= -->
+        <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-br from-emerald-950/80 via-slate-900 to-slate-900 border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                <!-- Selo de Garantia -->
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex flex-col items-center justify-center shrink-0 shadow-2xl border-4 border-slate-900">
+                    <i class="fa-solid fa-shield-halved text-2xl sm:text-3xl"></i>
+                    <span class="text-xs sm:text-sm font-black uppercase tracking-wider mt-1">7 DIAS</span>
+                    <span class="text-[9px] font-bold uppercase tracking-tight">GARANTIA</span>
+                </div>
+                <!-- Conteúdo da Garantia -->
+                <div class="text-center md:text-left flex-1">
+                    <span class="inline-block bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase px-3 py-0.5 rounded-full mb-2">
+                        🛡️ COMPROMISSO DE SATISFAÇÃO TOTAL
+                    </span>
+                    <h3 class="text-xl sm:text-2xl font-black text-white leading-tight">
+                        Teste Tudo Por 7 Dias. Seu Risco é Absolutamente Zero!
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                        Entre hoje, use a <strong>Página com 2 Vídeos</strong>, monte seu <strong>Catálogo Digital</strong>, use o <strong>CRM Kanban</strong> e explore todas as <strong>12 ferramentas</strong>. Se por qualquer motivo você achar que a plataforma não é para você, basta nos mandar uma mensagem no WhatsApp que reembolsamos 100% do seu valor. Sem burocracia, sem perguntas.
+                    </p>
+                    <div class="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-bold text-emerald-400">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Reembolso Instantâneo</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Sem Letras Miúdas</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Suporte Dedicado</span>
                     </div>
                 </div>
             </div>
@@ -872,15 +1111,18 @@
                 diasCiclo: 30,
                 valorMensalidadeNum: 99.00,
                 descricaoMensalidade: 'Mensalidade de R$ 99,00 após 30 dias',
-                tagDestaque: 'Entrada',
+                tagDestaque: 'Entrada Rápida',
                 corTema: 'emerald',
                 exibirNaPaginaVendas: true,
                 recursos: [
-                    'Página Exclusiva & Link Próprio',
-                    'Até 30 Avaliações / mês',
-                    '15 Tíquetes Bônus (Sacola A4) / mês',
-                    'Relatório Visual em Foto (PNG)',
-                    'Central de Aniversariantes Básica'
+                    'Página Exclusiva 24h & Link Próprio',
+                    'Catálogo Digital por UF com Carrinho',
+                    'Placa de Balcão A4 com QR Code',
+                    'Bioimpedância Digital Visual (PNG)',
+                    'Quiz Metabólico de Saúde Interativo',
+                    'Até 30 Avaliações & Tíquetes / mês',
+                    'Radar de Clientes & Central de Aniversariantes',
+                    'Garantia de 7 Dias com Risco Zero'
                 ]
             },
             {
@@ -891,17 +1133,23 @@
                 diasCiclo: 30,
                 valorMensalidadeNum: 25.00,
                 descricaoMensalidade: 'Mensalidade de apenas R$ 25,00 após 30 dias',
-                tagDestaque: 'Mais Popular',
+                tagDestaque: 'Mais Popular • Alta Conversão',
                 corTema: 'amber',
                 exibirNaPaginaVendas: true,
                 recursos: [
-                    'Página Exclusiva & Link Próprio',
-                    'Avaliações ILIMITADAS',
-                    'Tíquetes ILIMITADOS (Sacola A4)',
-                    'Relatório Visual em Foto (PNG) Completo',
-                    'Central de Aniversariantes Completa',
-                    'Exportação para Planilha Excel (CSV)',
-                    'Backup Geral dos Seus Dados'
+                    'Página Exclusiva 24h & Link Próprio',
+                    'Página com os 2 Vídeos (R$ 500/Semana)',
+                    'CRM Kanban WhatsApp com Funil Visual',
+                    'Extrator Facebook (20.000+ Contatos)',
+                    'Catálogo Digital por UF com Carrinho',
+                    'Placa de Balcão A4 com QR Code Inteligente',
+                    'Quiz Metabólico / Diagnóstico de Saúde',
+                    'Cartão Fidelidade Digital com Selos',
+                    'Módulo Financeiro & Custo de Doses EVS',
+                    'Bioimpedância Visual (PNG) ILIMITADA',
+                    'Campanha da Sacola & Sorteios A4 ILIMITADOS',
+                    'Radar de Clientes & Avisos de Aniversário',
+                    'Garantia Blindada de 7 Dias'
                 ]
             },
             {
@@ -912,19 +1160,20 @@
                 diasCiclo: 30,
                 valorMensalidadeNum: 49.00,
                 descricaoMensalidade: 'Licença premium com mensalidade ultra reduzida',
-                tagDestaque: 'Elite VIP',
+                tagDestaque: 'Elite VIP • Acesso Total',
                 corTema: 'purple',
                 exibirNaPaginaVendas: true,
                 recursos: [
-                    'Página Exclusiva & Link Próprio',
-                    'Avaliações ILIMITADAS',
-                    'Tíquetes ILIMITADOS (Sacola A4)',
-                    'Relatório Visual em Foto (Alta Resolução)',
-                    'Central de Aniversariantes VIP',
-                    'Exportação para Planilha Excel (CSV)',
-                    'Importação em Massa de Planilhas (CSV)',
-                    'Backup Completo & Restauração de Dados',
-                    'Criar Cupons 15% OFF p/ Novos Consultores'
+                    'TODAS AS 12 FERRAMENTAS LIBERADAS 100%',
+                    'CRM Kanban + Robô de Mensagens Rápidas',
+                    'Extrator Facebook 20k+ Contatos Ilimitado',
+                    'Catálogo Digital por UF com Cupom Personalizado',
+                    'Módulo Financeiro & Margens de Lucro EVS',
+                    'BÔNUS: Estúdio Teleprompter IA (Scripts Prontos)',
+                    'BÔNUS: Dossiê A4 Completo de Fechamento',
+                    'Criar Cupons 15% OFF p/ Novos Consultores da Rede',
+                    'Importação & Exportação em Massa Excel (CSV)',
+                    'Suporte Prioritário VIP Direto com Suporte Oficial'
                 ]
             },
             {
@@ -935,16 +1184,18 @@
                 diasCiclo: 365,
                 valorMensalidadeNum: 290.00,
                 descricaoMensalidade: 'Anuidade de R$ 290,00 após 1 ano (12 meses)',
-                tagDestaque: 'Economia Anual',
+                tagDestaque: 'Maior Economia do Ano',
                 corTema: 'blue',
                 exibirNaPaginaVendas: true,
                 recursos: [
-                    'Acesso Anual Completo (365 dias)',
-                    'Sem preocupação com boletos mensais',
-                    'Página Exclusiva & Link Próprio',
-                    'Avaliações ILIMITADAS o ano todo',
-                    'Tíquetes e Sorteios ILIMITADOS',
-                    'Suporte Prioritário VIP no WhatsApp'
+                    'Acesso Anual Completo (365 Dias Sem Boletos Mensais)',
+                    'Todas as 12 Ferramentas Mestre Inclusas',
+                    'Página com os 2 Vídeos de Vendas (R$ 500/Semana)',
+                    'CRM Kanban WhatsApp & Extrator 20k+',
+                    'Catálogo Digital por UF com Carrinho e Cupom',
+                    'Bioimpedância PNG & Sorteios ILIMITADOS o ano todo',
+                    'Módulo Financeiro do EVS Completo',
+                    'Suporte VIP Humano Prioritário no WhatsApp'
                 ]
             }
         ];
@@ -1544,9 +1795,12 @@
                         </div>
 
                         <div class="mt-7 pt-4 border-t border-slate-800/60">
-                            <button type="button" onclick="abrirCheckoutPlano('${p.id}')" class="w-full bg-gradient-to-r ${t.btn} text-white font-black py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs uppercase tracking-wide cursor-pointer hover:shadow-emerald-500/20">
-                                <i class="fa-brands fa-pix text-sm"></i>
-                                <span>Contratar Agora no Pix</span>
+                            <button type="button" onclick="abrirCheckoutPlano('${p.id}')" class="w-full bg-gradient-to-r ${t.btn} text-white font-black py-3 px-4 rounded-xl shadow-lg transition flex flex-col items-center justify-center gap-0.5 text-xs uppercase tracking-wide cursor-pointer hover:shadow-emerald-500/20 transform hover:scale-[1.02]">
+                                <span class="flex items-center gap-1.5 text-xs">
+                                    <i class="fa-brands fa-pix text-sm"></i>
+                                    <span>ATIVAR MEU ACESSO IMEDIATO NO PIX</span>
+                                </span>
+                                <span class="text-[10px] text-white/80 font-bold lowercase">7 dias de teste com risco zero</span>
                             </button>
                         </div>
                     </div>
