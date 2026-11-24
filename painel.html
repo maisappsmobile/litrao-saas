@@ -587,37 +587,7 @@
     <!-- PAINEL DO CONSULTOR -->
     <div id="dashboard-screen" class="w-full max-w-[96%] xl:max-w-[1650px] 2xl:max-w-[1800px] mx-auto mt-6 sm:mt-8 px-2 sm:px-5 lg:px-8 hidden">
         
-        <!-- BANNER DE ENTRADA NO GRUPO VIP DE LANÇAMENTO (COM REDIRECIONADOR ROTATIVO NATIVO) -->
-        <div id="banner-grupo-vip-lancamento" class="mb-5 bg-gradient-to-r from-slate-950 via-emerald-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden border-2 border-emerald-400/50">
-            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4 text-center md:text-left">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center text-3xl shrink-0 shadow-lg shadow-emerald-500/20 hidden sm:flex">
-                        <i class="fa-brands fa-whatsapp text-emerald-300"></i>
-                    </div>
-                    <div>
-                        <div class="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 px-3 py-0.5 rounded-full text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            GRUPO VIP OFICIAL • REVELAÇÁO DA OFERTA QUARTA 19:00
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-black text-white leading-tight">
-                            Receba seu <span class="text-emerald-400">Teste Gratuito</span> + Oferta Especial de Lançamento!
-                        </h3>
-                        <p class="text-xs text-slate-300 font-medium mt-1 leading-relaxed">
-                            Entre agora no Grupo VIP oficial do WhatsApp para receber seu teste liberado até Quarta-feira às 19:00 e garantir a condição especial de Membro Fundador com até 60% OFF!
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row items-center gap-2.5 shrink-0 w-full md:w-auto">
-                    <a href="grupo-vip.html" target="_blank" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-black py-3.5 px-6 rounded-2xl text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/30 transition transform hover:scale-105 flex items-center justify-center gap-2 cursor-pointer text-center whitespace-nowrap">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                        <span>Entrar no Grupo VIP</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- BANNER DE PROMOÇÁO DOS 7 DIAS GRÁTIS (PADRÁO EXECUTIVO VALE DO SILÍCIO) -->
+        <!-- BANNER DE PROMOÇÃO DOS 7 DIAS GRÁTIS (PADRÃO EXECUTIVO VALE DO SILÍCIO) -->
         <div id="banner-promocao-trial" class="hidden mb-6 bg-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-xl relative overflow-hidden border border-slate-800">
             <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5">
                 <div class="flex-1 text-center lg:text-left">
@@ -2434,9 +2404,81 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                        <p class="text-xs text-slate-500 font-medium leading-relaxed mb-2.5">
                             Estratégia completa de 7 dias com grupos silenciosos no WhatsApp, scripts com emojis, vídeos de 120s e oferta irresistível do cupom FUNDADOR100.
                         </p>
+
+                        <!-- CONTROLE DO BANNER GRUPO VIP (PÁGINA DE VENDAS) -->
+                        <div class="mb-3 p-3 bg-gradient-to-r from-slate-950 via-emerald-950/80 to-slate-900 rounded-xl border border-emerald-500/40 text-white shadow-xs">
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </span>
+                                    <div>
+                                        <h4 class="text-xs font-black text-white leading-tight">Banner Grupo VIP</h4>
+                                        <span class="text-[9px] text-emerald-300 font-bold block uppercase tracking-wider">Página de Vendas (planos.html)</span>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer select-none" title="Ativar ou desativar banner na página de vendas">
+                                    <input type="checkbox" id="toggle-banner-vip-painel" class="sr-only peer" onchange="alternarBannerGrupoVip(this.checked)" checked>
+                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+
+                            <!-- Seletor de Posição na Página de Vendas -->
+                            <div class="mt-2 pt-2 border-t border-emerald-500/20">
+                                <div class="flex items-center justify-between text-[10px] font-bold text-slate-300 mb-1.5">
+                                    <span>Posição na Página de Vendas:</span>
+                                    <span id="label-pos-atual-banner" class="text-emerald-400 font-black uppercase">Topo</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1">
+                                    <button type="button" onclick="definirPosicaoBannerGrupoVip('topo')" id="btn-pos-topo-painel" class="btn-pos-banner-vip px-1.5 py-1.5 rounded-lg text-[10px] font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-emerald-500 text-slate-950 border-emerald-400 cursor-pointer shadow-xs">
+                                        <i class="fa-solid fa-arrow-up text-[9px]"></i>
+                                        <span>Topo</span>
+                                    </button>
+                                    <button type="button" onclick="definirPosicaoBannerGrupoVip('planos')" id="btn-pos-planos-painel" class="btn-pos-banner-vip px-1.5 py-1.5 rounded-lg text-[10px] font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500 cursor-pointer">
+                                        <i class="fa-solid fa-layer-group text-[9px]"></i>
+                                        <span>Planos</span>
+                                    </button>
+                                    <button type="button" onclick="definirPosicaoBannerGrupoVip('rodape')" id="btn-pos-rodape-painel" class="btn-pos-banner-vip px-1.5 py-1.5 rounded-lg text-[10px] font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500 cursor-pointer">
+                                        <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                                        <span>Rodapé</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Ações Rápidas: Prévia do Banner & Testar Página -->
+                            <div class="mt-2.5 pt-2 border-t border-emerald-500/20 flex items-center justify-between text-[10px]">
+                                <button type="button" onclick="togglePreviaBannerVipInline()" class="text-emerald-300 hover:text-emerald-200 font-bold flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-regular fa-eye text-xs"></i> <span id="label-btn-previa-banner">Ver Banner</span>
+                                </button>
+                                <a href="planos.html" target="_blank" class="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 cursor-pointer" title="Abrir página de vendas em nova aba">
+                                    <span>Ver em Vendas</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                </a>
+                            </div>
+
+                            <!-- Mini Prévia Inline Retrátil do Banner -->
+                            <div id="container-previa-banner-inline" class="hidden mt-2.5 pt-2 border-t border-emerald-500/20 text-left">
+                                <div class="bg-gradient-to-r from-slate-950 via-emerald-950 to-slate-900 rounded-xl p-3 border border-emerald-400/50 shadow-inner">
+                                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 rounded-full text-[9px] font-black text-emerald-300 uppercase tracking-wider mb-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                        GRUPO VIP OFICIAL • REVELAÇÃO DA OFERTA QUARTA 19:00
+                                    </div>
+                                    <h5 class="text-xs font-black text-white leading-tight">
+                                        Receba seu <span class="text-emerald-400">Teste Gratuito</span> + Oferta Especial de Lançamento!
+                                    </h5>
+                                    <p class="text-[10px] text-slate-300 mt-1 leading-relaxed">
+                                        Entre agora no Grupo VIP oficial do WhatsApp para receber seu teste liberado até Quarta-feira às 19:00 e garantir a condição especial de Membro Fundador com até 60% OFF!
+                                    </p>
+                                    <div class="mt-2">
+                                        <a href="grupo-vip.html" target="_blank" class="inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-1 px-2.5 rounded-lg text-[10px] uppercase shadow-sm">
+                                            <i class="fa-brands fa-whatsapp"></i> Entrar no Grupo VIP
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- RODAPÉ DE AÇÕES ORGANIZADO EM 2 NÍVEIS (SEM VAZAR DA BORDA) -->
@@ -42370,6 +42412,102 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
             if (modal) modal.classList.add('hidden');
         }
         window.fecharModalLancamentoMeteorico = fecharModalLancamentoMeteorico;
+
+        // =========================================================================
+        // CONTROLE DO BANNER GRUPO VIP NA PÁGINA DE VENDAS (SUPERADMIN)
+        // =========================================================================
+        function obterConfigBannerGrupoVip() {
+            try {
+                const salvo = localStorage.getItem('litrao_banner_grupo_vip_config');
+                if (salvo) {
+                    const cfg = JSON.parse(salvo);
+                    return {
+                        ativo: cfg.ativo !== false,
+                        posicao: cfg.posicao || 'topo'
+                    };
+                }
+            } catch (e) {
+                console.warn('Erro ao ler config do banner grupo vip:', e);
+            }
+            return { ativo: true, posicao: 'topo' };
+        }
+
+        function salvarConfigBannerGrupoVip(cfg) {
+            try {
+                localStorage.setItem('litrao_banner_grupo_vip_config', JSON.stringify(cfg));
+                window.dispatchEvent(new CustomEvent('banner_grupo_vip_alterado', { detail: cfg }));
+            } catch (e) {
+                console.error('Erro ao salvar config do banner grupo vip:', e);
+            }
+        }
+
+        function alternarBannerGrupoVip(ativo) {
+            const cfg = obterConfigBannerGrupoVip();
+            cfg.ativo = !!ativo;
+            salvarConfigBannerGrupoVip(cfg);
+            sincronizarUiBannerGrupoVip();
+        }
+
+        function definirPosicaoBannerGrupoVip(posicao) {
+            const cfg = obterConfigBannerGrupoVip();
+            cfg.posicao = posicao || 'topo';
+            salvarConfigBannerGrupoVip(cfg);
+            sincronizarUiBannerGrupoVip();
+        }
+
+        function sincronizarUiBannerGrupoVip() {
+            const cfg = obterConfigBannerGrupoVip();
+            const toggle = document.getElementById('toggle-banner-vip-painel');
+            if (toggle) toggle.checked = cfg.ativo;
+
+            const labelPos = document.getElementById('label-pos-atual-banner');
+            if (labelPos) {
+                const nomes = { topo: 'Topo', planos: 'Planos', rodape: 'Rodapé' };
+                labelPos.textContent = (cfg.ativo ? '' : '(Desativado) ') + (nomes[cfg.posicao] || 'Topo');
+                labelPos.className = cfg.ativo ? 'text-emerald-400 font-black uppercase' : 'text-slate-500 font-black uppercase';
+            }
+
+            ['topo', 'planos', 'rodape'].forEach(pos => {
+                const btn = document.getElementById('btn-pos-' + pos + '-painel');
+                if (btn) {
+                    if (cfg.posicao === pos) {
+                        btn.className = 'btn-pos-banner-vip px-1.5 py-1.5 rounded-lg text-[10px] font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-emerald-500 text-slate-950 border-emerald-400 cursor-pointer shadow-xs';
+                    } else {
+                        btn.className = 'btn-pos-banner-vip px-1.5 py-1.5 rounded-lg text-[10px] font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500 cursor-pointer';
+                    }
+                }
+            });
+        }
+
+        function togglePreviaBannerVipInline() {
+            const box = document.getElementById('container-previa-banner-inline');
+            const lbl = document.getElementById('label-btn-previa-banner');
+            if (!box) return;
+            const oculto = box.classList.contains('hidden');
+            if (oculto) {
+                box.classList.remove('hidden');
+                if (lbl) lbl.textContent = 'Ocultar';
+            } else {
+                box.classList.add('hidden');
+                if (lbl) lbl.textContent = 'Ver Banner';
+            }
+        }
+
+        window.obterConfigBannerGrupoVip = obterConfigBannerGrupoVip;
+        window.salvarConfigBannerGrupoVip = salvarConfigBannerGrupoVip;
+        window.alternarBannerGrupoVip = alternarBannerGrupoVip;
+        window.definirPosicaoBannerGrupoVip = definirPosicaoBannerGrupoVip;
+        window.sincronizarUiBannerGrupoVip = sincronizarUiBannerGrupoVip;
+        window.togglePreviaBannerVipInline = togglePreviaBannerVipInline;
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', sincronizarUiBannerGrupoVip);
+        } else {
+            sincronizarUiBannerGrupoVip();
+        }
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'litrao_banner_grupo_vip_config') sincronizarUiBannerGrupoVip();
+        });
 
     </script>
     <script src="/pwa-install.js"></script>
