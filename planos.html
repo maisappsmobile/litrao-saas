@@ -1384,12 +1384,25 @@
             const inCheckout = document.getElementById('checkout-input-cupom');
             const feedCheckout = document.getElementById('checkout-feedback-cupom');
 
-            const codigo = (codigoManual || (inCupom ? inCupom.value : '')).toUpperCase().trim();
+            const codigo = (codigoManual !== undefined ? codigoManual : (inCupom ? inCupom.value : '')).toUpperCase().trim();
+
+            // CASO: Campo vazio ou usuário apagou o cupom e clicou em Aplicar
+            // Imediatamente remove qualquer cupom ativo e restaura os preços originais de todos os planos!
             if (!codigo) {
+                removerCupomDesconto();
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Aplicar</span>';
                 if (feedback) {
-                    feedback.className = 'mt-2 text-xs text-rose-300 bg-rose-500/20 border border-rose-500/50 p-2.5 rounded-xl flex items-center gap-1.5';
-                    feedback.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span>Por favor, digite um código de cupom!</span>';
+                    feedback.className = 'mt-2 text-xs text-amber-300 bg-amber-500/20 border border-amber-500/40 p-2.5 rounded-xl flex items-center justify-between shadow-sm animate-fade-in';
+                    feedback.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-amber-400 text-sm"></i>
+                            <span>Nenhum cupom inserido. Exibindo os valores originais de todos os planos.</span>
+                        </div>
+                    `;
                     feedback.classList.remove('hidden');
+                    setTimeout(() => {
+                        if (!CUPOM_ATIVO && feedback) feedback.classList.add('hidden');
+                    }, 4000);
                 }
                 return;
             }
@@ -1569,7 +1582,10 @@
 
             if (cupomEncontrado) {
                 CUPOM_ATIVO = cupomEncontrado;
-                sessionStorage.setItem('cupom_litrao_ativo', JSON.stringify(cupomEncontrado));
+
+                // Não persistimos para a próxima visita (regra: o cupom NÃO fica salvo após fechar/reabrir)
+                sessionStorage.removeItem('cupom_litrao_ativo');
+                localStorage.removeItem('cupom_litrao_ativo');
 
                 if (inCupom) inCupom.value = cupomEncontrado.codigo;
                 if (inCheckout) inCheckout.value = cupomEncontrado.codigo;
@@ -1585,21 +1601,6 @@
 
                 if (feedback) {
                     renderizarFeedbackCupomVendas(cupomEncontrado, descTexto, planosTexto);
-                }
-                if (false) {
-                    feedback.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
-                            <div>
-                                <span class="font-black uppercase tracking-wider block">Cupom "${cupomEncontrado.codigo}" Ativado!</span>
-                                <span class="text-[11px] text-emerald-200">${descTexto} aplicado para ${planosTexto}!</span>
-                            </div>
-                        </div>
-                        <button type="button" onclick="removerCupomDesconto()" class="text-rose-400 hover:text-rose-300 font-bold underline cursor-pointer text-xs ml-2">
-                            Remover
-                        </button>
-                    `;
-                    feedback.classList.remove('hidden');
                 }
 
                 if (feedCheckout) {
@@ -1618,14 +1619,22 @@
                     abrirCheckoutPlano(planoCheckoutAtual.id);
                 }
             } else {
+                // Se digitou um código inexistente ou inválido, cancela qualquer cupom ativo e restaura os planos originais!
+                removerCupomDesconto();
+
                 if (feedback) {
-                    feedback.className = 'mt-2 text-xs text-rose-300 bg-rose-500/20 border border-rose-500/50 p-2.5 rounded-xl flex items-center gap-2';
-                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400 text-sm"></i><span>Cupom "<strong>${codigo}</strong>" não encontrado ou expirado. Verifique a digitação.</span>`;
+                    feedback.className = 'mt-2 text-xs text-rose-300 bg-rose-500/20 border border-rose-500/50 p-2.5 rounded-xl flex items-center justify-between shadow-sm animate-fade-in';
+                    feedback.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-xmark text-rose-400 text-sm"></i>
+                            <span>Cupom "<strong>${codigo}</strong>" não encontrado ou expirado. Exibindo os valores normais dos planos.</span>
+                        </div>
+                    `;
                     feedback.classList.remove('hidden');
                 }
                 if (feedCheckout) {
                     feedCheckout.className = 'text-[11px] mt-1.5 font-bold text-rose-400 block';
-                    feedCheckout.innerHTML = `❌ Cupom "${codigo}" inválido!`;
+                    feedCheckout.innerHTML = `❌ Cupom "${codigo}" inválido! Exibindo valores normais.`;
                 }
             }
         }
@@ -1634,6 +1643,7 @@
         function removerCupomDesconto() {
             CUPOM_ATIVO = null;
             sessionStorage.removeItem('cupom_litrao_ativo');
+            localStorage.removeItem('cupom_litrao_ativo');
 
             const inCupom = document.getElementById('input-cupom-desconto');
             const inCheckout = document.getElementById('checkout-input-cupom');
@@ -1642,8 +1652,25 @@
 
             if (inCupom) inCupom.value = '';
             if (inCheckout) inCheckout.value = '';
-            if (feedback) feedback.classList.add('hidden');
-            if (feedCheckout) feedCheckout.classList.add('hidden');
+            if (feedback) {
+                feedback.innerHTML = '';
+                feedback.classList.add('hidden');
+            }
+            if (feedCheckout) {
+                feedCheckout.innerHTML = '';
+                feedCheckout.classList.add('hidden');
+            }
+
+            // Remove o parâmetro ?cupom= da URL para não reativar se o usuário recarregar a página
+            if (window.history && window.history.replaceState) {
+                try {
+                    const url = new URL(window.location.href);
+                    if (url.searchParams.has('cupom')) {
+                        url.searchParams.delete('cupom');
+                        window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : '') + url.hash);
+                    }
+                } catch(_) {}
+            }
 
             atualizarLinksCadastroComCupom('');
             renderizarPlanosPaginaVendas();
@@ -2085,20 +2112,32 @@
             carregarDadosPlanos();
             initDorAccordions();
 
-            // Verifica se veio cupom na URL (?cupom=...) ou no sessionStorage
+            // Regra do SuperAdmin: O cupom NÃO deve ficar salvo na próxima vez que a página for aberta!
+            // Limpa qualquer resquício de sessões antigas
+            sessionStorage.removeItem('cupom_litrao_ativo');
+            localStorage.removeItem('cupom_litrao_ativo');
+
+            // Cupom só é aplicado se vier explicitamente via URL (?cupom=...)
             const urlParams = new URLSearchParams(window.location.search);
             const cupomUrl = urlParams.get('cupom');
-            const cupomSalvo = sessionStorage.getItem('cupom_litrao_ativo');
 
             if (cupomUrl) {
                 aplicarCupomDescontoPaginaVendas(cupomUrl);
-            } else if (cupomSalvo) {
-                try {
-                    const parsed = JSON.parse(cupomSalvo);
-                    if (parsed && parsed.codigo) {
-                        aplicarCupomDescontoPaginaVendas(parsed.codigo);
+            } else {
+                // Inicia 100% limpo com os preços normais de todos os planos
+                CUPOM_ATIVO = null;
+                renderizarPlanosPaginaVendas();
+            }
+
+            // Suporte para tecla Enter no input de cupom
+            const inCupom = document.getElementById('input-cupom-desconto');
+            if (inCupom) {
+                inCupom.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        aplicarCupomDescontoPaginaVendas();
                     }
-                } catch (_) {}
+                });
             }
 
             // Controle inteligente do botão flutuante no mobile: esconde ao rolar para não cobrir a tela
