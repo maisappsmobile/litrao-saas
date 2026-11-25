@@ -431,6 +431,11 @@
             <button id="btn-abrir-edicao" type="button" title="Editar ou colar seu próprio roteiro">
                 ✏️
             </button>
+
+            <!-- GUIA OBS STUDIO -->
+            <button id="btn-guia-obs" type="button" title="Como Usar no OBS Studio (Invisível)" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);">
+                ℹ️ OBS
+            </button>
         </div>
     </header>
 
@@ -466,6 +471,48 @@
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
                 <button id="btn-cancelar-edicao" type="button">Cancelar</button>
                 <button id="btn-salvar-edicao" type="button" class="btn-play">Salvar & Usar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUIA OBS STUDIO -->
+    <div id="modal-obs-guia" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.88); display: none; align-items: center; justify-content: center; z-index: 150; padding: 16px;">
+        <div class="modal-card" style="max-width: 600px; max-height: 90vh; overflow-y: auto; text-align: left; font-size: 13px; line-height: 1.6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #374151; padding-bottom: 8px;">
+                <h3 style="color: #fbbf24; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                    🎥 Como Usar no OBS Studio (Invisível)
+                </h3>
+                <button type="button" id="btn-fechar-guia-obs-x" style="padding: 2px 8px; font-size: 14px; cursor: pointer;">✕</button>
+            </div>
+            
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 12px; color: #fef08a; font-size: 12px;">
+                <strong>O Segredo da Invisibilidade:</strong> Você lê o teleprompter na sua tela física, mas o texto <strong>NÃO APARECE no vídeo gravado pelo OBS</strong>.
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <h4 style="color: #34d399; font-weight: 800; margin-bottom: 4px;">1. Método Câmera / Reels (Olho no Olho)</h4>
+                <ul style="padding-left: 18px; color: #d1d5db; font-size: 12px; margin-bottom: 6px;">
+                    <li>No OBS, adicione a fonte <strong>Dispositivo de Captura de Vídeo</strong> (sua Webcam).</li>
+                    <li>Clique no botão <strong>📌 Fixar no Topo</strong> do teleprompter (janela flutuante).</li>
+                    <li>Arraste a janela para ficar bem abaixo da lente da sua webcam.</li>
+                    <li>O OBS grava apenas a sua imagem física da câmera; o texto fica invisível na gravação!</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <h4 style="color: #818cf8; font-weight: 800; margin-bottom: 4px;">2. Método Gravação de Tela (Apresentação / Catálogo)</h4>
+                <ul style="padding-left: 18px; color: #d1d5db; font-size: 12px; margin-bottom: 6px;">
+                    <li>No OBS, adicione <strong>Captura de Janela (Window Capture)</strong> e escolha o navegador.</li>
+                    <li><strong>Atenção:</strong> Não capture a "Tela Inteira" (Display Capture). Ao capturar apenas a janela do navegador, o teleprompter que flutua por cima é ignorado pelo OBS.</li>
+                </ul>
+            </div>
+
+            <div style="background: #1f2937; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; color: #9ca3af; font-size: 11px;">
+                ⌨️ <strong>Atalhos:</strong> <span style="color: #fff; font-weight: bold;">Espaço</span> (Play/Pause) • <span style="color: #fff; font-weight: bold;">Tecla R</span> (Reiniciar do Início) • <span style="color: #fff; font-weight: bold;">Setas Cima/Baixo</span> (Ajustar Velocidade)
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" id="btn-fechar-guia-obs" class="btn-play" style="cursor: pointer;">Entendido, Fechar</button>
             </div>
         </div>
     </div>
@@ -902,11 +949,30 @@
             fecharModalEdicao();
         }
 
+        function abrirModalObs() {
+            pausarPrompter();
+            const obsModal = (pipWindow && !pipWindow.closed && pipWindow.document) 
+                ? pipWindow.document.getElementById('modal-obs-guia') 
+                : document.getElementById('modal-obs-guia');
+            if (obsModal) obsModal.style.display = 'flex';
+        }
+
+        function fecharModalObs() {
+            const obsModal = document.getElementById('modal-obs-guia');
+            if (obsModal) obsModal.style.display = 'none';
+            if (pipWindow && !pipWindow.closed && pipWindow.document) {
+                const pModal = pipWindow.document.getElementById('modal-obs-guia');
+                if (pModal) pModal.style.display = 'none';
+            }
+        }
+
         // TRATADOR DE ATALHOS NO TECLADO (DISPARADO NA JANELA PRINCIPAL OU NO PIP)
         function tratarAtalhosTeclado(e) {
             const isEditing = (editModal && editModal.style.display === 'flex') || 
                               (pipWindow && !pipWindow.closed && pipWindow.document && pipWindow.document.getElementById('edit-modal')?.style.display === 'flex');
-            if (isEditing) return;
+            const isObsGuide = (document.getElementById('modal-obs-guia')?.style.display === 'flex') ||
+                               (pipWindow && !pipWindow.closed && pipWindow.document && pipWindow.document.getElementById('modal-obs-guia')?.style.display === 'flex');
+            if (isEditing || isObsGuide) return;
 
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -963,6 +1029,15 @@
             const bSalvEdicao = el('btn-salvar-edicao');
             if (bSalvEdicao) bSalvEdicao.onclick = salvarTextoCustomizado;
 
+            const bGuiaObs = el('btn-guia-obs');
+            if (bGuiaObs) bGuiaObs.onclick = abrirModalObs;
+
+            const bFecharObs = el('btn-fechar-guia-obs');
+            if (bFecharObs) bFecharObs.onclick = fecharModalObs;
+
+            const bFecharObsX = el('btn-fechar-guia-obs-x');
+            if (bFecharObsX) bFecharObsX.onclick = fecharModalObs;
+
             const bToggle = el('btn-toggle-toolbar');
             if (bToggle) bToggle.onclick = alternarBarraBotoes;
 
@@ -971,7 +1046,7 @@
             if (cPrompter) {
                 cPrompter.onclick = (e) => {
                     // Evita disparar se clicou na barra ou em modal
-                    if (e.target.closest('header') || e.target.closest('#edit-modal')) return;
+                    if (e.target.closest('header') || e.target.closest('#edit-modal') || e.target.closest('#modal-obs-guia')) return;
                     alternarPlayPause();
                 };
             }
@@ -991,6 +1066,8 @@
             alvo.abrirModalEdicao = abrirModalEdicao;
             alvo.fecharModalEdicao = fecharModalEdicao;
             alvo.salvarTextoCustomizado = salvarTextoCustomizado;
+            alvo.abrirModalObs = abrirModalObs;
+            alvo.fecharModalObs = fecharModalObs;
             alvo.alternarBarraBotoes = alternarBarraBotoes;
             alvo.ativarSempreNoTopoPiP = ativarSempreNoTopoPiP;
         }
