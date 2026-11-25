@@ -18389,6 +18389,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 }
 
                 todosConsultoresCache = await res.json();
+                window.todosConsultoresCache = todosConsultoresCache;
+                window.LISTA_CONSULTORES_SUPERADMIN_CACHE = todosConsultoresCache;
                 if (totalBadge) totalBadge.innerText = todosConsultoresCache.length;
 
                 aplicarFiltrosErenderizarSuperadmin();
@@ -18429,6 +18431,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         try {
             const salvoColunas = localStorage.getItem('cfg_colunas_superadmin');
             if (salvoColunas) CONFIG_COLUNAS_SUPERADMIN = Object.assign(CONFIG_COLUNAS_SUPERADMIN, JSON.parse(salvoColunas));
+            CONFIG_COLUNAS_SUPERADMIN.acoes = true; // Garante que a barra de ações/edição do consultor esteja sempre ativa
             const salvoModo = localStorage.getItem('cfg_modo_superadmin');
             if (salvoModo) MODO_VISUALIZACAO_SUPERADMIN = salvoModo;
         } catch(e) {}
@@ -18778,23 +18781,21 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                                     <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" title="Clique para mudar o plano deste consultor no manual" class="inline-flex items-center gap-1 text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 hover:border-purple-500 px-2 py-0.5 rounded-md font-black transition cursor-pointer shadow-2xs group/plano">
                                                         <i class="fa-solid fa-tag text-purple-600 text-[9px] group-hover/plano:scale-110 transition"></i>
                                                         <span>${mInfoConsultor.planoNome}</span>
-                                        ${mInfoConsultor && !mInfoConsultor.isSuperAdmin ? `
-                                            <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" title="Clique para mudar o plano deste consultor no manual" class="inline-flex items-center gap-1 text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 hover:border-purple-500 px-1.5 py-0.2 rounded font-black transition cursor-pointer shadow-2xs group/plano">
-                                                <i class="fa-solid fa-tag text-purple-600 text-[8px] group-hover/plano:scale-110 transition"></i>
-                                                <span>${mInfoConsultor.planoNome}</span>
-                                                <span class="text-purple-700">(${mInfoConsultor.periodicidade === 'anual' ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/ano` : (mInfoConsultor.total > 0 ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês` : 'Isento')})</span>
-                                                <i class="fa-solid fa-pen text-[7px] text-purple-400 ml-0.5"></i>
-                                            </button>
-                                        ` : ''}
-                                                        <i class="fa-solid fa-pen text-[8px] text-purple-400 ml-0.5"></i>
+                                                        <span class="text-purple-700">(${mInfoConsultor.periodicidade === 'anual' ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/ano` : (mInfoConsultor.total > 0 ? `R$ ${mInfoConsultor.total.toFixed(2).replace('.', ',')}/mês` : 'Isento')})</span>
+                                                        <i class="fa-solid fa-pen text-[7px] text-purple-400 ml-0.5"></i>
                                                     </button>
                                                 ` : ''}
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="button" onclick="toggleDetalhesConsultorCard('${c.id}')" class="text-gray-400 hover:text-purple-700 p-1 rounded-lg transition" title="${isExpandido ? 'Recolher detalhes' : 'Expandir mais detalhes'}">
-                                        <i class="fa-solid ${isExpandido ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs"></i>
-                                    </button>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="text-purple-800 hover:text-white bg-purple-100 hover:bg-purple-700 border border-purple-200 px-2.5 py-1 rounded-xl text-xs font-black transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Configurar e Editar Todos os Dados deste Consultor">
+                                            <i class="fa-solid fa-pen-to-square text-[10px]"></i> <span>Editar</span>
+                                        </button>
+                                        <button type="button" onclick="toggleDetalhesConsultorCard('${c.id}')" class="text-gray-400 hover:text-purple-700 p-1.5 rounded-lg transition cursor-pointer" title="${isExpandido ? 'Recolher detalhes' : 'Expandir mais detalhes'}">
+                                            <i class="fa-solid ${isExpandido ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Dados de Acesso: ID Herbalife, 3 Letras e Senha (Totalmente Separados) -->
@@ -18852,7 +18853,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                 </div>
 
                                 <!-- Detalhes Expansíveis: Módulos & Funções (Menu Sanduíche) -->
-                                ${CONFIG_COLUNAS_SUPERADMIN.modulos && isExpandido ? `
+                                ${isExpandido ? `
                                     <div class="mt-3 pt-3 border-t border-gray-100">
                                         <div class="flex items-center justify-between mb-1.5">
                                             <span class="block text-[10px] font-black uppercase text-purple-950">Módulos & Funções do Consultor:</span>
@@ -18864,31 +18865,28 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                                 ` : ''}
                             </div>
 
-                            <!-- Barra Inferior de Ações Rápidas -->
-                            ${CONFIG_COLUNAS_SUPERADMIN.acoes ? `
-                                <!-- Barra de Teste Rápido Manual por Consultor -->
+                            <!-- Barra Inferior de Ações Rápidas (Sempre ativa nos Cards) -->
                             <div class="mt-2.5 flex items-center justify-between gap-1">
                                 ${renderizarBotoesChaveTestePainel(c)}
                             </div>
 
-                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5">
-                                    <button type="button" onclick="abrirModalChavesConsultorIndividual('${c.id}')" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Chaves de Módulos (Liberar/Bloquear na hora)">
-                                        <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
-                                    </button>
-                                    <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Tornar Vitalício">
-                                        <i class="fa-solid fa-infinity"></i> <span>Vitalício</span>
-                                    </button>
-                                    <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Mudar Plano no Manual">
-                                        <i class="fa-solid fa-sliders"></i> <span>Plano</span>
-                                    </button>
-                                    <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Editar Todos os Dados">
-                                        <i class="fa-solid fa-pen-to-square"></i> <span>Editar</span>
-                                    </button>
-                                    <button type="button" onclick="excluirConsultorSuperadmin('${c.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-2 rounded-xl text-xs transition cursor-pointer border border-rose-200" title="Excluir Consultor">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            ` : ''}
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5 flex-wrap sm:flex-nowrap">
+                                <button type="button" onclick="abrirModalChavesConsultorIndividual('${c.id}')" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-2 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Chaves de Módulos (Liberar/Bloquear na hora)">
+                                    <i class="fa-solid fa-key text-amber-300"></i> <span>Chaves</span>
+                                </button>
+                                <button type="button" onclick="liberarAcessoVitalicioDireto('${c.id}', '${c.herbalife_id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Tornar Vitalício">
+                                    <i class="fa-solid fa-infinity"></i> <span>Vitalício</span>
+                                </button>
+                                <button type="button" onclick="abrirModalMudarPlanoConsultor('${c.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Mudar Plano no Manual">
+                                    <i class="fa-solid fa-sliders"></i> <span>Plano</span>
+                                </button>
+                                <button type="button" onclick="abrirModalEditarConsultor('${c.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-2.5 py-2 rounded-xl text-xs transition flex-1 flex items-center justify-center gap-1 cursor-pointer shadow-2xs" title="Editar Todos os Dados">
+                                    <i class="fa-solid fa-pen-to-square"></i> <span>Editar</span>
+                                </button>
+                                <button type="button" onclick="excluirConsultorSuperadmin('${c.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-2 rounded-xl text-xs transition cursor-pointer border border-rose-200" title="Excluir Consultor">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -19240,7 +19238,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         window.liberarTesteManualConsultorPainel = liberarTesteManualConsultorPainel;
 
         function abrirModalEditarConsultor(id) {
-            const consultor = todosConsultoresCache.find(c => c.id === id);
+            const consultor = ((typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || []).find(c => String(c.id) === String(id));
             if (!consultor) return;
 
             const letrasHerbalife = extrairLetrasHerbalife(consultor);
@@ -19504,7 +19502,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 nomeEspacoBase += ` <!--PLANO:${JSON.stringify(planoObj)}-->`;
             }
             // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO e MODULO_CRM_EXTRATOR para não duplicar
-            const consultorOriginal = todosConsultoresCache.find(c => c.id === id);
+            const consultorOriginal = ((typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || []).find(c => String(c.id) === String(id));
             if (consultorOriginal && consultorOriginal.nome_espaco) {
                 const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|PLANO:).*?-->/g);
                 if (matchOutrasTags) {
@@ -30224,8 +30222,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
         // ABERTURA DO MENU SANDUÍCHE DE MÓDULOS DO CONSULTOR (PRINT 3)
         function abrirMenuModulosConsultor(consultorId) {
-            if (!isSuperAdminLogado()) return;
-            const c = (LISTA_CONSULTORES_SUPERADMIN_CACHE || []).find(x => String(x.id) === String(consultorId));
+            const lista = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || (typeof LISTA_CONSULTORES_SUPERADMIN_CACHE !== 'undefined' && LISTA_CONSULTORES_SUPERADMIN_CACHE) || [];
+            const c = lista.find(x => String(x.id) === String(consultorId));
             if (!c) {
                 alert("Consultor não encontrado.");
                 return;
@@ -30313,7 +30311,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
         // ALTERNÂNCIA INDIVIDUAL DE UM MÓDULO COM ATUALIZAÇÃO INSTANTÂNEA
         async function alternarModuloConsultorIndividual(consultorId, moduloId, novoStatus) {
-            const c = (LISTA_CONSULTORES_SUPERADMIN_CACHE || []).find(x => String(x.id) === String(consultorId));
+            const lista = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || (typeof LISTA_CONSULTORES_SUPERADMIN_CACHE !== 'undefined' && LISTA_CONSULTORES_SUPERADMIN_CACHE) || [];
+            const c = lista.find(x => String(x.id) === String(consultorId));
             if (!c) return;
 
             const mod = CONFIG_MODULOS_SAAS_MESTRE.find(m => m.id === moduloId);
@@ -30334,10 +30333,13 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             // Atualiza imediatamente o modal em tela
             abrirMenuModulosConsultor(consultorId);
 
-            // Atualiza a célula da tabela na hora
+            // Atualiza a visualização em tabela e cards
             const td = document.getElementById(`td-modulos-consultor-${c.id}`);
             if (td && typeof renderizarBotaoMenuModulosConsultor === 'function') {
                 td.innerHTML = renderizarBotaoMenuModulosConsultor(c);
+            }
+            if (typeof aplicarFiltrosErenderizarSuperadmin === 'function') {
+                aplicarFiltrosErenderizarSuperadmin();
             }
 
             try {
@@ -30375,7 +30377,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         window.bloquearTodosModulosConsultor = bloquearTodosModulosConsultor;
 
         async function definirTodosModulosConsultor(consultorId, statusLiberado) {
-            const c = (LISTA_CONSULTORES_SUPERADMIN_CACHE || []).find(x => String(x.id) === String(consultorId));
+            const lista = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || (typeof LISTA_CONSULTORES_SUPERADMIN_CACHE !== 'undefined' && LISTA_CONSULTORES_SUPERADMIN_CACHE) || [];
+            const c = lista.find(x => String(x.id) === String(consultorId));
             if (!c) return;
 
             if (!confirm(`Deseja realmente ${statusLiberado ? 'LIBERAR TODOS os 10 módulos' : 'BLOQUEAR TODOS os módulos'} para o consultor ID ${c.herbalife_id}?`)) {
@@ -30401,6 +30404,9 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const td = document.getElementById(`td-modulos-consultor-${c.id}`);
             if (td && typeof renderizarBotaoMenuModulosConsultor === 'function') {
                 td.innerHTML = renderizarBotaoMenuModulosConsultor(c);
+            }
+            if (typeof aplicarFiltrosErenderizarSuperadmin === 'function') {
+                aplicarFiltrosErenderizarSuperadmin();
             }
 
             try {
