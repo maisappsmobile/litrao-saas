@@ -850,9 +850,25 @@
             }
         }
 
+        // NORMALIZAÇÃO DE STATUS DE PEDIDOS
+        function normalizarStatusPedido(statusRaw) {
+            if (!statusRaw) return 'PENDENTE';
+            const s = String(statusRaw).toUpperCase().trim();
+            if (s === 'CONCLUIDO' || s === 'CONCLUÍDO' || s === 'ENTREGUE' || s === 'FINALIZADO' || s === 'PRONTO_RETIRADA' || s === 'RETIRADA' || s === 'PRONTO') {
+                return 'CONCLUIDO';
+            }
+            if (s === 'EM_ROTA' || s === 'ROTA' || s === 'SAIU_ENTREGA' || s === 'ENTREGA') {
+                return 'EM_ROTA';
+            }
+            if (s === 'PREPARO' || s === 'EM_PREPARO' || s === 'PRODUCAO') {
+                return 'PREPARO';
+            }
+            return 'PENDENTE';
+        }
+
         // EXTRAÇÃO DE DADOS DE PEDIDO
         function extrairDadosPedidoItem(item) {
-            if (!item) return {};
+            if (!item) return { status: 'PENDENTE' };
             let dados = {};
             const raw = item.como_foi_semana || item.observacoes || '';
             const match = raw.match(/<!--DADOS_PEDIDO:(.*?)-->/);
@@ -861,9 +877,7 @@
                     dados = JSON.parse(match[1]);
                 } catch (e) {}
             }
-            if (!dados.status) {
-                dados.status = 'PENDENTE';
-            }
+            dados.status = normalizarStatusPedido(dados.status);
             return dados;
         }
 
@@ -964,13 +978,13 @@
 
             todosPedidosCentral.forEach(item => {
                 const dados = extrairDadosPedidoItem(item);
-                const st = String(dados.status || 'PENDENTE').toUpperCase();
+                const st = dados.status; // Já normalizado (CONCLUIDO, EM_ROTA, PREPARO ou PENDENTE)
                 const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
                 const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
 
                 if (st === 'CONCLUIDO') {
                     concluidos++;
-                } else if (st === 'EM_ROTA' || st === 'ROTA') {
+                } else if (st === 'EM_ROTA') {
                     rota++;
                 } else if (st === 'PREPARO') {
                     preparo++;
@@ -979,7 +993,7 @@
                     const hid = String(item.herbalife_id || '').trim();
                     const mapaApoio = window.mapaConsultoresApoioGlobal || {};
                     const infoCons = mapaApoio[hid];
-                    const emModoPico = infoCons && infoCons.emModoPico;
+                    const emModoPico = Boolean(infoCons && infoCons.emModoPico);
 
                     if (diffMin >= 4 || emModoPico) {
                         emRisco++;
@@ -1009,6 +1023,13 @@
                     ultimoAlarmeTocadoTimestamp = agoraMs;
                     tocarAlarmeUrgenciaEmpolgado();
                 }
+            } else {
+                // SE NÃO HÁ PEDIDOS EM RISCO, CANCELA A VOZ IMEDIATAMENTE!
+                if ('speechSynthesis' in window) {
+                    try {
+                        window.speechSynthesis.cancel();
+                    } catch (e) {}
+                }
             }
         }
 
@@ -1019,19 +1040,24 @@
 
             const filtrados = todosPedidosCentral.filter(item => {
                 const dados = extrairDadosPedidoItem(item);
-                const st = String(dados.status || 'PENDENTE').toUpperCase();
+                const st = dados.status;
                 const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
                 const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
 
-                // 1. Filtro por Status
+                const hid = String(item.herbalife_id || '').trim();
+                const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+                const infoCons = mapaApoio[hid];
+                const emModoPico = Boolean(infoCons && infoCons.emModoPico);
+
+                // 1. Filtro por Status (COERÊNCIA 100% COM AS MÉTRICAS)
                 if (filtroStatusAtual === 'RISCO') {
-                    if (st !== 'PENDENTE' || diffMin < 4) return false;
+                    if (st !== 'PENDENTE' || (!emModoPico && diffMin < 4)) return false;
                 } else if (filtroStatusAtual === 'NOVOS') {
-                    if (st !== 'PENDENTE' || diffMin >= 4) return false;
+                    if (st !== 'PENDENTE' || (emModoPico || diffMin >= 4)) return false;
                 } else if (filtroStatusAtual === 'PREPARO') {
                     if (st !== 'PREPARO') return false;
                 } else if (filtroStatusAtual === 'ROTA') {
-                    if (st !== 'EM_ROTA' && st !== 'ROTA') return false;
+                    if (st !== 'EM_ROTA') return false;
                 } else if (filtroStatusAtual === 'CONCLUIDO') {
                     if (st !== 'CONCLUIDO') return false;
                 }
@@ -1694,8 +1720,9 @@
             const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
             if (!item) return;
 
+            const stNormalizado = normalizarStatusPedido(novoStatus);
             const dados = extrairDadosPedidoItem(item);
-            dados.status = novoStatus;
+            dados.status = stNormalizado;
 
             let novoComoFoi = item.como_foi_semana || '';
             const tagNovo = `<!--DADOS_PEDIDO:${JSON.stringify(dados)}-->`;
@@ -1714,9 +1741,15 @@
                 if (error) throw error;
 
                 item.como_foi_semana = novoComoFoi;
+
+                // Se o pedido foi concluído ou alterado, silencia a voz de alarme imediatamente
+                if ('speechSynthesis' in window) {
+                    try { window.speechSynthesis.cancel(); } catch(e) {}
+                }
+
                 processarMetricasEDispararAlertas();
                 aplicarFiltrosEBusca();
-                mostrarToast(`Status do Pedido #${pedidoId} alterado para ${novoStatus}!`, 'sucesso');
+                mostrarToast(`Status do Pedido #${pedidoId} alterado para ${stNormalizado}!`, 'sucesso');
             } catch (err) {
                 console.error("Erro ao alterar status:", err);
                 alert("Erro ao alterar status: " + (err.message || err));

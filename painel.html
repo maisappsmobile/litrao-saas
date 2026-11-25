@@ -26832,6 +26832,22 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         // ==========================================
         // GESTÁO E DETALHES DE PEDIDOS (LITRÁO DO RESET)
         // ==========================================
+        function normalizarStatusPedido(statusRaw) {
+            if (!statusRaw) return 'PENDENTE';
+            const s = String(statusRaw).toUpperCase().trim();
+            if (s === 'CONCLUIDO' || s === 'CONCLUÍDO' || s === 'ENTREGUE' || s === 'FINALIZADO' || s === 'PRONTO_RETIRADA' || s === 'RETIRADA' || s === 'PRONTO') {
+                return 'CONCLUIDO';
+            }
+            if (s === 'EM_ROTA' || s === 'ROTA' || s === 'SAIU_ENTREGA' || s === 'ENTREGA') {
+                return 'EM_ROTA';
+            }
+            if (s === 'PREPARO' || s === 'EM_PREPARO' || s === 'PRODUCAO') {
+                return 'PREPARO';
+            }
+            return 'PENDENTE';
+        }
+        window.normalizarStatusPedido = normalizarStatusPedido;
+
         function extrairDadosPedidoItem(item) {
             if (!item) return null;
             let dados = null;
@@ -26891,9 +26907,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                     status: "PENDENTE"
                 };
             }
-            if (!dados.status) {
-                dados.status = "PENDENTE";
-            }
+            dados.status = normalizarStatusPedido(dados.status);
             return dados;
         }
         window.extrairDadosPedidoItem = extrairDadosPedidoItem;
@@ -28262,6 +28276,9 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                                 <i class="fa-solid fa-circle-check text-emerald-400"></i> Nenhum pedido em risco no momento. Toda a rede está atendendo dentro do SLA de 4 minutos!
                             </div>
                         `;
+                        if ('speechSynthesis' in window) {
+                            try { window.speechSynthesis.cancel(); } catch(e) {}
+                        }
                     } else {
                         const listaCons = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || [];
 
@@ -28306,9 +28323,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 let temNovoPedido = false;
                 data.forEach(item => {
                     const idStr = String(item.id);
+                    const dados = extrairDadosPedidoItem(item);
                     if (!window.PEDIDOS_CONHECIDOS_AUDIO_SET.has(idStr)) {
                         window.PEDIDOS_CONHECIDOS_AUDIO_SET.add(idStr);
-                        if (window.PEDIDOS_CONHECIDOS_AUDIO_SET.size > data.length) {
+                        // Só toca se for um pedido novo recente que ainda esteja PENDENTE
+                        if (window.PEDIDOS_CONHECIDOS_AUDIO_SET.size > data.length && dados?.status === 'PENDENTE') {
                             temNovoPedido = true;
                         }
                     }
