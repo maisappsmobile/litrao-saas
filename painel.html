@@ -3130,6 +3130,99 @@
                     </div>
                 </div>
 
+                <!-- CARD SUPERADMIN: CENTRAL DE ATENDIMENTO & TRIPLA GARANTIA ANTI-PERDA DE PEDIDOS (4 MINUTOS) -->
+                <div id="card-superadmin-central-pedidos" class="mb-5 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-4 sm:p-6 border-2 border-purple-400/50 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                            <div>
+                                <div class="inline-flex items-center gap-1.5 bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1 shadow-sm">
+                                    <i class="fa-solid fa-headset"></i> Supervisão Geral de Pedidos & SLA 4 Minutos
+                                </div>
+                                <h3 class="text-lg sm:text-2xl font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-shield-halved text-amber-400"></i> Central Anti-Perda de Pedidos da Rede
+                                </h3>
+                                <p class="text-xs text-purple-200 mt-1 max-w-2xl leading-relaxed">
+                                    Se o consultor não confirmar o pedido do catálogo em até <strong>4 minutos</strong>, a Central assume o atendimento imediatamente e notifica o consultor e supervisor para não perder vendas.
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="testarAlertaSonoroTriploSuperadmin()" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center gap-2 shadow-lg cursor-pointer transform hover:scale-105 active:scale-95" title="Testar Som: Bip Comanda + Fala 'Olha o Pedido!' + Moedas do Cofre">
+                                    <i class="fa-solid fa-volume-high text-base"></i>
+                                    <span>Testar Som Triplo ("Olha o Pedido!")</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CONFIGURAÇÃO DO WHATSAPP DA CENTRAL & MÉTRICAS EM TEMPO REAL -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+                            <!-- BLOCO WHATSAPP OFICIAL DA CENTRAL -->
+                            <div class="lg:col-span-5 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i> WhatsApp Oficial da Central
+                                        </span>
+                                        <span class="text-[9px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">Rede Toda</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-300 leading-snug mb-3">
+                                        Este número atende os clientes quando a chave de apoio estiver ligada. Ao alterar aqui, atualiza automaticamente para todos os consultores.
+                                    </p>
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative flex-1">
+                                            <i class="fa-brands fa-whatsapp absolute left-3 top-2.5 text-emerald-400 text-sm"></i>
+                                            <input type="text" id="cfg-superadmin-whatsapp-central" value="+5566981411234" placeholder="+55 66 98141-1234" class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-purple-300/40 rounded-xl text-xs sm:text-sm font-black text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                                        </div>
+                                        <button type="button" onclick="salvarWhatsAppCentralSuperadmin()" class="bg-purple-600 hover:bg-purple-500 text-white font-black py-2 px-3.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer shrink-0">
+                                            <i class="fa-solid fa-floppy-disk"></i> Salvar
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-[10px] text-purple-200/80 flex items-center gap-1">
+                                    <i class="fa-solid fa-lock text-amber-400"></i> Número 100% oculto no painel do consultor (ele só vê a chave Liga/Desliga).
+                                </div>
+                            </div>
+
+                            <!-- MÉTRICAS DE MONITORAMENTO -->
+                            <div class="lg:col-span-7 grid grid-cols-3 gap-2.5 sm:gap-3">
+                                <div class="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/15 flex flex-col justify-between">
+                                    <span class="text-[10px] sm:text-xs font-bold uppercase text-purple-200">Total Pedidos</span>
+                                    <div id="stat-superadmin-total-pedidos" class="text-2xl sm:text-3xl font-black text-white mt-1">0</div>
+                                    <span class="text-[10px] text-purple-300 mt-1">Registrados na rede</span>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/15 flex flex-col justify-between">
+                                    <span class="text-[10px] sm:text-xs font-bold uppercase text-emerald-300">Concluídos</span>
+                                    <div id="stat-superadmin-concluidos-pedidos" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">0</div>
+                                    <span class="text-[10px] text-emerald-300/80 mt-1">Entregas feitas</span>
+                                </div>
+                                <div class="bg-rose-500/20 backdrop-blur-md p-3 sm:p-4 rounded-2xl border-2 border-rose-500/50 flex flex-col justify-between relative overflow-hidden">
+                                    <span class="text-[10px] sm:text-xs font-black uppercase text-rose-300 flex items-center gap-1">
+                                        <i class="fa-solid fa-bell text-rose-400 animate-bounce"></i> Em Risco (+4m)
+                                    </span>
+                                    <div id="stat-superadmin-risco-pedidos" class="text-2xl sm:text-3xl font-black text-rose-400 mt-1">0</div>
+                                    <span class="text-[10px] text-rose-300 mt-1 font-bold">Aguardando ação</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONTAINER DE PEDIDOS EM RISCO (+4 MINUTOS) -->
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Pedidos Aguardando Resposta (+4 Minutos)
+                                </span>
+                                <span id="badge-contador-pedidos-risco" class="text-[10px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full">0 em risco</span>
+                            </div>
+                            <div id="container-pedidos-risco-superadmin" class="space-y-2">
+                                <div class="p-3 text-center text-xs text-purple-200/70 bg-white/5 rounded-xl border border-white/10">
+                                    ✅ Nenhum pedido em risco no momento. Todos os consultores estão atendendo dentro do prazo!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 2. BARRA DE CONTROLE: ORGANIZAR DADOS, COLUNAS E VISUALIZAÇÁO -->
                 <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-3 sm:p-4 mb-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                     
@@ -3371,31 +3464,72 @@
 
                     <!-- BLOCO 2: CONTATO & ENDEREÇO -->
                     <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
-                            <i class="fa-solid fa-location-dot text-emerald-600 mr-1.5"></i> Contato & Localização (Endereço)
-                        </h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div class="sm:col-span-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center">
+                                <i class="fa-solid fa-location-dot text-emerald-600 mr-1.5"></i> Contato, Supervisão & Localização (Endereço)
+                            </h4>
+                            <span class="text-[9px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">Atendimento Local</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
                                 <div class="flex items-center justify-between mb-1">
-                                    <label class="block text-xs font-bold text-gray-700">WhatsApp (com DDD) <span class="text-red-500">*</span></label>
+                                    <label class="block text-xs font-bold text-gray-700">WhatsApp Principal (Consultor Local) <span class="text-red-500">*</span></label>
                                     <span class="text-[9px] font-black bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded uppercase">🇧🇷 +55 Auto</span>
                                 </div>
                                 <div class="relative">
                                     <i class="fa-brands fa-whatsapp absolute left-3 top-2.5 text-green-600 text-sm"></i>
-                                    <input type="tel" id="perfil-whatsapp" required oninput="mascararTelefoneSimples(this)" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                    <input type="tel" id="perfil-whatsapp" required oninput="mascararTelefoneSimples(this)" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light" title="Telefone de quem faz as entregas e atende os clientes na sua cidade">
                                 </div>
+                                <p class="text-[10px] text-gray-500 mt-1">Telefone de quem atende e entrega os pedidos na cidade.</p>
                             </div>
-                            <div class="sm:col-span-1">
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Cidade</label>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-gray-700">WhatsApp Supervisor <span class="text-[10px] text-gray-400 font-normal">(Opcional)</span></label>
+                                    <span class="text-[9px] font-black bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded uppercase">Líder / Apoio</span>
+                                </div>
+                                <div class="relative">
+                                    <i class="fa-solid fa-user-shield absolute left-3 top-2.5 text-purple-600 text-sm"></i>
+                                    <input type="tel" id="perfil-whatsapp-supervisor" oninput="mascararTelefoneSimples(this)" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light" title="WhatsApp do seu supervisor para suporte em pedidos">
+                                </div>
+                                <p class="text-[10px] text-gray-500 mt-1">Contato do seu patrocinador/líder para suporte e alertas de pedidos.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Cidade do Espaço / Atendimento</label>
                                 <input type="text" id="perfil-cidade" placeholder="Ex: Juína" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
                             </div>
-                            <div class="sm:col-span-1">
+                            <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Estado (UF)</label>
                                 <select id="perfil-estado" class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
                                     <option value="">Selecione...</option>
                                     <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <!-- CHAVE SIMPLES: APOIO DA CENTRAL DE ATENDIMENTO (GARANTIA ANTI-PERDA DE VENDAS) -->
+                        <div class="mt-2 p-3 bg-gradient-to-r from-purple-50 via-indigo-50 to-emerald-50 rounded-2xl border border-purple-200/80 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-purple-700 text-white flex items-center justify-center text-sm shrink-0 shadow-2xs">
+                                    <i class="fa-solid fa-headset"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-black text-gray-900">Apoio da Central de Atendimento</span>
+                                        <span class="text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded uppercase">Recomendado</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-600 leading-tight mt-0.5">
+                                        Supervisão automática anti-perda: caso você demore mais de 4 minutos para confirmar um pedido do catálogo, a Central dá suporte para não perder a venda.
+                                    </p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0" title="Ativar ou desativar o apoio da Central de Atendimento">
+                                <input type="checkbox" id="perfil-apoio-central" class="sr-only peer" checked>
+                                <div class="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
                         </div>
                     </div>
 
@@ -6199,16 +6333,38 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp (DDD + Número)</label>
-                                <input type="text" id="superadmin-edit-whatsapp" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>WhatsApp Principal (Local)</span>
+                                    <span class="text-[10px] text-emerald-600 font-extrabold">Entregador</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-whatsapp" required placeholder="55..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Status</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>WhatsApp Supervisor</span>
+                                    <span class="text-[10px] text-purple-600 font-extrabold">Opcional</span>
+                                </label>
+                                <input type="text" id="superadmin-edit-whatsapp-supervisor" placeholder="55..." class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Status da Conta</label>
                                 <select id="superadmin-edit-status" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                                     <option value="Ativo">Ativo</option>
                                     <option value="Pendente">Pendente</option>
                                     <option value="Bloqueado">Bloqueado</option>
                                 </select>
+                            </div>
+                            <div class="flex flex-col justify-end">
+                                <label class="p-2.5 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between cursor-pointer select-none">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-headset text-purple-600 text-sm"></i>
+                                        <span class="text-xs font-bold text-purple-950">Apoio Central (4min)</span>
+                                    </div>
+                                    <input type="checkbox" id="superadmin-edit-apoio-central" class="w-4 h-4 text-purple-600 rounded" checked>
+                                </label>
                             </div>
                         </div>
 
@@ -19350,6 +19506,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             document.getElementById('superadmin-edit-letras').value = letrasHerbalife;
             document.getElementById('superadmin-edit-senha').value = senhaPainel;
             document.getElementById('superadmin-edit-whatsapp').value = consultor.whatsapp || '';
+            const inWhatsSupAdm = document.getElementById('superadmin-edit-whatsapp-supervisor');
+            if (inWhatsSupAdm) inWhatsSupAdm.value = dadosConsultor.whatsappSupervisor || '';
+            const chkApoioAdm = document.getElementById('superadmin-edit-apoio-central');
+            if (chkApoioAdm) chkApoioAdm.checked = dadosConsultor.apoioCentral !== false;
             document.getElementById('superadmin-edit-status').value = consultor.status || 'Ativo';
             document.getElementById('superadmin-edit-vencimento').value = consultor.vencimento || '';
             document.getElementById('superadmin-edit-slug').value = consultor.slug || '';
@@ -19501,14 +19661,24 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 };
                 nomeEspacoBase += ` <!--PLANO:${JSON.stringify(planoObj)}-->`;
             }
-            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO e MODULO_CRM_EXTRATOR para não duplicar
+            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO, MODULO_CRM_EXTRATOR, PLANO, WHATSAPP_SUPERVISOR e APOIO_CENTRAL para não duplicar
             const consultorOriginal = ((typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || []).find(c => String(c.id) === String(id));
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|PLANO:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|PLANO:|WHATSAPP_SUPERVISOR:|APOIO_CENTRAL:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
             }
+
+            // WhatsApp do Supervisor (opcional)
+            const zapSupEdit = (document.getElementById('superadmin-edit-whatsapp-supervisor')?.value || '').trim();
+            if (zapSupEdit) {
+                nomeEspacoBase += ` <!--WHATSAPP_SUPERVISOR:${(typeof normalizarNumeroWhatsApp === 'function') ? normalizarNumeroWhatsApp(zapSupEdit) : zapSupEdit}-->`;
+            }
+
+            // Chave de Apoio da Central de Atendimento (Garantia Anti-Perda 4min)
+            const apoioCentralEdit = document.getElementById('superadmin-edit-apoio-central') ? document.getElementById('superadmin-edit-apoio-central').checked : true;
+            nomeEspacoBase += ` <!--APOIO_CENTRAL:${apoioCentralEdit ? 'true' : 'false'}-->`;
 
             // Tag de Liberação do Módulo Financeiro do EVS
             const isFinCheck = document.getElementById('superadmin-edit-financeiro-liberado') ? document.getElementById('superadmin-edit-financeiro-liberado').checked : false;
@@ -26952,96 +27122,135 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 const st = dados?.status || 'PENDENTE';
                 const stConfig = statusStyles[st] || statusStyles['PENDENTE'];
 
+                // Verificação SLA Anti-Perda: 4 Minutos sem confirmação
+                const agoraMs = Date.now();
+                const pedidoMs = pedido.criado_em ? new Date(pedido.criado_em).getTime() : agoraMs;
+                const diffMinutos = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+                const isAtrasado4Min = (st === 'PENDENTE' && diffMinutos >= 4);
+                const cardBorderClass = isAtrasado4Min 
+                    ? 'border-2 border-rose-500 bg-rose-50/50 shadow-md ring-2 ring-rose-200' 
+                    : 'bg-gray-50/70 hover:bg-emerald-50/20 border border-gray-200 hover:border-emerald-300 shadow-xs';
+
                 html += `
-                    <div class="bg-gray-50/70 hover:bg-emerald-50/20 border border-gray-200 hover:border-emerald-300 rounded-2xl p-4 transition shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                        <!-- Coluna 1: Dados do Cliente & Status -->
-                        <div class="min-w-0 xl:w-72">
-                            <div class="flex items-center gap-1.5 flex-wrap mb-1.5">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${stConfig.bg}">
-                                    ${stConfig.label}
-                                </span>
-                                <span class="text-[11px] text-gray-500 font-semibold flex items-center gap-1">
-                                    <i class="fa-regular fa-clock"></i> ${dataFormatada}
-                                </span>
-                                <span class="text-[10px] text-gray-400 font-bold">#${pedido.id}</span>
+                    <div class="${cardBorderClass} rounded-2xl p-4 transition flex flex-col gap-3">
+                        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                            <!-- Coluna 1: Dados do Cliente & Status -->
+                            <div class="min-w-0 xl:w-72">
+                                <div class="flex items-center gap-1.5 flex-wrap mb-1.5">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${stConfig.bg}">
+                                        ${stConfig.label}
+                                    </span>
+                                    ${isAtrasado4Min ? `
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-600 text-white animate-pulse shadow-2xs flex items-center gap-1">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> 🚨 Em Risco (+${diffMinutos}m)
+                                        </span>
+                                    ` : ''}
+                                    <span class="text-[11px] text-gray-500 font-semibold flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i> ${dataFormatada}
+                                    </span>
+                                    <span class="text-[10px] text-gray-400 font-bold">#${pedido.id}</span>
+                                </div>
+                                <div class="text-base font-black text-gray-900 cursor-pointer hover:text-emerald-700 transition" onclick="abrirDetalhesPedido(${pedido.id})">
+                                    ${nomeCliente}
+                                </div>
+                                <div class="text-xs text-gray-600 font-semibold flex items-center gap-2 mt-0.5">
+                                    <span>Whats: <strong>${pedido.whatsapp_cliente || '-'}</strong></span>
+                                    ${whatsLimpo ? `
+                                        <a href="https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}" target="_blank" class="text-green-600 hover:text-green-700 font-bold inline-flex items-center gap-0.5 text-xs">
+                                            <i class="fa-brands fa-whatsapp"></i> Chamar
+                                        </a>
+                                    ` : ''}
+                                </div>
                             </div>
-                            <div class="text-base font-black text-gray-900 cursor-pointer hover:text-emerald-700 transition" onclick="abrirDetalhesPedido(${pedido.id})">
-                                ${nomeCliente}
+
+                            <!-- Coluna 2: Produto Solicitado, Qtd e Pagamento -->
+                            <div class="min-w-0 xl:w-64">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Produto & Valor</span>
+                                <div class="text-sm font-black text-gray-900">${dados.quantidade || 1}x ${dados.produto}</div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-base font-black text-emerald-700">${dados.valor_total}</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-700 uppercase">
+                                        💳 ${dados.forma_pagamento || 'PIX'}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-600 font-semibold flex items-center gap-2 mt-0.5">
-                                <span>Whats: <strong>${pedido.whatsapp_cliente || '-'}</strong></span>
-                                ${whatsLimpo ? `
-                                    <a href="https://wa.me/${normalizarNumeroWhatsApp(whatsLimpo)}" target="_blank" class="text-green-600 hover:text-green-700 font-bold inline-flex items-center gap-0.5 text-xs">
-                                        <i class="fa-brands fa-whatsapp"></i> Chamar
+
+                            <!-- Coluna 3: Modalidade & Rota no Google Maps -->
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 mb-0.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${dados.modalidade === 'ENTREGA' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">
+                                        ${dados.modalidade === 'ENTREGA' ? '🛵 Delivery / Entrega' : '📦 Retirada no Espaço'}
+                                    </span>
+                                </div>
+                                ${dados.modalidade === 'ENTREGA' ? `
+                                    <div class="text-xs font-bold text-gray-900 mt-1 flex items-start gap-1">
+                                        <i class="fa-solid fa-location-dot text-red-500 mt-0.5 flex-shrink-0"></i>
+                                        <span class="truncate" title="${dados.endereco}">${dados.endereco || 'Endereço não informado'}</span>
+                                    </div>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dados.endereco || '')}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 mt-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition w-fit">
+                                        <i class="fa-solid fa-map-location-dot"></i> Abrir Rota GPS no Maps
                                     </a>
+                                ` : `
+                                    <div class="text-xs text-gray-500 mt-0.5 italic">O cliente retirará no seu Espaço.</div>
+                                `}
+                                ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
+                                    <div class="text-[11px] text-amber-800 font-medium italic mt-1 truncate" title="${dados.observacoes}">
+                                        Obs: "${dados.observacoes}"
+                                    </div>
                                 ` : ''}
                             </div>
-                        </div>
 
-                        <!-- Coluna 2: Produto Solicitado, Qtd e Pagamento -->
-                        <div class="min-w-0 xl:w-64">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Produto & Valor</span>
-                            <div class="text-sm font-black text-gray-900">${dados.quantidade || 1}x ${dados.produto}</div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-base font-black text-emerald-700">${dados.valor_total}</span>
-                                <span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-700 uppercase">
-                                    💳 ${dados.forma_pagamento || 'PIX'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Coluna 3: Modalidade & Rota no Google Maps -->
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5 mb-0.5">
-                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${dados.modalidade === 'ENTREGA' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}">
-                                    ${dados.modalidade === 'ENTREGA' ? '🛵 Delivery / Entrega' : '📦 Retirada no Espaço'}
-                                </span>
-                            </div>
-                            ${dados.modalidade === 'ENTREGA' ? `
-                                <div class="text-xs font-bold text-gray-900 mt-1 flex items-start gap-1">
-                                    <i class="fa-solid fa-location-dot text-red-500 mt-0.5 flex-shrink-0"></i>
-                                    <span class="truncate" title="${dados.endereco}">${dados.endereco || 'Endereço não informado'}</span>
+                            <!-- Coluna 4: Ações Rápidas de Despacho & Notificação -->
+                            <div class="flex flex-col sm:flex-row xl:flex-col items-stretch xl:items-end gap-2 flex-shrink-0">
+                                <!-- Seletor Rápido de Status -->
+                                <div class="flex items-center gap-1.5 w-full xl:w-auto">
+                                    <select onchange="atualizarStatusPedidoRapido(${pedido.id}, this.value)" class="w-full xl:w-auto text-xs font-bold border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs">
+                                        <option value="PENDENTE" ${st === 'PENDENTE' ? 'selected' : ''}>🟡 Pendente</option>
+                                        <option value="PREPARO" ${st === 'PREPARO' ? 'selected' : ''}>🥣 Em Preparo</option>
+                                        <option value="SAIU_ENTREGA" ${st === 'SAIU_ENTREGA' ? 'selected' : ''}>🛵 Saiu p/ Entrega</option>
+                                        <option value="PRONTO_RETIRADA" ${st === 'PRONTO_RETIRADA' ? 'selected' : ''}>📦 Pronto Retirada</option>
+                                        <option value="CONCLUIDO" ${st === 'CONCLUIDO' ? 'selected' : ''}>✅ Entregue</option>
+                                        <option value="CANCELADO" ${st === 'CANCELADO' ? 'selected' : ''}>❌ Cancelado</option>
+                                    </select>
                                 </div>
-                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dados.endereco || '')}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 mt-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition w-fit">
-                                    <i class="fa-solid fa-map-location-dot"></i> Abrir Rota GPS no Maps
-                                </a>
-                            ` : `
-                                <div class="text-xs text-gray-500 mt-0.5 italic">O cliente retirará no seu Espaço.</div>
-                            `}
-                            ${dados.observacoes && dados.observacoes !== 'Nenhuma' ? `
-                                <div class="text-[11px] text-amber-800 font-medium italic mt-1 truncate" title="${dados.observacoes}">
-                                    Obs: "${dados.observacoes}"
+
+                                <!-- Botões de Ação Imediata -->
+                                <div class="flex items-center gap-1.5 w-full xl:w-auto justify-end">
+                                    <button onclick="notificarClienteStatusWhatsApp(${pedido.id})" title="Enviar WhatsApp com status atual" class="flex-1 xl:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i> Whats
+                                    </button>
+                                    <button onclick="abrirComandaPedido(${pedido.id})" title="Imprimir comanda do pedido" class="flex-1 xl:flex-initial bg-gray-800 hover:bg-gray-900 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                        <i class="fa-solid fa-print"></i> Comanda
+                                    </button>
+                                    <button onclick="abrirDetalhesPedido(${pedido.id})" title="Ver detalhes completos" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black p-2 rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
                                 </div>
-                            ` : ''}
-                        </div>
-
-                        <!-- Coluna 4: Ações Rápidas de Despacho & Notificação -->
-                        <div class="flex flex-col sm:flex-row xl:flex-col items-stretch xl:items-end gap-2 flex-shrink-0">
-                            <!-- Seletor Rápido de Status -->
-                            <div class="flex items-center gap-1.5 w-full xl:w-auto">
-                                <select onchange="atualizarStatusPedidoRapido(${pedido.id}, this.value)" class="w-full xl:w-auto text-xs font-bold border border-gray-300 rounded-xl px-2.5 py-1.5 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs">
-                                    <option value="PENDENTE" ${st === 'PENDENTE' ? 'selected' : ''}>🟡 Pendente</option>
-                                    <option value="PREPARO" ${st === 'PREPARO' ? 'selected' : ''}>🥣 Em Preparo</option>
-                                    <option value="SAIU_ENTREGA" ${st === 'SAIU_ENTREGA' ? 'selected' : ''}>🛵 Saiu p/ Entrega</option>
-                                    <option value="PRONTO_RETIRADA" ${st === 'PRONTO_RETIRADA' ? 'selected' : ''}>📦 Pronto Retirada</option>
-                                    <option value="CONCLUIDO" ${st === 'CONCLUIDO' ? 'selected' : ''}>✅ Entregue</option>
-                                    <option value="CANCELADO" ${st === 'CANCELADO' ? 'selected' : ''}>❌ Cancelado</option>
-                                </select>
-                            </div>
-
-                            <!-- Botões de Ação Imediata -->
-                            <div class="flex items-center gap-1.5 w-full xl:w-auto justify-end">
-                                <button onclick="notificarClienteStatusWhatsApp(${pedido.id})" title="Enviar WhatsApp com status atual" class="flex-1 xl:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> Whats
-                                </button>
-                                <button onclick="abrirComandaPedido(${pedido.id})" title="Imprimir comanda do pedido" class="flex-1 xl:flex-initial bg-gray-800 hover:bg-gray-900 text-white text-xs font-black px-2.5 py-1.5 rounded-xl transition flex items-center justify-center gap-1 shadow-xs cursor-pointer">
-                                    <i class="fa-solid fa-print"></i> Comanda
-                                </button>
-                                <button onclick="abrirDetalhesPedido(${pedido.id})" title="Ver detalhes completos" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black p-2 rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
                             </div>
                         </div>
+
+                        <!-- BARRA DE TRANSBORDO / ALERTA DE 4 MINUTOS -->
+                        ${isAtrasado4Min ? `
+                            <div class="pt-2.5 border-t border-rose-200 flex flex-wrap items-center justify-between gap-2 bg-rose-100/60 p-2.5 rounded-xl border border-rose-300">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs animate-bounce">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-black text-rose-950 block leading-tight">Alerta de Transbordo Anti-Perda (+${diffMinutos} min)</span>
+                                        <span class="text-[10px] text-rose-700 leading-tight">Consultor não respondeu em 4 minutos. Assuma o atendimento ou cobre resposta imediata!</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <button type="button" onclick="assumirPedidoPelaCentral(${pedido.id})" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer" title="Assumir o atendimento deste pedido pela Central no WhatsApp do Cliente">
+                                        <i class="fa-solid fa-headset text-amber-300"></i> 🏢 Assumir na Central
+                                    </button>
+                                    <button type="button" onclick="cobrarConsultorPedidoPendente(${pedido.id})" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer" title="Cobrar o consultor e supervisor no WhatsApp para responder agora">
+                                        <i class="fa-solid fa-bell"></i> 🚨 Cobrar Consultor
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -27083,6 +27292,391 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             }
         }
         window.atualizarStatusPedidoRapido = atualizarStatusPedidoRapido;
+
+        // ==========================================
+        // CENTRAL DE ATENDIMENTO OFICIAL & TRIPLA GARANTIA ANTI-PERDA DE PEDIDOS (4 MINUTOS)
+        // ==========================================
+        window.CONFIG_CENTRAL_ATENDIMENTO = {
+            get whatsapp() {
+                return localStorage.getItem('cfg_whatsapp_central_oficial') || '+5566981411234';
+            },
+            set whatsapp(val) {
+                if (val) localStorage.setItem('cfg_whatsapp_central_oficial', val);
+            },
+            tempoLimiteAlertaMinutos: 4
+        };
+
+        function salvarWhatsAppCentralSuperadmin() {
+            const inZap = document.getElementById('cfg-superadmin-whatsapp-central');
+            if (!inZap) return;
+            let val = (inZap.value || '').trim();
+            if (!val) {
+                alert("Por favor, informe o WhatsApp oficial da central.");
+                return;
+            }
+            if (typeof normalizarNumeroWhatsApp === 'function') {
+                val = normalizarNumeroWhatsApp(val);
+            }
+            if (!val.startsWith('+')) val = '+' + val;
+            window.CONFIG_CENTRAL_ATENDIMENTO.whatsapp = val;
+            inZap.value = val;
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`✅ WhatsApp Oficial da Central salvo: ${val}! Propagado para toda a rede.`, 'sucesso');
+            } else {
+                alert(`WhatsApp Oficial da Central salvo: ${val}`);
+            }
+        }
+        window.salvarWhatsAppCentralSuperadmin = salvarWhatsAppCentralSuperadmin;
+
+        // ALERTA SONORO TRIPLO: BIP DE COMANDA + "OLHA O PEDIDO!" + MOEDAS CAINDO NO COFRE
+        function tocarAlertaSonoroTriploPedido() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) {
+                    const ctx = new AudioCtx();
+
+                    // 1. BIP DE COMANDA / SINO DELIVERY (0s - 0.5s)
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(880, ctx.currentTime);
+                    osc1.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+                    gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.start(ctx.currentTime);
+                    osc1.stop(ctx.currentTime + 0.4);
+
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1760, ctx.currentTime + 0.18);
+                    gain2.gain.setValueAtTime(0.35, ctx.currentTime + 0.18);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start(ctx.currentTime + 0.18);
+                    osc2.stop(ctx.currentTime + 0.6);
+
+                    // 3. MOEDAS CAINDO NO COFRE (CHA-CHING aos 1.4s)
+                    setTimeout(() => {
+                        try {
+                            const ctxCoins = new (window.AudioContext || window.webkitAudioContext)();
+                            const coinFreqs = [2000, 2600, 3200, 3800, 4400, 3100, 2400];
+                            coinFreqs.forEach((freq, idx) => {
+                                const oscC = ctxCoins.createOscillator();
+                                const gainC = ctxCoins.createGain();
+                                const startTime = ctxCoins.currentTime + (idx * 0.05);
+                                oscC.type = 'triangle';
+                                oscC.frequency.setValueAtTime(freq, startTime);
+                                gainC.gain.setValueAtTime(0.2, startTime);
+                                gainC.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+                                oscC.connect(gainC);
+                                gainC.connect(ctxCoins.destination);
+                                oscC.start(startTime);
+                                oscC.stop(startTime + 0.25);
+                            });
+                        } catch(eC) {}
+                    }, 1400);
+                }
+
+                // 2. VOZ: "OLHA O PEDIDO!" (aos 0.65s)
+                setTimeout(() => {
+                    if ('speechSynthesis' in window) {
+                        try {
+                            window.speechSynthesis.cancel();
+                            const msg = new SpeechSynthesisUtterance('Olha o pedido!');
+                            msg.lang = 'pt-BR';
+                            msg.rate = 1.05;
+                            msg.pitch = 1.25;
+                            window.speechSynthesis.speak(msg);
+                        } catch(eSpeech) {
+                            console.warn("SpeechSynthesis:", eSpeech);
+                        }
+                    }
+                }, 650);
+
+            } catch (err) {
+                console.warn("Alerta sonoro triplo:", err);
+            }
+        }
+        window.tocarAlertaSonoroTriploPedido = tocarAlertaSonoroTriploPedido;
+
+        function testarAlertaSonoroTriploSuperadmin() {
+            tocarAlertaSonoroTriploPedido();
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante('🔊 Tocando: Bip de Comanda + "Olha o Pedido!" + Moedas no Cofre!', 'sucesso');
+            }
+        }
+        window.testarAlertaSonoroTriploSuperadmin = testarAlertaSonoroTriploSuperadmin;
+
+        // 🏢 ASSUMIR ATENDIMENTO PELA CENTRAL NO WHATSAPP DO CLIENTE (PILAR 2)
+        async function assumirPedidoPelaCentral(pedidoId) {
+            let item = null;
+            if (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) {
+                item = todasAvaliacoesCache.find(a => String(a.id) === String(pedidoId));
+            }
+            if (!item && window.PEDIDOS_REDE_SUPERADMIN_CACHE) {
+                item = window.PEDIDOS_REDE_SUPERADMIN_CACHE.find(a => String(a.id) === String(pedidoId));
+            }
+
+            const dados = item ? extrairDadosPedidoItem(item) : {};
+            const nomeCliente = (item && item.nome_cliente) ? limparNomeCliente(item.nome_cliente) : 'Cliente';
+            const whatsCliente = (item && item.whatsapp_cliente) ? item.whatsapp_cliente.replace(/\D/g, '') : '';
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+            const produto = dados.produto || 'Litrão do Reset';
+            const endereco = dados.endereco || '';
+            const modalidade = dados.modalidade === 'ENTREGA' ? 'Entrega / Delivery' : 'Retirada';
+
+            // Busca nome do consultor e cidade
+            let nomeConsultor = 'Consultor da Região';
+            let cidadeConsultor = 'sua cidade';
+            let whatsConsultor = '';
+            let whatsSupervisor = '';
+
+            const listaCons = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || [];
+            if (item && item.herbalife_id) {
+                const cEncontrado = listaCons.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+                if (cEncontrado) {
+                    const dadosC = (typeof extrairDadosPerfilConsultor === 'function') ? extrairDadosPerfilConsultor(cEncontrado) : {};
+                    nomeConsultor = dadosC.nomeConsultor || dadosC.nomeEspaco || cEncontrado.herbalife_id;
+                    cidadeConsultor = dadosC.cidade || 'sua região';
+                    whatsConsultor = cEncontrado.whatsapp || '';
+                    whatsSupervisor = dadosC.whatsappSupervisor || '';
+                }
+            }
+
+            if (!whatsCliente) {
+                alert("WhatsApp do cliente não encontrado neste pedido.");
+                return;
+            }
+
+            const msgCentral = 
+                `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
+                `Olá, *${nomeCliente}*! Tudo bem?\n\n` +
+                `Identificamos o seu pedido *#${pedidoId}* realizado no catálogo de *${nomeConsultor}* em *${cidadeConsultor}*:\n` +
+                `• *Produto:* ${produto}\n` +
+                `• *Total:* ${valorTotal}\n` +
+                `• *Modalidade:* ${modalidade}\n` +
+                (endereco ? `• *Endereço:* ${endereco}\n` : '') +
+                `\nComo o consultor local estava em atendimento externo ou finalizando entregas, nossa *Central assumiu o seu pedido com prioridade máxima* para garantir que você não espere nem um minuto a mais! 🚀\n\n` +
+                `Pode nos confirmar se o seu endereço e a forma de pagamento estão certinhos para despacharmos agora?`;
+
+            const linkZap = `https://wa.me/${normalizarNumeroWhatsApp(whatsCliente)}?text=${encodeURIComponent(msgCentral)}`;
+            window.open(linkZap, '_blank');
+
+            // Atualiza status local e no banco para PREPARO indicando que Central assumiu
+            if (typeof atualizarStatusPedidoRapido === 'function') {
+                atualizarStatusPedidoRapido(pedidoId, 'PREPARO');
+            }
+
+            if (typeof mostrarNotificacaoFlutuante === 'function') {
+                mostrarNotificacaoFlutuante(`🏢 Atendimento do Pedido #${pedidoId} assumido pela Central!`, 'sucesso');
+            }
+        }
+        window.assumirPedidoPelaCentral = assumirPedidoPelaCentral;
+
+        // 🚨 COBRAR CONSULTOR & SUPERVISOR (PILAR 2)
+        function cobrarConsultorPedidoPendente(pedidoId) {
+            let item = null;
+            if (typeof todasAvaliacoesCache !== 'undefined' && todasAvaliacoesCache) {
+                item = todasAvaliacoesCache.find(a => String(a.id) === String(pedidoId));
+            }
+            if (!item && window.PEDIDOS_REDE_SUPERADMIN_CACHE) {
+                item = window.PEDIDOS_REDE_SUPERADMIN_CACHE.find(a => String(a.id) === String(pedidoId));
+            }
+
+            const dados = item ? extrairDadosPedidoItem(item) : {};
+            const nomeCliente = (item && item.nome_cliente) ? limparNomeCliente(item.nome_cliente) : 'Cliente';
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+            const produto = dados.produto || 'Litrão do Reset';
+
+            let nomeConsultor = 'Consultor';
+            let whatsConsultor = '';
+            let whatsSupervisor = '';
+            let cidade = '';
+
+            const listaCons = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || [];
+            if (item && item.herbalife_id) {
+                const cEncontrado = listaCons.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+                if (cEncontrado) {
+                    const dadosC = (typeof extrairDadosPerfilConsultor === 'function') ? extrairDadosPerfilConsultor(cEncontrado) : {};
+                    nomeConsultor = dadosC.nomeConsultor || dadosC.nomeEspaco || cEncontrado.herbalife_id;
+                    cidade = dadosC.cidade || '';
+                    whatsConsultor = (cEncontrado.whatsapp || '').replace(/\D/g, '');
+                    whatsSupervisor = (dadosC.whatsappSupervisor || '').replace(/\D/g, '');
+                }
+            }
+
+            const msgCobrar = 
+                `🚨 *ALERTA URGENTE: PEDIDO PENDENTE HÁ MAIS DE 4 MINUTOS!*\n\n` +
+                `Olá, *${nomeConsultor}*!\n` +
+                `O cliente *${nomeCliente}* realizou o pedido *#${pedidoId}* (${produto} - ${valorTotal})${cidade ? ' em ' + cidade : ''} há mais de 4 minutos no seu catálogo e ainda não recebeu confirmação!\n\n` +
+                `⚠️ *Responda ao cliente imediatamente pelo seu painel para não perder a venda!*\n` +
+                `Se você não puder atender em 2 minutos, a Central irá assumir o pedido para garantir a satisfação do cliente.`;
+
+            if (whatsConsultor) {
+                const linkZapC = `https://wa.me/${normalizarNumeroWhatsApp(whatsConsultor)}?text=${encodeURIComponent(msgCobrar)}`;
+                window.open(linkZapC, '_blank');
+            } else {
+                alert("WhatsApp do consultor não encontrado.");
+            }
+
+            // Se houver supervisor cadastrado, envia alerta também
+            if (whatsSupervisor && whatsSupervisor !== whatsConsultor) {
+                const msgSup = 
+                    `📢 *SUPERVISÃO DE PEDIDOS - CENTRAL LITRÃO DO RESET*\n\n` +
+                    `Olá, Supervisor! O consultor *${nomeConsultor}* recebeu o pedido *#${pedidoId}* do cliente *${nomeCliente}* (${valorTotal}) e está há mais de 4 minutos sem responder.\n\n` +
+                    `Estamos acionando o consultor para agilizar a entrega imediata.`;
+                setTimeout(() => {
+                    const linkZapS = `https://wa.me/${normalizarNumeroWhatsApp(whatsSupervisor)}?text=${encodeURIComponent(msgSup)}`;
+                    window.open(linkZapS, '_blank');
+                }, 800);
+            }
+        }
+        window.cobrarConsultorPedidoPendente = cobrarConsultorPedidoPendente;
+
+        // ATUALIZAÇÃO DO MONITORAMENTO DE PEDIDOS NO CARD DO SUPERADMIN
+        window.PEDIDOS_REDE_SUPERADMIN_CACHE = [];
+        window.PEDIDOS_CONHECIDOS_AUDIO_SET = new Set();
+
+        async function atualizarMetricasCentralSuperadmin() {
+            try {
+                if (!supabaseClient || typeof supabaseClient.from !== 'function') return;
+
+                // Busca últimos pedidos da rede
+                const { data, error } = await supabaseClient
+                    .from('avaliacoes')
+                    .select('*')
+                    .or('codigo_acesso.eq.PEDIDO,nome_cliente.ilike.%[PEDIDO]%,como_foi_semana.ilike.%<!--DADOS_PEDIDO:%')
+                    .order('criado_em', { ascending: false })
+                    .limit(60);
+
+                if (error || !data) return;
+
+                window.PEDIDOS_REDE_SUPERADMIN_CACHE = data;
+
+                let totalPedidos = data.length;
+                let concluidos = 0;
+                let pedidosEmRisco = [];
+
+                const agoraMs = Date.now();
+                data.forEach(item => {
+                    const dados = extrairDadosPedidoItem(item);
+                    const st = dados?.status || 'PENDENTE';
+                    if (st === 'CONCLUIDO') concluidos++;
+
+                    const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
+                    const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+
+                    if (st === 'PENDENTE' && diffMin >= 4) {
+                        pedidosEmRisco.push({ item, dados, diffMin });
+                    }
+                });
+
+                // Atualiza contadores visuais do Card SuperAdmin
+                const elTotal = document.getElementById('stat-superadmin-total-pedidos');
+                if (elTotal) elTotal.innerText = totalPedidos;
+
+                const elConc = document.getElementById('stat-superadmin-concluidos-pedidos');
+                if (elConc) elConc.innerText = concluidos;
+
+                const elRisco = document.getElementById('stat-superadmin-risco-pedidos');
+                if (elRisco) elRisco.innerText = pedidosEmRisco.length;
+
+                const badgeRisco = document.getElementById('badge-contador-pedidos-risco');
+                if (badgeRisco) badgeRisco.innerText = `${pedidosEmRisco.length} em risco`;
+
+                // Renderiza container de pedidos em risco
+                const contRisco = document.getElementById('container-pedidos-risco-superadmin');
+                if (contRisco) {
+                    if (pedidosEmRisco.length === 0) {
+                        contRisco.innerHTML = `
+                            <div class="p-3.5 text-center text-xs text-purple-200/80 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i> Nenhum pedido em risco no momento. Toda a rede está atendendo dentro do SLA de 4 minutos!
+                            </div>
+                        `;
+                    } else {
+                        const listaCons = (typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || (window.todosConsultoresCache) || [];
+
+                        contRisco.innerHTML = pedidosEmRisco.map(({ item, dados, diffMin }) => {
+                            const nomeCli = limparNomeCliente(item.nome_cliente) || 'Cliente';
+                            const cEncontrado = listaCons.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+                            const dadosC = cEncontrado ? extrairDadosPerfilConsultor(cEncontrado) : {};
+                            const nomeCons = dadosC.nomeConsultor || dadosC.nomeEspaco || item.herbalife_id;
+                            const cidade = dadosC.cidade || 'Não informada';
+
+                            return `
+                                <div class="bg-rose-950/60 border border-rose-500/60 p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-xs font-black text-white">#${item.id} • ${nomeCli}</span>
+                                            <span class="text-[10px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full animate-pulse">
+                                                🚨 +${diffMin} MINUTOS SEM RESPOSTA
+                                            </span>
+                                            <span class="text-[11px] font-black text-amber-300">${dados.valor_total || 'R$ 0,00'}</span>
+                                        </div>
+                                        <div class="text-[11px] text-purple-200 mt-1 flex items-center gap-2 flex-wrap">
+                                            <span>Consultor: <strong>${nomeCons}</strong></span>
+                                            <span>• Cidade: <strong>${cidade}</strong></span>
+                                            <span>• Whats: <strong>${item.whatsapp_cliente || '-'}</strong></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <button type="button" onclick="assumirPedidoPelaCentral(${item.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                                            <i class="fa-solid fa-headset text-amber-300"></i> Assumir na Central
+                                        </button>
+                                        <button type="button" onclick="cobrarConsultorPedidoPendente(${item.id})" class="bg-rose-600 hover:bg-rose-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                                            <i class="fa-solid fa-bell animate-bounce"></i> Cobrar Consultor
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                // DETECÇÃO DE NOVO PEDIDO PARA TOCAR O ALERTA SONORO TRIPLO AUTOMÁTICO
+                let temNovoPedido = false;
+                data.forEach(item => {
+                    const idStr = String(item.id);
+                    if (!window.PEDIDOS_CONHECIDOS_AUDIO_SET.has(idStr)) {
+                        window.PEDIDOS_CONHECIDOS_AUDIO_SET.add(idStr);
+                        if (window.PEDIDOS_CONHECIDOS_AUDIO_SET.size > data.length) {
+                            temNovoPedido = true;
+                        }
+                    }
+                });
+
+                if (temNovoPedido) {
+                    tocarAlertaSonoroTriploPedido();
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante('🔔 Novo Pedido Recebido no Catálogo!', 'sucesso');
+                    }
+                }
+
+            } catch(eMon) {
+                console.warn("Monitoramento central pedidos:", eMon);
+            }
+        }
+        window.atualizarMetricasCentralSuperadmin = atualizarMetricasCentralSuperadmin;
+
+        // INICIALIZA MONITORAMENTO PERIÓDICO (15s)
+        function iniciarMonitoramentoPedidosSupabase() {
+            if (window._intervaloMonitoramentoPedidosCentral) return;
+            setTimeout(atualizarMetricasCentralSuperadmin, 2000);
+            window._intervaloMonitoramentoPedidosCentral = setInterval(atualizarMetricasCentralSuperadmin, 15000);
+        }
+        window.iniciarMonitoramentoPedidosSupabase = iniciarMonitoramentoPedidosSupabase;
+
+        if (typeof document !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', iniciarMonitoramentoPedidosSupabase);
+            } else {
+                iniciarMonitoramentoPedidosSupabase();
+            }
+        }
 
         // ==========================================
         // GERAR / VISUALIZAR / BAIXAR / COMPARTILHAR RELATÓRIO EM FOTO (PNG)
@@ -28465,6 +29059,20 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 try { precosKits = JSON.parse(matchPrecos[1]) || {}; } catch(_) {}
             }
 
+            // 1.3 WhatsApp Supervisor
+            let whatsappSupervisor = '';
+            const matchSup = raw.match(/<!--WHATSAPP_SUPERVISOR:(.*?)-->/);
+            if (matchSup && matchSup[1]) {
+                whatsappSupervisor = matchSup[1].trim();
+            }
+
+            // 1.4 Apoio Central (Garantia Anti-Perda)
+            let apoioCentral = true;
+            const matchApoio = raw.match(/<!--APOIO_CENTRAL:(.*?)-->/);
+            if (matchApoio && matchApoio[1] === 'false') {
+                apoioCentral = false;
+            }
+
             // 2. Limpa tags HTML
             let textoLimpo = raw.replace(/<!--.*?-->/g, '').trim();
 
@@ -28513,7 +29121,9 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 estado,
                 sociais,
                 pix,
-                precosKits
+                precosKits,
+                whatsappSupervisor,
+                apoioCentral
             };
         }
 
@@ -28549,6 +29159,12 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
                 const inWhats = document.getElementById('perfil-whatsapp');
                 if (inWhats) inWhats.value = formatarTelefoneBrasil(consultorAtual.whatsapp || '');
+
+                const inWhatsSup = document.getElementById('perfil-whatsapp-supervisor');
+                if (inWhatsSup) inWhatsSup.value = formatarTelefoneBrasil(dados.whatsappSupervisor || '');
+
+                const chkApoio = document.getElementById('perfil-apoio-central');
+                if (chkApoio) chkApoio.checked = dados.apoioCentral !== false;
 
                 const inCidade = document.getElementById('perfil-cidade');
                 if (inCidade) inCidade.value = dados.cidade || '';
@@ -28732,8 +29348,18 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 }
             }
 
-            // Preserva outras tags extras existentes, ignorando SOCIAIS, PIX, PRECOS_KITS, SENHA e NIVEL_COMPRA para não duplicar
-            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:|PRECOS_KITS:|SENHA:|NIVEL_COMPRA:).*?-->/g);
+            // WhatsApp do Supervisor (opcional)
+            let zapSupervisor = (document.getElementById('perfil-whatsapp-supervisor')?.value || '').replace(/\D/g, '');
+            if (zapSupervisor && zapSupervisor.length >= 10) {
+                nomeEspacoCompleto += ` <!--WHATSAPP_SUPERVISOR:${normalizarNumeroWhatsApp(zapSupervisor)}-->`;
+            }
+
+            // Chave de Apoio da Central de Atendimento (Garantia Anti-Perda)
+            const apoioCentralMarcado = document.getElementById('perfil-apoio-central') ? document.getElementById('perfil-apoio-central').checked : true;
+            nomeEspacoCompleto += ` <!--APOIO_CENTRAL:${apoioCentralMarcado ? 'true' : 'false'}-->`;
+
+            // Preserva outras tags extras existentes, ignorando SOCIAIS, PIX, PRECOS_KITS, SENHA, NIVEL_COMPRA, WHATSAPP_SUPERVISOR e APOIO_CENTRAL para não duplicar
+            const matchComentarios = rawAntigo.match(/<!--(?!SOCIAIS:|PIX:|PRECOS_KITS:|SENHA:|NIVEL_COMPRA:|WHATSAPP_SUPERVISOR:|APOIO_CENTRAL:).*?-->/g);
             if (matchComentarios) {
                 nomeEspacoCompleto += ' ' + matchComentarios.join(' ');
             }

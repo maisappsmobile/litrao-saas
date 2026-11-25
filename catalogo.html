@@ -660,6 +660,9 @@
             <a id="btn-reabrir-zap-sacola" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition mb-2">
                 <i class="fa-brands fa-whatsapp text-base"></i> Abrir WhatsApp do Consultor Novamente
             </a>
+            <a id="btn-contingencia-central-sacola" href="#" target="_blank" class="w-full bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition mb-2 hidden">
+                <i class="fa-solid fa-headset text-amber-300"></i> Confirmar também com a Central de Atendimento
+            </a>
             <button type="button" onclick="fecharModalSucessoSacola()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-xs transition cursor-pointer">
                 Continuar Navegando no Catálogo
             </button>
@@ -4115,6 +4118,27 @@
             if (totalSucEl) totalSucEl.innerText = totalFormatado;
             if (itensCountSucEl) itensCountSucEl.innerText = `${sacolaItens.length} produto(s) diferente(s)`;
             if (btnReabrir) btnReabrir.href = linkZapFinal;
+
+            // Botão de Contingência com a Central de Atendimento (se chave de apoio estiver ativa)
+            const btnContingenciaCentral = document.getElementById('btn-contingencia-central-sacola');
+            if (btnContingenciaCentral) {
+                const temApoioCentral = !String(consultorAtual.nome_espaco || '').includes('<!--APOIO_CENTRAL:false-->');
+                if (temApoioCentral) {
+                    const zapCentralOficial = (localStorage.getItem('cfg_whatsapp_central_oficial') || '+5566981411234').replace(/\D/g, '');
+                    const nomeConsultorLimpo = (consultorAtual.nome_espaco || '').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].replace(/^•\s*/, '').trim();
+                    const msgCentralContingencia = 
+                        `🏢 *CONFIRMAÇÃO COM A CENTRAL DE PEDIDOS - LITRÃO DO RESET*\n\n` +
+                        `Olá, Central de Atendimento! Acabei de enviar um pedido no Catálogo Digital de *${nomeConsultorLimpo}*:\n` +
+                        `• *Total:* ${totalFormatado}\n` +
+                        `• *Cliente:* ${nomeCliente} (${whatsClienteCompleto})\n` +
+                        (enderecoCliente ? `• *Endereço:* ${enderecoCliente}\n` : '') +
+                        `\nGostaria de confirmar o atendimento e acompanhar o preparo/entrega com prioridade! 🚀`;
+                    btnContingenciaCentral.href = `https://wa.me/${zapCentralOficial}?text=${encodeURIComponent(msgCentralContingencia)}`;
+                    btnContingenciaCentral.classList.remove('hidden');
+                } else {
+                    btnContingenciaCentral.classList.add('hidden');
+                }
+            }
 
             // Limpa a sacola e reseta botões
             sacolaItens = [];

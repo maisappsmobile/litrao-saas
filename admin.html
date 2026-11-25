@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -832,6 +832,26 @@
                                 </div>
                             </div>
                             <input type="checkbox" id="edit-status-fundador" class="w-5 h-5 text-amber-600 rounded">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- WHATSAPP SUPERVISOR & CHAVE APOIO CENTRAL (ANTI-PERDA 4 MIN) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                            <span>WhatsApp Supervisor</span>
+                            <span class="text-[10px] text-purple-700 font-extrabold">Opcional</span>
+                        </label>
+                        <input type="text" id="edit-whatsapp-supervisor" placeholder="55..." class="w-full px-3 py-2.5 border border-gray-300 bg-gray-50 rounded-xl font-bold text-sm text-gray-800 focus:border-purple-500 outline-none">
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <label class="w-full p-2.5 bg-purple-50 border border-purple-200 rounded-xl flex items-center justify-between cursor-pointer select-none">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-headset text-purple-600 text-sm"></i>
+                                <span class="text-xs font-bold text-purple-950">Apoio Central (4min)</span>
+                            </div>
+                            <input type="checkbox" id="edit-apoio-central" class="w-5 h-5 text-purple-600 rounded" checked>
                         </label>
                     </div>
                 </div>
@@ -1851,6 +1871,22 @@
             if (document.getElementById('edit-crm-extrator-liberado')) {
                 document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
             }
+
+            // WhatsApp Supervisor e Apoio Central
+            let zapSup = '';
+            if (consultor && consultor.nome_espaco) {
+                const matchSup = consultor.nome_espaco.match(/<!--WHATSAPP_SUPERVISOR:(.*?)-->/);
+                if (matchSup && matchSup[1]) zapSup = matchSup[1].trim();
+            }
+            const inZapSupAdmin = document.getElementById('edit-whatsapp-supervisor');
+            if (inZapSupAdmin) inZapSupAdmin.value = zapSup;
+
+            const chkApoioAdmin = document.getElementById('edit-apoio-central');
+            if (chkApoioAdmin) {
+                const temApoio = !String(consultor && consultor.nome_espaco || '').includes('<!--APOIO_CENTRAL:false-->');
+                chkApoioAdmin.checked = temApoio;
+            }
+
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
@@ -1951,6 +1987,22 @@
             if (document.getElementById('edit-crm-extrator-liberado')) {
                 document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
             }
+
+            // WhatsApp Supervisor e Apoio Central
+            let zapSup = '';
+            if (consultor && consultor.nome_espaco) {
+                const matchSup = consultor.nome_espaco.match(/<!--WHATSAPP_SUPERVISOR:(.*?)-->/);
+                if (matchSup && matchSup[1]) zapSup = matchSup[1].trim();
+            }
+            const inZapSupAdmin = document.getElementById('edit-whatsapp-supervisor');
+            if (inZapSupAdmin) inZapSupAdmin.value = zapSup;
+
+            const chkApoioAdmin = document.getElementById('edit-apoio-central');
+            if (chkApoioAdmin) {
+                const temApoio = !String(consultor && consultor.nome_espaco || '').includes('<!--APOIO_CENTRAL:false-->');
+                chkApoioAdmin.checked = temApoio;
+            }
+
             document.getElementById('modal-editar').classList.remove('hidden');
         }
         function fecharModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
@@ -2166,6 +2218,19 @@
                 if (isFundadorCheck) {
                     raw += ' <!--CONDICAO:FUNDADOR-->';
                 }
+
+                // Atualiza tag WhatsApp Supervisor
+                const zapSupVal = (document.getElementById('edit-whatsapp-supervisor')?.value || '').trim();
+                raw = raw.replace(/<!--WHATSAPP_SUPERVISOR:[\s\S]*?-->/g, '').trim();
+                if (zapSupVal) {
+                    const zapSupNorm = (typeof normalizarNumeroWhatsApp === 'function') ? normalizarNumeroWhatsApp(zapSupVal) : zapSupVal;
+                    raw += ` <!--WHATSAPP_SUPERVISOR:${zapSupNorm}-->`;
+                }
+
+                // Atualiza tag Apoio Central
+                const apoioCent = document.getElementById('edit-apoio-central') ? document.getElementById('edit-apoio-central').checked : true;
+                raw = raw.replace(/<!--APOIO_CENTRAL:[\s\S]*?-->/g, '').trim();
+                raw += ` <!--APOIO_CENTRAL:${apoioCent ? 'true' : 'false'}-->`;
 
                 await supabaseClient.from('consultores').update({
                     status: st,
@@ -2557,7 +2622,6 @@
 
 </body>
 </html>
-
 
 
 
