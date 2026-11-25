@@ -3467,7 +3467,7 @@
                                 </div>
                                 <div class="relative">
                                     <i class="fa-brands fa-whatsapp absolute left-3 top-2.5 text-green-600 text-sm"></i>
-                                    <input type="tel" id="perfil-whatsapp" required oninput="mascararTelefoneSimples(this)" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light" title="Telefone de quem faz as entregas e atende os clientes na sua cidade">
+                                    <input type="tel" id="perfil-whatsapp" required oninput="mascararTelefoneSimples(this); if (typeof aoDigitarWhatsAppPerfil === 'function') aoDigitarWhatsAppPerfil(this);" placeholder="(00) 00000-0000" class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light" title="Telefone de quem faz as entregas e atende os clientes na sua cidade">
                                 </div>
                                 <p class="text-[10px] text-gray-500 mt-1">Telefone de quem atende e entrega os pedidos na cidade.</p>
                             </div>
@@ -3487,14 +3487,22 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Cidade do Espaço / Atendimento</label>
-                                <input type="text" id="perfil-cidade" placeholder="Ex: Juína" class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-map-location-dot text-emerald-600 mr-1"></i> Estado (UF) <span class="text-emerald-600">*</span></span>
+                                    <span class="text-[10px] text-gray-400 font-semibold">1º Escolha o Estado</span>
+                                </label>
+                                <select id="perfil-estado" onchange="aoMudarEstadoPerfil(this.value)" class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light cursor-pointer">
+                                    <option value="">Selecione o Estado...</option>
+                                    <option value="AC">AC - Acre</option><option value="AL">AL - Alagoas</option><option value="AP">AP - Amapá</option><option value="AM">AM - Amazonas</option><option value="BA">BA - Bahia</option><option value="CE">CE - Ceará</option><option value="DF">DF - Distrito Federal</option><option value="ES">ES - Espírito Santo</option><option value="GO">GO - Goiás</option><option value="MA">MA - Maranhão</option><option value="MT">MT - Mato Grosso</option><option value="MS">MS - Mato Grosso do Sul</option><option value="MG">MG - Minas Gerais</option><option value="PA">PA - Pará</option><option value="PB">PB - Paraíba</option><option value="PR">PR - Paraná</option><option value="PE">PE - Pernambuco</option><option value="PI">PI - Piauí</option><option value="RJ">RJ - Rio de Janeiro</option><option value="RN">RN - Rio Grande do Norte</option><option value="RS">RS - Rio Grande do Sul</option><option value="RO">RO - Rondônia</option><option value="RR">RR - Roraima</option><option value="SC">SC - Santa Catarina</option><option value="SP">SP - São Paulo</option><option value="SE">SE - Sergipe</option><option value="TO">TO - Tocantins</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Estado (UF)</label>
-                                <select id="perfil-estado" class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light">
-                                    <option value="">Selecione...</option>
-                                    <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                <label class="block text-xs font-bold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-city text-emerald-600 mr-1"></i> Cidade do Espaço / Atendimento</span>
+                                    <span id="badge-perfil-cidade-total" class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">2º Escolha a Cidade</span>
+                                </label>
+                                <select id="perfil-cidade" class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-light cursor-pointer">
+                                    <option value="">Selecione o Estado primeiro...</option>
                                 </select>
                             </div>
                         </div>
@@ -6276,22 +6284,25 @@
                             <input type="text" id="superadmin-edit-nome-espaco" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
                         </div>
 
-                        <!-- CIDADE E ESTADO (UF) DO CONSULTOR -->
+                        <!-- ESTADO (UF) E CIDADE DO CONSULTOR -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-purple-50/50 p-3 rounded-2xl border border-purple-200">
-                            <div class="sm:col-span-2">
-                                <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
-                                    <span><i class="fa-solid fa-city text-purple-600 mr-1"></i> Cidade do Consultor / Espaço</span>
-                                    <span class="text-[10px] text-purple-600 font-extrabold">Aparece no Link</span>
-                                </label>
-                                <input type="text" id="superadmin-edit-cidade" placeholder="Ex: Primavera do Leste, Juína, etc." class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
                                     <span><i class="fa-solid fa-map-location-dot text-purple-600 mr-1"></i> Estado (UF)</span>
+                                    <span class="text-[9px] text-purple-700 font-extrabold uppercase">1º Estado</span>
                                 </label>
-                                <select id="superadmin-edit-estado" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <select id="superadmin-edit-estado" onchange="aoMudarEstadoSuperadminEdit(this.value)" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer">
                                     <option value="">Selecione...</option>
-                                    <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                    <option value="AC">AC - Acre</option><option value="AL">AL - Alagoas</option><option value="AP">AP - Amapá</option><option value="AM">AM - Amazonas</option><option value="BA">BA - Bahia</option><option value="CE">CE - Ceará</option><option value="DF">DF - Distrito Federal</option><option value="ES">ES - Espírito Santo</option><option value="GO">GO - Goiás</option><option value="MA">MA - Maranhão</option><option value="MT">MT - Mato Grosso</option><option value="MS">MS - Mato Grosso do Sul</option><option value="MG">MG - Minas Gerais</option><option value="PA">PA - Pará</option><option value="PB">PB - Paraíba</option><option value="PR">PR - Paraná</option><option value="PE">PE - Pernambuco</option><option value="PI">PI - Piauí</option><option value="RJ">RJ - Rio de Janeiro</option><option value="RN">RN - Rio Grande do Norte</option><option value="RS">RS - Rio Grande do Sul</option><option value="RO">RO - Rondônia</option><option value="RR">RR - Roraima</option><option value="SC">SC - Santa Catarina</option><option value="SP">SP - São Paulo</option><option value="SE">SE - Sergipe</option><option value="TO">TO - Tocantins</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-purple-950 mb-1 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-city text-purple-600 mr-1"></i> Cidade do Consultor / Espaço</span>
+                                    <span id="badge-superadmin-edit-cidade-total" class="text-[10px] text-purple-700 font-extrabold bg-purple-100/80 px-1.5 py-0.2 rounded border border-purple-300">2º Escolha a Cidade</span>
+                                </label>
+                                <select id="superadmin-edit-cidade" class="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer">
+                                    <option value="">Selecione o Estado primeiro...</option>
                                 </select>
                             </div>
                         </div>
@@ -18218,6 +18229,90 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
         }
         window.aoDigitarWhatsAppRede = aoDigitarWhatsAppRede;
 
+        async function povoarSelectCidadesGenerico(selectCidade, uf, cidadeSugerida = '', badgeTotal = null) {
+            if (!selectCidade) return;
+
+            if (!uf) {
+                selectCidade.innerHTML = '<option value="">Primeiro selecione o Estado...</option>';
+                selectCidade.disabled = true;
+                if (badgeTotal) badgeTotal.innerText = 'Selecione a UF';
+                return;
+            }
+
+            selectCidade.disabled = false;
+            selectCidade.innerHTML = `<option value="">⏳ Carregando cidades de ${uf}...</option>`;
+            if (badgeTotal) badgeTotal.innerText = `Carregando ${uf}...`;
+
+            const cidades = await carregarCidadesDoEstado(uf);
+
+            if (!cidades || cidades.length === 0) {
+                selectCidade.innerHTML = `<option value="">Nenhuma cidade encontrada para ${uf}</option>`;
+                if (badgeTotal) badgeTotal.innerText = `${uf}`;
+                return;
+            }
+
+            let opts = `<option value="">Selecione a cidade (${cidades.length} disponíveis)...</option>`;
+            let encontrou = false;
+            const cidNormSugerida = (typeof normalizarTextoBusca === 'function') ? normalizarTextoBusca(cidadeSugerida) : (cidadeSugerida || '').toUpperCase();
+
+            cidades.forEach(c => {
+                const cNorm = (typeof normalizarTextoBusca === 'function') ? normalizarTextoBusca(c) : c.toUpperCase();
+                let isSelected = false;
+                if (cidNormSugerida && (cNorm === cidNormSugerida || cNorm.includes(cidNormSugerida) || cidNormSugerida.includes(cNorm))) {
+                    isSelected = true;
+                    encontrou = true;
+                }
+                opts += `<option value="${c}" ${isSelected ? 'selected' : ''}>${c}</option>`;
+            });
+
+            if (cidadeSugerida && !encontrou) {
+                opts = `<option value="${cidadeSugerida}" selected>${cidadeSugerida}</option>` + opts;
+            }
+
+            selectCidade.innerHTML = opts;
+            if (badgeTotal) {
+                badgeTotal.innerText = `${cidades.length} cidades em ${uf}`;
+            }
+
+            if (cidadeSugerida) {
+                const achou = cidades.find(c => {
+                    const cNorm = (typeof normalizarTextoBusca === 'function') ? normalizarTextoBusca(c) : c.toUpperCase();
+                    return cNorm === cidNormSugerida;
+                });
+                if (achou) {
+                    selectCidade.value = achou;
+                } else {
+                    selectCidade.value = cidadeSugerida;
+                }
+            }
+        }
+        window.povoarSelectCidadesGenerico = povoarSelectCidadesGenerico;
+
+        async function aoMudarEstadoPerfil(uf, cidadeSugerida = '') {
+            const selectCidade = document.getElementById('perfil-cidade');
+            const badge = document.getElementById('badge-perfil-cidade-total');
+            await povoarSelectCidadesGenerico(selectCidade, uf, cidadeSugerida, badge);
+        }
+        window.aoMudarEstadoPerfil = aoMudarEstadoPerfil;
+
+        function aoDigitarWhatsAppPerfil(el) {
+            const val = typeof el === 'string' ? el : (el ? el.value : '');
+            const uf = (typeof obterEstadoPorDdd === 'function') ? obterEstadoPorDdd(val) : '';
+            const selectEstado = document.getElementById('perfil-estado');
+            if (uf && selectEstado && (!selectEstado.value || selectEstado.value !== uf)) {
+                selectEstado.value = uf;
+                aoMudarEstadoPerfil(uf);
+            }
+        }
+        window.aoDigitarWhatsAppPerfil = aoDigitarWhatsAppPerfil;
+
+        async function aoMudarEstadoSuperadminEdit(uf, cidadeSugerida = '') {
+            const selectCidade = document.getElementById('superadmin-edit-cidade');
+            const badge = document.getElementById('badge-superadmin-edit-cidade-total');
+            await povoarSelectCidadesGenerico(selectCidade, uf, cidadeSugerida, badge);
+        }
+        window.aoMudarEstadoSuperadminEdit = aoMudarEstadoSuperadminEdit;
+
         function abrirModalCadastrarConsultorRede() {
             const modal = document.getElementById('modal-cadastrar-consultor-rede');
             if (modal) modal.classList.remove('hidden');
@@ -19461,8 +19556,16 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             }
 
             document.getElementById('superadmin-edit-nome-espaco').value = nomeBaseExibicao;
-            document.getElementById('superadmin-edit-cidade').value = dadosConsultor.cidade || '';
-            document.getElementById('superadmin-edit-estado').value = (dadosConsultor.estado || '').toUpperCase();
+            let ufEdit = (dadosConsultor.estado || '').toUpperCase();
+            if (!ufEdit && consultor && consultor.whatsapp) {
+                ufEdit = (typeof obterEstadoPorDdd === 'function') ? obterEstadoPorDdd(consultor.whatsapp) : '';
+            }
+            if (!ufEdit) ufEdit = 'MT';
+            const selEstEdit = document.getElementById('superadmin-edit-estado');
+            if (selEstEdit) selEstEdit.value = ufEdit;
+            if (typeof aoMudarEstadoSuperadminEdit === 'function') {
+                aoMudarEstadoSuperadminEdit(ufEdit, dadosConsultor.cidade || '');
+            }
 
             let sociaisObj = {};
             if (consultor.nome_espaco && consultor.nome_espaco.includes('<!--SOCIAIS:')) {
@@ -29155,11 +29258,17 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 const chkApoio = document.getElementById('perfil-apoio-central');
                 if (chkApoio) chkApoio.checked = dados.apoioCentral !== false;
 
-                const inCidade = document.getElementById('perfil-cidade');
-                if (inCidade) inCidade.value = dados.cidade || '';
-
                 const inEstado = document.getElementById('perfil-estado');
-                if (inEstado) inEstado.value = dados.estado || '';
+                let ufPerfil = (dados.estado || '').toUpperCase();
+                if (!ufPerfil && consultorAtual && consultorAtual.whatsapp) {
+                    ufPerfil = (typeof obterEstadoPorDdd === 'function') ? obterEstadoPorDdd(consultorAtual.whatsapp) : '';
+                }
+                if (!ufPerfil) ufPerfil = 'MT';
+
+                if (inEstado) inEstado.value = ufPerfil;
+                if (typeof aoMudarEstadoPerfil === 'function') {
+                    aoMudarEstadoPerfil(ufPerfil, dados.cidade || '');
+                }
 
                 const inIg = document.getElementById('perfil-instagram');
                 if (inIg) inIg.value = (dados.sociais && dados.sociais.ig) ? dados.sociais.ig : '';
