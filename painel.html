@@ -641,6 +641,38 @@
 
 
 
+        <!-- BOAS-VINDAS & IDENTIFICAÇÃO DO CONSULTOR NO TOPO DO DASHBOARD -->
+        <div id="card-identificacao-consultor-topo" class="mb-6 bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Consultor Oficial</span>
+                        <span id="dash-espaco" class="text-xs font-bold text-slate-500">Espaço Vida Saudável</span>
+                    </div>
+                    <h1 class="text-lg sm:text-2xl font-black text-slate-900 leading-tight mt-0.5" id="dash-nome">
+                        Olá, <span class="text-emerald-700 font-black">Consultor</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-2.5 flex-wrap self-stretch md:self-auto justify-end">
+                <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-center">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Seu ID Oficial</span>
+                    <span id="dash-id" class="text-xs font-black text-slate-800 font-mono">---</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-center">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Status</span>
+                    <span id="dash-status" class="text-xs font-black text-emerald-700">Ativo</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-center">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Licença</span>
+                    <span id="dash-vencimento" class="text-xs font-black text-amber-700">Vitalício</span>
+                </div>
+            </div>
+        </div>
+
         <!-- ========================================================================= -->
         <!-- MÓDULOS PRINCIPAIS DE GESTÃO & OPERAÇÃO (CARDS REORDENÁVEIS / ARRASTÁVEIS) -->
         <!-- ========================================================================= -->
@@ -14936,6 +14968,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
                 // 1. Nome do Consultor em destaque absoluto
                 const dashNome = document.getElementById('dash-nome');
+                const dashEspaco = document.getElementById('dash-espaco');
+                if (dashEspaco) dashEspaco.innerText = espaco || 'Consultor Independente';
                 if (dashNome) {
                     if (espaco) {
                         dashNome.innerHTML = `Olá, <span class="text-brand-dark font-black">${nome}</span> <span class="hidden sm:inline-flex text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full ml-2 items-center gap-1.5"><i class="fa-solid fa-store text-emerald-600"></i> ${espaco}</span>`;
@@ -18182,7 +18216,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             }
 
             try {
-                const urlFetch = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?select=*&nome_espaco=ilike.*PATROCINADOR_ID%3A${hidLimpo}*&order=created_at.desc`;
+                const urlFetch = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?select=*&nome_espaco=ilike.*PATROCINADOR_ID%3A${hidLimpo}*`;
                 const res = await fetch(urlFetch, {
                     headers: {
                         'apikey': supabaseKey,
