@@ -166,6 +166,9 @@
                         <span id="badge-cidade" class="bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1 rounded-xl text-xs font-bold text-white flex items-center gap-1.5">
                             <i class="fa-solid fa-location-dot text-emerald-400"></i> <span id="consultor-cidade">Atendimento Online & Presencial</span>
                         </span>
+                        <span id="badge-horario-funcionamento" class="hidden bg-blue-500/20 border border-blue-400/40 px-3 py-1 rounded-xl text-xs font-bold text-blue-200 flex items-center gap-1.5" title="Horário de Atendimento e Funcionamento do Espaço">
+                            <i class="fa-solid fa-clock text-blue-300"></i> <span id="consultor-horario-display">Seg a Sex: 07:00 às 19:00</span>
+                        </span>
                         <a id="link-zap-bio" href="#" target="_blank" class="bg-green-500/20 hover:bg-green-500/30 border border-green-400/40 px-3 py-1 rounded-xl text-xs font-bold text-green-300 hover:text-white flex items-center gap-1.5 transition">
                             <i class="fa-brands fa-whatsapp text-green-400"></i> <span id="consultor-zap-display">(00) 00000-0000</span>
                         </a>
@@ -2558,6 +2561,22 @@
             document.getElementById('consultor-cidade').innerText = consultorAtual.cidade;
             document.getElementById('consultor-zap-display').innerText = formatarTelefoneExibicao(consultorAtual.whatsapp);
             document.getElementById('consultor-foto').src = consultorAtual.foto;
+
+            // Horário de Atendimento e Funcionamento do Espaço
+            if (consultorAtual && consultorAtual.nome_espaco && consultorAtual.nome_espaco.includes('<!--HORARIOS_ENTREGA:')) {
+                try {
+                    const matchHor = consultorAtual.nome_espaco.match(/<!--HORARIOS_ENTREGA:([\s\S]*?)-->/);
+                    if (matchHor && matchHor[1]) {
+                        const hObj = JSON.parse(matchHor[1]);
+                        const bHor = document.getElementById('badge-horario-funcionamento');
+                        const tHor = document.getElementById('consultor-horario-display');
+                        if (hObj.horarioFuncionamento && bHor && tHor) {
+                            tHor.innerText = hObj.horarioFuncionamento;
+                            bHor.classList.remove('hidden');
+                        }
+                    }
+                } catch(_) {}
+            }
 
             const zapLink = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent('Olá ' + consultorAtual.nome_espaco + '! Acessei o seu Catálogo Digital e gostaria de mais informações.')}`;
             document.getElementById('btn-header-zap').href = zapLink;

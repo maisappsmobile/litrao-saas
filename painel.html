@@ -709,12 +709,15 @@
                                 <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Total Avaliações</span>
                                 <span id="stat-card-total-avaliacoes" class="text-xl font-black text-slate-900 block mt-0.5">0</span>
                             </div>
-                            <div class="flex flex-col gap-1.5 justify-center">
-                                <button type="button" onclick="abrirNovaAvaliacao()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap">
-                                    <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i> Nova Avaliação
+                            <div class="flex flex-col sm:flex-row gap-1.5 justify-center">
+                                <button type="button" onclick="abrirNovaAvaliacao()" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-xs cursor-pointer whitespace-nowrap">
+                                    <i class="fa-solid fa-plus-circle mr-1"></i> Nova Avaliação
                                 </button>
-                                <button type="button" onclick="abrirModuloRelatorios()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap" title="Exportar Planilhas">
-                                    <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Planilhas
+                                <button type="button" onclick="abrirModuloRelatorios('exportar')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap" title="Exportar Bioimpedâncias e Clientes em Excel / CSV">
+                                    <i class="fa-solid fa-file-arrow-down text-emerald-600 mr-1"></i> Exportar Bio (Excel)
+                                </button>
+                                <button type="button" onclick="abrirModuloRelatorios('importar')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-300 font-bold py-1.5 px-2.5 rounded-xl text-xs transition flex items-center justify-center shadow-2xs cursor-pointer whitespace-nowrap" title="Importar Planilha com Avaliações / Clientes (.CSV)">
+                                    <i class="fa-solid fa-file-arrow-up text-indigo-600 mr-1"></i> Importar Planilha
                                 </button>
                             </div>
                         </div>
@@ -745,8 +748,11 @@
                                     <button onclick="carregarAvaliacoes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-xl transition flex items-center cursor-pointer" title="Recarregar">
                                         <i class="fa-solid fa-rotate mr-1"></i> Atualizar
                                     </button>
-                                    <button onclick="abrirModuloRelatorios()" class="text-xs bg-slate-800 hover:bg-black text-white font-bold py-1.5 px-3 rounded-xl transition flex items-center cursor-pointer" title="Exportar Planilhas">
-                                        <i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i> Planilhas
+                                    <button onclick="abrirModuloRelatorios('exportar')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-black py-1.5 px-3 rounded-xl transition flex items-center shadow-xs cursor-pointer" title="Exportar Avaliações de Bioimpedância e Clientes para Excel (.CSV)">
+                                        <i class="fa-solid fa-file-arrow-down mr-1"></i> Exportar Bio (Excel)
+                                    </button>
+                                    <button onclick="abrirModuloRelatorios('importar')" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-black py-1.5 px-3 rounded-xl transition flex items-center shadow-xs cursor-pointer" title="Importar Planilha de Avaliações / Clientes (.CSV)">
+                                        <i class="fa-solid fa-file-arrow-up mr-1"></i> Importar Planilha
                                     </button>
                                     <button onclick="minimizarSecaoClientes()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1.5 px-3 rounded-xl transition flex items-center shadow-xs cursor-pointer" title="Minimizar">
                                         <i class="fa-solid fa-chevron-up text-xs"></i>
@@ -4650,6 +4656,39 @@
                     </div>
                 </div>
 
+                <!-- 2.1 HORÁRIOS DE ATENDIMENTO E FUNCIONAMENTO DO ESPAÇO -->
+                <div class="mb-5 p-4 rounded-2xl border border-blue-200 bg-blue-50/60">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-2xs">
+                            <i class="fa-solid fa-clock"></i>
+                        </span>
+                        <div>
+                            <label class="text-xs sm:text-sm font-black text-gray-900 block">
+                                Horários de Atendimento & Funcionamento do Espaço
+                            </label>
+                            <span class="text-[11px] text-gray-500 font-medium">Informe os dias e horários em que seu espaço atende presencialmente ou responde pedidos.</span>
+                        </div>
+                    </div>
+
+                    <input type="text" id="cfg-horario-funcionamento" oninput="atualizarPreviewHorariosEntrega()" placeholder="Ex: Seg a Sex: 07:00 às 19:00 | Sáb: 08:00 às 12:00" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 focus:border-blue-500 rounded-xl text-xs font-bold text-gray-900 focus:outline-none transition mb-2 shadow-2xs">
+
+                    <!-- Presets Rápidos -->
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="definirHorarioFuncionamentoRapido('Seg a Sex: 07:00 às 19:00 | Sáb: 08:00 às 12:00')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">
+                            Seg a Sex 07h-19h + Sáb 08h-12h
+                        </button>
+                        <button type="button" onclick="definirHorarioFuncionamentoRapido('Seg a Sex: 06:30 às 14:00 (Manhã e Almoço)')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">
+                            Manhã & Almoço (06:30 às 14:00)
+                        </button>
+                        <button type="button" onclick="definirHorarioFuncionamentoRapido('Seg a Sáb: 07:00 às 20:00 (Integral)')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">
+                            Seg a Sáb 07h-20h (Integral)
+                        </button>
+                        <button type="button" onclick="definirHorarioFuncionamentoRapido('Atendimento Online & Delivery 24h')" class="text-[10px] font-bold px-2 py-1 bg-white hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition cursor-pointer">
+                            Online & Delivery 24h
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 3. CONFIGURAÇÁO DE PRAZOS DE ENTREGA -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <!-- Prazo Kit Reset (Garrafas Frescas) -->
@@ -4723,6 +4762,14 @@
                             </span>
                             <span id="preview-prazo-fechados" class="font-black text-blue-400 bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-800/50">
                                 📦 Previsão: 15 dias
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-slate-300 flex items-center gap-2">
+                                <i class="fa-solid fa-clock text-amber-400"></i> Horário de Atendimento:
+                            </span>
+                            <span id="preview-horario-funcionamento" class="font-black text-amber-300 bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/50">
+                                🕒 Seg a Sex: 07:00 às 19:00
                             </span>
                         </div>
                         <div id="preview-aviso-box" class="bg-amber-950/40 p-2.5 rounded-xl border border-amber-800/50 text-[11px] text-amber-200 hidden">
@@ -10744,8 +10791,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 <button type="button" onclick="fecharModuloCrmKanban()" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-purple-900/50 cursor-pointer" title="Voltar ao Painel do Consultor">
                     <i class="fa-solid fa-arrow-left text-xs"></i> <span>Voltar ao Painel</span>
                 </button>
-                <!-- NOVO: BOTÁO DIRETO PARA LEADS FACEBOOK NO CRM KANBAN -->
-                <button type="button" onclick="abrirModalExtratorFacebookSuperadmin()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-blue-900/50 cursor-pointer" title="Ver e Gerenciar Leads Extraídos do Facebook (20k+ Contatos)">
+                <!-- BOTÃO RESTRITO AO SUPERADMIN NO CRM KANBAN -->
+                <button type="button" id="btn-crm-leads-facebook" onclick="abrirModalExtratorFacebookSuperadmin()" class="hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-blue-900/50 cursor-pointer" title="Base de Leads Facebook (Exclusivo SuperAdmin)">
                     <i class="fa-brands fa-facebook text-white text-sm"></i> <span>Leads Facebook (20k+)</span>
                 </button>
                 <button type="button" onclick="abrirModalImportarCrm()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm shadow-purple-600/30 cursor-pointer">
@@ -22496,18 +22543,14 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
         function podeImportarDados() {
             if (isConsultorSuperAdmin()) return true;
-            // No tempo de 7 dias grátis, importar dados em geral fica bloqueado
-            if (isConsultorEmTrial()) return false;
-            // Disponível no Plano 3 (Master VIP)
-            return isConsultorMasterVip();
+            // Disponível para Vitalício Smart e Master VIP
+            return isConsultorVitalicioSmart() || isConsultorMasterVip();
         }
 
         function podeExportarExcelBackup() {
             if (isConsultorSuperAdmin()) return true;
-            // No tempo de 7 dias grátis, exportar planilhas e backup fica bloqueado
-            if (isConsultorEmTrial()) return false;
-            // Nos planos pagos, disponível no Plano 2 (Vitalício Smart) e Plano 3 (Master VIP)
-            return isConsultorVitalicioSmart();
+            // Disponível para Vitalício Smart e Master VIP
+            return isConsultorVitalicioSmart() || isConsultorMasterVip();
         }
 
         function obterLimiteAvaliacoesMes() {
@@ -24711,26 +24754,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         // ==========================================
         // MÓDULO 3: RELATÓRIOS E EXPORTAÇÁO CSV
         // ==========================================
-        async function abrirModuloRelatorios() {
-            if (isConsultorEmTrial()) {
-                exibirAvisoBloqueioRecurso(
-                    "Relatórios & Planilhas Bloqueados no Teste Grátis",
-                    "Durante o período de 7 dias de degustação grátis, a central de relatórios, exportação e importação de planilhas em Excel (.CSV) fica restrita. Para baixar planilhas e gerenciar backups completos, faça o upgrade para o seu plano ideal!",
-                    "Restrito no Teste Grátis"
-                );
-                return;
-            }
-
+        async function abrirModuloRelatorios(abaInicial = 'exportar') {
             const modal = document.getElementById('modal-relatorios');
             if (!modal) return;
-            if (!modal.classList.contains('hidden')) {
-                fecharModuloRelatorios();
-                return;
-            }
             if (todasAvaliacoesCache.length === 0) {
                 await carregarAvaliacoes();
             }
             modal.classList.remove('hidden');
+            if (typeof alternarAbaRelatorios === 'function') {
+                alternarAbaRelatorios(abaInicial || 'exportar');
+            }
         }
 
         function fecharModuloRelatorios() {
@@ -31202,6 +31235,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 aceitaFechado: true,
                 prazoKits: 'Entrega na Segunda-Feira',
                 prazoFechados: '15 dias',
+                horarioFuncionamento: 'Seg a Sex: 07:00 às 19:00 | Sáb: 08:00 às 12:00',
                 msgAviso: ''
             };
 
@@ -31209,6 +31243,9 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
             const chkAceita = document.getElementById('cfg-horarios-aceita-fechado');
             if (chkAceita) chkAceita.checked = (config.aceitaFechado !== false);
+
+            const inHorario = document.getElementById('cfg-horario-funcionamento');
+            if (inHorario) inHorario.value = config.horarioFuncionamento || '';
 
             const inPrazoKits = document.getElementById('cfg-prazo-kits');
             if (inPrazoKits) inPrazoKits.value = config.prazoKits || 'Entrega na Segunda-Feira';
@@ -31278,20 +31315,32 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         }
         window.definirPrazoFechadosRapido = definirPrazoFechadosRapido;
 
+        function definirHorarioFuncionamentoRapido(texto) {
+            const inHorario = document.getElementById('cfg-horario-funcionamento');
+            if (inHorario) {
+                inHorario.value = texto;
+                atualizarPreviewHorariosEntrega();
+            }
+        }
+        window.definirHorarioFuncionamentoRapido = definirHorarioFuncionamentoRapido;
+
         function atualizarPreviewHorariosEntrega() {
             const previewBadge = document.getElementById('preview-status-badge');
             const previewKits = document.getElementById('preview-prazo-kits');
             const previewFechados = document.getElementById('preview-prazo-fechados');
+            const previewHorario = document.getElementById('preview-horario-funcionamento');
             const avisoBox = document.getElementById('preview-aviso-box');
             const previewAviso = document.getElementById('preview-msg-aviso');
 
             const pKits = (document.getElementById('cfg-prazo-kits')?.value || 'Entrega na Segunda-Feira').trim();
             const pFech = (document.getElementById('cfg-prazo-fechados')?.value || '15 dias').trim();
+            const horarioFunc = (document.getElementById('cfg-horario-funcionamento')?.value || '').trim();
             const msgAviso = (document.getElementById('cfg-msg-aviso-entrega')?.value || '').trim();
             const aceitaFechado = document.getElementById('cfg-horarios-aceita-fechado')?.checked ?? true;
 
             if (previewKits) previewKits.innerHTML = `📦 ${pKits || 'Entrega na Segunda-Feira'}`;
             if (previewFechados) previewFechados.innerHTML = `📦 Previsão: ${pFech || '15 dias'}`;
+            if (previewHorario) previewHorario.innerHTML = horarioFunc ? `🕒 ${horarioFunc}` : '🕒 Seg a Sex: 07:00 às 19:00';
 
             if (previewBadge) {
                 if (statusAbertoFechadoSelecionado) {
@@ -31325,6 +31374,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
             const pKits = (document.getElementById('cfg-prazo-kits')?.value || 'Entrega na Segunda-Feira').trim();
             const pFech = (document.getElementById('cfg-prazo-fechados')?.value || '15 dias').trim();
+            const horarioFunc = (document.getElementById('cfg-horario-funcionamento')?.value || '').trim();
             const msgAviso = (document.getElementById('cfg-msg-aviso-entrega')?.value || '').trim();
             const aceitaFechado = document.getElementById('cfg-horarios-aceita-fechado')?.checked ?? true;
 
@@ -31333,6 +31383,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 aceitaFechado: aceitaFechado,
                 prazoKits: pKits || 'Entrega na Segunda-Feira',
                 prazoFechados: pFech || '15 dias',
+                horarioFuncionamento: horarioFunc || 'Seg a Sex: 07:00 às 19:00 | Sáb: 08:00 às 12:00',
                 msgAviso: msgAviso
             };
 
@@ -39220,6 +39271,17 @@ ${escapeHtml(textoFinal)}
             if (modalKanban) {
                 modalKanban.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+
+                // O botão da base geral de Facebook Leads (20k+) só aparece para o SuperAdmin
+                const btnFb = document.getElementById('btn-crm-leads-facebook');
+                if (btnFb) {
+                    if (typeof isSuperAdminLogado === 'function' && isSuperAdminLogado()) {
+                        btnFb.classList.remove('hidden');
+                    } else {
+                        btnFb.classList.add('hidden');
+                    }
+                }
+
                 atualizarSelectGruposKanban();
                 renderizarKanbanCrm();
             }
@@ -39271,7 +39333,20 @@ ${escapeHtml(textoFinal)}
         window.fecharModalInstrucoesExtensaoConsultor = fecharModalInstrucoesExtensaoConsultor;
 
         function getCrmStorageKey() {
-            const hid = consultorAtual ? String(consultorAtual.herbalife_id).trim() : 'geral';
+            let hid = '';
+            if (consultorAtual && consultorAtual.herbalife_id) {
+                hid = String(consultorAtual.herbalife_id).trim();
+            } else {
+                try {
+                    const authStr = localStorage.getItem('litrao_consultor_auth');
+                    if (authStr) {
+                        const parsed = JSON.parse(authStr);
+                        if (parsed.herbalife_id) hid = String(parsed.herbalife_id).trim();
+                        else if (parsed.id) hid = String(parsed.id).trim();
+                    }
+                } catch(e) {}
+            }
+            if (!hid) hid = 'visitante';
             return `litrao_crm_leads_${hid}`;
         }
 
@@ -40763,14 +40838,14 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
             const chave = obterChaveStorageFacebookLeads();
             let dados = null;
             
-            // 1. Tenta a chave principal do consultor
+            // 1. Tenta a chave principal exclusiva do consultor
             try {
                 const raw = localStorage.getItem(chave);
                 if (raw) dados = JSON.parse(raw);
             } catch(e) {}
 
-            // 2. Se não achou, varre chaves alternativas de extrações anteriores do Facebook
-            if (!dados || !Array.isArray(dados) || dados.length === 0) {
+            // 2. Chaves legadas globais somente para o SuperAdmin oficial
+            if ((!dados || !Array.isArray(dados) || dados.length === 0) && (typeof isSuperAdminLogado === 'function' && isSuperAdminLogado())) {
                 const keysAlternativas = ['litrao_facebook_leads_433005811', 'litrao_facebook_leads_superadmin', 'litrao_facebook_leads', 'resetfit_facebook_leads'];
                 for (const k of keysAlternativas) {
                     try {
@@ -40786,28 +40861,14 @@ Acesse a página oficial para reservar sua vaga antes que feche o lote:
                 }
             }
 
-            // 3. Se ainda não achou, varre qualquer chave no localStorage iniciada com litrao_facebook_leads_
-            if (!dados || !Array.isArray(dados) || dados.length === 0) {
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith('litrao_facebook_leads_') && !k.includes('total_real')) {
-                            const r = localStorage.getItem(k);
-                            if (r) {
-                                const p = JSON.parse(r);
-                                if (Array.isArray(p) && p.length > 0) {
-                                    dados = p;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                } catch(_) {}
-            }
-
             if (dados && Array.isArray(dados) && dados.length > 0) {
                 window.__resetfit_fb_leads_cache = dados;
                 return dados;
+            }
+
+            // Para consultores normais, retorna estritamente a sua própria lista (vazia se não tiver)
+            if (!isSuperAdminLogado()) {
+                return [];
             }
 
             if (!dados || !Array.isArray(dados) || dados.length === 0) {
