@@ -91,28 +91,45 @@
                     <span id="relogio-txt">--:--:--</span>
                 </div>
 
+                <!-- ALTERNÂNCIA MODO TV / KANBAN IFOOD (PONTO 3) -->
+                <button type="button" onclick="alternarModoVisualizacao()" id="btn-toggle-modo-tv" class="bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer border border-purple-400/40" title="Alternar entre Lista e Modo TV / Kanban iFood">
+                    <i id="icone-modo-tv" class="fa-solid fa-tv text-amber-300"></i>
+                    <span id="label-modo-tv">Modo TV / Kanban</span>
+                </button>
+
+                <!-- TELA CHEIA TV -->
+                <button type="button" onclick="toggleTelaCheiaTV()" id="btn-tela-cheia" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1" title="Colocar em Tela Cheia para TVs e Monitores de Cozinha">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
+
+                <!-- AUDITORIA & RANKING SLA (PONTO 6) -->
+                <button type="button" onclick="abrirModalRankingSLA()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-amber-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Ver Ranking de Eficiência e SLA dos Consultores">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span class="hidden sm:inline">Ranking SLA</span>
+                </button>
+
                 <!-- CONTROLE DE SOM -->
                 <button type="button" onclick="toggleSilenciarSomCentral()" id="btn-toggle-som" class="bg-slate-800 hover:bg-slate-700 text-purple-200 border border-purple-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Ativar ou Silenciar Alertas Sonoros">
                     <i id="icone-som" class="fa-solid fa-volume-high text-emerald-400"></i>
-                    <span id="label-som">Som Ativo</span>
+                    <span id="label-som" class="hidden sm:inline">Som Ativo</span>
                 </button>
 
                 <!-- BOTÃO TESTAR SOM AGITADO -->
                 <button type="button" onclick="testarAlarmeUrgenciaEmpolgado()" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer transform hover:scale-105 active:scale-95" title="Testar Som de Alerta Sonoro Urgente e Realista de 4 Minutos">
                     <i class="fa-solid fa-bell text-rose-600 animate-bounce"></i>
-                    <span>Testar Som Urgente</span>
+                    <span class="hidden sm:inline">Testar Som Urgente</span>
                 </button>
 
                 <!-- RECARREGAR AGORA -->
                 <button type="button" onclick="carregarTodosPedidosCentral(true)" id="btn-recarregar" class="bg-purple-600 hover:bg-purple-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer" title="Recarregar Pedidos">
                     <i class="fa-solid fa-rotate text-purple-200" id="icone-refresh"></i>
-                    <span class="hidden sm:inline">Atualizar</span>
+                    <span class="hidden md:inline">Atualizar</span>
                 </button>
 
                 <!-- VOLTAR AO PAINEL -->
                 <a href="painel.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5">
                     <i class="fa-solid fa-arrow-left"></i>
-                    <span>Painel</span>
+                    <span class="hidden md:inline">Painel</span>
                 </a>
             </div>
         </div>
@@ -228,16 +245,494 @@
                 </div>
             </div>
 
-            <!-- CONTAINER ONDE OS CARDS SÃO INJETADOS -->
+            <!-- CONTAINER ONDE OS CARDS SÃO INJETADOS (MODO LISTA PADRÃO) -->
             <div id="grid-pedidos-central" class="space-y-4">
                 <div class="p-12 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
                     <i class="fa-solid fa-spinner fa-spin text-2xl text-purple-400 mb-2 block"></i>
                     Carregando pedidos da rede em tempo real...
                 </div>
             </div>
+
+            <!-- CONTAINER DO KANBAN DE COZINHA MODO TV / GESTOR IFOOD (PONTO 3) -->
+            <div id="kanban-pedidos-central" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+                
+                <!-- COLUNA 1: 🚨 EM RISCO (+4M) -->
+                <div class="bg-slate-900/90 border-2 border-rose-500/70 rounded-3xl p-3 flex flex-col shadow-2xl relative overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 mb-3 border-b border-rose-500/30">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+                            <h3 class="text-xs font-black uppercase text-rose-300 tracking-wider">
+                                🚨 Urgente (+4m)
+                            </h3>
+                        </div>
+                        <span id="kanban-badge-risco" class="bg-rose-600 text-white font-mono font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-risco" class="space-y-3 min-h-[350px] max-h-[75vh] overflow-y-auto custom-scroll pr-1">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUNA 2: ⏳ NOVOS PEDIDOS (<4M) -->
+                <div class="bg-slate-900/90 border border-amber-500/50 rounded-3xl p-3 flex flex-col shadow-xl">
+                    <div class="flex items-center justify-between pb-2 mb-3 border-b border-amber-500/30">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                            <h3 class="text-xs font-black uppercase text-amber-300 tracking-wider">
+                                ⏳ Novos (&lt;4m)
+                            </h3>
+                        </div>
+                        <span id="kanban-badge-novos" class="bg-amber-500 text-slate-950 font-mono font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-novos" class="space-y-3 min-h-[350px] max-h-[75vh] overflow-y-auto custom-scroll pr-1">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUNA 3: 🥤 EM PREPARO -->
+                <div class="bg-slate-900/90 border border-blue-500/50 rounded-3xl p-3 flex flex-col shadow-xl">
+                    <div class="flex items-center justify-between pb-2 mb-3 border-b border-blue-500/30">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                            <h3 class="text-xs font-black uppercase text-blue-300 tracking-wider">
+                                🥤 Em Preparo
+                            </h3>
+                        </div>
+                        <span id="kanban-badge-preparo" class="bg-blue-600 text-white font-mono font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-preparo" class="space-y-3 min-h-[350px] max-h-[75vh] overflow-y-auto custom-scroll pr-1">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUNA 4: 🛵 NA RUA / EM ROTA -->
+                <div class="bg-slate-900/90 border border-indigo-500/50 rounded-3xl p-3 flex flex-col shadow-xl">
+                    <div class="flex items-center justify-between pb-2 mb-3 border-b border-indigo-500/30">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                            <h3 class="text-xs font-black uppercase text-indigo-300 tracking-wider">
+                                🛵 Na Rua (Em Rota)
+                            </h3>
+                        </div>
+                        <span id="kanban-badge-rota" class="bg-indigo-600 text-white font-mono font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-rota" class="space-y-3 min-h-[350px] max-h-[75vh] overflow-y-auto custom-scroll pr-1">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+            </div>
         </section>
 
     </main>
+
+    <!-- MODAL PONTO 2: DESPACHO RÁPIDO PARA ENTREGADOR / MOTOBOY -->
+    <div id="modal-despacho-motoboy" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-indigo-500/50 w-full max-w-xl rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
+            
+            <!-- FECHAR -->
+            <button type="button" onclick="fecharModalDespachoMotoboy()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- TÍTULO -->
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-10 h-10 rounded-xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-motorcycle"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        Despacho Rápido para Motoboy
+                        <span id="despacho-badge-pedido" class="text-xs font-mono bg-purple-900/60 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-lg">#000</span>
+                    </h3>
+                    <p class="text-xs text-indigo-200/80">Comanda expressa com GPS, dados do cliente e instruções de cobrança.</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="despacho-pedido-id">
+
+            <!-- CORPO -->
+            <div class="space-y-4 text-xs">
+                
+                <!-- DESTINO & ROTA GPS -->
+                <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase text-amber-300 flex items-center gap-1">
+                            <i class="fa-solid fa-location-dot text-rose-400"></i> Endereço de Entrega
+                        </span>
+                        <div class="flex items-center gap-1.5">
+                            <a id="btn-gps-gmaps" href="#" target="_blank" class="bg-blue-600/30 hover:bg-blue-600/60 text-blue-300 border border-blue-500/40 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-map-location-dot"></i> Google Maps
+                            </a>
+                            <a id="btn-gps-waze" href="#" target="_blank" class="bg-cyan-600/30 hover:bg-cyan-600/60 text-cyan-300 border border-cyan-500/40 px-2.5 py-1 rounded-lg text-[10px] font-bold transition flex items-center gap-1">
+                                <i class="fa-brands fa-waze"></i> Waze
+                            </a>
+                        </div>
+                    </div>
+                    <div id="despacho-endereco" class="text-sm font-bold text-white leading-snug">
+                        Endereço não informado
+                    </div>
+                    <div id="despacho-cliente-info" class="text-[11px] text-slate-400 mt-1">
+                        Cliente: - • Whats: -
+                    </div>
+                </div>
+
+                <!-- CONTATO DO MOTOBOY / ENTREGADOR -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">
+                        <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> WhatsApp do Motoboy / Entregador (Qualquer País):
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="despacho-whats-motoboy" oninput="atualizarPreviaMensagemMotoboy()" placeholder="Ex: 66999999999 ou +5566..." class="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        
+                        <!-- SELETOR DE MOTOBOYS SALVOS -->
+                        <select id="despacho-select-historico" onchange="selecionarMotoboyHistorico(this.value)" class="bg-slate-800 border border-slate-700 text-slate-300 rounded-xl px-2 py-2 text-xs focus:outline-none">
+                            <option value="">📋 Salvos...</option>
+                        </select>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">O número inserido fica salvo automaticamente para seus próximos despachos.</p>
+                </div>
+
+                <!-- INSTRUÇÃO DE COBRANÇA -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">
+                        <i class="fa-solid fa-hand-holding-dollar text-amber-400 mr-1"></i> Cobrança na Entrega:
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="bg-slate-950 border border-slate-800 hover:border-indigo-500/60 p-2.5 rounded-xl cursor-pointer flex items-center gap-2 text-[11px]">
+                            <input type="radio" name="despacho-cobranca" value="PAGO_PIX" onchange="atualizarPreviaMensagemMotoboy()" checked class="text-indigo-600 focus:ring-0">
+                            <div>
+                                <strong class="text-emerald-400 block font-black">✅ JÁ PAGO NO PIX</strong>
+                                <span class="text-[10px] text-slate-400">Apenas entregar</span>
+                            </div>
+                        </label>
+                        <label class="bg-slate-950 border border-slate-800 hover:border-indigo-500/60 p-2.5 rounded-xl cursor-pointer flex items-center gap-2 text-[11px]">
+                            <input type="radio" name="despacho-cobranca" value="COBRAR_CLIENTE" onchange="atualizarPreviaMensagemMotoboy()" class="text-indigo-600 focus:ring-0">
+                            <div>
+                                <strong class="text-amber-400 block font-black" id="despacho-label-cobrar">💰 COBRAR DO CLIENTE</strong>
+                                <span class="text-[10px] text-slate-400">Receber na entrega</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- PRÉ-VISUALIZAÇÃO DA COMANDA FORMATADA -->
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1 flex items-center justify-between">
+                        <span><i class="fa-regular fa-comment-dots mr-1"></i> Mensagem para o Motoboy</span>
+                        <span class="text-[9px] text-purple-300 font-mono">Pronta em 1 clique</span>
+                    </label>
+                    <textarea id="despacho-previa-msg" rows="5" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-[11px] font-mono text-slate-300 focus:outline-none custom-scroll"></textarea>
+                </div>
+
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="fecharModalDespachoMotoboy()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+                    Cancelar
+                </button>
+                <button type="button" onclick="executarDespachoMotoboy()" class="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-indigo-600/30 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Enviar no WhatsApp e Marcar "Em Rota"</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL PONTO 5: RESPOSTAS RÁPIDAS DE CONTINGÊNCIA EM 1 CLIQUE -->
+    <div id="modal-respostas-rapidas" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-amber-500/50 w-full max-w-xl rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
+            
+            <!-- FECHAR -->
+            <button type="button" onclick="fecharModalRespostasRapidas()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- TÍTULO -->
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-bolt"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        Respostas Rápidas de Contingência
+                        <span id="respostas-badge-pedido" class="text-xs font-mono bg-purple-900/60 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-lg">#000</span>
+                    </h3>
+                    <p class="text-xs text-amber-200/80">Mensagens profissionais em 1 clique para acalmar e atender o cliente no WhatsApp.</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="respostas-pedido-id">
+
+            <!-- CORPO -->
+            <div class="space-y-4 text-xs">
+                
+                <!-- IDENTIFICAÇÃO DO CLIENTE -->
+                <div class="bg-slate-950/80 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-purple-300 block">Destinatário:</span>
+                        <div id="respostas-nome-cliente" class="text-sm font-black text-white">Nome do Cliente</div>
+                        <div id="respostas-whats-cliente" class="text-[11px] text-emerald-400 font-mono mt-0.5"><i class="fa-brands fa-whatsapp"></i> +55...</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-black uppercase text-amber-300 block">Total do Pedido:</span>
+                        <div id="respostas-valor-total" class="text-sm font-black text-amber-300">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <!-- CARDS DE SELEÇÃO DE TEMPLATE -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1.5">
+                        Selecione o Modelo de Resposta:
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button type="button" onclick="selecionarTemplateResposta('TROCA_SABOR')" class="btn-template-resposta bg-slate-950 hover:bg-purple-950/50 border border-slate-800 hover:border-purple-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-purple-300 text-[11px] flex items-center gap-1">🔄 Troca de Sabor</span>
+                            <span class="text-[10px] text-slate-400">Sabor esgotado</span>
+                        </button>
+
+                        <button type="button" onclick="selecionarTemplateResposta('ATRASO_CHUVA')" class="btn-template-resposta bg-slate-950 hover:bg-amber-950/50 border border-slate-800 hover:border-amber-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-amber-300 text-[11px] flex items-center gap-1">🌧️ Chuva / Trânsito</span>
+                            <span class="text-[10px] text-slate-400">Tranquiliza entrega</span>
+                        </button>
+
+                        <button type="button" onclick="selecionarTemplateResposta('CONFIRMAR_LOCAL')" class="btn-template-resposta bg-slate-950 hover:bg-cyan-950/50 border border-slate-800 hover:border-cyan-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-cyan-300 text-[11px] flex items-center gap-1">📍 Ponto Referência</span>
+                            <span class="text-[10px] text-slate-400">Pede localização</span>
+                        </button>
+
+                        <button type="button" onclick="selecionarTemplateResposta('ENVIAR_PIX')" class="btn-template-resposta bg-slate-950 hover:bg-emerald-950/50 border border-slate-800 hover:border-emerald-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-emerald-300 text-[11px] flex items-center gap-1">💳 Enviar Chave PIX</span>
+                            <span class="text-[10px] text-slate-400">Cobrança e dados</span>
+                        </button>
+
+                        <button type="button" onclick="selecionarTemplateResposta('NA_PORTA')" class="btn-template-resposta bg-slate-950 hover:bg-indigo-950/50 border border-slate-800 hover:border-indigo-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-indigo-300 text-[11px] flex items-center gap-1">🚪 Chegou no Local</span>
+                            <span class="text-[10px] text-slate-400">Motoboy na porta</span>
+                        </button>
+
+                        <button type="button" onclick="selecionarTemplateResposta('PRODUCAO_VIP')" class="btn-template-resposta bg-slate-950 hover:bg-rose-950/50 border border-slate-800 hover:border-rose-500/60 p-2.5 rounded-xl text-left transition cursor-pointer flex flex-col gap-1">
+                            <span class="font-black text-rose-300 text-[11px] flex items-center gap-1">🥤 Em Preparo VIP</span>
+                            <span class="text-[10px] text-slate-400">Status em produção</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TEXTO EDITÁVEL DA MENSAGEM -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1 flex items-center justify-between">
+                        <span>Texto da Mensagem (Você pode editar antes de enviar):</span>
+                        <span class="text-[10px] text-slate-400">Disparo oficial no WhatsApp</span>
+                    </label>
+                    <textarea id="respostas-texto-msg" rows="5" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium custom-scroll"></textarea>
+                </div>
+
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="fecharModalRespostasRapidas()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+                    Fechar
+                </button>
+                <button type="button" onclick="enviarRespostaRapidaWhatsApp()" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Disparar no WhatsApp do Cliente</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL PONTO 1: TRANSBORDO INTELIGENTE DE PEDIDOS -->
+    <div id="modal-transbordo-pedido" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-purple-500/50 w-full max-w-xl rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
+            
+            <!-- FECHAR -->
+            <button type="button" onclick="fecharModalTransbordo()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- TÍTULO -->
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-10 h-10 rounded-xl bg-purple-600/30 text-purple-300 border border-purple-500/40 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        Transbordo Inteligente de Pedido
+                        <span id="transbordo-badge-pedido" class="text-xs font-mono bg-purple-900/60 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-lg">#000</span>
+                    </h3>
+                    <p class="text-xs text-purple-200/80">Transfira a comanda para outro consultor da mesma cidade ou região para não perder a venda.</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="transbordo-pedido-id">
+
+            <!-- CORPO -->
+            <div class="space-y-4 text-xs">
+                
+                <!-- ORIGEM ATUAL -->
+                <div class="bg-slate-950/80 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-rose-400 block">Consultor Atual (Origem):</span>
+                        <div id="transbordo-origem-nome" class="text-sm font-bold text-white leading-snug">Consultor Atual</div>
+                        <div id="transbordo-origem-cidade" class="text-[11px] text-amber-300 font-medium">Cidade - UF</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-black uppercase text-purple-300 block">Cliente:</span>
+                        <div id="transbordo-cliente-nome" class="text-xs font-bold text-white">Nome do Cliente</div>
+                        <div id="transbordo-valor" class="text-xs font-black text-amber-300 mt-0.5">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <!-- SELETOR DE DESTINO -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-[11px] font-bold text-slate-300">
+                            Selecione o Novo Consultor (Destino):
+                        </label>
+                        <div class="flex items-center gap-1 text-[10px]">
+                            <button type="button" onclick="filtrarConsultoresTransbordo('CIDADE')" id="btn-filtro-trans-cidade" class="px-2 py-0.5 rounded-lg font-bold bg-purple-600 text-white transition">
+                                Mesma Cidade
+                            </button>
+                            <button type="button" onclick="filtrarConsultoresTransbordo('TODOS')" id="btn-filtro-trans-todos" class="px-2 py-0.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+                                Toda a Rede
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CAMPO BUSCA DE CONSULTOR -->
+                    <div class="relative mb-2">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="transbordo-busca-consultor" oninput="renderizarListaConsultoresTransbordo()" placeholder="Buscar novo consultor por nome, ID ou cidade..." class="w-full pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium">
+                    </div>
+
+                    <!-- LISTA DE CONSULTORES DISPONÍVEIS -->
+                    <div id="transbordo-lista-consultores" class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-1">
+                        <!-- Injetado via JS -->
+                    </div>
+                </div>
+
+                <!-- OPÇÕES DE NOTIFICAÇÃO AUTOMÁTICA -->
+                <div class="bg-slate-950/70 p-3 rounded-2xl border border-slate-800/80 space-y-2">
+                    <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-300">
+                        <input type="checkbox" id="transbordo-notificar-consultor" checked class="text-purple-600 rounded focus:ring-0">
+                        <span>Notificar o <strong>novo consultor</strong> no WhatsApp com a comanda pronta para preparo</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-[11px] text-slate-300">
+                        <input type="checkbox" id="transbordo-notificar-cliente" checked class="text-purple-600 rounded focus:ring-0">
+                        <span>Avisar o <strong>cliente</strong> no WhatsApp sobre o direcionamento expresso</span>
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="fecharModalTransbordo()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+                    Cancelar
+                </button>
+                <button type="button" onclick="executarTransbordoPedido()" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-purple-600/30 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-amber-300"></i>
+                    <span>Confirmar Transbordo de Pedido</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL PONTO 6: AUDITORIA DE SLA & RANKING DE EFICIÊNCIA DOS CONSULTORES -->
+    <div id="modal-ranking-sla-consultores" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-amber-500/50 w-full max-w-3xl rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
+            
+            <!-- FECHAR -->
+            <button type="button" onclick="fecharModalRankingSLA()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- TÍTULO -->
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-trophy"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        Auditoria de SLA & Ranking de Velocidade
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg font-bold">Ao Vivo</span>
+                    </h3>
+                    <p class="text-xs text-amber-200/80">Monitoramento da velocidade de atendimento dos pedidos na rede (&lt; 4 minutos).</p>
+                </div>
+            </div>
+
+            <!-- CARDS DE MÉTRICAS CONSOLIDADAS DE SLA -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-xs">
+                <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-black uppercase text-emerald-300 block mb-1">
+                        <i class="fa-solid fa-chart-pie mr-1 text-emerald-400"></i> Taxa Média de SLA no Prazo
+                    </span>
+                    <div id="sla-taxa-geral" class="text-2xl font-black text-emerald-400">0%</div>
+                    <span class="text-[10px] text-slate-400">Meta da rede: &gt; 90%</span>
+                </div>
+
+                <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-black uppercase text-amber-300 block mb-1">
+                        <i class="fa-solid fa-stopwatch mr-1 text-amber-400"></i> Tempo Médio Resposta
+                    </span>
+                    <div id="sla-tempo-medio" class="text-2xl font-black text-amber-300">0 min</div>
+                    <span class="text-[10px] text-slate-400">Tempo até confirmação</span>
+                </div>
+
+                <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-black uppercase text-rose-300 block mb-1">
+                        <i class="fa-solid fa-bell mr-1 text-rose-400"></i> Estouraram SLA (+4m)
+                    </span>
+                    <div id="sla-total-estourados" class="text-2xl font-black text-rose-400">0</div>
+                    <span class="text-[10px] text-slate-400">Necessitaram apoio</span>
+                </div>
+            </div>
+
+            <!-- TABELA DO RANKING -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black uppercase text-slate-300 tracking-wider">
+                        Classificação dos Consultores
+                    </span>
+                    <span class="text-[10px] text-slate-400">Ordenado por eficiência e volume</span>
+                </div>
+
+                <div class="overflow-x-auto custom-scroll border border-slate-800 rounded-2xl bg-slate-950/60 max-h-64">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 border-b border-slate-800 sticky top-0">
+                            <tr>
+                                <th class="p-2.5">Pos.</th>
+                                <th class="p-2.5">Consultor / Espaço</th>
+                                <th class="p-2.5 text-center">Pedidos</th>
+                                <th class="p-2.5 text-center">No Prazo (&lt;4m)</th>
+                                <th class="p-2.5 text-center">Estourados (+4m)</th>
+                                <th class="p-2.5 text-right">% SLA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sla-tbody-ranking" class="divide-y divide-slate-800/60 text-slate-300">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between gap-2 text-xs">
+                <button type="button" onclick="copiarRelatorioAuditoriaSLA()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2 px-3.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copiar Relatório p/ WhatsApp</span>
+                </button>
+                <button type="button" onclick="fecharModalRankingSLA()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl transition cursor-pointer">
+                    Fechar
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- NOTIFICAÇÃO FLUTUANTE (TOAST) -->
     <div id="toast-central" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 max-w-md bg-slate-900 text-white border border-purple-500/50 p-4 rounded-2xl shadow-2xl flex items-center gap-3">
@@ -262,6 +757,7 @@
         let todosPedidosCentral = [];
         let todosConsultoresCache = [];
         let filtroStatusAtual = 'TODOS';
+        let modoVisualizacaoAtual = localStorage.getItem('central_modo_visualizacao') || 'LISTA';
         let somAtivado = true;
         let ultimoAlarmeTocadoTimestamp = 0;
         let intervalAutoRefresh = null;
@@ -408,11 +904,16 @@
                     const hid = String(c.herbalife_id || '').trim();
                     const rawEspaco = c.nome_espaco || '';
                     const apoioAtivo = !rawEspaco.includes('<!--APOIO_CENTRAL:false-->');
+                    const matchPico = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
+                    const emModoPico = matchPico && matchPico[1] && (Date.now() < parseInt(matchPico[1], 10));
                     mapaConsultoresApoio[hid] = {
                         consultor: c,
-                        apoioAtivo: apoioAtivo
+                        apoioAtivo: apoioAtivo,
+                        emModoPico: emModoPico,
+                        expiraPico: matchPico && matchPico[1] ? parseInt(matchPico[1], 10) : 0
                     };
                 });
+                window.mapaConsultoresApoioGlobal = mapaConsultoresApoio;
 
                 // 2. Busca pedidos da tabela avaliacoes
                 const { data: pedidos, error } = await supabaseClient
@@ -475,7 +976,12 @@
                     preparo++;
                 } else {
                     // PENDENTE
-                    if (diffMin >= 4) {
+                    const hid = String(item.herbalife_id || '').trim();
+                    const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+                    const infoCons = mapaApoio[hid];
+                    const emModoPico = infoCons && infoCons.emModoPico;
+
+                    if (diffMin >= 4 || emModoPico) {
                         emRisco++;
                     } else {
                         novos++;
@@ -548,7 +1054,19 @@
                 return true;
             });
 
-            renderizarCardsPedidos(filtrados);
+            if (modoVisualizacaoAtual === 'KANBAN') {
+                const gridLista = document.getElementById('grid-pedidos-central');
+                const gridKanban = document.getElementById('kanban-pedidos-central');
+                if (gridLista) gridLista.classList.add('hidden');
+                if (gridKanban) gridKanban.classList.remove('hidden');
+                renderizarKanbanPedidos(filtrados);
+            } else {
+                const gridLista = document.getElementById('grid-pedidos-central');
+                const gridKanban = document.getElementById('kanban-pedidos-central');
+                if (gridLista) gridLista.classList.remove('hidden');
+                if (gridKanban) gridKanban.classList.add('hidden');
+                renderizarCardsPedidos(filtrados);
+            }
         }
 
         function filtrarStatusPedidos(status) {
@@ -631,7 +1149,13 @@
                 const diffMinutos = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
                 const diffSegundos = Math.max(0, Math.floor(((agoraMs - pedidoMs) % 60000) / 1000));
 
-                const estaAtrasado = (st === 'PENDENTE' && diffMinutos >= 4);
+                // Identificação de Modo Pico EVS (Ponto 4)
+                const hid = String(item.herbalife_id || '').trim();
+                const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+                const infoCons = mapaApoio[hid];
+                const emModoPico = Boolean(infoCons && infoCons.emModoPico);
+
+                const estaAtrasado = (st === 'PENDENTE' && (diffMinutos >= 4 || emModoPico));
 
                 // Itens do Pedido formatados
                 let itensHtml = '';
@@ -648,7 +1172,13 @@
 
                 // Badge de Cronômetro
                 let badgeCronometro = '';
-                if (estaAtrasado) {
+                if (emModoPico && st === 'PENDENTE') {
+                    badgeCronometro = `
+                        <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
+                            <i class="fa-solid fa-bolt"></i> ⚡ PICO NO EVS - CENTRAL ASSUME IMEDIATO!
+                        </span>
+                    `;
+                } else if (estaAtrasado) {
                     badgeCronometro = `
                         <span class="inline-flex items-center gap-1.5 bg-rose-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
                             <i class="fa-solid fa-triangle-exclamation"></i> 🚨 +${diffMinutos} MINUTOS SEM RESPOSTA - CENTRAL ASSUMINDO!
@@ -772,19 +1302,35 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                                <div class="mt-3 pt-2 border-t border-slate-800 flex flex-col gap-2">
                                     <button type="button" onclick="assumirPedidoPelaCentral(${item.id})" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
                                         <i class="fa-solid fa-headset text-amber-300"></i> Assumir Atendimento na Central
+                                    </button>
+                                    <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="w-full bg-slate-800 hover:bg-indigo-900/60 text-indigo-300 hover:text-white border border-indigo-500/40 font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                        <i class="fa-solid fa-motorcycle text-indigo-400"></i> Despachar p/ Motoboy (GPS)
                                     </button>
                                 </div>
                             </div>
 
                         </div>
 
-                        <!-- RODAPÉ DE MUDANÇA DE STATUS RÁPIDA -->
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs flex-wrap gap-2">
-                            <span class="text-slate-400 font-bold text-[11px]">Atualizar Status do Pedido:</span>
+                        <!-- BARRA DE AÇÕES ELEGANTES DA CENTRAL (PONTOS 2, 5, 1) -->
+                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80 text-xs flex-wrap gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-motorcycle"></i> Despachar Motoboy
+                                </button>
+                                <button type="button" onclick="abrirModalRespostasRapidas(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-bolt text-amber-400"></i> Respostas Rápidas
+                                </button>
+                                <button type="button" onclick="abrirModalTransbordo(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-arrow-right-arrow-left text-purple-400"></i> Transbordo
+                                </button>
+                            </div>
+
+                            <!-- MUDANÇA RÁPIDA DE STATUS -->
                             <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-slate-400 font-bold text-[11px] mr-1">Status:</span>
                                 <button type="button" onclick="alterarStatusPedido(${item.id}, 'PENDENTE')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'PENDENTE' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
                                     Pendente
                                 </button>
@@ -795,7 +1341,7 @@
                                     Saiu p/ Entrega
                                 </button>
                                 <button type="button" onclick="alterarStatusPedido(${item.id}, 'CONCLUIDO')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'CONCLUIDO' ? 'bg-emerald-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
-                                    Entregue / Concluído
+                                    Concluído
                                 </button>
                             </div>
                         </div>
@@ -803,6 +1349,249 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // ==========================================
+        // PONTO 3: MODO TV / KANBAN DE COZINHA (ESTILO GESTOR IFOOD)
+        // ==========================================
+        function alternarModoVisualizacao() {
+            modoVisualizacaoAtual = (modoVisualizacaoAtual === 'LISTA') ? 'KANBAN' : 'LISTA';
+            localStorage.setItem('central_modo_visualizacao', modoVisualizacaoAtual);
+            atualizarBotoesModoVisualizacao();
+            aplicarFiltrosEBusca();
+            mostrarToast(`Exibição alterada para ${modoVisualizacaoAtual === 'KANBAN' ? '📺 Modo TV / Kanban iFood' : '📋 Modo Lista'}!`, 'sucesso');
+        }
+
+        function atualizarBotoesModoVisualizacao() {
+            const btn = document.getElementById('btn-toggle-modo-tv');
+            const icone = document.getElementById('icone-modo-tv');
+            const label = document.getElementById('label-modo-tv');
+            if (!btn || !icone || !label) return;
+
+            if (modoVisualizacaoAtual === 'KANBAN') {
+                icone.className = 'fa-solid fa-list-check text-emerald-300';
+                label.innerText = 'Modo Lista';
+                btn.className = 'bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer';
+            } else {
+                icone.className = 'fa-solid fa-tv text-amber-300';
+                label.innerText = 'Modo TV / Kanban';
+                btn.className = 'bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer border border-purple-400/40';
+            }
+        }
+
+        function toggleTelaCheiaTV() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    mostrarToast("📺 Modo TV em Tela Cheia ativado!", "sucesso");
+                }).catch(err => {
+                    console.warn("Fullscreen falhou:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    mostrarToast("Tela Cheia desativada.", "aviso");
+                }
+            }
+        }
+
+        function renderizarKanbanPedidos(lista) {
+            const agoraMs = Date.now();
+            const colRisco = document.getElementById('kanban-col-risco');
+            const colNovos = document.getElementById('kanban-col-novos');
+            const colPreparo = document.getElementById('kanban-col-preparo');
+            const colRota = document.getElementById('kanban-col-rota');
+
+            if (!colRisco || !colNovos || !colPreparo || !colRota) return;
+
+            const itensRisco = [];
+            const itensNovos = [];
+            const itensPreparo = [];
+            const itensRota = [];
+
+            lista.forEach(item => {
+                const dados = extrairDadosPedidoItem(item);
+                const st = String(dados.status || 'PENDENTE').toUpperCase();
+                const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
+                const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+
+                if (st === 'EM_ROTA' || st === 'ROTA') {
+                    itensRota.push(item);
+                } else if (st === 'PREPARO') {
+                    itensPreparo.push(item);
+                } else if (st === 'CONCLUIDO') {
+                    // Pedidos concluídos
+                } else {
+                    // PENDENTE
+                    const hid = String(item.herbalife_id || '').trim();
+                    const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+                    const infoCons = mapaApoio[hid];
+                    const emModoPico = infoCons && infoCons.emModoPico;
+
+                    if (diffMin >= 4 || emModoPico) {
+                        itensRisco.push(item);
+                    } else {
+                        itensNovos.push(item);
+                    }
+                }
+            });
+
+            // Atualiza contadores
+            const bRisco = document.getElementById('kanban-badge-risco');
+            const bNovos = document.getElementById('kanban-badge-novos');
+            const bPreparo = document.getElementById('kanban-badge-preparo');
+            const bRota = document.getElementById('kanban-badge-rota');
+            if (bRisco) bRisco.innerText = itensRisco.length;
+            if (bNovos) bNovos.innerText = itensNovos.length;
+            if (bPreparo) bPreparo.innerText = itensPreparo.length;
+            if (bRota) bRota.innerText = itensRota.length;
+
+            // Template gerador de card no Kanban
+            function gerarCardKanban(item, tipoColuna) {
+                const dados = extrairDadosPedidoItem(item);
+                const st = String(dados.status || 'PENDENTE').toUpperCase();
+                const nomeCliente = limparNomeCliente(item.nome_cliente);
+                const whatsCliente = item.whatsapp_cliente || '';
+                const whatsClienteLimpo = normalizarNumeroWhatsApp(whatsCliente);
+                const valorTotal = dados.valor_total || 'R$ 0,00';
+                const endereco = dados.endereco || 'Retirada no Espaço';
+                const modalidade = dados.modalidade === 'ENTREGA' ? 'Entrega' : 'Retirada';
+
+                const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+                const nomeConsultor = cEncontrado ? (cEncontrado.nome_completo || cEncontrado.herbalife_id) : 'Consultor';
+                const cidade = cEncontrado ? (cEncontrado.cidade || '') : '';
+
+                const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
+                const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+
+                let badgeTempo = '';
+                let bordaEstilo = 'border-slate-800';
+
+                const hid = String(item.herbalife_id || '').trim();
+                const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+                const infoCons = mapaApoio[hid];
+                const emModoPico = infoCons && infoCons.emModoPico;
+
+                if (tipoColuna === 'RISCO') {
+                    bordaEstilo = 'border-rose-500 alerta-risco-ativo bg-rose-950/40';
+                    if (emModoPico) {
+                        badgeTempo = `<span class="bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 font-black px-2 py-0.5 rounded-lg text-[10px] animate-pulse">⚡ PICO EVS (ATENDER)</span>`;
+                    } else {
+                        badgeTempo = `<span class="bg-rose-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px] animate-pulse">🚨 +${diffMin}m ATRASADO</span>`;
+                    }
+                } else if (tipoColuna === 'NOVOS') {
+                    bordaEstilo = 'border-amber-500/60 bg-amber-950/20';
+                    const restam = Math.max(0, 4 - diffMin);
+                    badgeTempo = `<span class="bg-amber-500 text-slate-950 font-bold px-2 py-0.5 rounded-lg text-[10px]">⏳ Restam ${restam}m</span>`;
+                } else if (tipoColuna === 'PREPARO') {
+                    bordaEstilo = 'border-blue-500/60 bg-blue-950/20';
+                    badgeTempo = `<span class="bg-blue-600 text-white font-bold px-2 py-0.5 rounded-lg text-[10px]">🥤 Preparando</span>`;
+                } else {
+                    bordaEstilo = 'border-indigo-500/60 bg-indigo-950/20';
+                    badgeTempo = `<span class="bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-lg text-[10px]">🛵 Em Rota</span>`;
+                }
+
+                // Resumo de produtos
+                let resumoItens = dados.produto || 'Kit Litrão do Reset';
+                if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
+                    resumoItens = dados.itens.map(it => `${it.quantidade || 1}x ${it.nome || 'Litrão'} ${it.sabores ? `(${it.sabores})` : ''}`).join(', ');
+                }
+
+                // Ações por coluna
+                let botoesAcao = '';
+                if (tipoColuna === 'RISCO') {
+                    botoesAcao = `
+                        <div class="grid grid-cols-2 gap-1.5 mt-2.5">
+                            <button type="button" onclick="assumirPedidoPelaCentral(${item.id})" class="bg-purple-600 hover:bg-purple-500 text-white font-black py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-headset text-amber-300"></i> Assumir
+                            </button>
+                            <button type="button" onclick="cobrarConsultorCentral(${item.id})" class="bg-rose-600 hover:bg-rose-500 text-white font-black py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-bell"></i> Cobrar
+                            </button>
+                        </div>
+                    `;
+                } else if (tipoColuna === 'NOVOS') {
+                    botoesAcao = `
+                        <div class="mt-2.5">
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'PREPARO')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-blender"></i> Iniciar Preparo
+                            </button>
+                        </div>
+                    `;
+                } else if (tipoColuna === 'PREPARO') {
+                    botoesAcao = `
+                        <div class="grid grid-cols-2 gap-1.5 mt-2.5">
+                            <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-motorcycle"></i> Despachar
+                            </button>
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'EM_ROTA')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 border border-slate-700 cursor-pointer">
+                                🛵 Na Rua
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // ROTA
+                    botoesAcao = `
+                        <div class="grid grid-cols-2 gap-1.5 mt-2.5">
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'CONCLUIDO')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-circle-check"></i> Entregue
+                            </button>
+                            <button type="button" onclick="abrirModalRespostasRapidas(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-1.5 px-2 rounded-xl text-[10px] flex items-center justify-center gap-1 border border-slate-700 cursor-pointer">
+                                <i class="fa-solid fa-bolt"></i> Respostas
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="bg-slate-900 border ${bordaEstilo} rounded-2xl p-3 shadow-md flex flex-col justify-between text-xs transition transform hover:scale-[1.01]">
+                        <div>
+                            <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-800">
+                                <span class="font-mono font-black text-purple-300 bg-purple-950/80 px-1.5 py-0.5 rounded text-[10px]">#${item.id}</span>
+                                ${badgeTempo}
+                                <span class="font-black text-amber-300 text-xs">${valorTotal}</span>
+                            </div>
+
+                            <div class="mt-2">
+                                <div class="font-black text-white text-xs truncate" title="${nomeCliente}">${nomeCliente}</div>
+                                <div class="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5 truncate">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                                    <a href="https://wa.me/${whatsClienteLimpo}" target="_blank" class="hover:underline">${whatsCliente || '-'}</a>
+                                </div>
+                            </div>
+
+                            <div class="mt-2 text-[10px] text-slate-300 line-clamp-2 bg-slate-950/70 p-1.5 rounded-lg border border-slate-800/80 font-mono">
+                                🥤 ${resumoItens}
+                            </div>
+
+                            <div class="mt-1.5 text-[9px] text-slate-400 truncate">
+                                📍 <strong class="text-slate-300">${modalidade}:</strong> ${endereco}
+                            </div>
+                            <div class="text-[9px] text-slate-400 truncate">
+                                👤 ${nomeConsultor} ${cidade ? `(${cidade})` : ''}
+                            </div>
+                        </div>
+
+                        ${botoesAcao}
+                    </div>
+                `;
+            }
+
+            // Injeta nas colunas
+            colRisco.innerHTML = itensRisco.length > 0 
+                ? itensRisco.map(it => gerarCardKanban(it, 'RISCO')).join('')
+                : '<div class="text-center py-10 text-[11px] text-slate-500 italic">Nenhum pedido em risco! Tudo em dia 👏</div>';
+
+            colNovos.innerHTML = itensNovos.length > 0
+                ? itensNovos.map(it => gerarCardKanban(it, 'NOVOS')).join('')
+                : '<div class="text-center py-10 text-[11px] text-slate-500 italic">Sem novos pedidos pendentes.</div>';
+
+            colPreparo.innerHTML = itensPreparo.length > 0
+                ? itensPreparo.map(it => gerarCardKanban(it, 'PREPARO')).join('')
+                : '<div class="text-center py-10 text-[11px] text-slate-500 italic">Nenhum pedido em preparo agora.</div>';
+
+            colRota.innerHTML = itensRota.length > 0
+                ? itensRota.map(it => gerarCardKanban(it, 'ROTA')).join('')
+                : '<div class="text-center py-10 text-[11px] text-slate-500 italic">Nenhum entregador em rota.</div>';
         }
 
         // ASSUMIR ATENDIMENTO PELA CENTRAL (MENSAGEM NO WHATSAPP DO CLIENTE)
@@ -934,6 +1723,723 @@
             }
         }
 
+        // ==========================================
+        // PONTO 2: DESPACHO RÁPIDO PARA MOTOBOY / ENTREGADOR
+        // ==========================================
+        function abrirModalDespachoMotoboy(pedidoId) {
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const modal = document.getElementById('modal-despacho-motoboy');
+            const dados = extrairDadosPedidoItem(item);
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const whatsCliente = item.whatsapp_cliente || '';
+            const endereco = dados.endereco || 'Endereço não informado';
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+
+            document.getElementById('despacho-pedido-id').value = pedidoId;
+            document.getElementById('despacho-badge-pedido').innerText = `#${pedidoId}`;
+            document.getElementById('despacho-endereco').innerText = endereco;
+            document.getElementById('despacho-cliente-info').innerText = `Cliente: ${nomeCliente} • Whats: ${whatsCliente || 'Não informado'}`;
+            document.getElementById('despacho-label-cobrar').innerText = `💰 COBRAR DO CLIENTE: ${valorTotal}`;
+
+            // Links de GPS
+            const urlGmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            const urlWaze = `https://waze.com/ul?q=${encodeURIComponent(endereco)}`;
+            document.getElementById('btn-gps-gmaps').href = urlGmaps;
+            document.getElementById('btn-gps-waze').href = urlWaze;
+
+            // Carrega histórico de motoboys
+            carregarHistoricoMotoboys();
+
+            // Atualiza prévia da mensagem
+            atualizarPreviaMensagemMotoboy();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModalDespachoMotoboy() {
+            const modal = document.getElementById('modal-despacho-motoboy');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function carregarHistoricoMotoboys() {
+            const select = document.getElementById('despacho-select-historico');
+            let salvos = [];
+            try {
+                salvos = JSON.parse(localStorage.getItem('central_motoboys_recentes') || '[]');
+            } catch (e) {}
+
+            select.innerHTML = '<option value="">📋 Salvos...</option>';
+            salvos.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.numero;
+                opt.innerText = m.nome ? `${m.nome} (${m.numero})` : m.numero;
+                select.appendChild(opt);
+            });
+
+            const inputWhats = document.getElementById('despacho-whats-motoboy');
+            if (salvos.length > 0 && !inputWhats.value) {
+                inputWhats.value = salvos[0].numero;
+            }
+        }
+
+        function selecionarMotoboyHistorico(num) {
+            if (!num) return;
+            document.getElementById('despacho-whats-motoboy').value = num;
+            atualizarPreviaMensagemMotoboy();
+        }
+
+        function salvarMotoboyHistorico(num) {
+            if (!num) return;
+            try {
+                let salvos = JSON.parse(localStorage.getItem('central_motoboys_recentes') || '[]');
+                salvos = salvos.filter(m => m.numero !== num);
+                salvos.unshift({ numero: num, nome: 'Motoboy' });
+                if (salvos.length > 8) salvos.pop();
+                localStorage.setItem('central_motoboys_recentes', JSON.stringify(salvos));
+            } catch (e) {}
+        }
+
+        function gerarTextoMensagemMotoboy(item, dados, cobrancaTipo) {
+            const pedidoId = item.id;
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const whatsCliente = item.whatsapp_cliente || '';
+            const endereco = dados.endereco || 'A combinar / Retirada';
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+            const produto = dados.produto || 'Kit Litrão do Reset';
+
+            const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+            const nomeConsultor = cEncontrado ? (cEncontrado.nome_completo || cEncontrado.herbalife_id) : 'Consultor Parceiro';
+            const cidade = cEncontrado ? (cEncontrado.cidade || '') : '';
+
+            const urlGmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+
+            let textoCobranca = '';
+            if (cobrancaTipo === 'PAGO_PIX') {
+                textoCobranca = `✅ *PAGAMENTO:* JÁ PAGO NO PIX (NÃO COBRAR NADA DO CLIENTE!)`;
+            } else {
+                textoCobranca = `💰 *PAGAMENTO:* COBRAR DO CLIENTE: *${valorTotal}* (Dinheiro ou Cartão)`;
+            }
+
+            return `🛵 *DESPACHO DE CORRIDA - LITRÃO DO RESET*\n` +
+                   `📦 *Pedido #${pedidoId}* • Consultor: ${nomeConsultor} ${cidade ? `(${cidade})` : ''}\n\n` +
+                   `📍 *ENDEREÇO DE ENTREGA:*\n${endereco}\n\n` +
+                   `🗺️ *ROTA GPS NO GOOGLE MAPS:*\n${urlGmaps}\n\n` +
+                   `👤 *CLIENTE:*\n${nomeCliente}\nTelefone: ${whatsCliente || 'Não informado'}\n\n` +
+                   `🥤 *PRODUTO:*\n${produto}\n\n` +
+                   `${textoCobranca}\n\n` +
+                   `🚀 *Agradecemos a rapidez e cuidado na entrega! Boa corrida!*`;
+        }
+
+        function atualizarPreviaMensagemMotoboy() {
+            const pedidoId = document.getElementById('despacho-pedido-id').value;
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const dados = extrairDadosPedidoItem(item);
+            const radios = document.getElementsByName('despacho-cobranca');
+            let cobrancaTipo = 'PAGO_PIX';
+            for (const r of radios) {
+                if (r.checked) {
+                    cobrancaTipo = r.value;
+                    break;
+                }
+            }
+
+            const texto = gerarTextoMensagemMotoboy(item, dados, cobrancaTipo);
+            document.getElementById('despacho-previa-msg').value = texto;
+        }
+
+        function executarDespachoMotoboy() {
+            const pedidoId = document.getElementById('despacho-pedido-id').value;
+            const whatsMotoboyInput = document.getElementById('despacho-whats-motoboy').value;
+            const whatsMotoboyLimpo = normalizarNumeroWhatsApp(whatsMotoboyInput);
+
+            if (!whatsMotoboyLimpo) {
+                alert("Por favor, digite o WhatsApp do motoboy / entregador.");
+                return;
+            }
+
+            salvarMotoboyHistorico(whatsMotoboyInput.trim());
+
+            const msg = document.getElementById('despacho-previa-msg').value;
+            const linkZap = `https://wa.me/${whatsMotoboyLimpo}?text=${encodeURIComponent(msg)}`;
+
+            // Abre o WhatsApp do motoboy
+            window.open(linkZap, '_blank');
+
+            // Altera automaticamente o status do pedido para EM_ROTA
+            alterarStatusPedido(pedidoId, 'EM_ROTA');
+
+            fecharModalDespachoMotoboy();
+            mostrarToast(`🛵 Pedido #${pedidoId} despachado com sucesso para o motoboy!`, 'sucesso');
+        }
+
+        // ==========================================
+        // PONTO 5: RESPOSTAS RÁPIDAS DE CONTINGÊNCIA EM 1 CLIQUE
+        // ==========================================
+        function abrirModalRespostasRapidas(pedidoId) {
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const modal = document.getElementById('modal-respostas-rapidas');
+            const dados = extrairDadosPedidoItem(item);
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const whatsCliente = item.whatsapp_cliente || '';
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+
+            document.getElementById('respostas-pedido-id').value = pedidoId;
+            document.getElementById('respostas-badge-pedido').innerText = `#${pedidoId}`;
+            document.getElementById('respostas-nome-cliente').innerText = nomeCliente;
+            document.getElementById('respostas-whats-cliente').innerHTML = `<i class="fa-brands fa-whatsapp"></i> ${whatsCliente || 'Sem número'}`;
+            document.getElementById('respostas-valor-total').innerText = valorTotal;
+
+            // Template padrão inicial: Troca de Sabor
+            selecionarTemplateResposta('TROCA_SABOR');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModalRespostasRapidas() {
+            const modal = document.getElementById('modal-respostas-rapidas');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function selecionarTemplateResposta(tipo) {
+            const pedidoId = document.getElementById('respostas-pedido-id').value;
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const dados = extrairDadosPedidoItem(item);
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+            const produto = dados.produto || 'Kit Litrão do Reset';
+
+            let sabores = '';
+            if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
+                sabores = dados.itens.map(it => it.sabores || it.nome).filter(Boolean).join(', ');
+            }
+
+            const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+            const chavePix = (cEncontrado && cEncontrado.whatsapp) ? cEncontrado.whatsapp : 'central@litraodoreset.com.br';
+
+            let texto = '';
+
+            switch (tipo) {
+                case 'TROCA_SABOR':
+                    texto = 
+                        `Olá, *${nomeCliente}*! Tudo bem?\n\n` +
+                        `Aqui é da Central Oficial do *Litrão do Reset*! 🥤\n` +
+                        `Estamos com seu pedido *#${pedidoId}* na linha de produção agorinha mesmo! O sabor ${sabores ? `*(${sabores})*` : 'escolhido'} teve um pico altíssimo de saída hoje e acabou de esgotar o estoque fresco.\n\n` +
+                        `Para você não esperar nem um segundo a mais, separamos estas opções deliciosas trincando de geladas:\n` +
+                        `• Limão Refrescante Detox 🍋\n` +
+                        `• Uva Verde Turbinada 🍇\n` +
+                        `• Maracujá Tropical Relax 🍈\n` +
+                        `• Frutas Vermelhas Antioxidante 🍓\n\n` +
+                        `Qual você prefere que a gente coloque na sua garrafa para despachar agora?`;
+                    break;
+
+                case 'ATRASO_CHUVA':
+                    texto = 
+                        `Olá, *${nomeCliente}*! Tudo bem? 🛵🌧️\n\n` +
+                        `Passando para te avisar que o seu pedido *#${pedidoId}* (${produto}) já saiu para entrega!\n\n` +
+                        `Como o clima e o trânsito estão mais pesados na sua região agora, pedimos sua compreensão por alguns minutinhos extras para que nosso entregador possa pilotar com toda segurança.\n\n` +
+                        `Seu Litrão chegará perfeito, trincando de gelado! Agradecemos muito a sua paciência e carinho!`;
+                    break;
+
+                case 'CONFIRMAR_LOCAL':
+                    texto = 
+                        `Olá, *${nomeCliente}*! 📍\n\n` +
+                        `O seu pedido *#${pedidoId}* do Litrão do Reset está saindo agora com nosso motoboy!\n\n` +
+                        `Para garantir que ele encontre o local sem nenhuma dificuldade, você poderia nos mandar a sua localização em tempo real aqui pelo WhatsApp ou um ponto de referência (como cor da casa, portão ou comércio vizinho)?\n\n` +
+                        `Muito obrigado pela ajuda!`;
+                    break;
+
+                case 'ENVIAR_PIX':
+                    texto = 
+                        `Olá, *${nomeCliente}*! 💳\n\n` +
+                        `Segue a chave PIX para confirmação do seu pedido *#${pedidoId}*:\n\n` +
+                        `💰 *Valor Total:* ${valorTotal}\n` +
+                        `🔑 *Chave PIX:* ${chavePix}\n` +
+                        `👤 *Titular:* Central Litrão do Reset\n\n` +
+                        `Assim que realizar o pagamento, por favor envie o comprovante por aqui para liberarmos imediatamente o seu envio! 🚀🥤`;
+                    break;
+
+                case 'NA_PORTA':
+                    texto = 
+                        `Olá, *${nomeCliente}*! 🛵🔔\n\n` +
+                        `O nosso entregador acabou de chegar no seu endereço com o seu Litrão do Reset (*#${pedidoId}*)!\n\n` +
+                        `Pode vir até a recepção / portão para receber? Desejamos um ótimo consumo e muito bem-estar para você hoje! ✨🥤`;
+                    break;
+
+                case 'PRODUCAO_VIP':
+                    texto = 
+                        `Olá, *${nomeCliente}*! 🥤✨\n\n` +
+                        `Confirmamos o recebimento do seu pedido *#${pedidoId}* (${produto} - ${valorTotal})!\n\n` +
+                        `Nossa equipe já iniciou o preparo com muito capricho. Logo ele estará embalado e a caminho da sua casa! Qualquer dúvida estamos por aqui.`;
+                    break;
+            }
+
+            document.getElementById('respostas-texto-msg').value = texto;
+        }
+
+        function enviarRespostaRapidaWhatsApp() {
+            const pedidoId = document.getElementById('respostas-pedido-id').value;
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const whatsCliente = normalizarNumeroWhatsApp(item.whatsapp_cliente);
+            if (!whatsCliente) {
+                alert("O cliente não possui WhatsApp cadastrado neste pedido.");
+                return;
+            }
+
+            const textoMsg = document.getElementById('respostas-texto-msg').value.trim();
+            if (!textoMsg) {
+                alert("Por favor, digite ou selecione uma mensagem.");
+                return;
+            }
+
+            const urlZap = `https://wa.me/${whatsCliente}?text=${encodeURIComponent(textoMsg)}`;
+            window.open(urlZap, '_blank');
+
+            fecharModalRespostasRapidas();
+            mostrarToast(`⚡ Resposta rápida enviada no WhatsApp para o cliente do pedido #${pedidoId}!`, 'sucesso');
+        }
+
+        // ==========================================
+        // PONTO 1: TRANSBORDO INTELIGENTE DE PEDIDOS
+        // ==========================================
+        let filtroTransbordoTipo = 'CIDADE';
+        let consultorSelecionadoTransbordoId = null;
+
+        function abrirModalTransbordo(pedidoId) {
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const modal = document.getElementById('modal-transbordo-pedido');
+            const dados = extrairDadosPedidoItem(item);
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+
+            const cAtual = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+            const nomeConsultorAtual = cAtual ? (cAtual.nome_completo || cAtual.herbalife_id) : 'Não identificado';
+            const cidadeConsultorAtual = cAtual ? (cAtual.cidade ? `${cAtual.cidade} - ${cAtual.estado || ''}` : 'Cidade não informada') : 'Cidade não informada';
+
+            document.getElementById('transbordo-pedido-id').value = pedidoId;
+            document.getElementById('transbordo-badge-pedido').innerText = `#${pedidoId}`;
+            document.getElementById('transbordo-origem-nome').innerText = nomeConsultorAtual;
+            document.getElementById('transbordo-origem-cidade').innerText = cidadeConsultorAtual;
+            document.getElementById('transbordo-cliente-nome').innerText = nomeCliente;
+            document.getElementById('transbordo-valor').innerText = valorTotal;
+
+            consultorSelecionadoTransbordoId = null;
+            filtroTransbordoTipo = 'CIDADE';
+            document.getElementById('transbordo-busca-consultor').value = '';
+
+            filtrarConsultoresTransbordo('CIDADE');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModalTransbordo() {
+            const modal = document.getElementById('modal-transbordo-pedido');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function filtrarConsultoresTransbordo(tipo) {
+            filtroTransbordoTipo = tipo;
+            const btnC = document.getElementById('btn-filtro-trans-cidade');
+            const btnT = document.getElementById('btn-filtro-trans-todos');
+            if (tipo === 'CIDADE') {
+                btnC.className = 'px-2 py-0.5 rounded-lg font-bold bg-purple-600 text-white transition';
+                btnT.className = 'px-2 py-0.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+            } else {
+                btnC.className = 'px-2 py-0.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+                btnT.className = 'px-2 py-0.5 rounded-lg font-bold bg-purple-600 text-white transition';
+            }
+            renderizarListaConsultoresTransbordo();
+        }
+
+        function renderizarListaConsultoresTransbordo() {
+            const pedidoId = document.getElementById('transbordo-pedido-id').value;
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            const cAtual = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+            const cidadeAtual = cAtual && cAtual.cidade ? cAtual.cidade.toLowerCase().trim() : '';
+            const busca = (document.getElementById('transbordo-busca-consultor').value || '').toLowerCase().trim();
+            const container = document.getElementById('transbordo-lista-consultores');
+
+            const listaFiltrada = todosConsultoresCache.filter(c => {
+                const hid = String(c.herbalife_id || '').trim();
+                // Não exibir o mesmo consultor de origem
+                if (hid === String(item.herbalife_id).trim()) return false;
+
+                if (filtroTransbordoTipo === 'CIDADE' && cidadeAtual) {
+                    const cid = (c.cidade || '').toLowerCase().trim();
+                    if (!cid.includes(cidadeAtual) && !cidadeAtual.includes(cid)) return false;
+                }
+
+                if (busca) {
+                    const nome = (c.nome_completo || '').toLowerCase();
+                    const cid = (c.cidade || '').toLowerCase();
+                    const hidStr = hid.toLowerCase();
+                    const espaco = (c.nome_espaco || '').toLowerCase();
+                    if (!nome.includes(busca) && !cid.includes(busca) && !hidStr.includes(busca) && !espaco.includes(busca)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            if (listaFiltrada.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-xs text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+                        <i class="fa-solid fa-users-slash text-xl text-slate-500 mb-1 block"></i>
+                        Nenhum outro consultor encontrado ${filtroTransbordoTipo === 'CIDADE' ? 'nesta cidade' : 'com esse termo'}.<br>
+                        <button type="button" onclick="filtrarConsultoresTransbordo('TODOS')" class="mt-2 text-purple-400 underline font-bold cursor-pointer">Ver consultores de toda a rede</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = listaFiltrada.map(c => {
+                const hid = String(c.herbalife_id || '').trim();
+                const isSel = (consultorSelecionadoTransbordoId === hid);
+                const nome = c.nome_completo || hid;
+                const cidadeUf = `${c.cidade || 'Sem cidade'} ${c.estado ? `- ${c.estado}` : ''}`;
+                const rawEspaco = c.nome_espaco || '';
+                const nomeEspaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço Vida Saudável';
+                const apoioAtivo = !rawEspaco.includes('<!--APOIO_CENTRAL:false-->');
+
+                return `
+                    <div onclick="selecionarConsultorDestinoTransbordo('${hid}')" class="p-2.5 rounded-xl border ${isSel ? 'border-purple-500 bg-purple-950/60 shadow-md' : 'border-slate-800 bg-slate-950/50 hover:bg-slate-800/60'} transition cursor-pointer flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg ${isSel ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-300'} flex items-center justify-center text-xs shrink-0 font-bold">
+                                ${isSel ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-store"></i>'}
+                            </span>
+                            <div>
+                                <h5 class="text-xs font-bold text-white leading-tight">${nome}</h5>
+                                <p class="text-[10px] text-slate-400 leading-tight">${nomeEspaco} • <strong class="text-amber-300">${cidadeUf}</strong></p>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[9px] font-mono bg-slate-800 px-1.5 py-0.5 rounded text-purple-300">ID: ${hid}</span>
+                            ${apoioAtivo ? '<span class="text-[9px] text-emerald-400 block mt-0.5"><i class="fa-solid fa-circle-check"></i> Apoio Ativo</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selecionarConsultorDestinoTransbordo(hid) {
+            consultorSelecionadoTransbordoId = hid;
+            renderizarListaConsultoresTransbordo();
+        }
+
+        async function executarTransbordoPedido() {
+            const pedidoId = document.getElementById('transbordo-pedido-id').value;
+            const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
+            if (!item) return;
+
+            if (!consultorSelecionadoTransbordoId) {
+                alert("Por favor, selecione o novo consultor que irá assumir o pedido.");
+                return;
+            }
+
+            const novoConsultor = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(consultorSelecionadoTransbordoId).trim());
+            if (!novoConsultor) {
+                alert("Consultor selecionado não encontrado.");
+                return;
+            }
+
+            const antigoHid = item.herbalife_id;
+            const cAntigo = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(antigoHid).trim());
+            const nomeAntigo = cAntigo ? (cAntigo.nome_completo || antigoHid) : 'Consultor Anterior';
+
+            const dados = extrairDadosPedidoItem(item);
+            dados.transbordo = {
+                de_herbalife_id: antigoHid,
+                de_nome: nomeAntigo,
+                para_herbalife_id: consultorSelecionadoTransbordoId,
+                para_nome: novoConsultor.nome_completo || consultorSelecionadoTransbordoId,
+                data: new Date().toISOString(),
+                responsavel: 'Central SuperAdmin'
+            };
+            dados.status = 'PENDENTE';
+
+            let novoComoFoi = item.como_foi_semana || '';
+            const tagNovo = `<!--DADOS_PEDIDO:${JSON.stringify(dados)}-->`;
+            if (novoComoFoi.includes('<!--DADOS_PEDIDO:')) {
+                novoComoFoi = novoComoFoi.replace(/<!--DADOS_PEDIDO:.*?-->/, tagNovo);
+            } else {
+                novoComoFoi += `\n${tagNovo}`;
+            }
+
+            try {
+                // Atualiza o consultor responsável (herbalife_id) no Supabase!
+                const { error } = await supabaseClient
+                    .from('avaliacoes')
+                    .update({ 
+                        herbalife_id: consultorSelecionadoTransbordoId,
+                        como_foi_semana: novoComoFoi 
+                    })
+                    .eq('id', pedidoId);
+
+                if (error) throw error;
+
+                item.herbalife_id = consultorSelecionadoTransbordoId;
+                item.como_foi_semana = novoComoFoi;
+
+                const notificarNovoCons = document.getElementById('transbordo-notificar-consultor').checked;
+                const notificarCliente = document.getElementById('transbordo-notificar-cliente').checked;
+
+                const nomeCliente = limparNomeCliente(item.nome_cliente);
+                const whatsCliente = item.whatsapp_cliente || '';
+                const valorTotal = dados.valor_total || 'R$ 0,00';
+                const produto = dados.produto || 'Kit Litrão do Reset';
+                const endereco = dados.endereco || 'A combinar / Retirada';
+
+                // 1. Notifica o novo consultor no WhatsApp
+                if (notificarNovoCons && novoConsultor.whatsapp) {
+                    const whatsConsNovo = normalizarNumeroWhatsApp(novoConsultor.whatsapp);
+                    const msgCons = 
+                        `🚨 *NOVO PEDIDO TRANSBORDADO PELA CENTRAL - LITRÃO DO RESET*\n\n` +
+                        `Olá, *${novoConsultor.nome_completo || 'Consultor'}*!\n` +
+                        `A Central transferiu o pedido *#${pedidoId}* para o seu atendimento prioritário:\n\n` +
+                        `👤 *Cliente:* ${nomeCliente}\n` +
+                        `📱 *WhatsApp:* ${whatsCliente}\n` +
+                        `📍 *Endereço:* ${endereco}\n` +
+                        `🥤 *Produto:* ${produto}\n` +
+                        `💰 *Valor Total:* ${valorTotal}\n\n` +
+                        `🚀 *Assuma o preparo e despacho imediatamente para encantar o cliente!*`;
+                    
+                    window.open(`https://wa.me/${whatsConsNovo}?text=${encodeURIComponent(msgCons)}`, '_blank');
+                }
+
+                // 2. Notifica o cliente se marcado
+                if (notificarCliente && item.whatsapp_cliente) {
+                    const whatsCliLimpo = normalizarNumeroWhatsApp(item.whatsapp_cliente);
+                    const rawEspaco = novoConsultor.nome_espaco || '';
+                    const nomeEspacoNovo = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço de Bem-Estar Oficial';
+                    const msgCli = 
+                        `Olá, *${nomeCliente}*! Tudo bem? 🥤✨\n\n` +
+                        `Passando para te avisar que o seu pedido *#${pedidoId}* foi transferido com prioridade máxima para a nossa unidade parceira *${nomeEspacoNovo}* com o consultor *${novoConsultor.nome_completo || 'Oficial'}* em ${novoConsultor.cidade || 'sua região'}.\n\n` +
+                        `O seu Litrão já está entrando em preparo para chegar quentinho/geladinho o mais rápido possível no seu endereço!`;
+                    
+                    setTimeout(() => {
+                        window.open(`https://wa.me/${whatsCliLimpo}?text=${encodeURIComponent(msgCli)}`, '_blank');
+                    }, 1000);
+                }
+
+                fecharModalTransbordo();
+                processarMetricasEDispararAlertas();
+                aplicarFiltrosEBusca();
+                mostrarToast(`🔄 Pedido #${pedidoId} transbordado com sucesso para ${novoConsultor.nome_completo || consultorSelecionadoTransbordoId}!`, 'sucesso');
+            } catch (err) {
+                console.error("Erro no transbordo:", err);
+                alert("Erro ao realizar transbordo: " + (err.message || err));
+            }
+        }
+
+        // ==========================================
+        // PONTO 6: RANKING DE EFICIÊNCIA & AUDITORIA DE SLA
+        // ==========================================
+        let rankingSlaCalculado = [];
+
+        function abrirModalRankingSLA() {
+            const modal = document.getElementById('modal-ranking-sla-consultores');
+            calcularERenderizarRankingSLA();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModalRankingSLA() {
+            const modal = document.getElementById('modal-ranking-sla-consultores');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function calcularERenderizarRankingSLA() {
+            const agoraMs = Date.now();
+            const mapaConsultores = {};
+
+            // Inicializa mapa com todos os consultores que possuem apoio ou pedidos
+            todosConsultoresCache.forEach(c => {
+                const hid = String(c.herbalife_id || '').trim();
+                mapaConsultores[hid] = {
+                    consultor: c,
+                    total: 0,
+                    noPrazo: 0,
+                    estourados: 0,
+                    minutosSoma: 0
+                };
+            });
+
+            let totalGeralPedidos = 0;
+            let totalGeralNoPrazo = 0;
+            let totalGeralEstourados = 0;
+            let somaTotalMinutos = 0;
+
+            todosPedidosCentral.forEach(item => {
+                const hid = String(item.herbalife_id || '').trim();
+                const dados = extrairDadosPedidoItem(item);
+                const st = String(dados.status || 'PENDENTE').toUpperCase();
+                const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
+                const diffMin = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+
+                if (!mapaConsultores[hid]) {
+                    mapaConsultores[hid] = {
+                        consultor: { herbalife_id: hid, nome_completo: 'Consultor #' + hid },
+                        total: 0,
+                        noPrazo: 0,
+                        estourados: 0,
+                        minutosSoma: 0
+                    };
+                }
+
+                const reg = mapaConsultores[hid];
+                reg.total++;
+                reg.minutosSoma += diffMin;
+                totalGeralPedidos++;
+                somaTotalMinutos += diffMin;
+
+                if (st === 'CONCLUIDO' || st === 'EM_ROTA' || st === 'ROTA' || st === 'PREPARO') {
+                    reg.noPrazo++;
+                    totalGeralNoPrazo++;
+                } else {
+                    // PENDENTE
+                    if (diffMin >= 4) {
+                        reg.estourados++;
+                        totalGeralEstourados++;
+                    } else {
+                        reg.noPrazo++;
+                        totalGeralNoPrazo++;
+                    }
+                }
+            });
+
+            // Converte para array filtrando consultores que possuem ao menos 1 pedido ou mais ativos
+            const ranking = Object.values(mapaConsultores)
+                .filter(item => item.total > 0)
+                .map(item => {
+                    const taxa = item.total > 0 ? Math.round((item.noPrazo / item.total) * 100) : 100;
+                    const tempoMedio = item.total > 0 ? Math.round(item.minutosSoma / item.total) : 0;
+                    return {
+                        ...item,
+                        taxaSla: taxa,
+                        tempoMedio: tempoMedio
+                    };
+                });
+
+            // Ordena por % SLA desc, depois por total de pedidos desc
+            ranking.sort((a, b) => {
+                if (b.taxaSla !== a.taxaSla) return b.taxaSla - a.taxaSla;
+                return b.total - a.total;
+            });
+
+            rankingSlaCalculado = ranking;
+
+            // Métricas gerais do topo
+            const taxaGeral = totalGeralPedidos > 0 ? Math.round((totalGeralNoPrazo / totalGeralPedidos) * 100) : 100;
+            const tempoMedioGeral = totalGeralPedidos > 0 ? Math.round(somaTotalMinutos / totalGeralPedidos) : 2;
+
+            document.getElementById('sla-taxa-geral').innerText = `${taxaGeral}%`;
+            document.getElementById('sla-tempo-medio').innerText = `${tempoMedioGeral} min`;
+            document.getElementById('sla-total-estourados').innerText = totalGeralEstourados;
+
+            // Renderiza tabela
+            const tbody = document.getElementById('sla-tbody-ranking');
+            if (ranking.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-xs text-slate-500 italic">
+                            Nenhum dado de pedido registrado na rede ainda.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = ranking.map((r, idx) => {
+                const c = r.consultor;
+                const nome = c.nome_completo || c.herbalife_id;
+                const rawEspaco = c.nome_espaco || '';
+                const espaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço de Bem-Estar';
+                const cidade = c.cidade ? `${c.cidade} - ${c.estado || ''}` : 'Região Oficial';
+
+                let medalha = `#${idx + 1}`;
+                if (idx === 0) medalha = '🥇 1º';
+                else if (idx === 1) medalha = '🥈 2º';
+                else if (idx === 2) medalha = '🥉 3º';
+
+                let badgeSla = '';
+                if (r.taxaSla >= 90) {
+                    badgeSla = `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg font-black text-[10px]">🌟 ${r.taxaSla}%</span>`;
+                } else if (r.taxaSla >= 70) {
+                    badgeSla = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-lg font-bold text-[10px]">🟢 ${r.taxaSla}%</span>`;
+                } else {
+                    badgeSla = `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-lg font-black text-[10px] animate-pulse">⚠️ ${r.taxaSla}%</span>`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-900/80 transition">
+                        <td class="p-2.5 font-bold text-amber-300 text-xs">${medalha}</td>
+                        <td class="p-2.5">
+                            <div class="font-bold text-white text-xs leading-snug">${nome}</div>
+                            <div class="text-[10px] text-slate-400">${espaco} • <strong class="text-slate-300">${cidade}</strong></div>
+                        </td>
+                        <td class="p-2.5 text-center font-bold text-white text-xs">${r.total}</td>
+                        <td class="p-2.5 text-center font-bold text-emerald-400 text-xs">${r.noPrazo}</td>
+                        <td class="p-2.5 text-center font-bold ${r.estourados > 0 ? 'text-rose-400' : 'text-slate-500'} text-xs">${r.estourados}</td>
+                        <td class="p-2.5 text-right">${badgeSla}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function copiarRelatorioAuditoriaSLA() {
+            if (rankingSlaCalculado.length === 0) {
+                alert("Sem dados para exportar.");
+                return;
+            }
+
+            const dataHora = new Date().toLocaleString('pt-BR');
+            let txt = `📊 *AUDITORIA DE EFICIÊNCIA & SLA 4 MINUTOS - LITRÃO DO RESET*\n`;
+            txt += `📅 Data: ${dataHora}\n\n`;
+            txt += `🏆 *RANKING DE VELOCIDADE DOS CONSULTORES:*\n`;
+
+            rankingSlaCalculado.forEach((r, idx) => {
+                const c = r.consultor;
+                const nome = c.nome_completo || c.herbalife_id;
+                const cidade = c.cidade || '';
+                let med = `${idx + 1}º`;
+                if (idx === 0) med = '🥇 1º';
+                if (idx === 1) med = '🥈 2º';
+                if (idx === 2) med = '🥉 3º';
+
+                txt += `${med} *${nome}* ${cidade ? `(${cidade})` : ''}\n`;
+                txt += `   • SLA: ${r.taxaSla}% no prazo | Pedidos: ${r.total} | Estourados: ${r.estourados}\n`;
+            });
+
+            txt += `\n🚀 *Central Anti-Perda de Pedidos - SLA 4 Minutos Ativo*`;
+
+            navigator.clipboard.writeText(txt).then(() => {
+                mostrarToast("📋 Relatório copiado para a área de transferência! Cole no WhatsApp.", "sucesso");
+            }).catch(() => {
+                prompt("Copie o relatório abaixo:", txt);
+            });
+        }
+
         // TOAST NOTIFICAÇÃO
         function mostrarToast(msg, tipo = 'sucesso') {
             const toast = document.getElementById('toast-central');
@@ -976,6 +2482,7 @@
         // INICIALIZAÇÃO
         window.addEventListener('DOMContentLoaded', () => {
             iniciarRelogio();
+            atualizarBotoesModoVisualizacao();
             carregarTodosPedidosCentral();
 
             // Auto-refresh inteligente a cada 10 segundos

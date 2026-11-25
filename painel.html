@@ -657,6 +657,27 @@
             </div>
         </div>
 
+        <!-- BANNER MODO PICO EVS ATIVO (PONTO 4) -->
+        <div id="banner-alerta-modo-pico" class="hidden mb-6 bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border-2 border-amber-400 p-4 rounded-3xl shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shrink-0 shadow-md">
+                    <i class="fa-solid fa-bolt"></i>
+                </span>
+                <div>
+                    <h4 class="text-sm font-black text-amber-300 flex items-center gap-2">
+                        MODO HORÁRIO DE PICO NO ESPAÇO ATIVADO
+                        <span id="badge-pico-expira-tempo" class="text-[10px] bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-black">Até --:--</span>
+                    </h4>
+                    <p class="text-xs text-purple-200 mt-0.5">
+                        Seus pedidos do catálogo estão sendo monitorados com apoio da <strong>Central Anti-Perda</strong> para você focar no atendimento presencial sem perder vendas!
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="desativarModoPicoEVS()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs transition cursor-pointer shrink-0 shadow-md flex items-center gap-1.5">
+                <i class="fa-solid fa-power-off"></i> Desativar Pausa
+            </button>
+        </div>
+
 
 
         <!-- ========================================================================= -->
@@ -1017,6 +1038,10 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="abrirModalPausaHorarioPico()" id="btn-horario-pico-evs" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Pausar Atendimento Local no Horário de Pico (Central assume os pedidos)">
+                                <i class="fa-solid fa-bolt text-amber-300" id="icone-btn-pico-evs"></i>
+                                <span id="label-horario-pico-btn">Pico EVS</span>
+                            </button>
                             <button type="button" onclick="abrirModalConfigPrecosKits()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Configurar Tabela de Preços">
                                 <i class="fa-solid fa-tags text-[10px]"></i>
                                 <span>Preços</span>
@@ -3352,6 +3377,85 @@
 
                         <div class="mt-5 pt-3 border-t border-slate-800 flex justify-end">
                             <button type="button" onclick="fecharModalConfigCentralSuperadmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS -->
+                <div id="modal-pausa-horario-pico" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+                    <div class="bg-slate-900 border-2 border-purple-500/50 rounded-3xl p-5 sm:p-6 w-full max-w-lg shadow-2xl text-white relative">
+                        <div class="flex items-center justify-between pb-3 mb-4 border-b border-purple-500/30">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base sm:text-lg font-black text-white">Horário de Pico no Espaço (EVS)</h3>
+                                    <p class="text-xs text-purple-200">Apoio automático da Central para você não perder vendas</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="fecharModalPausaHorarioPico()" class="text-slate-400 hover:text-white p-1 rounded-xl text-lg transition cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4 text-xs">
+                            <p class="text-slate-300 leading-relaxed bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+                                🥤 <strong>Seu espaço está lotado?</strong> Ao ativar a pausa, seu catálogo continua aberto normalmente, mas os pedidos recebem prioridade máxima e a <strong>Central Anti-Perda</strong> assume o contato com o cliente e motoboy para você atender o balcão com tranquilidade!
+                            </p>
+
+                            <!-- OPÇÕES DE TEMPO DE PAUSA -->
+                            <div>
+                                <label class="block text-xs font-black uppercase text-amber-300 mb-2">
+                                    Selecione o Tempo da Pausa:
+                                </label>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <button type="button" onclick="ativarModoPicoEVS(30)" class="p-3 bg-slate-950 hover:bg-purple-950/60 border border-slate-800 hover:border-purple-500 rounded-2xl text-left transition flex flex-col gap-1 cursor-pointer">
+                                        <span class="font-black text-amber-300 text-sm flex items-center gap-1.5">
+                                            <i class="fa-solid fa-clock"></i> 30 Minutos
+                                        </span>
+                                        <span class="text-[11px] text-slate-400">Ideal para pico de almoço</span>
+                                    </button>
+
+                                    <button type="button" onclick="ativarModoPicoEVS(60)" class="p-3 bg-slate-950 hover:bg-purple-950/60 border border-slate-800 hover:border-purple-500 rounded-2xl text-left transition flex flex-col gap-1 cursor-pointer">
+                                        <span class="font-black text-amber-300 text-sm flex items-center gap-1.5">
+                                            <i class="fa-solid fa-clock"></i> 1 Hora
+                                        </span>
+                                        <span class="text-[11px] text-slate-400">Para horários de alto fluxo</span>
+                                    </button>
+
+                                    <button type="button" onclick="ativarModoPicoEVS(120)" class="p-3 bg-slate-950 hover:bg-purple-950/60 border border-slate-800 hover:border-purple-500 rounded-2xl text-left transition flex flex-col gap-1 cursor-pointer">
+                                        <span class="font-black text-purple-300 text-sm flex items-center gap-1.5">
+                                            <i class="fa-solid fa-clock"></i> 2 Horas
+                                        </span>
+                                        <span class="text-[11px] text-slate-400">Pausa estendida</span>
+                                    </button>
+
+                                    <button type="button" onclick="ativarModoPicoEVS(480)" class="p-3 bg-slate-950 hover:bg-purple-950/60 border border-slate-800 hover:border-purple-500 rounded-2xl text-left transition flex flex-col gap-1 cursor-pointer">
+                                        <span class="font-black text-purple-300 text-sm flex items-center gap-1.5">
+                                            <i class="fa-solid fa-moon"></i> Até Fechar Hoje
+                                        </span>
+                                        <span class="text-[11px] text-slate-400">Central cuida o resto do dia</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- DESATIVAR -->
+                            <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Quer voltar ao atendimento normal?</span>
+                                    <span class="text-[10px] text-slate-400">Desativa o modo pico e volta a receber notificações locais.</span>
+                                </div>
+                                <button type="button" onclick="desativarModoPicoEVS()" class="px-3.5 py-2 bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 font-bold rounded-xl text-xs transition cursor-pointer">
+                                    <i class="fa-solid fa-power-off mr-1"></i> Desativar Pausa
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 pt-3 border-t border-slate-800 flex justify-end">
+                            <button type="button" onclick="fecharModalPausaHorarioPico()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">
                                 Fechar
                             </button>
                         </div>
@@ -15171,6 +15275,11 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 // 6. Restaura estado minimizado salvo do card de identificação
                 if (localStorage.getItem('litrao_card_identificacao_minimizado') === 'true') {
                     toggleMinimizarCardIdentificacao(true);
+                }
+
+                // 7. Verifica se o consultor está em Horário de Pico no EVS (Ponto 4)
+                if (typeof verificarModoPicoEVS === 'function') {
+                    verificarModoPicoEVS();
                 }
             } catch(eCab) {
                 console.error("Erro ao atualizar cabecalho de identificacao:", eCab);
@@ -28233,6 +28342,146 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 iniciarMonitoramentoPedidosSupabase();
             }
         }
+
+        // ==========================================
+        // PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS
+        // ==========================================
+        function abrirModalPausaHorarioPico() {
+            const modal = document.getElementById('modal-pausa-horario-pico');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+        window.abrirModalPausaHorarioPico = abrirModalPausaHorarioPico;
+
+        function fecharModalPausaHorarioPico() {
+            const modal = document.getElementById('modal-pausa-horario-pico');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        window.fecharModalPausaHorarioPico = fecharModalPausaHorarioPico;
+
+        function verificarModoPicoEVS() {
+            if (!consultorAtual) return;
+            const rawEspaco = consultorAtual.nome_espaco || '';
+            const match = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
+            const banner = document.getElementById('banner-alerta-modo-pico');
+            const badgeTempo = document.getElementById('badge-pico-expira-tempo');
+            const btnPico = document.getElementById('btn-horario-pico-evs');
+            const iconePico = document.getElementById('icone-btn-pico-evs');
+            const labelPico = document.getElementById('label-horario-pico-btn');
+
+            if (match && match[1]) {
+                const timestampExpira = parseInt(match[1], 10);
+                const agora = Date.now();
+                if (agora < timestampExpira) {
+                    // Modo Pico Ativo!
+                    const dataExp = new Date(timestampExpira);
+                    const horaFormatada = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    if (banner) {
+                        banner.classList.remove('hidden');
+                        if (badgeTempo) badgeTempo.innerText = `Até ${horaFormatada}`;
+                    }
+
+                    if (btnPico) {
+                        btnPico.className = 'bg-gradient-to-r from-amber-500 to-rose-600 text-slate-950 font-black text-[11px] py-2 px-2.5 rounded-xl shadow-md transition flex items-center space-x-1 cursor-pointer whitespace-nowrap animate-pulse border border-amber-300';
+                        if (iconePico) iconePico.className = 'fa-solid fa-bolt text-rose-950';
+                        if (labelPico) labelPico.innerText = `Pausado (${horaFormatada})`;
+                    }
+                    return true;
+                }
+            }
+
+            // Desativado ou expirado
+            if (banner) banner.classList.add('hidden');
+            if (btnPico) {
+                btnPico.className = 'bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap';
+                if (iconePico) iconePico.className = 'fa-solid fa-bolt text-amber-300';
+                if (labelPico) labelPico.innerText = 'Pico EVS';
+            }
+            return false;
+        }
+        window.verificarModoPicoEVS = verificarModoPicoEVS;
+
+        async function ativarModoPicoEVS(minutos) {
+            if (!consultorAtual) {
+                alert("Consultor não autenticado.");
+                return;
+            }
+
+            const timestampExpira = Date.now() + (minutos * 60 * 1000);
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--EVS_PAUSADO_ATE:.*?-->/g, '').trim();
+            const novoEspaco = `${rawEspaco}\n<!--EVS_PAUSADO_ATE:${timestampExpira}-->`;
+
+            try {
+                if (supabaseClient) {
+                    const cId = consultorAtual.id;
+                    const cHid = consultorAtual.herbalife_id;
+                    let query = supabaseClient.from('consultores').update({ nome_espaco: novoEspaco });
+                    if (cId) query = query.eq('id', cId);
+                    else if (cHid) query = query.eq('herbalife_id', cHid);
+                    const { error } = await query;
+                    if (error) throw error;
+                }
+
+                consultorAtual.nome_espaco = novoEspaco;
+                localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+
+                fecharModalPausaHorarioPico();
+                verificarModoPicoEVS();
+
+                const dataExp = new Date(timestampExpira);
+                const horaFormatada = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`⚡ Horário de Pico Ativado até ${horaFormatada}! A Central está apoiando seus pedidos.`, 'sucesso');
+                } else {
+                    alert(`⚡ Horário de Pico Ativado até ${horaFormatada}! A Central cuidará dos seus pedidos.`);
+                }
+            } catch (err) {
+                console.error("Erro ao ativar modo pico:", err);
+                alert("Erro ao ativar modo pico: " + (err.message || err));
+            }
+        }
+        window.ativarModoPicoEVS = ativarModoPicoEVS;
+
+        async function desativarModoPicoEVS() {
+            if (!consultorAtual) return;
+
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            const novoEspaco = rawEspaco.replace(/<!--EVS_PAUSADO_ATE:.*?-->/g, '').trim();
+
+            try {
+                if (supabaseClient) {
+                    const cId = consultorAtual.id;
+                    const cHid = consultorAtual.herbalife_id;
+                    let query = supabaseClient.from('consultores').update({ nome_espaco: novoEspaco });
+                    if (cId) query = query.eq('id', cId);
+                    else if (cHid) query = query.eq('herbalife_id', cHid);
+                    const { error } = await query;
+                    if (error) throw error;
+                }
+
+                consultorAtual.nome_espaco = novoEspaco;
+                localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+
+                fecharModalPausaHorarioPico();
+                verificarModoPicoEVS();
+
+                if (typeof mostrarNotificacaoFlutuante === 'function') {
+                    mostrarNotificacaoFlutuante(`✅ Modo Pico desativado! Atendimento normal restaurado.`, 'sucesso');
+                } else {
+                    alert(`✅ Modo Pico desativado! Atendimento normal restaurado.`);
+                }
+            } catch (err) {
+                console.error("Erro ao desativar modo pico:", err);
+                alert("Erro ao desativar modo pico: " + (err.message || err));
+            }
+        }
+        window.desativarModoPicoEVS = desativarModoPicoEVS;
 
         // ==========================================
         // GERAR / VISUALIZAR / BAIXAR / COMPARTILHAR RELATÓRIO EM FOTO (PNG)
