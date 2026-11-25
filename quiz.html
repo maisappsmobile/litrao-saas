@@ -176,10 +176,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-300 mb-1.5 flex items-center gap-1.5">
-                        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Seu WhatsApp com DDD:
+                    <label class="block text-xs font-bold text-gray-300 mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-emerald-400"></i> Seu WhatsApp com DDD:</span>
+                        <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full"><i class="fa-solid fa-globe mr-1"></i> Qualquer País</span>
                     </label>
-                    <input type="tel" id="lead-whatsapp" placeholder="(00) 90000-0000" class="w-full p-3.5 bg-slate-900 border border-slate-600 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                    <input type="tel" id="lead-whatsapp" oninput="if (typeof mascararTelefoneSimples === 'function') mascararTelefoneSimples(this);" placeholder="Ex: (66) 99999-9999 ou +1 407..." class="w-full p-3.5 bg-slate-900 border border-slate-600 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
                 </div>
 
                 <button type="button" onclick="calcularResultadoDiagnostico()" class="w-full py-4 gradient-brand hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-900/50 transition cursor-pointer flex items-center justify-center gap-2">
@@ -262,6 +263,25 @@
                 <p class="text-[10px] text-center text-gray-400 flex items-center justify-center gap-1">
                     <i class="fa-solid fa-lock text-emerald-400"></i> Atendimento com seu Consultor Oficial de <span id="res-cidade-rodape" class="text-emerald-300 font-bold">Juína - MT</span>
                 </p>
+
+                <!-- APOIO DA CENTRAL DE ATENDIMENTO OFICIAL (CONTINGÊNCIA - PRINT 2) -->
+                <div id="box-apoio-central-quiz" class="mt-4 pt-3.5 border-t border-slate-700/80 text-left">
+                    <div class="bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 border border-emerald-500/30 rounded-2xl p-3.5 shadow-md">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-headset text-xs"></i> Suporte Imediato da Central
+                            </span>
+                            <span class="text-[9px] font-bold text-gray-400">Resposta em até 4 min</span>
+                        </div>
+                        <p class="text-[11px] text-gray-300 leading-snug">
+                            Caso o consultor local esteja em rota ou atendimento agora, nossa <strong>Central Oficial do Litrão do Reset</strong> acolhe seu pedido e garante a entrega rápida!
+                        </p>
+                        <a id="btn-cta-central-quiz" href="https://wa.me/5566981411234" target="_blank" class="mt-2.5 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition shadow-xs">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-base"></i>
+                            <span>Chamar Central de Apoio Oficial</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -324,6 +344,7 @@
                         consultorAtual.nome = data.nome_espaco ? data.nome_espaco.split('•')[0].trim() : data.nome;
                         consultorAtual.whatsapp = data.whatsapp ? data.whatsapp.replace(/\D/g, '') : consultorAtual.whatsapp;
                         consultorAtual.slug = data.slug || slug;
+                        consultorAtual.apoioCentral = !(data.nome_espaco && data.nome_espaco.includes('<!--APOIO_CENTRAL:false-->'));
         
                         if (!cidade && data.cidade) cidade = data.cidade + (data.estado ? ' - ' + data.estado : '');
                         if (data.nome_espaco && (!cidade || cidade === 'Juína')) {
@@ -417,11 +438,48 @@
                 // Registra métrica de RESPOSTA (Funil: Responderam)
                 registrarMetricaFunil('responderam', respostasQuiz);
 
+                // Salva lead no Supabase na tabela avaliações (PRINT 2 - Apoio da Central & Painel)
+                if (supabaseClient && consultorAtual.id) {
+                    try {
+                        supabaseClient.from('avaliacoes').insert([{
+                            nome_cliente: '[QUIZ 1 MINUTO] ' + nomeInput,
+                            whatsapp_cliente: telInput,
+                            como_foi_semana: JSON.stringify({
+                                origem: 'quiz_1_minuto',
+                                objetivo: respostasQuiz.objetivo,
+                                sintomas: respostasQuiz.sintomas,
+                                momento: respostasQuiz.momento,
+                                diagnostico: 'Retenção Hídrica Severa (78%-85%)'
+                            }),
+                            peso_atual: 0,
+                            consultor_id: consultorAtual.id
+                        }]).then(res => {
+                            console.log("Lead do Quiz registrado no Supabase:", res);
+                        });
+                    } catch(errLead) {
+                        console.warn("Aviso ao salvar lead do quiz no Supabase:", errLead);
+                    }
+                }
+
                 // Configura link do WhatsApp com mensagem pronta
                 const msgZap = `Olá ${consultorAtual.nome}! Eu sou *${nomeInput}* e acabei de fazer o *Diagnóstico de Desinchaço em 1 Minuto* no seu link! 🥤✨\n\n🎯 *Meu Foco:* ${respostasQuiz.objetivo}\n⏳ *Meu Sintoma:* ${respostasQuiz.sintomas}\n📊 *Diagnóstico:* Retenção Hídrica Severa (78%-85%)\n\nGostaria de conhecer o *Kit Semanal 5 Dias* e saber como começar meu protocolo de desinchaço!`;
 
                 const linkZap = `https://wa.me/${consultorAtual.whatsapp}?text=${encodeURIComponent(msgZap)}`;
                 document.getElementById('btn-cta-whatsapp').href = linkZap;
+
+                // Central de Atendimento Oficial (Contingência - PRINT 2)
+                const boxCentral = document.getElementById('box-apoio-central-quiz');
+                if (boxCentral) {
+                    if (consultorAtual.apoioCentral === false) {
+                        boxCentral.classList.add('hidden');
+                    } else {
+                        boxCentral.classList.remove('hidden');
+                        const msgCentral = `Olá Central do Litrão do Reset! Eu sou *${nomeInput}* de *${consultorAtual.cidade}* e acabei de responder o *Quiz de Desinchaço em 1 Minuto* no link do consultor *${consultorAtual.nome}*.\n\n🎯 *Meu Foco:* ${respostasQuiz.objetivo}\n📊 *Diagnóstico:* Retenção Hídrica Severa (78%-85%)\n\nPodem me auxiliar com meu pedido do Kit Semanal?`;
+                        const linkCentral = `https://wa.me/5566981411234?text=${encodeURIComponent(msgCentral)}`;
+                        const btnC = document.getElementById('btn-cta-central-quiz');
+                        if (btnC) btnC.href = linkCentral;
+                    }
+                }
 
             }, 1800);
         }
@@ -492,6 +550,50 @@
                 }
             }
         }
+
+        // Máscara flexível de telefone nacional e internacional
+        function mascararTelefoneSimples(el) {
+            if (!el) return;
+            const original = el.value;
+            const ehInternacional = original.trim().startsWith('+');
+            let val = original.replace(/\D/g, '');
+
+            if (ehInternacional) {
+                if (val.length > 15) val = val.slice(0, 15);
+                el.value = '+' + val;
+                return;
+            }
+
+            if (val.length > 11) {
+                if (val.startsWith('55') && val.length <= 13) {
+                    const sem55 = val.slice(2);
+                    if (sem55.length > 6) {
+                        el.value = `+55 (${sem55.slice(0, 2)}) ${sem55.slice(2, 7)}-${sem55.slice(7, 11)}`;
+                    } else if (sem55.length > 2) {
+                        el.value = `+55 (${sem55.slice(0, 2)}) ${sem55.slice(2)}`;
+                    } else {
+                        el.value = `+55 (${sem55}`;
+                    }
+                    return;
+                }
+                if (val.length > 15) val = val.slice(0, 15);
+                el.value = '+' + val;
+                return;
+            }
+
+            if (val.length > 10) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2, 7)}-${val.slice(7)}`;
+            } else if (val.length > 6) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2, 6)}-${val.slice(6)}`;
+            } else if (val.length > 2) {
+                el.value = `(${val.slice(0, 2)}) ${val.slice(2)}`;
+            } else if (val.length > 0) {
+                el.value = `(${val}`;
+            } else {
+                el.value = '';
+            }
+        }
+        window.mascararTelefoneSimples = mascararTelefoneSimples;
 
         // Inicializa
         window.addEventListener('DOMContentLoaded', carregarConsultor);
