@@ -153,6 +153,13 @@
                     <span id="header-vencimento-val" class="font-black text-slate-800">Vitalício (Permanente)</span>
                 </div>
 
+                <!-- BOTÃO DESTAQUE SUPERADMIN: CENTRAL DE PEDIDOS (AO VIVO) -->
+                <a href="central.html" target="_blank" id="btn-header-central-superadmin" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white border border-purple-400 px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shrink-0 hidden animate-pulse" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
+                    <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
+                    <span>CENTRAL DE PEDIDOS</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                </a>
+
                 <!-- 1. BOTÃO COPIAR LINK (ATALHO RÁPIDO DO CONSULTOR) -->
                 <button id="btn-copiar-link-topo" onclick="copiarLink()" class="text-xs font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer hidden shrink-0" title="Copiar Meu Link Oficial">
                     <i class="fa-regular fa-copy text-emerald-600 text-xs sm:text-sm"></i>
@@ -172,6 +179,17 @@
                         <div class="px-3.5 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1">
                             <span class="text-[11px] font-black uppercase tracking-wider text-slate-400">Mais Opções</span>
                             <span class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">ResetFIT</span>
+                        </div>
+
+                        <!-- CENTRAL DE PEDIDOS NO MENU SANDUÍCHE (SUPERADMIN) -->
+                        <div id="item-menu-central-pedidos" class="px-2 mb-1.5 hidden">
+                            <a href="central.html" target="_blank" onclick="fecharMenuSanduiche();" class="w-full text-left px-3 py-2 text-xs font-black text-white bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 transition flex items-center justify-between cursor-pointer rounded-xl border border-purple-400 shadow-md" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
+                                    <span>Central de Pedidos (SLA 4m)</span>
+                                </div>
+                                <span class="bg-emerald-400 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-2xs animate-pulse">AO VIVO</span>
+                            </a>
                         </div>
 
                         <!-- GESTÃO DE CONSULTORES NO MENU SANDUÍCHE (SUPERADMIN) -->
@@ -1699,6 +1717,68 @@
                     </div>
                 </div>
 
+                <!-- CARD 4 (EXCLUSIVO SUPERADMIN): CENTRAL ANTI-PERDA DE PEDIDOS DA REDE (SLA 4M) -->
+                <div id="card-central-pedidos-modulo-principal" draggable="true" class="card-principal-arrastavel select-none bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 rounded-3xl p-5 sm:p-6 text-white shadow-md border-2 border-purple-500/50 hover:border-purple-400 hover:shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden hidden" style="display: none;">
+                    <!-- Efeito Glow -->
+                    <div class="absolute -right-12 -top-12 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl pointer-events-none group-hover:bg-purple-500/30 transition"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                                <i class="fa-solid fa-shield-halved"></i> Supervisão Geral
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ao Vivo (SLA 4m)
+                                </span>
+                                <span class="text-purple-300/40 hover:text-amber-300 transition drag-handle-card cursor-grab active:cursor-grabbing p-1" title="Arraste para reordenar este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 mt-2">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-amber-300 border border-purple-400/40 flex items-center justify-center text-xl shadow-md shrink-0 group-hover:scale-105 transition">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-black text-white leading-tight">
+                                    Central de Pedidos da Rede
+                                </h3>
+                                <p class="text-purple-200/80 text-xs mt-1 leading-relaxed">
+                                    Monitoramento em tempo real de todos os pedidos. Se o consultor atrasar 4 min, alarme sonoro toca e a Central assume!
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- CHAVINHA SIMPLES DO WHATSAPP DA CENTRAL + BOTÃO CONFIGURAÇÃO -->
+                        <div class="bg-slate-950/70 border border-purple-500/30 rounded-2xl p-3 my-4 flex items-center justify-between gap-3">
+                            <div>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-purple-300 block">WhatsApp da Central</span>
+                                <span id="label-status-chave-central-card" class="text-xs font-black text-emerald-400">Ativo / Ligado</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="chk-superadmin-chave-central-card" checked onchange="toggleChaveCentralSuperadmin(this.checked)" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                                </label>
+                                <button type="button" onclick="abrirModalConfigCentralSuperadmin()" class="bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-400/40 p-2 rounded-xl text-xs transition cursor-pointer" title="Configurar WhatsApp e Colaboradores">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RODAPÉ DO CARD: BOTÃO ABRIR O PAINEL DEDICADO -->
+                    <div class="relative z-10 pt-3 border-t border-white/15 flex items-center justify-between gap-2.5">
+                        <span class="text-[10px] text-purple-300 font-medium">Controle para operadores</span>
+                        <a href="central.html" target="_blank" class="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs py-2 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transform hover:scale-105 active:scale-95">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            <span>ABRIR PAINEL CENTRAL</span>
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1728,6 +1808,11 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-purple-800/60">
+                    <a href="central.html" target="_blank" class="flex-1 sm:flex-none bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-800 hover:from-purple-800 hover:to-indigo-700 text-white font-black py-3 px-4 rounded-xl text-xs shadow-lg shadow-purple-900/40 transition flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02] border border-purple-400/40" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
+                        <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
+                        <span>Central Pedidos (SLA 4m)</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </a>
                     <button type="button" onclick="abrirGestaoConsultoresSuperadmin()" class="flex-1 sm:flex-none bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black py-3 px-5 rounded-xl text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02]">
                         <i class="fa-solid fa-users-gear text-sm"></i>
                         <span>Gerenciar Consultores</span>
@@ -2705,6 +2790,11 @@
                                     <span id="superadmin-total-badge" class="text-xl font-black text-amber-300 block leading-tight">...</span>
                                 </div>
                             </div>
+                            <a href="central.html" target="_blank" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 active:scale-95 text-white font-black py-3 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap border border-purple-400/40 transform hover:scale-[1.02]" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
+                                <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
+                                <span>ABRIR PAINEL CENTRAL (SLA 4M)</span>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </a>
                             <button onclick="toggleSecaoSuperadmin()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black py-3 px-5 rounded-2xl text-xs sm:text-sm transition flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap">
                                 <i class="fa-solid fa-users-gear text-sm"></i>
                                 <span id="superadmin-btn-label">ABRIR GESTÁO DE CONSULTORES</span>
@@ -2724,6 +2814,11 @@
                             <span>Ferramentas de Atração & Comercial:</span>
                         </div>
                         <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                            <a href="central.html" target="_blank" class="bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-600 hover:to-indigo-600 text-white font-black py-2.5 px-3.5 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md whitespace-nowrap border border-purple-400/40">
+                                <i class="fa-solid fa-headset text-amber-300"></i>
+                                <span>Central de Pedidos (SLA 4m)</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </a>
                             <button onclick="abrirModalExtratorFacebookSuperadmin()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-md whitespace-nowrap">
                                 <i class="fa-brands fa-facebook text-white text-sm"></i>
                                 <span>Extrator Grupos Facebook</span>
@@ -18093,21 +18188,36 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 secaoConteudo.style.setProperty('display', 'none', 'important');
             }
 
-            // 3. Botões do Header do Topo (Mantidos ocultos na barra para manter o cabeçalho limpo com Menu Sanduíche)
-            if (btnTopoCons) {
-                btnTopoCons.classList.add('hidden');
-                btnTopoCons.style.setProperty('display', 'none', 'important');
+            // 3. Botão Destaque da Central de Pedidos no Header Fixo Superior
+            const btnHeaderCentral = document.getElementById('btn-header-central-superadmin');
+            if (btnHeaderCentral) {
+                if (isSA) {
+                    btnHeaderCentral.classList.remove('hidden');
+                    btnHeaderCentral.style.setProperty('display', 'flex', 'important');
+                } else {
+                    btnHeaderCentral.classList.add('hidden');
+                    btnHeaderCentral.style.setProperty('display', 'none', 'important');
+                }
             }
-            if (btnAdminDedicado) {
-                btnAdminDedicado.classList.add('hidden');
-                btnAdminDedicado.style.setProperty('display', 'none', 'important');
-            }
-            if (btnTopoFb) {
-                btnTopoFb.classList.add('hidden');
-                btnTopoFb.style.setProperty('display', 'none', 'important');
+
+            // Card 4 da Central de Pedidos nos Módulos Principais (ao lado de Bioimpedância, Pedidos e Materiais)
+            const cardCentralPrincipal = document.getElementById('card-central-pedidos-modulo-principal');
+            if (cardCentralPrincipal) {
+                if (isSA) {
+                    cardCentralPrincipal.classList.remove('hidden');
+                    cardCentralPrincipal.style.setProperty('display', 'flex', 'important');
+                } else {
+                    cardCentralPrincipal.classList.add('hidden');
+                    cardCentralPrincipal.style.setProperty('display', 'none', 'important');
+                }
             }
 
             // 4. Itens do Menu Sanduíche
+            const itemMenuCentral = document.getElementById('item-menu-central-pedidos');
+            if (itemMenuCentral) {
+                if (isSA) itemMenuCentral.classList.remove('hidden');
+                else itemMenuCentral.classList.add('hidden');
+            }
             if (itemMenuCons) {
                 if (isGestaoLiberada) itemMenuCons.classList.remove('hidden');
                 else itemMenuCons.classList.add('hidden');
