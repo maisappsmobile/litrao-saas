@@ -1368,11 +1368,20 @@
             let cidade = pais === 'Brasil' ? document.getElementById('select-cidade').value : document.getElementById('input-cidade-livre').value;
             let enderecoFinal = `${cidade}/${estado} - ${pais}`;
 
-            // Lógica dos Cupons Especiais: GRUPOWENDELL100, GRUPOLILIAN100, FUNDADOR100, MEUPRESIDENTE, TESTE10
-            let isGrupoWendell = cupom === 'GRUPOWENDELL100';
-            let isGrupoLilian = cupom === 'GRUPOLILIAN100';
-            let isGrupoParceiro = isGrupoWendell || isGrupoLilian;
-            let nomeGrupoParceiro = isGrupoLilian ? 'Grupo Lilian' : 'Grupo Wendell';
+            // Lógica dos Cupons Especiais e Cupons de Parceiros VIP (Padrão: GRUPO<NOME>100)
+            let isGrupoParceiro = false;
+            let nomeGrupoParceiro = '';
+            let slugParceiro = '';
+            let tagPrefixParceiro = '';
+
+            if (cupom && (cupom === 'GRUPOWENDELL100' || cupom === 'GRUPOLILIAN100' || cupom === 'GRUPORENATA100' || (cupom.startsWith('GRUPO') && cupom.endsWith('100')))) {
+                isGrupoParceiro = true;
+                const miolo = cupom.replace(/^GRUPO/, '').replace(/100$/, '');
+                slugParceiro = miolo.toLowerCase();
+                nomeGrupoParceiro = `Grupo ${miolo.charAt(0).toUpperCase() + miolo.slice(1).toLowerCase()}`;
+                tagPrefixParceiro = `GRUPO_${miolo.toUpperCase()}`;
+            }
+
             let isPrimeiroWendell = false;
             let codigoWendellGerado = null;
             let isFundador = cupom === 'FUNDADOR100';
@@ -1384,9 +1393,7 @@
 
             if (isGrupoParceiro) {
                 try {
-                    const tagOr = isGrupoLilian
-                        ? 'nome_espaco.ilike.%CUPOM:GRUPOLILIAN100%,nome_espaco.ilike.%GRUPO_LILIAN:%'
-                        : 'nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%';
+                    const tagOr = `nome_espaco.ilike.%CUPOM:${cupom}%,nome_espaco.ilike.%${tagPrefixParceiro}:%`;
                     const { data: wendellExistentes } = await supabaseClient
                         .from('consultores')
                         .select('id,nome_espaco')
@@ -1642,9 +1649,9 @@
             }
 
             if (isGrupoParceiro) {
-                const tagPrefix = isGrupoLilian ? 'GRUPO_LILIAN' : 'GRUPO_WENDELL';
-                const tagCupom = isGrupoLilian ? 'CUPOM:GRUPOLILIAN100' : 'CUPOM:GRUPOWENDELL100';
-                const condicaoVip = isGrupoLilian ? 'Membro VIP Lilian' : 'Membro VIP Wendell';
+                const tagPrefix = tagPrefixParceiro || 'GRUPO_PARCEIRO';
+                const tagCupom = `CUPOM:${cupom}`;
+                const condicaoVip = `Membro VIP ${nomeGrupoParceiro.replace(/^Grupo /, '')}`;
                 if (isPrimeiroWendell) {
                     nomeEspacoCompleto += ` <!--${tagPrefix}:${codigoWendellGerado}--> <!--${tagCupom}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoVip}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`;
                 } else {
@@ -1762,7 +1769,7 @@
                         }
                     } else {
                         // Para os demais: adesão isenta + mensalidade R$ 41,00
-                        const prefixoTxid = isGrupoLilian ? 'LILIAN' : 'VIP';
+                        const prefixoTxid = slugParceiro ? slugParceiro.toUpperCase() : 'VIP';
                         pixPayloadAtivo = gerarPixPayloadDinamico(41.00, `${prefixoTxid}${codigoWendellGerado}`);
                         const valorPixBox = document.querySelector('#pix-box .bg-teal-600 .text-2xl');
                         if (valorPixBox) valorPixBox.innerText = 'R$ 41,00';
@@ -2397,9 +2404,16 @@
             if (!feedback) return;
             const cod = (valor || '').toUpperCase().trim();
 
-            if (cod === 'GRUPOWENDELL100' || cod === 'GRUPOLILIAN100') {
-                const isLilian = (cod === 'GRUPOLILIAN100');
-                const nomeGrupo = isLilian ? 'GRUPO LILIAN' : 'GRUPO WENDELL';
+            if (cod === 'GRUPOWENDELL100' || cod === 'GRUPOLILIAN100' || cod === 'GRUPORENATA100' || (cod.startsWith('GRUPO') && cod.endsWith('100'))) {
+                let nomeParceiro = 'PARCEIRO';
+                if (cod === 'GRUPOWENDELL100') nomeParceiro = 'WENDELL';
+                else if (cod === 'GRUPOLILIAN100') nomeParceiro = 'LILIAN';
+                else if (cod === 'GRUPORENATA100') nomeParceiro = 'RENATA';
+                else {
+                    const meio = cod.replace(/^GRUPO/, '').replace(/100$/, '');
+                    if (meio) nomeParceiro = meio.toUpperCase();
+                }
+                const nomeGrupo = `GRUPO ${nomeParceiro}`;
                 if (boxFundador) boxFundador.classList.add('hidden');
                 if (boxWendell) boxWendell.classList.remove('hidden');
 
@@ -2419,7 +2433,7 @@
                 feedback.classList.remove('hidden');
                 if (inCupom) inCupom.className = 'w-full pl-11 pr-4 py-3 bg-purple-950/20 border-2 border-amber-400 rounded-xl focus:outline-none ring-2 ring-amber-300 uppercase font-black text-amber-900';
 
-                atualizarBoxGrupoWendell(isLilian ? 'lilian' : 'wendell');
+                atualizarBoxGrupoWendell(cod);
             } else if (cod === 'FUNDADOR100') {
                 if (boxWendell) boxWendell.classList.add('hidden');
                 if (boxFundador) boxFundador.classList.remove('hidden');
@@ -2493,18 +2507,34 @@
             }
         }
 
-        // Atualização Dinâmica do Box do Grupo VIP (Wendell ou Lilian) com Escassez Real
-        async function atualizarBoxGrupoWendell(tipoGrupo = null) {
+        // Função universal para calcular o código de fundador a partir do índice (0 -> A001, ..., 2599 -> Z100, ..., 5199 -> z100)
+        function calcularCodigoFundador(indice) {
+            const seriesFundadores = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split('');
+            const serieIdx = Math.floor(indice / 100);
+            const letra = (serieIdx < seriesFundadores.length) ? seriesFundadores[serieIdx] : 'z';
+            const num = (indice % 100) + 1;
+            return `${letra}${String(num).padStart(3, '0')}`;
+        }
+        window.calcularCodigoFundador = calcularCodigoFundador;
+
+        // Atualização Dinâmica do Box do Grupo VIP com Escassez Real
+        async function atualizarBoxGrupoWendell(cupomRef = null) {
             const elAviso = document.getElementById('aviso-escassez-wendell');
             const elValorMensal = document.getElementById('valor-mensalidade-wendell-box');
             if (!elAviso) return;
 
-            const inCod = (document.getElementById('cupom')?.value || '').toUpperCase().trim();
-            const isLilian = (tipoGrupo === 'lilian') || (inCod === 'GRUPOLILIAN100');
-            const nomeGrupo = isLilian ? 'Grupo Lilian' : 'Grupo Wendell';
-            const orQuery = isLilian 
-                ? 'nome_espaco.ilike.%CUPOM:GRUPOLILIAN100%,nome_espaco.ilike.%GRUPO_LILIAN:%'
-                : 'nome_espaco.ilike.%CUPOM:GRUPOWENDELL100%,nome_espaco.ilike.%GRUPO_WENDELL:%';
+            let cod = (cupomRef || document.getElementById('cupom')?.value || '').toUpperCase().trim();
+            if (!cod || (!cod.startsWith('GRUPO') && !['WENDELL', 'LILIAN', 'RENATA'].includes(cod))) {
+                cod = 'GRUPOWENDELL100';
+            }
+            if (cod === 'WENDELL') cod = 'GRUPOWENDELL100';
+            if (cod === 'LILIAN') cod = 'GRUPOLILIAN100';
+            if (cod === 'RENATA') cod = 'GRUPORENATA100';
+
+            const miolo = cod.replace(/^GRUPO/, '').replace(/100$/, '') || 'PARCEIRO';
+            const nomeGrupo = `Grupo ${miolo.charAt(0).toUpperCase() + miolo.slice(1).toLowerCase()}`;
+            const tagGrupo = `GRUPO_${miolo.toUpperCase()}`;
+            const orQuery = `nome_espaco.ilike.%CUPOM:${cod}%,nome_espaco.ilike.%${tagGrupo}:%`;
 
             try {
                 const { data: wendellDb, error } = await supabaseClient

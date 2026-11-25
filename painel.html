@@ -7959,6 +7959,10 @@
                             <i class="fa-solid fa-crown text-amber-400"></i>
                             <span>Link Grupo Lilian (VIP)</span>
                         </button>
+                        <button type="button" onclick="copiarLinkGrupoRenata()" class="bg-gradient-to-r from-purple-900/90 via-slate-800 to-amber-950/90 hover:from-purple-800 hover:to-amber-900 text-amber-300 border border-amber-400 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer shadow-sm" title="Copiar link exclusivo do Grupo Renata (100 Vagas VIP)">
+                            <i class="fa-solid fa-crown text-amber-400"></i>
+                            <span>Link Grupo Renata (VIP)</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11640,13 +11644,31 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     return;
                 }
 
-                // Caso GRUPOWENDELL100 / GRUPOLILIAN100: Membro VIP (100 Vagas VIP, 1º Isento Vitalício R$ 0,00 e Demais R$ 41,00/mês)
-                if (codigo === 'GRUPOWENDELL100' || codigo === 'WENDELL100' || codigo === 'WENDELL' ||
-                    codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN') {
-                    const isLilian = (codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN');
-                    const nomeGrupo = isLilian ? 'Grupo Lilian' : 'Grupo Wendell';
-                    const codOficial = isLilian ? 'GRUPOLILIAN100' : 'GRUPOWENDELL100';
-                    const tagBusca = isLilian ? '*CUPOM:GRUPOLILIAN100*' : '*CUPOM:GRUPOWENDELL100*';
+                // Caso Cupons Oficiais de Parceiros VIP (GRUPOWENDELL100, GRUPOLILIAN100, GRUPORENATA100 e Padrão GRUPO<NOME>100)
+                const isGrupoParceiro = (codigo === 'GRUPOWENDELL100' || codigo === 'WENDELL100' || codigo === 'WENDELL' ||
+                    codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN' ||
+                    codigo === 'GRUPORENATA100' || codigo === 'RENATA100' || codigo === 'RENATA' ||
+                    (codigo.startsWith('GRUPO') && codigo.endsWith('100') && codigo.length > 8));
+
+                if (isGrupoParceiro) {
+                    let nomeParceiroRaw = 'WENDELL';
+                    if (codigo === 'GRUPOLILIAN100' || codigo === 'LILIAN100' || codigo === 'LILIAN') {
+                        nomeParceiroRaw = 'LILIAN';
+                    } else if (codigo === 'GRUPORENATA100' || codigo === 'RENATA100' || codigo === 'RENATA') {
+                        nomeParceiroRaw = 'RENATA';
+                    } else if (codigo.startsWith('GRUPO') && codigo.endsWith('100')) {
+                        nomeParceiroRaw = codigo.replace(/^GRUPO/, '').replace(/100$/, '');
+                    } else if (codigo.endsWith('100')) {
+                        nomeParceiroRaw = codigo.replace(/100$/, '');
+                    } else {
+                        nomeParceiroRaw = codigo;
+                    }
+
+                    const slugParceiro = (nomeParceiroRaw || 'PARCEIRO').toUpperCase();
+                    const nomeFormatado = slugParceiro.charAt(0) + slugParceiro.slice(1).toLowerCase();
+                    const nomeGrupo = `Grupo ${nomeFormatado}`;
+                    const codOficial = `GRUPO${slugParceiro}100`;
+                    const tagBusca = `*CUPOM:${codOficial}*`;
 
                     let totalVagas = 0;
                     try {
@@ -11668,7 +11690,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
                     const isPrimeiro = (totalVagas === 0);
                     cupomAtivoModal = {
-                        tipo: isLilian ? 'grupolilian100' : 'grupowendell100',
+                        tipo: 'grupoparceiro100',
+                        slugParceiro: slugParceiro,
                         codigo: codOficial,
                         nomeGrupo: nomeGrupo,
                         descontoPorcentagem: 100,
@@ -12033,8 +12056,9 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
             let valorFinal = valorBase;
 
-            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
-                const labelGrupo = (cupomAtivoModal.tipo === 'grupolilian100') ? 'GRUPO LILIAN VIP' : 'GRUPO WENDELL VIP';
+            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100' || cupomAtivoModal.tipo === 'grupoparceiro100')) {
+                const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
+                const labelGrupo = `GRUPO ${slug} VIP`;
                 valorFinal = 0.00;
                 if (txtValor) {
                     txtValor.innerHTML = `
@@ -12107,11 +12131,11 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             let txidPix = `RESET_${planoKey.toUpperCase()}`;
             let descricaoPixLabel = 'Adesão do Plano';
 
-            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
-                const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
+            if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100' || cupomAtivoModal.tipo === 'grupoparceiro100')) {
+                const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
                 const isPrimeiro = cupomAtivoModal.isPrimeiro;
-                const nomeG = isLilian ? 'Lilian' : 'Wendell';
-                const prefixTx = isLilian ? 'LILIAN' : 'WENDELL';
+                const nomeG = slug.charAt(0) + slug.slice(1).toLowerCase();
+                const prefixTx = slug;
                 valorPixDinamico = isPrimeiro ? 0.00 : 41.00;
                 txidPix = isPrimeiro ? `${prefixTx}_001_ISENTO` : `${prefixTx}_41`;
                 descricaoPixLabel = isPrimeiro ? 'Adesão e Mensalidade Vitalícia R$ 0,00' : `1ª Mensalidade VIP ${nomeG} (Adesão R$ 0,00 Isenta)`;
@@ -12154,10 +12178,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             }
             
             if (txtMensalidade) {
-                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
-                    const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
+                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100' || cupomAtivoModal.tipo === 'grupoparceiro100')) {
+                    const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
                     const isPrimeiro = cupomAtivoModal.isPrimeiro;
-                    const nomeG = isLilian ? 'LILIAN' : 'WENDELL';
+                    const nomeG = slug;
                     txtMensalidade.innerHTML = `
                         <div class="inline-flex flex-col items-center mt-1">
                             <span class="bg-gradient-to-r from-purple-700 via-indigo-700 to-amber-500 text-white px-3 py-1 rounded-full font-black text-xs shadow-xs">
@@ -12213,10 +12237,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             // Atualiza texto e estilo do botão de confirmação conforme o cupom
             const btnConfirmarPix = document.getElementById('btn-confirmar-pix-modal');
             if (btnConfirmarPix) {
-                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100')) {
-                    const isLilian = (cupomAtivoModal.tipo === 'grupolilian100');
+                if (cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100' || cupomAtivoModal.tipo === 'grupoparceiro100')) {
+                    const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
                     const isPrimeiro = cupomAtivoModal.isPrimeiro;
-                    const nomeG = isLilian ? 'LILIAN' : 'WENDELL';
+                    const nomeG = slug;
                     btnConfirmarPix.innerHTML = isPrimeiro
                         ? `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR MINHA ISENÇÃO VITALÍCIA AGORA (R$ 0,00)</span>`
                         : `<i class="fa-solid fa-crown text-amber-300 text-lg"></i><span>👑 ATIVAR VAGA VIP ${nomeG} (ADESÃO R$ 0,00)</span>`;
@@ -13816,16 +13840,16 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     btn.disabled = true;
                 }
 
-                const isMembroWendell = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'grupowendell100');
-                const isMembroLilian = Boolean(cupomAtivoModal && cupomAtivoModal.tipo === 'grupolilian100');
-                const isMembroFundador = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'fundador100' || cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100'));
+                const isMembroParceiro = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'grupowendell100' || cupomAtivoModal.tipo === 'grupolilian100' || cupomAtivoModal.tipo === 'grupoparceiro100'));
+                const isMembroFundador = Boolean(cupomAtivoModal && (cupomAtivoModal.tipo === 'fundador100' || isMembroParceiro));
 
                 // Determina valor da taxa de adesão
                 let valorPagoNum = p.valorAdesaoNum || 99.00;
                 let cupomCod = null;
-                if (isMembroWendell || isMembroLilian) {
+                if (isMembroParceiro) {
+                    const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
                     valorPagoNum = (cupomAtivoModal.isPrimeiro) ? 0.00 : 41.00;
-                    cupomCod = isMembroLilian ? 'GRUPOLILIAN100' : 'GRUPOWENDELL100';
+                    cupomCod = `GRUPO${slug}100`;
                 } else if (isMembroFundador) {
                     const tabelaMensalidadesFundadorNum = { plano1: 29.00, plano2: 39.00, plano3: 47.00 };
                     valorPagoNum = tabelaMensalidadesFundadorNum[pKey] || 29.00;
@@ -13841,7 +13865,7 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
                 // VALIDAÇÁO DE SEGURANÇA: Se o plano tem taxa financeira (> R$ 0,00), EXIGE comprovação real!
                 let txDetectada = txHashParam || '';
-                const isTotalmenteIsento = (isMembroWendell && cupomAtivoModal.isPrimeiro);
+                const isTotalmenteIsento = (isMembroParceiro && cupomAtivoModal.isPrimeiro);
                 if (!isTotalmenteIsento && valorPagoNum > 0) {
                     let pagamentoVerificado = false;
 
@@ -13877,8 +13901,8 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
 
                 // 1. Cálculo da nova data de validade (REGRA CUMULATIVA: soma dias de teste/plano restantes à nova mensalidade)
                 let novoVencimento = '';
-                const isVitalicio = (isMembroWendell && cupomAtivoModal.isPrimeiro) || 
-                                    (isMembroFundador && !isMembroWendell && (!CONFIG_TEMPO_PLANOS || CONFIG_TEMPO_PLANOS.fundadorSemValidade)) || 
+                const isVitalicio = (isMembroParceiro && cupomAtivoModal.isPrimeiro) || 
+                                    (isMembroFundador && !isMembroParceiro && (!CONFIG_TEMPO_PLANOS || CONFIG_TEMPO_PLANOS.fundadorSemValidade)) || 
                                     pKey === 'plano3' || 
                                     (pKey === 'plano2' && CONFIG_TEMPO_PLANOS && CONFIG_TEMPO_PLANOS.dataVitalicio);
 
@@ -13935,12 +13959,14 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                     rawEspaco = rawEspaco + ' ' + tagPix;
                 }
 
-                // Se ativou via GRUPOWENDELL100, GRUPOLILIAN100 ou FUNDADOR100, grava a condição VIP permanente no perfil
-                if (isMembroWendell || isMembroLilian) {
+                // Se ativou via GRUPOWENDELL100, GRUPOLILIAN100, GRUPORENATA100 ou qualquer GRUPO<NOME>100, grava a condição VIP permanente no perfil
+                if (isMembroParceiro) {
+                    const slug = cupomAtivoModal.slugParceiro || (cupomAtivoModal.tipo === 'grupolilian100' ? 'LILIAN' : 'WENDELL');
                     const isPrimeiroW = cupomAtivoModal.isPrimeiro;
-                    const tagPrefix = isMembroLilian ? 'GRUPO_LILIAN' : 'GRUPO_WENDELL';
-                    const cupomStr = isMembroLilian ? 'CUPOM:GRUPOLILIAN100' : 'CUPOM:GRUPOWENDELL100';
-                    const condicaoStr = isMembroLilian ? 'Membro VIP Lilian' : 'Membro VIP Wendell';
+                    const tagPrefix = `GRUPO_${slug}`;
+                    const cupomStr = `CUPOM:GRUPO${slug}100`;
+                    const nomeFormatado = slug.charAt(0) + slug.slice(1).toLowerCase();
+                    const condicaoStr = `Membro VIP ${nomeFormatado}`;
 
                     const tagVip = isPrimeiroW
                         ? `<!--${tagPrefix}:A001--> <!--${cupomStr}--> <!--STATUS_VIP:ATIVO--> <!--STATUS_CONSULTOR:VIP--> <!--STATUS:VIP--> <!--CONDICAO:${condicaoStr}--> <!--VALOR_ADESAO:0--> <!--ADESAO_ISENTA:true--> <!--MENSALIDADE:0--> <!--VITALICIO:true--> <!--ISENTO_VITALICIO:true--> <!--CATALOGO_LIBERADO:true--> <!--CARTAO_FIDELIDADE:true--> <!--MODULO_FINANCEIRO:true-->`
@@ -22832,33 +22858,53 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         }
         window.calcularCodigoFundador = calcularCodigoFundador;
 
-        // Extrai dados de fundador ou VIP de um consultor (incluindo Grupo Wendell e Grupo Lilian)
+        // Extrai dados de fundador ou VIP de um consultor (incluindo Grupo Wendell, Grupo Lilian, Grupo Renata e parceiros)
         function extrairDadosFundador(consultor) {
             if (!consultor) return null;
             const raw = (consultor.nome_espaco || '') + ' ' + (consultor.status || '');
             const matchCod = raw.match(/<!--GRUPO_FUNDADORES:(.*?)-->/);
             const matchWendell = raw.match(/<!--GRUPO_WENDELL:(.*?)-->/);
             const matchLilian = raw.match(/<!--GRUPO_LILIAN:(.*?)-->/);
+            const matchRenata = raw.match(/<!--GRUPO_RENATA:(.*?)-->/);
+            const matchParceiroGenerico = raw.match(/<!--GRUPO_([A-Z0-9_]+):(.*?)(-->|\s)/);
             const matchCup = raw.match(/<!--CUPOM:FUNDADOR100-->/);
             const matchCupWendell = raw.match(/<!--CUPOM:GRUPOWENDELL100-->/);
             const matchCupLilian = raw.match(/<!--CUPOM:GRUPOLILIAN100-->/);
+            const matchCupRenata = raw.match(/<!--CUPOM:GRUPORENATA100-->/);
+            const matchCupGenerico = raw.match(/<!--CUPOM:GRUPO([A-Z0-9_]+)100-->/);
             const matchPlano = raw.match(/<!--PLANO_FUNDADOR:(.*?)-->/);
             const matchValor = raw.match(/<!--VALOR_ADESAO:(.*?)-->/);
+
             const isWendell = !!(matchWendell || matchCupWendell);
             const isLilian = !!(matchLilian || matchCupLilian);
-            const isVipParceiro = isWendell || isLilian;
+            const isRenata = !!(matchRenata || matchCupRenata);
+            const isOutroParceiro = !!(matchParceiroGenerico || matchCupGenerico);
+            const isVipParceiro = isWendell || isLilian || isRenata || isOutroParceiro;
             const isFundador = matchCod || matchCup || (consultor.status || '').toLowerCase().includes('fundador') || isVipParceiro;
 
             if (!isFundador) return null;
 
             let codigo = '';
-            if (matchLilian && matchLilian[1]) codigo = matchLilian[1].trim();
-            else if (matchWendell && matchWendell[1]) codigo = matchWendell[1].trim();
-            else if (matchCod && matchCod[1]) codigo = matchCod[1].trim();
+            let nomeParceiroDetectado = 'PARCEIRO';
+            if (matchRenata && matchRenata[1]) {
+                codigo = matchRenata[1].trim();
+                nomeParceiroDetectado = 'RENATA';
+            } else if (matchLilian && matchLilian[1]) {
+                codigo = matchLilian[1].trim();
+                nomeParceiroDetectado = 'LILIAN';
+            } else if (matchWendell && matchWendell[1]) {
+                codigo = matchWendell[1].trim();
+                nomeParceiroDetectado = 'WENDELL';
+            } else if (matchParceiroGenerico && matchParceiroGenerico[2]) {
+                codigo = matchParceiroGenerico[2].trim();
+                nomeParceiroDetectado = matchParceiroGenerico[1].trim();
+            } else if (matchCod && matchCod[1]) {
+                codigo = matchCod[1].trim();
+            }
 
             const isIsentoVit = raw.includes('ISENTO_VITALICIO:true') || (isVipParceiro && (codigo === 'A001' || raw.includes('MENSALIDADE:0')));
 
-            const labelGrupo = isLilian ? 'VIP LILIAN' : (isWendell ? 'VIP WENDELL' : 'FUNDADOR');
+            const labelGrupo = isVipParceiro ? `VIP ${nomeParceiroDetectado}` : 'FUNDADOR';
 
             return {
                 codigo: codigo || (isVipParceiro ? labelGrupo : 'FUNDADOR'),
@@ -22867,6 +22913,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 valor: matchValor ? matchValor[1].trim() : (isIsentoVit ? '0' : '41.00'),
                 isWendell: isWendell,
                 isLilian: isLilian,
+                isRenata: isRenata,
                 isIsentoVitalicio: isIsentoVit,
                 statusVip: isVipParceiro ? 'VIP' : 'Fundador'
             };
@@ -23232,6 +23279,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             });
         }
         window.copiarLinkGrupoLilian = copiarLinkGrupoLilian;
+
+        function copiarLinkGrupoRenata() {
+            const link = `https://litraodoreset.com.br/assinar.html?cupom=GRUPORENATA100`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert(`🔥 LINK EXCLUSIVO DO GRUPO RENATA VIP COPIADO!\n\n${link}\n\nAo acessar este link:\n- Vagas limitadas para os primeiros 100 a pagarem\n- O 1º ganha Isenção 100% Total e Mensalidade Vitalícia R$ 0,00\n- Os demais 99: Adesão R$ 0,00 e Mensalidade R$ 41,00/mês com Status VIP e todos os bônus!`);
+            }).catch(() => {
+                prompt("Copie o link exclusivo do Grupo Renata abaixo:", link);
+            });
+        }
+        window.copiarLinkGrupoRenata = copiarLinkGrupoRenata;
 
         function toggleSecaoAvaliacoes(e) {
             if (e && e.stopPropagation) e.stopPropagation();

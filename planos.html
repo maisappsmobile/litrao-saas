@@ -1161,8 +1161,12 @@
                     badgeHtml: `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">🧪 TESTE R$ 0,10</span>`
                 };
             }
-            if (cupom.isGrupoWendell || cupom.isGrupoLilian || cupom.codigo === 'GRUPOWENDELL100' || cupom.codigo === 'GRUPOLILIAN100') {
-                const nomeBadge = (cupom.isGrupoLilian || cupom.codigo === 'GRUPOLILIAN100') ? 'GRUPO LILIAN VIP' : 'GRUPO WENDELL VIP';
+            if (cupom.isGrupoParceiro || cupom.isGrupoWendell || cupom.isGrupoLilian || cupom.isGrupoRenata || (cupom.codigo && cupom.codigo.startsWith('GRUPO') && cupom.codigo.endsWith('100'))) {
+                let nomeBadge = 'GRUPO VIP';
+                if (cupom.nomeBadge) nomeBadge = cupom.nomeBadge;
+                else if (cupom.nomeGrupo) nomeBadge = `${cupom.nomeGrupo.toUpperCase()} VIP`;
+                else if (cupom.nome) nomeBadge = cupom.nome.toUpperCase();
+                else if (cupom.codigo) nomeBadge = `${cupom.codigo} VIP`;
                 return {
                     aplica: true,
                     valorFinal: 0.00,
@@ -1215,9 +1219,17 @@
                         </button>
                     </div>
                 `;
-            } else if (cupom.isGrupoWendell || cupom.isGrupoLilian) {
-                const nomeGrupo = cupom.isGrupoLilian ? 'GRUPO LILIAN' : 'GRUPO WENDELL';
-                const codCupom = cupom.isGrupoLilian ? 'GRUPOLILIAN100' : 'GRUPOWENDELL100';
+            } else if (cupom.isGrupoParceiro || cupom.isGrupoWendell || cupom.isGrupoLilian || cupom.isGrupoRenata || (cupom.codigo && cupom.codigo.startsWith('GRUPO') && cupom.codigo.endsWith('100'))) {
+                let nomeGrupo = 'GRUPO PARCEIRO';
+                if (cupom.nomeGrupo) nomeGrupo = cupom.nomeGrupo;
+                else if (cupom.codigo === 'GRUPOLILIAN100') nomeGrupo = 'GRUPO LILIAN';
+                else if (cupom.codigo === 'GRUPOWENDELL100') nomeGrupo = 'GRUPO WENDELL';
+                else if (cupom.codigo === 'GRUPORENATA100') nomeGrupo = 'GRUPO RENATA';
+                else if (cupom.codigo) {
+                    const meio = cupom.codigo.replace(/^GRUPO/, '').replace(/100$/, '');
+                    nomeGrupo = `GRUPO ${meio.toUpperCase()}`;
+                }
+                const codCupom = cupom.codigo || 'GRUPOPARCEIRO100';
                 feedback.className = 'mt-3 text-xs text-white bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950 border-2 border-amber-400 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl';
                 feedback.innerHTML = `
                     <div class="flex items-center gap-3 text-left">
@@ -1226,7 +1238,7 @@
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-black text-amber-300 uppercase tracking-wider text-sm">🔥 LOTE VIP: ${nomeGrupo} (100 VAGAS)!</span>
+                                <span class="font-black text-amber-300 uppercase tracking-wider text-sm">🔥 LOTE VIP: ${nomeGrupo.toUpperCase()} (100 VAGAS)!</span>
                                 <span class="bg-red-600 text-white font-black text-[9px] px-2 py-0.5 rounded-full uppercase animate-pulse">ESCASSEZ MÁXIMA</span>
                             </div>
                             <p class="text-[11px] text-slate-200 mt-1">
@@ -1336,30 +1348,26 @@
                     descricao: 'Valor especial de teste de R$ 0,10'
                 };
             }
-            // 0.1 Cupom Exclusivo Grupo Wendell VIP (100 Vagas)
-            else if (codigo === 'GRUPOWENDELL100') {
+            // 0.1 Cupons Exclusivos de Parceiros VIP (Padrão: GRUPO<NOME>100 - Wendell, Lilian, Renata, etc.)
+            else if (codigo === 'GRUPOWENDELL100' || codigo === 'GRUPOLILIAN100' || codigo === 'GRUPORENATA100' || (codigo.startsWith('GRUPO') && codigo.endsWith('100'))) {
+                let nomeParceiro = 'Grupo Parceiro';
+                if (codigo === 'GRUPOWENDELL100') nomeParceiro = 'Grupo Wendell';
+                else if (codigo === 'GRUPOLILIAN100') nomeParceiro = 'Grupo Lilian';
+                else if (codigo === 'GRUPORENATA100') nomeParceiro = 'Grupo Renata';
+                else {
+                    const meio = codigo.replace(/^GRUPO/, '').replace(/100$/, '');
+                    if (meio) nomeParceiro = `Grupo ${meio.charAt(0).toUpperCase() + meio.slice(1).toLowerCase()}`;
+                }
+
                 cupomEncontrado = {
-                    nome: 'Grupo Wendell VIP (100 Vagas)',
-                    codigo: 'GRUPOWENDELL100',
+                    nome: `${nomeParceiro} VIP (100 Vagas)`,
+                    nomeGrupo: nomeParceiro,
+                    codigo: codigo,
                     tipoDesconto: 'valor_fixo',
                     desconto: 0,
                     planos: 'todos',
                     carenciaDias: 0,
-                    isGrupoWendell: true,
-                    preco: 41.00,
-                    descricao: 'Lote Exclusivo de 100 Vagas: 1º Vitalício Grátis • Demais R$ 41,00/mês com Status VIP e Todos os Bônus'
-                };
-            }
-            // 0.1b Cupom Exclusivo Grupo Lilian VIP (100 Vagas)
-            else if (codigo === 'GRUPOLILIAN100') {
-                cupomEncontrado = {
-                    nome: 'Grupo Lilian VIP (100 Vagas)',
-                    codigo: 'GRUPOLILIAN100',
-                    tipoDesconto: 'valor_fixo',
-                    desconto: 0,
-                    planos: 'todos',
-                    carenciaDias: 0,
-                    isGrupoLilian: true,
+                    isGrupoParceiro: true,
                     preco: 41.00,
                     descricao: 'Lote Exclusivo de 100 Vagas: 1º Vitalício Grátis • Demais R$ 41,00/mês com Status VIP e Todos os Bônus'
                 };
