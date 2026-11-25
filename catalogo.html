@@ -2384,6 +2384,14 @@
 
             // Fallback localStorage para visualização imediata no dispositivo do consultor
             try {
+                const fotoLocal = localStorage.getItem('litrao_foto_catalogo_' + consultorAtual.herbalife_id) || 
+                                  localStorage.getItem('litrao_foto_catalogo_' + consultorAtual.id);
+                if (fotoLocal && (!consultorAtual.foto || consultorAtual.foto.includes('cdn-icons-png'))) {
+                    consultorAtual.foto = fotoLocal;
+                }
+            } catch(e) {}
+
+            try {
                 const localKey = 'catalogo_custom_produtos_' + consultorAtual.herbalife_id;
                 const localData = localStorage.getItem(localKey);
                 if (localData) {

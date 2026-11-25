@@ -9589,25 +9589,36 @@
                 <!-- Foto do Espaço & Cor do Tema -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- Foto do Consultor / Espaço -->
+                        <!-- Foto do Consultor / Espaço (Upload do PC / Celular ou URL) -->
                         <div class="text-center">
-                            <div class="w-20 h-20 mx-auto rounded-2xl bg-gray-900 border-2 border-gray-300 overflow-hidden mb-2 relative group flex items-center justify-center shadow-xs">
+                            <input type="file" id="input-foto-catalogo-local" accept="image/*" class="hidden" onchange="aoSelecionarFotoCatalogoLocal(this)">
+                            <div onclick="document.getElementById('input-foto-catalogo-local').click()" title="Clique para escolher a sua foto no computador ou celular" class="w-20 h-20 mx-auto rounded-2xl bg-gray-900 border-2 border-emerald-400 overflow-hidden mb-2 relative group flex items-center justify-center shadow-xs cursor-pointer hover:border-emerald-500 hover:shadow-md transition">
                                 <img id="cat-preview-foto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Sua foto aqui" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-white text-[9px] font-bold p-1">
+                                    <i class="fa-solid fa-cloud-arrow-up text-sm mb-0.5 text-emerald-400"></i>
+                                    <span>Trocar Foto</span>
+                                </div>
                             </div>
-                            <span class="text-[11px] font-bold text-gray-700 block">Sua foto aqui</span>
-                            <button onclick="alterarFotoCatalogoPrompt()" class="text-[10px] text-blue-600 hover:underline font-bold mt-0.5 cursor-pointer">
-                                Alterar foto
-                            </button>
+                            <span class="text-[11px] font-black text-gray-800 block">Sua foto aqui</span>
+                            <div class="flex items-center justify-center gap-1.5 mt-1">
+                                <button type="button" onclick="document.getElementById('input-foto-catalogo-local').click()" class="text-[10px] text-emerald-800 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 font-black px-2 py-0.5 rounded-lg cursor-pointer flex items-center gap-1 shadow-2xs transition" title="Escolher arquivo de foto salvo no seu computador ou celular">
+                                    <i class="fa-solid fa-folder-open text-emerald-600"></i> Escolher no PC
+                                </button>
+                                <button type="button" onclick="alterarFotoCatalogoPorUrlPrompt()" class="text-[9px] text-gray-400 hover:text-blue-600 hover:underline cursor-pointer" title="Colar link de imagem da internet">
+                                    URL
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Cor do Card / Tema -->
+                        <!-- Cor do Card / Tema (Seletor Visual de Cores) -->
                         <div class="text-center">
-                            <div id="cat-preview-cor-card" class="w-20 h-20 mx-auto rounded-2xl bg-emerald-600 border-2 border-gray-300 mb-2 shadow-xs flex items-center justify-center text-white">
+                            <input type="color" id="input-cor-catalogo-picker" value="#059669" class="hidden" onchange="aoMudarCorTemaCatalogo(this.value)">
+                            <div onclick="document.getElementById('input-cor-catalogo-picker').click()" id="cat-preview-cor-card" title="Clique para escolher a cor do seu catálogo com a paleta de cores" class="w-20 h-20 mx-auto rounded-2xl bg-emerald-600 border-2 border-gray-300 mb-2 shadow-xs flex items-center justify-center text-white cursor-pointer hover:scale-105 hover:shadow-md transition">
                                 <i class="fa-solid fa-palette text-xl"></i>
                             </div>
-                            <span class="text-[11px] font-bold text-gray-700 block">Cor do seu card</span>
-                            <button onclick="alterarCorTemaCatalogoPrompt()" class="text-[10px] text-blue-600 hover:underline font-bold mt-0.5 cursor-pointer">
-                                Mudar cor
+                            <span class="text-[11px] font-black text-gray-800 block">Cor do seu card</span>
+                            <button type="button" onclick="document.getElementById('input-cor-catalogo-picker').click()" class="text-[10px] text-purple-800 hover:text-purple-950 bg-purple-50 hover:bg-purple-100 border border-purple-300 font-black px-2 py-0.5 rounded-lg mt-1 cursor-pointer flex items-center gap-1 mx-auto shadow-2xs transition" title="Abrir paleta visual de cores">
+                                <i class="fa-solid fa-eye-dropper text-purple-600"></i> Mudar cor
                             </button>
                         </div>
                     </div>
@@ -36339,22 +36350,95 @@ ${escapeHtml(textoFinal)}
             }
         }
 
-        // Alterar Foto e Cor do Tema
-        async function alterarFotoCatalogoPrompt() {
-            const url = prompt("Cole a URL direta da imagem ou logo para o seu Catálogo:", document.getElementById('cat-preview-foto').src);
+        // =========================================================================
+        // ALTERAR FOTO E COR DO TEMA (UPLOAD LOCAL DO PC / CELULAR & SELETOR DE COR)
+        // =========================================================================
+        function alterarFotoCatalogoPrompt() {
+            const input = document.getElementById('input-foto-catalogo-local');
+            if (input) {
+                input.click();
+            } else {
+                alterarFotoCatalogoPorUrlPrompt();
+            }
+        }
+        window.alterarFotoCatalogoPrompt = alterarFotoCatalogoPrompt;
+
+        async function alterarFotoCatalogoPorUrlPrompt() {
+            const atual = document.getElementById('cat-preview-foto') ? document.getElementById('cat-preview-foto').src : '';
+            const url = prompt("Cole a URL direta da imagem ou logo para o seu Catálogo (ou use 'Escolher no PC' para fotos do seu computador):", atual);
             if (!url || !url.trim().startsWith('http')) return;
 
-            document.getElementById('cat-preview-foto').src = url.trim();
+            const prev = document.getElementById('cat-preview-foto');
+            if (prev) prev.src = url.trim();
             await salvarCustomizacaoCatalogo({ foto: url.trim() });
         }
+        window.alterarFotoCatalogoPorUrlPrompt = alterarFotoCatalogoPorUrlPrompt;
 
-        async function alterarCorTemaCatalogoPrompt() {
-            const cor = prompt("Digite o código hexadecimal da cor do seu card (Ex: #78be20, #2563eb, #7c3aed):", "#78be20");
-            if (!cor || !cor.trim().startsWith('#')) return;
+        // Processa upload de imagem local do PC ou Celular com redimensionamento inteligente
+        function aoSelecionarFotoCatalogoLocal(input) {
+            const file = input && input.files && input.files[0];
+            if (!file) return;
 
-            document.getElementById('cat-preview-cor-card').style.backgroundColor = cor.trim();
-            await salvarCustomizacaoCatalogo({ cor: cor.trim() });
+            if (!file.type.startsWith('image/')) {
+                alert("Por favor selecione um arquivo de imagem válido (JPG, PNG ou WEBP).");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const maxDim = 600;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                    const prev = document.getElementById('cat-preview-foto');
+                    if (prev) prev.src = dataUrl;
+
+                    await salvarCustomizacaoCatalogo({ foto: dataUrl });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
+        window.aoSelecionarFotoCatalogoLocal = aoSelecionarFotoCatalogoLocal;
+
+        // Seletor visual nativo de cores
+        async function aoMudarCorTemaCatalogo(cor) {
+            if (!cor) return;
+            const elCard = document.getElementById('cat-preview-cor-card');
+            if (elCard) elCard.style.backgroundColor = cor;
+            await salvarCustomizacaoCatalogo({ cor: cor });
+        }
+        window.aoMudarCorTemaCatalogo = aoMudarCorTemaCatalogo;
+
+        function alterarCorTemaCatalogoPrompt() {
+            const picker = document.getElementById('input-cor-catalogo-picker');
+            if (picker) {
+                picker.click();
+            } else {
+                const cor = prompt("Digite o código hexadecimal da cor do seu card (Ex: #78be20, #2563eb, #7c3aed):", "#78be20");
+                if (cor && cor.trim().startsWith('#')) {
+                    aoMudarCorTemaCatalogo(cor.trim());
+                }
+            }
+        }
+        window.alterarCorTemaCatalogoPrompt = alterarCorTemaCatalogoPrompt;
 
         async function salvarCustomizacaoCatalogo(alteracoes) {
             if (!consultorAtual || !consultorAtual.id) return;
@@ -36378,8 +36462,18 @@ ${escapeHtml(textoFinal)}
                 }
 
                 consultorAtual.nome_espaco = rawNome;
+
+                // Cache local imediato para refletir sem delay
+                try {
+                    const hid = consultorAtual.herbalife_id || consultorAtual.id;
+                    localStorage.setItem(`litrao_catalogo_custom_${hid}`, JSON.stringify(custom));
+                    if (alteracoes.foto) {
+                        localStorage.setItem(`litrao_foto_catalogo_${hid}`, alteracoes.foto);
+                    }
+                } catch(eCache) {}
+
                 await supabaseClient.from('consultores').update({ nome_espaco: rawNome }).eq('id', consultorAtual.id);
-                alert("Personalização do Catálogo salva com sucesso!");
+                alert("🎉 Personalização do Catálogo salva com sucesso! Sua foto já está atualizada.");
             } catch (err) {
                 alert("Erro ao salvar customização: " + err.message);
             }
