@@ -165,10 +165,16 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" onclick="carregarTodosPedidosCentral(true)" class="self-end sm:self-auto text-xs text-amber-300 hover:text-white font-bold bg-slate-950/70 border border-amber-400/40 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Atualizar</span>
-                </button>
+                <div class="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
+                    <label class="inline-flex items-center gap-2 text-xs text-purple-200 hover:text-white cursor-pointer select-none bg-slate-950/70 border border-purple-500/30 px-3 py-1.5 rounded-xl transition">
+                        <input type="checkbox" id="chk-ver-respondidos-pico" onchange="alternarFiltroRespondidosPico(this.checked)" class="rounded text-emerald-500 focus:ring-0 cursor-pointer">
+                        <span>Exibir já respondidos (<span id="cont-ja-respondidos-pico">0</span>)</span>
+                    </label>
+                    <button type="button" onclick="carregarTodosPedidosCentral(true)" class="text-xs text-amber-300 hover:text-white font-bold bg-slate-950/70 border border-amber-400/40 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Atualizar</span>
+                    </button>
+                </div>
             </div>
 
             <!-- GRADE COM O CARD DE CADA CONSULTOR EM MODO PICO -->
@@ -263,6 +269,9 @@
                 </button>
                 <button type="button" onclick="filtrarStatusPedidos('NOVOS')" id="filtro-btn-NOVOS" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">
                     ⏳ Novos (&lt;4m) (<span id="cont-filtro-novos">0</span>)
+                </button>
+                <button type="button" onclick="filtrarStatusPedidos('PICO')" id="filtro-btn-PICO" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">
+                    ⚡ Em Pico (<span id="cont-filtro-pico">0</span>)
                 </button>
                 <button type="button" onclick="filtrarStatusPedidos('PREPARO')" id="filtro-btn-PREPARO" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-blue-300">
                     Em Preparo (<span id="cont-filtro-preparo">0</span>)
@@ -1215,6 +1224,9 @@
             const elConcluidos = document.getElementById('cont-filtro-concluidos');
             if (elConcluidos) elConcluidos.innerText = concluidos;
 
+            const elPico = document.getElementById('cont-filtro-pico');
+            if (elPico) elPico.innerText = window.totalConsultoresPicoGlobal || 0;
+
             // DISPARO AUTOMÁTICO DO ALARME SE HOUVER PEDIDO EM RISCO (+4M)
             if (emRisco > 0) {
                 const tempoDesdeUltimoAlarme = agoraMs - ultimoAlarmeTocadoTimestamp;
@@ -1278,8 +1290,11 @@
             listaPico.sort((a, b) => b.expiraPico - a.expiraPico);
 
             // Atualiza card de métricas de Pico
+            window.totalConsultoresPicoGlobal = listaPico.length;
             const statPico = document.getElementById('stat-pico');
             if (statPico) statPico.innerText = listaPico.length;
+            const contFiltroPico = document.getElementById('cont-filtro-pico');
+            if (contFiltroPico) contFiltroPico.innerText = listaPico.length;
             const pingPico = document.getElementById('ping-pico-stat');
             const cardStatPico = document.getElementById('card-stat-pico');
             if (listaPico.length > 0) {
@@ -1308,31 +1323,104 @@
             renderizarEspacosEmPicoCentral(listaPico);
         }
 
+        let exibirRespondidosPico = false;
+
+        function isPicoRespondido(hid, expiraPico) {
+            if (!hid) return false;
+            return localStorage.getItem(`pico_respondido_${hid}_${expiraPico}`) === 'true';
+        }
+
+        function alternarApoioPicoRespondido(hid, expiraPico, checked) {
+            if (checked) {
+                localStorage.setItem(`pico_respondido_${hid}_${expiraPico}`, 'true');
+                mostrarToast('✅ Apoio marcado como respondido! Consultor liberado do alerta.', 'sucesso');
+            } else {
+                localStorage.removeItem(`pico_respondido_${hid}_${expiraPico}`);
+                mostrarToast('Alerta de apoio reativado para este consultor.', 'aviso');
+            }
+            atualizarConsultoresEmPicoCentral();
+        }
+
+        function marcarPicoComoRespondidoAoEnviarWhats(hid, expiraPico) {
+            localStorage.setItem(`pico_respondido_${hid}_${expiraPico}`, 'true');
+            setTimeout(() => {
+                atualizarConsultoresEmPicoCentral();
+            }, 600);
+        }
+
+        function alternarFiltroRespondidosPico(checked) {
+            exibirRespondidosPico = Boolean(checked);
+            atualizarConsultoresEmPicoCentral();
+        }
+
         function renderizarEspacosEmPicoCentral(lista) {
             const secao = document.getElementById('secao-espacos-em-pico-central');
             const grid = document.getElementById('grid-cards-consultores-pico');
             const badgeTotal = document.getElementById('badge-total-espacos-pico');
             const btnHeader = document.getElementById('btn-header-espacos-pico');
             const contHeader = document.getElementById('cont-header-espacos-pico');
+            const contJaRespEl = document.getElementById('cont-ja-respondidos-pico');
 
             if (!secao || !grid) return;
 
-            if (lista.length === 0) {
+            if (!lista || lista.length === 0) {
                 secao.classList.add('hidden');
                 if (btnHeader) btnHeader.classList.add('hidden');
                 if (contHeader) contHeader.innerText = '0';
+                if (contJaRespEl) contJaRespEl.innerText = '0';
                 return;
             }
 
-            // Exibe a seção e o botão no cabeçalho
-            secao.classList.remove('hidden');
-            if (btnHeader) btnHeader.classList.remove('hidden');
-            if (contHeader) contHeader.innerText = lista.length;
-            if (badgeTotal) badgeTotal.innerText = `${lista.length} Ativo(s)`;
-
             const agoraMs = Date.now();
 
-            grid.innerHTML = lista.map(item => {
+            // Separa quem está pendente de resposta e quem já foi respondido
+            const pendentes = lista.filter(item => {
+                const hid = String(item.consultor?.herbalife_id || '').trim();
+                return !isPicoRespondido(hid, item.expiraPico);
+            });
+
+            const jaRespondidos = lista.filter(item => {
+                const hid = String(item.consultor?.herbalife_id || '').trim();
+                return isPicoRespondido(hid, item.expiraPico);
+            });
+
+            if (contJaRespEl) contJaRespEl.innerText = jaRespondidos.length;
+
+            // Se o usuário marcar a caixa "Exibir já respondidos", mostra todos. Senão, mostra apenas quem precisa de resposta!
+            const listaParaRenderizar = exibirRespondidosPico ? lista : pendentes;
+
+            if (badgeTotal) {
+                if (pendentes.length > 0) {
+                    badgeTotal.innerText = `${pendentes.length} Pendente(s)`;
+                    badgeTotal.className = 'bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs animate-pulse';
+                } else {
+                    badgeTotal.innerText = `Todos Respondidos (${jaRespondidos.length})`;
+                    badgeTotal.className = 'bg-emerald-500 text-white text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs';
+                }
+            }
+
+            if (btnHeader) btnHeader.classList.remove('hidden');
+            if (contHeader) contHeader.innerText = pendentes.length;
+
+            // Se todos foram respondidos e a caixa de exibir respondidos NÃO está marcada:
+            if (listaParaRenderizar.length === 0) {
+                secao.classList.remove('hidden');
+                grid.innerHTML = `
+                    <div class="col-span-full p-5 text-center bg-slate-950/80 border border-emerald-500/40 rounded-3xl flex flex-col items-center justify-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg shadow-sm">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <h4 class="text-sm font-black text-emerald-300">Todos os ${jaRespondidos.length} consultores em Horário de Pico já foram respondidos pela Central! 🎉</h4>
+                        <p class="text-xs text-slate-400 max-w-lg">O alerta urgente de atendimento foi liberado. Caso queira visualizar ou desativar o pico, ative a opção <strong>"Exibir já respondidos"</strong> acima.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Exibe a seção
+            secao.classList.remove('hidden');
+
+            grid.innerHTML = listaParaRenderizar.map(item => {
                 const c = item.consultor || {};
                 const cId = c.id || '';
                 const cHid = String(c.herbalife_id || '').trim();
@@ -1346,6 +1434,8 @@
                 const dataExp = new Date(item.expiraPico);
                 const horaExpira = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const minRestantes = Math.max(1, Math.round((item.expiraPico - agoraMs) / 60000));
+
+                const jaResp = isPicoRespondido(cHid, item.expiraPico);
 
                 // Quantos pedidos ativos deste consultor estão sendo monitorados pela Central agora
                 const pedidosAtivosConsultor = todosPedidosCentral.filter(p => {
@@ -1364,20 +1454,20 @@
                 const nomeConsEscapado = nomeConsultor.replace(/'/g, "\\'");
 
                 return `
-                    <div class="bg-slate-950/90 border-2 border-amber-400/80 hover:border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between transition group relative overflow-hidden">
-                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="bg-slate-950/90 border-2 ${jaResp ? 'border-emerald-500/60' : 'border-amber-400/80 hover:border-amber-400'} rounded-3xl p-5 shadow-2xl flex flex-col justify-between transition group relative overflow-hidden">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 ${jaResp ? 'bg-emerald-500/10' : 'bg-amber-400/10'} rounded-full blur-xl pointer-events-none"></div>
 
                         <div>
                             <div class="flex items-start justify-between gap-2 mb-3">
                                 <div>
-                                    <span class="text-[10px] font-black uppercase text-amber-300 bg-amber-400/20 border border-amber-400/40 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 mb-1.5 shadow-2xs animate-pulse">
-                                        <i class="fa-solid fa-bolt text-amber-400"></i> PICO EVS ATIVO
+                                    <span class="text-[10px] font-black uppercase ${jaResp ? 'text-emerald-300 bg-emerald-500/20 border-emerald-500/40' : 'text-amber-300 bg-amber-400/20 border-amber-400/40 animate-pulse'} border px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 mb-1.5 shadow-2xs">
+                                        <i class="fa-solid ${jaResp ? 'fa-circle-check text-emerald-400' : 'fa-bolt text-amber-400'}"></i> ${jaResp ? 'APOIO RESPONDIDO' : 'PICO EVS ATIVO'}
                                     </span>
                                     <h4 class="text-base font-black text-white leading-tight">${nomeConsultor}</h4>
                                     <p class="text-xs text-purple-200 font-semibold mt-0.5">${nomeEspaco}</p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="text-xs font-black text-amber-300 bg-purple-900/90 border border-amber-400/50 px-3 py-1 rounded-xl block shadow-sm">
+                                    <span class="text-xs font-black ${jaResp ? 'text-emerald-300 bg-slate-900 border-emerald-500/40' : 'text-amber-300 bg-purple-900/90 border-amber-400/50'} border px-3 py-1 rounded-xl block shadow-sm">
                                         Até ${horaExpira}
                                     </span>
                                     <span class="text-[10px] text-amber-200/80 font-bold block mt-1">
@@ -1386,7 +1476,7 @@
                                 </div>
                             </div>
 
-                            <div class="text-xs text-slate-300 space-y-1.5 mb-4 p-3 bg-slate-900/80 rounded-2xl border border-slate-800">
+                            <div class="text-xs text-slate-300 space-y-1.5 mb-3 p-3 bg-slate-900/80 rounded-2xl border border-slate-800">
                                 <div class="flex items-center gap-2 text-slate-300">
                                     <i class="fa-solid fa-location-dot text-amber-400 text-xs w-4"></i>
                                     <span class="font-medium">${cidade} - ${uf}</span>
@@ -1400,11 +1490,30 @@
                                     <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} ativos</strong>
                                 </div>
                             </div>
+
+                            <!-- CHAVE (SWITCH) DE CONFIRMAÇÃO DE APOIO RESPONDIDO PELA CENTRAL -->
+                            <div class="flex items-center justify-between p-2.5 bg-slate-900/90 rounded-2xl border ${jaResp ? 'border-emerald-500/50 bg-emerald-950/30' : 'border-slate-800'} mb-3 transition">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid ${jaResp ? 'fa-check-double text-emerald-400' : 'fa-headset text-amber-400'} text-sm"></i>
+                                    <div>
+                                        <div class="text-xs font-black ${jaResp ? 'text-emerald-300' : 'text-white'}">
+                                            ${jaResp ? 'Apoio Respondido ✅' : 'Apoio Respondido?'}
+                                        </div>
+                                        <div class="text-[10px] text-slate-400">
+                                            ${jaResp ? 'Consultor já recebeu suporte' : 'Ligue a chave para sair do alerta'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" onchange="alternarApoioPicoRespondido('${cHid}', ${item.expiraPico}, this.checked)" class="sr-only peer" ${jaResp ? 'checked' : ''}>
+                                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- BOTÕES DE AÇÃO DESTACADOS: RESPONDER WHATSAPP E DESATIVAR PICO -->
                         <div class="space-y-2 pt-2 border-t border-slate-800/80">
-                            <a href="${linkWhats}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer tracking-wide uppercase transform hover:scale-[1.02] active:scale-[0.98]">
+                            <a href="${linkWhats}" target="_blank" onclick="marcarPicoComoRespondidoAoEnviarWhats('${cHid}', ${item.expiraPico})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer tracking-wide uppercase transform hover:scale-[1.02] active:scale-[0.98]">
                                 <i class="fa-brands fa-whatsapp text-base text-white"></i>
                                 <span>Responder no WhatsApp</span>
                             </a>
@@ -1461,8 +1570,9 @@
         }
 
         function rolarParaSecaoPicoCentral() {
+            filtrarStatusPedidos('PICO');
             const el = document.getElementById('secao-espacos-em-pico-central');
-            if (el) {
+            if (el && !el.classList.contains('hidden')) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.classList.add('ring-4', 'ring-amber-400');
                 setTimeout(() => el.classList.remove('ring-4', 'ring-amber-400'), 2500);
@@ -1533,6 +1643,8 @@
                         if (st !== 'PENDENTE' || (!emModoPico && diffMin < 4)) return false;
                     } else if (filtroStatusAtual === 'NOVOS') {
                         if (st !== 'PENDENTE' || (emModoPico || diffMin >= 4)) return false;
+                    } else if (filtroStatusAtual === 'PICO') {
+                        if (st === 'CONCLUIDO' || !emModoPico) return false;
                     } else if (filtroStatusAtual === 'PREPARO') {
                         if (st !== 'PREPARO') return false;
                     } else if (filtroStatusAtual === 'ROTA') {
@@ -1587,6 +1699,8 @@
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-rose-600 text-white shadow-md';
                 } else if (status === 'NOVOS') {
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md';
+                } else if (status === 'PICO') {
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md border-2 border-amber-300';
                 } else if (status === 'CONCLUIDO') {
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-md';
                 } else if (status === 'PREPARO') {
@@ -1608,12 +1722,28 @@
             if (badgeVisiveis) badgeVisiveis.innerText = `${lista.length} exibidos`;
 
             if (lista.length === 0) {
-                container.innerHTML = `
-                    <div class="p-12 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
-                        <i class="fa-solid fa-clipboard-check text-3xl text-emerald-400 mb-2 block"></i>
-                        Nenhum pedido encontrado para o filtro selecionado.
-                    </div>
-                `;
+                if (filtroStatusAtual === 'PICO') {
+                    container.innerHTML = `
+                        <div class="p-8 text-center bg-slate-900/60 border border-amber-500/40 rounded-3xl">
+                            <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
+                                <i class="fa-solid fa-bolt text-2xl animate-pulse"></i>
+                            </div>
+                            <h3 class="text-base font-black text-white">Consultor(es) com Horário de Pico Ativo</h3>
+                            <p class="text-xs text-slate-300 max-w-md mx-auto mt-1 mb-4">No momento, nenhum pedido ativo no catálogo digital pendente de entrega para este(s) consultor(es). A Central está de prontidão!</p>
+                            <button type="button" onclick="rolarParaSecaoPicoCentral()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition inline-flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-arrow-up"></i>
+                                <span>Ver Alerta de Pico e Contatos no Topo</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="p-12 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
+                            <i class="fa-solid fa-clipboard-check text-3xl text-emerald-400 mb-2 block"></i>
+                            Nenhum pedido encontrado para o filtro selecionado.
+                        </div>
+                    `;
+                }
                 return;
             }
 
@@ -2192,7 +2322,7 @@
                 `• *Modalidade:* ${modalidade}\n` +
                 (endereco ? `• *Endereço:* ${endereco}\n` : '') +
                 `\nComo o consultor local estava em atendimento presencial no balcão, nossa *Central assumiu o seu pedido com prioridade máxima* para garantir que você não espere nem um minuto a mais! 🚀🥤\n\n` +
-                `Pode nos confirmar seu endereço para envio?`;
+                `Pode nos confirmar seu endereço e sabores para envio?`;
 
             // Mensagem para o Consultor
             const msgCentralConsultor = 
