@@ -214,13 +214,13 @@
                     ⏳ Novos (&lt;4m) (<span id="cont-filtro-novos">0</span>)
                 </button>
                 <button type="button" onclick="filtrarStatusPedidos('PREPARO')" id="filtro-btn-PREPARO" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-blue-300">
-                    Em Preparo
+                    Em Preparo (<span id="cont-filtro-preparo">0</span>)
                 </button>
                 <button type="button" onclick="filtrarStatusPedidos('ROTA')" id="filtro-btn-ROTA" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-indigo-300">
-                    Em Rota
+                    Em Rota (<span id="cont-filtro-rota">0</span>)
                 </button>
                 <button type="button" onclick="filtrarStatusPedidos('CONCLUIDO')" id="filtro-btn-CONCLUIDO" class="filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-emerald-300">
-                    Concluídos
+                    Concluídos (<span id="cont-filtro-concluidos">0</span>)
                 </button>
             </div>
 
@@ -815,8 +815,22 @@
         let modoVisualizacaoAtual = localStorage.getItem('central_modo_visualizacao') || 'LISTA';
         let somAtivado = true;
         let ultimoAlarmeTocadoTimestamp = 0;
+        let timerAlarmeVoz = null;
+        let ultimoNumeroPedidosEmRisco = 0;
         let intervalAutoRefresh = null;
         let intervalRelogio = null;
+
+        function pararAlarmeVoz() {
+            if (timerAlarmeVoz) {
+                clearTimeout(timerAlarmeVoz);
+                timerAlarmeVoz = null;
+            }
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                } catch (e) {}
+            }
+        }
 
         // MOTOR SONORO DE URGÊNCIA REALISTA & EMPOLGADO (+4 MINUTOS)
         function tocarAlarmeUrgenciaEmpolgado() {
@@ -844,7 +858,10 @@
                 });
 
                 // 2. VOZ EMPOLGADA & URGENTE REALISTA (aos 0.65s)
-                setTimeout(() => {
+                if (timerAlarmeVoz) clearTimeout(timerAlarmeVoz);
+                timerAlarmeVoz = setTimeout(() => {
+                    // Só emite a voz se REALMENTE ainda houver pedidos em risco no momento da fala!
+                    if (ultimoNumeroPedidosEmRisco <= 0) return;
                     if ('speechSynthesis' in window) {
                         try {
                             window.speechSynthesis.cancel();
@@ -899,6 +916,7 @@
                 label.innerText = 'Som Ativo';
                 mostrarToast('🔊 Alertas sonoros ativados na Central!', 'sucesso');
             } else {
+                pararAlarmeVoz();
                 icone.className = 'fa-solid fa-volume-xmark text-rose-400';
                 label.innerText = 'Silenciado';
                 mostrarToast('🔇 Alertas sonoros silenciados.', 'aviso');
@@ -1066,9 +1084,27 @@
             document.getElementById('stat-concluidos').innerText = concluidos;
             document.getElementById('stat-total').innerText = total;
 
-            document.getElementById('cont-filtro-todos').innerText = total;
-            document.getElementById('cont-filtro-risco').innerText = emRisco;
-            document.getElementById('cont-filtro-novos').innerText = novos;
+            ultimoNumeroPedidosEmRisco = emRisco;
+
+            // Na aba "Todos", exibimos apenas pedidos em andamento/ativos (concluídos ficam na aba Concluídos)
+            const totalAtivos = emRisco + novos + preparo + rota;
+            const elTodos = document.getElementById('cont-filtro-todos');
+            if (elTodos) elTodos.innerText = totalAtivos;
+
+            const elRisco = document.getElementById('cont-filtro-risco');
+            if (elRisco) elRisco.innerText = emRisco;
+
+            const elNovos = document.getElementById('cont-filtro-novos');
+            if (elNovos) elNovos.innerText = novos;
+
+            const elPreparo = document.getElementById('cont-filtro-preparo');
+            if (elPreparo) elPreparo.innerText = preparo;
+
+            const elRota = document.getElementById('cont-filtro-rota');
+            if (elRota) elRota.innerText = rota;
+
+            const elConcluidos = document.getElementById('cont-filtro-concluidos');
+            if (elConcluidos) elConcluidos.innerText = concluidos;
 
             // DISPARO AUTOMÁTICO DO ALARME SE HOUVER PEDIDO EM RISCO (+4M)
             if (emRisco > 0) {
@@ -1080,11 +1116,7 @@
                 }
             } else {
                 // SE NÃO HÁ PEDIDOS EM RISCO, CANCELA A VOZ IMEDIATAMENTE!
-                if ('speechSynthesis' in window) {
-                    try {
-                        window.speechSynthesis.cancel();
-                    } catch (e) {}
-                }
+                pararAlarmeVoz();
             }
         }
 
@@ -1105,16 +1137,22 @@
                 const emModoPico = Boolean(infoCons && infoCons.emModoPico);
 
                 // 1. Filtro por Status (COERÊNCIA 100% COM AS MÉTRICAS)
-                if (filtroStatusAtual === 'RISCO') {
-                    if (st !== 'PENDENTE' || (!emModoPico && diffMin < 4)) return false;
-                } else if (filtroStatusAtual === 'NOVOS') {
-                    if (st !== 'PENDENTE' || (emModoPico || diffMin >= 4)) return false;
-                } else if (filtroStatusAtual === 'PREPARO') {
-                    if (st !== 'PREPARO') return false;
-                } else if (filtroStatusAtual === 'ROTA') {
-                    if (st !== 'EM_ROTA') return false;
-                } else if (filtroStatusAtual === 'CONCLUIDO') {
+                // REGRA FUNDAMENTAL: Pedidos concluídos aparecem EXCLUSIVAMENTE na aba 'CONCLUIDO'
+                if (filtroStatusAtual === 'CONCLUIDO') {
                     if (st !== 'CONCLUIDO') return false;
+                } else {
+                    // Em QUALQUER outra aba (incluindo TODOS), pedidos concluídos NÃO devem aparecer
+                    if (st === 'CONCLUIDO') return false;
+
+                    if (filtroStatusAtual === 'RISCO') {
+                        if (st !== 'PENDENTE' || (!emModoPico && diffMin < 4)) return false;
+                    } else if (filtroStatusAtual === 'NOVOS') {
+                        if (st !== 'PENDENTE' || (emModoPico || diffMin >= 4)) return false;
+                    } else if (filtroStatusAtual === 'PREPARO') {
+                        if (st !== 'PREPARO') return false;
+                    } else if (filtroStatusAtual === 'ROTA') {
+                        if (st !== 'EM_ROTA') return false;
+                    }
                 }
 
                 // 2. Filtro por Termo de Busca
@@ -1164,6 +1202,12 @@
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-rose-600 text-white shadow-md';
                 } else if (status === 'NOVOS') {
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md';
+                } else if (status === 'CONCLUIDO') {
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-md';
+                } else if (status === 'PREPARO') {
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-blue-600 text-white shadow-md';
+                } else if (status === 'ROTA') {
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-md';
                 } else {
                     btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-purple-600 text-white shadow-md';
                 }
@@ -1871,9 +1915,7 @@
                 item.como_foi_semana = novoComoFoi;
 
                 // Se o pedido foi concluído ou alterado, silencia a voz de alarme imediatamente
-                if ('speechSynthesis' in window) {
-                    try { window.speechSynthesis.cancel(); } catch(e) {}
-                }
+                pararAlarmeVoz();
 
                 processarMetricasEDispararAlertas();
                 aplicarFiltrosEBusca();
