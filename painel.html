@@ -153,6 +153,29 @@
                     <span id="header-vencimento-val" class="font-black text-slate-800">Vitalício (Permanente)</span>
                 </div>
 
+                <!-- APOIO DA CENTRAL DE ATENDIMENTO NO CABEÇALHO (PRINT 1 NO PRINT 2) -->
+                <div id="header-apoio-central-box" class="flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-purple-50 hover:bg-purple-100/90 border border-purple-200 rounded-xl transition shadow-2xs shrink-0" title="Apoio da Central Anti-Perda (SLA 4 Minutos)">
+                    <button type="button" onclick="abrirModalInfoApoioCentral()" class="flex items-center gap-2 cursor-pointer text-left focus:outline-none shrink-0" title="Ver detalhes da Supervisão Anti-Perda">
+                        <div class="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs shadow-2xs shrink-0">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="flex flex-col leading-tight">
+                            <div class="flex items-center gap-1">
+                                <span class="text-[11px] font-black text-purple-950 whitespace-nowrap">Apoio da Central</span>
+                                <span class="text-[8px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.2 rounded-md border border-emerald-300 uppercase hidden xl:inline">RECOMENDADO</span>
+                            </div>
+                            <span id="header-apoio-central-status-label" class="text-[10px] text-emerald-700 font-extrabold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Ligado
+                            </span>
+                        </div>
+                    </button>
+                    <!-- Chave Toggle Switch no Cabeçalho -->
+                    <label class="relative inline-flex items-center cursor-pointer ml-0.5" title="Ligar ou Desligar Apoio da Central">
+                        <input type="checkbox" id="header-toggle-apoio-central" onchange="alternarApoioCentralCabecalho(this.checked)" class="sr-only peer" checked>
+                        <div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3.5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
                 <!-- BOTÃO DESTAQUE SUPERADMIN: CENTRAL DE PEDIDOS (AO VIVO) -->
                 <a href="central.html" target="_blank" id="btn-header-central-superadmin" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white border border-purple-400 px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shrink-0 hidden animate-pulse" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
                     <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
@@ -1013,6 +1036,27 @@
                                 </button>
                             </div>
 
+                            <!-- BANNER MODO PICO EVS ATIVO DENTRO DO CARD DE PEDIDOS -->
+                            <div id="banner-pico-evs-card-pedidos" class="hidden mb-3 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 border-2 border-amber-400 p-3 sm:p-3.5 rounded-2xl shadow-md text-white flex flex-col sm:flex-row items-center justify-between gap-2.5 animate-pulse">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm shrink-0 shadow-xs">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </span>
+                                    <div>
+                                        <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                                            ⚡ MODO HORÁRIO DE PICO ATIVADO
+                                            <span id="badge-pico-card-pedidos-tempo" class="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.2 rounded-full font-black">Até --:--</span>
+                                        </span>
+                                        <p class="text-[11px] text-purple-200 mt-0.5">
+                                            A <strong>Central Anti-Perda</strong> está priorizando seus pedidos para você atender o balcão com tranquilidade!
+                                        </p>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="desativarModoPicoEVS()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs transition cursor-pointer shrink-0 shadow-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-power-off text-[10px]"></i> Desativar Pausa
+                                </button>
+                            </div>
+
                             <!-- CONTAINER DA LISTA DE PEDIDOS -->
                             <div id="container-lista-pedidos-central" class="space-y-3">
                                 <div class="p-8 text-center text-gray-400">
@@ -1038,7 +1082,7 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 flex-wrap">
-                            <button type="button" onclick="abrirModalPausaHorarioPico()" id="btn-horario-pico-evs" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Pausar Atendimento Local no Horário de Pico (Central assume os pedidos)">
+                            <button type="button" onclick="aoClicarBotaoPicoEVS()" id="btn-horario-pico-evs" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap" title="Pausar Atendimento Local no Horário de Pico (Central assume os pedidos)">
                                 <i class="fa-solid fa-bolt text-amber-300" id="icone-btn-pico-evs"></i>
                                 <span id="label-horario-pico-btn">Pico EVS</span>
                             </button>
@@ -3387,7 +3431,7 @@
                 </div>
 
                 <!-- MODAL PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS -->
-                <div id="modal-pausa-horario-pico" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+                <div id="modal-pausa-horario-pico" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[95] flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
                     <div class="bg-slate-900 border-2 border-purple-500/50 rounded-3xl p-5 sm:p-6 w-full max-w-lg shadow-2xl text-white relative">
                         <div class="flex items-center justify-between pb-3 mb-4 border-b border-purple-500/30">
                             <div class="flex items-center gap-2.5">
@@ -3700,6 +3744,50 @@
                         <i class="fa-solid fa-play"></i> Abrir Teleprompter Web Agora
                     </a>
                     <button type="button" onclick="fecharModalInstrucoesTeleprompter()" class="w-full sm:w-auto bg-gray-900 hover:bg-black text-white font-bold px-6 py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md">
+                        Entendido, Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL INFORMATIVO DO APOIO DA CENTRAL DE ATENDIMENTO (PRINT 1) -->
+        <div id="modal-info-apoio-central" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] flex items-center justify-center p-3 sm:p-4 hidden animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-purple-200 relative animate-fade-in">
+                <button onclick="fecharModalInfoApoioCentral()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-lg font-bold p-1 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-black text-gray-900 leading-tight">Apoio da Central de Atendimento</h3>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">RECOMENDADO</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-0.5">Supervisão automática anti-perda de pedidos do catálogo</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4 text-xs text-purple-950 leading-relaxed mb-4">
+                    <p class="font-extrabold text-purple-900 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-purple-700"></i> Como funciona a Central Anti-Perda?
+                    </p>
+                    <p class="text-slate-700">
+                        Caso você receba um pedido no seu Catálogo Digital e não confirme em até <strong>4 minutos</strong> (por estar atendendo no balcão, preparando pedidos ou em horário de pico), nossa <strong>Central de Atendimento Oficial</strong> dá suporte imediato no WhatsApp do cliente para garantir que você não perca a venda!
+                    </p>
+                </div>
+                <div class="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border border-gray-200 mb-5">
+                    <div>
+                        <span class="text-xs font-black text-gray-900 block">Status do Apoio no seu Espaço:</span>
+                        <span id="modal-info-apoio-central-desc" class="text-[11px] text-emerald-700 font-bold">Ativo • Central monitorando em tempo real</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="modal-toggle-apoio-central-chk" onchange="alternarApoioCentralCabecalho(this.checked)" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="fecharModalInfoApoioCentral()" class="w-full bg-purple-700 hover:bg-purple-800 text-white font-black py-2.5 rounded-xl text-xs shadow-md transition cursor-pointer">
                         Entendido, Fechar
                     </button>
                 </div>
@@ -15377,6 +15465,11 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 // 7. Verifica se o consultor está em Horário de Pico no EVS (Ponto 4)
                 if (typeof verificarModoPicoEVS === 'function') {
                     verificarModoPicoEVS();
+                }
+
+                // 8. Sincroniza estado do Apoio da Central no cabeçalho (Print 1 no Print 2)
+                if (typeof atualizarApoioCentralCabecalho === 'function') {
+                    atualizarApoioCentralCabecalho();
                 }
             } catch(eCab) {
                 console.error("Erro ao atualizar cabecalho de identificacao:", eCab);
@@ -27867,10 +27960,14 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 const agoraMs = Date.now();
                 const pedidoMs = pedido.criado_em ? new Date(pedido.criado_em).getTime() : agoraMs;
                 const diffMinutos = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
-                const isAtrasado4Min = (st === 'PENDENTE' && diffMinutos >= 4);
-                const cardBorderClass = isAtrasado4Min 
-                    ? 'border-2 border-rose-500 bg-rose-50/50 shadow-md ring-2 ring-rose-200' 
-                    : 'bg-gray-50/70 hover:bg-emerald-50/20 border border-gray-200 hover:border-emerald-300 shadow-xs';
+                const foiAssumidoPelaCentral = Boolean(dados?.central_assumida);
+                const isAtrasado4Min = (st === 'PENDENTE' && diffMinutos >= 4 && !foiAssumidoPelaCentral);
+                let cardBorderClass = 'bg-gray-50/70 hover:bg-emerald-50/20 border border-gray-200 hover:border-emerald-300 shadow-xs';
+                if (foiAssumidoPelaCentral) {
+                    cardBorderClass = 'border-2 border-purple-400 bg-purple-50/30 shadow-sm ring-1 ring-purple-200';
+                } else if (isAtrasado4Min) {
+                    cardBorderClass = 'border-2 border-rose-500 bg-rose-50/50 shadow-md ring-2 ring-rose-200';
+                }
 
                 html += `
                     <div class="${cardBorderClass} rounded-2xl p-4 transition flex flex-col gap-3">
@@ -27881,6 +27978,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${stConfig.bg}">
                                         ${stConfig.label}
                                     </span>
+                                    ${foiAssumidoPelaCentral ? `
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-purple-700 text-white shadow-2xs flex items-center gap-1 border border-purple-400">
+                                            <i class="fa-solid fa-headset text-amber-300"></i> Central Atendendo
+                                        </span>
+                                    ` : ''}
                                     ${isAtrasado4Min ? `
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-600 text-white animate-pulse shadow-2xs flex items-center gap-1">
                                             <i class="fa-solid fa-triangle-exclamation"></i> 🚨 Em Risco (+${diffMinutos}m)
@@ -27969,6 +28071,26 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                                 </div>
                             </div>
                         </div>
+
+                        <!-- BARRA DE ATENDIMENTO ASSUMIDO PELA CENTRAL -->
+                        ${foiAssumidoPelaCentral ? `
+                            <div class="pt-2.5 border-t border-purple-200 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 p-2.5 rounded-xl border border-purple-300 flex flex-wrap items-center justify-between gap-2 shadow-2xs">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-purple-700 text-white flex items-center justify-center text-xs shadow-2xs shrink-0">
+                                        <i class="fa-solid fa-headset text-amber-300"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-black text-purple-950 block leading-tight">Atendimento Assumido pela Central</span>
+                                        <span class="text-[10px] text-purple-700 leading-tight">A equipe da Central assumiu o contato com o cliente para apoiar seu horário local.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <a href="https://wa.me/${(window.CONFIG_CENTRAL_ATENDIMENTO?.whatsapp || '+5566981411234').replace(/\D/g, '')}?text=${encodeURIComponent(`Olá Central! Sou o consultor ${consultorAtual?.nome_completo || consultorAtual?.herbalife_id || ''}. Gostaria de falar sobre o pedido #${pedido.id} do cliente ${nomeCliente}.`)}" target="_blank" class="bg-purple-700 hover:bg-purple-800 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer" title="Falar diretamente com a Central no WhatsApp">
+                                        <i class="fa-brands fa-whatsapp text-emerald-300"></i> Falar com a Central
+                                    </a>
+                                </div>
+                            </div>
+                        ` : ''}
 
                         <!-- BARRA DE TRANSBORDO / ALERTA DE 4 MINUTOS -->
                         ${isAtrasado4Min ? `
@@ -28242,9 +28364,32 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const linkZap = `https://wa.me/${normalizarNumeroWhatsApp(whatsCliente)}?text=${encodeURIComponent(msgCentral)}`;
             window.open(linkZap, '_blank');
 
-            // Atualiza status local e no banco para PREPARO indicando que Central assumiu
-            if (typeof atualizarStatusPedidoRapido === 'function') {
-                atualizarStatusPedidoRapido(pedidoId, 'PREPARO');
+            // Atualiza status local e no banco com marcação oficial de atendimento da Central
+            dados.central_assumida = true;
+            dados.central_assumida_em = new Date().toISOString();
+            dados.central_atendente = 'Central de Apoio Oficial';
+            dados.status = 'PREPARO';
+
+            let novoComoFoi = item.como_foi_semana || '';
+            const tagNovo = `<!--DADOS_PEDIDO:${JSON.stringify(dados)}-->`;
+            if (novoComoFoi.includes('<!--DADOS_PEDIDO:')) {
+                novoComoFoi = novoComoFoi.replace(/<!--DADOS_PEDIDO:.*?-->/, tagNovo);
+            } else {
+                novoComoFoi += `\n${tagNovo}`;
+            }
+
+            try {
+                await supabaseClient
+                    .from('avaliacoes')
+                    .update({ como_foi_semana: novoComoFoi })
+                    .eq('id', pedidoId);
+                item.como_foi_semana = novoComoFoi;
+            } catch(eDb) {
+                console.error("Erro ao salvar assumido pela central no painel:", eDb);
+            }
+
+            if (typeof atualizarCardEMovimentacaoPedidos === 'function') {
+                atualizarCardEMovimentacaoPedidos();
             }
 
             if (typeof mostrarNotificacaoFlutuante === 'function') {
@@ -28460,8 +28605,129 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         }
 
         // ==========================================
-        // PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS
+        // APOIO DA CENTRAL DE ATENDIMENTO NO CABEÇALHO (PRINT 1 NO PRINT 2)
         // ==========================================
+        function abrirModalInfoApoioCentral() {
+            const m = document.getElementById('modal-info-apoio-central');
+            if (m) {
+                atualizarApoioCentralCabecalho();
+                m.classList.remove('hidden');
+            }
+        }
+        window.abrirModalInfoApoioCentral = abrirModalInfoApoioCentral;
+
+        function fecharModalInfoApoioCentral() {
+            const m = document.getElementById('modal-info-apoio-central');
+            if (m) m.classList.add('hidden');
+        }
+        window.fecharModalInfoApoioCentral = fecharModalInfoApoioCentral;
+
+        function atualizarApoioCentralCabecalho() {
+            if (!consultorAtual) return;
+            const dados = (typeof extrairDadosPerfilConsultor === 'function') ? extrairDadosPerfilConsultor(consultorAtual) : {};
+            const estaAtivo = dados.apoioCentral !== false;
+            
+            const chk = document.getElementById('header-toggle-apoio-central');
+            const chkModal = document.getElementById('modal-toggle-apoio-central-chk');
+            const lbl = document.getElementById('header-apoio-central-status-label');
+            const box = document.getElementById('header-apoio-central-box');
+            const descModal = document.getElementById('modal-info-apoio-central-desc');
+            
+            if (chk) chk.checked = estaAtivo;
+            if (chkModal) chkModal.checked = estaAtivo;
+            
+            if (lbl) {
+                if (estaAtivo) {
+                    lbl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Ligado';
+                    lbl.className = 'text-[10px] text-emerald-700 font-extrabold flex items-center gap-1';
+                } else {
+                    lbl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Desligado';
+                    lbl.className = 'text-[10px] text-slate-500 font-bold flex items-center gap-1';
+                }
+            }
+            if (box) {
+                if (estaAtivo) {
+                    box.className = 'flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-purple-50 hover:bg-purple-100/90 border border-purple-200 rounded-xl transition shadow-2xs shrink-0';
+                } else {
+                    box.className = 'flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-slate-100 hover:bg-slate-200/80 border border-slate-300 rounded-xl transition shadow-2xs shrink-0 opacity-75';
+                }
+            }
+            if (descModal) {
+                if (estaAtivo) {
+                    descModal.innerText = 'Ativo • Central monitorando em tempo real (SLA 4m)';
+                    descModal.className = 'text-[11px] text-emerald-700 font-bold';
+                } else {
+                    descModal.innerText = 'Desligado • Atendimento exclusivo pelo seu balcão';
+                    descModal.className = 'text-[11px] text-slate-500 font-bold';
+                }
+            }
+        }
+        window.atualizarApoioCentralCabecalho = atualizarApoioCentralCabecalho;
+
+        async function alternarApoioCentralCabecalho(novoEstado) {
+            if (!consultorAtual) return;
+            
+            let rawEspaco = consultorAtual.nome_espaco || '';
+            rawEspaco = rawEspaco.replace(/<!--APOIO_CENTRAL:.*?-->/g, '').trim();
+            const novoEspaco = `${rawEspaco} <!--APOIO_CENTRAL:${novoEstado ? 'true' : 'false'}-->`;
+            
+            consultorAtual.nome_espaco = novoEspaco;
+            try {
+                localStorage.setItem('litrao_consultor_dados', JSON.stringify(consultorAtual));
+            } catch (_) {}
+            
+            atualizarApoioCentralCabecalho();
+            
+            const chkPerfil = document.getElementById('perfil-apoio-central');
+            if (chkPerfil) chkPerfil.checked = novoEstado;
+            
+            try {
+                const patchUrl = `https://ufgcjzhecpmhsavppjyn.supabase.co/rest/v1/consultores?id=eq.${consultorAtual.id}`;
+                await fetch(patchUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ nome_espaco: novoEspaco })
+                });
+                
+                if (novoEstado) {
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante('🎧 Apoio da Central Anti-Perda ATIVADO! Supervisão automática de 4 minutos.', 'sucesso');
+                    }
+                } else {
+                    if (typeof mostrarNotificacaoFlutuante === 'function') {
+                        mostrarNotificacaoFlutuante('⚠️ Apoio da Central DESATIVADO. Atendimento exclusivamente no seu balcão.', 'info');
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao salvar apoio central:", e);
+            }
+        }
+        window.alternarApoioCentralCabecalho = alternarApoioCentralCabecalho;
+
+        // ==========================================
+        // PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS (PRINT 3)
+        // ==========================================
+        function aoClicarBotaoPicoEVS() {
+            if (!consultorAtual) return;
+            const rawEspaco = consultorAtual.nome_espaco || '';
+            const match = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
+            if (match && match[1] && Date.now() < parseInt(match[1], 10)) {
+                const dataExp = new Date(parseInt(match[1], 10));
+                const horaFormatada = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                if (confirm(`⚡ O Modo Horário de Pico está ATIVO até ${horaFormatada}!\n\nA Central Anti-Perda está cuidando dos seus pedidos.\n\nDeseja DESATIVAR agora e voltar ao atendimento normal?`)) {
+                    desativarModoPicoEVS();
+                    return;
+                }
+            }
+            abrirModalPausaHorarioPico();
+        }
+        window.aoClicarBotaoPicoEVS = aoClicarBotaoPicoEVS;
+
         function abrirModalPausaHorarioPico() {
             const modal = document.getElementById('modal-pausa-horario-pico');
             if (modal) {
@@ -28484,6 +28750,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const match = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
             const banner = document.getElementById('banner-alerta-modo-pico');
             const badgeTempo = document.getElementById('badge-pico-expira-tempo');
+            const bannerCardPedidos = document.getElementById('banner-pico-evs-card-pedidos');
+            const badgeCardPedidos = document.getElementById('badge-pico-card-pedidos-tempo');
             const btnPico = document.getElementById('btn-horario-pico-evs');
             const iconePico = document.getElementById('icone-btn-pico-evs');
             const labelPico = document.getElementById('label-horario-pico-btn');
@@ -28501,10 +28769,15 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                         if (badgeTempo) badgeTempo.innerText = `Até ${horaFormatada}`;
                     }
 
+                    if (bannerCardPedidos) {
+                        bannerCardPedidos.classList.remove('hidden');
+                        if (badgeCardPedidos) badgeCardPedidos.innerText = `Até ${horaFormatada}`;
+                    }
+
                     if (btnPico) {
-                        btnPico.className = 'bg-gradient-to-r from-amber-500 to-rose-600 text-slate-950 font-black text-[11px] py-2 px-2.5 rounded-xl shadow-md transition flex items-center space-x-1 cursor-pointer whitespace-nowrap animate-pulse border border-amber-300';
-                        if (iconePico) iconePico.className = 'fa-solid fa-bolt text-rose-950';
-                        if (labelPico) labelPico.innerText = `Pausado (${horaFormatada})`;
+                        btnPico.className = 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-slate-950 font-black text-[11px] py-2 px-3 rounded-xl shadow-md transition flex items-center space-x-1.5 cursor-pointer whitespace-nowrap animate-pulse border-2 border-emerald-300 ring-2 ring-emerald-200';
+                        if (iconePico) iconePico.className = 'fa-solid fa-bolt text-slate-950';
+                        if (labelPico) labelPico.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-950 animate-ping inline-block mr-0.5"></span> PICO ATIVO (${horaFormatada})`;
                     }
                     return true;
                 }
@@ -28512,6 +28785,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
             // Desativado ou expirado
             if (banner) banner.classList.add('hidden');
+            if (bannerCardPedidos) bannerCardPedidos.classList.add('hidden');
             if (btnPico) {
                 btnPico.className = 'bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap';
                 if (iconePico) iconePico.className = 'fa-solid fa-bolt text-amber-300';

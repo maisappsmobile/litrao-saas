@@ -642,6 +642,61 @@
         </div>
     </div>
 
+    <!-- MODAL DE ATENDIMENTO ASSUMIDO PELA CENTRAL -->
+    <div id="modal-atendimento-assumido-central" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border-2 border-purple-500 w-full max-w-lg rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
+            <button type="button" onclick="fecharModalAtendimentoAssumidoCentral()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 pb-3 mb-4 border-b border-purple-500/30">
+                <span class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-amber-300 font-black flex items-center justify-center text-xl shadow-md">
+                    <i class="fa-solid fa-headset"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white">Central Assumiu o Pedido</h3>
+                    <p class="text-xs text-purple-300" id="assumido-modal-subtitulo">Pedido #-- • Atendimento Anti-Perda</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 mb-4">
+                ✅ O pedido foi movido para <strong>Em Preparo</strong> e o alerta de risco foi encerrado. Agora, envie a confirmação imediata para o cliente e avise o consultor local:
+            </p>
+
+            <div class="space-y-3">
+                <!-- Botão 1: Notificar Cliente -->
+                <a id="btn-modal-assumir-zap-cliente" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black p-3.5 rounded-2xl text-xs transition flex items-center justify-between shadow-md cursor-pointer group">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-brands fa-whatsapp text-lg text-emerald-200 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <span class="block font-black text-white">1. Responder ao Cliente no WhatsApp</span>
+                            <span class="text-[10px] text-emerald-100" id="btn-modal-assumir-nome-cliente">Confirmar endereço e sabores</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-emerald-200"></i>
+                </a>
+
+                <!-- Botão 2: Notificar Consultor -->
+                <a id="btn-modal-assumir-zap-consultor" href="#" target="_blank" class="w-full bg-slate-800 hover:bg-purple-900/60 border border-purple-500/40 text-purple-200 hover:text-white font-black p-3.5 rounded-2xl text-xs transition flex items-center justify-between shadow-md cursor-pointer group">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-brands fa-whatsapp text-lg text-purple-400 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <span class="block font-black text-white">2. Avisar Consultor no WhatsApp</span>
+                            <span class="text-[10px] text-purple-300" id="btn-modal-assumir-nome-consultor">Avisar que a Central está cuidando dele</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-purple-300"></i>
+                </a>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-slate-800 flex justify-end">
+                <button type="button" onclick="fecharModalAtendimentoAssumidoCentral()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">
+                    Concluir e Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL PONTO 6: AUDITORIA DE SLA & RANKING DE EFICIÊNCIA DOS CONSULTORES -->
     <div id="modal-ranking-sla-consultores" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-slate-900 border border-amber-500/50 w-full max-w-3xl rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative animate-in fade-in zoom-in duration-200 my-auto">
@@ -1509,8 +1564,13 @@
                     const restam = Math.max(0, 4 - diffMin);
                     badgeTempo = `<span class="bg-amber-500 text-slate-950 font-bold px-2 py-0.5 rounded-lg text-[10px]">⏳ Restam ${restam}m</span>`;
                 } else if (tipoColuna === 'PREPARO') {
-                    bordaEstilo = 'border-blue-500/60 bg-blue-950/20';
-                    badgeTempo = `<span class="bg-blue-600 text-white font-bold px-2 py-0.5 rounded-lg text-[10px]">🥤 Preparando</span>`;
+                    if (dados.central_assumida) {
+                        bordaEstilo = 'border-purple-500/80 bg-purple-950/30';
+                        badgeTempo = `<span class="bg-purple-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px]"><i class="fa-solid fa-headset text-amber-300 mr-1"></i>CENTRAL ASSUMIU</span>`;
+                    } else {
+                        bordaEstilo = 'border-blue-500/60 bg-blue-950/20';
+                        badgeTempo = `<span class="bg-blue-600 text-white font-bold px-2 py-0.5 rounded-lg text-[10px]">🥤 Preparando</span>`;
+                    }
                 } else {
                     bordaEstilo = 'border-indigo-500/60 bg-indigo-950/20';
                     badgeTempo = `<span class="bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-lg text-[10px]">🛵 Em Rota</span>`;
@@ -1620,8 +1680,39 @@
                 : '<div class="text-center py-10 text-[11px] text-slate-500 italic">Nenhum entregador em rota.</div>';
         }
 
-        // ASSUMIR ATENDIMENTO PELA CENTRAL (MENSAGEM NO WHATSAPP DO CLIENTE)
-        function assumirPedidoPelaCentral(pedidoId) {
+        // MODAL DE ATENDIMENTO ASSUMIDO PELA CENTRAL (RESPOSTA AO CLIENTE E CONSULTOR)
+        function abrirModalAtendimentoAssumidoCentral(pedidoId, nomeCliente, nomeConsultor, linkCliente, linkConsultor) {
+            const m = document.getElementById('modal-atendimento-assumido-central');
+            if (!m) return;
+            const sub = document.getElementById('assumido-modal-subtitulo');
+            if (sub) sub.innerText = `Pedido #${pedidoId} • Cliente: ${nomeCliente} • Consultor: ${nomeConsultor}`;
+            
+            const btnCli = document.getElementById('btn-modal-assumir-zap-cliente');
+            const lblCli = document.getElementById('btn-modal-assumir-nome-cliente');
+            if (btnCli) btnCli.href = linkCliente;
+            if (lblCli) lblCli.innerText = `Enviar confirmação para ${nomeCliente}`;
+
+            const btnCons = document.getElementById('btn-modal-assumir-zap-consultor');
+            const lblCons = document.getElementById('btn-modal-assumir-nome-consultor');
+            if (btnCons) btnCons.href = linkConsultor;
+            if (lblCons) lblCons.innerText = `Avisar consultor ${nomeConsultor}`;
+
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+        window.abrirModalAtendimentoAssumidoCentral = abrirModalAtendimentoAssumidoCentral;
+
+        function fecharModalAtendimentoAssumidoCentral() {
+            const m = document.getElementById('modal-atendimento-assumido-central');
+            if (m) {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+        }
+        window.fecharModalAtendimentoAssumidoCentral = fecharModalAtendimentoAssumidoCentral;
+
+        // ASSUMIR ATENDIMENTO PELA CENTRAL (MENSAGEM NO WHATSAPP DO CLIENTE E CONSULTOR)
+        async function assumirPedidoPelaCentral(pedidoId) {
             const item = todosPedidosCentral.find(p => String(p.id) === String(pedidoId));
             if (!item) return;
 
@@ -1636,13 +1727,34 @@
             const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
             const nomeConsultor = cEncontrado ? (cEncontrado.nome_completo || cEncontrado.herbalife_id) : 'Consultor da Região';
             const cidadeConsultor = cEncontrado ? (cEncontrado.cidade || 'sua região') : 'sua região';
+            const whatsConsultor = cEncontrado ? normalizarNumeroWhatsApp(cEncontrado.whatsapp) : '';
 
-            if (!whatsCliente) {
-                alert("WhatsApp do cliente não cadastrado no pedido.");
-                return;
+            // Registra no objeto e no banco que a Central assumiu
+            dados.central_assumida = true;
+            dados.central_assumida_em = new Date().toISOString();
+            dados.central_atendente = 'Central de Apoio Oficial';
+            dados.status = 'PREPARO';
+
+            let novoComoFoi = item.como_foi_semana || '';
+            const tagNovo = `<!--DADOS_PEDIDO:${JSON.stringify(dados)}-->`;
+            if (novoComoFoi.includes('<!--DADOS_PEDIDO:')) {
+                novoComoFoi = novoComoFoi.replace(/<!--DADOS_PEDIDO:.*?-->/, tagNovo);
+            } else {
+                novoComoFoi += `\n${tagNovo}`;
             }
 
-            const msgCentral = 
+            try {
+                await supabaseClient
+                    .from('avaliacoes')
+                    .update({ como_foi_semana: novoComoFoi })
+                    .eq('id', pedidoId);
+                item.como_foi_semana = novoComoFoi;
+            } catch(eDb) {
+                console.error("Erro ao registrar atendimento da central:", eDb);
+            }
+
+            // Mensagem para o Cliente
+            const msgCentralCliente = 
                 `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
                 `Olá, *${nomeCliente}*! Tudo bem?\n\n` +
                 `Identificamos o seu pedido *#${pedidoId}* realizado no catálogo de *${nomeConsultor}* em *${cidadeConsultor}*:\n` +
@@ -1650,14 +1762,30 @@
                 `• *Total:* ${valorTotal}\n` +
                 `• *Modalidade:* ${modalidade}\n` +
                 (endereco ? `• *Endereço:* ${endereco}\n` : '') +
-                `\nComo o consultor local estava em rota externa ou atendimento no espaço, nossa *Central assumiu o seu pedido com prioridade máxima* para garantir que você não espere nem um minuto a mais! 🚀🥤\n\n` +
+                `\nComo o consultor local estava em atendimento presencial no balcão, nossa *Central assumiu o seu pedido com prioridade máxima* para garantir que você não espere nem um minuto a mais! 🚀🥤\n\n` +
                 `Pode nos confirmar se o seu endereço e os sabores estão certinhos para despacharmos agora?`;
 
-            const link = `https://wa.me/${whatsCliente}?text=${encodeURIComponent(msgCentral)}`;
-            window.open(link, '_blank');
+            // Mensagem para o Consultor
+            const msgCentralConsultor = 
+                `🎧 *CENTRAL DE ATENDIMENTO - LITRÃO DO RESET*\n\n` +
+                `Olá, *${nomeConsultor}*! Tudo bem?\n\n` +
+                `A Central assumiu o atendimento do Pedido *#${pedidoId}* do cliente *${nomeCliente}* (${valorTotal}) para agilizar a entrega sem perder a venda enquanto você atende o seu balcão! 🚀\n\n` +
+                `Nossa equipe já está em contato com o cliente via WhatsApp. Fique tranquilo(a)! Qualquer dúvida ou detalhe do pedido, fale conosco por aqui. 🤝`;
 
-            // Marca o pedido como EM PREPARO indicando que a Central assumiu
-            alterarStatusPedido(pedidoId, 'PREPARO');
+            const linkZapCliente = whatsCliente ? `https://wa.me/${whatsCliente}?text=${encodeURIComponent(msgCentralCliente)}` : '#';
+            const linkZapConsultor = whatsConsultor ? `https://wa.me/${whatsConsultor}?text=${encodeURIComponent(msgCentralConsultor)}` : '#';
+
+            // Abre o modal interativo com opções de resposta
+            abrirModalAtendimentoAssumidoCentral(pedidoId, nomeCliente, nomeConsultor, linkZapCliente, linkZapConsultor);
+
+            // Dispara abertura do WhatsApp do cliente imediatamente
+            if (whatsCliente) {
+                window.open(linkZapCliente, '_blank');
+            }
+
+            // Atualiza Kanban da Central
+            if (typeof renderizarKanban === 'function') renderizarKanban();
+            if (typeof renderizarTabelaGeral === 'function') renderizarTabelaGeral();
             mostrarToast(`🎧 Central assumiu o atendimento do Pedido #${pedidoId}!`, 'sucesso');
         }
 
