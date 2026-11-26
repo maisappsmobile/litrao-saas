@@ -176,6 +176,12 @@
                     </label>
                 </div>
 
+                <!-- BOTÃO HORÁRIO DE PICO NO EVS NO CABEÇALHO (PRINT 1) -->
+                <button type="button" onclick="aoClicarBotaoPicoEVS()" id="header-btn-horario-pico-evs" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs py-1.5 px-3 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0" title="Pausar Atendimento Local no Horário de Pico (Central assume os pedidos)">
+                    <i class="fa-solid fa-bolt text-amber-300" id="header-icone-btn-pico-evs"></i>
+                    <span id="header-label-horario-pico-btn">Pico EVS</span>
+                </button>
+
                 <!-- BOTÃO DESTAQUE SUPERADMIN: CENTRAL DE PEDIDOS (AO VIVO) -->
                 <a href="central.html" target="_blank" id="btn-header-central-superadmin" class="text-xs font-black bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 hover:from-purple-800 hover:to-indigo-800 text-white border border-purple-400 px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shrink-0 hidden animate-pulse" title="Abrir Central Anti-Perda de Pedidos da Rede (SLA 4 Minutos)">
                     <i class="fa-solid fa-headset text-amber-300 text-sm"></i>
@@ -28755,6 +28761,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const btnPico = document.getElementById('btn-horario-pico-evs');
             const iconePico = document.getElementById('icone-btn-pico-evs');
             const labelPico = document.getElementById('label-horario-pico-btn');
+            
+            // Botão no Cabeçalho
+            const headerBtnPico = document.getElementById('header-btn-horario-pico-evs');
+            const headerIconePico = document.getElementById('header-icone-btn-pico-evs');
+            const headerLabelPico = document.getElementById('header-label-horario-pico-btn');
 
             if (match && match[1]) {
                 const timestampExpira = parseInt(match[1], 10);
@@ -28779,6 +28790,12 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                         if (iconePico) iconePico.className = 'fa-solid fa-bolt text-slate-950';
                         if (labelPico) labelPico.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-950 animate-ping inline-block mr-0.5"></span> PICO ATIVO (${horaFormatada})`;
                     }
+
+                    if (headerBtnPico) {
+                        headerBtnPico.className = 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-slate-950 font-black text-xs py-1.5 px-3 rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap animate-pulse border-2 border-emerald-300 ring-2 ring-emerald-200 shrink-0';
+                        if (headerIconePico) headerIconePico.className = 'fa-solid fa-bolt text-slate-950';
+                        if (headerLabelPico) headerLabelPico.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-950 animate-ping inline-block mr-0.5"></span> PICO ATIVO (${horaFormatada})`;
+                    }
                     return true;
                 }
             }
@@ -28790,6 +28807,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 btnPico.className = 'bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] py-2 px-2.5 rounded-xl shadow-xs transition flex items-center space-x-1 cursor-pointer whitespace-nowrap';
                 if (iconePico) iconePico.className = 'fa-solid fa-bolt text-amber-300';
                 if (labelPico) labelPico.innerText = 'Pico EVS';
+            }
+            if (headerBtnPico) {
+                headerBtnPico.className = 'bg-purple-600 hover:bg-purple-500 text-white font-black text-xs py-1.5 px-3 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0';
+                if (headerIconePico) headerIconePico.className = 'fa-solid fa-bolt text-amber-300';
+                if (headerLabelPico) headerLabelPico.innerText = 'Pico EVS';
             }
             return false;
         }

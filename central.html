@@ -120,6 +120,12 @@
                     <span class="hidden sm:inline">Testar Som Urgente</span>
                 </button>
 
+                <!-- BOTÃO INDICADOR DE ESPAÇOS EM PICO NO CABEÇALHO -->
+                <button type="button" onclick="rolarParaSecaoPicoCentral()" id="btn-header-espacos-pico" class="hidden bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer animate-pulse border border-amber-300 ring-2 ring-amber-400/50" title="Consultores com Horário de Pico Ativo">
+                    <i class="fa-solid fa-bolt text-slate-950"></i>
+                    <span>Pico Ativo (<span id="cont-header-espacos-pico">0</span>)</span>
+                </button>
+
                 <!-- RECARREGAR AGORA -->
                 <button type="button" onclick="carregarTodosPedidosCentral(true)" id="btn-recarregar" class="bg-purple-600 hover:bg-purple-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer" title="Recarregar Pedidos">
                     <i class="fa-solid fa-rotate text-purple-200" id="icone-refresh"></i>
@@ -196,6 +202,39 @@
                 </span>
                 <div id="stat-total" class="text-2xl sm:text-3xl font-black text-white mt-2">0</div>
                 <span class="text-[10px] text-purple-200/70 mt-1 font-medium">Na rede monitorada</span>
+            </div>
+        </section>
+
+        <!-- BLOCO NOVO: ESPAÇOS EM HORÁRIO DE PICO (CARD COM PEDIDOS DE AJUDA DOS CONSULTORES) -->
+        <section id="secao-espacos-em-pico-central" class="hidden bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border-2 border-amber-400 rounded-3xl p-4 sm:p-5 shadow-2xl text-white transition animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-amber-400/30 gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shrink-0 shadow-md animate-bounce">
+                        <i class="fa-solid fa-bolt"></i>
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-black text-amber-300">
+                                Espaços em Horário de Pico (Apoio Solicitado)
+                            </h3>
+                            <span id="badge-total-espacos-pico" class="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs">
+                                0 Ativo(s)
+                            </span>
+                        </div>
+                        <p class="text-xs text-purple-200 mt-0.5">
+                            Estes consultores estão com o espaço cheio e ativaram a pausa local. A Central monitora e assume com prioridade máxima!
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="carregarTodosPedidosCentral(true)" class="self-end sm:self-auto text-xs text-amber-300 hover:text-white font-bold bg-slate-950/70 border border-amber-400/40 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+            </div>
+
+            <!-- GRADE COM O CARD DE CADA CONSULTOR EM MODO PICO -->
+            <div id="grid-cards-consultores-pico" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <!-- Preenchido dinamicamente via renderizarEspacosEmPicoCentral() -->
             </div>
         </section>
 
@@ -1118,6 +1157,241 @@
                 // SE NÃO HÁ PEDIDOS EM RISCO, CANCELA A VOZ IMEDIATAMENTE!
                 pararAlarmeVoz();
             }
+
+            // PROCESSA E RENDERIZA CONSULTORES EM HORÁRIO DE PICO (PONTO 4 / AJUDA CENTRAL)
+            processarEspacosEmPicoCentral();
+        }
+
+        // ==========================================
+        // GESTÃO DE HORÁRIO DE PICO NO EVS PELA CENTRAL (PRINT 1 / AJUDA CONSULTOR)
+        // ==========================================
+        let idsConsultoresEmPicoAnteriores = new Set();
+        let primeiraCargaPicoExecutada = false;
+
+        function processarEspacosEmPicoCentral() {
+            const mapa = window.mapaConsultoresApoioGlobal || {};
+            const agoraMs = Date.now();
+            const listaPico = [];
+
+            Object.values(mapa).forEach(item => {
+                if (item && item.emModoPico && item.expiraPico && item.expiraPico > agoraMs) {
+                    listaPico.push(item);
+                }
+            });
+
+            // Ordena pelo que expira mais tarde primeiro
+            listaPico.sort((a, b) => b.expiraPico - a.expiraPico);
+
+            // Detecta novos consultores que ativaram o modo pico
+            if (primeiraCargaPicoExecutada) {
+                listaPico.forEach(item => {
+                    const hid = String(item.consultor.herbalife_id || '').trim();
+                    if (hid && !idsConsultoresEmPicoAnteriores.has(hid)) {
+                        const nomeCons = item.consultor.nome_completo || item.consultor.herbalife_id || 'Consultor';
+                        tocarAvisoSonoroNovoPico(nomeCons);
+                        mostrarToast(`⚡ NOVO PICO: ${nomeCons} ativou Horário de Pico no seu Espaço! A Central assumiu o atendimento.`, 'aviso');
+                    }
+                });
+            }
+
+            idsConsultoresEmPicoAnteriores = new Set(listaPico.map(i => String(i.consultor.herbalife_id || '').trim()));
+            primeiraCargaPicoExecutada = true;
+
+            renderizarEspacosEmPicoCentral(listaPico);
+        }
+
+        function renderizarEspacosEmPicoCentral(lista) {
+            const secao = document.getElementById('secao-espacos-em-pico-central');
+            const grid = document.getElementById('grid-cards-consultores-pico');
+            const badgeTotal = document.getElementById('badge-total-espacos-pico');
+            const btnHeader = document.getElementById('btn-header-espacos-pico');
+            const contHeader = document.getElementById('cont-header-espacos-pico');
+
+            if (!secao || !grid) return;
+
+            if (lista.length === 0) {
+                secao.classList.add('hidden');
+                if (btnHeader) btnHeader.classList.add('hidden');
+                if (contHeader) contHeader.innerText = '0';
+                return;
+            }
+
+            // Exibe a seção e o botão no cabeçalho
+            secao.classList.remove('hidden');
+            if (btnHeader) btnHeader.classList.remove('hidden');
+            if (contHeader) contHeader.innerText = lista.length;
+            if (badgeTotal) badgeTotal.innerText = `${lista.length} Ativo(s)`;
+
+            const agoraMs = Date.now();
+
+            grid.innerHTML = lista.map(item => {
+                const c = item.consultor || {};
+                const cId = c.id || '';
+                const cHid = String(c.herbalife_id || '').trim();
+                const nomeConsultor = c.nome_completo || c.herbalife_id || 'Consultor';
+                const rawEspaco = c.nome_espaco || '';
+                const nomeEspaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço Vida Saudável';
+                const cidade = c.cidade || 'Cidade não informada';
+                const uf = c.estado || 'UF';
+                const whatsConsultor = c.whatsapp || '';
+                const whatsConsultorLimpo = normalizarNumeroWhatsApp(whatsConsultor);
+
+                const dataExp = new Date(item.expiraPico);
+                const horaExpira = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const minRestantes = Math.max(1, Math.round((item.expiraPico - agoraMs) / 60000));
+
+                // Quantos pedidos ativos deste consultor estão sendo monitorados pela Central agora
+                const pedidosAtivosConsultor = todosPedidosCentral.filter(p => {
+                    const dadosP = extrairDadosPedidoItem(p);
+                    return String(p.herbalife_id).trim() === cHid && dadosP.status !== 'CONCLUIDO';
+                }).length;
+
+                // Mensagem personalizada para responder o pedido de ajuda do consultor pelo WhatsApp
+                const msgAjuda = `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
+                    `Olá, *${nomeConsultor}*! Tudo bem?\n\n` +
+                    `⚡ Vimos que você ativou o *Modo Horário de Pico* no seu espaço *${nomeEspaco}*!\n\n` +
+                    `✅ Nossa equipe da Central já assumiu a supervisão e o envio dos seus pedidos do catálogo com prioridade máxima.\n\n` +
+                    `🥤 Pode focar 100% no balcão e no atendimento presencial com seus clientes! Estamos cuidando de tudo por aqui! 🚀`;
+
+                const linkWhats = `https://wa.me/${whatsConsultorLimpo}?text=${encodeURIComponent(msgAjuda)}`;
+                const nomeConsEscapado = nomeConsultor.replace(/'/g, "\\'");
+
+                return `
+                    <div class="bg-slate-950/80 border border-purple-500/50 hover:border-amber-400 rounded-2xl p-4 shadow-lg flex flex-col justify-between transition group">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <div>
+                                    <span class="text-[10px] font-black uppercase text-amber-300 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-md inline-flex items-center gap-1 mb-1">
+                                        <i class="fa-solid fa-bolt text-amber-400"></i> Pico EVS Ativo
+                                    </span>
+                                    <h4 class="text-sm font-black text-white leading-tight">${nomeConsultor}</h4>
+                                    <p class="text-xs text-purple-200 font-medium">${nomeEspaco}</p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-[11px] font-black text-amber-300 bg-purple-900/80 border border-purple-400/40 px-2 py-0.5 rounded-xl block">
+                                        Até ${horaExpira}
+                                    </span>
+                                    <span class="text-[9px] text-slate-400 font-bold block mt-0.5">
+                                        (restam ~${minRestantes} min)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="text-xs text-slate-300 space-y-1 mb-3 pt-2 border-t border-slate-800">
+                                <div class="flex items-center gap-1.5 text-slate-300">
+                                    <i class="fa-solid fa-location-dot text-amber-400 text-xs"></i>
+                                    <span>${cidade} - ${uf}</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 text-slate-300">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-xs"></i>
+                                    <span>${whatsConsultor || 'WhatsApp não cadastrado'}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-[11px] text-purple-200 bg-purple-950/50 px-2.5 py-1 rounded-lg border border-purple-800/40 mt-1.5">
+                                    <span>Pedidos ativos no catálogo:</span>
+                                    <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} em andamento</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AÇÕES: RESPONDER AJUDA E DESATIVAR PELA CENTRAL -->
+                        <div class="flex flex-col sm:flex-row gap-2 pt-2.5 border-t border-slate-800/80">
+                            <a href="${linkWhats}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm text-center cursor-pointer">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> Responder Ajuda
+                            </a>
+                            <button type="button" onclick="desativarModoPicoPelaCentral('${cId}', '${cHid}', '${nomeConsEscapado}')" class="bg-rose-600/90 hover:bg-rose-600 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-power-off"></i> Desativar Pico
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function desativarModoPicoPelaCentral(cId, cHid, nomeConsultor) {
+            if (!confirm(`Deseja desativar o Horário de Pico de "${nomeConsultor}"?\n\nO consultor voltará a responder e receber os pedidos normalmente pelo Espaço local.`)) {
+                return;
+            }
+
+            try {
+                if (!supabaseClient) throw new Error("Supabase não inicializado.");
+
+                // Busca o consultor
+                let query = supabaseClient.from('consultores').select('id, herbalife_id, nome_espaco');
+                if (cId) query = query.eq('id', cId);
+                else if (cHid) query = query.eq('herbalife_id', cHid);
+                const { data: consList, error: errFetch } = await query;
+                if (errFetch) throw errFetch;
+
+                const cons = consList && consList[0];
+                if (!cons) throw new Error("Consultor não localizado no banco de dados.");
+
+                const rawEspaco = cons.nome_espaco || '';
+                const novoEspaco = rawEspaco.replace(/<!--EVS_PAUSADO_ATE:.*?-->/g, '').trim();
+
+                let updateQuery = supabaseClient.from('consultores').update({ nome_espaco: novoEspaco });
+                if (cId) updateQuery = updateQuery.eq('id', cId);
+                else if (cHid) updateQuery = updateQuery.eq('herbalife_id', cHid);
+
+                const { error: errUpdate } = await updateQuery;
+                if (errUpdate) throw errUpdate;
+
+                // Atualiza cache local
+                const cNoCache = todosConsultoresCache.find(c => (cId && c.id == cId) || (cHid && c.herbalife_id == cHid));
+                if (cNoCache) {
+                    cNoCache.nome_espaco = novoEspaco;
+                }
+
+                mostrarToast(`✅ Horário de Pico de "${nomeConsultor}" desativado com sucesso pela Central!`, 'sucesso');
+                await carregarTodosPedidosCentral(false);
+            } catch (err) {
+                console.error("Erro ao desativar pico pela Central:", err);
+                alert("Erro ao desativar Modo Pico: " + (err.message || err));
+            }
+        }
+
+        function rolarParaSecaoPicoCentral() {
+            const el = document.getElementById('secao-espacos-em-pico-central');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('ring-4', 'ring-amber-400');
+                setTimeout(() => el.classList.remove('ring-4', 'ring-amber-400'), 2500);
+            }
+        }
+
+        function tocarAvisoSonoroNovoPico(nomeConsultor) {
+            if (!somAtivado) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                // Acordes elegantes de chamada prioritária
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const t = ctx.currentTime + (i * 0.09);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.25, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.18);
+                });
+
+                setTimeout(() => {
+                    if ('speechSynthesis' in window) {
+                        try {
+                            window.speechSynthesis.cancel();
+                            const msg = new SpeechSynthesisUtterance(`Atenção Central! O consultor ${nomeConsultor || 'da rede'} solicitou apoio no horário de pico!`);
+                            msg.lang = 'pt-BR';
+                            msg.rate = 1.1;
+                            msg.pitch = 1.2;
+                            window.speechSynthesis.speak(msg);
+                        } catch(e) {}
+                    }
+                }, 450);
+            } catch(e) {}
         }
 
         // APLICA FILTROS E BUSCA EM TEMPO REAL
