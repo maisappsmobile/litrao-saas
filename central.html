@@ -144,8 +144,41 @@
     <!-- CONTAINER PRINCIPAL -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full flex flex-col gap-6">
 
+        <!-- BLOCO NOVO: ESPAÇOS EM HORÁRIO DE PICO (CARD COM PEDIDOS DE AJUDA DOS CONSULTORES - DESTAQUE MÁXIMO NO TOPO) -->
+        <section id="secao-espacos-em-pico-central" class="hidden bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border-2 border-amber-400 rounded-3xl p-4 sm:p-5 shadow-2xl text-white transition animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-amber-400/30 gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xl shrink-0 shadow-md animate-bounce">
+                        <i class="fa-solid fa-bolt"></i>
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-base sm:text-lg font-black text-amber-300">
+                                🚨 Alerta: Consultores em Horário de Pico (Apoio Solicitado)
+                            </h3>
+                            <span id="badge-total-espacos-pico" class="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs">
+                                0 Ativo(s)
+                            </span>
+                        </div>
+                        <p class="text-xs text-purple-200 mt-0.5">
+                            Estes consultores ativaram a pausa local no EVS. Responda imediatamente no WhatsApp confirmando que a Central assumiu o atendimento!
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="carregarTodosPedidosCentral(true)" class="self-end sm:self-auto text-xs text-amber-300 hover:text-white font-bold bg-slate-950/70 border border-amber-400/40 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Atualizar</span>
+                </button>
+            </div>
+
+            <!-- GRADE COM O CARD DE CADA CONSULTOR EM MODO PICO -->
+            <div id="grid-cards-consultores-pico" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <!-- Preenchido dinamicamente via renderizarEspacosEmPicoCentral() -->
+            </div>
+        </section>
+
         <!-- BLOCO 1: CARDS DE MÉTRICAS RÁPIDAS -->
-        <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
             
             <!-- EM RISCO (+4M) -->
             <div onclick="filtrarStatusPedidos('RISCO')" class="bg-rose-950/50 hover:bg-rose-950/80 border-2 border-rose-500/60 p-3 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5 shadow-lg group relative overflow-hidden">
@@ -195,6 +228,18 @@
                 <span class="text-[10px] text-emerald-200/70 mt-1 font-medium">Finalizados</span>
             </div>
 
+            <!-- ESPAÇOS EM PICO EVS (NOVO CARD DE MÉTRICA) -->
+            <div onclick="rolarParaSecaoPicoCentral()" id="card-stat-pico" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/40 p-3 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5 shadow-md group">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase text-amber-300 flex items-center gap-1">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> Em Pico EVS
+                    </span>
+                    <span id="ping-pico-stat" class="w-2 h-2 rounded-full bg-amber-400 hidden animate-ping"></span>
+                </div>
+                <div id="stat-pico" class="text-2xl sm:text-3xl font-black text-amber-400 mt-2">0</div>
+                <span id="stat-pico-legenda" class="text-[10px] text-purple-200/70 mt-1 font-medium">Apoio solicitado</span>
+            </div>
+
             <!-- TOTAL GERAL -->
             <div onclick="filtrarStatusPedidos('TODOS')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/40 p-3 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5 shadow-md group">
                 <span class="text-[10px] font-black uppercase text-purple-300 flex items-center gap-1">
@@ -202,39 +247,6 @@
                 </span>
                 <div id="stat-total" class="text-2xl sm:text-3xl font-black text-white mt-2">0</div>
                 <span class="text-[10px] text-purple-200/70 mt-1 font-medium">Na rede monitorada</span>
-            </div>
-        </section>
-
-        <!-- BLOCO NOVO: ESPAÇOS EM HORÁRIO DE PICO (CARD COM PEDIDOS DE AJUDA DOS CONSULTORES) -->
-        <section id="secao-espacos-em-pico-central" class="hidden bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border-2 border-amber-400 rounded-3xl p-4 sm:p-5 shadow-2xl text-white transition animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-amber-400/30 gap-3">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shrink-0 shadow-md animate-bounce">
-                        <i class="fa-solid fa-bolt"></i>
-                    </span>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base sm:text-lg font-black text-amber-300">
-                                Espaços em Horário de Pico (Apoio Solicitado)
-                            </h3>
-                            <span id="badge-total-espacos-pico" class="bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-0.5 rounded-full shadow-xs">
-                                0 Ativo(s)
-                            </span>
-                        </div>
-                        <p class="text-xs text-purple-200 mt-0.5">
-                            Estes consultores estão com o espaço cheio e ativaram a pausa local. A Central monitora e assume com prioridade máxima!
-                        </p>
-                    </div>
-                </div>
-                <button type="button" onclick="carregarTodosPedidosCentral(true)" class="self-end sm:self-auto text-xs text-amber-300 hover:text-white font-bold bg-slate-950/70 border border-amber-400/40 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-xs">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Atualizar</span>
-                </button>
-            </div>
-
-            <!-- GRADE COM O CARD DE CADA CONSULTOR EM MODO PICO -->
-            <div id="grid-cards-consultores-pico" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                <!-- Preenchido dinamicamente via renderizarEspacosEmPicoCentral() -->
             </div>
         </section>
 
@@ -1007,6 +1019,60 @@
             return n;
         }
 
+        function normalizarConsultorCentral(c) {
+            if (!c) return c;
+            const hid = String(c.herbalife_id || '').trim();
+            const raw = c.nome_espaco || '';
+            const limpo = raw.replace(/<!--[\s\S]*?-->/g, '').trim();
+
+            let nome = `Consultor ${hid}`;
+            let espaco = 'Espaço Vida Saudável';
+            let cidade = 'Cidade não informada';
+            let estado = 'UF';
+
+            if (limpo) {
+                const partesPipe = limpo.split('|');
+                const parteIdent = partesPipe[0] ? partesPipe[0].trim() : '';
+                if (partesPipe[1]) {
+                    const cidUf = partesPipe[1].trim();
+                    if (cidUf.includes('-')) {
+                        const subC = cidUf.split('-');
+                        cidade = subC[0].trim();
+                        estado = subC[1].trim();
+                    } else {
+                        cidade = cidUf;
+                    }
+                }
+
+                if (parteIdent.includes('•')) {
+                    const sub = parteIdent.split('•');
+                    const p1 = sub[0].trim();
+                    const p2 = sub[1].trim();
+                    if (p2) {
+                        nome = p2;
+                        if (p1) espaco = p1;
+                    } else if (p1) {
+                        nome = p1;
+                    }
+                } else if (parteIdent) {
+                    nome = parteIdent;
+                }
+            }
+
+            if (hid === '433005811' || hid === '433005812') {
+                if (!nome || nome.startsWith('Consultor')) nome = 'Edwan Braga';
+                if (!espaco || espaco === 'Espaço Vida Saudável') espaco = 'FORBOSS Espaço Vida Saudável';
+                if (cidade === 'Cidade não informada') cidade = 'Juína';
+                if (estado === 'UF') estado = 'MT';
+            }
+
+            c.nome_completo = nome;
+            c.nome_espaco_limpo = espaco;
+            c.cidade = cidade;
+            c.estado = estado;
+            return c;
+        }
+
         // CARREGA CONSULTORES E PEDIDOS DO SUPABASE
         async function carregarTodosPedidosCentral(mostrarFeedback = false) {
             const iconeRef = document.getElementById('icone-refresh');
@@ -1016,12 +1082,16 @@
                 if (!supabaseClient) return;
 
                 // 1. Busca consultores para cruzar nomes, cidades, telefones e permissão de apoio
-                const { data: consultores } = await supabaseClient
+                const { data: consultores, error: errCons } = await supabaseClient
                     .from('consultores')
-                    .select('id, herbalife_id, nome_completo, whatsapp, nome_espaco, cidade, estado');
+                    .select('id, slug, herbalife_id, letras, whatsapp, nome_espaco, status, vencimento');
 
-                if (consultores) {
-                    todosConsultoresCache = consultores;
+                if (errCons) {
+                    console.error("Erro na busca de consultores:", errCons);
+                }
+
+                if (consultores && Array.isArray(consultores)) {
+                    todosConsultoresCache = consultores.map(normalizarConsultorCentral);
                 }
 
                 // Mapa de consultores com apoio central ativo (padrão é true caso não haja a tag false)
@@ -1169,18 +1239,56 @@
         let primeiraCargaPicoExecutada = false;
 
         function processarEspacosEmPicoCentral() {
-            const mapa = window.mapaConsultoresApoioGlobal || {};
             const agoraMs = Date.now();
             const listaPico = [];
+            const idsJaVistos = new Set();
 
+            // 1. Varredura direta em todosConsultoresCache por segurança máxima
+            (todosConsultoresCache || []).forEach(c => {
+                const hid = String(c.herbalife_id || '').trim();
+                const rawEspaco = c.nome_espaco || '';
+                const matchPico = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
+                if (matchPico && matchPico[1]) {
+                    const expira = parseInt(matchPico[1], 10);
+                    if (expira > agoraMs) {
+                        idsJaVistos.add(hid);
+                        listaPico.push({
+                            consultor: c,
+                            apoioAtivo: !rawEspaco.includes('<!--APOIO_CENTRAL:false-->'),
+                            emModoPico: true,
+                            expiraPico: expira
+                        });
+                    }
+                }
+            });
+
+            // 2. Complementa com mapa global caso haja algo pendente
+            const mapa = window.mapaConsultoresApoioGlobal || {};
             Object.values(mapa).forEach(item => {
-                if (item && item.emModoPico && item.expiraPico && item.expiraPico > agoraMs) {
-                    listaPico.push(item);
+                if (item && item.consultor) {
+                    const hid = String(item.consultor.herbalife_id || '').trim();
+                    if (!idsJaVistos.has(hid) && item.emModoPico && item.expiraPico && item.expiraPico > agoraMs) {
+                        idsJaVistos.add(hid);
+                        listaPico.push(item);
+                    }
                 }
             });
 
             // Ordena pelo que expira mais tarde primeiro
             listaPico.sort((a, b) => b.expiraPico - a.expiraPico);
+
+            // Atualiza card de métricas de Pico
+            const statPico = document.getElementById('stat-pico');
+            if (statPico) statPico.innerText = listaPico.length;
+            const pingPico = document.getElementById('ping-pico-stat');
+            const cardStatPico = document.getElementById('card-stat-pico');
+            if (listaPico.length > 0) {
+                if (pingPico) pingPico.classList.remove('hidden');
+                if (cardStatPico) cardStatPico.className = 'bg-gradient-to-br from-amber-500/30 via-purple-950 to-slate-900 border-2 border-amber-400 p-3 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5 shadow-lg animate-pulse';
+            } else {
+                if (pingPico) pingPico.classList.add('hidden');
+                if (cardStatPico) cardStatPico.className = 'bg-slate-900/80 hover:bg-slate-900 border border-purple-500/40 p-3 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5 shadow-md group';
+            }
 
             // Detecta novos consultores que ativaram o modo pico
             if (primeiraCargaPicoExecutada) {
@@ -1229,8 +1337,7 @@
                 const cId = c.id || '';
                 const cHid = String(c.herbalife_id || '').trim();
                 const nomeConsultor = c.nome_completo || c.herbalife_id || 'Consultor';
-                const rawEspaco = c.nome_espaco || '';
-                const nomeEspaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço Vida Saudável';
+                const nomeEspaco = c.nome_espaco_limpo || 'Espaço Vida Saudável';
                 const cidade = c.cidade || 'Cidade não informada';
                 const uf = c.estado || 'UF';
                 const whatsConsultor = c.whatsapp || '';
@@ -1246,60 +1353,64 @@
                     return String(p.herbalife_id).trim() === cHid && dadosP.status !== 'CONCLUIDO';
                 }).length;
 
-                // Mensagem personalizada para responder o pedido de ajuda do consultor pelo WhatsApp
+                // Mensagem personalizada oficial da Central para tranquilizar e confirmar atendimento
                 const msgAjuda = `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
                     `Olá, *${nomeConsultor}*! Tudo bem?\n\n` +
-                    `⚡ Vimos que você ativou o *Modo Horário de Pico* no seu espaço *${nomeEspaco}*!\n\n` +
+                    `⚡ Identificamos que você ativou o *Modo Horário de Pico* no seu espaço *${nomeEspaco}*!\n\n` +
                     `✅ Nossa equipe da Central já assumiu a supervisão e o envio dos seus pedidos do catálogo com prioridade máxima.\n\n` +
-                    `🥤 Pode focar 100% no balcão e no atendimento presencial com seus clientes! Estamos cuidando de tudo por aqui! 🚀`;
+                    `🥤 Pode atender o balcão com total tranquilidade! Cuidamos de 100% dos seus pedidos por aqui! 🚀`;
 
                 const linkWhats = `https://wa.me/${whatsConsultorLimpo}?text=${encodeURIComponent(msgAjuda)}`;
                 const nomeConsEscapado = nomeConsultor.replace(/'/g, "\\'");
 
                 return `
-                    <div class="bg-slate-950/80 border border-purple-500/50 hover:border-amber-400 rounded-2xl p-4 shadow-lg flex flex-col justify-between transition group">
+                    <div class="bg-slate-950/90 border-2 border-amber-400/80 hover:border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between transition group relative overflow-hidden">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+
                         <div>
-                            <div class="flex items-start justify-between gap-2 mb-2">
+                            <div class="flex items-start justify-between gap-2 mb-3">
                                 <div>
-                                    <span class="text-[10px] font-black uppercase text-amber-300 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-md inline-flex items-center gap-1 mb-1">
-                                        <i class="fa-solid fa-bolt text-amber-400"></i> Pico EVS Ativo
+                                    <span class="text-[10px] font-black uppercase text-amber-300 bg-amber-400/20 border border-amber-400/40 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 mb-1.5 shadow-2xs animate-pulse">
+                                        <i class="fa-solid fa-bolt text-amber-400"></i> PICO EVS ATIVO
                                     </span>
-                                    <h4 class="text-sm font-black text-white leading-tight">${nomeConsultor}</h4>
-                                    <p class="text-xs text-purple-200 font-medium">${nomeEspaco}</p>
+                                    <h4 class="text-base font-black text-white leading-tight">${nomeConsultor}</h4>
+                                    <p class="text-xs text-purple-200 font-semibold mt-0.5">${nomeEspaco}</p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="text-[11px] font-black text-amber-300 bg-purple-900/80 border border-purple-400/40 px-2 py-0.5 rounded-xl block">
+                                    <span class="text-xs font-black text-amber-300 bg-purple-900/90 border border-amber-400/50 px-3 py-1 rounded-xl block shadow-sm">
                                         Até ${horaExpira}
                                     </span>
-                                    <span class="text-[9px] text-slate-400 font-bold block mt-0.5">
-                                        (restam ~${minRestantes} min)
+                                    <span class="text-[10px] text-amber-200/80 font-bold block mt-1">
+                                        (~${minRestantes} min restantes)
                                     </span>
                                 </div>
                             </div>
 
-                            <div class="text-xs text-slate-300 space-y-1 mb-3 pt-2 border-t border-slate-800">
-                                <div class="flex items-center gap-1.5 text-slate-300">
-                                    <i class="fa-solid fa-location-dot text-amber-400 text-xs"></i>
-                                    <span>${cidade} - ${uf}</span>
+                            <div class="text-xs text-slate-300 space-y-1.5 mb-4 p-3 bg-slate-900/80 rounded-2xl border border-slate-800">
+                                <div class="flex items-center gap-2 text-slate-300">
+                                    <i class="fa-solid fa-location-dot text-amber-400 text-xs w-4"></i>
+                                    <span class="font-medium">${cidade} - ${uf}</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 text-slate-300">
-                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-xs"></i>
-                                    <span>${whatsConsultor || 'WhatsApp não cadastrado'}</span>
+                                <div class="flex items-center gap-2 text-slate-300">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm w-4"></i>
+                                    <span class="font-bold text-slate-200">${whatsConsultor || 'WhatsApp não cadastrado'}</span>
                                 </div>
-                                <div class="flex items-center justify-between text-[11px] text-purple-200 bg-purple-950/50 px-2.5 py-1 rounded-lg border border-purple-800/40 mt-1.5">
-                                    <span>Pedidos ativos no catálogo:</span>
-                                    <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} em andamento</strong>
+                                <div class="flex items-center justify-between text-xs text-purple-200 bg-purple-950/60 px-2.5 py-1 rounded-xl border border-purple-800/40 mt-1">
+                                    <span>Pedidos em andamento:</span>
+                                    <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} ativos</strong>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- AÇÕES: RESPONDER AJUDA E DESATIVAR PELA CENTRAL -->
-                        <div class="flex flex-col sm:flex-row gap-2 pt-2.5 border-t border-slate-800/80">
-                            <a href="${linkWhats}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm text-center cursor-pointer">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> Responder Ajuda
+                        <!-- BOTÕES DE AÇÃO DESTACADOS: RESPONDER WHATSAPP E DESATIVAR PICO -->
+                        <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                            <a href="${linkWhats}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer tracking-wide uppercase transform hover:scale-[1.02] active:scale-[0.98]">
+                                <i class="fa-brands fa-whatsapp text-base text-white"></i>
+                                <span>Responder no WhatsApp</span>
                             </a>
-                            <button type="button" onclick="desativarModoPicoPelaCentral('${cId}', '${cHid}', '${nomeConsEscapado}')" class="bg-rose-600/90 hover:bg-rose-600 text-white font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer shadow-sm whitespace-nowrap">
-                                <i class="fa-solid fa-power-off"></i> Desativar Pico
+                            <button type="button" onclick="desativarModoPicoPelaCentral('${cId}', '${cHid}', '${nomeConsEscapado}')" class="w-full bg-slate-800 hover:bg-rose-950/70 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-power-off text-rose-400"></i>
+                                <span>Desativar Modo Pico</span>
                             </button>
                         </div>
                     </div>
