@@ -1976,6 +1976,59 @@
 
             <!-- GRADE PRINCIPAL UNIFICADA (FERRAMENTAS LIBERADAS DO CONSULTOR) -->
             <div id="grid-ferramentas-liberadas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 mb-5">
+                <!-- 0. NOVO: MODO PICO EVS & CENTRAL ANTI-PERDA (30 DIAS GRÁTIS / R$ 19,90/MÊS) -->
+                <div id="card-modulo-pico-evs-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border-2 border-purple-300 shadow-2xs hover:shadow-md hover:border-amber-400 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-purple-600 text-white flex items-center justify-center text-base shadow-2xs group-hover:scale-105 transition shrink-0">
+                                    <i class="fa-solid fa-bolt text-amber-200"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-900 group-hover:text-purple-700 transition leading-tight truncate">
+                                        Pico EVS & Anti-Perda
+                                    </h3>
+                                    <span class="text-[10px] text-purple-700 font-bold uppercase tracking-wider block truncate">Central Assume Salão Lotado</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="badge-card-pico-evs-status" class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                                    <i class="fa-solid fa-gift text-amber-600"></i> <span id="badge-card-pico-evs-label">30 Dias Grátis</span>
+                                </span>
+                                <div class="drag-handle-card cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0" title="Arraste para mover este card">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Banner de Acompanhamento Grátis / Mensalidade -->
+                        <div id="card-pico-evs-info-box" class="bg-gradient-to-r from-amber-50 to-purple-50 border border-amber-200/80 p-2.5 rounded-xl my-2">
+                            <div class="flex items-center justify-between text-[11px] font-black text-slate-800">
+                                <span class="flex items-center gap-1 text-purple-900">
+                                    <i class="fa-solid fa-headset text-amber-500"></i> Supervisão Anti-Perda:
+                                </span>
+                                <span id="card-pico-evs-dias-restantes" class="text-emerald-700 font-black">30 Dias Grátis</span>
+                            </div>
+                            <p class="text-[10px] text-slate-600 mt-1 leading-snug">
+                                A Central assume seus pedidos nos horários de pico para você focar no atendimento presencial sem perder vendas. Grátis por 30 dias nos grupos de venda; após o período: <strong>R$ 19,90/mês</strong>.
+                            </p>
+                        </div>
+
+                        <p class="text-xs text-slate-500 font-medium leading-relaxed mb-3">
+                            Ative uma pausa de 30 min, 1h, 2h ou até fechar hoje. A Central recebe alerta sonoro de prioridade máxima, atende o cliente no WhatsApp e despacha motoboys.
+                        </p>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 mt-auto">
+                        <button type="button" onclick="executarAcaoCardPicoEvs()" id="btn-card-pico-evs-acao" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-bolt text-amber-300"></i> <span id="label-btn-card-pico-acao">Ativar Modo Pico EVS</span>
+                        </button>
+                        <button type="button" onclick="abrirModalAdesaoPicoEVS()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0" title="Ver Detalhes do Plano (30 Dias Grátis / R$ 19,90)">
+                            <i class="fa-solid fa-circle-info text-[11px] text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 1. NOVO: QUIZ DE DESINCHAÇO EM 1 MINUTO (BIO INSTAGRAM) -->
                 <div id="card-modulo-quiz-bio-container" draggable="true" class="card-ferramenta-arrastavel select-none bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 transition-all flex flex-col justify-between group">
                     <div>
@@ -3836,6 +3889,85 @@
                     <button type="button" onclick="fecharModalPausaHorarioPico()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer">
                         Fechar
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE ADESÃO / INFORMAÇÕES DO MODO PICO EVS (R$ 19,90/MÊS OU 30 DIAS GRÁTIS) -->
+        <div id="modal-adesao-pico-evs" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in" onclick="if(event.target === this) fecharModalAdesaoPicoEVS()">
+            <div class="bg-slate-900 text-slate-100 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl relative border-2 border-amber-400 max-h-[94vh] overflow-y-auto custom-modal-scrollbar-dark">
+                <button type="button" onclick="fecharModalAdesaoPicoEVS()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center cursor-pointer transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <!-- Cabeçalho -->
+                <div class="flex items-center gap-3.5 mb-5 border-b border-slate-800 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-purple-600 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                        <i class="fa-solid fa-bolt text-amber-200"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">Ferramenta Oficial Litrão</span>
+                            <span id="modal-adesao-pico-badge" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">30 Dias Grátis</span>
+                        </div>
+                        <h3 class="text-lg font-black text-white mt-1">Modo Pico EVS (Supervisão Anti-Perda)</h3>
+                        <p class="text-xs text-slate-400">Apoio oficial da Central para você nunca perder uma venda no salão</p>
+                    </div>
+                </div>
+
+                <!-- Benefícios -->
+                <div class="space-y-3 mb-6">
+                    <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fa-solid fa-shield-halved text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-white">Central Assume no Horário de Pico</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Seu espaço está lotado no almoço? Ative a pausa de 30min a até fechar o dia e nossa equipe monitora seus pedidos ao vivo.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fa-solid fa-gift text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-amber-300">30 Dias Grátis nos Grupos de Venda</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Todos os consultores membros dos nossos grupos de venda têm <strong>30 dias de acompanhamento gratuito</strong> para testar e comprovar o aumento de vendas!</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fa-solid fa-tags text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black text-emerald-300">Apenas R$ 19,90 / mês após o período</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">Após os 30 dias de degustação gratuita, mantenha a ferramenta ativa por apenas R$ 19,90/mês ou solicite liberação ao seu consultor Super Admin.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status do Consultor -->
+                <div id="modal-adesao-pico-status-box" class="bg-gradient-to-r from-purple-950/60 to-slate-950 p-4 rounded-2xl border border-purple-500/40 mb-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300">Seu Status Atual:</span>
+                        <span id="modal-adesao-pico-status-texto" class="text-xs font-black text-emerald-400">🎁 30 Dias Grátis Ativos</span>
+                    </div>
+                    <div id="modal-adesao-pico-dias-barra" class="w-full bg-slate-800 rounded-full h-2 mt-2.5 overflow-hidden">
+                        <div id="modal-adesao-pico-progresso" class="bg-gradient-to-r from-amber-400 to-emerald-500 h-full rounded-full" style="width: 100%;"></div>
+                    </div>
+                    <p id="modal-adesao-pico-dias-sub" class="text-[10px] text-slate-400 mt-2 text-right">Restam 30 dias de degustação gratuita</p>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex flex-col sm:flex-row items-center gap-2.5">
+                    <button type="button" onclick="ativarPicoDiretoDoModalAdesao()" id="modal-adesao-btn-ativar-pico" class="w-full sm:flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-purple-950/60 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-bolt text-amber-300"></i> Ativar Modo Pico Agora
+                    </button>
+                    <a id="modal-adesao-btn-whatsapp-admin" href="https://wa.me/5566981411234?text=Ol%C3%A1!%20Gostaria%20de%20liberar%20o%20Modo%20Pico%20EVS%20Anti-Perda%20(R%24%2019%2C90%2Fm%C3%AAs)%20no%20meu%20painel." target="_blank" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Falar com Super Admin
+                    </a>
                 </div>
             </div>
         </div>
@@ -7187,6 +7319,23 @@
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="superadmin-edit-catalogo-liberado" class="sr-only peer">
                                 <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- LIBERAÇÃO MANUAL DO MODO PICO EVS (SUPERVISÃO ANTI-PERDA) -->
+                        <div class="bg-amber-50/80 p-3 rounded-2xl border border-amber-300 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-sm shadow-xs">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-black text-amber-950 uppercase">Modo Pico EVS & Anti-Perda (+ R$ 19,90/mês)</span>
+                                    <span class="text-[10px] text-amber-800 font-medium">Central assume o catálogo no pico (30 dias grátis de acompanhamento nos grupos)</span>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="superadmin-edit-pico-evs-liberado" onchange="if(typeof atualizarResumoMensalidadeSuperadminModal === 'function') atualizarResumoMensalidadeSuperadminModal()" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                             </label>
                         </div>
 
@@ -20776,6 +20925,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             const chkCatEdit = document.getElementById('superadmin-edit-catalogo-liberado');
             if (chkCatEdit) chkCatEdit.checked = !!isCatConsultor;
 
+            const stPicoConsultor = (typeof obterStatusAcessoPicoEVS === 'function') ? obterStatusAcessoPicoEVS(consultor) : { liberado: true };
+            const chkPicoEdit = document.getElementById('superadmin-edit-pico-evs-liberado');
+            if (chkPicoEdit) chkPicoEdit.checked = !!stPicoConsultor.liberado;
+
             if (typeof atualizarResumoMensalidadeSuperadminModal === 'function') {
                 atualizarResumoMensalidadeSuperadminModal();
             }
@@ -21032,10 +21185,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 };
                 nomeEspacoBase += ` <!--PLANO:${JSON.stringify(planoObj)}-->`;
             }
-            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO, MODULO_CRM_EXTRATOR, PLANO, WHATSAPP_SUPERVISOR e APOIO_CENTRAL para não duplicar
+            // Preserva outras tags extras do consultor (ex: PIX), ignorando SOCIAIS, PRECOS_KITS, SENHA, MODULO_FINANCEIRO, MODULO_CATALOGO_INTERATIVO, MODULO_CRM_EXTRATOR, MODULO_PICO_EVS, PLANO, WHATSAPP_SUPERVISOR e APOIO_CENTRAL para não duplicar
             const consultorOriginal = ((typeof todosConsultoresCache !== 'undefined' && todosConsultoresCache) || []).find(c => String(c.id) === String(id));
             if (consultorOriginal && consultorOriginal.nome_espaco) {
-                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|PLANO:|WHATSAPP_SUPERVISOR:|APOIO_CENTRAL:).*?-->/g);
+                const matchOutrasTags = consultorOriginal.nome_espaco.match(/<!--(?!SOCIAIS:|PRECOS_KITS:|SENHA:|MODULO_FINANCEIRO:|MODULO_CATALOGO_INTERATIVO:|MODULO_CRM_EXTRATOR:|MODULO_PICO_EVS:|PLANO:|WHATSAPP_SUPERVISOR:|APOIO_CENTRAL:).*?-->/g);
                 if (matchOutrasTags) {
                     nomeEspacoBase += ' ' + matchOutrasTags.join(' ');
                 }
@@ -21062,6 +21215,10 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
             // Tag de Liberação do Catálogo Interativo Digital
             const isCatCheck = document.getElementById('superadmin-edit-catalogo-liberado') ? document.getElementById('superadmin-edit-catalogo-liberado').checked : false;
             nomeEspacoBase += ` <!--MODULO_CATALOGO_INTERATIVO:${isCatCheck ? 'true' : 'false'}-->`;
+
+            // Tag de Liberação do Modo Pico EVS & Anti-Perda
+            const isPicoCheck = document.getElementById('superadmin-edit-pico-evs-liberado') ? document.getElementById('superadmin-edit-pico-evs-liberado').checked : false;
+            nomeEspacoBase += ` <!--MODULO_PICO_EVS:${isPicoCheck ? 'true' : 'false'}-->`;
 
             // 3 Letras da Herbalife: apenas letras maiúsculas (máximo 3)
             const letrasEdit = (document.getElementById('superadmin-edit-letras')?.value || '').trim().replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
@@ -23697,10 +23854,13 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             // Adicionais (Para Fundadores, o Módulo Financeiro é 100% incluso sem custo adicional!)
             const isFinLib = !!dadosFd || !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_FINANCEIRO:true-->'));
             const isCrmLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_CRM_EXTRATOR:true-->'));
+            const stPico = (typeof obterStatusAcessoPicoEVS === 'function') ? obterStatusAcessoPicoEVS(consultor) : { liberado: false, gratis: false };
+            const isPicoLib = !!(consultor.nome_espaco && consultor.nome_espaco.includes('<!--MODULO_PICO_EVS:true-->'));
             
             const finValor = (isFinLib && !dadosFd) ? 17.90 : 0.00;
             const crmValor = isCrmLib ? 9.90 : 0.00;
-            const total = base + finValor + crmValor;
+            const picoValor = (isPicoLib && !dadosFd && !stPico.gratis) ? 19.90 : 0.00;
+            const total = base + finValor + crmValor + picoValor;
             
             return {
                 base,
@@ -23710,6 +23870,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 financeiro: finValor,
                 temCrm: isCrmLib,
                 crm: crmValor,
+                temPico: isPicoLib,
+                pico: picoValor,
                 total: parseFloat(total.toFixed(2)),
                 isSuperAdmin: false
             };
@@ -23725,14 +23887,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
             const isFin = document.getElementById('superadmin-edit-financeiro-liberado')?.checked;
             const isCrm = document.getElementById('superadmin-edit-crm-liberado')?.checked;
+            const isPico = document.getElementById('superadmin-edit-pico-evs-liberado')?.checked;
 
             // Simula objeto atualizado para cálculo dinâmico em tempo real
             const consultorSimulado = {
                 ...consultor,
                 nome_espaco: (consultor.nome_espaco || '')
                     .replace(/<!--MODULO_FINANCEIRO:[\s\S]*?-->/g, '')
-                    .replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/g, '') +
-                    ` <!--MODULO_FINANCEIRO:${isFin ? 'true' : 'false'}--> <!--MODULO_CRM_EXTRATOR:${isCrm ? 'true' : 'false'}-->`
+                    .replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/g, '')
+                    .replace(/<!--MODULO_PICO_EVS:[\s\S]*?-->/g, '') +
+                    ` <!--MODULO_FINANCEIRO:${isFin ? 'true' : 'false'}--> <!--MODULO_CRM_EXTRATOR:${isCrm ? 'true' : 'false'}--> <!--MODULO_PICO_EVS:${isPico ? 'true' : 'false'}-->`
             };
 
             const info = calcularMensalidadeConsultor(consultorSimulado);
@@ -23747,6 +23911,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                     let desc = `Base: R$ ${info.base.toFixed(2).replace('.', ',')} (${info.planoNome})`;
                     if (isFin) desc += ` + Fin. R$ 17,90`;
                     if (isCrm) desc += ` + CRM R$ 9,90`;
+                    if (isPico && info.pico > 0) desc += ` + Pico R$ 19,90`;
+                    else if (isPico) desc += ` + Pico (Grátis)`;
                     elResumo.innerText = desc;
                     elTotal.innerText = `R$ ${info.total.toFixed(2).replace('.', ',')}/mês`;
                 }
@@ -29248,9 +29414,193 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
 
         // ==========================================
         // PONTO 4: PAUSA RÁPIDA / HORÁRIO DE PICO NO EVS (PRINT 3)
+        // GESTÃO DE ACESSO AO MODO PICO EVS (30 DIAS GRÁTIS / R$ 19,90/MÊS / LIBERAÇÃO SUPER ADMIN)
         // ==========================================
+        function obterStatusAcessoPicoEVS(consultor) {
+            const c = consultor || consultorAtual;
+            if (!c) return { liberado: true, motivo: 'padrao', diasRestantes: 30 };
+
+            const hid = String(c.herbalife_id || '').trim();
+            if (hid === '433005811' || c.is_admin || hid.toUpperCase() === 'SUPERADMIN') {
+                return { liberado: true, motivo: 'superadmin', diasRestantes: 999 };
+            }
+
+            const raw = c.nome_espaco || '';
+            // Bloqueio explícito pelo Super Admin
+            if (raw.includes('<!--MODULO_PICO_EVS:false-->') || raw.includes('<!--PICO_EVS_LIBERADO:false-->')) {
+                return { liberado: false, motivo: 'bloqueado_admin', diasRestantes: 0, valorMensal: '19,90' };
+            }
+            // Liberação explícita pelo Super Admin
+            if (raw.includes('<!--MODULO_PICO_EVS:true-->') || raw.includes('<!--PICO_EVS_LIBERADO:true-->')) {
+                return { liberado: true, motivo: 'liberado_admin', diasRestantes: 999 };
+            }
+
+            // Fundador, Vitalício ou Master VIP
+            const statusLower = String(c.status || '').toLowerCase();
+            const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(c) : null;
+            if (dadosFd || statusLower.includes('fundador') || statusLower.includes('vital') || statusLower.includes('master')) {
+                return { liberado: true, motivo: 'plano_vip', diasRestantes: 999 };
+            }
+
+            // Regra dos 30 dias de acompanhamento gratuito nos grupos de venda:
+            let dataInicio = null;
+            if (c.criado_em) {
+                dataInicio = new Date(c.criado_em);
+            } else if (c.data_cadastro) {
+                dataInicio = new Date(c.data_cadastro);
+            }
+            if (!dataInicio || isNaN(dataInicio.getTime())) {
+                dataInicio = new Date();
+            }
+
+            const agora = new Date();
+            const diffDias = Math.floor((agora - dataInicio) / (1000 * 60 * 60 * 24));
+            const diasRestantes = Math.max(0, 30 - diffDias);
+
+            if (diffDias <= 30) {
+                return { liberado: true, motivo: 'degustacao_30d', diasRestantes: diasRestantes };
+            }
+
+            // Expirou os 30 dias de acompanhamento gratuito
+            return { liberado: false, motivo: 'expirado_30d', diasRestantes: 0, valorMensal: '19,90' };
+        }
+        window.obterStatusAcessoPicoEVS = obterStatusAcessoPicoEVS;
+
+        function atualizarCardPicoEVSEmTempoReal(statusAcesso) {
+            const st = statusAcesso || obterStatusAcessoPicoEVS(consultorAtual);
+            const badgeEl = document.getElementById('badge-card-pico-evs-status');
+            const labelBadgeEl = document.getElementById('badge-card-pico-evs-label');
+            const diasEl = document.getElementById('card-pico-evs-dias-restantes');
+            const btnAcao = document.getElementById('btn-card-pico-evs-acao');
+            const labelBtnAcao = document.getElementById('label-btn-card-pico-acao');
+            const headerLabel = document.getElementById('header-label-horario-pico-btn');
+
+            if (!badgeEl) return;
+
+            if (st.liberado) {
+                if (st.motivo === 'degustacao_30d') {
+                    badgeEl.className = 'bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1';
+                    if (labelBadgeEl) labelBadgeEl.innerText = `${st.diasRestantes}d Grátis (Grupos)`;
+                    if (diasEl) diasEl.innerText = `${st.diasRestantes} Dias Grátis`;
+                } else {
+                    badgeEl.className = 'bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1';
+                    if (labelBadgeEl) labelBadgeEl.innerText = 'Liberado (Super Admin)';
+                    if (diasEl) diasEl.innerText = 'Acesso Liberado';
+                }
+                if (btnAcao) {
+                    btnAcao.className = 'flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer';
+                }
+                if (labelBtnAcao) labelBtnAcao.innerText = 'Ativar Modo Pico EVS';
+            } else {
+                badgeEl.className = 'bg-rose-100 text-rose-900 border border-rose-300 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1';
+                if (labelBadgeEl) labelBadgeEl.innerText = 'R$ 19,90/mês';
+                if (diasEl) diasEl.innerText = 'Período Grátis Expirado';
+                if (btnAcao) {
+                    btnAcao.className = 'flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-2 px-3 rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer';
+                }
+                if (labelBtnAcao) labelBtnAcao.innerText = 'Liberar por R$ 19,90/mês';
+                if (headerLabel && !headerLabel.innerText.includes('CENTRAL')) {
+                    headerLabel.innerText = 'Pico EVS 🔒';
+                }
+            }
+        }
+        window.atualizarCardPicoEVSEmTempoReal = atualizarCardPicoEVSEmTempoReal;
+
+        function executarAcaoCardPicoEvs() {
+            const st = obterStatusAcessoPicoEVS(consultorAtual);
+            if (!st.liberado) {
+                abrirModalAdesaoPicoEVS();
+                return;
+            }
+            aoClicarBotaoPicoEVS();
+        }
+        window.executarAcaoCardPicoEvs = executarAcaoCardPicoEvs;
+
+        function abrirModalAdesaoPicoEVS() {
+            const modal = document.getElementById('modal-adesao-pico-evs');
+            if (!modal) return;
+            const st = obterStatusAcessoPicoEVS(consultorAtual);
+            const badge = document.getElementById('modal-adesao-pico-badge');
+            const statusTxt = document.getElementById('modal-adesao-pico-status-texto');
+            const subTxt = document.getElementById('modal-adesao-pico-dias-sub');
+            const barra = document.getElementById('modal-adesao-pico-progresso');
+            const btnAtivar = document.getElementById('modal-adesao-btn-ativar-pico');
+            const btnZap = document.getElementById('modal-adesao-btn-whatsapp-admin');
+
+            const hid = consultorAtual ? consultorAtual.herbalife_id : '';
+            const msgZap = encodeURIComponent(`Olá! Gostaria de solicitar a liberação do Modo Pico EVS Anti-Perda (R$ 19,90/mês) para o meu consultor ID: ${hid}.`);
+            if (btnZap) {
+                btnZap.href = `https://wa.me/5566981411234?text=${msgZap}`;
+            }
+
+            if (st.liberado) {
+                if (st.motivo === 'degustacao_30d') {
+                    if (badge) badge.innerText = `${st.diasRestantes} Dias Grátis`;
+                    if (statusTxt) statusTxt.innerHTML = `🎁 30 Dias Grátis Ativos (${st.diasRestantes} dias restantes)`;
+                    if (subTxt) subTxt.innerText = `Você está no período de acompanhamento gratuito nos grupos de venda.`;
+                    const pct = Math.max(5, Math.round((st.diasRestantes / 30) * 100));
+                    if (barra) barra.style.width = `${pct}%`;
+                } else {
+                    if (badge) badge.innerText = `Liberado`;
+                    if (statusTxt) statusTxt.innerHTML = `✅ Liberado pelo Super Admin`;
+                    if (subTxt) subTxt.innerText = `Seu acesso ao Pico EVS está 100% liberado sem restrições.`;
+                    if (barra) barra.style.width = `100%`;
+                }
+                if (btnAtivar) {
+                    btnAtivar.classList.remove('hidden');
+                    btnAtivar.innerHTML = `<i class="fa-solid fa-bolt text-amber-300"></i> Ativar Modo Pico Agora`;
+                    btnAtivar.onclick = () => {
+                        fecharModalAdesaoPicoEVS();
+                        abrirModalPausaHorarioPico();
+                    };
+                }
+            } else {
+                if (badge) badge.innerText = `Expirado (R$ 19,90/mês)`;
+                if (statusTxt) statusTxt.innerHTML = `<span class="text-rose-400">🔒 Período Grátis de 30 Dias Finalizado</span>`;
+                if (subTxt) subTxt.innerText = `Para continuar com apoio da Central no pico, mantenha por R$ 19,90/mês ou peça liberação ao Super Admin.`;
+                if (barra) barra.style.width = `0%`;
+                if (btnAtivar) {
+                    btnAtivar.classList.remove('hidden');
+                    btnAtivar.innerHTML = `<i class="fa-solid fa-lock text-amber-300"></i> Liberar por R$ 19,90/mês`;
+                    btnAtivar.onclick = () => {
+                        window.open(`https://wa.me/5566981411234?text=${msgZap}`, '_blank');
+                    };
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        window.abrirModalAdesaoPicoEVS = abrirModalAdesaoPicoEVS;
+
+        function fecharModalAdesaoPicoEVS() {
+            const modal = document.getElementById('modal-adesao-pico-evs');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+        window.fecharModalAdesaoPicoEVS = fecharModalAdesaoPicoEVS;
+
+        function ativarPicoDiretoDoModalAdesao() {
+            fecharModalAdesaoPicoEVS();
+            abrirModalPausaHorarioPico();
+        }
+        window.ativarPicoDiretoDoModalAdesao = ativarPicoDiretoDoModalAdesao;
+
         function aoClicarBotaoPicoEVS() {
             if (!consultorAtual) return;
+
+            // Valida acesso: 30 dias grátis de acompanhamento nos grupos ou R$ 19,90/Super Admin
+            const st = (typeof obterStatusAcessoPicoEVS === 'function')
+                ? obterStatusAcessoPicoEVS(consultorAtual)
+                : { liberado: true };
+
+            if (!st.liberado) {
+                abrirModalAdesaoPicoEVS();
+                return;
+            }
+
             const rawEspaco = consultorAtual.nome_espaco || '';
             const match = rawEspaco.match(/<!--EVS_PAUSADO_ATE:(\d+)-->/);
             if (match && match[1] && Date.now() < parseInt(match[1], 10)) {
@@ -29298,6 +29648,11 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const headerIconePico = document.getElementById('header-icone-btn-pico-evs');
             const headerLabelPico = document.getElementById('header-label-horario-pico-btn');
 
+            // Atualiza card de ferramentas do Pico EVS
+            if (typeof atualizarCardPicoEVSEmTempoReal === 'function') {
+                atualizarCardPicoEVSEmTempoReal();
+            }
+
             if (match && match[1]) {
                 const timestampExpira = parseInt(match[1], 10);
                 const agora = Date.now();
@@ -29342,9 +29697,13 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             if (headerBtnPico) {
                 headerBtnPico.className = 'bg-purple-600 hover:bg-purple-500 text-white font-black text-xs py-1.5 px-3 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0';
                 if (headerIconePico) headerIconePico.className = 'fa-solid fa-bolt text-amber-300';
-                if (headerLabelPico) headerLabelPico.innerText = 'Pico EVS';
+                if (headerLabelPico) {
+                    const stAcesso = (typeof obterStatusAcessoPicoEVS === 'function') ? obterStatusAcessoPicoEVS(consultorAtual) : { liberado: true };
+                    headerLabelPico.innerText = stAcesso.liberado ? 'Pico EVS' : 'Pico EVS 🔒';
+                }
             }
             return false;
+        }
         }
         window.verificarModoPicoEVS = verificarModoPicoEVS;
 
@@ -32272,6 +32631,16 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 tag: 'MODULO_RADAR',
                 valorMensal: 'Incluso no Plano',
                 desc: 'Notificações inteligentes de bioimpedâncias, clientes sumidos e pedidos.'
+            },
+            pico_evs: {
+                id: 'pico_evs',
+                cardId: 'card-modulo-pico-evs-container',
+                nome: '⚡ Pico EVS & Anti-Perda',
+                icone: 'fa-bolt',
+                cor: 'amber',
+                tag: 'MODULO_PICO_EVS',
+                valorMensal: 'R$ 19,90/mês',
+                desc: 'Central assume pedidos no pico no salão (30 dias grátis de acompanhamento nos grupos ou R$ 19,90/mês).'
             }
         };
 
@@ -32282,7 +32651,8 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             fidelidade: 'liberado',
             directs: 'liberado',
             vip_indique: 'liberado',
-            radar: 'liberado'
+            radar: 'liberado',
+            pico_evs: 'liberado'
         };
 
         function obterConfigChavesCardsSuperadmin() {
@@ -32804,6 +33174,17 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 corBg: 'bg-emerald-100 text-emerald-700 border-emerald-200',
                 corBadge: 'bg-emerald-600',
                 desc: 'Cartão de fidelidade com 10 carimbos e portal exclusivo para fidelização.'
+            },
+            {
+                id: 'pico_evs',
+                tag: 'MODULO_PICO_EVS',
+                legacyTag: 'PICO_EVS_LIBERADO',
+                nome: '⚡ Modo Pico EVS (Supervisão Anti-Perda)',
+                nomeCurto: 'Pico EVS',
+                icone: 'fa-solid fa-bolt',
+                corBg: 'bg-amber-100 text-amber-700 border-amber-200',
+                corBadge: 'bg-amber-500',
+                desc: 'A Central assume no pico (30 dias grátis de acompanhamento nos grupos ou R$ 19,90/mês).'
             }
         ];
         window.CONFIG_MODULOS_SAAS_MESTRE = CONFIG_MODULOS_SAAS_MESTRE;
@@ -32850,6 +33231,12 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
             const dadosFd = (typeof extrairDadosFundador === 'function') ? extrairDadosFundador(c) : null;
             if (dadosFd || statusLower.includes('fundador') || statusLower.includes('vital') || statusLower.includes('master')) {
                 return true;
+            }
+
+            // 4.1 Especial: Modo Pico EVS (30 dias grátis de acompanhamento nos grupos ou R$ 19,90/mês)
+            if (moduloId === 'pico_evs') {
+                const stPico = (typeof obterStatusAcessoPicoEVS === 'function') ? obterStatusAcessoPicoEVS(c) : { liberado: true };
+                return !!stPico.liberado;
             }
 
             // 5. Padrão inicial do ecossistema:

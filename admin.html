@@ -18,7 +18,8 @@
             { id: 'radar_clientes', tag: 'MODULO_RADAR', nome: 'Radar de Clientes & Alertas', icone: 'fa-solid fa-bell', corBg: 'bg-amber-100 text-amber-700 border-amber-200', desc: 'Alertas automáticos de recompras e clientes sumidos.' },
             { id: 'catalogo', tag: 'MODULO_CATALOGO_INTERATIVO', legacyTag: 'MODULO_CATALOGO', nome: 'Catálogo Digital Interativo', icone: 'fa-solid fa-book-open-reader', corBg: 'bg-blue-100 text-blue-700 border-blue-200', desc: 'Cardápio digital de pacotes com PIX e delivery.' },
             { id: 'financeiro', tag: 'MODULO_FINANCEIRO', nome: 'Financeiro & Custos EVS', icone: 'fa-solid fa-calculator', corBg: 'bg-emerald-100 text-emerald-700 border-emerald-200', desc: 'Margens de 25-50%, insumos e fechamento de caixa.' },
-            { id: 'cartao_fidelidade', tag: 'MODULO_FIDELIDADE', nome: 'Cartão Fidelidade (10 Selos)', icone: 'fa-solid fa-id-card', corBg: 'bg-emerald-100 text-emerald-700 border-emerald-200', desc: 'Cartão com 10 carimbos e portal do cliente.' }
+            { id: 'cartao_fidelidade', tag: 'MODULO_FIDELIDADE', nome: 'Cartão Fidelidade (10 Selos)', icone: 'fa-solid fa-id-card', corBg: 'bg-emerald-100 text-emerald-700 border-emerald-200', desc: 'Cartão com 10 carimbos e portal do cliente.' },
+            { id: 'pico_evs', tag: 'MODULO_PICO_EVS', legacyTag: 'PICO_EVS_LIBERADO', nome: '⚡ Pico EVS & Anti-Perda', icone: 'fa-solid fa-bolt', corBg: 'bg-amber-100 text-amber-700 border-amber-200', desc: 'Central assume no pico (30 dias grátis nos grupos ou R$ 19,90/mês).' }
         ];
 
         function verificarModuloLiberadoAdmin(moduloId, item) {
@@ -39,6 +40,15 @@
             const statusLower = String(item.status || '').toLowerCase();
             if (statusLower.includes('fundador') || statusLower.includes('vital') || statusLower.includes('master')) {
                 return true;
+            }
+
+            if (moduloId === 'pico_evs') {
+                const dtCad = item.criado_em || item.data_cadastro || item.created_at;
+                if (dtCad) {
+                    const dias = (Date.now() - new Date(dtCad).getTime()) / (1000 * 60 * 60 * 24);
+                    if (dias <= 30) return true;
+                }
+                return false;
             }
 
             if (['quiz', 'placa_balcao', 'robo_whatsapp', 'radar_clientes', 'cartao_fidelidade'].includes(moduloId)) {
@@ -922,6 +932,14 @@
                             <span class="text-xs font-bold text-blue-950">Catálogo Digital Interativo</span>
                         </div>
                         <input type="checkbox" id="edit-catalogo-liberado" class="w-4 h-4 text-blue-600 rounded">
+                    </label>
+
+                    <label class="flex items-center justify-between p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl cursor-pointer select-none">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-600 text-base"></i>
+                            <span class="text-xs font-bold text-amber-950">⚡ Pico EVS & Anti-Perda (R$ 19,90/mês)</span>
+                        </div>
+                        <input type="checkbox" id="edit-pico-evs-liberado" class="w-4 h-4 text-amber-600 rounded">
                     </label>
 
                     <label class="flex items-center justify-between p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl cursor-pointer select-none">
@@ -1997,6 +2015,10 @@
             if (document.getElementById('edit-crm-extrator-liberado')) {
                 document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
             }
+            if (document.getElementById('edit-pico-evs-liberado')) {
+                const isPicoLib = verificarModuloLiberadoAdmin('pico_evs', consultor);
+                document.getElementById('edit-pico-evs-liberado').checked = !!isPicoLib;
+            }
 
             // WhatsApp Supervisor e Apoio Central
             let zapSup = '';
@@ -2112,6 +2134,10 @@
             }
             if (document.getElementById('edit-crm-extrator-liberado')) {
                 document.getElementById('edit-crm-extrator-liberado').checked = !!isCrmLiberado;
+            }
+            if (document.getElementById('edit-pico-evs-liberado')) {
+                const isPicoLib = verificarModuloLiberadoAdmin('pico_evs', consultor);
+                document.getElementById('edit-pico-evs-liberado').checked = !!isPicoLib;
             }
 
             // WhatsApp Supervisor e Apoio Central
@@ -2303,6 +2329,7 @@
             const finLiberado = document.getElementById('edit-financeiro-liberado') ? document.getElementById('edit-financeiro-liberado').checked : false;
             const catLiberado = document.getElementById('edit-catalogo-liberado') ? document.getElementById('edit-catalogo-liberado').checked : false;
             const crmLiberado = document.getElementById('edit-crm-extrator-liberado') ? document.getElementById('edit-crm-extrator-liberado').checked : false;
+            const picoLiberado = document.getElementById('edit-pico-evs-liberado') ? document.getElementById('edit-pico-evs-liberado').checked : false;
             const prompterLiberado = document.getElementById('edit-teleprompter-liberado') ? document.getElementById('edit-teleprompter-liberado').checked : false;
 
             try {
@@ -2336,6 +2363,14 @@
                     raw = raw.replace(/<!--MODULO_CRM_EXTRATOR:[\s\S]*?-->/, tagCrm);
                 } else {
                     raw += ' ' + tagCrm;
+                }
+
+                // Atualiza tag Modo Pico EVS & Anti-Perda
+                const tagPico = `<!--MODULO_PICO_EVS:${picoLiberado ? 'true' : 'false'}-->`;
+                if (raw.includes('<!--MODULO_PICO_EVS:')) {
+                    raw = raw.replace(/<!--MODULO_PICO_EVS:[\s\S]*?-->/, tagPico);
+                } else {
+                    raw += ' ' + tagPico;
                 }
 
                 // Atualiza tag de Membro Fundador
