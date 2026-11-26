@@ -604,11 +604,63 @@
                                 </span>
                             </div>
 
+                            <!-- MODO 1: POR BAIRROS -->
                             <div id="sacola-bloco-bairro" class="hidden">
                                 <label class="block text-xs font-black text-gray-700 mb-1">Selecione o seu Bairro *</label>
                                 <select id="sacola-bairro-entrega" onchange="atualizarTaxaEntregaSacola()" class="w-full p-2.5 bg-white border border-emerald-300 rounded-xl text-xs sm:text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-600">
                                     <!-- Preenchido dinamicamente via JS -->
                                 </select>
+                            </div>
+
+                            <!-- MODO 2: POR DISTÂNCIA (KM DO EVS) -->
+                            <div id="sacola-bloco-distancia" class="hidden space-y-2.5 bg-white p-3.5 rounded-2xl border border-purple-200 shadow-2xs">
+                                <div class="flex items-center justify-between flex-wrap gap-1">
+                                    <span class="text-xs font-black text-purple-950 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-route text-purple-600"></i> Frete por Distância (KM)
+                                    </span>
+                                    <span id="sacola-regra-distancia-label" class="text-[10px] text-purple-800 font-bold bg-purple-100 border border-purple-200 px-2.5 py-0.5 rounded-full">
+                                        R$ 7,00 até 4km (+R$ 1/km)
+                                    </span>
+                                </div>
+
+                                <p class="text-[11px] text-gray-600 leading-snug">
+                                    Calculamos a distância exata em tempo real entre o nosso Espaço (EVS) e você:
+                                </p>
+
+                                <!-- Botão de GPS com 1 Toque -->
+                                <button type="button" id="btn-gps-cliente-sacola" onclick="obterLocalizacaoClienteSacola()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black py-2.5 px-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition transform active:scale-98 cursor-pointer">
+                                    <i class="fa-solid fa-location-crosshairs text-amber-300 text-sm"></i>
+                                    <span>Usar Minha Localização Atual (GPS)</span>
+                                </button>
+
+                                <!-- Alternativa por CEP -->
+                                <div class="pt-1.5 border-t border-gray-100">
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative flex-1">
+                                            <input type="text" id="sacola-cliente-cep" placeholder="Ou digite seu CEP (00000-000)" maxlength="9" oninput="buscarCepClienteAutomatico(this.value)" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        </div>
+                                        <button type="button" onclick="calcularDistanciaPorEnderecoCliente()" class="text-xs font-black bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-3 py-2 rounded-xl transition shrink-0 cursor-pointer flex items-center gap-1">
+                                            <i class="fa-solid fa-calculator"></i> Calcular
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Box de Resultado do Cálculo de Distância -->
+                                <div id="box-resultado-distancia-sacola" class="hidden bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-300 p-3 rounded-xl text-xs space-y-1.5 animate-fade-in">
+                                    <div class="flex items-center justify-between font-bold text-purple-950">
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-motorcycle text-purple-600"></i> Distância calculada do EVS:
+                                        </span>
+                                        <span id="label-distancia-km-sacola" class="font-black text-purple-900 text-sm bg-white px-2 py-0.5 rounded-lg border border-purple-200">-- km</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs text-gray-700 pt-0.5">
+                                        <span class="font-bold">Taxa de Entrega:</span>
+                                        <strong id="label-taxa-calculada-sacola" class="text-emerald-700 font-black text-sm">R$ --</strong>
+                                    </div>
+                                    <div id="alerta-raio-maximo-sacola" class="hidden text-[10px] text-amber-900 bg-amber-100/90 border border-amber-300 p-2 rounded-lg font-medium mt-1">
+                                        ⚠️ Endereço acima do raio padrão. O frete foi calculado e a entrega será confirmada no WhatsApp.
+                                    </div>
+                                </div>
                             </div>
 
                             <div>
@@ -3569,6 +3621,232 @@
             return null;
         }
 
+        // Variáveis de controle de distância do cliente na sacola
+        window.sacolaDistanciaCalculada = null;
+        window.sacolaTaxaCalculada = null;
+        window.sacolaCoordsCliente = null;
+
+        function calcularDistanciaKmHaversine(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em KM
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const dLinhaReta = R * c;
+            // Fator de correção de trajeto urbano em ruas (1.25x para curvas e vias reais)
+            const dRotaUrbana = dLinhaReta * 1.25;
+            return Math.round(dRotaUrbana * 10) / 10; // ex: 4.8 km
+        }
+
+        function calcularValorTaxaPorKm(distanciaKm, configDist) {
+            if (!configDist) return 0;
+            const taxaBase = parseFloat(String(configDist.taxaBase || '7,00').replace(/\./g, '').replace(',', '.')) || 0;
+            const kmBase = parseFloat(configDist.kmBase || '4') || 4;
+            const valorKmAdicional = parseFloat(String(configDist.valorKmAdicional || '1,00').replace(/\./g, '').replace(',', '.')) || 0;
+            const tipoCalculo = configDist.tipoCalculo || 'proporcional';
+
+            if (distanciaKm <= kmBase) {
+                return taxaBase;
+            }
+
+            const excesso = distanciaKm - kmBase;
+            const fator = (tipoCalculo === 'arredondado') ? Math.ceil(excesso) : excesso;
+            const total = taxaBase + (fator * valorKmAdicional);
+            return Math.round(total * 100) / 100;
+        }
+
+        async function obterCoordenadasEvs(distCfg) {
+            if (distCfg.latEvs && distCfg.lngEvs) {
+                return { lat: parseFloat(distCfg.latEvs), lng: parseFloat(distCfg.lngEvs) };
+            }
+
+            // Fallback: busca pelo endereço/cidade do EVS via OpenStreetMap Nominatim
+            const parts = [distCfg.ruaEvs, distCfg.numeroEvs, distCfg.bairroEvs, distCfg.cidadeEvs, distCfg.estadoEvs, 'Brasil'].filter(Boolean).join(', ');
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(parts)}`;
+                const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (r.ok) {
+                    const data = await r.json();
+                    if (data && data.length > 0) {
+                        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                    }
+                }
+            } catch(e) {
+                console.warn("Falha ao geocodificar EVS:", e);
+            }
+
+            return null;
+        }
+
+        async function aplicarCalculoDistanciaCliente(latCli, lngCli, preencherEndereco = false) {
+            const config = extrairTaxasEntregaConsultor(consultorAtual);
+            if (!config || config.modo !== 'distancia') return;
+            const distCfg = config.distancia || {};
+
+            const coordsEvs = await obterCoordenadasEvs(distCfg);
+            if (!coordsEvs) {
+                alert("Não foi possível identificar as coordenadas do EVS deste consultor. Entre em contato diretamente pelo WhatsApp para combinar a entrega.");
+                return;
+            }
+
+            const distKm = calcularDistanciaKmHaversine(coordsEvs.lat, coordsEvs.lng, latCli, lngCli);
+            const taxa = calcularValorTaxaPorKm(distKm, distCfg);
+
+            window.sacolaDistanciaCalculada = distKm;
+            window.sacolaTaxaCalculada = taxa;
+
+            // Atualiza UI da sacola
+            const boxResultado = document.getElementById('box-resultado-distancia-sacola');
+            const lblKm = document.getElementById('label-distancia-km-sacola');
+            const lblTaxa = document.getElementById('label-taxa-calculada-sacola');
+            const alertaRaio = document.getElementById('alerta-raio-maximo-sacola');
+
+            if (boxResultado) boxResultado.classList.remove('hidden');
+            if (lblKm) lblKm.innerText = `${distKm} km`;
+            if (lblTaxa) lblTaxa.innerText = `R$ ${taxa.toFixed(2).replace('.', ',')}`;
+
+            const raioMax = parseFloat(distCfg.raioMaximoKm || '15') || 15;
+            if (alertaRaio) {
+                if (distKm > raioMax) {
+                    alertaRaio.classList.remove('hidden');
+                    alertaRaio.innerText = `⚠️ Atenção: A distância estimada (${distKm} km) fica acima do raio padrão do EVS (${raioMax} km). O valor foi calculado e o consultor confirmará o envio no WhatsApp.`;
+                } else {
+                    alertaRaio.classList.add('hidden');
+                }
+            }
+
+            // Reverse geocode para preencher endereço automaticamente caso seja via GPS
+            if (preencherEndereco) {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latCli}&lon=${lngCli}&zoom=18&addressdetails=1`;
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    if (r.ok) {
+                        const d = await r.json();
+                        if (d && d.address) {
+                            const a = d.address;
+                            const rua = a.road || a.street || '';
+                            const num = a.house_number || '';
+                            const bairro = a.suburb || a.neighbourhood || '';
+                            const cidade = a.city || a.town || a.municipality || '';
+                            const endMontado = [rua, num ? `nº ${num}` : '', bairro, cidade].filter(Boolean).join(', ');
+                            const inEnd = document.getElementById('sacola-cliente-endereco');
+                            if (inEnd && endMontado && (!inEnd.value || inEnd.value.length < 5)) {
+                                inEnd.value = endMontado;
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            atualizarDisplaySacola();
+        }
+
+        function obterLocalizacaoClienteSacola() {
+            if (!navigator.geolocation) {
+                alert("Geolocalização não suportada no seu dispositivo. Por favor, digite seu CEP ou endereço no campo abaixo.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-gps-cliente-sacola');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5 text-amber-300"></i> Obtendo sua localização GPS...';
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async pos => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    window.sacolaCoordsCliente = { lat, lng };
+
+                    await aplicarCalculoDistanciaCliente(lat, lng, true);
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300 mr-1.5"></i> Localização GPS Detectada!';
+                        setTimeout(() => {
+                            if (btn) btn.innerHTML = '<i class="fa-solid fa-location-crosshairs text-amber-300 mr-1.5"></i> Usar Minha Localização Atual (GPS)';
+                        }, 4000);
+                    }
+                },
+                err => {
+                    console.warn("Erro ao obter GPS cliente:", err);
+                    alert("Não foi possível acessar seu GPS. Por favor, digite seu CEP ou endereço no campo abaixo para calcular a taxa de entrega.");
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-location-crosshairs text-amber-300 mr-1.5"></i> Usar Minha Localização Atual (GPS)';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        window.obterLocalizacaoClienteSacola = obterLocalizacaoClienteSacola;
+
+        async function buscarCepClienteAutomatico(cepRaw) {
+            const cepLimpo = (cepRaw || '').replace(/\D/g, '');
+            if (cepLimpo.length !== 8) return;
+
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+                if (!res.ok) return;
+                const d = await res.json();
+                if (d.erro) return;
+
+                const inEnd = document.getElementById('sacola-cliente-endereco');
+                const rua = d.logradouro || '';
+                const bairro = d.bairro || '';
+                const cidade = d.localidade || '';
+                const uf = d.uf || '';
+
+                if (inEnd && (!inEnd.value || inEnd.value.length < 5)) {
+                    inEnd.value = [rua, bairro, cidade, uf].filter(Boolean).join(', ');
+                }
+
+                calcularDistanciaPorEnderecoCliente();
+            } catch(e) {
+                console.warn("ViaCEP cliente falhou:", e);
+            }
+        }
+        window.buscarCepClienteAutomatico = buscarCepClienteAutomatico;
+
+        async function calcularDistanciaPorEnderecoCliente() {
+            const config = extrairTaxasEntregaConsultor(consultorAtual);
+            if (!config || config.modo !== 'distancia') return;
+            const distCfg = config.distancia || {};
+
+            const endDigitado = (document.getElementById('sacola-cliente-endereco')?.value || '').trim();
+            const cepDigitado = (document.getElementById('sacola-cliente-cep')?.value || '').trim();
+
+            if (!endDigitado && !cepDigitado) {
+                alert("Por favor, digite seu CEP ou Endereço para calcular o frete!");
+                return;
+            }
+
+            const query = [endDigitado, cepDigitado, distCfg.cidadeEvs, distCfg.estadoEvs, 'Brasil'].filter(Boolean).join(', ');
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(query)}`;
+                const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (r.ok) {
+                    const data = await r.json();
+                    if (data && data.length > 0) {
+                        const latCli = parseFloat(data[0].lat);
+                        const lngCli = parseFloat(data[0].lon);
+                        window.sacolaCoordsCliente = { lat: latCli, lng: lngCli };
+                        await aplicarCalculoDistanciaCliente(latCli, lngCli, false);
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.warn("Geocode cliente Nominatim falhou:", e);
+            }
+
+            alert("Não conseguimos localizar as coordenadas exatas deste CEP/endereço. Clique no botão 'Usar Minha Localização Atual (GPS)' para calcular com precisão.");
+        }
+        window.calcularDistanciaPorEnderecoCliente = calcularDistanciaPorEnderecoCliente;
+
         function calcularTaxaEntregaSacola() {
             const selectMod = document.getElementById('sacola-modalidade');
             const isEntrega = (selectMod && selectMod.value === 'ENTREGA');
@@ -3595,6 +3873,29 @@
                     isGratis: isGratis,
                     cobrada: true,
                     bairro: ''
+                };
+            }
+
+            if (config.modo === 'distancia') {
+                if (window.sacolaDistanciaCalculada !== null && window.sacolaTaxaCalculada !== null) {
+                    const val = window.sacolaTaxaCalculada;
+                    const isGratis = (val === 0);
+                    return {
+                        valor: val,
+                        texto: isGratis ? '🎁 Grátis' : `R$ ${val.toFixed(2).replace('.', ',')}`,
+                        isGratis: isGratis,
+                        cobrada: true,
+                        bairro: '',
+                        distanciaKm: window.sacolaDistanciaCalculada
+                    };
+                }
+                return {
+                    valor: 0,
+                    texto: 'Calcular por Distância',
+                    isGratis: false,
+                    cobrada: false,
+                    bairro: '',
+                    precisaCalcularDistancia: true
                 };
             }
 
@@ -3630,24 +3931,39 @@
         function popularSeletorBairrosSacola() {
             const config = extrairTaxasEntregaConsultor(consultorAtual);
             const blocoBairro = document.getElementById('sacola-bloco-bairro');
+            const blocoDistancia = document.getElementById('sacola-bloco-distancia');
             const selectBairro = document.getElementById('sacola-bairro-entrega');
             const badgeTipo = document.getElementById('sacola-badge-taxa-tipo');
 
             if (!config) {
                 if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (blocoDistancia) blocoDistancia.classList.add('hidden');
                 if (badgeTipo) badgeTipo.innerText = 'Entrega Disponível';
                 return;
             }
 
             if (config.modo === 'gratis') {
                 if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (blocoDistancia) blocoDistancia.classList.add('hidden');
                 if (badgeTipo) badgeTipo.innerText = '🎁 Frete Grátis';
             } else if (config.modo === 'fixa') {
                 if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (blocoDistancia) blocoDistancia.classList.add('hidden');
                 const num = parseFloat(String(config.taxaFixa || '0').replace(',', '.'));
                 const isGratis = (num === 0);
                 if (badgeTipo) badgeTipo.innerText = isGratis ? '🎁 Frete Grátis' : `Taxa Fixa R$ ${config.taxaFixa || '5,00'}`;
+            } else if (config.modo === 'distancia') {
+                if (blocoBairro) blocoBairro.classList.add('hidden');
+                if (blocoDistancia) blocoDistancia.classList.remove('hidden');
+                if (badgeTipo) badgeTipo.innerText = 'Taxa por Distância (KM)';
+
+                const distCfg = config.distancia || {};
+                const lblRegra = document.getElementById('sacola-regra-distancia-label');
+                if (lblRegra) {
+                    lblRegra.innerText = `R$ ${distCfg.taxaBase || '7,00'} até ${distCfg.kmBase || 4}km (+R$ ${distCfg.valorKmAdicional || '1,00'}/km)`;
+                }
             } else if (config.modo === 'bairros') {
+                if (blocoDistancia) blocoDistancia.classList.add('hidden');
                 if (blocoBairro) blocoBairro.classList.remove('hidden');
                 if (badgeTipo) badgeTipo.innerText = 'Taxa por Bairro';
 
@@ -4018,6 +4334,12 @@
                         return;
                     }
                 }
+                if (configTaxas && configTaxas.modo === 'distancia') {
+                    if (window.sacolaDistanciaCalculada === null) {
+                        alert("Por favor, clique em 'Usar Minha Localização Atual (GPS)' ou informe seu CEP para calcular a taxa de entrega por distância!");
+                        return;
+                    }
+                }
                 if (!endereco) {
                     alert("Por favor, informe seu Endereço completo para a entrega por Delivery!");
                     return;
@@ -4064,6 +4386,7 @@
                 subtotal: subtotalFormatado,
                 taxa_entrega: (modalidade === 'ENTREGA') ? taxaInfo.texto : null,
                 bairro: (modalidade === 'ENTREGA' && taxaInfo.bairro) ? taxaInfo.bairro : null,
+                distancia_km: (modalidade === 'ENTREGA' && taxaInfo.distanciaKm) ? `${taxaInfo.distanciaKm} km` : null,
                 valor_total: totalFormatado,
                 modalidade: modalidade,
                 forma_pagamento: formaPagamento,
@@ -4088,8 +4411,21 @@
             let linhaEntrega = `• Modalidade: ${modalidade === 'ENTREGA' ? 'Delivery (' + endereco + ')' : 'Retirada no Espaço (Grátis)'}\n`;
             if (modalidade === 'ENTREGA' && taxaInfo.bairro) {
                 linhaEntrega += `• Bairro: ${taxaInfo.bairro} (Taxa: ${taxaInfo.texto})\n`;
+            } else if (modalidade === 'ENTREGA' && taxaInfo.distanciaKm) {
+                linhaEntrega += `• Distância do EVS: ${taxaInfo.distanciaKm} km (Taxa: ${taxaInfo.texto})\n`;
             } else if (modalidade === 'ENTREGA' && taxaInfo.texto) {
                 linhaEntrega += `• Taxa de Entrega: ${taxaInfo.texto}\n`;
+            }
+
+            if (modalidade === 'ENTREGA' && endereco) {
+                const configTaxas = extrairTaxasEntregaConsultor(consultorAtual);
+                const ruaEvs = configTaxas?.distancia?.ruaEvs || '';
+                const numEvs = configTaxas?.distancia?.numeroEvs || '';
+                const cidEvs = configTaxas?.distancia?.cidadeEvs || consultorAtual.cidade || '';
+                const orig = [ruaEvs, numEvs, cidEvs].filter(Boolean).join(', ');
+                if (orig) {
+                    linhaEntrega += `• 🗺️ Traçar Rota no Maps: https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(orig)}&destination=${encodeURIComponent(endereco)}\n`;
+                }
             }
 
             const obsCompleta = `🛍️ NOVO PEDIDO DO CATÁLOGO DIGITAL:\n` +

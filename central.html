@@ -1740,6 +1740,7 @@
             const whatsClienteLimpo = normalizarNumeroWhatsApp(whatsCliente);
             const valorTotal = dados.valor_total || 'R$ 0,00';
             const taxaEntrega = dados.taxa_entrega || 'R$ 0,00';
+            const distanciaKm = dados.distancia_km || '';
             const modalidade = dados.modalidade === 'ENTREGA' ? 'Entrega / Delivery' : 'Retirada no Espaço';
             const endereco = dados.endereco || 'Endereço não informado';
             const pagamento = dados.pagamento || 'PIX';
@@ -1874,7 +1875,7 @@
                                     <span>${whatsCliente || 'Sem telefone'}</span>
                                 </div>
                                 <div class="mt-2 text-[11px] text-slate-400 leading-snug">
-                                    <strong class="text-slate-300 block">${modalidade}</strong>
+                                    <strong class="text-slate-300 block">${modalidade} ${distanciaKm ? `<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full text-[10px] ml-1 font-bold">📍 ${distanciaKm}</span>` : ''}</strong>
                                     <span>${endereco}</span>
                                 </div>
                             </div>
@@ -1921,7 +1922,7 @@
                                 </div>
                                 <div class="mt-2 text-[11px] text-slate-400 flex justify-between border-t border-slate-800/60 pt-1">
                                     <span>Taxa Entrega:</span>
-                                    <span class="font-bold text-slate-300">${taxaEntrega}</span>
+                                    <span class="font-bold text-slate-300">${taxaEntrega}${distanciaKm ? ` <span class="text-[10px] text-cyan-300 font-bold">(${distanciaKm})</span>` : ''}</span>
                                 </div>
                             </div>
 
@@ -2313,7 +2314,7 @@
                             </div>
 
                             <div class="mt-1.5 text-[9px] text-slate-400 truncate">
-                                📍 <strong class="text-slate-300">${modalidade}:</strong> ${endereco}
+                                📍 <strong class="text-slate-300">${modalidade}${dados.distancia_km ? ` (${dados.distancia_km})` : ''}:</strong> ${endereco}
                             </div>
                             <div class="text-[9px] text-slate-400 truncate">
                                 👤 ${nomeConsultor} ${cidade ? `(${cidade})` : ''}
@@ -2561,7 +2562,8 @@
 
             document.getElementById('despacho-pedido-id').value = pedidoId;
             document.getElementById('despacho-badge-pedido').innerText = `#${pedidoId}`;
-            document.getElementById('despacho-endereco').innerText = endereco;
+            const distanciaTexto = dados.distancia_km ? ` (Aprox. ${dados.distancia_km})` : '';
+            document.getElementById('despacho-endereco').innerHTML = `${endereco} ${distanciaTexto ? `<span class="text-cyan-400 font-bold block text-xs mt-0.5"><i class="fa-solid fa-route mr-1"></i>Distância: ${dados.distancia_km}</span>` : ''}`;
             document.getElementById('despacho-cliente-info').innerText = `Cliente: ${nomeCliente} • Whats: ${whatsCliente || 'Não informado'}`;
             document.getElementById('despacho-label-cobrar').innerText = `💰 COBRAR DO CLIENTE: ${valorTotal}`;
 
@@ -2638,6 +2640,7 @@
             const cidade = cEncontrado ? (cEncontrado.cidade || '') : '';
 
             const urlGmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            const infoDistancia = dados.distancia_km ? `\n📏 *DISTÂNCIA ESTIMADA:* ${dados.distancia_km}` : '';
 
             let textoCobranca = '';
             if (cobrancaTipo === 'PAGO_PIX') {
@@ -2648,7 +2651,7 @@
 
             return `🛵 *DESPACHO DE CORRIDA - LITRÃO DO RESET*\n` +
                    `📦 *Pedido #${pedidoId}* • Consultor: ${nomeConsultor} ${cidade ? `(${cidade})` : ''}\n\n` +
-                   `📍 *ENDEREÇO DE ENTREGA:*\n${endereco}\n\n` +
+                   `📍 *ENDEREÇO DE ENTREGA:*\n${endereco}${infoDistancia}\n\n` +
                    `🗺️ *ROTA GPS NO GOOGLE MAPS:*\n${urlGmaps}\n\n` +
                    `👤 *CLIENTE:*\n${nomeCliente}\nTelefone: ${whatsCliente || 'Não informado'}\n\n` +
                    `🥤 *PRODUTO:*\n${produto}\n\n` +

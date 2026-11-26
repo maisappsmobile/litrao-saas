@@ -4548,40 +4548,50 @@
                     </div>
                 </div>
 
-                <!-- Seletor de Tipo de Cobrança (3 Cards Clicáveis) -->
+                <!-- Seletor de Tipo de Cobrança (4 Cards Clicáveis) -->
                 <div class="mb-5">
                     <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-2">
                         Escolha a Modalidade de Cobrança:
                     </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                         <!-- Opção Bairros -->
-                        <div id="card-modo-bairros" onclick="selecionarModoTaxaEntrega('bairros')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs">
+                        <div id="card-modo-bairros" onclick="selecionarModoTaxaEntrega('bairros')" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-map-location-dot"></i></span>
                                 <input type="radio" name="modo_taxa_entrega" id="radio-modo-bairros" value="bairros" checked class="text-blue-600 focus:ring-blue-500 pointer-events-none">
                             </div>
                             <span class="block text-xs font-black text-gray-900">Por Bairros</span>
-                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Valores diferentes por bairro ou região.</span>
+                            <span class="block text-[10px] text-gray-500 mt-0.5 leading-snug">Valores diferentes por bairro ou região.</span>
+                        </div>
+
+                        <!-- Opção Por Distância (KM) -->
+                        <div id="card-modo-distancia" onclick="selecionarModoTaxaEntrega('distancia')" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-route"></i></span>
+                                <input type="radio" name="modo_taxa_entrega" id="radio-modo-distancia" value="distancia" class="text-purple-600 focus:ring-purple-500 pointer-events-none">
+                            </div>
+                            <span class="block text-xs font-black text-gray-900">Por Distância (KM)</span>
+                            <span class="block text-[10px] text-gray-500 mt-0.5 leading-snug">Taxa por km do EVS até o cliente.</span>
                         </div>
 
                         <!-- Opção Taxa Única -->
-                        <div id="card-modo-fixa" onclick="selecionarModoTaxaEntrega('fixa')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
+                        <div id="card-modo-fixa" onclick="selecionarModoTaxaEntrega('fixa')" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-tag"></i></span>
                                 <input type="radio" name="modo_taxa_entrega" id="radio-modo-fixa" value="fixa" class="text-emerald-600 focus:ring-emerald-500 pointer-events-none">
                             </div>
                             <span class="block text-xs font-black text-gray-900">Taxa Única (Fixa)</span>
-                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Mesmo valor para toda a cidade (ex: R$ 5,00).</span>
+                            <span class="block text-[10px] text-gray-500 mt-0.5 leading-snug">Mesmo valor para toda a cidade (ex: R$ 5,00).</span>
                         </div>
 
                         <!-- Opção Grátis -->
-                        <div id="card-modo-gratis" onclick="selecionarModoTaxaEntrega('gratis')" class="cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
+                        <div id="card-modo-gratis" onclick="selecionarModoTaxaEntrega('gratis')" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="w-7 h-7 rounded-lg bg-yellow-500 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-gift"></i></span>
                                 <input type="radio" name="modo_taxa_entrega" id="radio-modo-gratis" value="gratis" class="text-yellow-600 focus:ring-yellow-500 pointer-events-none">
                             </div>
                             <span class="block text-xs font-black text-gray-900">Entrega Grátis</span>
-                            <span class="block text-[11px] text-gray-500 mt-0.5 leading-snug">Frete Grátis para qualquer pedido.</span>
+                            <span class="block text-[10px] text-gray-500 mt-0.5 leading-snug">Frete Grátis para qualquer pedido.</span>
                         </div>
                     </div>
                 </div>
@@ -4647,6 +4657,162 @@
                                 <button type="button" onclick="definirTaxaPadraoOutrosGratis()" class="text-[11px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-1.5 rounded-lg transition cursor-pointer">
                                     Grátis
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL 4: POR DISTÂNCIA (KM) -->
+                <div id="secao-taxa-distancia" class="hidden space-y-4 mb-5">
+                    
+                    <!-- Bloco A: Localização Real do EVS -->
+                    <div class="bg-gradient-to-br from-purple-50/70 to-indigo-50/50 p-4 rounded-2xl border border-purple-200 space-y-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-purple-950 flex items-center gap-1.5">
+                                <i class="fa-solid fa-store text-purple-600"></i> 1. Localização Real do seu EVS (Ponto de Partida)
+                            </h4>
+                            <button type="button" onclick="obterGpsEvsAtual(event)" class="text-xs font-black bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-crosshairs"></i> Capturar GPS do EVS Agora
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-purple-800 leading-relaxed">
+                            O sistema usará a localização exata do seu EVS para calcular a distância em quilômetros até o endereço do cliente durante a compra.
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">CEP do EVS:</label>
+                                <input type="text" id="cfg-dist-cep-evs" placeholder="00000-000" maxlength="9" oninput="buscarCepEvsAutomatico(this.value)" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Rua / Logradouro:</label>
+                                <input type="text" id="cfg-dist-rua-evs" placeholder="Ex: Av. das Palmeiras" oninput="aoAlterarEnderecoEvs()" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div class="sm:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Número:</label>
+                                <input type="text" id="cfg-dist-numero-evs" placeholder="123" oninput="aoAlterarEnderecoEvs()" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Bairro:</label>
+                                <input type="text" id="cfg-dist-bairro-evs" placeholder="Ex: Centro" oninput="aoAlterarEnderecoEvs()" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Cidade:</label>
+                                <input type="text" id="cfg-dist-cidade-evs" placeholder="Ex: Sinop" oninput="aoAlterarEnderecoEvs()" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Estado (UF):</label>
+                                <input type="text" id="cfg-dist-estado-evs" placeholder="Ex: MT" maxlength="2" oninput="aoAlterarEnderecoEvs()" class="w-full p-2 bg-white border border-purple-200 rounded-xl text-xs font-black uppercase text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <!-- Indicador de Coordenadas GPS -->
+                        <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-purple-200 text-xs gap-2">
+                            <div class="flex items-center gap-2">
+                                <span id="icone-status-coords-evs" class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-black shrink-0">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </span>
+                                <div>
+                                    <span id="texto-status-coords-evs" class="font-bold text-gray-800 block text-[11px]">
+                                        GPS do EVS: Coordenadas prontas para cálculo
+                                    </span>
+                                    <span id="subtexto-coords-evs" class="text-[10px] text-gray-500 font-mono block">
+                                        Lat: --- | Lng: ---
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="geocodificarEnderecoEvsDigitado()" class="text-[10px] font-black bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 shrink-0">
+                                <i class="fa-solid fa-magnifying-glass-location"></i> Localizar no Mapa
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bloco B: Regras de Cobrança por Distância -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-gray-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-calculator text-purple-600"></i> 2. Regras de Cobrança por KM
+                        </h4>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Taxa Base até X km -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200">
+                                <label class="block text-xs font-black text-gray-800 mb-1">
+                                    Taxa Base de Saída:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative flex-1">
+                                        <span class="absolute left-2.5 top-2 text-xs font-black text-gray-400">R$</span>
+                                        <input type="text" id="cfg-dist-taxa-base" placeholder="7,00" value="7,00" oninput="atualizarPreviewTaxasEntrega(); executarSimuladorDistanciaPainel();" class="campo-moeda-auto w-full pl-8 pr-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500">até</span>
+                                    <div class="relative w-20">
+                                        <input type="number" id="cfg-dist-km-base" placeholder="4" value="4" min="1" max="50" oninput="atualizarPreviewTaxasEntrega(); executarSimuladorDistanciaPainel();" class="w-full px-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-black text-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500">km</span>
+                                </div>
+                                <span class="block text-[10px] text-gray-500 mt-1">Ex: R$ 7,00 de entrega até 4 km de distância.</span>
+                            </div>
+
+                            <!-- KM Adicional -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200">
+                                <label class="block text-xs font-black text-gray-800 mb-1">
+                                    Adicional a cada KM excedente:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative flex-1">
+                                        <span class="absolute left-2.5 top-2 text-xs font-black text-gray-400">+ R$</span>
+                                        <input type="text" id="cfg-dist-km-adicional" placeholder="1,00" value="1,00" oninput="atualizarPreviewTaxasEntrega(); executarSimuladorDistanciaPainel();" class="campo-moeda-auto w-full pl-11 pr-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500">por km</span>
+                                </div>
+                                <span class="block text-[10px] text-gray-500 mt-1">Ex: + R$ 1,00 para cada quilômetro além dos 4 km.</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <!-- Raio Limite Máximo -->
+                            <div>
+                                <label class="block text-xs font-black text-gray-800 mb-1">
+                                    Raio Máximo de Entrega (Limite):
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative w-28">
+                                        <input type="number" id="cfg-dist-raio-maximo" placeholder="15" value="15" min="2" max="100" oninput="atualizarPreviewTaxasEntrega()" class="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-500">km de raio</span>
+                                </div>
+                                <span class="block text-[10px] text-gray-500 mt-0.5">Pedidos acima dessa distância solicitarão combinação via WhatsApp.</span>
+                            </div>
+
+                            <!-- Arredondamento -->
+                            <div>
+                                <label class="block text-xs font-black text-gray-800 mb-1">
+                                    Cálculo da Fração de KM:
+                                </label>
+                                <select id="cfg-dist-modo-calculo" onchange="atualizarPreviewTaxasEntrega(); executarSimuladorDistanciaPainel();" class="w-full p-1.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="proporcional" selected>Proporcional (Ex: 4,5 km = R$ 7,50)</option>
+                                    <option value="arredondado">Arredondar p/ cima (Ex: 4,5 km = 5 km = R$ 8,00)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Simulador Rápido Integrado -->
+                        <div class="bg-purple-900/10 border border-purple-300/60 p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-purple-600 text-sm"></i>
+                                <div>
+                                    <strong class="text-purple-950 font-black">Simulador de Frete em Tempo Real:</strong>
+                                    <span class="text-purple-800 block text-[11px]">Teste com diferentes distâncias para conferir a conta:</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-purple-200">
+                                <span class="text-gray-500 font-bold text-[11px]">Distância:</span>
+                                <input type="number" id="simulador-dist-km" value="6.0" step="0.5" min="0.5" max="50" oninput="executarSimuladorDistanciaPainel()" class="w-16 p-1 bg-gray-50 border border-gray-300 rounded text-center font-black text-xs">
+                                <span class="text-gray-500 font-bold text-[11px]">km =</span>
+                                <strong id="simulador-dist-resultado" class="text-purple-900 font-black text-xs">R$ 9,00</strong>
                             </div>
                         </div>
                     </div>
@@ -31053,51 +31219,228 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
         window.limparPrecosKitsModal = limparPrecosKitsModal;
 
         /* ==========================================================================
-           GESTÁO DEDICADA DE TAXAS DE ENTREGA / DELIVERY (BAIRROS, FIXA OU GRÁTIS)
+           GESTÃO DEDICADA DE TAXAS DE ENTREGA / DELIVERY (BAIRROS, DISTÂNCIA, FIXA OU GRÁTIS)
            ========================================================================== */
         let modoTaxaEntregaSelecionado = 'bairros';
+        window.coordsEvsGlobal = null;
 
         function selecionarModoTaxaEntrega(modo) {
             modoTaxaEntregaSelecionado = modo;
 
             const radioBairros = document.getElementById('radio-modo-bairros');
+            const radioDistancia = document.getElementById('radio-modo-distancia');
             const radioFixa = document.getElementById('radio-modo-fixa');
             const radioGratis = document.getElementById('radio-modo-gratis');
             if (radioBairros) radioBairros.checked = (modo === 'bairros');
+            if (radioDistancia) radioDistancia.checked = (modo === 'distancia');
             if (radioFixa) radioFixa.checked = (modo === 'fixa');
             if (radioGratis) radioGratis.checked = (modo === 'gratis');
 
             const cardBairros = document.getElementById('card-modo-bairros');
+            const cardDistancia = document.getElementById('card-modo-distancia');
             const cardFixa = document.getElementById('card-modo-fixa');
             const cardGratis = document.getElementById('card-modo-gratis');
 
-            [cardBairros, cardFixa, cardGratis].forEach(c => {
+            [cardBairros, cardDistancia, cardFixa, cardGratis].forEach(c => {
                 if (!c) return;
-                c.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300";
+                c.className = "cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-gray-200 bg-white hover:border-gray-300";
             });
 
             const secBairros = document.getElementById('secao-taxa-bairros');
+            const secDistancia = document.getElementById('secao-taxa-distancia');
             const secFixa = document.getElementById('secao-taxa-fixa');
             const secGratis = document.getElementById('secao-taxa-gratis');
 
             if (secBairros) secBairros.classList.add('hidden');
+            if (secDistancia) secDistancia.classList.add('hidden');
             if (secFixa) secFixa.classList.add('hidden');
             if (secGratis) secGratis.classList.add('hidden');
 
             if (modo === 'bairros') {
-                if (cardBairros) cardBairros.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs";
+                if (cardBairros) cardBairros.className = "cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-blue-600 bg-blue-50/70 shadow-xs";
                 if (secBairros) secBairros.classList.remove('hidden');
+            } else if (modo === 'distancia') {
+                if (cardDistancia) cardDistancia.className = "cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-purple-600 bg-purple-50/70 shadow-xs";
+                if (secDistancia) secDistancia.classList.remove('hidden');
+                executarSimuladorDistanciaPainel();
             } else if (modo === 'fixa') {
-                if (cardFixa) cardFixa.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-emerald-600 bg-emerald-50/70 shadow-xs";
+                if (cardFixa) cardFixa.className = "cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-emerald-600 bg-emerald-50/70 shadow-xs";
                 if (secFixa) secFixa.classList.remove('hidden');
             } else if (modo === 'gratis') {
-                if (cardGratis) cardGratis.className = "cursor-pointer p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between border-yellow-500 bg-yellow-50/70 shadow-xs";
+                if (cardGratis) cardGratis.className = "cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-yellow-500 bg-yellow-50/70 shadow-xs";
                 if (secGratis) secGratis.classList.remove('hidden');
             }
 
             atualizarPreviewTaxasEntrega();
         }
         window.selecionarModoTaxaEntrega = selecionarModoTaxaEntrega;
+
+        // ==========================================
+        // FUNÇÕES DA MODALIDADE: POR DISTÂNCIA (KM)
+        // ==========================================
+        function obterGpsEvsAtual(event) {
+            if (!navigator.geolocation) {
+                alert("Geolocalização não suportada pelo seu navegador.");
+                return;
+            }
+
+            const btn = event ? event.currentTarget : null;
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Obtendo GPS...';
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async pos => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    window.coordsEvsGlobal = { lat, lng };
+
+                    atualizarIndicadorCoordsEvs(lat, lng, "GPS do dispositivo capturado");
+
+                    // Tenta preencher rua, bairro, cidade caso estejam vazios via OpenStreetMap Reverse
+                    try {
+                        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+                        const r = await fetch(url);
+                        if (r.ok) {
+                            const data = await r.json();
+                            if (data && data.address) {
+                                const addr = data.address;
+                                const inRua = document.getElementById('cfg-dist-rua-evs');
+                                const inBairro = document.getElementById('cfg-dist-bairro-evs');
+                                const inCidade = document.getElementById('cfg-dist-cidade-evs');
+                                const inUf = document.getElementById('cfg-dist-estado-evs');
+                                const inCep = document.getElementById('cfg-dist-cep-evs');
+
+                                if (inRua && !inRua.value) inRua.value = addr.road || addr.street || '';
+                                if (inBairro && !inBairro.value) inBairro.value = addr.suburb || addr.neighbourhood || '';
+                                if (inCidade && !inCidade.value) inCidade.value = addr.city || addr.town || addr.municipality || '';
+                                if (inUf && !inUf.value) inUf.value = addr.state_code || (addr.state ? addr.state.substring(0, 2).toUpperCase() : '');
+                                if (inCep && !inCep.value && addr.postcode) inCep.value = addr.postcode;
+                            }
+                        }
+                    } catch(_) {}
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> GPS Capturado!';
+                        setTimeout(() => { if (btn) btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> Capturar GPS do EVS Agora'; }, 3000);
+                    }
+                },
+                err => {
+                    console.warn("Erro ao obter GPS:", err);
+                    alert("Não foi possível obter sua localização pelo GPS. Verifique a permissão de localização do seu navegador ou preencha o CEP e endereço abaixo.");
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> Capturar GPS do EVS Agora';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        window.obterGpsEvsAtual = obterGpsEvsAtual;
+
+        async function buscarCepEvsAutomatico(cepRaw) {
+            const cepLimpo = (cepRaw || '').replace(/\D/g, '');
+            if (cepLimpo.length !== 8) return;
+
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+                if (!res.ok) return;
+                const d = await res.json();
+                if (d.erro) return;
+
+                const inRua = document.getElementById('cfg-dist-rua-evs');
+                const inBairro = document.getElementById('cfg-dist-bairro-evs');
+                const inCidade = document.getElementById('cfg-dist-cidade-evs');
+                const inUf = document.getElementById('cfg-dist-estado-evs');
+
+                if (inRua && d.logradouro) inRua.value = d.logradouro;
+                if (inBairro && d.bairro) inBairro.value = d.bairro;
+                if (inCidade && d.localidade) inCidade.value = d.localidade;
+                if (inUf && d.uf) inUf.value = d.uf.toUpperCase();
+
+                geocodificarEnderecoEvsDigitado();
+            } catch(e) {
+                console.warn("ViaCEP falhou:", e);
+            }
+        }
+        window.buscarCepEvsAutomatico = buscarCepEvsAutomatico;
+
+        let timerDebounceGeocodeEvs = null;
+        function aoAlterarEnderecoEvs() {
+            clearTimeout(timerDebounceGeocodeEvs);
+            timerDebounceGeocodeEvs = setTimeout(() => {
+                geocodificarEnderecoEvsDigitado();
+            }, 1200);
+        }
+        window.aoAlterarEnderecoEvs = aoAlterarEnderecoEvs;
+
+        async function geocodificarEnderecoEvsDigitado() {
+            const rua = (document.getElementById('cfg-dist-rua-evs')?.value || '').trim();
+            const num = (document.getElementById('cfg-dist-numero-evs')?.value || '').trim();
+            const bairro = (document.getElementById('cfg-dist-bairro-evs')?.value || '').trim();
+            const cidade = (document.getElementById('cfg-dist-cidade-evs')?.value || '').trim();
+            const uf = (document.getElementById('cfg-dist-estado-evs')?.value || '').trim();
+
+            if (!cidade) return;
+
+            const queryParts = [rua, num, bairro, cidade, uf, 'Brasil'].filter(Boolean).join(', ');
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(queryParts)}`;
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (res.ok) {
+                    const arr = await res.json();
+                    if (arr && arr.length > 0) {
+                        const lat = parseFloat(arr[0].lat);
+                        const lng = parseFloat(arr[0].lon);
+                        window.coordsEvsGlobal = { lat, lng };
+                        atualizarIndicadorCoordsEvs(lat, lng, "Localizado pelo endereço");
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.warn("Geocodificação Nominatim:", e);
+            }
+        }
+        window.geocodificarEnderecoEvsDigitado = geocodificarEnderecoEvsDigitado;
+
+        function atualizarIndicadorCoordsEvs(lat, lng, origem) {
+            const ico = document.getElementById('icone-status-coords-evs');
+            const txt = document.getElementById('texto-status-coords-evs');
+            const sub = document.getElementById('subtexto-coords-evs');
+
+            if (ico) ico.className = "w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0";
+            if (txt) txt.innerHTML = `GPS do EVS Fixado: <strong class="text-emerald-700">${origem || 'Coordenadas Ativas'}</strong> ✅`;
+            if (sub) sub.innerText = `Lat: ${Number(lat).toFixed(5)} | Lng: ${Number(lng).toFixed(5)}`;
+        }
+
+        function executarSimuladorDistanciaPainel() {
+            const kmInput = parseFloat(document.getElementById('simulador-dist-km')?.value || '6');
+            const taxaBaseStr = document.getElementById('cfg-dist-taxa-base')?.value || '7,00';
+            const kmBase = parseFloat(document.getElementById('cfg-dist-km-base')?.value || '4');
+            const kmAdicionalStr = document.getElementById('cfg-dist-km-adicional')?.value || '1,00';
+            const modoCalculo = document.getElementById('cfg-dist-modo-calculo')?.value || 'proporcional';
+
+            const taxaBase = parseFloat(taxaBaseStr.replace(/\./g, '').replace(',', '.')) || 0;
+            const kmAdicional = parseFloat(kmAdicionalStr.replace(/\./g, '').replace(',', '.')) || 0;
+
+            let res = 0;
+            if (kmInput <= kmBase) {
+                res = taxaBase;
+            } else {
+                const excesso = kmInput - kmBase;
+                const fator = (modoCalculo === 'arredondado') ? Math.ceil(excesso) : excesso;
+                res = taxaBase + (fator * kmAdicional);
+            }
+
+            const elRes = document.getElementById('simulador-dist-resultado');
+            if (elRes) {
+                elRes.innerText = `R$ ${res.toFixed(2).replace('.', ',')}`;
+            }
+        }
+        window.executarSimuladorDistanciaPainel = executarSimuladorDistanciaPainel;
 
         function definirTaxaFixaGratis() {
             const input = document.getElementById('cfg-taxa-fixa-valor');
@@ -31207,15 +31550,24 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 bairros: [
                     { nome: 'Centro', valor: '5,00', gratis: false },
                     { nome: 'Bairro Próximo ao EVS', valor: '0,00', gratis: true }
-                ]
+                ],
+                distancia: {
+                    taxaBase: '7,00',
+                    kmBase: 4,
+                    valorKmAdicional: '1,00',
+                    raioMaximoKm: 15,
+                    tipoCalculo: 'proporcional'
+                }
             };
 
             const modo = config.modo || 'bairros';
             selecionarModoTaxaEntrega(modo);
 
+            // Popula campos Taxa Fixa
             const inFixa = document.getElementById('cfg-taxa-fixa-valor');
             if (inFixa) inFixa.value = formatarValorInicialMoeda(config.taxaFixa || '5,00');
 
+            // Popula campos Bairros
             const inPadrao = document.getElementById('cfg-taxa-padrao-outros');
             if (inPadrao) inPadrao.value = formatarValorInicialMoeda(config.taxaPadrao || '7,00');
 
@@ -31231,6 +31583,50 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                     adicionarLinhaBairro(b.nome || '', valForm, isGratis);
                 });
             }
+
+            // Popula campos Distância (KM)
+            const distCfg = config.distancia || {};
+            const inCepEvs = document.getElementById('cfg-dist-cep-evs');
+            const inRuaEvs = document.getElementById('cfg-dist-rua-evs');
+            const inNumEvs = document.getElementById('cfg-dist-numero-evs');
+            const inBairroEvs = document.getElementById('cfg-dist-bairro-evs');
+            const inCidadeEvs = document.getElementById('cfg-dist-cidade-evs');
+            const inUfEvs = document.getElementById('cfg-dist-estado-evs');
+
+            if (inCepEvs) inCepEvs.value = distCfg.cepEvs || '';
+            if (inRuaEvs) inRuaEvs.value = distCfg.ruaEvs || '';
+            if (inNumEvs) inNumEvs.value = distCfg.numeroEvs || '';
+            if (inBairroEvs) inBairroEvs.value = distCfg.bairroEvs || '';
+            
+            const cidadePadrao = distCfg.cidadeEvs || consultorAtual.cidade || (typeof extrairCidadeConsultor === 'function' ? extrairCidadeConsultor(consultorAtual) : '');
+            if (inCidadeEvs) inCidadeEvs.value = cidadePadrao;
+            
+            const ufPadrao = distCfg.estadoEvs || consultorAtual.estado || 'MT';
+            if (inUfEvs) inUfEvs.value = ufPadrao;
+
+            const inTaxaBase = document.getElementById('cfg-dist-taxa-base');
+            if (inTaxaBase) inTaxaBase.value = formatarValorInicialMoeda(distCfg.taxaBase || '7,00');
+
+            const inKmBase = document.getElementById('cfg-dist-km-base');
+            if (inKmBase) inKmBase.value = distCfg.kmBase || 4;
+
+            const inKmAdicional = document.getElementById('cfg-dist-km-adicional');
+            if (inKmAdicional) inKmAdicional.value = formatarValorInicialMoeda(distCfg.valorKmAdicional || '1,00');
+
+            const inRaioMax = document.getElementById('cfg-dist-raio-maximo');
+            if (inRaioMax) inRaioMax.value = distCfg.raioMaximoKm || 15;
+
+            const inModoCalc = document.getElementById('cfg-dist-modo-calculo');
+            if (inModoCalc) inModoCalc.value = distCfg.tipoCalculo || 'proporcional';
+
+            if (distCfg.latEvs && distCfg.lngEvs) {
+                window.coordsEvsGlobal = { lat: distCfg.latEvs, lng: distCfg.lngEvs };
+                atualizarIndicadorCoordsEvs(distCfg.latEvs, distCfg.lngEvs, "Salvo anteriormente");
+            } else if (cidadePadrao) {
+                geocodificarEnderecoEvsDigitado();
+            }
+
+            executarSimuladorDistanciaPainel();
 
             if (typeof configurarCamposMoedaAuto === 'function') configurarCamposMoedaAuto();
             atualizarPreviewTaxasEntrega();
@@ -31258,6 +31654,23 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                     </div>
                     <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
                         🎁 Grátis
+                    </span>
+                `;
+            } else if (modoTaxaEntregaSelecionado === 'distancia') {
+                const taxaBase = (document.getElementById('cfg-dist-taxa-base')?.value || '7,00').trim();
+                const kmBase = (document.getElementById('cfg-dist-km-base')?.value || '4').trim();
+                const kmAdic = (document.getElementById('cfg-dist-km-adicional')?.value || '1,00').trim();
+
+                prev.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center text-xs"><i class="fa-solid fa-route"></i></span>
+                        <div>
+                            <span class="text-gray-900 block font-black">Cálculo de Frete por Distância (KM)</span>
+                            <span class="text-[11px] text-gray-500 font-normal">R$ ${taxaBase} até ${kmBase}km (+ R$ ${kmAdic}/km excedente)</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-purple-900 bg-purple-100 px-2.5 py-1 rounded-full">
+                        R$ ${taxaBase} (+R$ ${kmAdic}/km)
                     </span>
                 `;
             } else if (modoTaxaEntregaSelecionado === 'fixa') {
@@ -31313,6 +31726,42 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 taxasObj.taxaFixa = valFixa || '0,00';
             } else if (modo === 'gratis') {
                 taxasObj.taxaFixa = '0,00';
+            } else if (modo === 'distancia') {
+                const cep = (document.getElementById('cfg-dist-cep-evs')?.value || '').trim();
+                const rua = (document.getElementById('cfg-dist-rua-evs')?.value || '').trim();
+                const numero = (document.getElementById('cfg-dist-numero-evs')?.value || '').trim();
+                const bairro = (document.getElementById('cfg-dist-bairro-evs')?.value || '').trim();
+                const cidade = (document.getElementById('cfg-dist-cidade-evs')?.value || '').trim();
+                const estado = (document.getElementById('cfg-dist-estado-evs')?.value || '').trim().toUpperCase();
+
+                const taxaBase = (document.getElementById('cfg-dist-taxa-base')?.value || '7,00').trim();
+                const kmBase = parseFloat(document.getElementById('cfg-dist-km-base')?.value || '4') || 4;
+                const kmAdicional = (document.getElementById('cfg-dist-km-adicional')?.value || '1,00').trim();
+                const raioMaximo = parseFloat(document.getElementById('cfg-dist-raio-maximo')?.value || '15') || 15;
+                const tipoCalculo = document.getElementById('cfg-dist-modo-calculo')?.value || 'proporcional';
+
+                if (!cidade) {
+                    alert("Por favor, preencha ao menos a Cidade e Estado do seu EVS para calcular a distância!");
+                    return;
+                }
+
+                const coords = window.coordsEvsGlobal || {};
+
+                taxasObj.distancia = {
+                    cepEvs: cep,
+                    ruaEvs: rua,
+                    numeroEvs: numero,
+                    bairroEvs: bairro,
+                    cidadeEvs: cidade,
+                    estadoEvs: estado,
+                    latEvs: coords.lat || null,
+                    lngEvs: coords.lng || null,
+                    taxaBase: taxaBase || '7,00',
+                    kmBase: kmBase,
+                    valorKmAdicional: kmAdicional || '1,00',
+                    raioMaximoKm: raioMaximo,
+                    tipoCalculo: tipoCalculo
+                };
             } else if (modo === 'bairros') {
                 const linhas = document.querySelectorAll('.linha-bairro-item');
                 const listaBairros = [];
@@ -31330,7 +31779,7 @@ Assim que confirmar seu pedido no site me envie o comprovante ou resumo aqui par
                 });
 
                 if (listaBairros.length === 0) {
-                    alert("Por favor, adicione pelo menos um bairro ou escolha o modo 'Taxa Única'.");
+                    alert("Por favor, adicione pelo menos um bairro ou escolha outro modo de taxa.");
                     return;
                 }
 
