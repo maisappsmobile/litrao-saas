@@ -292,10 +292,10 @@
         </section>
 
         <!-- BLOCO 3: LISTA / GRADE DE CARDS DE PEDIDOS -->
-        <section>
+        <section id="secao-pedidos-monitorados-central" class="mt-2 transition-all">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                    <span id="titulo-secao-pedidos-central" class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
                         <i class="fa-solid fa-layer-group text-amber-400"></i> Pedidos Monitorados em Tempo Real
                     </span>
                     <span id="badge-contador-pedidos-visiveis" class="text-[10px] font-bold bg-slate-800 text-purple-200 px-2 py-0.5 rounded-full border border-slate-700">0 exibidos</span>
@@ -1291,6 +1291,7 @@
 
             // Atualiza card de métricas de Pico
             window.totalConsultoresPicoGlobal = listaPico.length;
+            window.listaConsultoresPicoGlobal = listaPico;
             const statPico = document.getElementById('stat-pico');
             if (statPico) statPico.innerText = listaPico.length;
             const contFiltroPico = document.getElementById('cont-filtro-pico');
@@ -1321,6 +1322,11 @@
             primeiraCargaPicoExecutada = true;
 
             renderizarEspacosEmPicoCentral(listaPico);
+
+            // Se o usuário estiver com o filtro "⚡ Em Pico" ativo, atualiza imediatamente os cards
+            if (filtroStatusAtual === 'PICO') {
+                aplicarFiltrosEBusca();
+            }
         }
 
         let exibirRespondidosPico = false;
@@ -1351,6 +1357,113 @@
         function alternarFiltroRespondidosPico(checked) {
             exibirRespondidosPico = Boolean(checked);
             atualizarConsultoresEmPicoCentral();
+        }
+
+        function gerarCardConsultorPicoHtml(item) {
+            const agoraMs = Date.now();
+            const c = item.consultor || {};
+            const cId = c.id || '';
+            const cHid = String(c.herbalife_id || '').trim();
+            const nomeConsultor = c.nome_completo || c.herbalife_id || 'Consultor';
+            const nomeEspaco = c.nome_espaco_limpo || 'Espaço Vida Saudável';
+            const cidade = c.cidade || 'Cidade não informada';
+            const uf = c.estado || 'UF';
+            const whatsConsultor = c.whatsapp || '';
+            const whatsConsultorLimpo = normalizarNumeroWhatsApp(whatsConsultor);
+
+            const dataExp = new Date(item.expiraPico);
+            const horaExpira = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const minRestantes = Math.max(1, Math.round((item.expiraPico - agoraMs) / 60000));
+
+            const jaResp = isPicoRespondido(cHid, item.expiraPico);
+
+            // Quantos pedidos ativos deste consultor estão sendo monitorados pela Central agora
+            const pedidosAtivosConsultor = todosPedidosCentral.filter(p => {
+                const dadosP = extrairDadosPedidoItem(p);
+                return String(p.herbalife_id).trim() === cHid && dadosP.status !== 'CONCLUIDO';
+            }).length;
+
+            // Mensagem personalizada oficial da Central para tranquilizar e confirmar atendimento
+            const msgAjuda = `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
+                `Olá, *${nomeConsultor}*! Tudo bem?\n\n` +
+                `⚡ Identificamos que você ativou o *Modo Horário de Pico* no seu espaço *${nomeEspaco}*!\n\n` +
+                `✅ Nossa equipe da Central já assumiu a supervisão e o envio dos seus pedidos do catálogo com prioridade máxima.\n\n` +
+                `🥤 Pode atender o balcão com total tranquilidade! Cuidamos de 100% dos seus pedidos por aqui! 🚀`;
+
+            const linkWhats = `https://wa.me/${whatsConsultorLimpo}?text=${encodeURIComponent(msgAjuda)}`;
+            const nomeConsEscapado = nomeConsultor.replace(/'/g, "\\'");
+
+            return `
+                <div class="bg-slate-950/90 border-2 ${jaResp ? 'border-emerald-500/60' : 'border-amber-400/80 hover:border-amber-400'} rounded-3xl p-5 shadow-2xl flex flex-col justify-between transition group relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-24 h-24 ${jaResp ? 'bg-emerald-500/10' : 'bg-amber-400/10'} rounded-full blur-xl pointer-events-none"></div>
+
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-3">
+                            <div>
+                                <span class="text-[10px] font-black uppercase ${jaResp ? 'text-emerald-300 bg-emerald-500/20 border-emerald-500/40' : 'text-amber-300 bg-amber-400/20 border-amber-400/40 animate-pulse'} border px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 mb-1.5 shadow-2xs">
+                                    <i class="fa-solid ${jaResp ? 'fa-circle-check text-emerald-400' : 'fa-bolt text-amber-400'}"></i> ${jaResp ? 'APOIO RESPONDIDO' : 'PICO EVS ATIVO'}
+                                </span>
+                                <h4 class="text-base font-black text-white leading-tight">${nomeConsultor}</h4>
+                                <p class="text-xs text-purple-200 font-semibold mt-0.5">${nomeEspaco}</p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="text-xs font-black ${jaResp ? 'text-emerald-300 bg-slate-900 border-emerald-500/40' : 'text-amber-300 bg-purple-900/90 border-amber-400/50'} border px-3 py-1 rounded-xl block shadow-sm">
+                                    Até ${horaExpira}
+                                </span>
+                                <span class="text-[10px] text-amber-200/80 font-bold block mt-1">
+                                    (~${minRestantes} min restantes)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 space-y-1.5 mb-3 p-3 bg-slate-900/80 rounded-2xl border border-slate-800">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-solid fa-location-dot text-amber-400 text-xs w-4"></i>
+                                <span class="font-medium">${cidade} - ${uf}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-brands fa-whatsapp text-emerald-400 text-sm w-4"></i>
+                                <span class="font-bold text-slate-200">${whatsConsultor || 'WhatsApp não cadastrado'}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-purple-200 bg-purple-950/60 px-2.5 py-1 rounded-xl border border-purple-800/40 mt-1">
+                                <span>Pedidos em andamento:</span>
+                                <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} ativos</strong>
+                            </div>
+                        </div>
+
+                        <!-- CHAVE (SWITCH) DE CONFIRMAÇÃO DE APOIO RESPONDIDO PELA CENTRAL -->
+                        <div class="flex items-center justify-between p-2.5 bg-slate-900/90 rounded-2xl border ${jaResp ? 'border-emerald-500/50 bg-emerald-950/30' : 'border-slate-800'} mb-3 transition">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid ${jaResp ? 'fa-check-double text-emerald-400' : 'fa-headset text-amber-400'} text-sm"></i>
+                                <div>
+                                    <div class="text-xs font-black ${jaResp ? 'text-emerald-300' : 'text-white'}">
+                                        ${jaResp ? 'Apoio Respondido ✅' : 'Apoio Respondido?'}
+                                    </div>
+                                    <div class="text-[10px] text-slate-400">
+                                        ${jaResp ? 'Consultor já recebeu suporte' : 'Ligue a chave para sair do alerta'}
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" onchange="alternarApoioPicoRespondido('${cHid}', ${item.expiraPico}, this.checked)" class="sr-only peer" ${jaResp ? 'checked' : ''}>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES DE AÇÃO DESTACADOS: RESPONDER WHATSAPP E DESATIVAR PICO -->
+                    <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                        <a href="${linkWhats}" target="_blank" onclick="marcarPicoComoRespondidoAoEnviarWhats('${cHid}', ${item.expiraPico})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer tracking-wide uppercase transform hover:scale-[1.02] active:scale-[0.98]">
+                            <i class="fa-brands fa-whatsapp text-base text-white"></i>
+                            <span>Responder no WhatsApp</span>
+                        </a>
+                        <button type="button" onclick="desativarModoPicoPelaCentral('${cId}', '${cHid}', '${nomeConsEscapado}')" class="w-full bg-slate-800 hover:bg-rose-950/70 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-power-off text-rose-400"></i>
+                            <span>Desativar Modo Pico</span>
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
         function renderizarEspacosEmPicoCentral(lista) {
@@ -1419,112 +1532,7 @@
 
             // Exibe a seção
             secao.classList.remove('hidden');
-
-            grid.innerHTML = listaParaRenderizar.map(item => {
-                const c = item.consultor || {};
-                const cId = c.id || '';
-                const cHid = String(c.herbalife_id || '').trim();
-                const nomeConsultor = c.nome_completo || c.herbalife_id || 'Consultor';
-                const nomeEspaco = c.nome_espaco_limpo || 'Espaço Vida Saudável';
-                const cidade = c.cidade || 'Cidade não informada';
-                const uf = c.estado || 'UF';
-                const whatsConsultor = c.whatsapp || '';
-                const whatsConsultorLimpo = normalizarNumeroWhatsApp(whatsConsultor);
-
-                const dataExp = new Date(item.expiraPico);
-                const horaExpira = dataExp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const minRestantes = Math.max(1, Math.round((item.expiraPico - agoraMs) / 60000));
-
-                const jaResp = isPicoRespondido(cHid, item.expiraPico);
-
-                // Quantos pedidos ativos deste consultor estão sendo monitorados pela Central agora
-                const pedidosAtivosConsultor = todosPedidosCentral.filter(p => {
-                    const dadosP = extrairDadosPedidoItem(p);
-                    return String(p.herbalife_id).trim() === cHid && dadosP.status !== 'CONCLUIDO';
-                }).length;
-
-                // Mensagem personalizada oficial da Central para tranquilizar e confirmar atendimento
-                const msgAjuda = `🏢 *CENTRAL DE ATENDIMENTO OFICIAL - LITRÃO DO RESET*\n\n` +
-                    `Olá, *${nomeConsultor}*! Tudo bem?\n\n` +
-                    `⚡ Identificamos que você ativou o *Modo Horário de Pico* no seu espaço *${nomeEspaco}*!\n\n` +
-                    `✅ Nossa equipe da Central já assumiu a supervisão e o envio dos seus pedidos do catálogo com prioridade máxima.\n\n` +
-                    `🥤 Pode atender o balcão com total tranquilidade! Cuidamos de 100% dos seus pedidos por aqui! 🚀`;
-
-                const linkWhats = `https://wa.me/${whatsConsultorLimpo}?text=${encodeURIComponent(msgAjuda)}`;
-                const nomeConsEscapado = nomeConsultor.replace(/'/g, "\\'");
-
-                return `
-                    <div class="bg-slate-950/90 border-2 ${jaResp ? 'border-emerald-500/60' : 'border-amber-400/80 hover:border-amber-400'} rounded-3xl p-5 shadow-2xl flex flex-col justify-between transition group relative overflow-hidden">
-                        <div class="absolute -right-8 -top-8 w-24 h-24 ${jaResp ? 'bg-emerald-500/10' : 'bg-amber-400/10'} rounded-full blur-xl pointer-events-none"></div>
-
-                        <div>
-                            <div class="flex items-start justify-between gap-2 mb-3">
-                                <div>
-                                    <span class="text-[10px] font-black uppercase ${jaResp ? 'text-emerald-300 bg-emerald-500/20 border-emerald-500/40' : 'text-amber-300 bg-amber-400/20 border-amber-400/40 animate-pulse'} border px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 mb-1.5 shadow-2xs">
-                                        <i class="fa-solid ${jaResp ? 'fa-circle-check text-emerald-400' : 'fa-bolt text-amber-400'}"></i> ${jaResp ? 'APOIO RESPONDIDO' : 'PICO EVS ATIVO'}
-                                    </span>
-                                    <h4 class="text-base font-black text-white leading-tight">${nomeConsultor}</h4>
-                                    <p class="text-xs text-purple-200 font-semibold mt-0.5">${nomeEspaco}</p>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <span class="text-xs font-black ${jaResp ? 'text-emerald-300 bg-slate-900 border-emerald-500/40' : 'text-amber-300 bg-purple-900/90 border-amber-400/50'} border px-3 py-1 rounded-xl block shadow-sm">
-                                        Até ${horaExpira}
-                                    </span>
-                                    <span class="text-[10px] text-amber-200/80 font-bold block mt-1">
-                                        (~${minRestantes} min restantes)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="text-xs text-slate-300 space-y-1.5 mb-3 p-3 bg-slate-900/80 rounded-2xl border border-slate-800">
-                                <div class="flex items-center gap-2 text-slate-300">
-                                    <i class="fa-solid fa-location-dot text-amber-400 text-xs w-4"></i>
-                                    <span class="font-medium">${cidade} - ${uf}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-slate-300">
-                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm w-4"></i>
-                                    <span class="font-bold text-slate-200">${whatsConsultor || 'WhatsApp não cadastrado'}</span>
-                                </div>
-                                <div class="flex items-center justify-between text-xs text-purple-200 bg-purple-950/60 px-2.5 py-1 rounded-xl border border-purple-800/40 mt-1">
-                                    <span>Pedidos em andamento:</span>
-                                    <strong class="text-amber-300 text-xs font-black">${pedidosAtivosConsultor} ativos</strong>
-                                </div>
-                            </div>
-
-                            <!-- CHAVE (SWITCH) DE CONFIRMAÇÃO DE APOIO RESPONDIDO PELA CENTRAL -->
-                            <div class="flex items-center justify-between p-2.5 bg-slate-900/90 rounded-2xl border ${jaResp ? 'border-emerald-500/50 bg-emerald-950/30' : 'border-slate-800'} mb-3 transition">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid ${jaResp ? 'fa-check-double text-emerald-400' : 'fa-headset text-amber-400'} text-sm"></i>
-                                    <div>
-                                        <div class="text-xs font-black ${jaResp ? 'text-emerald-300' : 'text-white'}">
-                                            ${jaResp ? 'Apoio Respondido ✅' : 'Apoio Respondido?'}
-                                        </div>
-                                        <div class="text-[10px] text-slate-400">
-                                            ${jaResp ? 'Consultor já recebeu suporte' : 'Ligue a chave para sair do alerta'}
-                                        </div>
-                                    </div>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                    <input type="checkbox" onchange="alternarApoioPicoRespondido('${cHid}', ${item.expiraPico}, this.checked)" class="sr-only peer" ${jaResp ? 'checked' : ''}>
-                                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- BOTÕES DE AÇÃO DESTACADOS: RESPONDER WHATSAPP E DESATIVAR PICO -->
-                        <div class="space-y-2 pt-2 border-t border-slate-800/80">
-                            <a href="${linkWhats}" target="_blank" onclick="marcarPicoComoRespondidoAoEnviarWhats('${cHid}', ${item.expiraPico})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer tracking-wide uppercase transform hover:scale-[1.02] active:scale-[0.98]">
-                                <i class="fa-brands fa-whatsapp text-base text-white"></i>
-                                <span>Responder no WhatsApp</span>
-                            </a>
-                            <button type="button" onclick="desativarModoPicoPelaCentral('${cId}', '${cHid}', '${nomeConsEscapado}')" class="w-full bg-slate-800 hover:bg-rose-950/70 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-power-off text-rose-400"></i>
-                                <span>Desativar Modo Pico</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            grid.innerHTML = listaParaRenderizar.map(item => gerarCardConsultorPicoHtml(item)).join('');
         }
 
         async function desativarModoPicoPelaCentral(cId, cHid, nomeConsultor) {
@@ -1571,11 +1579,9 @@
 
         function rolarParaSecaoPicoCentral() {
             filtrarStatusPedidos('PICO');
-            const el = document.getElementById('secao-espacos-em-pico-central');
-            if (el && !el.classList.contains('hidden')) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('ring-4', 'ring-amber-400');
-                setTimeout(() => el.classList.remove('ring-4', 'ring-amber-400'), 2500);
+            const el = document.getElementById('secao-pedidos-monitorados-central') || document.getElementById('secao-espacos-em-pico-central');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -1670,7 +1676,10 @@
                 return true;
             });
 
-            if (modoVisualizacaoAtual === 'KANBAN') {
+            // Se estiver em modo Kanban e o filtro for "TODOS", exibe as 4 colunas Kanban.
+            // Se o usuário clicar em qualquer filtro específico ("⚡ Em Pico", "Concluídos", "Em Risco", etc.),
+            // renderiza os cards diretamente na área de cards abaixo do botão clicado para abrir imediatamente!
+            if (modoVisualizacaoAtual === 'KANBAN' && filtroStatusAtual === 'TODOS') {
                 const gridLista = document.getElementById('grid-pedidos-central');
                 const gridKanban = document.getElementById('kanban-pedidos-central');
                 if (gridLista) gridLista.classList.add('hidden');
@@ -1688,7 +1697,7 @@
         function filtrarStatusPedidos(status) {
             filtroStatusAtual = status;
 
-            // Atualiza botões
+            // Atualiza botões da barra de filtros
             document.querySelectorAll('.filtro-status-btn').forEach(btn => {
                 btn.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-slate-300';
             });
@@ -1696,299 +1705,394 @@
             const btnAtivo = document.getElementById(`filtro-btn-${status}`);
             if (btnAtivo) {
                 if (status === 'RISCO') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-rose-600 text-white shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-rose-600 text-white shadow-md ring-2 ring-rose-400';
                 } else if (status === 'NOVOS') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-300';
                 } else if (status === 'PICO') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md border-2 border-amber-300';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-amber-500 text-slate-950 shadow-md border-2 border-amber-300 ring-2 ring-amber-400';
                 } else if (status === 'CONCLUIDO') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-md ring-2 ring-emerald-400';
                 } else if (status === 'PREPARO') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-blue-600 text-white shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-blue-600 text-white shadow-md ring-2 ring-blue-400';
                 } else if (status === 'ROTA') {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-indigo-600 text-white shadow-md ring-2 ring-indigo-400';
                 } else {
-                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-purple-600 text-white shadow-md';
+                    btnAtivo.className = 'filtro-status-btn px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap bg-purple-600 text-white shadow-md ring-2 ring-purple-400';
                 }
             }
 
             aplicarFiltrosEBusca();
+
+            // Rola suavemente até a área de cards para o operador ver o conteúdo abrir logo abaixo do botão
+            const secaoCards = document.getElementById('secao-pedidos-monitorados-central');
+            if (secaoCards) {
+                secaoCards.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
-        // RENDERIZA A GRADE COMPLETA DE CARDS DOS PEDIDOS
-        function renderizarCardsPedidos(lista) {
-            const container = document.getElementById('grid-pedidos-central');
-            const badgeVisiveis = document.getElementById('badge-contador-pedidos-visiveis');
-            if (badgeVisiveis) badgeVisiveis.innerText = `${lista.length} exibidos`;
+        // RENDERIZA O CARD INDIVIDUAL DE UM PEDIDO
+        function gerarCardPedidoHtml(item) {
+            const agoraMs = Date.now();
+            const dados = extrairDadosPedidoItem(item);
+            const st = String(dados.status || 'PENDENTE').toUpperCase();
+            const nomeCliente = limparNomeCliente(item.nome_cliente);
+            const whatsCliente = item.whatsapp_cliente || '';
+            const whatsClienteLimpo = normalizarNumeroWhatsApp(whatsCliente);
+            const valorTotal = dados.valor_total || 'R$ 0,00';
+            const taxaEntrega = dados.taxa_entrega || 'R$ 0,00';
+            const modalidade = dados.modalidade === 'ENTREGA' ? 'Entrega / Delivery' : 'Retirada no Espaço';
+            const endereco = dados.endereco || 'Endereço não informado';
+            const pagamento = dados.pagamento || 'PIX';
 
-            if (lista.length === 0) {
-                if (filtroStatusAtual === 'PICO') {
-                    container.innerHTML = `
-                        <div class="p-8 text-center bg-slate-900/60 border border-amber-500/40 rounded-3xl">
-                            <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
-                                <i class="fa-solid fa-bolt text-2xl animate-pulse"></i>
-                            </div>
-                            <h3 class="text-base font-black text-white">Consultor(es) com Horário de Pico Ativo</h3>
-                            <p class="text-xs text-slate-300 max-w-md mx-auto mt-1 mb-4">No momento, nenhum pedido ativo no catálogo digital pendente de entrega para este(s) consultor(es). A Central está de prontidão!</p>
-                            <button type="button" onclick="rolarParaSecaoPicoCentral()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition inline-flex items-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-arrow-up"></i>
-                                <span>Ver Alerta de Pico e Contatos no Topo</span>
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div class="p-12 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
-                            <i class="fa-solid fa-clipboard-check text-3xl text-emerald-400 mb-2 block"></i>
-                            Nenhum pedido encontrado para o filtro selecionado.
-                        </div>
-                    `;
-                }
-                return;
+            // Dados do Consultor
+            const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
+            let nomeConsultor = 'Consultor da Região';
+            let nomeEspaco = 'Espaço Vida Saudável';
+            let cidadeConsultor = 'Cidade não informada';
+            let ufConsultor = 'UF';
+            let whatsConsultor = '';
+            let whatsSupervisor = '';
+
+            if (cEncontrado) {
+                nomeConsultor = cEncontrado.nome_completo || cEncontrado.herbalife_id;
+                cidadeConsultor = cEncontrado.cidade || '';
+                ufConsultor = cEncontrado.estado || '';
+                whatsConsultor = cEncontrado.whatsapp || '';
+                
+                const rawEspaco = cEncontrado.nome_espaco || '';
+                const matchSup = rawEspaco.match(/<!--WHATSAPP_SUPERVISOR:(.*?)-->/);
+                if (matchSup && matchSup[1]) whatsSupervisor = matchSup[1];
+                
+                // Extrai nome limpo do espaço
+                nomeEspaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço Vida Saudável';
             }
 
-            const agoraMs = Date.now();
+            // Cálculo do tempo decorrido
+            const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
+            const diffMinutos = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
+            const diffSegundos = Math.max(0, Math.floor(((agoraMs - pedidoMs) % 60000) / 1000));
 
-            container.innerHTML = lista.map(item => {
-                const dados = extrairDadosPedidoItem(item);
-                const st = String(dados.status || 'PENDENTE').toUpperCase();
-                const nomeCliente = limparNomeCliente(item.nome_cliente);
-                const whatsCliente = item.whatsapp_cliente || '';
-                const whatsClienteLimpo = normalizarNumeroWhatsApp(whatsCliente);
-                const valorTotal = dados.valor_total || 'R$ 0,00';
-                const taxaEntrega = dados.taxa_entrega || 'R$ 0,00';
-                const modalidade = dados.modalidade === 'ENTREGA' ? 'Entrega / Delivery' : 'Retirada no Espaço';
-                const endereco = dados.endereco || 'Endereço não informado';
-                const pagamento = dados.pagamento || 'PIX';
+            // Identificação de Modo Pico EVS (Ponto 4)
+            const hid = String(item.herbalife_id || '').trim();
+            const mapaApoio = window.mapaConsultoresApoioGlobal || {};
+            const infoCons = mapaApoio[hid];
+            const emModoPico = Boolean(infoCons && infoCons.emModoPico);
 
-                // Dados do Consultor
-                const cEncontrado = todosConsultoresCache.find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim());
-                let nomeConsultor = 'Consultor da Região';
-                let nomeEspaco = 'Espaço Vida Saudável';
-                let cidadeConsultor = 'Cidade não informada';
-                let ufConsultor = 'UF';
-                let whatsConsultor = '';
-                let whatsSupervisor = '';
+            const estaAtrasado = (st === 'PENDENTE' && (diffMinutos >= 4 || emModoPico));
 
-                if (cEncontrado) {
-                    nomeConsultor = cEncontrado.nome_completo || cEncontrado.herbalife_id;
-                    cidadeConsultor = cEncontrado.cidade || '';
-                    ufConsultor = cEncontrado.estado || '';
-                    whatsConsultor = cEncontrado.whatsapp || '';
+            // Itens do Pedido formatados
+            let itensHtml = '';
+            if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
+                itensHtml = dados.itens.map(it => `
+                    <div class="text-xs text-slate-300 flex items-center justify-between py-1 border-b border-slate-800/80">
+                        <span><strong class="text-amber-300">${it.quantidade || 1}x</strong> ${it.nome || 'Litrão do Reset'} ${it.sabores ? `(${it.sabores})` : ''}</span>
+                        <span class="font-bold text-slate-400">${it.preco || ''}</span>
+                    </div>
+                `).join('');
+            } else {
+                itensHtml = `<div class="text-xs text-slate-400 italic">${dados.produto || '1x Kit Litrão do Reset'}</div>`;
+            }
+
+            // Badge de Cronômetro
+            let badgeCronometro = '';
+            if (emModoPico && st === 'PENDENTE') {
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
+                        <i class="fa-solid fa-bolt"></i> ⚡ PICO NO EVS - CENTRAL ASSUME IMEDIATO!
+                    </span>
+                `;
+            } else if (estaAtrasado) {
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-rose-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 🚨 +${diffMinutos} MINUTOS SEM RESPOSTA - CENTRAL ASSUMINDO!
+                    </span>
+                `;
+            } else if (st === 'PENDENTE') {
+                const restamMin = Math.max(0, 3 - diffMinutos);
+                const restamSeg = Math.max(0, 59 - diffSegundos);
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-bold">
+                        <i class="fa-regular fa-clock"></i> Recebido há ${diffMinutos}m ${diffSegundos}s (SLA: restam ${restamMin}m ${restamSeg}s)
+                    </span>
+                `;
+            } else if (st === 'PREPARO') {
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-blue-500/20 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-blender"></i> Em Preparo
+                    </span>
+                `;
+            } else if (st === 'EM_ROTA' || st === 'ROTA') {
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-3 py-1 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-motorcycle"></i> Em Rota de Entrega
+                    </span>
+                `;
+            } else if (st === 'CONCLUIDO') {
+                badgeCronometro = `
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-circle-check"></i> Pedido Concluído
+                    </span>
+                `;
+            }
+
+            // Card principal
+            return `
+                <div class="bg-slate-900 border ${estaAtrasado ? 'border-rose-500 alerta-risco-ativo' : 'border-slate-800'} rounded-3xl p-4 sm:p-6 shadow-xl transition-all duration-300 flex flex-col justify-between gap-4">
                     
-                    const rawEspaco = cEncontrado.nome_espaco || '';
-                    const matchSup = rawEspaco.match(/<!--WHATSAPP_SUPERVISOR:(.*?)-->/);
-                    if (matchSup && matchSup[1]) whatsSupervisor = matchSup[1];
-                    
-                    // Extrai nome limpo do espaço
-                    nomeEspaco = rawEspaco.replace(/<!--.*?-->/g, '').trim() || 'Espaço Vida Saudável';
-                }
-
-                // Cálculo do tempo decorrido
-                const pedidoMs = item.criado_em ? new Date(item.criado_em).getTime() : agoraMs;
-                const diffMinutos = Math.max(0, Math.floor((agoraMs - pedidoMs) / 60000));
-                const diffSegundos = Math.max(0, Math.floor(((agoraMs - pedidoMs) % 60000) / 1000));
-
-                // Identificação de Modo Pico EVS (Ponto 4)
-                const hid = String(item.herbalife_id || '').trim();
-                const mapaApoio = window.mapaConsultoresApoioGlobal || {};
-                const infoCons = mapaApoio[hid];
-                const emModoPico = Boolean(infoCons && infoCons.emModoPico);
-
-                const estaAtrasado = (st === 'PENDENTE' && (diffMinutos >= 4 || emModoPico));
-
-                // Itens do Pedido formatados
-                let itensHtml = '';
-                if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
-                    itensHtml = dados.itens.map(it => `
-                        <div class="text-xs text-slate-300 flex items-center justify-between py-1 border-b border-slate-800/80">
-                            <span><strong class="text-amber-300">${it.quantidade || 1}x</strong> ${it.nome || 'Litrão do Reset'} ${it.sabores ? `(${it.sabores})` : ''}</span>
-                            <span class="font-bold text-slate-400">${it.preco || ''}</span>
+                    <!-- CABEÇALHO DO CARD -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-3">
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <span class="bg-purple-900/60 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-xl text-xs font-black font-mono">
+                                #${item.id}
+                            </span>
+                            ${badgeCronometro}
+                            <span class="text-xs text-slate-400">
+                                <i class="fa-regular fa-calendar mr-1"></i> ${new Date(pedidoMs).toLocaleDateString('pt-BR')} às ${new Date(pedidoMs).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </div>
-                    `).join('');
-                } else {
-                    itensHtml = `<div class="text-xs text-slate-400 italic">${dados.produto || '1x Kit Litrão do Reset'}</div>`;
-                }
 
-                // Badge de Cronômetro
-                let badgeCronometro = '';
-                if (emModoPico && st === 'PENDENTE') {
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
-                            <i class="fa-solid fa-bolt"></i> ⚡ PICO NO EVS - CENTRAL ASSUME IMEDIATO!
-                        </span>
-                    `;
-                } else if (estaAtrasado) {
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-rose-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-md animate-pulse">
-                            <i class="fa-solid fa-triangle-exclamation"></i> 🚨 +${diffMinutos} MINUTOS SEM RESPOSTA - CENTRAL ASSUMINDO!
-                        </span>
-                    `;
-                } else if (st === 'PENDENTE') {
-                    const restamMin = Math.max(0, 3 - diffMinutos);
-                    const restamSeg = Math.max(0, 59 - diffSegundos);
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-bold">
-                            <i class="fa-regular fa-clock"></i> Recebido há ${diffMinutos}m ${diffSegundos}s (SLA: restam ${restamMin}m ${restamSeg}s)
-                        </span>
-                    `;
-                } else if (st === 'PREPARO') {
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-blue-500/20 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-full text-xs font-bold">
-                            <i class="fa-solid fa-blender"></i> Em Preparo
-                        </span>
-                    `;
-                } else if (st === 'EM_ROTA' || st === 'ROTA') {
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-3 py-1 rounded-full text-xs font-bold">
-                            <i class="fa-solid fa-motorcycle"></i> Em Rota de Entrega
-                        </span>
-                    `;
-                } else if (st === 'CONCLUIDO') {
-                    badgeCronometro = `
-                        <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full text-xs font-bold">
-                            <i class="fa-solid fa-circle-check"></i> Pedido Concluído
-                        </span>
-                    `;
-                }
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg sm:text-xl font-black text-amber-300">${valorTotal}</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-lg border border-slate-700 uppercase font-bold">
+                                ${pagamento}
+                            </span>
+                        </div>
+                    </div>
 
-                // Card principal
-                return `
-                    <div class="bg-slate-900 border ${estaAtrasado ? 'border-rose-500 alerta-risco-ativo' : 'border-slate-800'} rounded-3xl p-4 sm:p-6 shadow-xl transition-all duration-300 flex flex-col justify-between gap-4">
+                    <!-- CORPO EM 3 COLUNAS -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         
-                        <!-- CABEÇALHO DO CARD -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-3">
-                            <div class="flex items-center gap-2.5 flex-wrap">
-                                <span class="bg-purple-900/60 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-xl text-xs font-black font-mono">
-                                    #${item.id}
+                        <!-- COLUNA 1: CLIENTE -->
+                        <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-black uppercase text-purple-300 block mb-1">
+                                    <i class="fa-solid fa-user mr-1 text-purple-400"></i> Cliente
                                 </span>
-                                ${badgeCronometro}
-                                <span class="text-xs text-slate-400">
-                                    <i class="fa-regular fa-calendar mr-1"></i> ${new Date(pedidoMs).toLocaleDateString('pt-BR')} às ${new Date(pedidoMs).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
+                                <h4 class="text-sm font-black text-white">${nomeCliente}</h4>
+                                <div class="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                                    <span>${whatsCliente || 'Sem telefone'}</span>
+                                </div>
+                                <div class="mt-2 text-[11px] text-slate-400 leading-snug">
+                                    <strong class="text-slate-300 block">${modalidade}</strong>
+                                    <span>${endereco}</span>
+                                </div>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <span class="text-lg sm:text-xl font-black text-amber-300">${valorTotal}</span>
-                                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-lg border border-slate-700 uppercase font-bold">
-                                    ${pagamento}
-                                </span>
+                            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
+                                <a href="https://wa.me/${whatsClienteLimpo}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-xs">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Cliente
+                                </a>
                             </div>
                         </div>
 
-                        <!-- CORPO EM 3 COLUNAS -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            
-                            <!-- COLUNA 1: CLIENTE -->
-                            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
-                                <div>
-                                    <span class="text-[10px] font-black uppercase text-purple-300 block mb-1">
-                                        <i class="fa-solid fa-user mr-1 text-purple-400"></i> Cliente
-                                    </span>
-                                    <h4 class="text-sm font-black text-white">${nomeCliente}</h4>
-                                    <div class="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
-                                        <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
-                                        <span>${whatsCliente || 'Sem telefone'}</span>
-                                    </div>
-                                    <div class="mt-2 text-[11px] text-slate-400 leading-snug">
-                                        <strong class="text-slate-300 block">${modalidade}</strong>
-                                        <span>${endereco}</span>
-                                    </div>
+                        <!-- COLUNA 2: CONSULTOR & REGIÃO -->
+                        <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-black uppercase text-emerald-300 block mb-1">
+                                    <i class="fa-solid fa-store mr-1 text-emerald-400"></i> Consultor Local & Espaço
+                                </span>
+                                <h4 class="text-sm font-black text-white">${nomeConsultor}</h4>
+                                <p class="text-xs text-slate-400 font-medium">${nomeEspaco}</p>
+                                <div class="text-xs text-amber-300 font-bold mt-1">
+                                    <i class="fa-solid fa-location-dot mr-1"></i> ${cidadeConsultor} ${ufConsultor ? `- ${ufConsultor}` : ''}
                                 </div>
-
-                                <div class="mt-3 pt-2 border-t border-slate-800 flex items-center gap-2">
-                                    <a href="https://wa.me/${whatsClienteLimpo}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-xs">
-                                        <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Cliente
-                                    </a>
+                                <div class="text-[11px] text-slate-400 mt-1">
+                                    Whats Consultor: <strong class="text-slate-300">${whatsConsultor || '-'}</strong>
                                 </div>
+                                ${whatsSupervisor ? `<div class="text-[10px] text-purple-300 mt-0.5">Supervisor: <strong>${whatsSupervisor}</strong></div>` : ''}
                             </div>
 
-                            <!-- COLUNA 2: CONSULTOR & REGIÃO -->
-                            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
-                                <div>
-                                    <span class="text-[10px] font-black uppercase text-emerald-300 block mb-1">
-                                        <i class="fa-solid fa-store mr-1 text-emerald-400"></i> Consultor Local & Espaço
-                                    </span>
-                                    <h4 class="text-sm font-black text-white">${nomeConsultor}</h4>
-                                    <p class="text-xs text-slate-400 font-medium">${nomeEspaco}</p>
-                                    <div class="text-xs text-amber-300 font-bold mt-1">
-                                        <i class="fa-solid fa-location-dot mr-1"></i> ${cidadeConsultor} ${ufConsultor ? `- ${ufConsultor}` : ''}
-                                    </div>
-                                    <div class="text-[11px] text-slate-400 mt-1">
-                                        Whats Consultor: <strong class="text-slate-300">${whatsConsultor || '-'}</strong>
-                                    </div>
-                                    ${whatsSupervisor ? `<div class="text-[10px] text-purple-300 mt-0.5">Supervisor: <strong>${whatsSupervisor}</strong></div>` : ''}
-                                </div>
-
-                                <div class="mt-3 pt-2 border-t border-slate-800">
-                                    <button type="button" onclick="cobrarConsultorCentral(${item.id})" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
-                                        <i class="fa-solid fa-bell ${estaAtrasado ? 'animate-bounce' : ''}"></i> Cobrar Consultor (WhatsApp)
-                                    </button>
-                                </div>
+                            <div class="mt-3 pt-2 border-t border-slate-800">
+                                <button type="button" onclick="cobrarConsultorCentral(${item.id})" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-bell ${estaAtrasado ? 'animate-bounce' : ''}"></i> Cobrar Consultor (WhatsApp)
+                                </button>
                             </div>
-
-                            <!-- COLUNA 3: ITENS & DETALHES -->
-                            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
-                                <div>
-                                    <span class="text-[10px] font-black uppercase text-amber-300 block mb-1">
-                                        <i class="fa-solid fa-box-open mr-1 text-amber-400"></i> Itens do Pedido
-                                    </span>
-                                    <div class="space-y-1 mt-1 max-h-28 overflow-y-auto custom-scroll pr-1">
-                                        ${itensHtml}
-                                    </div>
-                                    <div class="mt-2 text-[11px] text-slate-400 flex justify-between border-t border-slate-800/60 pt-1">
-                                        <span>Taxa Entrega:</span>
-                                        <span class="font-bold text-slate-300">${taxaEntrega}</span>
-                                    </div>
-                                </div>
-
-                                <div class="mt-3 pt-2 border-t border-slate-800 flex flex-col gap-2">
-                                    <button type="button" onclick="assumirPedidoPelaCentral(${item.id})" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
-                                        <i class="fa-solid fa-headset text-amber-300"></i> Assumir Atendimento na Central
-                                    </button>
-                                    <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="w-full bg-slate-800 hover:bg-indigo-900/60 text-indigo-300 hover:text-white border border-indigo-500/40 font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
-                                        <i class="fa-solid fa-motorcycle text-indigo-400"></i> Despachar p/ Motoboy (GPS)
-                                    </button>
-                                </div>
-                            </div>
-
                         </div>
 
-                        <!-- BARRA DE AÇÕES ELEGANTES DA CENTRAL (PONTOS 2, 5, 1) -->
-                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80 text-xs flex-wrap gap-2">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
-                                    <i class="fa-solid fa-motorcycle"></i> Despachar Motoboy
-                                </button>
-                                <button type="button" onclick="abrirModalRespostasRapidas(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
-                                    <i class="fa-solid fa-bolt text-amber-400"></i> Respostas Rápidas
-                                </button>
-                                <button type="button" onclick="abrirModalTransbordo(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
-                                    <i class="fa-solid fa-arrow-right-arrow-left text-purple-400"></i> Transbordo
-                                </button>
+                        <!-- COLUNA 3: ITENS & DETALHES -->
+                        <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-black uppercase text-amber-300 block mb-1">
+                                    <i class="fa-solid fa-box-open mr-1 text-amber-400"></i> Itens do Pedido
+                                </span>
+                                <div class="space-y-1 mt-1 max-h-28 overflow-y-auto custom-scroll pr-1">
+                                    ${itensHtml}
+                                </div>
+                                <div class="mt-2 text-[11px] text-slate-400 flex justify-between border-t border-slate-800/60 pt-1">
+                                    <span>Taxa Entrega:</span>
+                                    <span class="font-bold text-slate-300">${taxaEntrega}</span>
+                                </div>
                             </div>
 
-                            <!-- MUDANÇA RÁPIDA DE STATUS -->
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-slate-400 font-bold text-[11px] mr-1">Status:</span>
-                                <button type="button" onclick="alterarStatusPedido(${item.id}, 'PENDENTE')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'PENDENTE' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
-                                    Pendente
+                            <div class="mt-3 pt-2 border-t border-slate-800 flex flex-col gap-2">
+                                <button type="button" onclick="assumirPedidoPelaCentral(${item.id})" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]">
+                                    <i class="fa-solid fa-headset text-amber-300"></i> Assumir Atendimento na Central
                                 </button>
-                                <button type="button" onclick="alterarStatusPedido(${item.id}, 'PREPARO')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'PREPARO' ? 'bg-blue-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
-                                    Em Preparo
-                                </button>
-                                <button type="button" onclick="alterarStatusPedido(${item.id}, 'EM_ROTA')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'EM_ROTA' || st === 'ROTA' ? 'bg-indigo-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
-                                    Saiu p/ Entrega
-                                </button>
-                                <button type="button" onclick="alterarStatusPedido(${item.id}, 'CONCLUIDO')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'CONCLUIDO' ? 'bg-emerald-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
-                                    Concluído
+                                <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="w-full bg-slate-800 hover:bg-indigo-900/60 text-indigo-300 hover:text-white border border-indigo-500/40 font-black py-1.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                    <i class="fa-solid fa-motorcycle text-indigo-400"></i> Despachar p/ Motoboy (GPS)
                                 </button>
                             </div>
                         </div>
 
                     </div>
+
+                    <!-- BARRA DE AÇÕES ELEGANTES DA CENTRAL (PONTOS 2, 5, 1) -->
+                    <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80 text-xs flex-wrap gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" onclick="abrirModalDespachoMotoboy(${item.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-motorcycle"></i> Despachar Motoboy
+                            </button>
+                            <button type="button" onclick="abrirModalRespostasRapidas(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-bolt text-amber-400"></i> Respostas Rápidas
+                            </button>
+                            <button type="button" onclick="abrirModalTransbordo(${item.id})" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-arrow-right-arrow-left text-purple-400"></i> Transbordo
+                            </button>
+                        </div>
+
+                        <!-- MUDANÇA RÁPIDA DE STATUS -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-slate-400 font-bold text-[11px] mr-1">Status:</span>
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'PENDENTE')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'PENDENTE' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
+                                Pendente
+                            </button>
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'PREPARO')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'PREPARO' ? 'bg-blue-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
+                                Em Preparo
+                            </button>
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'EM_ROTA')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'EM_ROTA' || st === 'ROTA' ? 'bg-indigo-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
+                                Saiu p/ Entrega
+                            </button>
+                            <button type="button" onclick="alterarStatusPedido(${item.id}, 'CONCLUIDO')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${st === 'CONCLUIDO' ? 'bg-emerald-600 text-white font-black' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} transition cursor-pointer">
+                                Concluído
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // RENDERIZA A GRADE COMPLETA DE CARDS DOS PEDIDOS (E DOS CONSULTORES EM PICO)
+        function renderizarCardsPedidos(lista) {
+            const container = document.getElementById('grid-pedidos-central');
+            const badgeVisiveis = document.getElementById('badge-contador-pedidos-visiveis');
+            const tituloSecao = document.getElementById('titulo-secao-pedidos-central');
+
+            // SE O FILTRO ATUAL FOR "PICO" (AO CLICAR NA ABA "⚡ EM PICO" DO PRINT 1):
+            if (filtroStatusAtual === 'PICO') {
+                const listaPicoAtual = window.listaConsultoresPicoGlobal || [];
+                if (badgeVisiveis) badgeVisiveis.innerText = `${listaPicoAtual.length} consultor(es)`;
+                if (tituloSecao) tituloSecao.innerHTML = `<i class="fa-solid fa-bolt text-amber-400"></i> Consultores em Horário de Pico & Pedidos`;
+
+                if (listaPicoAtual.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full p-12 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
+                            <i class="fa-solid fa-bolt text-3xl text-amber-400 mb-2 block"></i>
+                            Nenhum consultor com Horário de Pico ativo no momento.
+                        </div>
+                    `;
+                    return;
+                }
+
+                let htmlFinal = `
+                    <div class="col-span-full mb-2 bg-gradient-to-r from-amber-500/20 via-purple-900/30 to-indigo-950/40 border-2 border-amber-400/50 p-4 sm:p-5 rounded-3xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
+                        <div class="flex items-center gap-3">
+                            <span class="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-md animate-bounce">
+                                <i class="fa-solid fa-bolt"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-sm sm:text-base font-black text-amber-300">
+                                    🚨 Consultores com Apoio Solicitado (Modo Horário de Pico Ativo)
+                                </h3>
+                                <p class="text-xs text-purple-200 mt-0.5">
+                                    A Central assumiu a supervisão e o atendimento destes consultores. Responda no WhatsApp abaixo:
+                                </p>
+                            </div>
+                        </div>
+                        <span class="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-xs">
+                            ${listaPicoAtual.length} Ativo(s)
+                        </span>
+                    </div>
+
+                    <!-- GRADE DE CARDS DOS CONSULTORES EM PICO -->
+                    <div class="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6">
+                        ${listaPicoAtual.map(it => gerarCardConsultorPicoHtml(it)).join('')}
+                    </div>
                 `;
-            }).join('');
+
+                // Pedidos do catálogo deste(s) consultor(es)
+                if (lista.length > 0) {
+                    htmlFinal += `
+                        <div class="col-span-full mb-2">
+                            <h4 class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
+                                Pedidos em Andamento do Catálogo destes Consultores (${lista.length})
+                            </h4>
+                        </div>
+                        <div class="col-span-full grid grid-cols-1 gap-4">
+                            ${lista.map(it => gerarCardPedidoHtml(it)).join('')}
+                        </div>
+                    `;
+                } else {
+                    htmlFinal += `
+                        <div class="col-span-full p-4 bg-slate-950/80 border border-slate-800 rounded-2xl text-center text-xs text-purple-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                            <span>Nenhum pedido de delivery pendente neste instante no catálogo digital deste(s) consultor(es). A Central está de prontidão!</span>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = htmlFinal;
+                return;
+            }
+
+            if (tituloSecao) {
+                if (filtroStatusAtual === 'RISCO') {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-bell text-rose-400 animate-bounce"></i> Pedidos em Risco (+4m) Sem Resposta`;
+                } else if (filtroStatusAtual === 'NOVOS') {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-stopwatch text-amber-400"></i> Novos Pedidos (&lt;4m) no Prazo do Consultor`;
+                } else if (filtroStatusAtual === 'PREPARO') {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-blender text-blue-400"></i> Pedidos em Preparo`;
+                } else if (filtroStatusAtual === 'ROTA') {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-motorcycle text-indigo-400"></i> Pedidos em Rota / Com Entregador`;
+                } else if (filtroStatusAtual === 'CONCLUIDO') {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Pedidos Concluídos / Finalizados`;
+                } else {
+                    tituloSecao.innerHTML = `<i class="fa-solid fa-layer-group text-purple-400"></i> Todos os Pedidos Ativos da Rede`;
+                }
+            }
+            if (badgeVisiveis) badgeVisiveis.innerText = `${lista.length} exibidos`;
+
+            if (lista.length === 0) {
+                let msgVazio = 'Nenhum pedido encontrado para o filtro selecionado.';
+                let iconeVazio = 'fa-clipboard-check text-emerald-400';
+                if (filtroStatusAtual === 'RISCO') {
+                    msgVazio = 'Excelente! Nenhum pedido em risco no momento. Todos foram atendidos no prazo de 4 minutos!';
+                    iconeVazio = 'fa-shield-halved text-emerald-400';
+                } else if (filtroStatusAtual === 'NOVOS') {
+                    msgVazio = 'Nenhum pedido novo pendente no momento.';
+                    iconeVazio = 'fa-stopwatch text-amber-400';
+                } else if (filtroStatusAtual === 'PREPARO') {
+                    msgVazio = 'Nenhum pedido sendo preparado no momento.';
+                    iconeVazio = 'fa-blender text-blue-400';
+                } else if (filtroStatusAtual === 'ROTA') {
+                    msgVazio = 'Nenhum pedido na rua em rota de entrega no momento.';
+                    iconeVazio = 'fa-motorcycle text-indigo-400';
+                } else if (filtroStatusAtual === 'CONCLUIDO') {
+                    msgVazio = 'Nenhum pedido concluído até o momento.';
+                    iconeVazio = 'fa-circle-check text-emerald-400';
+                }
+                container.innerHTML = `
+                    <div class="col-span-full p-10 text-center text-sm text-slate-400 bg-slate-900/40 rounded-3xl border border-slate-800">
+                        <i class="fa-solid ${iconeVazio} text-3xl mb-2 block"></i>
+                        <span>${msgVazio}</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = lista.map(it => gerarCardPedidoHtml(it)).join('');
         }
 
         // ==========================================
