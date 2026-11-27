@@ -305,44 +305,118 @@
 
         <main class="flex-1 overflow-y-auto p-8">
             
-            <!-- SEÇÃO 1: SUPERVISORES GERAIS (PADRÁO) -->
+            <!-- SEÇÃO 1: SUPERVISORES GERAIS (PADRÃO) -->
             <div id="secao-supervisores">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Ativos</p>
-                            <h3 id="total-ativos" class="text-3xl font-black text-brand-dark">0</h3>
-                        </div>
-                        <div class="w-14 h-14 bg-green-50 text-brand-light rounded-full flex items-center justify-center text-2xl">
-                            <i class="fa-solid fa-check-circle"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:border-purple-300 transition" onclick="trocarAbaAdmin('extrator-crm')">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Extrator & CRM Liberados</p>
-                            <h3 id="total-crm-liberados-card" class="text-3xl font-black text-purple-700">0</h3>
-                        </div>
-                        <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                    </div>
-                    <!-- CARD 3: CENTRAL DE PEDIDOS (SLA 4M) -->
-                    <a href="central.html" target="_blank" class="bg-gradient-to-br from-purple-900 via-indigo-950 to-slate-900 p-6 rounded-2xl shadow-md border-2 border-purple-400/50 flex items-center justify-between cursor-pointer hover:border-purple-300 transition transform hover:-translate-y-0.5 group">
-                        <div>
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full">SLA 4 MINUTOS</span>
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <!-- GRID DE INTELIGÊNCIA FINANCEIRA & MÉTRICAS SAAS DO SUPER ADMIN -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-6">
+                    <!-- CARD 1: MRR MENSAL ESTIMADO -->
+                    <div class="bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 p-5 rounded-2xl shadow-sm border border-emerald-500/30 text-white flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-chart-line mr-1"></i> MRR SaaS Recorrente
+                            </span>
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-sack-dollar"></i>
                             </div>
-                            <h3 class="text-xl font-black text-white group-hover:text-amber-300 transition flex items-center gap-2">
-                                Central de Pedidos
+                        </div>
+                        <div>
+                            <h3 id="saas-mrr-total" class="text-2xl sm:text-3xl font-black text-white">R$ 0,00</h3>
+                            <p class="text-[11px] text-emerald-200/80 mt-1 font-medium leading-tight">Planos base + adicionais dos ativos</p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: CONSULTORAS ATIVAS -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i> Assinaturas Ativas
+                            </span>
+                            <div class="w-8 h-8 rounded-xl bg-green-50 text-emerald-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 id="total-ativos" class="text-2xl sm:text-3xl font-black text-brand-dark">0</h3>
+                            <p class="text-[11px] text-gray-500 mt-1 font-medium leading-tight">Total de consultores ativos</p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: A VENCER EM 7 DIAS (ALERTA) -->
+                    <div onclick="filtrarPorSituacaoFinanceira('a_vencer')" class="bg-amber-50/70 hover:bg-amber-100/70 p-5 rounded-2xl shadow-sm border-2 border-amber-300 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5" title="Clique para filtrar apenas os que vencem nos próximos 7 dias">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-amber-200/80 text-amber-950 border border-amber-300 px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-clock mr-1 text-amber-700"></i> A Vencer (7d)
+                            </span>
+                            <div class="w-8 h-8 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 id="saas-total-a-vencer" class="text-2xl sm:text-3xl font-black text-amber-950">0</h3>
+                            <p class="text-[11px] text-amber-900/80 mt-1 font-bold leading-tight flex items-center gap-1">
+                                <span>Lembrete WhatsApp</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: VENCIDOS / INADIMPLENTES (AÇÃO COBRANÇA) -->
+                    <div onclick="filtrarPorSituacaoFinanceira('vencidos')" class="bg-rose-50/70 hover:bg-rose-100/70 p-5 rounded-2xl shadow-sm border-2 border-rose-300 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-0.5" title="Clique para filtrar apenas os vencidos/inadimplentes">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-rose-200/80 text-rose-950 border border-rose-300 px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-triangle-exclamation mr-1 text-rose-700"></i> Vencidos / Bloq.
+                            </span>
+                            <div class="w-8 h-8 rounded-xl bg-rose-200 text-rose-900 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 id="saas-total-vencidos" class="text-2xl sm:text-3xl font-black text-rose-950">0</h3>
+                            <p class="text-[11px] text-rose-900/80 mt-1 font-bold leading-tight flex items-center gap-1">
+                                <span>Cobrança 1-Clique</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 5: CENTRAL DE PEDIDOS (SLA 4M) -->
+                    <a href="central.html" target="_blank" class="bg-gradient-to-br from-purple-900 via-indigo-950 to-slate-900 p-5 rounded-2xl shadow-sm border-2 border-purple-400/50 flex flex-col justify-between cursor-pointer hover:border-purple-300 transition transform hover:-translate-y-0.5 group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-black">
+                                SLA 4 MIN
+                            </span>
+                            <div class="w-8 h-8 rounded-xl bg-purple-600/50 text-amber-300 border border-purple-400/30 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-amber-300 transition flex items-center gap-1.5">
+                                Central Anti-Perda
                                 <i class="fa-solid fa-arrow-up-right-from-square text-xs text-purple-300"></i>
                             </h3>
-                            <p class="text-xs text-purple-200/80 mt-1">Supervisão geral anti-perda ao vivo</p>
-                        </div>
-                        <div class="w-14 h-14 bg-gradient-to-tr from-purple-600 to-indigo-600 text-amber-300 border border-purple-400/40 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition shadow-lg shrink-0">
-                            <i class="fa-solid fa-headset"></i>
+                            <p class="text-[11px] text-purple-200/80 mt-1 font-medium leading-tight">Monitor de pedidos ao vivo</p>
                         </div>
                     </a>
+                </div>
+
+                <!-- BARRA DE FILTROS RÁPIDOS POR SITUAÇÃO FINANCEIRA (TABS PILLS) -->
+                <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1 select-none">
+                    <span class="text-xs font-black text-gray-500 uppercase tracking-wider mr-1 shrink-0 flex items-center gap-1">
+                        <i class="fa-solid fa-filter text-purple-600"></i> Situação:
+                    </span>
+                    <button type="button" onclick="filtrarPorSituacaoFinanceira('todas')" id="filtro-sit-todas" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer bg-purple-700 text-white shadow-xs shrink-0">
+                        Todas as Assinaturas (<span id="count-filtro-todas">0</span>)
+                    </button>
+                    <button type="button" onclick="filtrarPorSituacaoFinanceira('em_dia')" id="filtro-sit-em-dia" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 shrink-0">
+                        🟢 Em Dia (<span id="count-filtro-em-dia">0</span>)
+                    </button>
+                    <button type="button" onclick="filtrarPorSituacaoFinanceira('a_vencer')" id="filtro-sit-a-vencer" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 shrink-0">
+                        ⚠️ A Vencer em 7d (<span id="count-filtro-a-vencer">0</span>)
+                    </button>
+                    <button type="button" onclick="filtrarPorSituacaoFinanceira('vencidos')" id="filtro-sit-vencidos" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-rose-50 text-rose-950 border border-rose-300 shrink-0">
+                        🔴 Vencidos / Inadimplentes (<span id="count-filtro-vencidos">0</span>)
+                    </button>
+                    <button type="button" onclick="filtrarPorSituacaoFinanceira('vitalicios')" id="filtro-sit-vitalicios" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-indigo-50 text-indigo-950 border border-indigo-300 shrink-0">
+                        👑 Vitalícios / Fundadores (<span id="count-filtro-vitalicios">0</span>)
+                    </button>
                 </div>
 
                 <!-- Tabela e Controles Supervisores -->
@@ -1554,6 +1628,7 @@
             let ativosCount = 0;
             let crmLiberadosCount = 0;
             tableBody.innerHTML = '';
+            calcularMetricasSaasAdmin(todosConsultoresAdmin);
             
             if (!data || data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-500 font-bold"><i class="fa-solid fa-filter mr-2"></i> Nenhum consultor encontrado para os filtros/sequência selecionados.</td></tr>';
@@ -1651,6 +1726,17 @@
                         </td>
                         <td class="p-4 text-center space-x-1.5 whitespace-nowrap">
                             <!-- CHAVE MANUAL DE TESTE ÁGIL COM DESTAQUE VISUAL (PRINT 3 RESOLVIDO) -->
+                            <!-- BOTÕES DE RÉGUA DE COBRANÇA 1-CLIQUE WHATSAPP & RENOVAÇÃO +30D -->
+                            ${!isSuperAdminItem ? `
+                                <button type="button" onclick="abrirModalReguaCobranca('${item.id}')" class="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-1.5 rounded-xl font-black text-xs transition cursor-pointer shadow-2xs group" title="Régua de Cobrança / Notificar WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm group-hover:scale-110 transition"></i>
+                                    <span>Cobrança</span>
+                                </button>
+                                <button type="button" onclick="renovarConsultorRapido30Dias('${item.id}')" class="inline-flex items-center gap-1 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 text-white px-2.5 py-1.5 rounded-xl font-black text-xs transition cursor-pointer shadow-2xs" title="Confirmar Pagamento e Renovar +30 Dias">
+                                    <i class="fa-solid fa-bolt text-amber-300"></i>
+                                    <span>+30d</span>
+                                </button>
+                            ` : ''}
                             ${renderizarBotoesChaveTesteAgil(item)}
                             ${renderizarBotaoMenuModulosAdmin(item)}
                             <button onclick="abrirModalEditar('${item.id}', '${item.status || 'Ativo'}', '${item.vencimento || ''}', ${isFinLiberado}, ${isCatLiberado}, ${isCrmLiberado})" class="text-blue-500 hover:bg-blue-50 transition bg-white border border-blue-200 p-2 rounded-lg font-bold text-xs shadow-sm cursor-pointer">
@@ -1797,8 +1883,397 @@
             sel.innerHTML = optHtml;
         }
 
-        function aplicarFiltrosEOrdenacaoSupervisores() {
+        
+        // =========================================================================
+        // INTELIGÊNCIA FINANCEIRA & RÉGUA DE COBRANÇA SAAS SUPER ADMIN (GOAL 4)
+        // =========================================================================
+        let filtroSituacaoFinanceiraAdmin = 'todas';
+        let consultorIdSendoCobradoAdmin = null;
+        let templateCobrancaAtivoAdmin = 'prevencimento';
+
+        function calcularMensalidadeConsultor(item) {
+            if (!item) return 0;
+            const hid = String(item.herbalife_id || '').trim();
+            if (hid === '433005811') return 0; // SuperAdmin vitalício
+
+            const raw = item.nome_espaco || '';
+            let valor = 99.00; // Padrão Start Pro
+
+            if (raw.includes('<!--PLANO:')) {
+                try {
+                    const m = raw.match(/<!--PLANO:([\s\S]*?)-->/);
+                    if (m && m[1]) {
+                        const objPlano = JSON.parse(m[1]);
+                        if (typeof objPlano.valor === 'number') {
+                            valor = objPlano.valor;
+                        } else if (objPlano.valor) {
+                            valor = parseFloat(String(objPlano.valor).replace(',', '.')) || 99.00;
+                        }
+                    }
+                } catch(_) {}
+            } else {
+                const stLower = String(item.status || '').toLowerCase();
+                const p = (item.vencimento || '').split('-');
+                const anoVenc = p.length === 3 ? parseInt(p[0], 10) : 0;
+                if (stLower.includes('vital') || anoVenc >= 2035) {
+                    valor = 25.00;
+                } else if (stLower.includes('master') || stLower.includes('fundador')) {
+                    valor = 49.00;
+                }
+            }
+
+            // Módulos avulsos contratados se não inclusos no plano mestre
+            if (valor === 99.00) {
+                if (raw.includes('<!--MODULO_FINANCEIRO:true-->')) valor += 17.90;
+                if (raw.includes('<!--MODULO_CRM_EXTRATOR:true-->')) valor += 9.90;
+                if (raw.includes('<!--MODULO_PICO_EVS:true-->')) valor += 19.90;
+            }
+
+            return Math.round(valor * 100) / 100;
+        }
+        window.calcularMensalidadeConsultor = calcularMensalidadeConsultor;
+
+        function calcularMetricasSaasAdmin(lista) {
+            let mrr = 0;
+            let ativos = 0;
+            let aVencer7d = 0;
+            let vencidos = 0;
+            let vitalicios = 0;
+            let emDia = 0;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            (lista || []).forEach(item => {
+                const isSuperAdminItem = String(item.herbalife_id || '').trim() === '433005811';
+                const stLower = String(item.status || '').toLowerCase();
+                let isAtivo = stLower === 'ativo';
+                let diffDias = 9999;
+                let isVitalicio = false;
+
+                if (item.vencimento) {
+                    const p = item.vencimento.split('-');
+                    if (p.length === 3) {
+                        const anoVenc = parseInt(p[0], 10);
+                        if (anoVenc >= 2035 || stLower.includes('vital') || isSuperAdminItem) {
+                            isVitalicio = true;
+                            vitalicios++;
+                        } else {
+                            const dtVenc = new Date(anoVenc, parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                            diffDias = Math.floor((dtVenc - hoje) / (1000 * 60 * 60 * 24));
+                        }
+                    }
+                }
+
+                if (!isVitalicio) {
+                    if (diffDias < 0 || stLower === 'inadimplente' || stLower === 'bloqueado') {
+                        vencidos++;
+                        isAtivo = false;
+                    } else if (diffDias <= 7) {
+                        aVencer7d++;
+                        emDia++;
+                    } else {
+                        emDia++;
+                    }
+                } else {
+                    emDia++;
+                }
+
+                if (isAtivo) {
+                    ativos++;
+                    mrr += calcularMensalidadeConsultor(item);
+                }
+            });
+
+            // Atualiza na tela
+            const elMrr = document.getElementById('saas-mrr-total');
+            if (elMrr) elMrr.innerText = 'R$ ' + mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            const elAtivos = document.getElementById('total-ativos');
+            if (elAtivos) elAtivos.innerText = ativos;
+
+            const elAVencer = document.getElementById('saas-total-a-vencer');
+            if (elAVencer) elAVencer.innerText = aVencer7d;
+
+            const elVencidos = document.getElementById('saas-total-vencidos');
+            if (elVencidos) elVencidos.innerText = vencidos;
+
+            // Atualiza contadores nas abas de filtros
+            const cTodas = document.getElementById('count-filtro-todas');
+            if (cTodas) cTodas.innerText = (lista || []).length;
+            const cEmDia = document.getElementById('count-filtro-em-dia');
+            if (cEmDia) cEmDia.innerText = emDia;
+            const cAVencer = document.getElementById('count-filtro-a-vencer');
+            if (cAVencer) cAVencer.innerText = aVencer7d;
+            const cVencidos = document.getElementById('count-filtro-vencidos');
+            if (cVencidos) cVencidos.innerText = vencidos;
+            const cVitalicios = document.getElementById('count-filtro-vitalicios');
+            if (cVitalicios) cVitalicios.innerText = vitalicios;
+        }
+        window.calcularMetricasSaasAdmin = calcularMetricasSaasAdmin;
+
+        function filtrarPorSituacaoFinanceira(tipo) {
+            filtroSituacaoFinanceiraAdmin = tipo;
+
+            // Atualiza estilos visuais dos botões de filtro
+            const tabs = [
+                { id: 'filtro-sit-todas', val: 'todas', corAtiva: 'bg-purple-700 text-white shadow-xs' },
+                { id: 'filtro-sit-em-dia', val: 'em_dia', corAtiva: 'bg-emerald-700 text-white shadow-xs' },
+                { id: 'filtro-sit-a-vencer', val: 'a_vencer', corAtiva: 'bg-amber-500 text-slate-950 shadow-xs' },
+                { id: 'filtro-sit-vencidos', val: 'vencidos', corAtiva: 'bg-rose-600 text-white shadow-xs' },
+                { id: 'filtro-sit-vitalicios', val: 'vitalicios', corAtiva: 'bg-indigo-700 text-white shadow-xs' }
+            ];
+
+            tabs.forEach(t => {
+                const el = document.getElementById(t.id);
+                if (!el) return;
+                if (t.val === tipo) {
+                    el.className = 'px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ' + t.corAtiva + ' shrink-0';
+                } else {
+                    el.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shrink-0';
+                }
+            });
+
+            aplicarFiltrosEOrdenacaoSupervisores();
+        }
+        window.filtrarPorSituacaoFinanceira = filtrarPorSituacaoFinanceira;
+
+        // Modal de Régua de Cobrança 1-Clique WhatsApp
+        function abrirModalReguaCobranca(id) {
+            const item = (todosConsultoresAdmin || []).find(c => String(c.id) === String(id));
+            if (!item) return;
+            consultorIdSendoCobradoAdmin = id;
+
+            const modal = document.getElementById('modal-regua-cobranca');
+            const elNome = document.getElementById('cobranca-consultor-nome');
+            const elZap = document.getElementById('cobranca-consultor-zap');
+            const elId = document.getElementById('cobranca-consultor-id');
+            const elVenc = document.getElementById('cobranca-vencimento-data');
+            const elSituacao = document.getElementById('cobranca-dias-situacao');
+            const elValor = document.getElementById('cobranca-valor-mensal');
+            const badgeStatus = document.getElementById('cobranca-status-badge');
+
+            const nomeLimpo = (item.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').trim();
+            if (elNome) elNome.innerText = nomeLimpo;
+            if (elZap) elZap.innerHTML = '<i class="fa-brands fa-whatsapp text-emerald-600"></i> ' + (item.whatsapp || 'Sem número');
+            if (elId) elId.innerText = 'ID: ' + (item.herbalife_id || '---') + ' (' + (item.letras || '---') + ')';
+            if (elVenc) elVenc.innerText = formatarData(item.vencimento);
+
+            const valorMensal = calcularMensalidadeConsultor(item);
+            if (elValor) elValor.innerText = 'R$ ' + valorMensal.toFixed(2).replace('.', ',');
+
+            // Cálculo de dias
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            let diffDias = 0;
+            let situacaoTexto = '';
+            let tipoSugerido = 'prevencimento';
+
+            if (item.vencimento) {
+                const p = item.vencimento.split('-');
+                if (p.length === 3) {
+                    const dt = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                    diffDias = Math.floor((dt - hoje) / (1000 * 60 * 60 * 24));
+                }
+            }
+
+            if (diffDias < 0) {
+                situacaoTexto = '🔴 Vencido há ' + Math.abs(diffDias) + ' dia(s)';
+                tipoSugerido = 'vencido';
+                if (badgeStatus) {
+                    badgeStatus.className = 'bg-rose-100 text-rose-900 border border-rose-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full';
+                    badgeStatus.innerText = 'Vencido / Inadimplente';
+                }
+            } else if (diffDias === 0) {
+                situacaoTexto = '⚠️ Vence Hoje!';
+                tipoSugerido = 'hoje';
+                if (badgeStatus) {
+                    badgeStatus.className = 'bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full';
+                    badgeStatus.innerText = 'Vence Hoje';
+                }
+            } else {
+                situacaoTexto = '🟢 Vence em ' + diffDias + ' dia(s)';
+                tipoSugerido = 'prevencimento';
+                if (badgeStatus) {
+                    badgeStatus.className = 'bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full';
+                    badgeStatus.innerText = 'Vencimento Próximo';
+                }
+            }
+
+            if (elSituacao) elSituacao.innerText = situacaoTexto;
+
+            selecionarTemplateCobranca(tipoSugerido);
+            if (modal) modal.classList.remove('hidden');
+        }
+        window.abrirModalReguaCobranca = abrirModalReguaCobranca;
+
+        function fecharModalReguaCobranca() {
+            const modal = document.getElementById('modal-regua-cobranca');
+            if (modal) modal.classList.add('hidden');
+        }
+        window.fecharModalReguaCobranca = fecharModalReguaCobranca;
+
+        function selecionarTemplateCobranca(tipo) {
+            templateCobrancaAtivoAdmin = tipo;
+            const item = (todosConsultoresAdmin || []).find(c => String(c.id) === String(consultorIdSendoCobradoAdmin));
+            if (!item) return;
+
+            const nomeLimpo = (item.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].replace(/^[•s-]+/, '').trim();
+            const valorMensal = calcularMensalidadeConsultor(item).toFixed(2).replace('.', ',');
+            const dataVenc = formatarData(item.vencimento);
+
+            const btnPre = document.getElementById('btn-tpl-prevencimento');
+            const btnHoje = document.getElementById('btn-tpl-hoje');
+            const btnVenc = document.getElementById('btn-tpl-vencido');
+            const txtArea = document.getElementById('cobranca-mensagem-texto');
+
+            if (btnPre) btnPre.className = (tipo === 'prevencimento' ? 'p-2.5 rounded-xl border-2 border-amber-400 bg-amber-50 shadow-2xs text-left' : 'p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-amber-50 text-left');
+            if (btnHoje) btnHoje.className = (tipo === 'hoje' ? 'p-2.5 rounded-xl border-2 border-purple-500 bg-purple-50 shadow-2xs text-left' : 'p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-purple-50 text-left');
+            if (btnVenc) btnVenc.className = (tipo === 'vencido' ? 'p-2.5 rounded-xl border-2 border-rose-500 bg-rose-50 shadow-2xs text-left' : 'p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-rose-50 text-left');
+
+            let mensagem = '';
+            if (tipo === 'prevencimento') {
+                mensagem = `Olá *${nomeLimpo}*! Tudo bem? 🥤✨\n\nPassando para te avisar que a sua licença do sistema *Litrão do Reset* vence em *${dataVenc}*.\n\nPara manter o seu cardápio, links de vendas e módulos funcionando sem interrupção, você pode fazer a renovação via PIX:\n\n🔑 *Chave PIX (Celular):* +5566981411234\n👤 *Titular:* Edwan Braga de Oliveira\n💰 *Valor:* R$ ${valorMensal}\n\nAssim que fizer, basta me enviar o comprovante por aqui que renovo o seu acesso imediatamente! 🚀`;
+            } else if (tipo === 'hoje') {
+                mensagem = `Olá *${nomeLimpo}*! Tudo bem?\n\nA sua mensalidade do sistema *Litrão do Reset* vence *HOJE (${dataVenc})*.\n\nPara que seus clientes continuem acessando o cardápio e enviando pedidos no WhatsApp sem pausas, segue o PIX para renovação:\n\n🔑 *Chave PIX (Celular):* +5566981411234\n👤 *Titular:* Edwan Braga de Oliveira\n💰 *Valor:* R$ ${valorMensal}\n\nMe envie o comprovante assim que concluir para liberação automática dos próximos 30 dias! 🥤⚡`;
+            } else {
+                mensagem = `Olá *${nomeLimpo}*!\n\nNotamos que a sua mensalidade do sistema *Litrão do Reset* venceu em *${dataVenc}*.\n\nSeu link e ferramentas estão com acesso temporariamente pausado. Para reativar seu sistema agora mesmo e voltar a receber pedidos, faça o PIX de renovação:\n\n🔑 *Chave PIX (Celular):* +5566981411234\n👤 *Titular:* Edwan Braga de Oliveira\n💰 *Valor:* R$ ${valorMensal}\n\nEnvie o comprovante aqui e seu acesso será restabelecido imediatamente! 🚀`;
+            }
+
+            if (txtArea) txtArea.value = mensagem;
+        }
+        window.selecionarTemplateCobranca = selecionarTemplateCobranca;
+
+        function dispararCobrancaWhatsApp() {
+            const item = (todosConsultoresAdmin || []).find(c => String(c.id) === String(consultorIdSendoCobradoAdmin));
+            if (!item || !item.whatsapp) {
+                alert('O consultor não possui WhatsApp cadastrado.');
+                return;
+            }
+            const txtArea = document.getElementById('cobranca-mensagem-texto');
+            const texto = txtArea ? txtArea.value : '';
+            const zap = normalizarNumeroWhatsApp(item.whatsapp);
+            const url = 'https://wa.me/' + zap + '?text=' + encodeURIComponent(texto);
+            window.open(url, '_blank');
+        }
+        window.dispararCobrancaWhatsApp = dispararCobrancaWhatsApp;
+
+        function copiarMensagemCobranca() {
+            const txtArea = document.getElementById('cobranca-mensagem-texto');
+            if (!txtArea) return;
+            const btn = document.getElementById('btn-copiar-cobranca');
+            navigator.clipboard.writeText(txtArea.value).then(() => {
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check text-emerald-600"></i> Copiado!';
+                    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+                }
+            }).catch(() => {
+                prompt('Copie o texto abaixo:', txtArea.value);
+            });
+        }
+        window.copiarMensagemCobranca = copiarMensagemCobranca;
+
+        // Auto-Desbloqueio / Renovação Rápida +30 Dias com 1 Clique
+        async function renovarConsultorRapido30Dias(id) {
+            const item = (todosConsultoresAdmin || []).find(c => String(c.id) === String(id));
+            if (!item) return;
+
+            const nomeLimpo = (item.nome_espaco || 'Consultor').replace(/<!--[\s\S]*?-->/g, '').split('|')[0].replace(/^[•s-]+/, '').trim();
+            const confirmou = confirm('Confirmar o recebimento do pagamento e RENOVAR +30 DIAS para ' + nomeLimpo + '?');
+            if (!confirmou) return;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let dataBase = hoje;
+            if (item.vencimento && item.vencimento.length >= 10) {
+                const p = item.vencimento.split('-');
+                if (p.length === 3) {
+                    const dVenc = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                    if (dVenc.getTime() >= hoje.getTime()) {
+                        dataBase = dVenc; // Cumulativo se ainda não venceu!
+                    }
+                }
+            }
+
+            const novaData = new Date(dataBase.getTime());
+            novaData.setDate(novaData.getDate() + 30);
+            const ano = novaData.getFullYear();
+            const mes = String(novaData.getMonth() + 1).padStart(2, '0');
+            const dia = String(novaData.getDate()).padStart(2, '0');
+            const novoVencimento = `${ano}-${mes}-${dia}`;
+
+            try {
+                // Atualiza no Supabase
+                const { error } = await supabaseClient
+                    .from('consultores')
+                    .update({ status: 'Ativo', vencimento: novoVencimento })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                // Atualiza localmente
+                item.status = 'Ativo';
+                item.vencimento = novoVencimento;
+
+                alert('✅ Sucesso! Acesso de ' + nomeLimpo + ' renovado por +30 dias! Novo vencimento: ' + dia + '/' + mes + '/' + ano);
+                aplicarFiltrosEOrdenacaoSupervisores();
+            } catch (err) {
+                alert('Erro ao renovar no Supabase: ' + (err.message || err));
+            }
+        }
+        window.renovarConsultorRapido30Dias = renovarConsultorRapido30Dias;
+
+        function renovarConsultorPeloModalCobranca() {
+            if (!consultorIdSendoCobradoAdmin) return;
+            renovarConsultorRapido30Dias(consultorIdSendoCobradoAdmin);
+            fecharModalReguaCobranca();
+        }
+        window.renovarConsultorPeloModalCobranca = renovarConsultorPeloModalCobranca;
+
+function aplicarFiltrosEOrdenacaoSupervisores() {
             let resultado = [...(todosConsultoresAdmin || [])];
+
+            // 0. Filtro Rápido por Situação Financeira (Goal 4)
+            if (filtroSituacaoFinanceiraAdmin && filtroSituacaoFinanceiraAdmin !== 'todas') {
+                const hojeFiltro = new Date();
+                hojeFiltro.setHours(0, 0, 0, 0);
+
+                resultado = resultado.filter(item => {
+                    const isSuper = String(item.herbalife_id || '').trim() === '433005811';
+                    const stLower = String(item.status || '').toLowerCase();
+                    let diffDias = 9999;
+                    let isVitalicio = isSuper || stLower.includes('vital') || stLower.includes('master');
+
+                    if (item.vencimento) {
+                        const p = item.vencimento.split('-');
+                        if (p.length === 3) {
+                            const anoVenc = parseInt(p[0], 10);
+                            if (anoVenc >= 2035) {
+                                isVitalicio = true;
+                            } else {
+                                const dt = new Date(anoVenc, parseInt(p[1], 10) - 1, parseInt(p[2], 10), 0, 0, 0);
+                                diffDias = Math.floor((dt - hojeFiltro) / (1000 * 60 * 60 * 24));
+                            }
+                        }
+                    }
+
+                    if (filtroSituacaoFinanceiraAdmin === 'vitalicios') {
+                        return isVitalicio;
+                    }
+                    if (filtroSituacaoFinanceiraAdmin === 'vencidos') {
+                        return !isSuper && (diffDias < 0 || stLower === 'inadimplente' || stLower === 'bloqueado');
+                    }
+                    if (filtroSituacaoFinanceiraAdmin === 'a_vencer') {
+                        return !isVitalicio && diffDias >= 0 && diffDias <= 7;
+                    }
+                    if (filtroSituacaoFinanceiraAdmin === 'em_dia') {
+                        return isVitalicio || (diffDias >= 0 && stLower === 'ativo');
+                    }
+                    return true;
+                });
+            }
 
             // 1. Filtro por Busca de Texto (nome, id, slug, whatsapp ou cidade)
             if (buscaTextoAdmin) {
@@ -2776,6 +3251,101 @@
                 </span>
                 <button type="button" onclick="fecharMenuModulosAdmin()" class="bg-purple-700 hover:bg-purple-800 text-white font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer shadow-xs">
                     Concluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SUPERADMIN: RÉGUA DE COBRANÇA & NOTIFICAÇÃO WHATSAPP 1-CLIQUE -->
+    <div id="modal-regua-cobranca" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden animate-fade-in" onclick="if(event.target === this) fecharModalReguaCobranca()">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border-2 border-emerald-500 max-h-[92vh] overflow-y-auto text-left relative" onclick="event.stopPropagation()">
+            <!-- Botão Fechar -->
+            <button type="button" onclick="fecharModalReguaCobranca()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition text-base" title="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Topo -->
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100 pr-8">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full inline-block">
+                            RÉGUA DE COBRANÇA SAAS
+                        </span>
+                        <span id="cobranca-status-badge" class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                            Vencimento Próximo
+                        </span>
+                    </div>
+                    <h3 id="cobranca-consultor-nome" class="text-xl font-black text-gray-900 leading-tight">
+                        Consultor
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Card de Dados do Consultor -->
+            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                    <span class="text-gray-500 font-bold uppercase text-[10px] block">Consultor / WhatsApp</span>
+                    <strong id="cobranca-consultor-zap" class="text-emerald-700 text-sm font-black flex items-center gap-1 mt-0.5">
+                        <i class="fa-brands fa-whatsapp"></i> ---
+                    </strong>
+                    <span id="cobranca-consultor-id" class="text-gray-500 font-mono text-[11px] block">ID: ---</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold uppercase text-[10px] block">Vencimento & Situação</span>
+                    <strong id="cobranca-vencimento-data" class="text-gray-900 text-sm font-black block mt-0.5">---</strong>
+                    <span id="cobranca-dias-situacao" class="text-xs font-bold text-amber-800">Calculando...</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold uppercase text-[10px] block">Valor da Mensalidade</span>
+                    <strong id="cobranca-valor-mensal" class="text-emerald-700 text-lg font-black block mt-0.5">R$ 99,00</strong>
+                    <span class="text-gray-400 text-[10px]">PIX: +5566981411234</span>
+                </div>
+            </div>
+
+            <!-- Seletor de Templates Prontos -->
+            <div class="mb-3">
+                <label class="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2">
+                    <i class="fa-solid fa-list-check text-purple-600 mr-1"></i> Escolha o Modelo de Notificação:
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button type="button" id="btn-tpl-prevencimento" onclick="selecionarTemplateCobranca('prevencimento')" class="p-2.5 rounded-xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100 text-left transition cursor-pointer shadow-2xs group">
+                        <span class="text-xs font-black text-amber-950 block">⏰ Lembrete Amigável</span>
+                        <span class="text-[10px] text-amber-800 font-medium">3 a 5 dias antes de vencer</span>
+                    </button>
+                    <button type="button" id="btn-tpl-hoje" onclick="selecionarTemplateCobranca('hoje')" class="p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-purple-50 text-left transition cursor-pointer shadow-2xs group">
+                        <span class="text-xs font-black text-purple-950 block">📅 Vence Hoje</span>
+                        <span class="text-[10px] text-gray-500 font-medium">Aviso de vencimento hoje</span>
+                    </button>
+                    <button type="button" id="btn-tpl-vencido" onclick="selecionarTemplateCobranca('vencido')" class="p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-rose-50 text-left transition cursor-pointer shadow-2xs group">
+                        <span class="text-xs font-black text-rose-950 block">🚨 Acesso Pausado</span>
+                        <span class="text-[10px] text-gray-500 font-medium">Vencido / Regularizar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Caixa de Texto da Mensagem (Editável) -->
+            <div class="mb-4">
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-bold text-gray-700">Pré-visualização da Mensagem do WhatsApp (Você pode editar antes de enviar):</label>
+                    <button type="button" onclick="copiarMensagemCobranca()" id="btn-copiar-cobranca" class="text-xs font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-copy"></i> Copiar Texto
+                    </button>
+                </div>
+                <textarea id="cobranca-mensagem-texto" rows="7" class="w-full p-3.5 bg-gray-50 border border-gray-300 rounded-2xl text-xs sm:text-sm font-mono text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"></textarea>
+            </div>
+
+            <!-- Ações de Envio e Renovação Rápida -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                <button type="button" id="btn-cobranca-renovar-30d" onclick="renovarConsultorPeloModalCobranca()" class="bg-purple-700 hover:bg-purple-800 text-white font-black py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                    <i class="fa-solid fa-bolt text-amber-300"></i>
+                    <span>Confirmar Pagto & Renovar +30d</span>
+                </button>
+                <button type="button" onclick="dispararCobrancaWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-6 rounded-xl text-sm sm:text-base transition flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-xl transform hover:scale-[1.01]">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>Enviar no WhatsApp (1-Clique)</span>
                 </button>
             </div>
         </div>

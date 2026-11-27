@@ -365,9 +365,9 @@
 
             <div id="login-form-container">
                 
-                <!-- CHAVE SELETORA: NÁO TENHO ID HERBALIFE -->
-                <div class="bg-amber-50/70 p-4 sm:p-5 rounded-2xl border-2 border-amber-300 mb-5 shadow-xs">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <!-- CHAVE SELETORA: JÁ TENHO ID / NÃO TENHO ID HERBALIFE -->
+                <div class="bg-amber-50/80 p-3.5 sm:p-4 rounded-2xl border-2 border-amber-300 mb-5 shadow-xs">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <span class="block text-xs sm:text-sm font-black text-amber-950 flex items-center gap-1.5">
                                 <i class="fa-solid fa-id-card text-brand-dark"></i> Identificação Herbalife
@@ -375,19 +375,21 @@
                             <span class="text-[11px] text-amber-800 font-medium">Você já possui seu ID Herbalife oficial?</span>
                         </div>
                         
-                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-white border-2 border-amber-300 px-3 py-1.5 rounded-xl shadow-2xs hover:bg-amber-50 transition shrink-0">
-                            <span class="text-xs font-bold text-gray-700 transition" id="label-status-chave-login">Já tenho ID</span>
-                            <div class="relative">
-                                <input type="checkbox" id="toggle-sem-id-login" onchange="alternarChaveSemIdLogin(this.checked)" class="sr-only peer">
-                                <div class="w-10 h-5 bg-emerald-500 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                            </div>
-                            <span class="text-xs font-black text-amber-900" id="label-toggle-nao-tenho-login">Não tenho ID</span>
-                        </label>
+                        <!-- SELETOR EM ABAS CLARAS E DIRETAS (SEM CONFUSÃO DE TOGGLE) -->
+                        <div class="inline-flex items-center bg-white border-2 border-amber-300 p-1 rounded-xl shadow-2xs gap-1 shrink-0">
+                            <button type="button" id="tab-login-com-id" onclick="selecionarModoLogin('com_id')" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer bg-emerald-600 text-white shadow-xs">
+                                <i class="fa-solid fa-circle-check mr-1"></i> Já tenho ID
+                            </button>
+                            <button type="button" id="tab-login-sem-id" onclick="selecionarModoLogin('sem_id')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-700 hover:text-amber-900 hover:bg-amber-50 transition-all cursor-pointer">
+                                Não tenho ID
+                            </button>
+                            <input type="checkbox" id="toggle-sem-id-login" class="sr-only">
+                        </div>
                     </div>
                 </div>
 
-                <!-- CASO 1: JÁ TENHO ID (CAMPOS DE DIGITAÇÁO E LOGIN) -->
-                <form id="container-campos-login-existente" onsubmit="fazerLogin(event); return false;" action="#">
+                <!-- CASO 1: JÁ TENHO ID (CAMPOS DE DIGITAÇÃO E LOGIN) -->
+                <form id="container-campos-login-existente" onsubmit="fazerLogin(event); return false;" action="#" onkeydown="if(event.key === 'Enter') { fazerLogin(event); }">
                     <div class="mb-4 sm:mb-5">
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="block text-sm sm:text-base font-bold text-gray-700">Seu ID Herbalife</label>
@@ -425,7 +427,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="btn-login" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
+                    <button type="button" id="btn-login" onclick="fazerLogin(event)" class="w-full bg-brand-dark hover:bg-black text-white font-black py-4 sm:py-4.5 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-[1.01] flex items-center justify-center text-base sm:text-lg cursor-pointer tracking-wider">
                         ENTRAR
                     </button>
                     
@@ -532,24 +534,44 @@
         }
         window.alternarVisibilidadeSenha = alternarVisibilidadeSenha;
 
-        function alternarChaveSemIdLogin(marcado) {
+        function selecionarModoLogin(modo) {
             const contLogin = document.getElementById('container-campos-login-existente');
             const contSemId = document.getElementById('container-sem-id-login-patrocinador');
-            const labelStatus = document.getElementById('label-status-chave-login');
-            const labelNaoTenho = document.getElementById('label-toggle-nao-tenho-login');
-            
-            if (marcado) {
+            const tabCom = document.getElementById('tab-login-com-id');
+            const tabSem = document.getElementById('tab-login-sem-id');
+            const toggle = document.getElementById('toggle-sem-id-login');
+
+            if (modo === 'sem_id') {
                 if (contLogin) contLogin.classList.add('hidden');
                 if (contSemId) contSemId.classList.remove('hidden');
-                if (labelStatus) labelStatus.className = 'text-xs font-bold text-gray-400';
-                if (labelNaoTenho) labelNaoTenho.className = 'text-xs font-black text-amber-900 underline';
+                if (toggle) toggle.checked = true;
+                if (tabSem) {
+                    tabSem.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer bg-amber-500 text-slate-950 shadow-xs';
+                    tabSem.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i> Não tenho ID';
+                }
+                if (tabCom) {
+                    tabCom.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-gray-700 hover:text-amber-900 hover:bg-amber-50 transition-all cursor-pointer';
+                    tabCom.innerHTML = 'Já tenho ID';
+                }
                 carregarDadosPatrocinadorLogin();
             } else {
                 if (contLogin) contLogin.classList.remove('hidden');
                 if (contSemId) contSemId.classList.add('hidden');
-                if (labelStatus) labelStatus.className = 'text-xs font-bold text-gray-700';
-                if (labelNaoTenho) labelNaoTenho.className = 'text-xs font-black text-amber-900';
+                if (toggle) toggle.checked = false;
+                if (tabCom) {
+                    tabCom.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer bg-emerald-600 text-white shadow-xs';
+                    tabCom.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> Já tenho ID';
+                }
+                if (tabSem) {
+                    tabSem.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-gray-700 hover:text-amber-900 hover:bg-amber-50 transition-all cursor-pointer';
+                    tabSem.innerHTML = 'Não tenho ID';
+                }
             }
+        }
+        window.selecionarModoLogin = selecionarModoLogin;
+
+        function alternarChaveSemIdLogin(marcado) {
+            selecionarModoLogin(marcado ? 'sem_id' : 'com_id');
         }
         window.alternarChaveSemIdLogin = alternarChaveSemIdLogin;
 
