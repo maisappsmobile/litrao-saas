@@ -41,6 +41,42 @@
         }
     </script>
     <style>
+        /* ISOLAMENTO ESTRITO DE IMPRESSÃO (Folha A4 100% Limpa sem vazamentos de modais) */
+        @media print {
+            body > *:not(#print-container-isolado):not(iframe) {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            #login-screen,
+            #dashboard-screen,
+            #modal-acao-rapida-lead-painel,
+            #modal-zoom-folha-a4,
+            #modal-despacho-motoboy-painel,
+            #modal-gerenciar-motoboys-painel,
+            #modal-adesao-pico-evs,
+            #modal-config-taxas-entrega,
+            header, nav, aside, footer,
+            .fixed, .backdrop-blur-sm, .backdrop-blur-md,
+            div[id^="modal-"],
+            div[id^="banner-"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            html, body {
+                width: 100% !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+        }
+
         /* Barra de Rolagem (Scrollbar) Nítida e Elegante para Modais */
         .custom-modal-scrollbar::-webkit-scrollbar {
             width: 8px;
@@ -17850,95 +17886,105 @@ Assim que concluir a reserva no site, envie seu comprovante por aqui que logo no
                 return;
             }
 
-            const win = window.open('', '_blank');
-            if (win) {
-                win.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="pt-BR">
-                    <head>
-                        <meta charset="utf-8">
-                        <title>Imprimir ${titulo}</title>
-                        <style>
-                            @page {
-                                size: A4 portrait;
-                                margin: 0;
-                            }
-                            * {
-                                box-sizing: border-box;
-                                margin: 0;
-                                padding: 0;
-                            }
+            // Remove iframe anterior de impressão se existir para garantir isolamento puro
+            const oldIframe = document.getElementById('iframe-impressao-a4-limpo');
+            if (oldIframe) {
+                try { oldIframe.remove(); } catch(_) {}
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'iframe-impressao-a4-limpo';
+            iframe.style.position = 'fixed';
+            iframe.style.top = '-9999px';
+            iframe.style.left = '-9999px';
+            iframe.style.width = '1px';
+            iframe.style.height = '1px';
+            iframe.style.border = '0';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="utf-8">
+                    <title>Imprimir ${titulo}</title>
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 0;
+                        }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        html, body {
+                            width: 100%;
+                            height: 100%;
+                            background: #ffffff;
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            overflow: hidden;
+                        }
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            max-width: 100%;
+                            max-height: 100%;
+                            object-fit: contain;
+                            display: block;
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                        }
+                        @media print {
                             html, body {
-                                width: 100%;
-                                height: 100%;
-                                margin: 0;
-                                padding: 0;
-                                background: #ffffff;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
+                                width: 100% !important;
+                                height: 100% !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                background: #ffffff !important;
                             }
                             img {
-                                width: 100%;
-                                height: 100%;
-                                max-width: 100vw;
-                                max-height: 100vh;
-                                object-fit: contain;
-                                display: block;
-                                page-break-inside: avoid;
+                                width: 100% !important;
+                                height: 100% !important;
+                                max-width: 100% !important;
+                                max-height: 100% !important;
+                                object-fit: contain !important;
+                                display: block !important;
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
                             }
-                            @media print {
-                                html, body {
-                                    width: 100%;
-                                    height: 100%;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                                img {
-                                    width: 100%;
-                                    height: 100%;
-                                    max-width: 100%;
-                                    max-height: 100%;
-                                    object-fit: contain;
-                                    page-break-inside: avoid;
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${dataUrl}" alt="${titulo}" onload="setTimeout(() => { window.focus(); window.print(); }, 400);" />
-                    </body>
-                    </html>
-                `);
-                win.document.close();
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img id="img-a4-alvo" src="${dataUrl}" alt="${titulo}" />
+                </body>
+                </html>
+            `);
+            doc.close();
+
+            const targetImg = doc.getElementById('img-a4-alvo');
+            const dispararImpressao = () => {
+                setTimeout(() => {
+                    try {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    } catch (errIframe) {
+                        console.warn("Falha no iframe de impressão:", errIframe);
+                    }
+                }, 350);
+            };
+
+            if (targetImg && targetImg.complete) {
+                dispararImpressao();
+            } else if (targetImg) {
+                targetImg.onload = dispararImpressao;
             } else {
-                // Fallback caso popup seja bloqueado pelo navegador
-                const iframe = document.createElement('iframe');
-                iframe.style.position = 'fixed';
-                iframe.style.right = '0';
-                iframe.style.bottom = '0';
-                iframe.style.width = '0';
-                iframe.style.height = '0';
-                iframe.style.border = '0';
-                document.body.appendChild(iframe);
-                iframe.contentDocument.write(`
-                    <!DOCTYPE html>
-                    <html lang="pt-BR">
-                    <head>
-                        <meta charset="utf-8">
-                        <title>Imprimir ${titulo}</title>
-                        <style>
-                            @page { size: A4 portrait; margin: 0; }
-                            body { margin: 0; padding: 0; background: #fff; display: flex; justify-content: center; align-items: center; }
-                            img { width: 100%; height: auto; max-width: 100%; object-fit: contain; }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${dataUrl}" onload="setTimeout(() => { window.focus(); window.print(); document.body.removeChild(iframe); }, 400);" />
-                    </body>
-                    </html>
-                `);
-                iframe.contentDocument.close();
+                dispararImpressao();
             }
         }
         window.imprimirArquivoGerado = imprimirArquivoGerado;
