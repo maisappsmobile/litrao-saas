@@ -438,18 +438,36 @@
 
                 <!-- CONTATO DO MOTOBOY / ENTREGADOR -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-300 mb-1">
-                        <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> WhatsApp do Motoboy / Entregador (Qualquer País):
-                    </label>
-                    <div class="flex items-center gap-2">
-                        <input type="text" id="despacho-whats-motoboy" oninput="atualizarPreviaMensagemMotoboy()" placeholder="Ex: 66999999999 ou +5566..." class="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
-                        
-                        <!-- SELETOR DE MOTOBOYS SALVOS -->
-                        <select id="despacho-select-historico" onchange="selecionarMotoboyHistorico(this.value)" class="bg-slate-800 border border-slate-700 text-slate-300 rounded-xl px-2 py-2 text-xs focus:outline-none">
-                            <option value="">📋 Salvos...</option>
-                        </select>
+                    <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                        <label class="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp text-emerald-400"></i> WhatsApp do Motoboy / Entregador (Qualquer País):
+                        </label>
+                        <button type="button" onclick="abrirModalGerenciarMotoboys()" class="text-[11px] font-black text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition cursor-pointer">
+                            <i class="fa-solid fa-users-gear text-xs"></i> Gerenciar Motoboys (<span id="despacho-contador-motoboys">0</span>)
+                        </button>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1">O número inserido fica salvo automaticamente para seus próximos despachos.</p>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <div class="relative flex-1 min-w-[200px]">
+                            <input type="text" id="despacho-whats-motoboy" oninput="atualizarPreviaMensagemMotoboy()" placeholder="Ex: 66999999999 ou +5566..." class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium pr-16">
+                            <button type="button" onclick="salvarMotoboyRapidoPrompt()" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-black transition cursor-pointer shadow-2xs flex items-center gap-1" title="Salvar este motoboy com nome na lista">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar
+                            </button>
+                        </div>
+                        
+                        <!-- SELETOR DE MOTOBOYS SALVOS (ILIMITADOS) -->
+                        <div class="flex items-center gap-1 shrink-0">
+                            <select id="despacho-select-historico" onchange="selecionarMotoboyHistorico(this.value)" class="bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-2 text-xs focus:outline-none cursor-pointer max-w-[200px] font-bold truncate">
+                                <option value="">📋 Salvos (0)...</option>
+                            </select>
+                            <button type="button" onclick="abrirModalGerenciarMotoboys()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-indigo-400 hover:text-indigo-300 flex items-center justify-center transition cursor-pointer" title="Gerenciar Motoboys Salvos">
+                                <i class="fa-solid fa-gear text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+                        <span><i class="fa-solid fa-cloud-arrow-up text-emerald-400 mr-1"></i>O consultor pode salvar motoboys ilimitados na nuvem.</span>
+                        <button type="button" onclick="abrirModalGerenciarMotoboys('novo')" class="text-indigo-400 hover:underline font-bold">+ Novo Motoboy</button>
+                    </div>
                 </div>
 
                 <!-- INSTRUÇÃO DE COBRANÇA -->
@@ -497,6 +515,72 @@
                 </button>
             </div>
 
+        </div>
+    </div>
+
+    <!-- MODAL GERENCIAMENTO DE MOTOBOYS ILIMITADOS -->
+    <div id="modal-gerenciar-motoboys" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-3 sm:p-4 animate-in fade-in">
+        <div class="bg-slate-900 border border-indigo-500/50 w-full max-w-lg rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100 relative max-h-[92vh] flex flex-col my-auto">
+            
+            <button type="button" onclick="fecharModalGerenciarMotoboys()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- TÍTULO -->
+            <div class="flex items-center gap-3 mb-4 shrink-0">
+                <span class="w-10 h-10 rounded-xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-motorcycle"></i>
+                </span>
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                        Meus Motoboys & Entregadores
+                        <span id="gerenciar-motoboys-badge-total" class="text-xs font-mono bg-indigo-900/60 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-lg">0 Salvos</span>
+                    </h3>
+                    <p id="gerenciar-motoboys-subtitulo" class="text-xs text-indigo-200/80">O consultor pode cadastrar motoboys ilimitados na nuvem.</p>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO DE ADIÇÃO RÁPIDA -->
+            <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 mb-4 shrink-0">
+                <span class="block text-[11px] font-black uppercase text-indigo-400 mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus"></i> Cadastrar Novo Motoboy
+                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-0.5">Nome / Apelido do Motoboy</label>
+                        <input type="text" id="novo-motoboy-nome" placeholder="Ex: Carlos Motoboy" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-bold mb-0.5">WhatsApp (DDD + Número)</label>
+                        <input type="text" id="novo-motoboy-whats" placeholder="Ex: 66999991234" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <input type="text" id="novo-motoboy-chave-pix" placeholder="Chave PIX (opcional p/ pagar corrida)" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button type="button" onclick="adicionarNovoMotoboyCentral()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-md cursor-pointer shrink-0">
+                        <i class="fa-solid fa-plus"></i> Salvar Motoboy
+                    </button>
+                </div>
+            </div>
+
+            <!-- LISTA ROLÁVEL COM TODOS OS MOTOBOYS -->
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between shrink-0">
+                <span>Motoboys Cadastrados:</span>
+                <span class="text-[10px] text-emerald-400 lowercase font-medium">clique no número para despachar</span>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll min-h-[140px]" id="lista-motoboys-cadastrados-central">
+                <!-- Itens gerados dinamicamente via JS -->
+            </div>
+
+            <!-- RODAPÉ -->
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs shrink-0">
+                <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-infinity text-amber-400"></i> Armazenamento ilimitado</span>
+                <button type="button" onclick="fecharModalGerenciarMotoboys()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition cursor-pointer">
+                    Concluir
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2589,42 +2673,392 @@
             modal.classList.remove('flex');
         }
 
-        function carregarHistoricoMotoboys() {
-            const select = document.getElementById('despacho-select-historico');
-            let salvos = [];
+        // ====================================================
+        // GESTÃO DE MOTOBOYS & ENTREGADORES ILIMITADOS (PONTO 2)
+        // ====================================================
+        function obterConsultorDoPedidoDespacho() {
+            const pedidoId = document.getElementById('despacho-pedido-id')?.value;
+            if (!pedidoId) return null;
+            const item = (todosPedidosCentral || []).find(p => String(p.id) === String(pedidoId));
+            if (!item) return null;
+            return (todosConsultoresCache || []).find(c => String(c.herbalife_id).trim() === String(item.herbalife_id).trim()) || null;
+        }
+
+        function extrairMotoboysDoConsultorCentral(consultor) {
+            if (!consultor || !consultor.nome_espaco) return [];
+            const match = consultor.nome_espaco.match(/<!--MOTOBOYS:(.*?)-->/);
+            if (match && match[1]) {
+                try {
+                    const parsed = JSON.parse(match[1]);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {}
+            }
+            return [];
+        }
+
+        function carregarListaCompletaMotoboys() {
+            const cEncontrado = obterConsultorDoPedidoDespacho();
+            let lista = [];
+
+            // 1. Motoboys cadastrados no Consultor (Nuvem / Supabase)
+            if (cEncontrado) {
+                const daNuvem = extrairMotoboysDoConsultorCentral(cEncontrado);
+                daNuvem.forEach(m => {
+                    if (m && m.numero && !lista.some(x => x.numero === m.numero)) {
+                        lista.push({
+                            id: m.id || String(Date.now() + Math.random()),
+                            nome: m.nome || 'Motoboy',
+                            numero: m.numero,
+                            pix: m.pix || '',
+                            origem: 'consultor'
+                        });
+                    }
+                });
+
+                // Cache local do consultor
+                try {
+                    const localC = JSON.parse(localStorage.getItem(`litrao_motoboys_${cEncontrado.herbalife_id}`) || '[]');
+                    localC.forEach(m => {
+                        if (m && m.numero && !lista.some(x => x.numero === m.numero)) {
+                            lista.push({
+                                id: m.id || String(Date.now() + Math.random()),
+                                nome: m.nome || 'Motoboy',
+                                numero: m.numero,
+                                pix: m.pix || '',
+                                origem: 'consultor'
+                            });
+                        }
+                    });
+                } catch(e) {}
+            }
+
+            // 2. Motoboys da Central / LocalStorage Geral (Ilimitados)
             try {
-                salvos = JSON.parse(localStorage.getItem('central_motoboys_recentes') || '[]');
+                const centralSalvos = JSON.parse(localStorage.getItem('central_motoboys_recentes') || '[]');
+                centralSalvos.forEach(m => {
+                    if (m && m.numero && !lista.some(x => x.numero === m.numero)) {
+                        lista.push({
+                            id: m.id || String(Date.now() + Math.random()),
+                            nome: m.nome || 'Motoboy',
+                            numero: m.numero,
+                            pix: m.pix || '',
+                            origem: 'central'
+                        });
+                    }
+                });
             } catch (e) {}
 
-            select.innerHTML = '<option value="">📋 Salvos...</option>';
-            salvos.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m.numero;
-                opt.innerText = m.nome ? `${m.nome} (${m.numero})` : m.numero;
-                select.appendChild(opt);
-            });
+            return lista;
+        }
+
+        function carregarHistoricoMotoboys() {
+            const select = document.getElementById('despacho-select-historico');
+            const contadorEl = document.getElementById('despacho-contador-motoboys');
+            const salvos = carregarListaCompletaMotoboys();
+
+            if (contadorEl) contadorEl.innerText = salvos.length;
+
+            if (select) {
+                select.innerHTML = '';
+                const optPadrao = document.createElement('option');
+                optPadrao.value = '';
+                optPadrao.innerText = salvos.length > 0 ? `📋 Salvos (${salvos.length})...` : '📋 Nenhum salvo...';
+                select.appendChild(optPadrao);
+
+                salvos.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.numero;
+                    opt.innerText = `🏍️ ${m.nome || 'Motoboy'} (${m.numero})`;
+                    select.appendChild(opt);
+                });
+
+                // Ações extras no select
+                const optNovo = document.createElement('option');
+                optNovo.value = '__NOVO__';
+                optNovo.innerText = '➕ Cadastrar Novo Motoboy...';
+                select.appendChild(optNovo);
+
+                const optGerenciar = document.createElement('option');
+                optGerenciar.value = '__GERENCIAR__';
+                optGerenciar.innerText = `⚙️ Gerenciar Motoboys (${salvos.length})...`;
+                select.appendChild(optGerenciar);
+            }
 
             const inputWhats = document.getElementById('despacho-whats-motoboy');
-            if (salvos.length > 0 && !inputWhats.value) {
+            if (salvos.length > 0 && inputWhats && !inputWhats.value) {
                 inputWhats.value = salvos[0].numero;
             }
         }
 
-        function selecionarMotoboyHistorico(num) {
-            if (!num) return;
-            document.getElementById('despacho-whats-motoboy').value = num;
+        function selecionarMotoboyHistorico(val) {
+            if (!val) return;
+            const select = document.getElementById('despacho-select-historico');
+
+            if (val === '__NOVO__') {
+                if (select) select.value = '';
+                abrirModalGerenciarMotoboys('novo');
+                return;
+            }
+            if (val === '__GERENCIAR__') {
+                if (select) select.value = '';
+                abrirModalGerenciarMotoboys();
+                return;
+            }
+
+            const inputWhats = document.getElementById('despacho-whats-motoboy');
+            if (inputWhats) inputWhats.value = val;
             atualizarPreviaMensagemMotoboy();
+        }
+
+        async function persistirMotoboys(lista) {
+            // 1. Salva no localStorage local
+            try {
+                localStorage.setItem('central_motoboys_recentes', JSON.stringify(lista));
+            } catch(e) {}
+
+            // 2. Se houver consultor dono do pedido, salva na nuvem dele
+            const cEncontrado = obterConsultorDoPedidoDespacho();
+            if (cEncontrado && cEncontrado.herbalife_id) {
+                try {
+                    localStorage.setItem(`litrao_motoboys_${cEncontrado.herbalife_id}`, JSON.stringify(lista));
+                } catch(e) {}
+
+                if (supabaseClient && cEncontrado.id) {
+                    try {
+                        const { data: row } = await supabaseClient
+                            .from('consultores')
+                            .select('id, nome_espaco')
+                            .eq('id', cEncontrado.id)
+                            .maybeSingle();
+
+                        if (row) {
+                            let raw = row.nome_espaco || '';
+                            raw = raw.replace(/<!--MOTOBOYS:[\s\S]*?-->/g, '').trim();
+                            raw += ` <!--MOTOBOYS:${JSON.stringify(lista)}-->`;
+
+                            await supabaseClient
+                                .from('consultores')
+                                .update({ nome_espaco: raw.trim() })
+                                .eq('id', cEncontrado.id);
+
+                            cEncontrado.nome_espaco = raw;
+                        }
+                    } catch(err) {
+                        console.warn("Erro ao sincronizar motoboys no Supabase:", err);
+                    }
+                }
+            }
         }
 
         function salvarMotoboyHistorico(num) {
             if (!num) return;
-            try {
-                let salvos = JSON.parse(localStorage.getItem('central_motoboys_recentes') || '[]');
-                salvos = salvos.filter(m => m.numero !== num);
-                salvos.unshift({ numero: num, nome: 'Motoboy' });
-                if (salvos.length > 8) salvos.pop();
-                localStorage.setItem('central_motoboys_recentes', JSON.stringify(salvos));
-            } catch (e) {}
+            const numLimpo = normalizarNumeroWhatsApp(num) || num.replace(/\D/g, '');
+            if (!numLimpo) return;
+
+            let salvos = carregarListaCompletaMotoboys();
+            const existente = salvos.find(m => m.numero === numLimpo || m.numero === num);
+            const nomeSalvo = existente ? existente.nome : 'Motoboy Parceiro';
+
+            salvos = salvos.filter(m => m.numero !== num && m.numero !== numLimpo);
+            salvos.unshift({
+                id: existente?.id || String(Date.now()),
+                numero: numLimpo,
+                nome: nomeSalvo,
+                pix: existente?.pix || ''
+            });
+
+            // SEM LIMITE (ILIMITADOS!)
+            persistirMotoboys(salvos);
+            carregarHistoricoMotoboys();
+        }
+
+        function salvarMotoboyRapidoPrompt() {
+            const inputWhats = document.getElementById('despacho-whats-motoboy');
+            const num = (inputWhats?.value || '').trim();
+            if (!num) {
+                alert("Digite primeiro o número de WhatsApp do motoboy para salvar.");
+                inputWhats?.focus();
+                return;
+            }
+
+            const numLimpo = normalizarNumeroWhatsApp(num) || num.replace(/\D/g, '');
+            const nome = prompt(`Salvar Motoboy (${numLimpo}):\nDigite o nome ou apelido do entregador:`, "Carlos Motoboy");
+            if (!nome || !nome.trim()) return;
+
+            let salvos = carregarListaCompletaMotoboys();
+            salvos = salvos.filter(m => m.numero !== numLimpo && m.numero !== num);
+            salvos.unshift({
+                id: String(Date.now()),
+                nome: nome.trim(),
+                numero: numLimpo,
+                pix: ''
+            });
+
+            persistirMotoboys(salvos);
+            carregarHistoricoMotoboys();
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(`🏍️ Motoboy "${nome.trim()}" salvo com sucesso!`, 'sucesso');
+            } else {
+                alert(`✅ Motoboy "${nome.trim()}" salvo com sucesso!`);
+            }
+        }
+
+        function abrirModalGerenciarMotoboys(modo = '') {
+            const modal = document.getElementById('modal-gerenciar-motoboys');
+            if (!modal) return;
+
+            const cEncontrado = obterConsultorDoPedidoDespacho();
+            const sub = document.getElementById('gerenciar-motoboys-subtitulo');
+            if (sub) {
+                if (cEncontrado) {
+                    sub.innerHTML = `<span class="text-amber-300 font-bold"><i class="fa-solid fa-store mr-1"></i>${cEncontrado.nome_espaco_limpo || cEncontrado.nome_completo}</span> • ${cEncontrado.cidade ? `${cEncontrado.cidade} - ` : ''}Motoboys Ilimitados na Nuvem`;
+                } else {
+                    sub.innerText = "Cadastre motoboys ilimitados para despachar corridas com 1 clique.";
+                }
+            }
+
+            renderizarListaMotoboysModal();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (modo === 'novo') {
+                setTimeout(() => document.getElementById('novo-motoboy-nome')?.focus(), 150);
+            }
+        }
+
+        function fecharModalGerenciarMotoboys() {
+            const modal = document.getElementById('modal-gerenciar-motoboys');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            carregarHistoricoMotoboys();
+        }
+
+        function renderizarListaMotoboysModal() {
+            const container = document.getElementById('lista-motoboys-cadastrados-central');
+            const badgeTotal = document.getElementById('gerenciar-motoboys-badge-total');
+            const salvos = carregarListaCompletaMotoboys();
+
+            if (badgeTotal) badgeTotal.innerText = `${salvos.length} Salvo(s)`;
+
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (salvos.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-slate-400 bg-slate-950/60 rounded-2xl border border-slate-800">
+                        <i class="fa-solid fa-motorcycle text-2xl text-slate-600 mb-2 block"></i>
+                        <span class="font-bold text-xs text-slate-300 block">Nenhum motoboy cadastrado ainda.</span>
+                        <span class="text-[11px] text-slate-500 mt-1 block">Preencha o formulário acima para adicionar motoboys e entregadores parceiros. O consultor fica livre para salvar quantos quiser!</span>
+                    </div>
+                `;
+                return;
+            }
+
+            salvos.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'p-3 bg-slate-950/90 hover:bg-slate-950 border border-slate-800 hover:border-indigo-500/50 rounded-2xl flex items-center justify-between gap-3 transition shadow-xs';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-sm shrink-0">
+                            <i class="fa-solid fa-motorcycle"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-xs font-black text-white truncate">${m.nome || 'Motoboy'}</span>
+                                ${m.pix ? `<span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-mono" title="Chave PIX: ${m.pix}"><i class="fa-brands fa-pix text-[8px]"></i> PIX</span>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2 mt-0.5 text-[11px]">
+                                <a href="https://wa.me/${m.numero}" target="_blank" class="text-emerald-400 hover:underline font-mono font-bold flex items-center gap-1">
+                                    <i class="fa-brands fa-whatsapp"></i> ${m.numero}
+                                </a>
+                                ${m.pix ? `<button type="button" onclick="navigator.clipboard.writeText('${m.pix}'); if(typeof mostrarToast==='function') mostrarToast('Chave PIX copiada!','sucesso');" class="text-slate-400 hover:text-amber-300 text-[10px] cursor-pointer" title="Copiar PIX"><i class="fa-regular fa-copy"></i> Copiar PIX</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="button" onclick="usarMotoboyNoDespacho('${m.numero}')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs" title="Usar este número no despacho agora">
+                            <span>Usar</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                        <button type="button" onclick="excluirMotoboyCentral('${m.numero}')" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-rose-950/60 text-slate-500 hover:text-rose-400 border border-slate-800 flex items-center justify-center transition cursor-pointer" title="Excluir motoboy">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function usarMotoboyNoDespacho(numero) {
+            const inputWhats = document.getElementById('despacho-whats-motoboy');
+            if (inputWhats) inputWhats.value = numero;
+            atualizarPreviaMensagemMotoboy();
+            fecharModalGerenciarMotoboys();
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(`🏍️ Motoboy selecionado para o despacho!`, 'sucesso');
+            }
+        }
+
+        async function adicionarNovoMotoboyCentral() {
+            const inNome = document.getElementById('novo-motoboy-nome');
+            const inWhats = document.getElementById('novo-motoboy-whats');
+            const inPix = document.getElementById('novo-motoboy-chave-pix');
+
+            const nome = (inNome?.value || '').trim();
+            const whats = (inWhats?.value || '').trim();
+            const pix = (inPix?.value || '').trim();
+
+            if (!nome) {
+                alert("Por favor, digite o nome ou apelido do motoboy.");
+                inNome?.focus();
+                return;
+            }
+            if (!whats) {
+                alert("Por favor, digite o WhatsApp do motoboy.");
+                inWhats?.focus();
+                return;
+            }
+
+            const whatsLimpo = normalizarNumeroWhatsApp(whats) || whats.replace(/\D/g, '');
+            let salvos = carregarListaCompletaMotoboys();
+
+            // Remove se já existia com o mesmo número para atualizar
+            salvos = salvos.filter(m => m.numero !== whatsLimpo && m.numero !== whats);
+            salvos.unshift({
+                id: String(Date.now()),
+                nome: nome,
+                numero: whatsLimpo,
+                pix: pix
+            });
+
+            await persistirMotoboys(salvos);
+
+            if (inNome) inNome.value = '';
+            if (inWhats) inWhats.value = '';
+            if (inPix) inPix.value = '';
+
+            renderizarListaMotoboysModal();
+            carregarHistoricoMotoboys();
+
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(`🏍️ Motoboy "${nome}" cadastrado com sucesso!`, 'sucesso');
+            }
+        }
+
+        async function excluirMotoboyCentral(numero) {
+            if (!confirm(`Deseja realmente remover este motoboy (${numero}) da lista de salvos?`)) return;
+
+            let salvos = carregarListaCompletaMotoboys();
+            salvos = salvos.filter(m => m.numero !== numero);
+
+            await persistirMotoboys(salvos);
+            renderizarListaMotoboysModal();
+            carregarHistoricoMotoboys();
+
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(`Motoboy removido da lista.`, 'info');
+            }
         }
 
         function gerarTextoMensagemMotoboy(item, dados, cobrancaTipo) {
